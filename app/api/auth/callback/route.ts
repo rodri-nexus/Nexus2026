@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
 
-  // Validar que Tiendanube nos mandó el código
   if (!code) {
     return NextResponse.json(
-      { error: "Falta el parámetro 'code' en la URL" },
+      { error: "Falta el parametro 'code' en la URL" },
       { status: 400 }
     );
   }
@@ -17,13 +17,12 @@ export async function GET(request: Request) {
 
   if (!clientId || !clientSecret) {
     return NextResponse.json(
-      { error: "Variables de entorno no configuradas" },
+      { error: "Variables de entorno de Tiendanube no configuradas" },
       { status: 500 }
     );
   }
 
   try {
-    // Intercambiar el code por un access_token
     const response = await fetch(
       "https://www.tiendanube.com/apps/authorize/token",
       {
@@ -40,7 +39,6 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
-    // Si Tiendanube nos devolvio un error
     if (data.error) {
       return NextResponse.json(
         { error: data.error, description: data.error_description },
@@ -48,14 +46,33 @@ export async function GET(request: Request) {
       );
     }
 
-    // Instalacion exitosa
-    // data contiene: access_token, user_id (store_id), scope, token_type
-    console.log("Tienda conectada exitosamente:", {
-      store_id: data.user_id,
-      scope: data.scope,
-    });
+    const storeId = data.user_id;
+    const accessToken = data.access_token;
+    const scope = data.scope || null;
 
-    // Pagina simple de exito
+    const { error: dbError } = await supabaseAdmin
+      .from("stores")
+      .upsert(
+        {
+          store_id: storeId,
+          access_token: accessToken,
+          scope: scope,
+          updated_at: new Date().toISOString(),
+          is_active: true,
+        },
+        { onConflict: "store_id" }
+      );
+
+    if (dbError) {
+      console.error("Error al guardar en Supabase:", dbError);
+      return NextResponse.json(
+        { error: "Error al guardar la tienda en la base de datos" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Tienda conectada y guardada:", { store_id: storeId });
+
     return new Response(
       `<!DOCTYPE html>
 <html lang="es">
@@ -95,9 +112,9 @@ export async function GET(request: Request) {
   <body>
     <div class="card">
       <h1>Instalacion exitosa</h1>
-      <p>Nevux se conecto correctamente a tu tienda.</p>
+      <p>Nevux se conecto correctamente a tu tienda y los datos fueron guardados.</p>
       <p>Ya podes cerrar esta ventana.</p>
-      <div class="store-id">Store ID: ${data.user_id}</div>
+      <div class="store-id">Store ID: ${storeId}</div>
     </div>
   </body>
 </html>`,
@@ -113,4 +130,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-          }
+}
