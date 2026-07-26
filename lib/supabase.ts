@@ -9,8 +9,6 @@ if (!supabaseUrl || !supabaseServiceKey) {
   );
 }
 
-// Cliente de Supabase con permisos de servidor (service_role)
-// Solo usar desde el backend, NUNCA desde el navegador
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
@@ -18,7 +16,6 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   },
 });
 
-// Tipo TypeScript para la tabla stores
 export type Store = {
   id: number;
   store_id: number;
