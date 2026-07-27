@@ -260,4 +260,29 @@ export default function LoginPage() {
 
         {/* Link a registro */}
         <motion.p
-          initial={{ 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          style={{
+            textAlign: "center",
+            marginTop: "1.5rem",
+            fontSize: "0.9rem",
+            color: "#6b7280",
+          }}
+        >
+          ¿No tenés cuenta?{" "}
+          <Link
+            href="/registro"
+            style={{
+              color: "#6366f1",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Crear cuenta gratis
+          </Link>
+        </motion.p>
+      </motion.div>
+    </div>
+  );
+  }
