@@ -12,5 +12,18 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  return <DashboardClient email={user.email ?? ""} />;
+  // Buscar si el usuario ya tiene una tienda vinculada
+  const { data: store } = await supabase
+    .from("stores")
+    .select("store_id, installed_at, is_active")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  return (
+    <DashboardClient
+      email={user.email ?? ""}
+      store={store}
+    />
+  );
 }
