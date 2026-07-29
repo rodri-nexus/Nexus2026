@@ -16,13 +16,24 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Buscar si el usuario ya tiene una tienda vinculada
-  const { data: store } = await supabase
-    .from("stores")
-    .select("store_id, access_token, installed_at, is_active")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .maybeSingle();
+  // Buscar en paralelo: tienda vinculada + perfil (onboarding)
+  const [storeRes, profileRes] = await Promise.all([
+    supabase
+      .from("stores")
+      .select("store_id, access_token, installed_at, is_active")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const store = storeRes.data;
+  // Si no existe el perfil o el campo, asumimos que NO completó el onboarding
+  const onboardingCompleted = profileRes.data?.onboarding_completed ?? false;
 
   // Si hay tienda conectada, traer la cantidad de productos desde Tiendanube
   let productsCount = 0;
@@ -49,6 +60,7 @@ export default async function DashboardPage() {
       store={storeData}
       productsCount={productsCount}
       activeWidgetsCount={0}
+      onboardingCompleted={onboardingCompleted}
     />
   );
 }
