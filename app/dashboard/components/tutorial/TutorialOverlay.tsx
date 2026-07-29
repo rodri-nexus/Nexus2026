@@ -27,8 +27,9 @@ interface TargetRect {
 
 const SPOTLIGHT_PADDING = 8;
 const CARD_GAP = 16;
-const CARD_MAX_WIDTH = 380;
 const VIEWPORT_MARGIN = 16;
+// Ancho preferido de la card. Con min() se ajusta al viewport si es más chico
+const CARD_WIDTH = "min(340px, calc(100vw - 32px))";
 
 export default function TutorialOverlay({
   step,
@@ -46,35 +47,10 @@ export default function TutorialOverlay({
     top: number;
     left: number;
   } | null>(null);
-  const [viewport, setViewport] = useState<{ width: number; height: number }>({
-    width: 0,
-    height: 0,
-  });
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [cardReady, setCardReady] = useState(false);
 
   const isCentered = step.target === null || step.placement === "center";
-
-  // ─────────────────────────────────────────────
-  // Detectar tamaño de viewport (solo cliente)
-  // ─────────────────────────────────────────────
-  useEffect(() => {
-    function updateViewport() {
-      setViewport({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-    updateViewport();
-    window.addEventListener("resize", updateViewport);
-    return () => window.removeEventListener("resize", updateViewport);
-  }, []);
-
-  // Calcular ancho real de la card según el viewport
-  const cardWidth =
-    viewport.width > 0
-      ? Math.min(CARD_MAX_WIDTH, viewport.width - VIEWPORT_MARGIN * 2)
-      : CARD_MAX_WIDTH;
 
   // ─────────────────────────────────────────────
   // Buscar y trackear la posición del elemento target
@@ -84,7 +60,6 @@ export default function TutorialOverlay({
 
     if (isCentered || !step.target) {
       setTargetRect(null);
-      // Card centrada: no calculamos targetRect
       requestAnimationFrame(() => setCardReady(true));
       return;
     }
@@ -163,13 +138,15 @@ export default function TutorialOverlay({
   // Calcular posición de la card flotante
   // ─────────────────────────────────────────────
   useLayoutEffect(() => {
-    if (isCentered || !targetRect || !cardRef.current || viewport.width === 0)
-      return;
+    if (isCentered || !targetRect || !cardRef.current) return;
 
     const cardHeight = cardRef.current.offsetHeight;
+    const cardActualWidth = cardRef.current.offsetWidth;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
     const spaceAbove = targetRect.top;
-    const spaceBelow = viewport.height - (targetRect.top + targetRect.height);
+    const spaceBelow = vh - (targetRect.top + targetRect.height);
 
     let placement: "top" | "bottom" =
       step.placement === "top" ? "top" : "bottom";
@@ -195,12 +172,13 @@ export default function TutorialOverlay({
         ? targetRect.top + targetRect.height + CARD_GAP + SPOTLIGHT_PADDING
         : targetRect.top - cardHeight - CARD_GAP - SPOTLIGHT_PADDING;
 
-    let left = targetRect.left + targetRect.width / 2 - cardWidth / 2;
+    // Centrar horizontalmente respecto al target, clamp a viewport
+    let left = targetRect.left + targetRect.width / 2 - cardActualWidth / 2;
     left = Math.max(VIEWPORT_MARGIN, left);
-    left = Math.min(viewport.width - cardWidth - VIEWPORT_MARGIN, left);
+    left = Math.min(vw - cardActualWidth - VIEWPORT_MARGIN, left);
 
     setCardPosition({ top, left });
-  }, [targetRect, isCentered, step.placement, step.id, viewport, cardWidth]);
+  }, [targetRect, isCentered, step.placement, step.id]);
 
   // ─────────────────────────────────────────────
   // Bloquear scroll del body
@@ -213,7 +191,7 @@ export default function TutorialOverlay({
   }, []);
 
   // ─────────────────────────────────────────────
-  // Estilos de la card según si es centrada o posicionada
+  // Estilos de la card
   // ─────────────────────────────────────────────
   const cardStyle: React.CSSProperties = isCentered
     ? {
@@ -221,8 +199,7 @@ export default function TutorialOverlay({
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        width: `${cardWidth}px`,
-        maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
+        width: CARD_WIDTH,
         zIndex: 301,
       }
     : cardPosition
@@ -230,18 +207,15 @@ export default function TutorialOverlay({
         position: "fixed",
         top: cardPosition.top,
         left: cardPosition.left,
-        width: `${cardWidth}px`,
-        maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
+        width: CARD_WIDTH,
         zIndex: 301,
       }
     : {
-        // Fallback mientras calcula: centrada + invisible
         position: "fixed",
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        width: `${cardWidth}px`,
-        maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
+        width: CARD_WIDTH,
         zIndex: 301,
         opacity: 0,
         pointerEvents: "none",
@@ -250,7 +224,7 @@ export default function TutorialOverlay({
   return (
     <AnimatePresence>
       <>
-        {/* Overlay oscuro con spotlight o simple */}
+        {/* Overlay con spotlight o simple */}
         {!isCentered && targetRect ? (
           <motion.div
             key="spotlight-overlay"
@@ -365,8 +339,8 @@ export default function TutorialOverlay({
               display: "flex",
               alignItems: "flex-start",
               justifyContent: "space-between",
-              padding: "1.35rem 1.35rem 0.5rem",
-              gap: "0.75rem",
+              padding: "1.15rem 1.15rem 0.5rem",
+              gap: "0.5rem",
             }}
           >
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -375,20 +349,20 @@ export default function TutorialOverlay({
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "0.4rem",
-                    padding: "0.3rem 0.75rem",
+                    gap: "0.35rem",
+                    padding: "0.25rem 0.65rem",
                     background:
                       "linear-gradient(135deg, #eef2ff, #ede9fe)",
                     borderRadius: "999px",
-                    fontSize: "0.7rem",
+                    fontSize: "0.65rem",
                     color: "#6366f1",
                     fontWeight: 700,
-                    marginBottom: "0.75rem",
+                    marginBottom: "0.6rem",
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
                   }}
                 >
-                  <Sparkles size={12} />
+                  <Sparkles size={11} />
                   Tutorial
                 </div>
               )}
@@ -396,7 +370,7 @@ export default function TutorialOverlay({
               <h3
                 style={{
                   margin: 0,
-                  fontSize: "1.15rem",
+                  fontSize: "1.05rem",
                   fontWeight: 700,
                   color: "#111827",
                   letterSpacing: "-0.01em",
@@ -415,8 +389,8 @@ export default function TutorialOverlay({
                 style={{
                   background: "transparent",
                   border: "none",
-                  width: "32px",
-                  height: "32px",
+                  width: "30px",
+                  height: "30px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -425,6 +399,7 @@ export default function TutorialOverlay({
                   borderRadius: "8px",
                   transition: "background 0.15s, color 0.15s",
                   flexShrink: 0,
+                  padding: 0,
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "#f3f4f6";
@@ -435,19 +410,19 @@ export default function TutorialOverlay({
                   e.currentTarget.style.color = "#9ca3af";
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             )}
           </div>
 
           {/* Descripción */}
-          <div style={{ padding: "0 1.35rem 1.25rem" }}>
+          <div style={{ padding: "0 1.15rem 1rem" }}>
             <p
               style={{
                 margin: 0,
-                fontSize: "0.9rem",
+                fontSize: "0.85rem",
                 color: "#4b5563",
-                lineHeight: 1.55,
+                lineHeight: 1.5,
                 wordBreak: "break-word",
               }}
             >
@@ -460,8 +435,8 @@ export default function TutorialOverlay({
                 onClick={onFinish}
                 style={{
                   display: "inline-block",
-                  marginTop: "0.85rem",
-                  fontSize: "0.85rem",
+                  marginTop: "0.75rem",
+                  fontSize: "0.8rem",
                   color: "#6366f1",
                   fontWeight: 600,
                   textDecoration: "none",
@@ -479,7 +454,7 @@ export default function TutorialOverlay({
               alignItems: "center",
               justifyContent: "space-between",
               gap: "0.5rem",
-              padding: "1rem 1.35rem",
+              padding: "0.85rem 1.15rem",
               background: "#f9fafb",
               borderTop: "1px solid #f3f4f6",
               flexWrap: "wrap",
@@ -487,10 +462,10 @@ export default function TutorialOverlay({
           >
             <div
               style={{
-                fontSize: "0.8rem",
+                fontSize: "0.75rem",
                 color: "#9ca3af",
                 fontWeight: 600,
-                minWidth: "40px",
+                minWidth: "30px",
               }}
             >
               {isFirst ? (
@@ -500,7 +475,7 @@ export default function TutorialOverlay({
                     background: "transparent",
                     border: "none",
                     color: "#6b7280",
-                    fontSize: "0.85rem",
+                    fontSize: "0.8rem",
                     fontWeight: 600,
                     cursor: "pointer",
                     padding: 0,
@@ -524,7 +499,7 @@ export default function TutorialOverlay({
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.35rem",
+                gap: "0.3rem",
               }}
             >
               {!isFirst && stepIndex > 1 && (
@@ -533,13 +508,13 @@ export default function TutorialOverlay({
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "0.2rem",
-                    padding: "0.55rem 0.75rem",
+                    gap: "0.15rem",
+                    padding: "0.5rem 0.7rem",
                     borderRadius: "999px",
                     border: "none",
                     background: "transparent",
                     color: "#6b7280",
-                    fontSize: "0.82rem",
+                    fontSize: "0.78rem",
                     fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "inherit",
@@ -554,7 +529,7 @@ export default function TutorialOverlay({
                     e.currentTarget.style.color = "#6b7280";
                   }}
                 >
-                  <ChevronLeft size={14} />
+                  <ChevronLeft size={13} />
                   Atrás
                 </button>
               )}
@@ -564,14 +539,14 @@ export default function TutorialOverlay({
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.35rem",
-                  padding: "0.65rem 1.15rem",
+                  gap: "0.3rem",
+                  padding: "0.6rem 1rem",
                   borderRadius: "999px",
                   border: "none",
                   background:
                     "linear-gradient(135deg, #6366f1, #8b5cf6)",
                   color: "#ffffff",
-                  fontSize: "0.85rem",
+                  fontSize: "0.8rem",
                   fontWeight: 700,
                   cursor: "pointer",
                   boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
