@@ -20,6 +20,7 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
 
   return (
     <motion.section
+      data-tutorial="recientes-card"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -31,7 +32,6 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
       }}
     >
-      {/* Header: Título + acciones */}
       <div
         style={{
           display: "flex",
@@ -61,7 +61,6 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
             gap: "0.5rem",
           }}
         >
-          {/* Botón Ver (secundario) */}
           <Link
             href="/widgets"
             style={{
@@ -91,9 +90,9 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
             Ver
           </Link>
 
-          {/* Botón + (crear) */}
           <Link
             href="/widgets/nuevo"
+            data-tutorial="crear-widget-btn"
             aria-label="Crear widget"
             style={{
               width: "38px",
@@ -124,7 +123,6 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
         </div>
       </div>
 
-      {/* Contenido */}
       {hasWidgets ? (
         <div
           style={{
@@ -195,7 +193,6 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
           ))}
         </div>
       ) : (
-        // Estado vacío
         <div
           style={{
             display: "flex",
@@ -270,4 +267,4 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
       )}
     </motion.section>
   );
-          }
+                }
