@@ -1,0 +1,273 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { LayoutGrid, Plus } from "lucide-react";
+
+interface RecientesCardProps {
+  widgets?: Widget[];
+}
+
+interface Widget {
+  id: string;
+  name: string;
+  type: string;
+  createdAt: string;
+}
+
+export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
+  const hasWidgets = widgets.length > 0;
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      style={{
+        background: "#ffffff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "16px",
+        padding: "1.5rem",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+      }}
+    >
+      {/* Header: Título + acciones */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "1.25rem",
+          gap: "1rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "1.15rem",
+            fontWeight: 700,
+            color: "#111827",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Recientes
+        </h2>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          {/* Botón Ver (secundario) */}
+          <Link
+            href="/widgets"
+            style={{
+              padding: "0.5rem 1rem",
+              borderRadius: "999px",
+              border: "1px solid #e5e7eb",
+              background: "#ffffff",
+              color: "#374151",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              transition: "all 0.15s",
+              display: "inline-flex",
+              alignItems: "center",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#f9fafb";
+              e.currentTarget.style.borderColor = "#6366f1";
+              e.currentTarget.style.color = "#6366f1";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#ffffff";
+              e.currentTarget.style.borderColor = "#e5e7eb";
+              e.currentTarget.style.color = "#374151";
+            }}
+          >
+            Ver
+          </Link>
+
+          {/* Botón + (crear) */}
+          <Link
+            href="/widgets/nuevo"
+            aria-label="Crear widget"
+            style={{
+              width: "38px",
+              height: "38px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#ffffff",
+              textDecoration: "none",
+              boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+              transition: "transform 0.15s, box-shadow 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.05)";
+              e.currentTarget.style.boxShadow =
+                "0 6px 16px rgba(99, 102, 241, 0.45)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.boxShadow =
+                "0 4px 12px rgba(99, 102, 241, 0.35)";
+            }}
+          >
+            <Plus size={20} />
+          </Link>
+        </div>
+      </div>
+
+      {/* Contenido */}
+      {hasWidgets ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
+          {widgets.slice(0, 5).map((widget) => (
+            <div
+              key={widget.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                padding: "0.85rem",
+                borderRadius: "10px",
+                border: "1px solid #f3f4f6",
+                transition: "background 0.15s",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#f9fafb";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
+            >
+              <div
+                style={{
+                  width: "38px",
+                  height: "38px",
+                  borderRadius: "10px",
+                  background:
+                    "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <LayoutGrid size={16} color="#6366f1" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: "0.9rem",
+                    fontWeight: 600,
+                    color: "#111827",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {widget.name}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "#9ca3af",
+                    marginTop: "0.1rem",
+                  }}
+                >
+                  {widget.type}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // Estado vacío
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2.5rem 1rem",
+            background: "#f9fafb",
+            borderRadius: "12px",
+            border: "1px dashed #e5e7eb",
+          }}
+        >
+          <div
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "14px",
+              background:
+                "linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <LayoutGrid size={26} color="#a5b4fc" strokeWidth={1.75} />
+          </div>
+
+          <p
+            style={{
+              margin: "0 0 1.25rem",
+              fontSize: "0.95rem",
+              color: "#6b7280",
+              textAlign: "center",
+              fontWeight: 500,
+            }}
+          >
+            No hay widgets creados todavía
+          </p>
+
+          <Link
+            href="/widgets/nuevo"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.7rem 1.5rem",
+              borderRadius: "999px",
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              color: "#ffffff",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+              transition: "transform 0.15s, box-shadow 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow =
+                "0 6px 16px rgba(99, 102, 241, 0.45)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow =
+                "0 4px 12px rgba(99, 102, 241, 0.35)";
+            }}
+          >
+            <Plus size={16} />
+            <span>Crear</span>
+          </Link>
+        </div>
+      )}
+    </motion.section>
+  );
+          }
