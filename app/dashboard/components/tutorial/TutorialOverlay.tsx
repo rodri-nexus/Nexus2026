@@ -26,10 +26,7 @@ interface TargetRect {
 }
 
 const SPOTLIGHT_PADDING = 8;
-const CARD_GAP = 16;
-const VIEWPORT_MARGIN = 16;
-// Ancho preferido de la card. Con min() se ajusta al viewport si es más chico
-const CARD_WIDTH = "min(340px, calc(100vw - 32px))";
+const CARD_GAP = 20;
 
 export default function TutorialOverlay({
   step,
@@ -43,17 +40,14 @@ export default function TutorialOverlay({
   onFinish,
 }: TutorialOverlayProps) {
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
-  const [cardPosition, setCardPosition] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
+  const [cardTop, setCardTop] = useState<number | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [cardReady, setCardReady] = useState(false);
 
   const isCentered = step.target === null || step.placement === "center";
 
   // ─────────────────────────────────────────────
-  // Buscar y trackear la posición del elemento target
+  // Buscar y trackear posición del elemento target
   // ─────────────────────────────────────────────
   useLayoutEffect(() => {
     setCardReady(false);
@@ -135,14 +129,12 @@ export default function TutorialOverlay({
   }, [step.target, isCentered, step.id]);
 
   // ─────────────────────────────────────────────
-  // Calcular posición de la card flotante
+  // Calcular SOLO el top de la card (X siempre centrada)
   // ─────────────────────────────────────────────
   useLayoutEffect(() => {
     if (isCentered || !targetRect || !cardRef.current) return;
 
     const cardHeight = cardRef.current.offsetHeight;
-    const cardActualWidth = cardRef.current.offsetWidth;
-    const vw = window.innerWidth;
     const vh = window.innerHeight;
 
     const spaceAbove = targetRect.top;
@@ -151,18 +143,19 @@ export default function TutorialOverlay({
     let placement: "top" | "bottom" =
       step.placement === "top" ? "top" : "bottom";
 
+    // Auto-flip si no hay espacio
     if (
       placement === "bottom" &&
-      spaceBelow < cardHeight + CARD_GAP + VIEWPORT_MARGIN
+      spaceBelow < cardHeight + CARD_GAP + 20
     ) {
-      if (spaceAbove > cardHeight + CARD_GAP + VIEWPORT_MARGIN) {
+      if (spaceAbove > cardHeight + CARD_GAP + 20) {
         placement = "top";
       }
     } else if (
       placement === "top" &&
-      spaceAbove < cardHeight + CARD_GAP + VIEWPORT_MARGIN
+      spaceAbove < cardHeight + CARD_GAP + 20
     ) {
-      if (spaceBelow > cardHeight + CARD_GAP + VIEWPORT_MARGIN) {
+      if (spaceBelow > cardHeight + CARD_GAP + 20) {
         placement = "bottom";
       }
     }
@@ -172,12 +165,10 @@ export default function TutorialOverlay({
         ? targetRect.top + targetRect.height + CARD_GAP + SPOTLIGHT_PADDING
         : targetRect.top - cardHeight - CARD_GAP - SPOTLIGHT_PADDING;
 
-    // Centrar horizontalmente respecto al target, clamp a viewport
-    let left = targetRect.left + targetRect.width / 2 - cardActualWidth / 2;
-    left = Math.max(VIEWPORT_MARGIN, left);
-    left = Math.min(vw - cardActualWidth - VIEWPORT_MARGIN, left);
+    // Asegurar que no se salga por arriba o abajo
+    const clampedTop = Math.max(16, Math.min(vh - cardHeight - 16, top));
 
-    setCardPosition({ top, left });
+    setCardTop(clampedTop);
   }, [targetRect, isCentered, step.placement, step.id]);
 
   // ─────────────────────────────────────────────
@@ -189,37 +180,6 @@ export default function TutorialOverlay({
       document.body.style.overflow = "";
     };
   }, []);
-
-  // ─────────────────────────────────────────────
-  // Estilos de la card
-  // ─────────────────────────────────────────────
-  const cardStyle: React.CSSProperties = isCentered
-    ? {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: CARD_WIDTH,
-        zIndex: 301,
-      }
-    : cardPosition
-    ? {
-        position: "fixed",
-        top: cardPosition.top,
-        left: cardPosition.left,
-        width: CARD_WIDTH,
-        zIndex: 301,
-      }
-    : {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: CARD_WIDTH,
-        zIndex: 301,
-        opacity: 0,
-        pointerEvents: "none",
-      };
 
   return (
     <AnimatePresence>
@@ -265,7 +225,7 @@ export default function TutorialOverlay({
               <rect
                 width="100%"
                 height="100%"
-                fill="rgba(17, 24, 39, 0.65)"
+                fill="rgba(17, 24, 39, 0.7)"
                 mask="url(#spotlight-mask)"
               />
             </svg>
@@ -310,267 +270,254 @@ export default function TutorialOverlay({
           />
         )}
 
-        {/* Card flotante */}
-        <motion.div
-          key={`card-${step.id}`}
-          ref={cardRef}
-          initial={{ opacity: 0, y: 10, scale: 0.97 }}
-          animate={{
-            opacity: cardReady ? 1 : 0,
-            y: cardReady ? 0 : 10,
-            scale: cardReady ? 1 : 0.97,
-          }}
-          exit={{ opacity: 0, y: 10, scale: 0.97 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          onClick={(e) => e.stopPropagation()}
+        {/* ─────────────────────────────────────────────
+            CARD FLOTANTE:
+            - Wrapper con position:fixed que ocupa todo el ancho
+            - Card centrada con margin auto + max-width
+            - X siempre centrada en pantalla (nunca se sale)
+        ───────────────────────────────────────────── */}
+        <div
           style={{
-            ...cardStyle,
-            background: "#ffffff",
-            borderRadius: "18px",
-            boxShadow:
-              "0 24px 60px rgba(0, 0, 0, 0.28), 0 6px 16px rgba(0, 0, 0, 0.12)",
-            overflow: "hidden",
-            boxSizing: "border-box",
+            position: "fixed",
+            left: 0,
+            right: 0,
+            top: isCentered ? "50%" : cardTop ?? "50%",
+            transform: isCentered ? "translateY(-50%)" : "none",
+            display: "flex",
+            justifyContent: "center",
+            padding: "0 16px",
+            zIndex: 301,
+            pointerEvents: "none",
           }}
         >
-          {/* Header */}
-          <div
+          <motion.div
+            key={`card-${step.id}`}
+            ref={cardRef}
+            initial={{ opacity: 0, y: 10, scale: 0.97 }}
+            animate={{
+              opacity: cardReady ? 1 : 0,
+              y: cardReady ? 0 : 10,
+              scale: cardReady ? 1 : 0.97,
+            }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            onClick={(e) => e.stopPropagation()}
             style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              padding: "1.15rem 1.15rem 0.5rem",
-              gap: "0.5rem",
+              width: "100%",
+              maxWidth: "340px",
+              background: "#ffffff",
+              borderRadius: "18px",
+              boxShadow:
+                "0 24px 60px rgba(0, 0, 0, 0.28), 0 6px 16px rgba(0, 0, 0, 0.12)",
+              overflow: "hidden",
+              boxSizing: "border-box",
+              pointerEvents: "auto",
             }}
           >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {isFirst && (
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.35rem",
-                    padding: "0.25rem 0.65rem",
-                    background:
-                      "linear-gradient(135deg, #eef2ff, #ede9fe)",
-                    borderRadius: "999px",
-                    fontSize: "0.65rem",
-                    color: "#6366f1",
-                    fontWeight: 700,
-                    marginBottom: "0.6rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  <Sparkles size={11} />
-                  Tutorial
-                </div>
-              )}
-
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: "1.05rem",
-                  fontWeight: 700,
-                  color: "#111827",
-                  letterSpacing: "-0.01em",
-                  lineHeight: 1.3,
-                  wordBreak: "break-word",
-                }}
-              >
-                {step.title}
-              </h3>
-            </div>
-
-            {!isFirst && (
-              <button
-                onClick={onSkip}
-                aria-label="Saltar tutorial"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  width: "30px",
-                  height: "30px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  color: "#9ca3af",
-                  borderRadius: "8px",
-                  transition: "background 0.15s, color 0.15s",
-                  flexShrink: 0,
-                  padding: 0,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#f3f4f6";
-                  e.currentTarget.style.color = "#374151";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "#9ca3af";
-                }}
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-
-          {/* Descripción */}
-          <div style={{ padding: "0 1.15rem 1rem" }}>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "0.85rem",
-                color: "#4b5563",
-                lineHeight: 1.5,
-                wordBreak: "break-word",
-              }}
-            >
-              {step.description}
-            </p>
-
-            {step.secondaryLink && (
-              <Link
-                href={step.secondaryLink.href}
-                onClick={onFinish}
-                style={{
-                  display: "inline-block",
-                  marginTop: "0.75rem",
-                  fontSize: "0.8rem",
-                  color: "#6366f1",
-                  fontWeight: 600,
-                  textDecoration: "none",
-                }}
-              >
-                {step.secondaryLink.label}
-              </Link>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "0.5rem",
-              padding: "0.85rem 1.15rem",
-              background: "#f9fafb",
-              borderTop: "1px solid #f3f4f6",
-              flexWrap: "wrap",
-            }}
-          >
+            {/* Header */}
             <div
               style={{
-                fontSize: "0.75rem",
-                color: "#9ca3af",
-                fontWeight: 600,
-                minWidth: "30px",
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                padding: "1.15rem 1.15rem 0.5rem",
+                gap: "0.5rem",
               }}
             >
-              {isFirst ? (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {isFirst && (
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                      padding: "0.25rem 0.65rem",
+                      background:
+                        "linear-gradient(135deg, #eef2ff, #ede9fe)",
+                      borderRadius: "999px",
+                      fontSize: "0.65rem",
+                      color: "#6366f1",
+                      fontWeight: 700,
+                      marginBottom: "0.6rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    <Sparkles size={11} />
+                    Tutorial
+                  </div>
+                )}
+
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: "1.05rem",
+                    fontWeight: 700,
+                    color: "#111827",
+                    letterSpacing: "-0.01em",
+                    lineHeight: 1.3,
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {step.title}
+                </h3>
+              </div>
+
+              {!isFirst && (
                 <button
                   onClick={onSkip}
+                  aria-label="Saltar tutorial"
                   style={{
                     background: "transparent",
                     border: "none",
-                    color: "#6b7280",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
+                    width: "30px",
+                    height: "30px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     cursor: "pointer",
+                    color: "#9ca3af",
+                    borderRadius: "8px",
+                    flexShrink: 0,
                     padding: 0,
-                    fontFamily: "inherit",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "#374151";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "#6b7280";
                   }}
                 >
-                  No gracias
+                  <X size={16} />
                 </button>
-              ) : (
-                step.counter || ""
               )}
             </div>
 
+            {/* Descripción */}
+            <div style={{ padding: "0 1.15rem 1rem" }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.85rem",
+                  color: "#4b5563",
+                  lineHeight: 1.5,
+                  wordBreak: "break-word",
+                }}
+              >
+                {step.description}
+              </p>
+
+              {step.secondaryLink && (
+                <Link
+                  href={step.secondaryLink.href}
+                  onClick={onFinish}
+                  style={{
+                    display: "inline-block",
+                    marginTop: "0.75rem",
+                    fontSize: "0.8rem",
+                    color: "#6366f1",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                  }}
+                >
+                  {step.secondaryLink.label}
+                </Link>
+              )}
+            </div>
+
+            {/* Footer */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.3rem",
+                justifyContent: "space-between",
+                gap: "0.5rem",
+                padding: "0.85rem 1.15rem",
+                background: "#f9fafb",
+                borderTop: "1px solid #f3f4f6",
+                flexWrap: "wrap",
               }}
             >
-              {!isFirst && stepIndex > 1 && (
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  color: "#9ca3af",
+                  fontWeight: 600,
+                  minWidth: "30px",
+                }}
+              >
+                {isFirst ? (
+                  <button
+                    onClick={onSkip}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#6b7280",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      padding: 0,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    No gracias
+                  </button>
+                ) : (
+                  step.counter || ""
+                )}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.3rem",
+                }}
+              >
+                {!isFirst && stepIndex > 1 && (
+                  <button
+                    onClick={onPrev}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.15rem",
+                      padding: "0.5rem 0.7rem",
+                      borderRadius: "999px",
+                      border: "none",
+                      background: "transparent",
+                      color: "#6b7280",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <ChevronLeft size={13} />
+                    Atrás
+                  </button>
+                )}
+
                 <button
-                  onClick={onPrev}
+                  onClick={isLast ? onFinish : onNext}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "0.15rem",
-                    padding: "0.5rem 0.7rem",
+                    gap: "0.3rem",
+                    padding: "0.6rem 1rem",
                     borderRadius: "999px",
                     border: "none",
-                    background: "transparent",
-                    color: "#6b7280",
-                    fontSize: "0.78rem",
-                    fontWeight: 600,
+                    background:
+                      "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    color: "#ffffff",
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
                     cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
                     fontFamily: "inherit",
-                    transition: "background 0.15s, color 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#f3f4f6";
-                    e.currentTarget.style.color = "#374151";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = "#6b7280";
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  <ChevronLeft size={13} />
-                  Atrás
+                  {step.primaryLabel}
                 </button>
-              )}
-
-              <button
-                onClick={isLast ? onFinish : onNext}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.3rem",
-                  padding: "0.6rem 1rem",
-                  borderRadius: "999px",
-                  border: "none",
-                  background:
-                    "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                  color: "#ffffff",
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
-                  transition: "transform 0.15s, box-shadow 0.15s",
-                  fontFamily: "inherit",
-                  whiteSpace: "nowrap",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 6px 16px rgba(99, 102, 241, 0.45)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(99, 102, 241, 0.35)";
-                }}
-              >
-                {step.primaryLabel}
-              </button>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </>
     </AnimatePresence>
   );
-    }
+          }
