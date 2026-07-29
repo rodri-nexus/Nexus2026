@@ -12,6 +12,7 @@ import {
   Settings,
   HelpCircle,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
@@ -23,7 +24,7 @@ interface SideMenuProps {
 interface MenuItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ size?: number; color?: string }>;
+  icon: LucideIcon;
   disabled?: boolean;
 }
 
