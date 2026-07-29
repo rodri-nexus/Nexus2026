@@ -1,56 +1,44 @@
-export default function Home() {
+import Header from "./components/landing/Header";
+import Hero from "./components/landing/Hero";
+import SocialProof from "./components/landing/SocialProof";
+import FeatureBundles from "./components/landing/FeatureBundles";
+import FeatureWidgets from "./components/landing/FeatureWidgets";
+import FeatureTrust from "./components/landing/FeatureTrust";
+import FeatureCustomize from "./components/landing/FeatureCustomize";
+import Testimonials from "./components/landing/Testimonials";
+import CTAFinal from "./components/landing/CTAFinal";
+import Footer from "./components/landing/Footer";
+import ChatBubble from "./components/landing/ChatBubble";
+
+export default function HomePage() {
   return (
     <main
       style={{
         minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem",
-        textAlign: "center",
+        background: "white",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        color: "#111827",
       }}
     >
-      <div
-        style={{
-          maxWidth: "600px",
-          background: "white",
-          padding: "3rem 2rem",
-          borderRadius: "16px",
-          boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "3rem",
-            margin: "0 0 1rem 0",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
-          Nevux
-        </h1>
-        <p
-          style={{
-            fontSize: "1.25rem",
-            color: "#6b7280",
-            margin: "0 0 2rem 0",
-          }}
-        >
-          Aumentá el ticket promedio de tu tienda online
-        </p>
-        <p
-          style={{
-            fontSize: "0.95rem",
-            color: "#9ca3af",
-            margin: 0,
-          }}
-        >
-          App oficial para Tiendanube
-        </p>
-      </div>
+      {/* Header sticky */}
+      <Header />
+
+      {/* Secciones principales */}
+      <Hero />
+      <SocialProof />
+      <FeatureBundles />
+      <FeatureWidgets />
+      <FeatureTrust />
+      <FeatureCustomize />
+      <Testimonials />
+      <CTAFinal />
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Chat flotante */}
+      <ChatBubble />
     </main>
   );
-      }
+}
