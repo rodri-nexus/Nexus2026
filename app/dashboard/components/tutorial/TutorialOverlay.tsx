@@ -25,13 +25,9 @@ interface TargetRect {
   height: number;
 }
 
-// Padding alrededor del elemento destacado (respiración del spotlight)
 const SPOTLIGHT_PADDING = 8;
-// Distancia entre el elemento destacado y la card flotante
 const CARD_GAP = 16;
-// Ancho máximo de la card flotante
 const CARD_MAX_WIDTH = 380;
-// Margen mínimo desde los bordes de la ventana
 const VIEWPORT_MARGIN = 16;
 
 export default function TutorialOverlay({
@@ -49,33 +45,56 @@ export default function TutorialOverlay({
   const [cardPosition, setCardPosition] = useState<{
     top: number;
     left: number;
-    placement: "top" | "bottom" | "center";
   } | null>(null);
+  const [viewport, setViewport] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [cardReady, setCardReady] = useState(false);
 
   const isCentered = step.target === null || step.placement === "center";
 
+  // ─────────────────────────────────────────────
+  // Detectar tamaño de viewport (solo cliente)
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    function updateViewport() {
+      setViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
+
+  // Calcular ancho real de la card según el viewport
+  const cardWidth =
+    viewport.width > 0
+      ? Math.min(CARD_MAX_WIDTH, viewport.width - VIEWPORT_MARGIN * 2)
+      : CARD_MAX_WIDTH;
+
+  // ─────────────────────────────────────────────
   // Buscar y trackear la posición del elemento target
+  // ─────────────────────────────────────────────
   useLayoutEffect(() => {
     setCardReady(false);
 
     if (isCentered || !step.target) {
       setTargetRect(null);
-      setCardPosition({
-        top: window.innerHeight / 2,
-        left: window.innerWidth / 2,
-        placement: "center",
-      });
-      // Pequeña pausa para animar la entrada
+      // Card centrada: no calculamos targetRect
       requestAnimationFrame(() => setCardReady(true));
       return;
     }
 
     let retries = 0;
-    const MAX_RETRIES = 30; // ~500ms buscando el elemento
+    const MAX_RETRIES = 30;
+    let cancelled = false;
 
     function updateRect() {
+      if (cancelled) return;
       const el = document.querySelector(step.target!) as HTMLElement | null;
 
       if (!el) {
@@ -86,7 +105,6 @@ export default function TutorialOverlay({
         return;
       }
 
-      // Scroll suave hacia el elemento si está fuera de vista
       const rect = el.getBoundingClientRect();
       const isOutOfView =
         rect.top < 80 || rect.bottom > window.innerHeight - 80;
@@ -96,8 +114,8 @@ export default function TutorialOverlay({
           behavior: "smooth",
           block: "center",
         });
-        // Esperamos que el scroll termine antes de calcular
         setTimeout(() => {
+          if (cancelled) return;
           const r = el.getBoundingClientRect();
           setTargetRect({
             top: r.top,
@@ -106,7 +124,7 @@ export default function TutorialOverlay({
             height: r.height,
           });
           requestAnimationFrame(() => setCardReady(true));
-        }, 350);
+        }, 400);
       } else {
         setTargetRect({
           top: rect.top,
@@ -120,7 +138,6 @@ export default function TutorialOverlay({
 
     updateRect();
 
-    // Recalcular en resize / scroll
     function handleReposition() {
       const el = document.querySelector(step.target!) as HTMLElement | null;
       if (!el) return;
@@ -136,29 +153,38 @@ export default function TutorialOverlay({
     window.addEventListener("resize", handleReposition);
     window.addEventListener("scroll", handleReposition, { passive: true });
     return () => {
+      cancelled = true;
       window.removeEventListener("resize", handleReposition);
       window.removeEventListener("scroll", handleReposition);
     };
-  }, [step.target, isCentered]);
+  }, [step.target, isCentered, step.id]);
 
-  // Calcular posición de la card flotante en base al target
+  // ─────────────────────────────────────────────
+  // Calcular posición de la card flotante
+  // ─────────────────────────────────────────────
   useLayoutEffect(() => {
-    if (isCentered || !targetRect || !cardRef.current) return;
+    if (isCentered || !targetRect || !cardRef.current || viewport.width === 0)
+      return;
 
     const cardHeight = cardRef.current.offsetHeight;
-    const cardWidth = Math.min(CARD_MAX_WIDTH, window.innerWidth - VIEWPORT_MARGIN * 2);
 
     const spaceAbove = targetRect.top;
-    const spaceBelow = window.innerHeight - (targetRect.top + targetRect.height);
+    const spaceBelow = viewport.height - (targetRect.top + targetRect.height);
 
-    let placement: "top" | "bottom" = step.placement === "top" ? "top" : "bottom";
+    let placement: "top" | "bottom" =
+      step.placement === "top" ? "top" : "bottom";
 
-    // Auto-flip si no hay suficiente espacio
-    if (placement === "bottom" && spaceBelow < cardHeight + CARD_GAP + VIEWPORT_MARGIN) {
+    if (
+      placement === "bottom" &&
+      spaceBelow < cardHeight + CARD_GAP + VIEWPORT_MARGIN
+    ) {
       if (spaceAbove > cardHeight + CARD_GAP + VIEWPORT_MARGIN) {
         placement = "top";
       }
-    } else if (placement === "top" && spaceAbove < cardHeight + CARD_GAP + VIEWPORT_MARGIN) {
+    } else if (
+      placement === "top" &&
+      spaceAbove < cardHeight + CARD_GAP + VIEWPORT_MARGIN
+    ) {
       if (spaceBelow > cardHeight + CARD_GAP + VIEWPORT_MARGIN) {
         placement = "bottom";
       }
@@ -169,15 +195,16 @@ export default function TutorialOverlay({
         ? targetRect.top + targetRect.height + CARD_GAP + SPOTLIGHT_PADDING
         : targetRect.top - cardHeight - CARD_GAP - SPOTLIGHT_PADDING;
 
-    // Centrar horizontalmente respecto al target, pero clamp a viewport
     let left = targetRect.left + targetRect.width / 2 - cardWidth / 2;
     left = Math.max(VIEWPORT_MARGIN, left);
-    left = Math.min(window.innerWidth - cardWidth - VIEWPORT_MARGIN, left);
+    left = Math.min(viewport.width - cardWidth - VIEWPORT_MARGIN, left);
 
-    setCardPosition({ top, left, placement });
-  }, [targetRect, isCentered, step.placement, step.id]);
+    setCardPosition({ top, left });
+  }, [targetRect, isCentered, step.placement, step.id, viewport, cardWidth]);
 
-  // Bloquear scroll del body mientras el tutorial está activo
+  // ─────────────────────────────────────────────
+  // Bloquear scroll del body
+  // ─────────────────────────────────────────────
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -185,12 +212,45 @@ export default function TutorialOverlay({
     };
   }, []);
 
-  const cardWidth = Math.min(CARD_MAX_WIDTH, typeof window !== "undefined" ? window.innerWidth - VIEWPORT_MARGIN * 2 : CARD_MAX_WIDTH);
+  // ─────────────────────────────────────────────
+  // Estilos de la card según si es centrada o posicionada
+  // ─────────────────────────────────────────────
+  const cardStyle: React.CSSProperties = isCentered
+    ? {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: `${cardWidth}px`,
+        maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
+        zIndex: 301,
+      }
+    : cardPosition
+    ? {
+        position: "fixed",
+        top: cardPosition.top,
+        left: cardPosition.left,
+        width: `${cardWidth}px`,
+        maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
+        zIndex: 301,
+      }
+    : {
+        // Fallback mientras calcula: centrada + invisible
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: `${cardWidth}px`,
+        maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
+        zIndex: 301,
+        opacity: 0,
+        pointerEvents: "none",
+      };
 
   return (
     <AnimatePresence>
       <>
-        {/* Overlay oscuro con "recorte" tipo spotlight */}
+        {/* Overlay oscuro con spotlight o simple */}
         {!isCentered && targetRect ? (
           <motion.div
             key="spotlight-overlay"
@@ -209,7 +269,6 @@ export default function TutorialOverlay({
             }}
             onClick={onSkip}
           >
-            {/* SVG mask para hacer el "agujero" del spotlight */}
             <svg
               width="100%"
               height="100%"
@@ -237,7 +296,6 @@ export default function TutorialOverlay({
               />
             </svg>
 
-            {/* Borde brillante alrededor del elemento destacado */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -257,7 +315,6 @@ export default function TutorialOverlay({
             />
           </motion.div>
         ) : (
-          // Overlay simple para modales centrados
           <motion.div
             key="center-overlay"
             initial={{ opacity: 0 }}
@@ -279,7 +336,7 @@ export default function TutorialOverlay({
           />
         )}
 
-        {/* Card flotante con el mensaje del paso */}
+        {/* Card flotante */}
         <motion.div
           key={`card-${step.id}`}
           ref={cardRef}
@@ -293,36 +350,16 @@ export default function TutorialOverlay({
           transition={{ duration: 0.25, ease: "easeOut" }}
           onClick={(e) => e.stopPropagation()}
           style={{
-            position: "fixed",
-            zIndex: 301,
-            width: `${cardWidth}px`,
-            maxWidth: "calc(100vw - 32px)",
+            ...cardStyle,
             background: "#ffffff",
             borderRadius: "18px",
             boxShadow:
               "0 24px 60px rgba(0, 0, 0, 0.28), 0 6px 16px rgba(0, 0, 0, 0.12)",
             overflow: "hidden",
-            ...(isCentered
-              ? {
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                }
-              : cardPosition
-              ? {
-                  top: cardPosition.top,
-                  left: cardPosition.left,
-                }
-              : {
-                  // fallback mientras calcula
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  opacity: 0,
-                }),
+            boxSizing: "border-box",
           }}
         >
-          {/* Header con badge de bienvenida (solo welcome) o botón cerrar */}
+          {/* Header */}
           <div
             style={{
               display: "flex",
@@ -332,7 +369,7 @@ export default function TutorialOverlay({
               gap: "0.75rem",
             }}
           >
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               {isFirst && (
                 <div
                   style={{
@@ -364,6 +401,7 @@ export default function TutorialOverlay({
                   color: "#111827",
                   letterSpacing: "-0.01em",
                   lineHeight: 1.3,
+                  wordBreak: "break-word",
                 }}
               >
                 {step.title}
@@ -410,6 +448,7 @@ export default function TutorialOverlay({
                 fontSize: "0.9rem",
                 color: "#4b5563",
                 lineHeight: 1.55,
+                wordBreak: "break-word",
               }}
             >
               {step.description}
@@ -433,19 +472,19 @@ export default function TutorialOverlay({
             )}
           </div>
 
-          {/* Footer: contador + botones */}
+          {/* Footer */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: "0.75rem",
+              gap: "0.5rem",
               padding: "1rem 1.35rem",
               background: "#f9fafb",
               borderTop: "1px solid #f3f4f6",
+              flexWrap: "wrap",
             }}
           >
-            {/* Izquierda: contador o "No gracias" */}
             <div
               style={{
                 fontSize: "0.8rem",
@@ -481,12 +520,11 @@ export default function TutorialOverlay({
               )}
             </div>
 
-            {/* Derecha: Atrás + Siguiente/Finalizar */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
+                gap: "0.35rem",
               }}
             >
               {!isFirst && stepIndex > 1 && (
@@ -495,13 +533,13 @@ export default function TutorialOverlay({
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "0.25rem",
-                    padding: "0.55rem 0.85rem",
+                    gap: "0.2rem",
+                    padding: "0.55rem 0.75rem",
                     borderRadius: "999px",
                     border: "none",
                     background: "transparent",
                     color: "#6b7280",
-                    fontSize: "0.85rem",
+                    fontSize: "0.82rem",
                     fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "inherit",
@@ -527,18 +565,19 @@ export default function TutorialOverlay({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.35rem",
-                  padding: "0.65rem 1.25rem",
+                  padding: "0.65rem 1.15rem",
                   borderRadius: "999px",
                   border: "none",
                   background:
                     "linear-gradient(135deg, #6366f1, #8b5cf6)",
                   color: "#ffffff",
-                  fontSize: "0.88rem",
+                  fontSize: "0.85rem",
                   fontWeight: 700,
                   cursor: "pointer",
                   boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
                   transition: "transform 0.15s, box-shadow 0.15s",
                   fontFamily: "inherit",
+                  whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-1px)";
@@ -559,4 +598,4 @@ export default function TutorialOverlay({
       </>
     </AnimatePresence>
   );
-}
+    }
