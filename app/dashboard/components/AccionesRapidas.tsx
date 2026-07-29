@@ -11,11 +11,7 @@ export default function AccionesRapidas() {
   async function handleSync() {
     if (syncing) return;
     setSyncing(true);
-
-    // TODO: Conectar con endpoint real de sincronización (Parte 5)
-    // Por ahora simulamos 1.2s de "sincronización"
     await new Promise((resolve) => setTimeout(resolve, 1200));
-
     setSyncing(false);
   }
 
@@ -32,7 +28,6 @@ export default function AccionesRapidas() {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
       }}
     >
-      {/* Título */}
       <h2
         style={{
           margin: "0 0 1.25rem",
@@ -45,7 +40,6 @@ export default function AccionesRapidas() {
         Acciones rápidas
       </h2>
 
-      {/* Separador */}
       <div
         style={{
           height: "1px",
@@ -54,7 +48,6 @@ export default function AccionesRapidas() {
         }}
       />
 
-      {/* Botones */}
       <div
         style={{
           display: "flex",
@@ -62,23 +55,18 @@ export default function AccionesRapidas() {
           gap: "0.65rem",
         }}
       >
-        {/* Ver Productos */}
         <SecondaryButton href="/productos" icon={Package} label="Ver Productos" />
-
-        {/* Ver Widgets */}
         <SecondaryButton href="/widgets" icon={LayoutGrid} label="Ver Widgets" />
-
-        {/* Crear widget */}
         <SecondaryButton
           href="/widgets/nuevo"
           icon={Plus}
           label="Crear widget"
         />
 
-        {/* Sincronizar productos - botón principal */}
         <button
           onClick={handleSync}
           disabled={syncing}
+          data-tutorial="sync-button"
           style={{
             display: "flex",
             alignItems: "center",
@@ -116,7 +104,6 @@ export default function AccionesRapidas() {
         >
           <RefreshCw
             size={16}
-            className={syncing ? "animate-spin" : ""}
             style={{
               animation: syncing ? "spin 1s linear infinite" : "none",
             }}
@@ -127,7 +114,6 @@ export default function AccionesRapidas() {
         </button>
       </div>
 
-      {/* Animación spin inline */}
       <style jsx>{`
         @keyframes spin {
           from {
@@ -142,7 +128,6 @@ export default function AccionesRapidas() {
   );
 }
 
-// Componente reutilizable para botones secundarios
 interface SecondaryButtonProps {
   href: string;
   icon: typeof Package;
