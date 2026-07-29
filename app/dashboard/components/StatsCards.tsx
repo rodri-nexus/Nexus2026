@@ -16,6 +16,7 @@ interface StatCard {
   gradient: string;
   href: string;
   actionLabel: string;
+  tutorialId?: string;
 }
 
 export default function StatsCards({
@@ -30,6 +31,7 @@ export default function StatsCards({
       gradient: "linear-gradient(135deg, #6366f1, #8b5cf6)",
       href: "/productos",
       actionLabel: "Ver productos",
+      tutorialId: "stats-productos",
     },
     {
       label: "Widgets activos",
@@ -57,6 +59,9 @@ export default function StatsCards({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: idx * 0.08 }}
+            {...(card.tutorialId
+              ? { "data-tutorial": card.tutorialId }
+              : {})}
           >
             <Link
               href={card.href}
@@ -93,7 +98,6 @@ export default function StatsCards({
                   e.currentTarget.style.borderColor = "#e5e7eb";
                 }}
               >
-                {/* Top: ícono + label */}
                 <div>
                   <div
                     style={{
@@ -149,7 +153,6 @@ export default function StatsCards({
                   </div>
                 </div>
 
-                {/* Bottom: acción */}
                 <div
                   style={{
                     marginTop: "1rem",
@@ -172,4 +175,4 @@ export default function StatsCards({
       })}
     </div>
   );
-      }
+                }
