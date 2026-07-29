@@ -27,14 +27,14 @@ export default async function DashboardPage() {
   // Si hay tienda conectada, traer la cantidad de productos desde Tiendanube
   let productsCount = 0;
   if (store?.store_id && store?.access_token) {
-    productsCount = await getProductsCount({
-      storeId: store.store_id,
-      accessToken: store.access_token,
-    });
+    productsCount = await getProductsCount(
+      store.store_id,
+      store.access_token
+    );
   }
 
   // Preparamos los datos que le pasamos al cliente
-  // (no le mandamos el access_token al cliente por seguridad)
+  // (no mandamos el access_token al cliente por seguridad)
   const storeData = store
     ? {
         store_id: store.store_id,
@@ -51,4 +51,4 @@ export default async function DashboardPage() {
       activeWidgetsCount={0}
     />
   );
-    }
+}
