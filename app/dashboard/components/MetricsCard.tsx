@@ -25,7 +25,6 @@ interface MetricItem {
 export default function MetricsCard() {
   const [period, setPeriod] = useState<Period>("7dias");
 
-  // Datos vacíos por ahora (los widgets aún no existen)
   const metrics: MetricItem[] = [
     {
       label: "Impresiones",
@@ -66,6 +65,7 @@ export default function MetricsCard() {
 
   return (
     <motion.section
+      data-tutorial="metrics-card"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -77,7 +77,6 @@ export default function MetricsCard() {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
       }}
     >
-      {/* Aviso "Métricas disponibles desde..." */}
       <div
         style={{
           display: "flex",
@@ -92,7 +91,6 @@ export default function MetricsCard() {
         <span>Métricas disponibles próximamente</span>
       </div>
 
-      {/* Título */}
       <h2
         style={{
           margin: 0,
@@ -117,7 +115,6 @@ export default function MetricsCard() {
         {period === "personalizado" && "Rango personalizado"}
       </p>
 
-      {/* Filtros de período */}
       <div
         style={{
           display: "flex",
@@ -169,7 +166,6 @@ export default function MetricsCard() {
         })}
       </div>
 
-      {/* Grid de métricas */}
       <div
         style={{
           display: "grid",
@@ -206,7 +202,6 @@ export default function MetricsCard() {
                 e.currentTarget.style.boxShadow = "none";
               }}
             >
-              {/* Ícono */}
               <div
                 style={{
                   width: "36px",
@@ -223,7 +218,6 @@ export default function MetricsCard() {
                 <Icon size={18} color="#ffffff" />
               </div>
 
-              {/* Label */}
               <div
                 style={{
                   fontSize: "0.8rem",
@@ -235,7 +229,6 @@ export default function MetricsCard() {
                 {metric.label}
               </div>
 
-              {/* Valor grande */}
               <div
                 style={{
                   fontSize: "1.75rem",
@@ -249,7 +242,6 @@ export default function MetricsCard() {
                 {metric.value}
               </div>
 
-              {/* Sublabel */}
               <div
                 style={{
                   fontSize: "0.75rem",
@@ -264,7 +256,6 @@ export default function MetricsCard() {
         })}
       </div>
 
-      {/* Evolución del período */}
       <div
         style={{
           borderTop: "1px solid #f3f4f6",
@@ -292,7 +283,6 @@ export default function MetricsCard() {
           Agrupado por día
         </p>
 
-        {/* Estado vacío */}
         <div
           style={{
             display: "flex",
@@ -319,7 +309,6 @@ export default function MetricsCard() {
         </div>
       </div>
 
-      {/* Rendimiento por widget */}
       <div
         style={{
           borderTop: "1px solid #f3f4f6",
@@ -346,7 +335,6 @@ export default function MetricsCard() {
           Ordená para ver cuáles funcionan mejor en el período.
         </p>
 
-        {/* Controles: ordenar */}
         <div
           style={{
             display: "flex",
@@ -355,7 +343,6 @@ export default function MetricsCard() {
             marginBottom: "1rem",
           }}
         >
-          {/* Select de métrica */}
           <div style={{ position: "relative", flex: "1 1 160px" }}>
             <select
               defaultValue="impresiones"
@@ -392,7 +379,6 @@ export default function MetricsCard() {
             />
           </div>
 
-          {/* Select de orden */}
           <div style={{ position: "relative", flex: "1 1 160px" }}>
             <select
               defaultValue="desc"
@@ -428,7 +414,6 @@ export default function MetricsCard() {
           </div>
         </div>
 
-        {/* Estado vacío */}
         <div
           style={{
             display: "flex",
