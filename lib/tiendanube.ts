@@ -3,14 +3,16 @@
 const TIENDANUBE_API_BASE = "https://api.tiendanube.com/v1";
 const USER_AGENT = "Nevux (soporte@nevux.app)";
 
+type LocalizedText = {
+  es?: string;
+  en?: string;
+  pt?: string;
+};
+
 // Tipos de datos
 export type StoreInfo = {
   id: number;
-  name: {
-    es?: string;
-    en?: string;
-    pt?: string;
-  };
+  name: LocalizedText;
   url: string;
   country: string;
   main_language: string;
@@ -20,6 +22,35 @@ export type StoreInfo = {
   business_name?: string;
 };
 
+export type StoreProduct = {
+  id: number;
+  name: string;
+  price: string;
+  image: string | null;
+};
+
+type TiendanubeProductResponse = {
+  id: number;
+  name?: LocalizedText | string;
+  images?: Array<{
+    src?: string;
+    url?: string;
+  }>;
+  variants?: Array<{
+    price?: string | null;
+  }>;
+};
+
+function getLocalizedText(value?: LocalizedText | string | null): string {
+  if (!value) return "";
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return value.es || value.en || value.pt || "";
+}
+
 // ============================================
 // Función 1: Traer info de la tienda
 // ============================================
@@ -28,19 +59,15 @@ export async function getStoreInfo(
   accessToken: string
 ): Promise<StoreInfo | null> {
   try {
-    const response = await fetch(
-      `${TIENDANUBE_API_BASE}/${storeId}/store`,
-      {
-        method: "GET",
-        headers: {
-          "Authentication": `bearer ${accessToken}`,
-          "User-Agent": USER_AGENT,
-          "Content-Type": "application/json",
-        },
-        // Cache 5 minutos para no saturar la API
-        next: { revalidate: 300 },
-      }
-    );
+    const response = await fetch(`${TIENDANUBE_API_BASE}/${storeId}/store`, {
+      method: "GET",
+      headers: {
+        Authentication: `bearer ${accessToken}`,
+        "User-Agent": USER_AGENT,
+        "Content-Type": "application/json",
+      },
+      next: { revalidate: 300 },
+    });
 
     if (!response.ok) {
       console.error(
@@ -72,7 +99,7 @@ export async function getProductsCount(
       {
         method: "GET",
         headers: {
-          "Authentication": `bearer ${accessToken}`,
+          Authentication: `bearer ${accessToken}`,
           "User-Agent": USER_AGENT,
           "Content-Type": "application/json",
         },
@@ -81,14 +108,10 @@ export async function getProductsCount(
     );
 
     if (!response.ok) {
-      console.error(
-        "Error al traer cantidad de productos:",
-        response.status
-      );
+      console.error("Error al traer cantidad de productos:", response.status);
       return 0;
     }
 
-    // Tiendanube devuelve el total en el header 'x-total-count'
     const totalCount = response.headers.get("x-total-count");
     return totalCount ? parseInt(totalCount, 10) : 0;
   } catch (error) {
@@ -98,12 +121,57 @@ export async function getProductsCount(
 }
 
 // ============================================
+// Función 3: Traer productos de la tienda
+// ============================================
+export async function getProducts(
+  storeId: number,
+  accessToken: string,
+  perPage: number = 100
+): Promise<StoreProduct[]> {
+  try {
+    const response = await fetch(
+      `${TIENDANUBE_API_BASE}/${storeId}/products?per_page=${perPage}&page=1&published=true`,
+      {
+        method: "GET",
+        headers: {
+          Authentication: `bearer ${accessToken}`,
+          "User-Agent": USER_AGENT,
+          "Content-Type": "application/json",
+        },
+        // No cacheamos para que el "sincronizar" traiga siempre lo último
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      console.error(
+        "Error al traer productos:",
+        response.status,
+        await response.text()
+      );
+      return [];
+    }
+
+    const data = (await response.json()) as TiendanubeProductResponse[];
+
+    return data.map((product) => ({
+      id: product.id,
+      name: getLocalizedText(product.name) || `Producto #${product.id}`,
+      price: product.variants?.[0]?.price ?? "0",
+      image: product.images?.[0]?.src || product.images?.[0]?.url || null,
+    }));
+  } catch (error) {
+    console.error("Error en getProducts:", error);
+    return [];
+  }
+}
+
+// ============================================
 // Helper: Obtener el nombre principal de la tienda
 // ============================================
 export function getStoreName(storeInfo: StoreInfo | null): string {
   if (!storeInfo) return "Mi tienda";
 
-  // Intenta en este orden: español, inglés, portugués, business_name
   return (
     storeInfo.name?.es ||
     storeInfo.name?.en ||
@@ -118,6 +186,6 @@ export function getStoreName(storeInfo: StoreInfo | null): string {
 // ============================================
 export function getStoreUrl(storeInfo: StoreInfo | null): string {
   if (!storeInfo?.url) return "";
-  // Remover https:// para display
+
   return storeInfo.url.replace(/^https?:\/\//, "");
-          }
+  }
