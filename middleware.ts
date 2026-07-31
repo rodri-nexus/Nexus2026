@@ -46,7 +46,8 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Rutas protegidas (requieren login)
-  const isProtectedRoute = pathname.startsWith("/dashboard");
+  const isProtectedRoute =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/widgets");
 
   // Rutas de autenticación (solo para NO logueados)
   const isAuthRoute = pathname === "/login" || pathname === "/registro";
