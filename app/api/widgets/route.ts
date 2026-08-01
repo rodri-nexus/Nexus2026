@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 
 // ============================================
 // GET /api/widgets
-// Devuelve todos los widgets del usuario logueado
+// Devuelve todos los widgets del usuario + sus definiciones
 // ============================================
 export async function GET() {
   const supabase = createClient();
@@ -13,15 +13,12 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json(
-      { error: "No autorizado" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const { data: widgets, error } = await supabase
     .from("widgets")
-    .select("*")
+    .select("*, widget_definitions(*)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -38,8 +35,8 @@ export async function GET() {
 
 // ============================================
 // POST /api/widgets
-// Crea un widget nuevo (asociado al user + store)
-// Body: { type: string, name: string }
+// Crea o actualiza un widget con su configuración completa
+// Body: { store_id, widget_slug, widget_type, target_type, target_product_id, config, is_active }
 // ============================================
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -49,91 +46,89 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json(
-      { error: "No autorizado" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // Validamos que tenga tienda conectada
-  const { data: store, error: storeError } = await supabase
-    .from("stores")
-    .select("store_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (storeError) {
-    console.error("Error al buscar tienda:", storeError);
-    return NextResponse.json(
-      { error: "Error al validar la tienda" },
-      { status: 500 }
-    );
-  }
-
-  if (!store) {
-    return NextResponse.json(
-      { error: "Necesitás conectar tu Tiendanube primero" },
-      { status: 400 }
-    );
-  }
-
-  // Parseamos el body
-  let body: { type?: string; name?: string };
+  let body: any;
   try {
     body = await request.json();
   } catch {
+    return NextResponse.json({ error: "Body inválido" }, { status: 400 });
+  }
+
+  const {
+    store_id,
+    widget_slug,
+    widget_type,
+    target_type,
+    target_product_id,
+    config,
+    is_active,
+  } = body;
+
+  if (!store_id || !widget_slug || !widget_type || !target_type) {
     return NextResponse.json(
-      { error: "Body inválido" },
+      { error: "Faltan campos obligatorios" },
       { status: 400 }
     );
   }
 
-  const { type, name } = body;
-
-  if (!type || typeof type !== "string") {
-    return NextResponse.json(
-      { error: "Falta el tipo de widget" },
-      { status: 400 }
-    );
-  }
-
-  if (!name || typeof name !== "string") {
-    return NextResponse.json(
-      { error: "Falta el nombre del widget" },
-      { status: 400 }
-    );
-  }
-
-  // Insertamos el widget
-  const { data: widget, error: insertError } = await supabase
+  // Verificar si ya existe este widget para este user + slug + target
+  const { data: existing } = await supabase
     .from("widgets")
-    .insert({
-      user_id: user.id,
-      store_id: store.store_id,
-      type,
-      name,
-      config: {},
-      is_active: false,
-      target_type: "all",
-    })
-    .select()
-    .single();
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("widget_slug", widget_slug)
+    .eq("target_type", target_type)
+    .is("target_product_id", target_product_id || null)
+    .maybeSingle();
 
-  if (insertError) {
-    console.error("Error al crear widget:", insertError);
+  let result;
+  if (existing) {
+    // UPDATE
+    result = await supabase
+      .from("widgets")
+      .update({
+        store_id,
+        widget_type,
+        config: config ?? {},
+        is_active: is_active ?? true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .select()
+      .single();
+  } else {
+    // INSERT
+    result = await supabase
+      .from("widgets")
+      .insert({
+        user_id: user.id,
+        store_id,
+        widget_slug,
+        widget_type,
+        target_type,
+        target_product_id: target_product_id || null,
+        config: config ?? {},
+        is_active: is_active ?? true,
+      })
+      .select()
+      .single();
+  }
+
+  if (result.error) {
+    console.error("Error al guardar widget:", result.error);
     return NextResponse.json(
-      { error: "Error al crear el widget" },
+      { error: "Error al guardar el widget" },
       { status: 500 }
     );
   }
 
-  return NextResponse.json({ widget }, { status: 201 });
+  return NextResponse.json({ widget: result.data }, { status: existing ? 200 : 201 });
 }
 
 // ============================================
 // DELETE /api/widgets?id=xxx
-// Elimina un widget (validando que sea del usuario)
 // ============================================
 export async function DELETE(request: Request) {
   const supabase = createClient();
@@ -143,10 +138,7 @@ export async function DELETE(request: Request) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json(
-      { error: "No autorizado" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
