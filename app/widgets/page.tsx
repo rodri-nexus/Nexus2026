@@ -19,19 +19,10 @@ export default async function WidgetsPage() {
     .eq("is_active", true)
     .maybeSingle();
 
-  // Traer widgets activos del usuario
-  const { data: widgets } = await supabase
-    .from("widgets")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
-
   return (
     <WidgetsClient
       email={user.email ?? ""}
       store={store}
-      widgets={widgets || []}
     />
   );
 }
