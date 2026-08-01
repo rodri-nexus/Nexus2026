@@ -36,240 +36,250 @@ export default function CrearWidgetModal({
             }}
           />
 
-          {/* Modal */}
+          {/* Modal Container - Centrado con Flexbox */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
             style={{
               position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "100%",
-              maxWidth: "480px",
-              background: "#ffffff",
-              borderRadius: "16px",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               zIndex: 101,
-              padding: "1.5rem",
-              margin: "0 1rem",
+              padding: "1rem",
             }}
           >
-            {/* Header */}
-            <div
+            {/* Modal Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "1.25rem",
+                width: "100%",
+                maxWidth: "480px",
+                background: "#ffffff",
+                borderRadius: "16px",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                padding: "1.5rem",
               }}
             >
-              <h2
+              {/* Header */}
+              <div
                 style={{
-                  margin: 0,
-                  fontSize: "1.25rem",
-                  fontWeight: 700,
-                  color: "#111827",
-                }}
-              >
-                Crear nuevo widget
-              </h2>
-              <button
-                onClick={onClose}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  width: "36px",
-                  height: "36px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  borderRadius: "10px",
+                  justifyContent: "space-between",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: "1.25rem",
+                    fontWeight: 700,
+                    color: "#111827",
+                  }}
+                >
+                  Crear nuevo widget
+                </h2>
+                <button
+                  onClick={onClose}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    width: "36px",
+                    height: "36px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    borderRadius: "10px",
+                    color: "#6b7280",
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#f3f4f6";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                  }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <p
+                style={{
+                  margin: "0 0 1.25rem 0",
+                  fontSize: "0.95rem",
                   color: "#6b7280",
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#f3f4f6";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
                 }}
               >
-                <X size={20} />
-              </button>
-            </div>
+                ¿Qué tipo de widget querés crear?
+              </p>
 
-            <p
-              style={{
-                margin: "0 0 1.25rem 0",
-                fontSize: "0.95rem",
-                color: "#6b7280",
-              }}
-            >
-              ¿Qué tipo de widget querés crear?
-            </p>
-
-            {/* Opciones */}
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
-            >
-              {/* Opción A: Producto específico */}
-              <button
-                onClick={onSelectProducto}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  padding: "1rem 1.25rem",
-                  background: "#ffffff",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "12px",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                  transition: "border-color 0.15s, box-shadow 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#6366f1";
-                  e.currentTarget.style.boxShadow =
-                    "0 0 0 3px rgba(99, 102, 241, 0.08)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              >
-                <div
+              {/* Opciones */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {/* Opción A: Producto específico */}
+                <button
+                  onClick={onSelectProducto}
                   style={{
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "10px",
-                    background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
+                    gap: "1rem",
+                    padding: "1rem 1.25rem",
+                    background: "#ffffff",
+                    border: "1.5px solid #e5e7eb",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    width: "100%",
+                    transition: "border-color 0.15s, box-shadow 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#6366f1";
+                    e.currentTarget.style.boxShadow =
+                      "0 0 0 3px rgba(99, 102, 241, 0.08)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#e5e7eb";
+                    e.currentTarget.style.boxShadow = "none";
                   }}
                 >
-                  <Package size={22} color="#059669" />
-                </div>
-                <div style={{ flex: 1 }}>
                   <div
                     style={{
-                      fontSize: "0.95rem",
-                      fontWeight: 600,
-                      color: "#111827",
-                      marginBottom: "0.25rem",
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "10px",
+                      background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
                     }}
                   >
-                    Widget para un producto específico
+                    <Package size={22} color="#059669" />
                   </div>
-                  <div
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "#6b7280",
-                      lineHeight: 1.4,
-                    }}
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: "0.95rem",
+                        fontWeight: 600,
+                        color: "#111827",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      Widget para un producto específico
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "#6b7280",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      Asocia widgets a un producto en particular
+                    </div>
+                  </div>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#9ca3af"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    Asocia widgets a un producto en particular
-                  </div>
-                </div>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#9ca3af"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
 
-              {/* Opción B: Todos los productos */}
-              <button
-                onClick={onSelectTodos}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  padding: "1rem 1.25rem",
-                  background: "#ffffff",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "12px",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                  transition: "border-color 0.15s, box-shadow 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#6366f1";
-                  e.currentTarget.style.boxShadow =
-                    "0 0 0 3px rgba(99, 102, 241, 0.08)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              >
-                <div
+                {/* Opción B: Todos los productos */}
+                <button
+                  onClick={onSelectTodos}
                   style={{
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "10px",
-                    background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
+                    gap: "1rem",
+                    padding: "1rem 1.25rem",
+                    background: "#ffffff",
+                    border: "1.5px solid #e5e7eb",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    width: "100%",
+                    transition: "border-color 0.15s, box-shadow 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#6366f1";
+                    e.currentTarget.style.boxShadow =
+                      "0 0 0 3px rgba(99, 102, 241, 0.08)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#e5e7eb";
+                    e.currentTarget.style.boxShadow = "none";
                   }}
                 >
-                  <Store size={22} color="#2563eb" />
-                </div>
-                <div style={{ flex: 1 }}>
                   <div
                     style={{
-                      fontSize: "0.95rem",
-                      fontWeight: 600,
-                      color: "#111827",
-                      marginBottom: "0.25rem",
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "10px",
+                      background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
                     }}
                   >
-                    Widget para todos los productos
+                    <Store size={22} color="#2563eb" />
                   </div>
-                  <div
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "#6b7280",
-                      lineHeight: 1.4,
-                    }}
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: "0.95rem",
+                        fontWeight: 600,
+                        color: "#111827",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      Widget para todos los productos
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "#6b7280",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      Asocia widgets a todos los productos y en el inicio de la tienda
+                    </div>
+                  </div>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#9ca3af"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    Asocia widgets a todos los productos y en el inicio de la
-                    tienda
-                  </div>
-                </div>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#9ca3af"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
-            </div>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         </>
       )}
     </AnimatePresence>
   );
-                   }
+                }
