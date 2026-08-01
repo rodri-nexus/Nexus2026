@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { getProduct } from "@/lib/tiendanube";
-import WidgetEditor from "@/components/widgets/editor/WidgetEditor";
+import Link from "next/link";
+import { ArrowLeft, Construction } from "lucide-react";
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -14,7 +15,6 @@ export default async function WidgetsEditarPage({ params, searchParams }: PagePr
 
   if (!user) redirect("/login");
 
-  // Traer la definición del widget
   const { data: definition } = await supabase
     .from("widget_definitions")
     .select("*")
@@ -24,7 +24,6 @@ export default async function WidgetsEditarPage({ params, searchParams }: PagePr
 
   if (!definition) redirect("/dashboard");
 
-  // Traer la tienda conectada
   const { data: store } = await supabase
     .from("stores")
     .select("store_id, access_token")
@@ -32,7 +31,6 @@ export default async function WidgetsEditarPage({ params, searchParams }: PagePr
     .eq("is_active", true)
     .maybeSingle();
 
-  // Traer el producto si es widget para producto específico
   let product = null;
   if (searchParams.product && store?.access_token) {
     const pid = parseInt(searchParams.product, 10);
@@ -41,7 +39,6 @@ export default async function WidgetsEditarPage({ params, searchParams }: PagePr
     }
   }
 
-  // Traer widget existente (si ya lo configuró antes)
   const { data: existingWidget } = await supabase
     .from("widgets")
     .select("*")
@@ -53,14 +50,41 @@ export default async function WidgetsEditarPage({ params, searchParams }: PagePr
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%)", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", padding: "2rem 1.25rem" }}>
-      <WidgetEditor 
-        definition={definition} 
-        product={product} 
-        storeId={store?.store_id}
-        existingWidget={existingWidget}
-        targetType={searchParams.product ? "product" : "all"}
-        targetProductId={searchParams.product ? parseInt(searchParams.product) : null}
-      />
+      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "#94a3b8", fontSize: "0.85rem", textDecoration: "none", marginBottom: "1.5rem" }}>
+          <ArrowLeft size={16} /> Volver al dashboard
+        </Link>
+
+        <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", padding: "3rem 2rem", textAlign: "center" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "16px", background: "linear-gradient(135deg, #eef2ff, #e0e7ff)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem" }}>
+            <Construction size={28} color="#6366f1" />
+          </div>
+          <h2 style={{ margin: "0 0 0.5rem", fontSize: "1.25rem", fontWeight: 700, color: "#f1f5f9" }}>
+            {definition.name}
+          </h2>
+          <p style={{ margin: "0 0 1.5rem", fontSize: "0.9rem", color: "#64748b", lineHeight: 1.5 }}>
+            {definition.description}
+          </p>
+          
+          {product && (
+            <div style={{ marginBottom: "1.5rem", padding: "0.75rem", background: "rgba(99,102,241,0.1)", borderRadius: "12px", border: "1px solid rgba(99,102,241,0.2)", display: "inline-block" }}>
+              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#f1f5f9" }}>
+                Producto: {typeof product.name === 'string' ? product.name : product.name?.es}
+              </div>
+            </div>
+          )}
+
+          {existingWidget && (
+            <div style={{ marginTop: "1rem", fontSize: "0.8rem", color: "#22c55e" }}>
+              ✅ Este widget ya fue configurado
+            </div>
+          )}
+
+          <p style={{ marginTop: "2rem", fontSize: "0.85rem", color: "#475569" }}>
+            Editor en construcción — siguiente paso
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
+                 }
