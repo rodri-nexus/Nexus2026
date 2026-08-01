@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, RefreshCw, ChevronRight, Package } from "lucide-react";
+import { X, Search, RefreshCw, ChevronRight, Package, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -29,15 +29,23 @@ export default function SeleccionarProductoModal({
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [syncing, setSyncing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(
         `/api/products?storeId=${storeId}&q=${encodeURIComponent(search)}`
       );
-      if (!res.ok) throw new Error("Error");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Error ${res.status}`);
+      }
       const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Respuesta inválida del servidor");
+      }
       setProducts(
         data.map((p: any) => ({
           id: p.id,
@@ -46,7 +54,9 @@ export default function SeleccionarProductoModal({
           image: p.images?.[0]?.src,
         }))
       );
-    } catch {
+    } catch (err: any) {
+      console.error("Error cargando productos:", err);
+      setError(err.message || "Error al cargar productos");
       setProducts([]);
     } finally {
       setLoading(false);
@@ -238,6 +248,39 @@ export default function SeleccionarProductoModal({
                   >
                     Cargando productos...
                   </div>
+                ) : error ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "2rem 0",
+                      color: "#dc2626",
+                      fontSize: "0.9rem",
+                      gap: "0.5rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    <AlertCircle size={28} color="#dc2626" />
+                    <span style={{ fontWeight: 600 }}>{error}</span>
+                    <button
+                      onClick={fetchProducts}
+                      style={{
+                        marginTop: "0.5rem",
+                        padding: "0.5rem 1rem",
+                        borderRadius: "8px",
+                        border: "1.5px solid #dc2626",
+                        background: "#fef2f2",
+                        color: "#dc2626",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Reintentar
+                    </button>
+                  </div>
                 ) : products.length === 0 ? (
                   <div
                     style={{
@@ -394,4 +437,4 @@ export default function SeleccionarProductoModal({
       )}
     </AnimatePresence>
   );
-                }
+                                    }
