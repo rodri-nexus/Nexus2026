@@ -64,18 +64,21 @@ export async function getProducts(
 ): Promise<TiendanubeProduct[]> {
   const url = new URL(`${API_BASE}/${storeId}/products`);
   url.searchParams.set("per_page", "50");
-  url.searchParams.set(
-    "fields",
-    "id,name,slug,description,variants,id,price,promotional_price,stock,images,id,src"
-  );
   if (query) url.searchParams.set("q", query);
 
   const res = await fetch(url.toString(), {
     headers: getHeaders(accessToken),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error("Error al obtener productos");
+  if (!res.ok) {
+    console.error("Tiendanube getProducts error:", res.status, res.statusText);
+    throw new Error("Error al obtener productos");
+  }
   const data = await res.json();
+  if (!Array.isArray(data)) {
+    console.error("Tiendanube getProducts: response is not array", data);
+    throw new Error("Respuesta inválida de Tiendanube");
+  }
   return data.map((p: any) => ({
     ...p,
     name: normalizeName(p.name),
