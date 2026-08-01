@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, Plus } from "lucide-react";
+import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
 import MetricsCard from "./components/MetricsCard";
@@ -11,8 +11,6 @@ import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
 import TutorialProvider from "./components/tutorial/TutorialProvider";
-import CrearWidgetModal from "@/components/widgets/CrearWidgetModal";
-import SeleccionarProductoModal from "@/components/widgets/SeleccionarProductoModal";
 
 interface StoreData {
   store_id: number;
@@ -36,9 +34,6 @@ export default function DashboardClient({
   onboardingCompleted,
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [productModalOpen, setProductModalOpen] = useState(false);
-
   const hasStore = store !== null;
 
   return (
@@ -302,8 +297,8 @@ export default function DashboardClient({
               activeWidgetsCount={activeWidgetsCount}
             />
 
-            {/* Recientes */}
-            <RecientesCard />
+            {/* Recientes — AHORA CON LOS MODALES ADENTRO */}
+            <RecientesCard storeId={store?.store_id} />
 
             {/* Acciones rápidas */}
             <AccionesRapidas />
@@ -312,65 +307,7 @@ export default function DashboardClient({
             <CentroAyuda />
           </div>
         </main>
-
-        {/* Botón flotante "+" para crear widget */}
-        {hasStore && (
-          <button
-            onClick={() => setCreateModalOpen(true)}
-            style={{
-              position: "fixed",
-              bottom: "2rem",
-              right: "2rem",
-              width: "56px",
-              height: "56px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-              color: "#ffffff",
-              border: "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              boxShadow: "0 4px 16px rgba(99, 102, 241, 0.4)",
-              zIndex: 50,
-              transition: "transform 0.15s, box-shadow 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "scale(1.08)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(99, 102, 241, 0.5)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow = "0 4px 16px rgba(99, 102, 241, 0.4)";
-            }}
-            aria-label="Crear nuevo widget"
-          >
-            <Plus size={24} strokeWidth={2.5} />
-          </button>
-        )}
-
-        {/* Modales de creación de widgets */}
-        <CrearWidgetModal
-          isOpen={createModalOpen}
-          onClose={() => setCreateModalOpen(false)}
-          onSelectProducto={() => {
-            setCreateModalOpen(false);
-            setProductModalOpen(true);
-          }}
-          onSelectTodos={() => {
-            setCreateModalOpen(false);
-            window.location.href = "/widgets/nuevo/todos";
-          }}
-        />
-
-        {store && (
-          <SeleccionarProductoModal
-            isOpen={productModalOpen}
-            onClose={() => setProductModalOpen(false)}
-            storeId={store.store_id}
-          />
-        )}
       </div>
     </TutorialProvider>
   );
-        }
+                    }
