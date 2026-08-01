@@ -4,7 +4,7 @@ const API_BASE = "https://api.tiendanube.com/v1";
 
 function getHeaders(accessToken: string) {
   return {
-    Authentication: `bearer ${accessToken}`,
+    Authorization: `Bearer ${accessToken}`,
     "User-Agent": "Nevux (nevux.app)",
     "Content-Type": "application/json",
   };
@@ -18,10 +18,14 @@ export async function getProductsCount(storeId: number, accessToken: string) {
       headers: getHeaders(accessToken),
       cache: "no-store",
     });
-    if (!res.ok) return 0;
+    if (!res.ok) {
+      console.error("Tiendanube API error (count):", res.status, res.statusText);
+      return 0;
+    }
     const data = await res.json();
     return data.count || 0;
-  } catch {
+  } catch (err) {
+    console.error("Error fetching products count:", err);
     return 0;
   }
 }
@@ -86,4 +90,4 @@ export async function getStoreInfo(storeId: number, accessToken: string) {
   });
   if (!res.ok) return null;
   return res.json();
-                        }
+}
