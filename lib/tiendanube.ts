@@ -10,6 +10,12 @@ function getHeaders(accessToken: string) {
   };
 }
 
+// Helper: Tiendanube devuelve name como string o como objeto { "es": "...", "pt": "..." }
+function normalizeName(name: string | Record<string, string>): string {
+  if (typeof name === "string") return name;
+  return name["es"] || name["pt"] || name["en"] || Object.values(name)[0] || "";
+}
+
 // ─── Productos ───
 
 export async function getProductsCount(storeId: number, accessToken: string) {
@@ -22,12 +28,10 @@ export async function getProductsCount(storeId: number, accessToken: string) {
       console.error("Tiendanube API error (count):", res.status, res.statusText);
       return 0;
     }
-    // Tiendanube devuelve el total en el header X-Total-Count
     const totalCount = res.headers.get("X-Total-Count");
     if (totalCount) {
       return parseInt(totalCount, 10) || 0;
     }
-    // Fallback: si no hay header, contar el array
     const data = await res.json();
     return Array.isArray(data) ? data.length : 0;
   } catch (err) {
@@ -38,7 +42,7 @@ export async function getProductsCount(storeId: number, accessToken: string) {
 
 export interface TiendanubeProduct {
   id: number;
-  name: string | { [lang: string]: string };
+  name: string;
   slug: string;
   description?: string;
   variants: Array<{
@@ -71,7 +75,11 @@ export async function getProducts(
     cache: "no-store",
   });
   if (!res.ok) throw new Error("Error al obtener productos");
-  return res.json();
+  const data = await res.json();
+  return data.map((p: any) => ({
+    ...p,
+    name: normalizeName(p.name),
+  }));
 }
 
 export async function getProduct(
@@ -84,7 +92,11 @@ export async function getProduct(
     cache: "no-store",
   });
   if (!res.ok) return null;
-  return res.json();
+  const data = await res.json();
+  return {
+    ...data,
+    name: normalizeName(data.name),
+  };
 }
 
 // ─── Store info ───
@@ -96,4 +108,4 @@ export async function getStoreInfo(storeId: number, accessToken: string) {
   });
   if (!res.ok) return null;
   return res.json();
-}
+  }
