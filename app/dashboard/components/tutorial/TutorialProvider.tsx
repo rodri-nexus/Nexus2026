@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useState,
-  useRef,
   ReactNode,
 } from "react";
 import TutorialOverlay from "./TutorialOverlay";
@@ -36,6 +35,8 @@ export function useTutorial() {
   return ctx;
 }
 
+const STORAGE_KEY = "nevux_tutorial_completed";
+
 // ─── Provider ───
 
 interface TutorialProviderProps {
@@ -47,26 +48,17 @@ export default function TutorialProvider({
   children,
   initialCompleted,
 }: TutorialProviderProps) {
-  // SOLO se activa si initialCompleted es false (primera vez)
-  const [isActive, setIsActive] = useState<boolean>(false);
+  // localStorage como fuente de verdad del navegador
+  const wasCompletedInBrowser =
+    typeof window !== "undefined"
+      ? localStorage.getItem(STORAGE_KEY) === "true"
+      : false;
+
+  const shouldShow = !initialCompleted && !wasCompletedInBrowser;
+
+  const [isActive, setIsActive] = useState<boolean>(shouldShow);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-
-  // Ref para evitar que se active más de una vez por sesión
-  const hasInitialized = useRef(false);
-
-  // Inicializar UNA SOLA VEZ al montar
-  useEffect(() => {
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
-
-    if (!initialCompleted) {
-      setIsActive(true);
-      setCurrentStepIndex(0);
-    }
-  }, [initialCompleted]);
-
-  const savedRef = useRef<boolean>(initialCompleted);
 
   const currentStep: TutorialStep | null =
     isActive && currentStepIndex >= 0 && currentStepIndex < TOTAL_STEPS
@@ -76,17 +68,19 @@ export default function TutorialProvider({
   const isFirst = currentStepIndex === 0;
   const isLast = currentStepIndex === TOTAL_STEPS - 1;
 
-  // ─── Guardar en Supabase que el tutorial fue completado ───
+  // ─── Guardar en Supabase y localStorage que el tutorial fue completado ───
 
   const markAsCompleted = useCallback(async () => {
-    if (savedRef.current) return;
-    savedRef.current = true;
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, "true");
+    }
 
     try {
-      await fetch("/api/onboarding/complete", {
+      const res = await fetch("/api/onboarding/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
+      if (!res.ok) throw new Error("API error");
     } catch (err) {
       console.error("Error al marcar onboarding como completado:", err);
     }
@@ -163,13 +157,11 @@ export default function TutorialProvider({
   }, [isActive, currentStep, modalOpen]);
 
   // ─── Handler cuando se toca "Crear mi primer widget" (paso 8, CTA del modal fake) ───
-
   const handleCreatePrimary = useCallback(() => {
     finishTutorial();
   }, [finishTutorial]);
 
   // ─── Valor del contexto ───
-
   const contextValue: TutorialContextValue = {
     isActive,
     currentStepIndex,
@@ -206,4 +198,4 @@ export default function TutorialProvider({
       )}
     </TutorialContext.Provider>
   );
-  }
+      }
