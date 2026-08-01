@@ -14,7 +14,7 @@ function getHeaders(accessToken: string) {
 
 export async function getProductsCount(storeId: number, accessToken: string) {
   try {
-    const res = await fetch(`${API_BASE}/${storeId}/products/count`, {
+    const res = await fetch(`${API_BASE}/${storeId}/products?per_page=1`, {
       headers: getHeaders(accessToken),
       cache: "no-store",
     });
@@ -22,8 +22,14 @@ export async function getProductsCount(storeId: number, accessToken: string) {
       console.error("Tiendanube API error (count):", res.status, res.statusText);
       return 0;
     }
+    // Tiendanube devuelve el total en el header X-Total-Count
+    const totalCount = res.headers.get("X-Total-Count");
+    if (totalCount) {
+      return parseInt(totalCount, 10) || 0;
+    }
+    // Fallback: si no hay header, contar el array
     const data = await res.json();
-    return data.count || 0;
+    return Array.isArray(data) ? data.length : 0;
   } catch (err) {
     console.error("Error fetching products count:", err);
     return 0;
@@ -32,7 +38,7 @@ export async function getProductsCount(storeId: number, accessToken: string) {
 
 export interface TiendanubeProduct {
   id: number;
-  name: string;
+  name: string | { [lang: string]: string };
   slug: string;
   description?: string;
   variants: Array<{
