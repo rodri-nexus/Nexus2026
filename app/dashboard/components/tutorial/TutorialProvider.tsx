@@ -17,9 +17,7 @@ import {
   type TutorialStep,
 } from "./tutorialSteps";
 
-// ─────────────────────────────────────────────
-// Context
-// ─────────────────────────────────────────────
+// ─── Context ───
 
 interface TutorialContextValue {
   isActive: boolean;
@@ -38,13 +36,10 @@ export function useTutorial() {
   return ctx;
 }
 
-// ─────────────────────────────────────────────
-// Provider
-// ─────────────────────────────────────────────
+// ─── Provider ───
 
 interface TutorialProviderProps {
   children: ReactNode;
-  // Si el usuario ya completó el onboarding en la DB
   initialCompleted: boolean;
 }
 
@@ -52,12 +47,25 @@ export default function TutorialProvider({
   children,
   initialCompleted,
 }: TutorialProviderProps) {
-  // Arranca activo si NO está completado
-  const [isActive, setIsActive] = useState<boolean>(!initialCompleted);
+  // SOLO se activa si initialCompleted es false (primera vez)
+  const [isActive, setIsActive] = useState<boolean>(false);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  // Para evitar guardar múltiples veces en la DB
+  // Ref para evitar que se active más de una vez por sesión
+  const hasInitialized = useRef(false);
+
+  // Inicializar UNA SOLA VEZ al montar
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    if (!initialCompleted) {
+      setIsActive(true);
+      setCurrentStepIndex(0);
+    }
+  }, [initialCompleted]);
+
   const savedRef = useRef<boolean>(initialCompleted);
 
   const currentStep: TutorialStep | null =
@@ -68,9 +76,8 @@ export default function TutorialProvider({
   const isFirst = currentStepIndex === 0;
   const isLast = currentStepIndex === TOTAL_STEPS - 1;
 
-  // ─────────────────────────────────────────────
-  // Guardar en Supabase que el tutorial fue completado
-  // ─────────────────────────────────────────────
+  // ─── Guardar en Supabase que el tutorial fue completado ───
+
   const markAsCompleted = useCallback(async () => {
     if (savedRef.current) return;
     savedRef.current = true;
@@ -82,13 +89,11 @@ export default function TutorialProvider({
       });
     } catch (err) {
       console.error("Error al marcar onboarding como completado:", err);
-      // No revertimos savedRef → mejor no molestar al user si falla el guardado
     }
   }, []);
 
-  // ─────────────────────────────────────────────
-  // Navegación
-  // ─────────────────────────────────────────────
+  // ─── Navegación ───
+
   const goToStep = useCallback((index: number) => {
     if (index < 0 || index >= TOTAL_STEPS) return;
     setCurrentStepIndex(index);
@@ -100,12 +105,10 @@ export default function TutorialProvider({
 
     const nextStep = tutorialSteps[nextIndex];
 
-    // Si el próximo paso necesita el modal abierto, lo abrimos
     if (nextStep.insideModal && !modalOpen) {
       setModalOpen(true);
     }
 
-    // Si estamos saliendo del modal fake (nunca en este flujo, pero por si acaso)
     if (!nextStep.insideModal && modalOpen) {
       setModalOpen(false);
     }
@@ -119,12 +122,10 @@ export default function TutorialProvider({
 
     const prevStep = tutorialSteps[prevIndex];
 
-    // Si volvemos a un paso que NO está dentro del modal, cerramos el modal
     if (!prevStep.insideModal && modalOpen) {
       setModalOpen(false);
     }
 
-    // Si volvemos a un paso que SÍ está dentro del modal, lo abrimos
     if (prevStep.insideModal && !modalOpen) {
       setModalOpen(true);
     }
@@ -153,9 +154,7 @@ export default function TutorialProvider({
     setIsActive(true);
   }, []);
 
-  // ─────────────────────────────────────────────
-  // Efecto: al arrancar, si el paso actual es insideModal, abrir el modal
-  // ─────────────────────────────────────────────
+  // ─── Efecto: al arrancar, si el paso actual es insideModal, abrir el modal ───
   useEffect(() => {
     if (!isActive || !currentStep) return;
     if (currentStep.insideModal && !modalOpen) {
@@ -163,18 +162,14 @@ export default function TutorialProvider({
     }
   }, [isActive, currentStep, modalOpen]);
 
-  // ─────────────────────────────────────────────
-  // Handler cuando se toca "Crear mi primer widget" (paso 8, CTA del modal fake)
-  // ─────────────────────────────────────────────
+  // ─── Handler cuando se toca "Crear mi primer widget" (paso 8, CTA del modal fake) ───
+
   const handleCreatePrimary = useCallback(() => {
-    // Por ahora simplemente cierra el tutorial y el modal.
-    // En la Parte 5, este handler abrirá el modal REAL de creación.
     finishTutorial();
   }, [finishTutorial]);
 
-  // ─────────────────────────────────────────────
-  // Valor del contexto
-  // ─────────────────────────────────────────────
+  // ─── Valor del contexto ───
+
   const contextValue: TutorialContextValue = {
     isActive,
     currentStepIndex,
@@ -189,7 +184,6 @@ export default function TutorialProvider({
       {/* Modal fake (aparece en pasos 5, 6, 7, 8) */}
       <CreateWidgetModalFake
         isOpen={isActive && modalOpen}
-        // No permitimos cerrar manualmente durante el tutorial
         onClose={undefined}
         onCreatePrimary={handleCreatePrimary}
         showCTA={currentStep?.id === "listo"}
@@ -212,4 +206,4 @@ export default function TutorialProvider({
       )}
     </TutorialContext.Provider>
   );
-}
+  }
