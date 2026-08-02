@@ -36,6 +36,7 @@ import {
 import Link from "next/link";
 import NextImage from "next/image";
 import { WidgetDefinition, WidgetInstance, TiendanubeProduct } from "@/types/widgets";
+import CountdownWidget from "@/components/widgets/previews/CountdownWidget";
 
 const CATEGORY_LABELS: Record<string, string> = {
   conversion: "Conversión",
@@ -129,18 +130,94 @@ const DEFAULT_SCHEMAS: Record<string, Record<string, any>> = {
     },
   },
   "contador-regresivo": {
+    title: {
+      type: "text",
+      label: "Título",
+      default: "Oferta limitada",
+      placeholder: "Ej: Oferta Flash, Black Friday...",
+    },
+    subtitle: {
+      type: "text",
+      label: "Subtítulo (opcional)",
+      default: "Aprovechá antes de que termine",
+      placeholder: "Ej: Solo por hoy, Envío gratis...",
+    },
     hours: {
       type: "number",
-      label: "Horas del contador",
+      label: "Duración en horas",
       default: 24,
       min: 1,
-      max: 168,
+      max: 720,
+    },
+    show_days: {
+      type: "boolean",
+      label: "Mostrar días",
+      default: true,
+    },
+    show_labels: {
+      type: "boolean",
+      label: "Mostrar etiquetas (DÍAS, HRS, MIN, SEG)",
+      default: true,
+    },
+    show_progress_bar: {
+      type: "boolean",
+      label: "Mostrar barra de progreso",
+      default: true,
+    },
+    urgency_threshold: {
+      type: "number",
+      label: "Umbral de urgencia (horas)",
+      default: 6,
+      min: 1,
+      max: 48,
+    },
+    background_type: {
+      type: "select",
+      label: "Tipo de fondo",
+      default: "glass",
+      options: [
+        { value: "glass", label: "Glassmorphism" },
+        { value: "solid", label: "Color sólido" },
+        { value: "gradient", label: "Degradado" },
+      ],
+    },
+    background_color: {
+      type: "text",
+      label: "Color de fondo (hex)",
+      default: "#0f0f1a",
+      placeholder: "#0f0f1a",
     },
     accent_color: {
       type: "text",
       label: "Color de acento (hex)",
-      default: "#ef4444",
-      placeholder: "#ef4444",
+      default: "#6366f1",
+      placeholder: "#6366f1",
+    },
+    text_color: {
+      type: "text",
+      label: "Color del texto (hex)",
+      default: "#f8fafc",
+      placeholder: "#f8fafc",
+    },
+    number_color: {
+      type: "text",
+      label: "Color de los números (hex)",
+      default: "#6366f1",
+      placeholder: "#6366f1",
+    },
+    border_radius: {
+      type: "number",
+      label: "Redondeo de bordes (px)",
+      default: 16,
+      min: 0,
+      max: 40,
+    },
+    padding: {
+      type: "number",
+      label: "Espaciado interno (px)",
+      default: 24,
+      min: 8,
+      max: 48,
     },
   },
   "barra-progreso": {
@@ -467,6 +544,55 @@ export default function WidgetEditor({
       );
     }
 
+    if (field.type === "select") {
+      return (
+        <div key={key} style={{ marginBottom: "1.25rem" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              color: "#94a3b8",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              marginBottom: "0.5rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            {FIELD_ICONS[field.type] || <Type size={14} />}
+            {label}
+          </label>
+          <select
+            value={value}
+            onChange={(e) => handleConfigChange(key, e.target.value)}
+            style={{
+              width: "100%",
+              padding: "0.75rem 1rem",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "10px",
+              color: "#f1f5f9",
+              fontSize: "0.95rem",
+              outline: "none",
+              cursor: "pointer",
+              appearance: "none",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 1rem center",
+              paddingRight: "2.5rem",
+            }}
+          >
+            {(field.options || []).map((opt: any) => (
+              <option key={opt.value || opt} value={opt.value || opt} style={{ background: "#1e293b", color: "#f1f5f9" }}>
+                {opt.label || opt}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    }
+
     return (
       <div key={key} style={{ marginBottom: "1.25rem" }}>
         <label
@@ -516,6 +642,10 @@ export default function WidgetEditor({
 
   function renderPreview() {
     const accentColor = config.accent_color || "#6366f1";
+
+    if (definition.slug === "contador-regresivo") {
+      return <CountdownWidget config={config} />;
+    }
 
     if (definition.slug === "productos-relacionados") {
       const count = Math.min(Math.max(config.max_products || 4, 1), 8);
@@ -734,41 +864,6 @@ export default function WidgetEditor({
               Solo quedan {stock} unidades!
             </span>
           </motion.div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "contador-regresivo") {
-      const hours = config.hours || 24;
-      return (
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-          <div style={{ marginBottom: "0.75rem", fontSize: "0.8rem", color: "#94a3b8", fontWeight: 600 }}>
-            Oferta termina en:
-          </div>
-          <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
-            {[
-              { val: String(hours).padStart(2, "0"), label: "HS" },
-              { val: "45", label: "MIN" },
-              { val: "30", label: "SEG" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                style={{
-                  background: "rgba(239,68,68,0.15)",
-                  border: "1px solid rgba(239,68,68,0.3)",
-                  borderRadius: "10px",
-                  padding: "0.6rem 0.9rem",
-                  minWidth: "56px",
-                }}
-              >
-                <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fca5a5" }}>{item.val}</div>
-                <div style={{ fontSize: "0.6rem", color: "#ef4444", fontWeight: 600 }}>{item.label}</div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       );
     }
@@ -1630,4 +1725,4 @@ export default function WidgetEditor({
       </div>
     </div>
   );
-      }
+    }
