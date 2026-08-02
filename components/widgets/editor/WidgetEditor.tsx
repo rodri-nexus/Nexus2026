@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Save,
@@ -18,7 +18,7 @@ import {
   ShoppingBag,
   Settings,
   Play,
-  ImageIcon,
+  Image,
   Ruler,
   MousePointer,
   Mail,
@@ -31,12 +31,21 @@ import {
   BarChart3,
   ShoppingCart,
   ArrowLeft,
+  Monitor,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import { WidgetDefinition, WidgetInstance, TiendanubeProduct, CATEGORY_LABELS } from "@/types/widgets";
+import NextImage from "next/image";
+import { WidgetDefinition, WidgetInstance, TiendanubeProduct } from "@/types/widgets";
 
-// ─── SCHEMAS POR DEFECTO PARA WIDGETS SIN CONFIG_SCHEMA ───
+const CATEGORY_LABELS: Record<string, string> = {
+  conversion: "Conversión",
+  multimedia: "Multimedia",
+  urgency: "Urgencia",
+  trust: "Confianza",
+  popup: "Popups",
+  description: "Descripción",
+};
+
 const DEFAULT_SCHEMAS: Record<string, Record<string, any>> = {
   "productos-relacionados": {
     title: {
@@ -241,14 +250,12 @@ const DEFAULT_SCHEMAS: Record<string, Record<string, any>> = {
   },
 };
 
-// ─── ICONOS POR TIPO DE CAMPO ───
 const FIELD_ICONS: Record<string, React.ReactNode> = {
   text: <Type size={14} />,
   number: <Hash size={14} />,
   boolean: <Zap size={14} />,
 };
 
-// ─── ICONO DEL WIDGET ───
 const WIDGET_ICONS: Record<string, React.ReactNode> = {
   "productos-relacionados": <Link2 size={20} />,
   "bundle-productos": <Package size={20} />,
@@ -261,7 +268,7 @@ const WIDGET_ICONS: Record<string, React.ReactNode> = {
   "popup-oferta": <Mail size={20} />,
   "popup-salida": <MousePointer size={20} />,
   "video-producto": <Play size={20} />,
-  "galeria-360": <ImageIcon size={20} />,
+  "galeria-360": <Image size={20} />,
   "descripcion-expandible": <Type size={20} />,
   "tabla-talles": <Ruler size={20} />,
   "sticky-add-cart": <ShoppingCart size={20} />,
@@ -292,16 +299,16 @@ export default function WidgetEditor({
   const [widgetId, setWidgetId] = useState<string | null>(existingWidget?.id ?? null);
   const [previewKey, setPreviewKey] = useState(0);
 
-  const effectiveSchema = useCallback(() => {
+  function getEffectiveSchema(): Record<string, any> {
     const schema = definition.config_schema || {};
     if (Object.keys(schema).length === 0 && DEFAULT_SCHEMAS[definition.slug]) {
       return DEFAULT_SCHEMAS[definition.slug];
     }
     return schema as Record<string, any>;
-  }, [definition]);
+  }
 
   useEffect(() => {
-    const schema = effectiveSchema();
+    const schema = getEffectiveSchema();
     const defaults: Record<string, any> = {};
     Object.entries(schema).forEach(([key, field]: [string, any]) => {
       defaults[key] = existingWidget?.config?.[key] ?? field.default ?? "";
@@ -309,14 +316,14 @@ export default function WidgetEditor({
     setConfig(defaults);
     setIsActive(existingWidget?.is_active ?? true);
     setWidgetId(existingWidget?.id ?? null);
-  }, [definition, existingWidget, effectiveSchema]);
+  }, [definition, existingWidget]);
 
-  const handleConfigChange = (key: string, value: any) => {
+  function handleConfigChange(key: string, value: any) {
     setConfig((prev) => ({ ...prev, [key]: value }));
     setPreviewKey((k) => k + 1);
-  };
+  }
 
-  const handleSave = async () => {
+  async function handleSave() {
     if (!storeId) {
       setError("No hay tienda conectada");
       return;
@@ -357,9 +364,9 @@ export default function WidgetEditor({
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  const renderField = (key: string, field: any) => {
+  function renderField(key: string, field: any) {
     const label = field.label || key;
     const value = config[key];
 
@@ -505,9 +512,9 @@ export default function WidgetEditor({
         />
       </div>
     );
-  };
+  }
 
-  const renderPreview = () => {
+  function renderPreview() {
     const accentColor = config.accent_color || "#6366f1";
 
     if (definition.slug === "productos-relacionados") {
@@ -525,7 +532,7 @@ export default function WidgetEditor({
           >
             {config.title || "Productos relacionados"}
           </h3>
-          <div style={{ display: "grid", gridTemplateColumns: count <= 2 ? "repeat(2, 1fr)" : "repeat(2, 1fr)", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }}>
             {Array.from({ length: count }).map((_, i) => (
               <motion.div
                 key={`${previewKey}-${i}`}
@@ -724,7 +731,7 @@ export default function WidgetEditor({
           >
             <Clock size={20} color="#ef4444" />
             <span style={{ color: "#fca5a5", fontSize: "0.9rem", fontWeight: 700 }}>
-              ¡Solo quedan {stock} unidades!
+              Solo quedan {stock} unidades!
             </span>
           </motion.div>
         </div>
@@ -736,7 +743,7 @@ export default function WidgetEditor({
       return (
         <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
           <div style={{ marginBottom: "0.75rem", fontSize: "0.8rem", color: "#94a3b8", fontWeight: 600 }}>
-            ⏰ Oferta termina en:
+            Oferta termina en:
           </div>
           <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
             {[
@@ -921,7 +928,7 @@ export default function WidgetEditor({
               <Mail size={24} color="#ffffff" />
             </div>
             <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc" }}>
-              ¡No te lo pierdas!
+              No te lo pierdas!
             </h3>
             <p style={{ margin: "0 0 1rem", fontSize: "0.85rem", color: "#94a3b8" }}>
               Usá el código y obtené un descuento exclusivo
@@ -973,7 +980,7 @@ export default function WidgetEditor({
               <MousePointer size={24} color="#ffffff" />
             </div>
             <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc" }}>
-              ¿Te vas tan pronto?
+              Te vas tan pronto?
             </h3>
             <p style={{ margin: "0 0 1rem", fontSize: "0.85rem", color: "#94a3b8" }}>
               Te regalamos un descuento por quedarte
@@ -1067,7 +1074,7 @@ export default function WidgetEditor({
                 border: `1px solid ${accentColor}33`,
               }}
             >
-              <ImageIcon size={40} color={accentColor} />
+              <Image size={40} color={accentColor} />
             </motion.div>
             <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#94a3b8" }}>
               Arrastrá para rotar 360°
@@ -1090,12 +1097,7 @@ export default function WidgetEditor({
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
               <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#f1f5f9" }}>Descripción del producto</span>
-              <motion.div
-                animate={{ rotate: [0, 180] }}
-                transition={{ duration: 0.3, repeat: 1, repeatType: "reverse" }}
-              >
-                <ChevronLeft size={18} color="#94a3b8" style={{ transform: "rotate(-90deg)" }} />
-              </motion.div>
+              <ChevronLeft size={18} color="#94a3b8" style={{ transform: "rotate(-90deg)" }} />
             </div>
             <div style={{ fontSize: "0.85rem", color: "#94a3b8", lineHeight: 1.6 }}>
               Este producto está fabricado con materiales de alta calidad. Ideal para uso diario...
@@ -1157,10 +1159,7 @@ export default function WidgetEditor({
         <div style={{ position: "relative", zIndex: 2 }}>
           <div
             style={{
-              position: "fixed",
-              bottom: "0",
-              left: "0",
-              right: "0",
+              position: "relative",
               padding: "1rem 1.25rem",
               background: "rgba(15, 23, 42, 0.95)",
               backdropFilter: "blur(20px)",
@@ -1168,6 +1167,7 @@ export default function WidgetEditor({
               display: "flex",
               alignItems: "center",
               gap: "1rem",
+              borderRadius: "16px",
             }}
           >
             <div style={{ flex: 1 }}>
@@ -1196,7 +1196,6 @@ export default function WidgetEditor({
       );
     }
 
-    // Fallback genérico
     return (
       <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "2rem" }}>
         <div
@@ -1221,15 +1220,14 @@ export default function WidgetEditor({
         </p>
       </div>
     );
-  };
+  }
 
-  const schema = effectiveSchema();
+  const schema = getEffectiveSchema();
   const hasFields = Object.keys(schema).length > 0;
   const accentColor = config.accent_color || "#6366f1";
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1288,7 +1286,7 @@ export default function WidgetEditor({
               letterSpacing: "0.05em",
             }}
           >
-            {CATEGORY_LABELS[definition.category as keyof typeof CATEGORY_LABELS] || definition.category}
+            {CATEGORY_LABELS[definition.category] || definition.category}
           </span>
           <span
             style={{
@@ -1307,9 +1305,7 @@ export default function WidgetEditor({
         </div>
       </motion.div>
 
-      {/* Grid principal */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-        {/* Panel de configuración */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -1330,7 +1326,6 @@ export default function WidgetEditor({
             </h2>
           </div>
 
-          {/* Producto seleccionado */}
           {product && (
             <div
               style={{
@@ -1345,7 +1340,7 @@ export default function WidgetEditor({
               }}
             >
               {product.images?.[0]?.src ? (
-                <Image
+                <NextImage
                   src={product.images[0].src}
                   alt={product.name}
                   width={44}
@@ -1387,7 +1382,6 @@ export default function WidgetEditor({
             </div>
           )}
 
-          {/* Campos del formulario */}
           {hasFields ? (
             Object.entries(schema).map(([key, field]) => renderField(key, field))
           ) : (
@@ -1400,14 +1394,15 @@ export default function WidgetEditor({
                 border: "1px dashed rgba(255,255,255,0.1)",
               }}
             >
-              <Sparkles size={32} color="#475569" style={{ marginBottom: "0.75rem" }} />
+              <div style={{ marginBottom: "0.75rem" }}>
+                <Sparkles size={32} color="#475569" />
+              </div>
               <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>
                 Este widget no requiere configuración adicional.
               </p>
             </div>
           )}
 
-          {/* Estado y Guardar */}
           <div
             style={{
               marginTop: "2rem",
@@ -1515,7 +1510,9 @@ export default function WidgetEditor({
                     exit={{ opacity: 0 }}
                     style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
                   >
-                    <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                    <span style={{ display: "inline-block", animation: "spin 1s linear infinite" }}>
+                      <Loader2 size={18} />
+                    </span>
                     Guardando...
                   </motion.span>
                 ) : saved ? (
@@ -1527,7 +1524,7 @@ export default function WidgetEditor({
                     style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
                   >
                     <Check size={18} />
-                    ¡Guardado con éxito!
+                    Guardado con éxito!
                   </motion.span>
                 ) : (
                   <motion.span
@@ -1554,7 +1551,6 @@ export default function WidgetEditor({
           </div>
         </motion.div>
 
-        {/* Panel de preview */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -1592,7 +1588,6 @@ export default function WidgetEditor({
               minHeight: "320px",
             }}
           >
-            {/* Glow ambiental */}
             <motion.div
               animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.05, 1] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -1612,7 +1607,6 @@ export default function WidgetEditor({
             {renderPreview()}
           </div>
 
-          {/* Info adicional */}
           <div
             style={{
               marginTop: "1rem",
@@ -1625,7 +1619,7 @@ export default function WidgetEditor({
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
               <Sparkles size={14} color="#64748b" />
               <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#94a3b8" }}>
-                ¿Cómo se ve en tu tienda?
+                Como se ve en tu tienda?
               </span>
             </div>
             <p style={{ margin: 0, fontSize: "0.75rem", color: "#64748b", lineHeight: 1.5 }}>
@@ -1636,4 +1630,4 @@ export default function WidgetEditor({
       </div>
     </div>
   );
-  }
+      }
