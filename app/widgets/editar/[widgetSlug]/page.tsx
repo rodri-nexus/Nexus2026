@@ -38,14 +38,21 @@ export default async function WidgetsEditarPage({ params, searchParams }: PagePr
     }
   }
 
-  const { data: existingWidget } = await supabase
+  // Buscar widget existente (fix: usar .eq() para product_id, no .is())
+  let existingWidgetQuery = supabase
     .from("widgets")
     .select("*")
     .eq("user_id", user.id)
     .eq("widget_slug", params.widgetSlug)
-    .eq("target_type", searchParams.product ? "product" : "all")
-    .is("target_product_id", searchParams.product ? parseInt(searchParams.product) : null)
-    .maybeSingle();
+    .eq("target_type", searchParams.product ? "product" : "all");
+
+  if (searchParams.product) {
+    existingWidgetQuery = existingWidgetQuery.eq("target_product_id", parseInt(searchParams.product, 10));
+  } else {
+    existingWidgetQuery = existingWidgetQuery.is("target_product_id", null);
+  }
+
+  const { data: existingWidget } = await existingWidgetQuery.maybeSingle();
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%)", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", padding: "2rem 1.25rem" }}>
@@ -55,8 +62,8 @@ export default async function WidgetsEditarPage({ params, searchParams }: PagePr
         storeId={store?.store_id}
         existingWidget={existingWidget}
         targetType={searchParams.product ? "product" : "all"}
-        targetProductId={searchParams.product ? parseInt(searchParams.product) : null}
+        targetProductId={searchParams.product ? parseInt(searchParams.product, 10) : null}
       />
     </div>
   );
-    }
+}
