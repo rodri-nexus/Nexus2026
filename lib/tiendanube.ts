@@ -111,4 +111,4 @@ export async function getStoreInfo(storeId: number, accessToken: string) {
   });
   if (!res.ok) return null;
   return res.json();
-  }
+        }
