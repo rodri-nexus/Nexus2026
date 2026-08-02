@@ -111,4 +111,37 @@ export async function getStoreInfo(storeId: number, accessToken: string) {
   });
   if (!res.ok) return null;
   return res.json();
+  // ─── Instalar script en la tienda ───
+
+export async function installStoreScript(
+  storeId: number,
+  accessToken: string,
+  scriptUrl: string
+) {
+  try {
+    const res = await fetch(`${API_BASE}/${storeId}/scripts`, {
+      method: "POST",
+      headers: getHeaders(accessToken),
+      body: JSON.stringify({
+        name: "Nevux Widgets",
+        src: scriptUrl,
+        where: "head",
+        position: "bottom",
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("Error instalando script:", res.status, err);
+      return false;
+    }
+
+    const data = await res.json();
+    console.log("Script instalado:", data);
+    return true;
+  } catch (err) {
+    console.error("Error instalando script:", err);
+    return false;
+  }
+  
   }
