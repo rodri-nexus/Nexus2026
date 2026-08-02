@@ -1,6 +1,36 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { installStoreScript } from "@/lib/tiendanube";
+
+async function installStoreScript(
+  storeId: number,
+  accessToken: string,
+  scriptUrl: string
+) {
+  const res = await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "User-Agent": "Nevux (nevux.app)",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: "Nevux Widgets",
+      src: scriptUrl,
+      where: "head",
+      position: "bottom",
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("Error instalando script:", res.status, err);
+    return false;
+  }
+
+  const data = await res.json();
+  console.log("Script instalado:", data);
+  return true;
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -59,7 +89,6 @@ export async function GET(request: Request) {
     const accessToken = data.access_token;
     const scope = data.scope || null;
 
-    // Guardar la tienda VINCULADA al user_id
     const { error: dbError } = await supabaseAdmin
       .from("stores")
       .upsert(
@@ -91,8 +120,7 @@ export async function GET(request: Request) {
       await installStoreScript(storeId, accessToken, scriptUrl);
       console.log("Script Nevux instalado en tienda:", storeId);
     } catch (scriptErr) {
-      console.error("Error instalando script (no crítico):", scriptErr);
-      // No fallamos el OAuth si el script falla, solo logueamos
+      console.error("Error instalando script (no critico):", scriptErr);
     }
 
     console.log("Tienda conectada y vinculada:", {
@@ -100,7 +128,6 @@ export async function GET(request: Request) {
       user_id: state,
     });
 
-    // Redirigir al dashboard
     return NextResponse.redirect(new URL("/dashboard", request.url));
   } catch (error) {
     console.error("Error al intercambiar el code:", error);
@@ -109,4 +136,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-  }
+    }
