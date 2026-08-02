@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { installStoreScript } from "@/lib/tiendanube";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const state = searchParams.get("state"); // ← Este es el user_id
+  const state = searchParams.get("state");
 
   if (!code) {
     return NextResponse.json(
@@ -67,8 +68,9 @@ export async function GET(request: Request) {
           access_token: accessToken,
           scope: scope,
           updated_at: new Date().toISOString(),
+          installed_at: new Date().toISOString(),
           is_active: true,
-          user_id: state, // ← Aquí vinculamos la tienda al usuario
+          user_id: state,
         },
         { onConflict: "store_id" }
       );
@@ -79,6 +81,18 @@ export async function GET(request: Request) {
         { error: "Error al guardar la tienda en la base de datos" },
         { status: 500 }
       );
+    }
+
+    // Instalar el script de widgets en la tienda del cliente
+    const appUrl = new URL(request.url).origin;
+    const scriptUrl = `${appUrl}/nevux-widget.js`;
+    
+    try {
+      await installStoreScript(storeId, accessToken, scriptUrl);
+      console.log("Script Nevux instalado en tienda:", storeId);
+    } catch (scriptErr) {
+      console.error("Error instalando script (no crítico):", scriptErr);
+      // No fallamos el OAuth si el script falla, solo logueamos
     }
 
     console.log("Tienda conectada y vinculada:", {
@@ -95,4 +109,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-         }
+  }
