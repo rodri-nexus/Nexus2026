@@ -3,35 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Save,
-  Eye,
-  EyeOff,
-  Sparkles,
-  Package,
-  Check,
-  AlertCircle,
-  Loader2,
-  Type,
-  Hash,
-  Zap,
-  ChevronLeft,
-  ShoppingBag,
-  Settings,
-  Play,
-  Image,
-  Ruler,
-  MousePointer,
-  Mail,
-  Shield,
-  MessageCircle,
-  Clock,
-  Timer,
-  TrendingUp,
-  Link2,
-  BarChart3,
-  ShoppingCart,
-  ArrowLeft,
-  Monitor,
+  Save, Eye, EyeOff, Sparkles, Package, Check, AlertCircle, Loader2,
+  Type, Hash, Zap, ChevronLeft, ShoppingBag, Settings, Play, Image,
+  Ruler, MousePointer, Mail, Shield, MessageCircle, Clock, Timer,
+  TrendingUp, Link2, BarChart3, ShoppingCart, ArrowLeft, Monitor,
+  Layout, MapPin, Palette,
 } from "lucide-react";
 import Link from "next/link";
 import NextImage from "next/image";
@@ -39,316 +15,64 @@ import { WidgetDefinition, WidgetInstance, TiendanubeProduct } from "@/types/wid
 import CountdownWidget from "@/components/widgets/previews/CountdownWidget";
 
 const CATEGORY_LABELS: Record<string, string> = {
-  conversion: "Conversión",
-  multimedia: "Multimedia",
-  urgency: "Urgencia",
-  trust: "Confianza",
-  popup: "Popups",
-  description: "Descripción",
+  conversion: "Conversión", multimedia: "Multimedia", urgency: "Urgencia",
+  trust: "Confianza", popup: "Popups", description: "Descripción",
 };
 
+const SECTION_ICONS: Record<string, React.ReactNode> = {
+  general: <Settings size={16} />, location: <MapPin size={16} />, styles: <Palette size={16} />,
+};
+
+const SECTION_LABELS: Record<string, string> = {
+  general: "General", location: "Ubicación", styles: "Estilos",
+};
+
+const WIDGET_ICONS: Record<string, React.ReactNode> = {
+  "productos-relacionados": <Link2 size={20} />, "bundle-productos": <Package size={20} />,
+  "upsell-producto": <TrendingUp size={20} />, "contador-stock": <Clock size={20} />,
+  "contador-regresivo": <Timer size={20} />, "barra-progreso": <BarChart3 size={20} />,
+  "badges-confianza": <Shield size={20} />, "testimonios": <MessageCircle size={20} />,
+  "popup-oferta": <Mail size={20} />, "popup-salida": <MousePointer size={20} />,
+  "video-producto": <Play size={20} />, "galeria-360": <Image size={20} />,
+  "descripcion-expandible": <Type size={20} />, "tabla-talles": <Ruler size={20} />,
+  "sticky-add-cart": <ShoppingCart size={20} />,
+};
+
+// Schema del contador regresivo (igual que antes)
 const DEFAULT_SCHEMAS: Record<string, Record<string, any>> = {
-  "productos-relacionados": {
-    title: {
-      type: "text",
-      label: "Título del widget",
-      default: "Productos relacionados",
-      placeholder: "Ej: Completa tu look, También te puede interesar...",
-    },
-    max_products: {
-      type: "number",
-      label: "Cantidad de productos a mostrar",
-      default: 4,
-      min: 1,
-      max: 8,
-    },
-    show_prices: {
-      type: "boolean",
-      label: "Mostrar precios",
-      default: true,
-    },
-    show_discount_badge: {
-      type: "boolean",
-      label: "Mostrar badge de descuento",
-      default: false,
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#6366f1",
-      placeholder: "#6366f1",
-    },
-  },
-  "bundle-productos": {
-    title: {
-      type: "text",
-      label: "Título del bundle",
-      default: "Ahorrá comprando el combo",
-      placeholder: "Ej: Llevá los 3 y ahorrá 20%",
-    },
-    discount_percentage: {
-      type: "number",
-      label: "Porcentaje de descuento",
-      default: 15,
-      min: 1,
-      max: 99,
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#10b981",
-      placeholder: "#10b981",
-    },
-  },
-  "upsell-producto": {
-    title: {
-      type: "text",
-      label: "Título",
-      default: "¿Te interesa algo mejor?",
-      placeholder: "Ej: ¿Querés el upgrade?",
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#f59e0b",
-      placeholder: "#f59e0b",
-    },
-  },
-  "contador-stock": {
-    threshold: {
-      type: "number",
-      label: "Umbral de stock bajo",
-      default: 5,
-      min: 1,
-      max: 50,
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#ef4444",
-      placeholder: "#ef4444",
-    },
-  },
   "contador-regresivo": {
-    title: {
-      type: "text",
-      label: "Título",
-      default: "Oferta limitada",
-      placeholder: "Ej: Oferta Flash, Black Friday...",
-    },
-    subtitle: {
-      type: "text",
-      label: "Subtítulo (opcional)",
-      default: "Aprovechá antes de que termine",
-      placeholder: "Ej: Solo por hoy, Envío gratis...",
-    },
-    hours: {
-      type: "number",
-      label: "Duración en horas",
-      default: 24,
-      min: 1,
-      max: 720,
-    },
-    show_days: {
-      type: "boolean",
-      label: "Mostrar días",
-      default: true,
-    },
-    show_labels: {
-      type: "boolean",
-      label: "Mostrar etiquetas (DÍAS, HRS, MIN, SEG)",
-      default: true,
-    },
-    show_progress_bar: {
-      type: "boolean",
-      label: "Mostrar barra de progreso",
-      default: true,
-    },
-    urgency_threshold: {
-      type: "number",
-      label: "Umbral de urgencia (horas)",
-      default: 6,
-      min: 1,
-      max: 48,
-    },
-    background_type: {
-      type: "select",
-      label: "Tipo de fondo",
-      default: "glass",
-      options: [
-        { value: "glass", label: "Glassmorphism" },
-        { value: "solid", label: "Color sólido" },
-        { value: "gradient", label: "Degradado" },
-      ],
-    },
-    background_color: {
-      type: "text",
-      label: "Color de fondo (hex)",
-      default: "#0f0f1a",
-      placeholder: "#0f0f1a",
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#6366f1",
-      placeholder: "#6366f1",
-    },
-    text_color: {
-      type: "text",
-      label: "Color del texto (hex)",
-      default: "#f8fafc",
-      placeholder: "#f8fafc",
-    },
-    number_color: {
-      type: "text",
-      label: "Color de los números (hex)",
-      default: "#6366f1",
-      placeholder: "#6366f1",
-    },
-    border_radius: {
-      type: "number",
-      label: "Redondeo de bordes (px)",
-      default: 16,
-      min: 0,
-      max: 40,
-    },
-    padding: {
-      type: "number",
-      label: "Espaciado interno (px)",
-      default: 24,
-      min: 8,
-      max: 48,
-    },
-  },
-  "barra-progreso": {
-    goal_amount: {
-      type: "number",
-      label: "Monto objetivo ($)",
-      default: 50000,
-      min: 1000,
-      max: 1000000,
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#8b5cf6",
-      placeholder: "#8b5cf6",
-    },
-  },
-  "badges-confianza": {
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#10b981",
-      placeholder: "#10b981",
-    },
-  },
-  "testimonios": {
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#6366f1",
-      placeholder: "#6366f1",
-    },
-  },
-  "popup-oferta": {
-    discount: {
-      type: "text",
-      label: "Código de descuento",
-      default: "NEVUX10",
-      placeholder: "Ej: NEVUX10",
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#ec4899",
-      placeholder: "#ec4899",
-    },
-  },
-  "popup-salida": {
-    discount: {
-      type: "text",
-      label: "Código de descuento",
-      default: "NOVAYAS15",
-      placeholder: "Ej: NOVAYAS15",
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#f59e0b",
-      placeholder: "#f59e0b",
-    },
-  },
-  "video-producto": {
-    video_url: {
-      type: "text",
-      label: "URL del video",
-      default: "",
-      placeholder: "https://youtube.com/watch?v=...",
-    },
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#6366f1",
-      placeholder: "#6366f1",
-    },
-  },
-  "galeria-360": {
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#6366f1",
-      placeholder: "#6366f1",
-    },
-  },
-  "descripcion-expandible": {
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#64748b",
-      placeholder: "#64748b",
-    },
-  },
-  "tabla-talles": {
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#6366f1",
-      placeholder: "#6366f1",
-    },
-  },
-  "sticky-add-cart": {
-    accent_color: {
-      type: "text",
-      label: "Color de acento (hex)",
-      default: "#10b981",
-      placeholder: "#10b981",
-    },
+    title: { type: "text", label: "Título", default: "Oferta🔥", placeholder: "Ej: Oferta Flash...", section: "general" },
+    subtitle: { type: "text", label: "Subtítulo (opcional)", default: "", placeholder: "Ingresá un subtítulo...", section: "general" },
+    end_datetime: { type: "datetime-local", label: "Fecha y hora final", default: "", section: "general" },
+    auto_restart: { type: "boolean", label: "Reiniciar automáticamente cuando termine", default: false, section: "general" },
+    show_days: { type: "boolean", label: "Mostrar días", default: true, section: "general" },
+    show_in_product_page: { type: "boolean", label: "Mostrar en ficha de producto", default: true, section: "location" },
+    widget_position: { type: "select", label: "Ubicación del widget", default: "before_add_to_cart", options: [{ value: "before_add_to_cart", label: "Antes del botón 'Agregar al carrito'" }, { value: "before_product_title", label: "Antes del título del producto" }, { value: "after_product_title", label: "Después del título del producto" }], section: "location" },
+    sticky_bar: { type: "boolean", label: "Mostrar como barra fija en la parte superior", default: false, section: "location" },
+    show_in_cart: { type: "boolean", label: "Mostrar en el carrito", default: false, section: "location" },
+    clock_style: { type: "select", label: "Estilo del reloj", default: "classic", options: [{ value: "classic", label: "Clásico" }, { value: "retro_flip", label: "Retro flip" }], section: "styles" },
+    content_alignment: { type: "select", label: "Alineación del contenido", default: "center", options: [{ value: "left", label: "Izquierda" }, { value: "center", label: "Siempre centrado" }, { value: "right", label: "Derecha" }], section: "styles" },
+    show_clock_labels: { type: "boolean", label: "Mostrar etiquetas del reloj", default: true, section: "styles" },
+    background_type: { type: "select", label: "Tipo de fondo", default: "solid", options: [{ value: "solid", label: "Color sólido" }, { value: "gradient", label: "Degradé" }], section: "styles" },
+    background_color: { type: "text", label: "Color de fondo (hex)", default: "#1e1e1e", placeholder: "#1e1e1e", section: "styles" },
+    subtitle_bg_color: { type: "text", label: "Fondo del subtítulo (hex)", default: "#fdc624", placeholder: "#fdc624", section: "styles" },
+    clock_bg_color: { type: "text", label: "Color de fondo del reloj (hex)", default: "#ef4444", placeholder: "#ef4444", section: "styles" },
+    title_font_color: { type: "text", label: "Color de fuente del título (hex)", default: "#ffffff", placeholder: "#ffffff", section: "styles" },
+    subtitle_font_color: { type: "text", label: "Color de fuente del subtítulo (hex)", default: "#000000", placeholder: "#000000", section: "styles" },
+    number_font_color: { type: "text", label: "Color de números (hex)", default: "#ffffff", placeholder: "#ffffff", section: "styles" },
+    title_font_size: { type: "number", label: "Tamaño de fuente del título (px)", default: 16, min: 10, max: 40, section: "styles" },
+    subtitle_font_size: { type: "number", label: "Tamaño de fuente del subtítulo (px)", default: 11, min: 8, max: 24, section: "styles" },
+    clock_font_size: { type: "number", label: "Tamaño de fuente del reloj (px)", default: 16, min: 10, max: 40, section: "styles" },
+    clock_border_radius: { type: "number", label: "Borde del reloj (px)", default: 5, min: 0, max: 25, section: "styles" },
+    widget_border_radius: { type: "number", label: "Borde del widget (px)", default: 5, min: 0, max: 25, section: "styles" },
+    widget_padding: { type: "number", label: "Margen interno del widget (px)", default: 15, min: 0, max: 40, section: "styles" },
+    clock_padding: { type: "number", label: "Margen interno del reloj (px)", default: 7, min: 0, max: 30, section: "styles" },
   },
 };
 
 const FIELD_ICONS: Record<string, React.ReactNode> = {
-  text: <Type size={14} />,
-  number: <Hash size={14} />,
-  boolean: <Zap size={14} />,
-};
-
-const WIDGET_ICONS: Record<string, React.ReactNode> = {
-  "productos-relacionados": <Link2 size={20} />,
-  "bundle-productos": <Package size={20} />,
-  "upsell-producto": <TrendingUp size={20} />,
-  "contador-stock": <Clock size={20} />,
-  "contador-regresivo": <Timer size={20} />,
-  "barra-progreso": <BarChart3 size={20} />,
-  "badges-confianza": <Shield size={20} />,
-  "testimonios": <MessageCircle size={20} />,
-  "popup-oferta": <Mail size={20} />,
-  "popup-salida": <MousePointer size={20} />,
-  "video-producto": <Play size={20} />,
-  "galeria-360": <Image size={20} />,
-  "descripcion-expandible": <Type size={20} />,
-  "tabla-talles": <Ruler size={20} />,
-  "sticky-add-cart": <ShoppingCart size={20} />,
+  text: <Type size={14} />, number: <Hash size={14} />, boolean: <Zap size={14} />,
+  "datetime-local": <Clock size={14} />, select: <Layout size={14} />,
 };
 
 interface WidgetEditorProps {
@@ -361,12 +85,7 @@ interface WidgetEditorProps {
 }
 
 export default function WidgetEditor({
-  definition,
-  product,
-  storeId,
-  existingWidget,
-  targetType,
-  targetProductId,
+  definition, product, storeId, existingWidget, targetType, targetProductId,
 }: WidgetEditorProps) {
   const [config, setConfig] = useState<Record<string, any>>({});
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
@@ -401,40 +120,22 @@ export default function WidgetEditor({
   }
 
   async function handleSave() {
-    if (!storeId) {
-      setError("No hay tienda conectada");
-      return;
-    }
-    setSaving(true);
-    setError(null);
-    setSaved(false);
-
+    if (!storeId) { setError("No hay tienda conectada"); return; }
+    setSaving(true); setError(null); setSaved(false);
     try {
       const res = await fetch("/api/widgets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: widgetId,
-          store_id: storeId,
-          widget_slug: definition.slug,
-          widget_type: definition.category,
-          target_type: targetType,
-          target_product_id: targetProductId,
-          config,
-          is_active: isActive,
+          id: widgetId, store_id: storeId, widget_slug: definition.slug,
+          widget_type: definition.category, target_type: targetType,
+          target_product_id: targetProductId, config, is_active: isActive,
         }),
       });
-
       const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result.error || "Error al guardar");
-      }
-
+      if (!res.ok) throw new Error(result.error || "Error al guardar");
       setSaved(true);
-      if (result.data?.id) {
-        setWidgetId(result.data.id);
-      }
+      if (result.data?.id) setWidgetId(result.data.id);
       setTimeout(() => setSaved(false), 2500);
     } catch (e: any) {
       setError(e.message || "Error al guardar el widget");
@@ -451,42 +152,17 @@ export default function WidgetEditor({
       return (
         <div key={key} style={{ marginBottom: "1.25rem" }}>
           <label style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer" }}>
-            <div
-              onClick={() => handleConfigChange(key, !value)}
-              style={{
-                width: "44px",
-                height: "24px",
-                borderRadius: "12px",
-                background: value
-                  ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
-                  : "#374151",
-                position: "relative",
-                transition: "background 0.3s",
-                cursor: "pointer",
-                flexShrink: 0,
-              }}
-            >
-              <motion.div
-                animate={{ x: value ? 22 : 2 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  background: "#ffffff",
-                  position: "absolute",
-                  top: "2px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                }}
-              />
+            <div onClick={() => handleConfigChange(key, !value)} style={{
+              width: "44px", height: "24px", borderRadius: "12px",
+              background: value ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "#374151",
+              position: "relative", cursor: "pointer", flexShrink: 0,
+            }}>
+              <motion.div animate={{ x: value ? 22 : 2 }} transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#fff", position: "absolute", top: "2px", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }} />
             </div>
             <div>
-              <span style={{ color: "#e2e8f0", fontSize: "0.9rem", fontWeight: 500, display: "block" }}>
-                {label}
-              </span>
-              {field.description && (
-                <span style={{ color: "#64748b", fontSize: "0.75rem" }}>{field.description}</span>
-              )}
+              <span style={{ color: "#e2e8f0", fontSize: "0.9rem", fontWeight: 500, display: "block" }}>{label}</span>
+              {field.description && <span style={{ color: "#64748b", fontSize: "0.75rem" }}>{field.description}</span>}
             </div>
           </label>
         </div>
@@ -496,50 +172,14 @@ export default function WidgetEditor({
     if (field.type === "number") {
       return (
         <div key={key} style={{ marginBottom: "1.25rem" }}>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              color: "#94a3b8",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              marginBottom: "0.5rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {FIELD_ICONS[field.type] || <Hash size={14} />}
-            {label}
+          <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#94a3b8", fontSize: "0.8rem", fontWeight: 600, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            {FIELD_ICONS[field.type] || <Hash size={14} />}{label}
           </label>
-          <input
-            type="number"
-            min={field.min}
-            max={field.max}
-            value={value}
-            onChange={(e) =>
-              handleConfigChange(key, parseInt(e.target.value) || 0)
-            }
-            style={{
-              width: "100%",
-              padding: "0.75rem 1rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "10px",
-              color: "#f1f5f9",
-              fontSize: "0.95rem",
-              outline: "none",
-              transition: "border-color 0.2s, box-shadow 0.2s",
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = "#6366f1";
-              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)";
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          />
+          <input type="number" min={field.min} max={field.max} value={value}
+            onChange={(e) => handleConfigChange(key, parseInt(e.target.value) || 0)}
+            style={{ width: "100%", padding: "0.75rem 1rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", color: "#f1f5f9", fontSize: "0.95rem", outline: "none" }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)"; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }} />
         </div>
       );
     }
@@ -547,1090 +187,169 @@ export default function WidgetEditor({
     if (field.type === "select") {
       return (
         <div key={key} style={{ marginBottom: "1.25rem" }}>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              color: "#94a3b8",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              marginBottom: "0.5rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {FIELD_ICONS[field.type] || <Type size={14} />}
-            {label}
+          <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#94a3b8", fontSize: "0.8rem", fontWeight: 600, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            {FIELD_ICONS[field.type] || <Layout size={14} />}{label}
           </label>
-          <select
-            value={value}
-            onChange={(e) => handleConfigChange(key, e.target.value)}
-            style={{
-              width: "100%",
-              padding: "0.75rem 1rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "10px",
-              color: "#f1f5f9",
-              fontSize: "0.95rem",
-              outline: "none",
-              cursor: "pointer",
-              appearance: "none",
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 1rem center",
-              paddingRight: "2.5rem",
-            }}
-          >
+          <select value={value} onChange={(e) => handleConfigChange(key, e.target.value)}
+            style={{ width: "100%", padding: "0.75rem 1rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", color: "#f1f5f9", fontSize: "0.95rem", outline: "none", cursor: "pointer", appearance: "none", backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem center", paddingRight: "2.5rem" }}>
             {(field.options || []).map((opt: any) => (
-              <option key={opt.value || opt} value={opt.value || opt} style={{ background: "#1e293b", color: "#f1f5f9" }}>
-                {opt.label || opt}
-              </option>
+              <option key={opt.value || opt} value={opt.value || opt} style={{ background: "#1e293b", color: "#f1f5f9" }}>{opt.label || opt}</option>
             ))}
           </select>
         </div>
       );
     }
 
+    if (field.type === "datetime-local") {
+      return (
+        <div key={key} style={{ marginBottom: "1.25rem" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#94a3b8", fontSize: "0.8rem", fontWeight: 600, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            {FIELD_ICONS[field.type] || <Clock size={14} />}{label}
+          </label>
+          <input type="datetime-local" value={value} onChange={(e) => handleConfigChange(key, e.target.value)}
+            style={{ width: "100%", padding: "0.75rem 1rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", color: "#f1f5f9", fontSize: "0.95rem", outline: "none", colorScheme: "dark" }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)"; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }} />
+        </div>
+      );
+    }
+
     return (
       <div key={key} style={{ marginBottom: "1.25rem" }}>
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            color: "#94a3b8",
-            fontSize: "0.8rem",
-            fontWeight: 600,
-            marginBottom: "0.5rem",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
-          {FIELD_ICONS[field.type] || <Type size={14} />}
-          {label}
+        <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#94a3b8", fontSize: "0.8rem", fontWeight: 600, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          {FIELD_ICONS[field.type] || <Type size={14} />}{label}
         </label>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => handleConfigChange(key, e.target.value)}
-          placeholder={field.placeholder || ""}
-          style={{
-            width: "100%",
-            padding: "0.75rem 1rem",
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "10px",
-            color: "#f1f5f9",
-            fontSize: "0.95rem",
-            outline: "none",
-            transition: "border-color 0.2s, box-shadow 0.2s",
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "#6366f1";
-            e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        />
+        <input type="text" value={value} onChange={(e) => handleConfigChange(key, e.target.value)} placeholder={field.placeholder || ""}
+          style={{ width: "100%", padding: "0.75rem 1rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px", color: "#f1f5f9", fontSize: "0.95rem", outline: "none" }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)"; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }} />
       </div>
     );
   }
 
-  function renderPreview() {
-    const accentColor = config.accent_color || "#6366f1";
+  function renderFieldsBySection(schema: Record<string, any>) {
+    const sections: Record<string, [string, any][]> = {};
+    Object.entries(schema).forEach(([key, field]) => {
+      const section = field.section || "general";
+      if (!sections[section]) sections[section] = [];
+      sections[section].push([key, field]);
+    });
+    const sectionOrder = ["general", "location", "styles"];
+    const orderedSections = sectionOrder.filter((s) => sections[s]).concat(Object.keys(sections).filter((s) => !sectionOrder.includes(s)));
+    return orderedSections.map((section) => (
+      <div key={section} style={{ marginBottom: "2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem", paddingBottom: "0.75rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <span style={{ color: "#6366f1" }}>{SECTION_ICONS[section] || <Settings size={16} />}</span>
+          <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#f1f5f9", textTransform: "uppercase", letterSpacing: "0.08em" }}>{SECTION_LABELS[section] || section}</span>
+        </div>
+        {sections[section].map(([key, field]) => renderField(key as string, field))}
+      </div>
+    ));
+  }
 
+  function renderPreview() {
     if (definition.slug === "contador-regresivo") {
       return <CountdownWidget config={config} />;
     }
-
-    if (definition.slug === "productos-relacionados") {
-      const count = Math.min(Math.max(config.max_products || 4, 1), 8);
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <h3
-            style={{
-              margin: "0 0 1.5rem",
-              fontSize: "1.1rem",
-              fontWeight: 700,
-              color: "#f8fafc",
-              textAlign: "center",
-            }}
-          >
-            {config.title || "Productos relacionados"}
-          </h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }}>
-            {Array.from({ length: count }).map((_, i) => (
-              <motion.div
-                key={`${previewKey}-${i}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08, type: "spring", stiffness: 100 }}
-                whileHover={{
-                  y: -6,
-                  transition: { type: "spring", stiffness: 300, damping: 20 },
-                }}
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "16px",
-                  padding: "1rem",
-                  cursor: "pointer",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    width: "100%",
-                    height: "90px",
-                    background: `linear-gradient(135deg, ${accentColor}22, ${accentColor}11)`,
-                    borderRadius: "12px",
-                    marginBottom: "0.75rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Package size={24} color={`${accentColor}66`} />
-                </div>
-                <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#e2e8f0", marginBottom: "0.25rem" }}>
-                  Producto {i + 1}
-                </div>
-                {config.show_prices !== false && (
-                  <div style={{ fontSize: "0.85rem", fontWeight: 700, color: accentColor }}>
-                    $12.500
-                  </div>
-                )}
-                {config.show_discount_badge && (
-                  <motion.div
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    style={{
-                      position: "absolute",
-                      top: "0.5rem",
-                      right: "0.5rem",
-                      padding: "0.2rem 0.5rem",
-                      background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                      borderRadius: "6px",
-                      fontSize: "0.65rem",
-                      fontWeight: 700,
-                      color: "#ffffff",
-                    }}
-                  >
-                    -20%
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "bundle-productos") {
-      return (
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-          <div
-            style={{
-              background: `linear-gradient(135deg, ${accentColor}22, ${accentColor}11)`,
-              border: `1px solid ${accentColor}33`,
-              borderRadius: "20px",
-              padding: "2rem 1.5rem",
-            }}
-          >
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "56px",
-                height: "56px",
-                borderRadius: "16px",
-                background: `linear-gradient(135deg, ${accentColor}, ${accentColor}dd)`,
-                marginBottom: "1rem",
-              }}
-            >
-              <Package size={28} color="#ffffff" />
-            </div>
-            <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc" }}>
-              {config.title || "Ahorrá comprando el combo"}
-            </h3>
-            <p style={{ margin: "0 0 1.25rem", fontSize: "0.85rem", color: "#94a3b8" }}>
-              Llevá los 3 productos y ahorrá un {config.discount_percentage || 15}%
-            </p>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.75rem 1.5rem",
-                background: `linear-gradient(135deg, ${accentColor}, ${accentColor}dd)`,
-                borderRadius: "12px",
-                color: "#ffffff",
-                fontSize: "0.9rem",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              <ShoppingCart size={16} />
-              Agregar combo al carrito
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "upsell-producto") {
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: `1px solid ${accentColor}33`,
-              borderRadius: "16px",
-              padding: "1.5rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-            }}
-          >
-            <div
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "12px",
-                background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <TrendingUp size={28} color={accentColor} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "0.75rem", color: accentColor, fontWeight: 700, marginBottom: "0.25rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Upgrade recomendado
-              </div>
-              <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#f8fafc", marginBottom: "0.25rem" }}>
-                {config.title || "¿Te interesa algo mejor?"}
-              </div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
-                Versión premium con más funciones
-              </div>
-            </div>
-            <div
-              style={{
-                padding: "0.5rem 1rem",
-                background: `linear-gradient(135deg, ${accentColor}, ${accentColor}dd)`,
-                borderRadius: "10px",
-                color: "#ffffff",
-                fontSize: "0.8rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                flexShrink: 0,
-              }}
-            >
-              Ver
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "contador-stock") {
-      const stock = Math.max(config.threshold || 5, 1);
-      return (
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-          <motion.div
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.75rem",
-              padding: "0.75rem 1.25rem",
-              background: "rgba(239,68,68,0.1)",
-              border: "1px solid rgba(239,68,68,0.3)",
-              borderRadius: "12px",
-            }}
-          >
-            <Clock size={20} color="#ef4444" />
-            <span style={{ color: "#fca5a5", fontSize: "0.9rem", fontWeight: 700 }}>
-              Solo quedan {stock} unidades!
-            </span>
-          </motion.div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "barra-progreso") {
-      const goal = config.goal_amount || 50000;
-      const current = Math.round(goal * 0.65);
-      const pct = Math.round((current / goal) * 100);
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 600 }}>
-              Envío gratis
-            </span>
-            <span style={{ fontSize: "0.8rem", color: accentColor, fontWeight: 700 }}>
-              ${current.toLocaleString()} / ${goal.toLocaleString()}
-            </span>
-          </div>
-          <div
-            style={{
-              width: "100%",
-              height: "10px",
-              background: "rgba(255,255,255,0.05)",
-              borderRadius: "5px",
-              overflow: "hidden",
-            }}
-          >
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${pct}%` }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              style={{
-                height: "100%",
-                background: `linear-gradient(90deg, ${accentColor}, ${accentColor}dd)`,
-                borderRadius: "5px",
-              }}
-            />
-          </div>
-          <div style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#64748b", textAlign: "center" }}>
-            Te faltan ${(goal - current).toLocaleString()} para envío gratis
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "badges-confianza") {
-      const badges = [
-        { icon: <Shield size={16} />, text: "Pago seguro" },
-        { icon: <ShoppingBag size={16} />, text: "Envío en 24hs" },
-        { icon: <Check size={16} />, text: "Garantía 30 días" },
-      ];
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
-            {badges.map((badge, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  padding: "0.5rem 0.85rem",
-                  background: "rgba(255,255,255,0.03)",
-                  border: `1px solid ${accentColor}33`,
-                  borderRadius: "10px",
-                  color: accentColor,
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                }}
-              >
-                {badge.icon}
-                {badge.text}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "testimonios") {
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "16px",
-              padding: "1.5rem",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: accentColor,
-                  fontSize: "0.9rem",
-                  fontWeight: 700,
-                }}
-              >
-                M
-              </div>
-              <div>
-                <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#f1f5f9" }}>María G.</div>
-                <div style={{ fontSize: "0.75rem", color: "#64748b" }}>★★★★★</div>
-              </div>
-            </div>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "#94a3b8", lineHeight: 1.5, fontStyle: "italic" }}>
-              "Excelente producto, la calidad superó mis expectativas. Llegó en perfectas condiciones."
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "popup-oferta") {
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              background: "linear-gradient(135deg, #1e1b4b, #312e81)",
-              border: `1px solid ${accentColor}44`,
-              borderRadius: "20px",
-              padding: "2rem 1.5rem",
-              textAlign: "center",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              style={{ position: "absolute", top: "1rem", right: "1rem" }}
-            >
-              <Sparkles size={24} color={accentColor} />
-            </motion.div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "48px",
-                height: "48px",
-                borderRadius: "14px",
-                background: `linear-gradient(135deg, ${accentColor}, ${accentColor}dd)`,
-                marginBottom: "1rem",
-              }}
-            >
-              <Mail size={24} color="#ffffff" />
-            </div>
-            <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc" }}>
-              No te lo pierdas!
-            </h3>
-            <p style={{ margin: "0 0 1rem", fontSize: "0.85rem", color: "#94a3b8" }}>
-              Usá el código y obtené un descuento exclusivo
-            </p>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "0.6rem 1.25rem",
-                background: "rgba(255,255,255,0.1)",
-                border: `2px dashed ${accentColor}`,
-                borderRadius: "10px",
-                color: accentColor,
-                fontSize: "1rem",
-                fontWeight: 800,
-                letterSpacing: "0.1em",
-              }}
-            >
-              {config.discount || "NEVUX10"}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "popup-salida") {
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              background: "linear-gradient(135deg, #451a03, #78350f)",
-              border: `1px solid ${accentColor}44`,
-              borderRadius: "20px",
-              padding: "2rem 1.5rem",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "48px",
-                height: "48px",
-                borderRadius: "14px",
-                background: `linear-gradient(135deg, ${accentColor}, ${accentColor}dd)`,
-                marginBottom: "1rem",
-              }}
-            >
-              <MousePointer size={24} color="#ffffff" />
-            </div>
-            <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc" }}>
-              Te vas tan pronto?
-            </h3>
-            <p style={{ margin: "0 0 1rem", fontSize: "0.85rem", color: "#94a3b8" }}>
-              Te regalamos un descuento por quedarte
-            </p>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "0.6rem 1.25rem",
-                background: "rgba(255,255,255,0.1)",
-                border: `2px dashed ${accentColor}`,
-                borderRadius: "10px",
-                color: accentColor,
-                fontSize: "1rem",
-                fontWeight: 800,
-                letterSpacing: "0.1em",
-              }}
-            >
-              {config.discount || "NOVAYAS15"}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "video-producto") {
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              background: "rgba(0,0,0,0.3)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "16px",
-              overflow: "hidden",
-              aspectRatio: "16/9",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                background: `linear-gradient(135deg, ${accentColor}, ${accentColor}dd)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              <Play size={28} color="#ffffff" fill="#ffffff" />
-            </div>
-            <div style={{ position: "absolute", bottom: "0.75rem", left: "0.75rem", right: "0.75rem" }}>
-              <div style={{ fontSize: "0.75rem", color: "#94a3b8", background: "rgba(0,0,0,0.5)", padding: "0.4rem 0.75rem", borderRadius: "8px", backdropFilter: "blur(8px)" }}>
-                {config.video_url ? "Video cargado" : "Sin video configurado"}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "galeria-360") {
-      return (
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "16px",
-              padding: "2rem",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "1rem",
-            }}
-          >
-            <motion.div
-              animate={{ rotateY: [0, 360] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              style={{
-                width: "120px",
-                height: "120px",
-                borderRadius: "16px",
-                background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: `1px solid ${accentColor}33`,
-              }}
-            >
-              <Image size={40} color={accentColor} />
-            </motion.div>
-            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#94a3b8" }}>
-              Arrastrá para rotar 360°
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "descripcion-expandible") {
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "16px",
-              padding: "1.25rem",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-              <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#f1f5f9" }}>Descripción del producto</span>
-              <ChevronLeft size={18} color="#94a3b8" style={{ transform: "rotate(-90deg)" }} />
-            </div>
-            <div style={{ fontSize: "0.85rem", color: "#94a3b8", lineHeight: 1.6 }}>
-              Este producto está fabricado con materiales de alta calidad. Ideal para uso diario...
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "tabla-talles") {
-      const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "16px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${sizes.length}, 1fr)`,
-                gap: "1px",
-                background: "rgba(255,255,255,0.05)",
-              }}
-            >
-              {sizes.map((size, i) => (
-                <motion.div
-                  key={size}
-                  whileHover={{ background: `${accentColor}22` }}
-                  style={{
-                    padding: "0.75rem 0.5rem",
-                    textAlign: "center",
-                    fontSize: "0.8rem",
-                    fontWeight: 700,
-                    color: i === 2 ? accentColor : "#94a3b8",
-                    background: i === 2 ? `${accentColor}15` : "transparent",
-                    cursor: "pointer",
-                    borderBottom: i === 2 ? `2px solid ${accentColor}` : "2px solid transparent",
-                  }}
-                >
-                  {size}
-                </motion.div>
-              ))}
-            </div>
-            <div style={{ padding: "1rem", fontSize: "0.8rem", color: "#64748b", textAlign: "center" }}>
-              Medidas: Pecho 96cm · Cintura 82cm · Largo 68cm
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (definition.slug === "sticky-add-cart") {
-      return (
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div
-            style={{
-              position: "relative",
-              padding: "1rem 1.25rem",
-              background: "rgba(15, 23, 42, 0.95)",
-              backdropFilter: "blur(20px)",
-              borderTop: "1px solid rgba(255,255,255,0.08)",
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-              borderRadius: "16px",
-            }}
-          >
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Precio total</div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 800, color: "#f8fafc" }}>$45.000</div>
-            </div>
-            <div
-              style={{
-                padding: "0.75rem 1.5rem",
-                background: `linear-gradient(135deg, ${accentColor}, ${accentColor}dd)`,
-                borderRadius: "12px",
-                color: "#ffffff",
-                fontSize: "0.9rem",
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                cursor: "pointer",
-              }}
-            >
-              <ShoppingCart size={18} />
-              Agregar al carrito
-            </div>
-          </div>
-        </div>
-      );
-    }
-
+    // Placeholder genérico para los otros 14 widgets
+    const accentColor = config.accent_color || "#6366f1";
     return (
       <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "2rem" }}>
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "64px",
-            height: "64px",
-            borderRadius: "16px",
-            background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`,
-            marginBottom: "1rem",
-          }}
-        >
+        <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "64px", height: "64px", borderRadius: "16px", background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`, marginBottom: "1rem" }}>
           {WIDGET_ICONS[definition.slug] || <Sparkles size={28} color={accentColor} />}
         </div>
-        <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc" }}>
-          {definition.name}
-        </h3>
-        <p style={{ margin: 0, fontSize: "0.85rem", color: "#94a3b8" }}>
-          {definition.description}
-        </p>
+        <h3 style={{ margin: "0 0 0.5rem", fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc" }}>{definition.name}</h3>
+        <p style={{ margin: 0, fontSize: "0.85rem", color: "#94a3b8" }}>{definition.description}</p>
       </div>
     );
   }
 
   const schema = getEffectiveSchema();
   const hasFields = Object.keys(schema).length > 0;
+  const hasSections = Object.values(schema).some((f: any) => f.section);
   const accentColor = config.accent_color || "#6366f1";
 
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{ marginBottom: "2rem" }}
-      >
-        <Link
-          href="/dashboard"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            color: "#94a3b8",
-            fontSize: "0.85rem",
-            textDecoration: "none",
-            marginBottom: "1rem",
-          }}
-        >
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: "2rem" }}>
+        <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "#94a3b8", fontSize: "0.85rem", textDecoration: "none", marginBottom: "1rem" }}>
           <ArrowLeft size={16} /> Volver al dashboard
         </Link>
-
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "14px",
-              background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: accentColor,
-            }}
-          >
+          <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: `linear-gradient(135deg, ${accentColor}33, ${accentColor}11)`, display: "flex", alignItems: "center", justifyContent: "center", color: accentColor }}>
             {WIDGET_ICONS[definition.slug] || <Sparkles size={22} />}
           </div>
           <div>
-            <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#f8fafc", margin: "0 0 0.25rem" }}>
-              {definition.name}
-            </h1>
-            <p style={{ color: "#64748b", fontSize: "0.9rem", margin: 0 }}>
-              {definition.description}
-            </p>
+            <h1 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#f8fafc", margin: "0 0 0.25rem" }}>{definition.name}</h1>
+            <p style={{ color: "#64748b", fontSize: "0.9rem", margin: 0 }}>{definition.description}</p>
           </div>
         </div>
-
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem" }}>
-          <span
-            style={{
-              padding: "0.25rem 0.6rem",
-              background: "rgba(99,102,241,0.1)",
-              borderRadius: "6px",
-              fontSize: "0.7rem",
-              fontWeight: 700,
-              color: "#818cf8",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {CATEGORY_LABELS[definition.category] || definition.category}
-          </span>
-          <span
-            style={{
-              padding: "0.25rem 0.6rem",
-              background: targetType === "product" ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)",
-              borderRadius: "6px",
-              fontSize: "0.7rem",
-              fontWeight: 700,
-              color: targetType === "product" ? "#34d399" : "#fbbf24",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {targetType === "product" ? "Producto específico" : "Todos los productos"}
-          </span>
+          <span style={{ padding: "0.25rem 0.6rem", background: "rgba(99,102,241,0.1)", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 700, color: "#818cf8", textTransform: "uppercase", letterSpacing: "0.05em" }}>{CATEGORY_LABELS[definition.category] || definition.category}</span>
+          <span style={{ padding: "0.25rem 0.6rem", background: targetType === "product" ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 700, color: targetType === "product" ? "#34d399" : "#fbbf24", textTransform: "uppercase", letterSpacing: "0.05em" }}>{targetType === "product" ? "Producto específico" : "Todos los productos"}</span>
         </div>
       </motion.div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          style={{
-            background: "rgba(15, 23, 42, 0.6)",
-            backdropFilter: "blur(20px)",
-            borderRadius: "20px",
-            padding: "2rem",
-            border: "1px solid rgba(255,255,255,0.06)",
-            height: "fit-content",
-          }}
-        >
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} style={{ background: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(20px)", borderRadius: "20px", padding: "2rem", border: "1px solid rgba(255,255,255,0.06)", height: "fit-content" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
             <Settings size={18} color="#6366f1" />
-            <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#f1f5f9" }}>
-              Configuración
-            </h2>
+            <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#f1f5f9" }}>Configuración</h2>
           </div>
 
           {product && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                padding: "0.85rem",
-                background: "rgba(99,102,241,0.08)",
-                borderRadius: "14px",
-                marginBottom: "1.5rem",
-                border: "1px solid rgba(99,102,241,0.15)",
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.85rem", background: "rgba(99,102,241,0.08)", borderRadius: "14px", marginBottom: "1.5rem", border: "1px solid rgba(99,102,241,0.15)" }}>
               {product.images?.[0]?.src ? (
-                <NextImage
-                  src={product.images[0].src}
-                  alt={product.name}
-                  width={44}
-                  height={44}
-                  style={{ borderRadius: "10px", objectFit: "cover" }}
-                />
+                <NextImage src={product.images[0].src} alt={product.name} width={44} height={44} style={{ borderRadius: "10px", objectFit: "cover" }} />
               ) : (
-                <div
-                  style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "10px",
-                    background: "rgba(99,102,241,0.15)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Package size={20} color="#6366f1" />
-                </div>
+                <div style={{ width: "44px", height: "44px", borderRadius: "10px", background: "rgba(99,102,241,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}><Package size={20} color="#6366f1" /></div>
               )}
               <div style={{ minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    color: "#f1f5f9",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {product.name}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
-                  Producto seleccionado · ID: {product.id}
-                </div>
+                <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#f1f5f9", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{product.name}</div>
+                <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Producto seleccionado · ID: {product.id}</div>
               </div>
             </div>
           )}
 
-          {hasFields ? (
-            Object.entries(schema).map(([key, field]) => renderField(key, field))
-          ) : (
-            <div
-              style={{
-                padding: "2rem",
-                textAlign: "center",
-                background: "rgba(255,255,255,0.02)",
-                borderRadius: "12px",
-                border: "1px dashed rgba(255,255,255,0.1)",
-              }}
-            >
-              <div style={{ marginBottom: "0.75rem" }}>
-                <Sparkles size={32} color="#475569" />
-              </div>
-              <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>
-                Este widget no requiere configuración adicional.
-              </p>
+          {hasFields ? (hasSections ? renderFieldsBySection(schema) : Object.entries(schema).map(([key, field]) => renderField(key, field))) : (
+            <div style={{ padding: "2rem", textAlign: "center", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+              <div style={{ marginBottom: "0.75rem" }}><Sparkles size={32} color="#475569" /></div>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>Este widget no requiere configuración adicional.</p>
             </div>
           )}
 
-          <div
-            style={{
-              marginTop: "2rem",
-              paddingTop: "1.5rem",
-              borderTop: "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "1.25rem",
-              }}
-            >
+          <div style={{ marginTop: "2rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
               <div>
-                <span style={{ color: "#e2e8f0", fontSize: "0.9rem", fontWeight: 500, display: "block" }}>
-                  Estado del widget
-                </span>
-                <span style={{ color: "#64748b", fontSize: "0.75rem" }}>
-                  {isActive ? "Visible en tu tienda" : "Oculto en tu tienda"}
-                </span>
+                <span style={{ color: "#e2e8f0", fontSize: "0.9rem", fontWeight: 500, display: "block" }}>Estado del widget</span>
+                <span style={{ color: "#64748b", fontSize: "0.75rem" }}>{isActive ? "Visible en tu tienda" : "Oculto en tu tienda"}</span>
               </div>
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsActive(!isActive)}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.4rem 0.85rem",
-                  borderRadius: "999px",
-                  background: isActive ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
-                  color: isActive ? "#22c55e" : "#ef4444",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  border: `1.5px solid ${isActive ? "rgba(34,197,68,0.3)" : "rgba(239,68,68,0.3)"}`,
-                }}
-              >
-                {isActive ? <Eye size={14} /> : <EyeOff size={14} />}
-                {isActive ? "Activo" : "Inactivo"}
+              <motion.div whileTap={{ scale: 0.95 }} onClick={() => setIsActive(!isActive)} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 0.85rem", borderRadius: "999px", background: isActive ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)", color: isActive ? "#22c55e" : "#ef4444", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", border: `1.5px solid ${isActive ? "rgba(34,197,68,0.3)" : "rgba(239,68,68,0.3)"}` }}>
+                {isActive ? <Eye size={14} /> : <EyeOff size={14} />}{isActive ? "Activo" : "Inactivo"}
               </motion.div>
             </div>
 
             <AnimatePresence mode="wait">
               {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.75rem 1rem",
-                    background: "rgba(239,68,68,0.1)",
-                    border: "1px solid rgba(239,68,68,0.2)",
-                    borderRadius: "10px",
-                    marginBottom: "1rem",
-                    color: "#fca5a5",
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  <AlertCircle size={16} />
-                  {error}
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "10px", marginBottom: "1rem", color: "#fca5a5", fontSize: "0.85rem" }}>
+                  <AlertCircle size={16} />{error}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSave}
-              disabled={saving || !storeId}
-              style={{
-                width: "100%",
-                padding: "0.9rem",
-                borderRadius: "12px",
-                border: "none",
-                background: saved
-                  ? "linear-gradient(135deg, #22c55e, #16a34a)"
-                  : "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                color: "#ffffff",
-                fontSize: "0.95rem",
-                fontWeight: 700,
-                cursor: saving || !storeId ? "wait" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                boxShadow: saved
-                  ? "0 4px 12px rgba(34,197,94,0.35)"
-                  : "0 4px 12px rgba(99,102,241,0.35)",
-                opacity: !storeId ? 0.5 : 1,
-                transition: "all 0.3s",
-              }}
-            >
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSave} disabled={saving || !storeId} style={{ width: "100%", padding: "0.9rem", borderRadius: "12px", border: "none", background: saved ? "linear-gradient(135deg, #22c55e, #16a34a)" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#ffffff", fontSize: "0.95rem", fontWeight: 700, cursor: saving || !storeId ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: saved ? "0 4px 12px rgba(34,197,94,0.35)" : "0 4px 12px rgba(99,102,241,0.35)", opacity: !storeId ? 0.5 : 1, transition: "all 0.3s" }}>
               <AnimatePresence mode="wait">
                 {saving ? (
-                  <motion.span
-                    key="saving"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-                  >
-                    <span style={{ display: "inline-block", animation: "spin 1s linear infinite" }}>
-                      <Loader2 size={18} />
-                    </span>
-                    Guardando...
+                  <motion.span key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ display: "inline-block", animation: "spin 1s linear infinite" }}><Loader2 size={18} /></span>Guardando...
                   </motion.span>
                 ) : saved ? (
-                  <motion.span
-                    key="saved"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-                  >
-                    <Check size={18} />
-                    Guardado con éxito!
+                  <motion.span key="saved" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Check size={18} />Guardado con éxito!
                   </motion.span>
                 ) : (
-                  <motion.span
-                    key="save"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-                  >
-                    <Save size={18} />
-                    {widgetId ? "Actualizar widget" : "Guardar widget"}
+                  <motion.span key="save" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Save size={18} />{widgetId ? "Actualizar widget" : "Guardar widget"}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -1638,91 +357,31 @@ export default function WidgetEditor({
 
             {widgetId && (
               <div style={{ marginTop: "0.75rem", textAlign: "center" }}>
-                <span style={{ fontSize: "0.75rem", color: "#475569" }}>
-                  ID: {widgetId.slice(0, 8)}... · Último guardado: {new Date().toLocaleTimeString("es-AR")}
-                </span>
+                <span style={{ fontSize: "0.75rem", color: "#475569" }}>ID: {widgetId.slice(0, 8)}... · Último guardado: {new Date().toLocaleTimeString("es-AR")}</span>
               </div>
             )}
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
             <Monitor size={18} color="#8b5cf6" />
-            <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#f1f5f9" }}>
-              Vista previa
-            </h2>
-            <span
-              style={{
-                marginLeft: "auto",
-                padding: "0.2rem 0.5rem",
-                background: "rgba(139,92,246,0.1)",
-                borderRadius: "6px",
-                fontSize: "0.7rem",
-                fontWeight: 600,
-                color: "#a78bfa",
-              }}
-            >
-              Live
-            </span>
+            <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#f1f5f9" }}>Vista previa</h2>
+            <span style={{ marginLeft: "auto", padding: "0.2rem 0.5rem", background: "rgba(139,92,246,0.1)", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 600, color: "#a78bfa" }}>Live</span>
           </div>
-
-          <div
-            style={{
-              background: "rgba(15, 23, 42, 0.4)",
-              backdropFilter: "blur(20px)",
-              borderRadius: "20px",
-              padding: "2rem",
-              border: "1px solid rgba(255,255,255,0.06)",
-              position: "relative",
-              overflow: "hidden",
-              minHeight: "320px",
-            }}
-          >
-            <motion.div
-              animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.05, 1] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                width: "250px",
-                height: "250px",
-                background: `radial-gradient(circle, ${accentColor}30 0%, transparent 70%)`,
-                transform: "translate(-50%, -50%)",
-                pointerEvents: "none",
-                filter: "blur(40px)",
-              }}
-            />
-
+          <div style={{ background: "rgba(15, 23, 42, 0.4)", backdropFilter: "blur(20px)", borderRadius: "20px", padding: "2rem", border: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden", minHeight: "320px" }}>
+            <motion.div animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.05, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} style={{ position: "absolute", top: "50%", left: "50%", width: "250px", height: "250px", background: `radial-gradient(circle, ${accentColor}30 0%, transparent 70%)`, transform: "translate(-50%, -50%)", pointerEvents: "none", filter: "blur(40px)" }} />
             {renderPreview()}
           </div>
-
-          <div
-            style={{
-              marginTop: "1rem",
-              padding: "1rem 1.25rem",
-              background: "rgba(255,255,255,0.02)",
-              borderRadius: "12px",
-              border: "1px solid rgba(255,255,255,0.05)",
-            }}
-          >
+          <div style={{ marginTop: "1rem", padding: "1rem 1.25rem", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
               <Sparkles size={14} color="#64748b" />
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#94a3b8" }}>
-                Como se ve en tu tienda?
-              </span>
+              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#94a3b8" }}>Cómo se ve en tu tienda?</span>
             </div>
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "#64748b", lineHeight: 1.5 }}>
-              Esta es una simulación visual. El widget real se renderizará directamente en las páginas de producto de tu tienda Tiendanube con los estilos y datos reales.
-            </p>
+            <p style={{ margin: 0, fontSize: "0.75rem", color: "#64748b", lineHeight: 1.5 }}>Esta es una simulación visual. El widget real se renderizará directamente en las páginas de producto de tu tienda Tiendanube con los estilos y datos reales.</p>
           </div>
         </motion.div>
       </div>
     </div>
   );
-    }
+  }
