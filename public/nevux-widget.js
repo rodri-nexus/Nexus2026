@@ -1,14 +1,7 @@
 (function () {
   "use strict";
 
-  // Detectar automáticamente el dominio de la app desde el src del script
-  const API_BASE = (() => {
-    const script = document.currentScript;
-    if (script && script.src) {
-      return new URL(script.src).origin;
-    }
-    return "https://nevux.app";
-  })();
+  const API_BASE = "https://nexus2026-gx7e.vercel.app";
 
   const STORE_ID = window.NEVUX_STORE_ID || null;
   const PRODUCT_ID = window.NEVUX_PRODUCT_ID || null;
