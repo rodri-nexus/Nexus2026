@@ -27,45 +27,46 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
-    case "contador-regresivo":
-      return <ContadorRegresivoPreview />;
-    case "contador-stock":
-      return <ContadorStockPreview />;
-    case "bundle-productos":
-      return <BundleProductosPreview />;
+    case "cuenta-regresiva":
+      return <CuentaRegresivaPreview />;
+    case "bundle-cantidad":
+      return <BundleCantidadPreview />;
+    case "bundle-nxm":
+      return <BundleNxMPreview />;
+    case "slider-video":
+      return <SliderVideoPreview />;
+    case "mensaje-alerta":
+      return <MensajeAlertaPreview />;
+    case "mensaje-garantia":
+      return <MensajeGarantiaPreview />;
+    case "resenas-clientes":
+      return <ResenasPreview />;
+    case "banner-deslizante":
+      return <BannerDeslizantePreview />;
+    case "badge-envio":
+      return <BadgeEnvioPreview />;
+    case "badge-cuotas":
+      return <BadgeCuotasPreview />;
+    case "badge-transferencia":
+      return <BadgeTransferenciaPreview />;
+    case "caja-opiniones":
+      return <CajaOpinionesPreview />;
+    case "info-envio":
+      return <InfoEnvioPreview />;
+    case "info-despacho":
+      return <InfoDespachoPreview />;
     case "barra-progreso":
       return <BarraProgresoPreview />;
-    case "video-producto":
-      return <VideoProductoPreview />;
-    case "badges-confianza":
-      return <BadgesConfianzaPreview />;
-    case "testimonios":
-      return <TestimoniosPreview />;
-    case "sticky-add-cart":
-      return <StickyAddCartPreview />;
-    case "upsell-producto":
-      return <UpsellPreview />;
-    case "productos-relacionados":
-      return <RelacionadosPreview />;
-    case "popup-salida":
-    case "popup-oferta":
-      return <PopupPreview />;
-    case "galeria-360":
-      return <Galeria360Preview />;
-    case "tabla-talles":
-      return <TablaTallesPreview />;
-    case "descripcion-expandible":
-      return <DescripcionExpandiblePreview />;
     default:
       return <DefaultPreview />;
   }
 }
 
 /* ═══════════════════════════════════════════════
-   PREVIEWS INDIVIDUALES
+   PREVIEWS
    ═══════════════════════════════════════════════ */
 
-function ContadorRegresivoPreview() {
+function CuentaRegresivaPreview() {
   const cells = ["12", "34", "56"];
   return (
     <div
@@ -109,12 +110,236 @@ function ContadorRegresivoPreview() {
   );
 }
 
-function ContadorStockPreview() {
+function BundleCantidadPreview() {
   return (
     <div
       style={{
-        background: "#fef2f2",
-        border: "1.5px solid #fecaca",
+        background: "#fff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "8px",
+        padding: "8px",
+        width: "80%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+      }}
+    >
+      {[
+        { label: "1 unidad", price: "$35k", active: false },
+        { label: "2 unidades", price: "$65k", active: true, badge: "-10%" },
+        { label: "3 unidades", price: "$90k", active: false, badge: "-15%" },
+      ].map((row, i) => (
+        <div
+          key={i}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "5px 8px",
+            border: row.active ? "1.5px solid #6366f1" : "1px solid #e5e7eb",
+            borderRadius: "5px",
+            background: row.active ? "#eef2ff" : "#fff",
+            fontSize: "9px",
+            fontWeight: 600,
+          }}
+        >
+          <span style={{ color: "#111" }}>{row.label}</span>
+          <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+            {row.badge && (
+              <span style={{ background: "#10b981", color: "#fff", padding: "1px 4px", borderRadius: "3px", fontSize: "7px" }}>
+                {row.badge}
+              </span>
+            )}
+            <span style={{ color: "#6366f1" }}>{row.price}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BundleNxMPreview() {
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "8px",
+        padding: "10px",
+        width: "75%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+      }}
+    >
+      {["Llevá 1", "Llevá 3 pagá 2", "Llevá 4 pagá 3"].map((label, i) => (
+        <div
+          key={i}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "6px 8px",
+            border: i === 1 ? "1.5px solid #10b981" : "1px solid #e5e7eb",
+            borderRadius: "5px",
+            background: i === 1 ? "#ecfdf5" : "#fff",
+            fontSize: "9px",
+            fontWeight: 700,
+          }}
+        >
+          <span style={{ color: "#111" }}>{label}</span>
+          <span style={{ color: i === 1 ? "#10b981" : "#6b7280" }}>${(i + 1) * 20}k</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SliderVideoPreview() {
+  return (
+    <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+      {[0.6, 1, 0.6].map((scale, i) => (
+        <div
+          key={i}
+          style={{
+            width: `${40 * scale}px`,
+            height: `${60 * scale}px`,
+            background: "linear-gradient(135deg, #1e293b, #334155)",
+            borderRadius: "6px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: scale,
+          }}
+        >
+          {scale === 1 && (
+            <div
+              style={{
+                width: 0,
+                height: 0,
+                borderLeft: "8px solid #fff",
+                borderTop: "5px solid transparent",
+                borderBottom: "5px solid transparent",
+                marginLeft: "2px",
+              }}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MensajeAlertaPreview() {
+  return (
+    <div
+      style={{
+        background: "#fffbeb",
+        border: "1.5px solid #fbbf24",
+        borderRadius: "8px",
+        padding: "8px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        width: "80%",
+      }}
+    >
+      <div style={{ fontSize: "16px" }}>⚠️</div>
+      <div style={{ fontSize: "10px", color: "#92400e", fontWeight: 600, lineHeight: 1.3 }}>
+        Últimas unidades disponibles. ¡No te lo pierdas!
+      </div>
+    </div>
+  );
+}
+
+function MensajeGarantiaPreview() {
+  return (
+    <div
+      style={{
+        background: "#ecfdf5",
+        border: "1.5px solid #10b981",
+        borderRadius: "8px",
+        padding: "10px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        width: "80%",
+      }}
+    >
+      <div style={{ fontSize: "20px" }}>🛡️</div>
+      <div>
+        <div style={{ fontSize: "10px", color: "#065f46", fontWeight: 800 }}>
+          Garantía de 12 meses
+        </div>
+        <div style={{ fontSize: "8px", color: "#047857" }}>
+          Cambio y devolución sin cargo
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResenasPreview() {
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "8px",
+        padding: "8px 10px",
+        width: "80%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ color: "#fbbf24", fontSize: "11px" }}>★★★★★</div>
+        <div style={{ fontSize: "8px", color: "#6b7280" }}>hace 2 días</div>
+      </div>
+      <div style={{ fontSize: "9px", color: "#374151", lineHeight: 1.3 }}>
+        "Excelente calidad y llegó súper rápido. Muy recomendado."
+      </div>
+      <div style={{ fontSize: "8px", color: "#6b7280", fontWeight: 600 }}>
+        — Lucía M.
+      </div>
+    </div>
+  );
+}
+
+function BannerDeslizantePreview() {
+  return (
+    <div style={{ width: "80%", display: "flex", flexDirection: "column", gap: "4px" }}>
+      <div
+        style={{
+          height: "50px",
+          background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
+          borderRadius: "6px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#fff",
+          fontSize: "11px",
+          fontWeight: 800,
+        }}
+      >
+        ¡ENVÍO GRATIS!
+      </div>
+      <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#6366f1" }} />
+        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d1d5db" }} />
+        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d1d5db" }} />
+      </div>
+    </div>
+  );
+}
+
+function BadgeEnvioPreview() {
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: "1.5px solid #10b981",
         borderRadius: "8px",
         padding: "10px 14px",
         display: "flex",
@@ -122,34 +347,77 @@ function ContadorStockPreview() {
         gap: "8px",
       }}
     >
-      <div style={{ fontSize: "16px" }}>🔥</div>
+      <div style={{ fontSize: "22px" }}>🚚</div>
       <div>
-        <div style={{ fontSize: "11px", color: "#991b1b", fontWeight: 700 }}>
-          ¡Solo quedan 3 unidades!
+        <div style={{ fontSize: "11px", fontWeight: 800, color: "#065f46" }}>
+          Envío GRATIS
         </div>
-        <div
-          style={{
-            marginTop: "4px",
-            height: "4px",
-            width: "120px",
-            background: "#fecaca",
-            borderRadius: "2px",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ width: "20%", height: "100%", background: "#ef4444" }} />
+        <div style={{ fontSize: "8px", color: "#047857" }}>
+          En compras +$50.000
         </div>
       </div>
     </div>
   );
 }
 
-function BundleProductosPreview() {
+function BadgeCuotasPreview() {
+  return (
+    <div
+      style={{
+        background: "#eef2ff",
+        border: "1.5px solid #6366f1",
+        borderRadius: "8px",
+        padding: "10px 14px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+      }}
+    >
+      <div style={{ fontSize: "22px" }}>💳</div>
+      <div>
+        <div style={{ fontSize: "11px", fontWeight: 800, color: "#3730a3" }}>
+          12 cuotas SIN interés
+        </div>
+        <div style={{ fontSize: "8px", color: "#4f46e5" }}>
+          Con todas las tarjetas
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BadgeTransferenciaPreview() {
+  return (
+    <div
+      style={{
+        background: "#fef3c7",
+        border: "1.5px solid #f59e0b",
+        borderRadius: "8px",
+        padding: "10px 14px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+      }}
+    >
+      <div style={{ fontSize: "22px" }}>💰</div>
+      <div>
+        <div style={{ fontSize: "11px", fontWeight: 800, color: "#92400e" }}>
+          15% OFF por transferencia
+        </div>
+        <div style={{ fontSize: "8px", color: "#b45309" }}>
+          Descuento automático
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CajaOpinionesPreview() {
   return (
     <div
       style={{
         background: "#fff",
-        border: "1.5px solid #e5e7eb",
+        border: "1px solid #e5e7eb",
         borderRadius: "8px",
         padding: "10px",
         width: "80%",
@@ -158,25 +426,78 @@ function BundleProductosPreview() {
         gap: "6px",
       }}
     >
-      {["Pack x1", "Pack x2", "Pack x3"].map((label, i) => (
-        <div
-          key={i}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "6px 8px",
-            border: i === 1 ? "1.5px solid #6366f1" : "1px solid #e5e7eb",
-            borderRadius: "6px",
-            background: i === 1 ? "#eef2ff" : "#fff",
-            fontSize: "10px",
-            fontWeight: 600,
-          }}
-        >
-          <span style={{ color: "#111" }}>{label}</span>
-          <span style={{ color: "#6366f1" }}>${(i + 1) * 35}k</span>
+      <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+        <div style={{ color: "#fbbf24", fontSize: "13px" }}>★★★★★</div>
+        <div style={{ fontSize: "10px", fontWeight: 700, color: "#111" }}>4.9</div>
+        <div style={{ fontSize: "8px", color: "#6b7280" }}>(234 opiniones)</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+        {[90, 60, 30].map((w, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <span style={{ fontSize: "8px", color: "#6b7280" }}>{5 - i}★</span>
+            <div style={{ flex: 1, height: "4px", background: "#f3f4f6", borderRadius: "2px" }}>
+              <div style={{ width: `${w}%`, height: "100%", background: "#fbbf24", borderRadius: "2px" }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InfoEnvioPreview() {
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "8px",
+        padding: "10px",
+        width: "80%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ fontSize: "12px" }}>📍</div>
+        <div style={{ fontSize: "10px", fontWeight: 700, color: "#111" }}>Envíos a todo el país</div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#6b7280", borderTop: "1px solid #f3f4f6", paddingTop: "4px" }}>
+        <span>Correo Argentino</span>
+        <span style={{ fontWeight: 700, color: "#111" }}>$1.200</span>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#6b7280" }}>
+        <span>Andreani</span>
+        <span style={{ fontWeight: 700, color: "#111" }}>$1.800</span>
+      </div>
+    </div>
+  );
+}
+
+function InfoDespachoPreview() {
+  return (
+    <div
+      style={{
+        background: "#eff6ff",
+        border: "1px solid #bfdbfe",
+        borderRadius: "8px",
+        padding: "10px 12px",
+        width: "80%",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+      }}
+    >
+      <div style={{ fontSize: "20px" }}>📦</div>
+      <div>
+        <div style={{ fontSize: "10px", fontWeight: 800, color: "#1e40af" }}>
+          Despacho en 24-48hs
         </div>
-      ))}
+        <div style={{ fontSize: "8px", color: "#2563eb" }}>
+          Comprando antes de las 15:00hs
+        </div>
+      </div>
     </div>
   );
 }
@@ -215,330 +536,10 @@ function BarraProgresoPreview() {
   );
 }
 
-function VideoProductoPreview() {
-  return (
-    <div
-      style={{
-        width: "70%",
-        aspectRatio: "16 / 9",
-        background: "linear-gradient(135deg, #1e293b, #334155)",
-        borderRadius: "8px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          width: "36px",
-          height: "36px",
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.9)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            width: 0,
-            height: 0,
-            borderLeft: "10px solid #1e293b",
-            borderTop: "6px solid transparent",
-            borderBottom: "6px solid transparent",
-            marginLeft: "3px",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function BadgesConfianzaPreview() {
-  const badges = [
-    { icon: "🚚", label: "Envío gratis" },
-    { icon: "🔒", label: "Pago seguro" },
-    { icon: "↩️", label: "Devolución" },
-  ];
-  return (
-    <div style={{ display: "flex", gap: "8px" }}>
-      {badges.map((b, i) => (
-        <div
-          key={i}
-          style={{
-            background: "#fff",
-            border: "1px solid #e5e7eb",
-            borderRadius: "8px",
-            padding: "8px 6px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "3px",
-            minWidth: "56px",
-          }}
-        >
-          <div style={{ fontSize: "16px" }}>{b.icon}</div>
-          <div style={{ fontSize: "8px", color: "#374151", fontWeight: 600, textAlign: "center" }}>
-            {b.label}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function TestimoniosPreview() {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        padding: "10px",
-        width: "80%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-      }}
-    >
-      <div style={{ color: "#fbbf24", fontSize: "12px" }}>★★★★★</div>
-      <div style={{ fontSize: "10px", color: "#374151", lineHeight: 1.4 }}>
-        "Excelente calidad, súper recomendado. Llegó rapidísimo."
-      </div>
-      <div style={{ fontSize: "9px", color: "#6b7280", fontWeight: 600 }}>
-        — María G.
-      </div>
-    </div>
-  );
-}
-
-function StickyAddCartPreview() {
-  return (
-    <div
-      style={{
-        width: "80%",
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        padding: "8px",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-      }}
-    >
-      <div
-        style={{
-          width: "32px",
-          height: "32px",
-          borderRadius: "6px",
-          background: "#e5e7eb",
-        }}
-      />
-      <div style={{ flex: 1, fontSize: "10px", fontWeight: 600, color: "#111" }}>
-        Producto — $35.000
-      </div>
-      <div
-        style={{
-          background: "#6366f1",
-          color: "#fff",
-          padding: "6px 10px",
-          borderRadius: "6px",
-          fontSize: "10px",
-          fontWeight: 700,
-        }}
-      >
-        Comprar
-      </div>
-    </div>
-  );
-}
-
-function UpsellPreview() {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1.5px solid #6366f1",
-        borderRadius: "8px",
-        padding: "10px",
-        width: "80%",
-        display: "flex",
-        gap: "8px",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          width: "36px",
-          height: "36px",
-          borderRadius: "6px",
-          background: "linear-gradient(135deg, #eef2ff, #e0e7ff)",
-        }}
-      />
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: "9px", color: "#6366f1", fontWeight: 700 }}>
-          MEJORÁ TU COMPRA
-        </div>
-        <div style={{ fontSize: "10px", color: "#111", fontWeight: 600 }}>
-          Versión Premium +$5.000
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RelacionadosPreview() {
-  return (
-    <div style={{ display: "flex", gap: "6px" }}>
-      {[1, 2, 3].map((i) => (
-        <div key={i} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "6px",
-              background: `linear-gradient(135deg, #${["fee2e2", "dbeafe", "d1fae5"][i - 1]}, #${["fecaca", "bfdbfe", "a7f3d0"][i - 1]})`,
-            }}
-          />
-          <div style={{ fontSize: "7px", color: "#6b7280", textAlign: "center" }}>
-            ${i * 12}k
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PopupPreview() {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: "8px",
-        padding: "12px",
-        width: "70%",
-        boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-        border: "1px solid #e5e7eb",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "6px",
-      }}
-    >
-      <div style={{ fontSize: "14px" }}>🎁</div>
-      <div style={{ fontSize: "11px", fontWeight: 800, color: "#111" }}>
-        ¡15% OFF!
-      </div>
-      <div style={{ fontSize: "8px", color: "#6b7280", textAlign: "center" }}>
-        En tu primera compra
-      </div>
-      <div
-        style={{
-          background: "#6366f1",
-          color: "#fff",
-          padding: "4px 10px",
-          borderRadius: "4px",
-          fontSize: "9px",
-          fontWeight: 700,
-        }}
-      >
-        Obtener
-      </div>
-    </div>
-  );
-}
-
-function Galeria360Preview() {
-  return (
-    <div
-      style={{
-        width: "70px",
-        height: "70px",
-        borderRadius: "50%",
-        border: "2px dashed #6366f1",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-      }}
-    >
-      <div style={{ fontSize: "10px", fontWeight: 800, color: "#6366f1" }}>360°</div>
-    </div>
-  );
-}
-
-function TablaTallesPreview() {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "6px",
-        padding: "8px",
-        display: "flex",
-        gap: "4px",
-      }}
-    >
-      {["S", "M", "L", "XL"].map((s, i) => (
-        <div
-          key={i}
-          style={{
-            width: "24px",
-            height: "24px",
-            borderRadius: "4px",
-            background: i === 1 ? "#6366f1" : "#f3f4f6",
-            color: i === 1 ? "#fff" : "#374151",
-            fontSize: "10px",
-            fontWeight: 700,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {s}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function DescripcionExpandiblePreview() {
-  return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        padding: "10px",
-        width: "80%",
-      }}
-    >
-      <div style={{ display: "flex", gap: "10px", marginBottom: "6px" }}>
-        <div style={{ fontSize: "9px", fontWeight: 700, color: "#6366f1", borderBottom: "2px solid #6366f1", paddingBottom: "3px" }}>
-          Descripción
-        </div>
-        <div style={{ fontSize: "9px", color: "#6b7280" }}>Envío</div>
-        <div style={{ fontSize: "9px", color: "#6b7280" }}>Talles</div>
-      </div>
-      <div style={{ height: "2px", background: "#e5e7eb", marginBottom: "6px" }} />
-      <div style={{ fontSize: "8px", color: "#6b7280", lineHeight: 1.4 }}>
-        Producto de alta calidad hecho con los mejores materiales...
-      </div>
-    </div>
-  );
-}
-
 function DefaultPreview() {
   return (
-    <div
-      style={{
-        fontSize: "24px",
-        color: "#9ca3af",
-      }}
-    >
+    <div style={{ fontSize: "24px", color: "#9ca3af" }}>
       ✨
     </div>
   );
-  }
+               }
