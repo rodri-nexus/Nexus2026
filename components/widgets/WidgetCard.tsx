@@ -1,17 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TrendingUp, Play, Clock, Shield, Mail, Type } from "lucide-react";
-import { WidgetDefinition, WidgetCategory } from "@/types/widgets";
-
-const ICON_MAP: Record<WidgetCategory, React.ReactNode> = {
-  conversion: <TrendingUp size={22} color="#6366f1" />,
-  multimedia: <Play size={22} color="#6366f1" />,
-  urgency: <Clock size={22} color="#6366f1" />,
-  trust: <Shield size={22} color="#6366f1" />,
-  popup: <Mail size={22} color="#6366f1" />,
-  description: <Type size={22} color="#6366f1" />,
-};
+import { WidgetDefinition } from "@/types/widgets";
+import WidgetPreview from "./WidgetPreview";
 
 interface WidgetCardProps {
   widget: WidgetDefinition;
@@ -19,31 +10,29 @@ interface WidgetCardProps {
   index: number;
 }
 
+const POPULAR_SLUGS = ["contador-regresivo", "bundle-productos", "barra-progreso"];
+
 export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) {
+  const isPopular = POPULAR_SLUGS.includes(widget.slug);
+
   return (
-    <motion.button
+    <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
-      onClick={onClick}
       style={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "flex-start",
-        gap: "0.75rem",
-        padding: "1.25rem",
         background: "#ffffff",
         border: "1.5px solid #f3f4f6",
-        borderRadius: "12px",
-        cursor: "pointer",
-        textAlign: "left",
-        width: "100%",
-        transition: "border-color 0.15s, box-shadow 0.15s, transform 0.15s",
+        borderRadius: "16px",
+        overflow: "hidden",
+        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "#6366f1";
-        e.currentTarget.style.boxShadow = "0 4px 12px rgba(99, 102, 241, 0.08)";
-        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.borderColor = "#c7d2fe";
+        e.currentTarget.style.boxShadow = "0 8px 24px rgba(99, 102, 241, 0.1)";
+        e.currentTarget.style.transform = "translateY(-3px)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = "#f3f4f6";
@@ -51,45 +40,102 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
         e.currentTarget.style.transform = "translateY(0)";
       }}
     >
-      <div
-        style={{
-          width: "44px",
-          height: "44px",
-          borderRadius: "10px",
-          background: "linear-gradient(135deg, #eef2ff, #e0e7ff)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {ICON_MAP[widget.category]}
+      {/* Preview */}
+      <div style={{ padding: "1rem 1rem 0.5rem 1rem" }}>
+        <WidgetPreview slug={widget.slug} />
       </div>
 
-      <div style={{ width: "100%" }}>
-        <div
-          style={{
-            fontSize: "0.95rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "0.35rem",
-          }}
-        >
-          {widget.name}
+      {/* Contenido */}
+      <div
+        style={{
+          padding: "0.75rem 1.25rem 1.25rem 1.25rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem",
+          flex: 1,
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontSize: "1rem",
+              fontWeight: 700,
+              color: "#111827",
+              marginBottom: "0.35rem",
+            }}
+          >
+            {widget.name}
+          </div>
+          <div
+            style={{
+              fontSize: "0.85rem",
+              color: "#6b7280",
+              lineHeight: 1.45,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              minHeight: "2.5em",
+            }}
+          >
+            {widget.description}
+          </div>
         </div>
+
+        {/* Botones */}
         <div
           style={{
-            fontSize: "0.82rem",
-            color: "#6b7280",
-            lineHeight: 1.45,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            marginTop: "auto",
           }}
         >
-          {widget.description}
+          <button
+            onClick={onClick}
+            style={{
+              flex: 1,
+              padding: "0.7rem 1rem",
+              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "10px",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              transition: "opacity 0.15s, transform 0.15s",
+              boxShadow: "0 2px 8px rgba(99, 102, 241, 0.25)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "0.92";
+              e.currentTarget.style.transform = "scale(1.02)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.transform = "scale(1)";
+            }}
+          >
+            Crear
+          </button>
+
+          {isPopular && (
+            <div
+              style={{
+                background: "#d1fae5",
+                color: "#065f46",
+                padding: "0.35rem 0.75rem",
+                borderRadius: "999px",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Popular
+            </div>
+          )}
         </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
-          }
+        }
