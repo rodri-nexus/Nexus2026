@@ -38,26 +38,21 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresca la sesión (importante para que no expire)
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
 
-  // Rutas protegidas (requieren login)
   const isProtectedRoute =
     pathname.startsWith("/dashboard") || pathname.startsWith("/widgets");
 
-  // Rutas de autenticación (solo para NO logueados)
   const isAuthRoute = pathname === "/login" || pathname === "/registro";
 
-  // Si NO hay usuario e intenta entrar a ruta protegida → login
   if (isProtectedRoute && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Si HAY usuario e intenta entrar a login/registro → dashboard
   if (isAuthRoute && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -67,15 +62,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - api/auth (OAuth de Tiendanube)
-     * - auth/callback (callback de Supabase)
-     * - archivos con extensión (.svg, .png, etc.)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|api/auth|auth/callback|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/auth|api/widget-render|api/nevux-widget|auth/callback|nevux-widget\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
