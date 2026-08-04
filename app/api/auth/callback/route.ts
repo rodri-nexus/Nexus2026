@@ -1,3 +1,4 @@
+// app/api/auth/callback/route.ts
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
@@ -35,18 +36,11 @@ async function installStoreScript(
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const state = searchParams.get("state");
+  const state = searchParams.get("state"); // opcional ahora
 
   if (!code) {
     return NextResponse.json(
       { error: "Falta el parametro 'code' en la URL" },
-      { status: 400 }
-    );
-  }
-
-  if (!state) {
-    return NextResponse.json(
-      { error: "Falta el parametro 'state' (user_id) en la URL" },
       { status: 400 }
     );
   }
@@ -62,6 +56,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    // 1. Intercambiar code por access_token
     const response = await fetch(
       "https://www.tiendanube.com/apps/authorize/token",
       {
@@ -79,6 +74,7 @@ export async function GET(request: Request) {
     const data = await response.json();
 
     if (data.error) {
+      console.error("Tiendanube token error:", data);
       return NextResponse.json(
         { error: data.error, description: data.error_description },
         { status: 400 }
@@ -89,20 +85,39 @@ export async function GET(request: Request) {
     const accessToken = data.access_token;
     const scope = data.scope || null;
 
+    // 2. Buscar si la tienda ya estaba vinculada a algún user_id
+    let userIdToLink: string | null = state || null;
+
+    if (!userIdToLink) {
+      const { data: existing } = await supabaseAdmin
+        .from("stores")
+        .select("user_id")
+        .eq("store_id", storeId)
+        .maybeSingle();
+
+      if (existing?.user_id) {
+        userIdToLink = existing.user_id;
+        console.log("Reinstalación: recupero user_id existente", userIdToLink);
+      }
+    }
+
+    // 3. Upsert de la tienda
+    const upsertPayload: any = {
+      store_id: storeId,
+      access_token: accessToken,
+      scope: scope,
+      updated_at: new Date().toISOString(),
+      installed_at: new Date().toISOString(),
+      is_active: true,
+    };
+
+    if (userIdToLink) {
+      upsertPayload.user_id = userIdToLink;
+    }
+
     const { error: dbError } = await supabaseAdmin
       .from("stores")
-      .upsert(
-        {
-          store_id: storeId,
-          access_token: accessToken,
-          scope: scope,
-          updated_at: new Date().toISOString(),
-          installed_at: new Date().toISOString(),
-          is_active: true,
-          user_id: state,
-        },
-        { onConflict: "store_id" }
-      );
+      .upsert(upsertPayload, { onConflict: "store_id" });
 
     if (dbError) {
       console.error("Error al guardar en Supabase:", dbError);
@@ -112,10 +127,10 @@ export async function GET(request: Request) {
       );
     }
 
-    // Instalar el script de widgets en la tienda del cliente
+    // 4. Instalar el script de widgets en la tienda del cliente
     const appUrl = new URL(request.url).origin;
     const scriptUrl = `${appUrl}/nevux-widget.js`;
-    
+
     try {
       await installStoreScript(storeId, accessToken, scriptUrl);
       console.log("Script Nevux instalado en tienda:", storeId);
@@ -123,12 +138,21 @@ export async function GET(request: Request) {
       console.error("Error instalando script (no critico):", scriptErr);
     }
 
-    console.log("Tienda conectada y vinculada:", {
+    console.log("Tienda conectada:", {
       store_id: storeId,
-      user_id: state,
+      user_id: userIdToLink || "PENDIENTE_VINCULACION",
     });
 
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    // 5. Redirección final
+    if (userIdToLink) {
+      // Todo OK, tienda vinculada al user
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    } else {
+      // Tienda guardada pero sin user_id: pedir login para vincular
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("pending_store", String(storeId));
+      return NextResponse.redirect(loginUrl);
+    }
   } catch (error) {
     console.error("Error al intercambiar el code:", error);
     return NextResponse.json(
