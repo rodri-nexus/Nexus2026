@@ -4,7 +4,15 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, LogOut, Loader2, User, ChevronDown } from "lucide-react";
+import {
+  Menu,
+  LogOut,
+  Loader2,
+  User,
+  ChevronDown,
+  Store,
+  HelpCircle,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
@@ -40,6 +48,11 @@ export default function DashboardHeader({
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();
+  }
+
+  function navigateTo(path: string) {
+    setDropdownOpen(false);
+    router.push(path);
   }
 
   // Obtener iniciales del email (ej: "juan@gmail.com" → "JU")
@@ -125,10 +138,7 @@ export default function DashboardHeader({
         </div>
 
         {/* DERECHA: Avatar con dropdown */}
-        <div
-          ref={dropdownRef}
-          style={{ position: "relative" }}
-        >
+        <div ref={dropdownRef} style={{ position: "relative" }}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
             aria-label="Menú de usuario"
@@ -270,7 +280,7 @@ export default function DashboardHeader({
                 {/* Opciones */}
                 <div style={{ padding: "0.4rem" }}>
                   <button
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => navigateTo("/mi-cuenta")}
                     style={dropdownItemStyle}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = "#f9fafb";
@@ -282,6 +292,43 @@ export default function DashboardHeader({
                     <User size={16} color="#6366f1" />
                     <span>Mi cuenta</span>
                   </button>
+
+                  <button
+                    onClick={() => navigateTo("/mi-tienda")}
+                    style={dropdownItemStyle}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#f9fafb";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    <Store size={16} color="#10b981" />
+                    <span>Mi tienda</span>
+                  </button>
+
+                  <button
+                    onClick={() => navigateTo("/ayuda")}
+                    style={dropdownItemStyle}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#f9fafb";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    <HelpCircle size={16} color="#f59e0b" />
+                    <span>Centro de ayuda</span>
+                  </button>
+
+                  {/* Separador */}
+                  <div
+                    style={{
+                      height: "1px",
+                      background: "#f3f4f6",
+                      margin: "0.4rem 0",
+                    }}
+                  />
 
                   <button
                     onClick={handleLogout}
