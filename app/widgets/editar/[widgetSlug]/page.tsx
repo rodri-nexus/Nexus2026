@@ -11,14 +11,12 @@ interface PageProps {
 export default async function EditWidgetPage({ params, searchParams }: PageProps) {
   const supabase = createClient();
 
-  // Auth
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) redirect('/login');
 
-  // Store
   const { data: store } = await supabase
     .from('stores')
     .select('store_id')
@@ -28,7 +26,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   if (!store) redirect('/dashboard');
 
-  // Widget definition
   const { data: widgetDef } = await supabase
     .from('widget_definitions')
     .select('id, slug, name, description, category, icon')
@@ -37,11 +34,9 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   if (!widgetDef) redirect('/dashboard');
 
-  // Determine target
   const targetType = searchParams.product ? 'product' : 'all';
   const productId = searchParams.product ? parseInt(searchParams.product, 10) : null;
 
-  // Check existing widget
   let existingQuery = supabase
     .from('widgets')
     .select('id, config, is_active, target_type, target_product_id')
@@ -58,8 +53,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
 
-  // Route to the correct editor based on slug
-  if (params.widgetSlug === 'contador-regresivo') {
+  if (params.widgetSlug === 'cuenta-regresiva') {
     return (
       <CountdownEditor
         widgetDefinition={widgetDef}
@@ -71,28 +65,9 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  // Default placeholder for other widgets (temporary)
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f8f9fa',
-        padding: 40,
-      }}
-    >
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 16,
-          padding: 40,
-          textAlign: 'center',
-          maxWidth: 500,
-          border: '1px solid #e5e7eb',
-        }}
-      >
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
+      <div style={{ background: '#fff', borderRadius: 16, padding: 40, textAlign: 'center', maxWidth: 500, border: '1px solid #e5e7eb' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🚧</div>
         <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
           Editor de &quot;{widgetDef.name}&quot;
