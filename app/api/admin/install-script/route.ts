@@ -6,6 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase";
  * Endpoint admin para instalar el script nevux-widget.js en una tienda.
  * Uso:
  *   GET /api/admin/install-script?store_id=8053402&secret=XXX
+ *   GET /api/admin/install-script?store_id=8053402&secret=XXX&force=1
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -68,8 +69,11 @@ export async function GET(request: Request) {
 
   const scriptUrl = `${new URL(request.url).origin}/nevux-widget.js`;
 
+  // script_id: identificador único de NUESTRO script (elegido por nosotros)
+  const NEVUX_SCRIPT_ID = "nevux-widgets-main";
+
   try {
-    // 4. Listar scripts existentes (robusto ante formatos raros)
+    // 4. Listar scripts existentes
     const listRes = await fetch(
       `https://api.tiendanube.com/v1/${storeId}/scripts`,
       {
@@ -97,7 +101,6 @@ export async function GET(request: Request) {
     } else if (rawList && Array.isArray(rawList.scripts)) {
       existingScripts = rawList.scripts;
     } else if (rawList && typeof rawList === "object") {
-      // Puede ser un objeto con las claves como IDs
       existingScripts = Object.values(rawList).filter(
         (v: any) => v && typeof v === "object"
       );
@@ -114,13 +117,16 @@ export async function GET(request: Request) {
       );
     }
 
-    // Buscar si ya está instalado
+    // Buscar si ya está instalado (por src o por script_id)
     const alreadyInstalled = existingScripts.find(
       (s: any) =>
-        s && (s.src === scriptUrl || (s.name && String(s.name).includes("Nevux")))
+        s &&
+        (s.src === scriptUrl ||
+          s.script_id === NEVUX_SCRIPT_ID ||
+          (s.name && String(s.name).includes("Nevux")))
     );
 
-    // Si está instalado y no forzamos, salimos
+    // Si está y no forzamos → salir
     if (alreadyInstalled && !force) {
       return NextResponse.json({
         success: true,
@@ -145,7 +151,7 @@ export async function GET(request: Request) {
       );
     }
 
-    // 5. Instalar el script
+    // 5. Instalar el script (con script_id + event + where correctos)
     const installRes = await fetch(
       `https://api.tiendanube.com/v1/${storeId}/scripts`,
       {
@@ -156,7 +162,7 @@ export async function GET(request: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: "Nevux Widgets",
+          script_id: NEVUX_SCRIPT_ID,
           src: scriptUrl,
           event: "onfirstinteraction",
           where: "store",
@@ -196,9 +202,8 @@ export async function GET(request: Request) {
       {
         error: "Excepción durante la instalación",
         details: err.message,
-        stack: err.stack,
       },
       { status: 500 }
     );
   }
-      }
+       }
