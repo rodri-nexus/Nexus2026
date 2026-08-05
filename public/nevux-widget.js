@@ -5,6 +5,9 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NEVUX_NS = "nevux-widget";
 
+  console.log("[Nevux] Script cargado - versión 2");
+  window.NEVUX_LOADED = true;
+
   /* ═══════════════════════════════════════════
      HELPERS
   ═══════════════════════════════════════════ */
@@ -322,7 +325,6 @@
       title: raw.title ?? "⚡ Oferta por tiempo limitado",
       subtitle: raw.subtitle ?? "",
       endDate: raw.endDate ?? "",
-      // ── 4 toggles independientes ──
       showDays:    raw.showDays    !== false,
       showHours:   raw.showHours   !== false,
       showMinutes: raw.showMinutes !== false,
@@ -426,7 +428,6 @@
   function renderClock(container, cfg, diff) {
     const bg = getBg(cfg);
 
-    // ── Construir array de unidades según los 4 toggles ──
     const units = [
       ...(cfg.showDays    ? [{ v: diff.days,    l: "DÍAS", k: "d" }] : []),
       ...(cfg.showHours   ? [{ v: diff.hours,   l: "HRS",  k: "h" }] : []),
@@ -434,13 +435,11 @@
       ...(cfg.showSeconds ? [{ v: diff.seconds, l: "SEG",  k: "s" }] : []),
     ];
 
-    // Si no hay ninguna unidad activa, no renderizar nada
     if (units.length === 0) {
       container.innerHTML = "";
       return;
     }
 
-    // Título
     const titleHtml = cfg.title
       ? `<div style="
           font-size:${cfg.fontSizeTitle};
@@ -452,7 +451,6 @@
         ">${escapeHtml(cfg.title)}</div>`
       : "";
 
-    // Subtítulo (pill)
     const subBg =
       cfg.bgType === "gradient"
         ? "rgba(255,255,255,0.15)"
@@ -471,8 +469,6 @@
         </div>`
       : "";
 
-    // Decidir si reconstruir el DOM del reloj completo
-    // (necesario cuando cambia el estilo O cuando cambian las unidades activas)
     let clockHost = qs(`.${NEVUX_NS}-clock-host`, container);
     const currentKeys = units.map((u) => u.k).join(",");
     const needsRebuild =
@@ -519,7 +515,6 @@
         </div>
       `;
     } else {
-      // Solo actualizar valores + trigger flip en unidades existentes
       units.forEach((u) => updateUnit(clockHost, u, cfg));
     }
   }
@@ -554,7 +549,6 @@
       `;
     }
 
-    // Clásico
     return `
       <div class="${NEVUX_NS}-unit" data-key="${u.k}">
         <div class="${NEVUX_NS}-digit" data-value="${val}" style="
