@@ -207,7 +207,6 @@
   function renderCountdown(widget) {
     const cfg = normalizeConfig(widget.config || {});
 
-    // Decidir dónde renderizar según toggles y página actual
     const placements = [];
     if (cfg.showAsTopBar) placements.push("topbar");
     if (cfg.showOnProduct && pageType === "product") placements.push("product");
@@ -224,7 +223,6 @@
   }
 
   function mountCountdownAt(widget, cfg, placement) {
-    // Evitar duplicados si el script corre 2 veces
     const uniqueId = `${NEVUX_NS}-${widget.id}-${placement}`;
     if (qs(`#${uniqueId}`)) {
       log("Widget ya montado:", uniqueId);
@@ -235,11 +233,9 @@
     container.id = uniqueId;
     container.className = `${NEVUX_NS}-root`;
 
-    // Montaje según placement
     if (placement === "topbar") {
       container.classList.add(`${NEVUX_NS}-topbar`);
       document.body.appendChild(container);
-      // Empujar body hacia abajo para no tapar el header del theme
       requestAnimationFrame(() => {
         const h = container.offsetHeight;
         if (h > 0) {
@@ -263,7 +259,6 @@
       target.parentNode.insertBefore(container, target);
     }
 
-    // Render inicial + intervalo
     updateCountdown(container, cfg);
     const interval = setInterval(() => {
       const finished = updateCountdown(container, cfg);
@@ -285,7 +280,6 @@
       if (title) return { node: title };
     }
 
-    // before-button (default)
     const btnSelectors = [
       'button[data-store="product-buy-button"]',
       'button[name="add-to-cart"]',
@@ -297,7 +291,6 @@
     for (const sel of btnSelectors) {
       const el = qs(sel);
       if (el) {
-        // Buscar el form o wrapper más cercano
         const form = el.closest("form") || el;
         return { node: form };
       }
@@ -317,7 +310,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     NORMALIZAR CONFIG (defaults + parse números)
+     NORMALIZAR CONFIG
   ═══════════════════════════════════════════ */
   function normalizeConfig(raw) {
     const n = (v, fb) => {
@@ -329,7 +322,11 @@
       title: raw.title ?? "⚡ Oferta por tiempo limitado",
       subtitle: raw.subtitle ?? "",
       endDate: raw.endDate ?? "",
-      showDays: raw.showDays !== false,
+      // ── 4 toggles independientes ──
+      showDays:    raw.showDays    !== false,
+      showHours:   raw.showHours   !== false,
+      showMinutes: raw.showMinutes !== false,
+      showSeconds: raw.showSeconds !== false,
       autoRestart: raw.autoRestart === true,
       showOnProduct: raw.showOnProduct !== false,
       productPosition: raw.productPosition ?? "before-button",
@@ -363,7 +360,6 @@
 
     if (diff.finished) {
       if (cfg.autoRestart) {
-        // reinicia 1h demo
         const newEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
         cfg.endDate = newEnd;
         return false;
@@ -378,13 +374,27 @@
 
   function calcDiff(cfg) {
     if (!cfg.endDate) {
-      return { finished: false, days: 0, hours: 0, minutes: 59, seconds: 42, urgent: false };
+      return {
+        finished: false,
+        days: 0,
+        hours: 0,
+        minutes: 59,
+        seconds: 42,
+        urgent: false,
+      };
     }
     const end = new Date(cfg.endDate).getTime();
     const now = Date.now();
     const ms = end - now;
     if (ms <= 0) {
-      return { finished: true, days: 0, hours: 0, minutes: 0, seconds: 0, urgent: false };
+      return {
+        finished: true,
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        urgent: false,
+      };
     }
     const totalSec = Math.floor(ms / 1000);
     return {
@@ -415,12 +425,20 @@
 
   function renderClock(container, cfg, diff) {
     const bg = getBg(cfg);
+
+    // ── Construir array de unidades según los 4 toggles ──
     const units = [
-      ...(cfg.showDays ? [{ v: diff.days, l: "DÍAS", k: "d" }] : []),
-      { v: diff.hours, l: "HRS", k: "h" },
-      { v: diff.minutes, l: "MIN", k: "m" },
-      { v: diff.seconds, l: "SEG", k: "s" },
+      ...(cfg.showDays    ? [{ v: diff.days,    l: "DÍAS", k: "d" }] : []),
+      ...(cfg.showHours   ? [{ v: diff.hours,   l: "HRS",  k: "h" }] : []),
+      ...(cfg.showMinutes ? [{ v: diff.minutes, l: "MIN",  k: "m" }] : []),
+      ...(cfg.showSeconds ? [{ v: diff.seconds, l: "SEG",  k: "s" }] : []),
     ];
+
+    // Si no hay ninguna unidad activa, no renderizar nada
+    if (units.length === 0) {
+      container.innerHTML = "";
+      return;
+    }
 
     // Título
     const titleHtml = cfg.title
@@ -435,7 +453,10 @@
       : "";
 
     // Subtítulo (pill)
-    const subBg = cfg.bgType === "gradient" ? "rgba(255,255,255,0.15)" : cfg.colorSubtitleBg;
+    const subBg =
+      cfg.bgType === "gradient"
+        ? "rgba(255,255,255,0.15)"
+        : cfg.colorSubtitleBg;
     const subtitleHtml = cfg.subtitle
       ? `<div style="text-align:${cfg.alignment};margin-bottom:12px;">
           <span style="
@@ -450,13 +471,22 @@
         </div>`
       : "";
 
-    // Reloj: si es nueva instancia, generar HTML completo
+    // Decidir si reconstruir el DOM del reloj completo
+    // (necesario cuando cambia el estilo O cuando cambian las unidades activas)
     let clockHost = qs(`.${NEVUX_NS}-clock-host`, container);
-    const needsRebuild = !clockHost || clockHost.dataset.style !== cfg.style;
+    const currentKeys = units.map((u) => u.k).join(",");
+    const needsRebuild =
+      !clockHost ||
+      clockHost.dataset.style !== cfg.style ||
+      clockHost.dataset.keys !== currentKeys;
 
     if (needsRebuild) {
       const justify =
-        cfg.alignment === "center" ? "center" : cfg.alignment === "left" ? "flex-start" : "flex-end";
+        cfg.alignment === "center"
+          ? "center"
+          : cfg.alignment === "left"
+          ? "flex-start"
+          : "flex-end";
 
       let clockInner = "";
       units.forEach((u, i) => {
@@ -474,17 +504,22 @@
         ">
           ${titleHtml}
           ${subtitleHtml}
-          <div class="${NEVUX_NS}-clock-host" data-style="${cfg.style}" style="
-            display:flex;
-            justify-content:${justify};
-            align-items:center;
-            gap:8px;
-            flex-wrap:wrap;
-          ">${clockInner}</div>
+          <div
+            class="${NEVUX_NS}-clock-host"
+            data-style="${cfg.style}"
+            data-keys="${currentKeys}"
+            style="
+              display:flex;
+              justify-content:${justify};
+              align-items:center;
+              gap:8px;
+              flex-wrap:wrap;
+            "
+          >${clockInner}</div>
         </div>
       `;
     } else {
-      // Solo actualizar valores + trigger flip
+      // Solo actualizar valores + trigger flip en unidades existentes
       units.forEach((u) => updateUnit(clockHost, u, cfg));
     }
   }
@@ -570,10 +605,12 @@
       void digit.offsetWidth;
       digit.classList.add("flip");
 
-      // urgent pulse en últimos 10s
       const totalRemaining = getTotalSecondsFromCfg(cfg);
-      if (totalRemaining > 0 && totalRemaining <= 10) digit.classList.add("urgent");
-      else digit.classList.remove("urgent");
+      if (totalRemaining > 0 && totalRemaining <= 10) {
+        digit.classList.add("urgent");
+      } else {
+        digit.classList.remove("urgent");
+      }
     }
   }
 
