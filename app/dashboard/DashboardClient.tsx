@@ -20,14 +20,19 @@ interface StoreData {
 
 interface DashboardClientProps {
   email: string;
+  userId: string;
   store: StoreData | null;
   productsCount: number;
   activeWidgetsCount: number;
   onboardingCompleted: boolean;
 }
 
+// Client ID de la app en Tiendanube (público, no es secreto)
+const TIENDANUBE_CLIENT_ID = "37382";
+
 export default function DashboardClient({
   email,
+  userId,
   store,
   productsCount,
   activeWidgetsCount,
@@ -35,6 +40,9 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const hasStore = store !== null;
+
+  // Link directo a Tiendanube (mismo que funciona en el test)
+  const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
   return (
     <TutorialProvider initialCompleted={onboardingCompleted}>
@@ -114,7 +122,7 @@ export default function DashboardClient({
                   empezar a aumentar tu ticket promedio.
                 </p>
                 <a
-                  href="/api/auth/install"
+                  href={tiendanubeInstallUrl}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -297,7 +305,7 @@ export default function DashboardClient({
               activeWidgetsCount={activeWidgetsCount}
             />
 
-            {/* Recientes — AHORA CON LOS MODALES ADENTRO */}
+            {/* Recientes */}
             <RecientesCard storeId={store?.store_id} />
 
             {/* Acciones rápidas */}
@@ -310,4 +318,4 @@ export default function DashboardClient({
       </div>
     </TutorialProvider>
   );
-                    }
+                  }
