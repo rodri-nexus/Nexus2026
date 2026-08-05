@@ -48,6 +48,9 @@ interface CountdownConfig {
   subtitle: string;
   endDate: string;
   showDays: boolean;
+  showHours: boolean;
+  showMinutes: boolean;
+  showSeconds: boolean;
   autoRestart: boolean;
   showOnProduct: boolean;
   productPosition: 'before-button' | 'before-title';
@@ -80,6 +83,9 @@ const defaultConfig: CountdownConfig = {
   subtitle: 'Aprovechá antes que termine',
   endDate: '',
   showDays: true,
+  showHours: true,
+  showMinutes: true,
+  showSeconds: true,
   autoRestart: false,
   showOnProduct: true,
   productPosition: 'before-button',
@@ -129,7 +135,10 @@ export default function CountdownEditor({
 
   const isEditing = !!existingWidget;
 
-  const update = <K extends keyof CountdownConfig>(key: K, value: CountdownConfig[K]) => {
+  const update = <K extends keyof CountdownConfig>(
+    key: K,
+    value: CountdownConfig[K]
+  ) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -215,7 +224,15 @@ export default function CountdownEditor({
           ←
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 11, color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div
+            style={{
+              fontSize: 11,
+              color: '#9ca3af',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
             {isEditing ? 'Editando' : 'Nuevo widget'}
           </div>
           <div
@@ -273,7 +290,15 @@ export default function CountdownEditor({
               />
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: '#374151',
+                    marginBottom: 8,
+                  }}
+                >
                   Fecha y hora final
                 </label>
                 <input
@@ -294,18 +319,55 @@ export default function CountdownEditor({
                 />
               </div>
 
+              <SectionTitle>Unidades del contador</SectionTitle>
+
+              {/* Hint contextual */}
+              <div
+                style={{
+                  background: '#f0f4ff',
+                  border: '1px solid #c7d2fe',
+                  borderRadius: 10,
+                  padding: '10px 14px',
+                  marginBottom: 16,
+                  fontSize: 12,
+                  color: '#4338ca',
+                  lineHeight: 1.5,
+                }}
+              >
+                💡 Activá solo las unidades que quieras mostrar. Ejemplo: solo MIN + SEG para una flash sale rápida.
+              </div>
+
+              <Toggle
+                label="Mostrar días"
+                description="Incluir días en el contador"
+                checked={config.showDays}
+                onChange={(v) => update('showDays', v)}
+              />
+              <Toggle
+                label="Mostrar horas"
+                description="Incluir horas en el contador"
+                checked={config.showHours}
+                onChange={(v) => update('showHours', v)}
+              />
+              <Toggle
+                label="Mostrar minutos"
+                description="Incluir minutos en el contador"
+                checked={config.showMinutes}
+                onChange={(v) => update('showMinutes', v)}
+              />
+              <Toggle
+                label="Mostrar segundos"
+                description="Incluir segundos en el contador"
+                checked={config.showSeconds}
+                onChange={(v) => update('showSeconds', v)}
+              />
+
               <SectionTitle>Comportamiento</SectionTitle>
               <Toggle
                 label="Reiniciar automáticamente"
                 description="Cuando termine el contador, vuelve a empezar"
                 checked={config.autoRestart}
                 onChange={(v) => update('autoRestart', v)}
-              />
-              <Toggle
-                label="Mostrar días"
-                description="Incluir la unidad de días en el contador"
-                checked={config.showDays}
-                onChange={(v) => update('showDays', v)}
               />
             </div>
 
@@ -324,7 +386,9 @@ export default function CountdownEditor({
                   <RadioGroup
                     label="Posición dentro del producto"
                     value={config.productPosition}
-                    onChange={(v) => update('productPosition', v as any)}
+                    onChange={(v) =>
+                      update('productPosition', v as 'before-button' | 'before-title')
+                    }
                     options={[
                       {
                         value: 'before-button',
@@ -359,7 +423,14 @@ export default function CountdownEditor({
             {/* ══════════ TAB ESTILOS ══════════ */}
             <div>
               <SectionTitle>Estilo del reloj</SectionTitle>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 10,
+                  marginBottom: 20,
+                }}
+              >
                 {[
                   { value: 'clasico', label: 'Clásico', emoji: '⏱️' },
                   { value: 'retro', label: 'Retro flip', emoji: '🎰' },
@@ -369,7 +440,7 @@ export default function CountdownEditor({
                     <button
                       key={opt.value}
                       type="button"
-                      onClick={() => update('style', opt.value as any)}
+                      onClick={() => update('style', opt.value as 'clasico' | 'retro')}
                       style={{
                         padding: '18px 12px',
                         borderRadius: 12,
@@ -381,7 +452,13 @@ export default function CountdownEditor({
                       }}
                     >
                       <div style={{ fontSize: 26, marginBottom: 6 }}>{opt.emoji}</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: active ? '#667eea' : '#374151' }}>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: active ? '#667eea' : '#374151',
+                        }}
+                      >
                         {opt.label}
                       </div>
                     </button>
@@ -390,7 +467,14 @@ export default function CountdownEditor({
               </div>
 
               <SectionTitle>Alineación</SectionTitle>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 10,
+                  marginBottom: 20,
+                }}
+              >
                 {[
                   { value: 'left', label: 'Izquierda', emoji: '⬅️' },
                   { value: 'center', label: 'Centrado', emoji: '↔️' },
@@ -400,7 +484,9 @@ export default function CountdownEditor({
                     <button
                       key={opt.value}
                       type="button"
-                      onClick={() => update('alignment', opt.value as any)}
+                      onClick={() =>
+                        update('alignment', opt.value as 'center' | 'left')
+                      }
                       style={{
                         padding: '14px 12px',
                         borderRadius: 12,
@@ -412,7 +498,13 @@ export default function CountdownEditor({
                       }}
                     >
                       <div style={{ fontSize: 20, marginBottom: 4 }}>{opt.emoji}</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: active ? '#667eea' : '#374151' }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: active ? '#667eea' : '#374151',
+                        }}
+                      >
                         {opt.label}
                       </div>
                     </button>
@@ -429,7 +521,14 @@ export default function CountdownEditor({
               <div style={{ height: 12 }} />
 
               <SectionTitle>Tipo de fondo</SectionTitle>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 10,
+                  marginBottom: 20,
+                }}
+              >
                 {[
                   { value: 'solid', label: 'Color sólido' },
                   { value: 'gradient', label: 'Degradé' },
@@ -439,7 +538,7 @@ export default function CountdownEditor({
                     <button
                       key={opt.value}
                       type="button"
-                      onClick={() => update('bgType', opt.value as any)}
+                      onClick={() => update('bgType', opt.value as 'solid' | 'gradient')}
                       style={{
                         padding: '12px',
                         borderRadius: 12,
@@ -614,7 +713,13 @@ export default function CountdownEditor({
               boxShadow: isActive ? '0 0 8px rgba(16,185,129,0.6)' : 'none',
             }}
           />
-          <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#059669' : '#6b7280' }}>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: isActive ? '#059669' : '#6b7280',
+            }}
+          >
             {isActive ? 'Activo' : 'Inactivo'}
           </span>
         </button>
@@ -676,4 +781,4 @@ export default function CountdownEditor({
       )}
     </div>
   );
-    }
+              }
