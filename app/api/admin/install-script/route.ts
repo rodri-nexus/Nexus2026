@@ -6,13 +6,12 @@ import { supabaseAdmin } from "@/lib/supabase";
  * Endpoint admin para instalar el script nevux-widget.js en una tienda.
  * Uso:
  *   GET /api/admin/install-script?store_id=8053402&secret=XXX
- *
- * Requiere que la tienda ya exista en Supabase con access_token válido.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const storeIdParam = searchParams.get("store_id");
   const secret = searchParams.get("secret");
+  const force = searchParams.get("force") === "1";
 
   // 1. Validar secreto
   const expectedSecret = process.env.ADMIN_SECRET;
@@ -23,10 +22,7 @@ export async function GET(request: Request) {
     );
   }
   if (secret !== expectedSecret) {
-    return NextResponse.json(
-      { error: "Secreto inválido" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Secreto inválido" }, { status: 401 });
   }
 
   // 2. Validar store_id
@@ -70,10 +66,10 @@ export async function GET(request: Request) {
     );
   }
 
-  // 4. Listar scripts ya instalados (para no duplicar)
   const scriptUrl = `${new URL(request.url).origin}/nevux-widget.js`;
 
   try {
+    // 4. Listar scripts existentes (robusto ante formatos raros)
     const listRes = await fetch(
       `https://api.tiendanube.com/v1/${storeId}/scripts`,
       {
@@ -86,30 +82,67 @@ export async function GET(request: Request) {
       }
     );
 
+    const rawListText = await listRes.text();
+    let rawList: any = null;
+    try {
+      rawList = JSON.parse(rawListText);
+    } catch {
+      rawList = null;
+    }
+
+    // Normalizar a array
+    let existingScripts: any[] = [];
+    if (Array.isArray(rawList)) {
+      existingScripts = rawList;
+    } else if (rawList && Array.isArray(rawList.scripts)) {
+      existingScripts = rawList.scripts;
+    } else if (rawList && typeof rawList === "object") {
+      // Puede ser un objeto con las claves como IDs
+      existingScripts = Object.values(rawList).filter(
+        (v: any) => v && typeof v === "object"
+      );
+    }
+
     if (!listRes.ok) {
-      const errText = await listRes.text();
       return NextResponse.json(
         {
           error: "Error listando scripts en Tiendanube",
           status: listRes.status,
-          details: errText,
+          rawResponse: rawListText,
         },
         { status: 500 }
       );
     }
 
-    const existingScripts: any[] = await listRes.json();
+    // Buscar si ya está instalado
     const alreadyInstalled = existingScripts.find(
-      (s) => s.src === scriptUrl || (s.name && s.name.includes("Nevux"))
+      (s: any) =>
+        s && (s.src === scriptUrl || (s.name && String(s.name).includes("Nevux")))
     );
 
-    if (alreadyInstalled) {
+    // Si está instalado y no forzamos, salimos
+    if (alreadyInstalled && !force) {
       return NextResponse.json({
         success: true,
-        message: "Script ya estaba instalado",
+        message: "Script ya estaba instalado (usá &force=1 para reinstalar)",
         script: alreadyInstalled,
         totalScripts: existingScripts.length,
       });
+    }
+
+    // Si forzamos, borrar el existente primero
+    if (alreadyInstalled && force && alreadyInstalled.id) {
+      await fetch(
+        `https://api.tiendanube.com/v1/${storeId}/scripts/${alreadyInstalled.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${store.access_token}`,
+            "User-Agent": "Nevux (nevux.app)",
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
 
     // 5. Instalar el script
@@ -131,31 +164,41 @@ export async function GET(request: Request) {
       }
     );
 
+    const installRawText = await installRes.text();
+    let installedParsed: any = null;
+    try {
+      installedParsed = JSON.parse(installRawText);
+    } catch {
+      installedParsed = installRawText;
+    }
+
     if (!installRes.ok) {
-      const errText = await installRes.text();
       return NextResponse.json(
         {
           error: "Error instalando script en Tiendanube",
           status: installRes.status,
-          details: errText,
+          response: installedParsed,
         },
         { status: 500 }
       );
     }
 
-    const installed = await installRes.json();
-
     return NextResponse.json({
       success: true,
       message: "Script instalado correctamente",
-      script: installed,
+      script: installedParsed,
       scriptUrl,
       storeId,
+      existingBefore: existingScripts.length,
     });
   } catch (err: any) {
     return NextResponse.json(
-      { error: "Excepción durante la instalación", details: err.message },
+      {
+        error: "Excepción durante la instalación",
+        details: err.message,
+        stack: err.stack,
+      },
       { status: 500 }
     );
   }
-       }
+      }
