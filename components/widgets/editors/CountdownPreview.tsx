@@ -11,6 +11,9 @@ interface CountdownConfig {
   subtitle: string;
   endDate: string;
   showDays: boolean;
+  showHours: boolean;
+  showMinutes: boolean;
+  showSeconds: boolean;
   autoRestart: boolean;
   style: 'clasico' | 'retro';
   alignment: 'center' | 'left';
@@ -50,11 +53,25 @@ interface TimeLeft {
 function useTimeLeft(endDate: string, autoRestart: boolean): TimeLeft {
   const calc = (): TimeLeft => {
     if (!endDate) {
-      return { days: 0, hours: 0, minutes: 59, seconds: 42, isUrgent: false, isFinished: false };
+      return {
+        days: 0,
+        hours: 0,
+        minutes: 59,
+        seconds: 42,
+        isUrgent: false,
+        isFinished: false,
+      };
     }
     const diff = new Date(endDate).getTime() - Date.now();
     if (diff <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, isUrgent: false, isFinished: true };
+      return {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        isUrgent: false,
+        isFinished: true,
+      };
     }
     const totalSec = Math.floor(diff / 1000);
     return {
@@ -73,8 +90,14 @@ function useTimeLeft(endDate: string, autoRestart: boolean): TimeLeft {
     const interval = setInterval(() => {
       const next = calc();
       if (next.isFinished && autoRestart) {
-        // reinicio demo: 59:59
-        setTimeLeft({ days: 0, hours: 0, minutes: 59, seconds: 59, isUrgent: false, isFinished: false });
+        setTimeLeft({
+          days: 0,
+          hours: 0,
+          minutes: 59,
+          seconds: 59,
+          isUrgent: false,
+          isFinished: false,
+        });
       } else {
         setTimeLeft(next);
       }
@@ -113,19 +136,15 @@ function FlipDigit({
 
   if (isRetro) {
     return (
-      <div
-        style={{
-          display: 'inline-flex',
-          gap: 2,
-        }}
-      >
+      <div style={{ display: 'inline-flex', gap: 2 }}>
         {value.split('').map((digit, i) => (
           <div
             key={i}
             style={{
               width: 32,
               height: 44,
-              background: 'linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 50%, #2a2a3e 100%)',
+              background:
+                'linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 50%, #2a2a3e 100%)',
               borderRadius: 6,
               display: 'flex',
               alignItems: 'center',
@@ -134,7 +153,8 @@ function FlipDigit({
               fontWeight: 900,
               color: config.colorNumbers,
               fontFamily: "'Courier New', monospace",
-              boxShadow: `0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)`,
+              boxShadow:
+                '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
               position: 'relative',
               overflow: 'hidden',
               animation: flipping ? 'retroFlip 0.3s ease' : 'none',
@@ -253,8 +273,61 @@ function Separator({ color }: { color: string }) {
         transition: 'opacity 0.3s ease',
       }}
     >
-      <div style={{ width: 5, height: 5, borderRadius: '50%', background: color, opacity: 0.8 }} />
-      <div style={{ width: 5, height: 5, borderRadius: '50%', background: color, opacity: 0.8 }} />
+      <div
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          background: color,
+          opacity: 0.8,
+        }}
+      />
+      <div
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          background: color,
+          opacity: 0.8,
+        }}
+      />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   AVISO: ninguna unidad activa
+═══════════════════════════════════════════ */
+function NoUnitsWarning() {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 8,
+        padding: '20px 16px',
+        background: '#fff7ed',
+        border: '1.5px dashed #fb923c',
+        borderRadius: 12,
+        textAlign: 'center',
+      }}
+    >
+      <span style={{ fontSize: 28 }}>⚠️</span>
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: '#c2410c',
+          lineHeight: 1.4,
+        }}
+      >
+        Activá al menos una unidad
+        <br />
+        <span style={{ fontWeight: 500, color: '#ea580c' }}>
+          (días, horas, minutos o segundos)
+        </span>
+      </span>
     </div>
   );
 }
@@ -264,11 +337,10 @@ function Separator({ color }: { color: string }) {
 ═══════════════════════════════════════════ */
 export default function CountdownPreview({ config }: CountdownPreviewProps) {
   const timeLeft = useTimeLeft(config.endDate, config.autoRestart);
-  const [tick, setTick] = useState(0);
 
   // pulso de glow sutil
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 2000);
+    const interval = setInterval(() => {}, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -277,12 +349,15 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
       ? `linear-gradient(135deg, ${config.colorWidgetBg} 0%, ${config.colorSubtitleBg} 100%)`
       : config.colorWidgetBg;
 
-  const units = [
+  // Construir array de unidades según toggles activos
+  const units: { value: number; label: string }[] = [
     ...(config.showDays ? [{ value: timeLeft.days, label: 'DÍAS' }] : []),
-    { value: timeLeft.hours, label: 'HRS' },
-    { value: timeLeft.minutes, label: 'MIN' },
-    { value: timeLeft.seconds, label: 'SEG' },
+    ...(config.showHours ? [{ value: timeLeft.hours, label: 'HRS' }] : []),
+    ...(config.showMinutes ? [{ value: timeLeft.minutes, label: 'MIN' }] : []),
+    ...(config.showSeconds ? [{ value: timeLeft.seconds, label: 'SEG' }] : []),
   ];
+
+  const noUnits = units.length === 0;
 
   return (
     <>
@@ -303,11 +378,6 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
         @keyframes pulseUrgent {
           0%, 100% { transform: scale(1);    box-shadow: 0 0 16px rgba(239,68,68,0.5); }
           50%       { transform: scale(1.04); box-shadow: 0 0 28px rgba(239,68,68,0.8); }
-        }
-        @keyframes gradientShift {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
         }
         @keyframes glowPulse {
           0%, 100% { opacity: 0.35; transform: scale(1); }
@@ -346,7 +416,8 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
               width: 220,
               height: 80,
               borderRadius: '50%',
-              background: 'radial-gradient(ellipse, rgba(102,126,234,0.3) 0%, transparent 70%)',
+              background:
+                'radial-gradient(ellipse, rgba(102,126,234,0.3) 0%, transparent 70%)',
               filter: 'blur(20px)',
               animation: 'glowPulse 2s ease infinite',
             }}
@@ -405,7 +476,10 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
                 fontSize: config.fontSizeSubtitle,
                 fontWeight: 600,
                 color: config.colorSubtitle,
-                background: config.bgType === 'solid' ? config.colorSubtitleBg : 'rgba(255,255,255,0.15)',
+                background:
+                  config.bgType === 'solid'
+                    ? config.colorSubtitleBg
+                    : 'rgba(255,255,255,0.15)',
                 padding: '4px 12px',
                 borderRadius: 20,
                 marginBottom: 16,
@@ -415,8 +489,10 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
             </div>
           )}
 
-          {/* ── Reloj ── */}
-          {timeLeft.isFinished ? (
+          {/* ── Reloj o estados especiales ── */}
+          {noUnits ? (
+            <NoUnitsWarning />
+          ) : timeLeft.isFinished ? (
             <div
               style={{
                 fontSize: 15,
@@ -433,13 +509,17 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: config.alignment === 'center' ? 'center' : 'flex-start',
+                justifyContent:
+                  config.alignment === 'center' ? 'center' : 'flex-start',
                 gap: 8,
                 flexWrap: 'wrap',
               }}
             >
               {units.map((unit, i) => (
-                <div key={unit.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div
+                  key={unit.label}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                >
                   <ClockUnit
                     value={unit.value}
                     label={unit.label}
@@ -457,4 +537,4 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
       </div>
     </>
   );
-}
+             }
