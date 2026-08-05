@@ -5,8 +5,24 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NEVUX_NS = "nevux-widget";
 
-  console.log("[Nevux] Script cargado - versión 2");
+  console.log("[Nevux] Script cargado - versión 3");
   window.NEVUX_LOADED = true;
+
+  // ── PANEL DE DEBUG VISUAL ──
+  function debugPanel(msg, color) {
+    var d = document.getElementById("nevux-debug-panel");
+    if (!d) {
+      d = document.createElement("div");
+      d.id = "nevux-debug-panel";
+      d.style.cssText = "position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font:12px monospace;padding:8px;z-index:2147483647;max-height:50vh;overflow:auto;white-space:pre-wrap;border-bottom:3px solid #0f0;";
+      document.body.appendChild(d);
+    }
+    var line = document.createElement("div");
+    line.style.color = color || "#0f0";
+    line.textContent = "[" + new Date().toISOString().substr(11, 8) + "] " + msg;
+    d.appendChild(line);
+  }
+  debugPanel("✅ Script cargado v3", "#0f0");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -175,10 +191,12 @@
   const productId = detectProductId();
   const pageType = detectPageType();
 
-  log("storeId:", storeId, "productId:", productId, "pageType:", pageType);
+  debugPanel("storeId: " + storeId, "#0ff");
+  debugPanel("productId: " + productId, "#0ff");
+  debugPanel("pageType: " + pageType, "#0ff");
 
   if (!storeId) {
-    console.warn("[Nevux] No se pudo detectar store_id");
+    debugPanel("❌ No se detectó store_id", "#f00");
     return;
   }
 
@@ -188,21 +206,26 @@
     productId ? `&product_id=${productId}` : ""
   }`;
 
+  debugPanel("→ Llamando API: " + url, "#ff0");
+
   fetch(url)
     .then((r) => r.json())
     .then((data) => {
+      debugPanel("✅ API respondió con " + (data.widgets ? data.widgets.length : 0) + " widgets", "#0f0");
       if (!data.widgets || data.widgets.length === 0) {
-        log("No hay widgets activos");
+        debugPanel("⚠️ No hay widgets activos", "#ff0");
         return;
       }
-      log("Widgets recibidos:", data.widgets.length);
       data.widgets.forEach((w) => {
+        debugPanel("→ Widget: " + w.widget_slug, "#0ff");
         if (w.widget_slug === "cuenta-regresiva") {
           renderCountdown(w);
         }
       });
     })
-    .catch((err) => console.error("[Nevux] Error cargando widgets:", err));
+    .catch((err) => {
+      debugPanel("❌ Error API: " + err.message, "#f00");
+    });
 
   /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
@@ -215,8 +238,10 @@
     if (cfg.showOnProduct && pageType === "product") placements.push("product");
     if (cfg.showOnCart && pageType === "cart") placements.push("cart");
 
+    debugPanel("Placements: " + JSON.stringify(placements), "#0ff");
+
     if (placements.length === 0) {
-      log("Widget no aplica en esta página");
+      debugPanel("⚠️ Widget no aplica en esta página", "#ff0");
       return;
     }
 
@@ -228,7 +253,7 @@
   function mountCountdownAt(widget, cfg, placement) {
     const uniqueId = `${NEVUX_NS}-${widget.id}-${placement}`;
     if (qs(`#${uniqueId}`)) {
-      log("Widget ya montado:", uniqueId);
+      debugPanel("Widget ya montado: " + uniqueId, "#ff0");
       return;
     }
 
@@ -246,20 +271,23 @@
           document.body.style.paddingTop = prev + h + "px";
         }
       });
+      debugPanel("✅ Widget montado en TOPBAR", "#0f0");
     } else if (placement === "product") {
       const target = findProductTarget(cfg.productPosition);
       if (!target) {
-        console.warn("[Nevux] No se encontró ubicación en la ficha de producto");
+        debugPanel("❌ NO se encontró target en producto (position: " + cfg.productPosition + ")", "#f00");
         return;
       }
       target.node.parentNode.insertBefore(container, target.node);
+      debugPanel("✅ Widget montado en PRODUCTO (antes de " + target.node.tagName + ")", "#0f0");
     } else if (placement === "cart") {
       const target = findCartTarget();
       if (!target) {
-        console.warn("[Nevux] No se encontró ubicación en el carrito");
+        debugPanel("❌ NO se encontró target en carrito", "#f00");
         return;
       }
       target.parentNode.insertBefore(container, target);
+      debugPanel("✅ Widget montado en CARRITO", "#0f0");
     }
 
     updateCountdown(container, cfg);
@@ -295,9 +323,11 @@
       const el = qs(sel);
       if (el) {
         const form = el.closest("form") || el;
+        debugPanel("→ Encontrado botón con selector: " + sel, "#0ff");
         return { node: form };
       }
     }
+    debugPanel("❌ Ningún selector de botón funcionó", "#f00");
     return null;
   }
 
