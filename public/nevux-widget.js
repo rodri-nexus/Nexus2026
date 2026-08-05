@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NEVUX_NS = "nevux-widget";
 
-  console.log("[Nevux] Script cargado - versión 4");
+  console.log("[Nevux] Script cargado - versión 5");
   window.NEVUX_LOADED = true;
 
   // ── PANEL DE DEBUG VISUAL ──
@@ -22,92 +22,29 @@
     line.textContent = "[" + new Date().toISOString().substr(11, 8) + "] " + msg;
     d.appendChild(line);
   }
-  debugPanel("✅ Script cargado v4", "#0f0");
+  debugPanel("✅ Script cargado v5", "#0f0");
 
-  /* ═══════════════════════════════════════════
-     HELPERS
-  ═══════════════════════════════════════════ */
   const qs = (s, ctx = document) => ctx.querySelector(s);
   const qsa = (s, ctx = document) => Array.from(ctx.querySelectorAll(s));
 
-  function log(...args) {
-    if (window.NEVUX_DEBUG) console.log("[Nevux]", ...args);
-  }
-
   function detectStoreId() {
-    // 1. Manual
-    if (window.NEVUX_STORE_ID) {
-      debugPanel("→ storeId por NEVUX_STORE_ID", "#0ff");
-      return window.NEVUX_STORE_ID;
-    }
-    // 2. window.Store (theme viejo)
-    if (window.Store && (window.Store.id || window.Store.store_id)) {
-      debugPanel("→ storeId por window.Store", "#0ff");
-      return window.Store.id || window.Store.store_id;
-    }
-    // 3. window.LS (theme nuevo - LinkStore)
-    if (window.LS && window.LS.store && window.LS.store.id) {
-      debugPanel("→ storeId por window.LS.store", "#0ff");
-      return window.LS.store.id;
-    }
-    // 4. window.LS.storeId
-    if (window.LS && window.LS.storeId) {
-      debugPanel("→ storeId por window.LS.storeId", "#0ff");
-      return window.LS.storeId;
-    }
-    // 5. window.__NUVEMSHOP_STORE__
-    if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id) {
-      debugPanel("→ storeId por __NUVEMSHOP_STORE__", "#0ff");
-      return window.__NUVEMSHOP_STORE__.id;
-    }
-    // 6. Meta tag
+    if (window.NEVUX_STORE_ID) return window.NEVUX_STORE_ID;
+    if (window.Store && (window.Store.id || window.Store.store_id)) return window.Store.id || window.Store.store_id;
+    if (window.LS && window.LS.store && window.LS.store.id) return window.LS.store.id;
+    if (window.LS && window.LS.storeId) return window.LS.storeId;
+    if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id) return window.__NUVEMSHOP_STORE__.id;
     const meta = qs('meta[name="store-id"]');
-    if (meta) {
-      debugPanel("→ storeId por meta tag", "#0ff");
-      return meta.content;
-    }
-    // 7. Regex en HTML - variantes
+    if (meta) return meta.content;
     const html = document.documentElement.innerHTML;
     let m = html.match(/"store_id":\s*(\d+)/);
-    if (m) {
-      debugPanel("→ storeId por regex store_id", "#0ff");
-      return parseInt(m[1], 10);
-    }
+    if (m) return parseInt(m[1], 10);
     m = html.match(/"storeId":\s*(\d+)/);
-    if (m) {
-      debugPanel("→ storeId por regex storeId", "#0ff");
-      return parseInt(m[1], 10);
-    }
-    m = html.match(/store[=\/](\d{4,})/i);
-    if (m) {
-      debugPanel("→ storeId por regex store= o store/", "#0ff");
-      return parseInt(m[1], 10);
-    }
-    // 8. URL de assets CDN (contiene store_id)
+    if (m) return parseInt(m[1], 10);
     const assetLink = qs('link[href*="/stores/"]');
     if (assetLink) {
       const cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
-      if (cdnMatch) {
-        debugPanel("→ storeId por CDN link", "#0ff");
-        return parseInt(cdnMatch[1], 10);
-      }
+      if (cdnMatch) return parseInt(cdnMatch[1], 10);
     }
-
-    // ── DEBUG: mostrar qué hay disponible ──
-    debugPanel("── Debug: buscando globales ──", "#ff0");
-    debugPanel("window.LS: " + (typeof window.LS), "#ff0");
-    if (window.LS) {
-      debugPanel("Keys de LS: " + Object.keys(window.LS).slice(0, 20).join(","), "#ff0");
-    }
-    debugPanel("window.Store: " + (typeof window.Store), "#ff0");
-    debugPanel("window.Nuvem: " + (typeof window.Nuvem), "#ff0");
-    debugPanel("window.__STATE__: " + (typeof window.__STATE__), "#ff0");
-    // Buscar cualquier variable global con "store" en el nombre
-    var globals = Object.keys(window).filter(function(k) {
-      return /store/i.test(k) && typeof window[k] !== "function";
-    });
-    debugPanel("Globals con 'store': " + globals.slice(0, 10).join(","), "#ff0");
-
     return null;
   }
 
@@ -119,7 +56,6 @@
     if (meta) return meta.content;
     const m = document.location.pathname.match(/\/productos\/[^/]+-(\d+)/);
     if (m) return parseInt(m[1], 10);
-    // Regex más amplio
     const html = document.documentElement.innerHTML;
     const pm = html.match(/"product_id":\s*(\d+)/);
     if (pm) return parseInt(pm[1], 10);
@@ -133,9 +69,6 @@
     return "other";
   }
 
-  /* ═══════════════════════════════════════════
-     ESTILOS GLOBALES
-  ═══════════════════════════════════════════ */
   function injectGlobalStyles() {
     if (qs(`#${NEVUX_NS}-styles`)) return;
     const style = document.createElement("style");
@@ -164,19 +97,16 @@
     document.head.appendChild(style);
   }
 
-  /* ═══════════════════════════════════════════
-     INIT
-  ═══════════════════════════════════════════ */
   const storeId = detectStoreId();
   const productId = detectProductId();
   const pageType = detectPageType();
 
-  debugPanel("storeId: " + storeId, storeId ? "#0f0" : "#f00");
+  debugPanel("storeId: " + storeId, "#0f0");
   debugPanel("productId: " + productId, "#0ff");
   debugPanel("pageType: " + pageType, "#0ff");
 
   if (!storeId) {
-    debugPanel("❌ No se detectó store_id — abortando", "#f00");
+    debugPanel("❌ No storeId — abortando", "#f00");
     return;
   }
 
@@ -186,12 +116,10 @@
     productId ? `&product_id=${productId}` : ""
   }`;
 
-  debugPanel("→ API: " + url, "#ff0");
-
   fetch(url)
     .then((r) => r.json())
     .then((data) => {
-      debugPanel("✅ API respondió con " + (data.widgets ? data.widgets.length : 0) + " widgets", "#0f0");
+      debugPanel("✅ API OK: " + (data.widgets ? data.widgets.length : 0) + " widgets", "#0f0");
       if (!data.widgets || data.widgets.length === 0) return;
       data.widgets.forEach((w) => {
         if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
@@ -199,9 +127,6 @@
     })
     .catch((err) => debugPanel("❌ Error API: " + err.message, "#f00"));
 
-  /* ═══════════════════════════════════════════
-     RENDER
-  ═══════════════════════════════════════════ */
   function renderCountdown(widget) {
     const cfg = normalizeConfig(widget.config || {});
     const placements = [];
@@ -209,9 +134,7 @@
     if (cfg.showOnProduct && pageType === "product") placements.push("product");
     if (cfg.showOnCart && pageType === "cart") placements.push("cart");
 
-    debugPanel("Placements: " + JSON.stringify(placements), "#0ff");
     if (placements.length === 0) return;
-
     placements.forEach((p) => mountCountdownAt(widget, cfg, p));
   }
 
@@ -226,15 +149,16 @@
     if (placement === "topbar") {
       container.classList.add(`${NEVUX_NS}-topbar`);
       document.body.appendChild(container);
-      debugPanel("✅ Montado TOPBAR", "#0f0");
+      debugPanel("✅ TOPBAR montado", "#0f0");
     } else if (placement === "product") {
       const target = findProductTarget(cfg.productPosition);
       if (!target) {
-        debugPanel("❌ No se encontró target producto", "#f00");
+        debugPanel("❌ No target producto — debug botones abajo", "#f00");
+        debugAvailableButtons();
         return;
       }
       target.node.parentNode.insertBefore(container, target.node);
-      debugPanel("✅ Montado PRODUCTO", "#0f0");
+      debugPanel("✅ PRODUCTO montado antes de: " + target.node.tagName + (target.node.className ? "." + target.node.className.split(" ")[0] : ""), "#0f0");
     } else if (placement === "cart") {
       const target = findCartTarget();
       if (!target) return;
@@ -247,17 +171,39 @@
 
   function findProductTarget(position) {
     if (position === "before-title") {
-      const title = qs('h1.product-name') || qs('h1[itemprop="name"]') ||
-        qs('.product-name') || qs('.js-product-name') || qs('h1');
-      if (title) return { node: title };
+      const titleSelectors = [
+        'h1.product-name', 'h1[itemprop="name"]', '.product-name',
+        '.js-product-name', '.product-title', 'h1',
+      ];
+      for (const sel of titleSelectors) {
+        const el = qs(sel);
+        if (el) {
+          debugPanel("→ Título encontrado: " + sel, "#0ff");
+          return { node: el };
+        }
+      }
     }
+
+    // Muchos más selectores para el botón / form de agregar al carrito
     const btnSelectors = [
       'button[data-store="product-buy-button"]',
       'button[name="add-to-cart"]',
       'button[name="add"]',
       '.js-add-to-cart',
-      'form[data-store*="add-to-cart"]',
+      '.js-addtocart-btn',
+      '.js-btn-comprar',
+      'button.btn-add-to-cart',
+      'button.add-to-cart',
+      'button[data-testid="add-to-cart"]',
+      'button[data-testid*="buy"]',
       'button[type="submit"][data-store*="buy"]',
+      'form[data-store*="add-to-cart"]',
+      'form.js-product-form',
+      'form[action*="carrito"]',
+      'form[action*="cart"]',
+      'form[action*="add"]',
+      '[data-component="AddToCartButton"]',
+      '[data-hook="add-to-cart"]',
     ];
     for (const sel of btnSelectors) {
       const el = qs(sel);
@@ -266,13 +212,49 @@
         return { node: el.closest("form") || el };
       }
     }
-    debugPanel("❌ Ningún selector de botón funcionó", "#f00");
+
+    // Fallback: buscar cualquier button con texto "agregar" o "comprar"
+    const allButtons = qsa("button");
+    for (const btn of allButtons) {
+      const txt = (btn.textContent || "").toLowerCase();
+      if (
+        txt.includes("agregar al carrito") ||
+        txt.includes("añadir al carrito") ||
+        txt.includes("comprar ahora") ||
+        txt.includes("añadir") && txt.includes("carrito")
+      ) {
+        debugPanel("→ Botón por texto: " + txt.substring(0, 30), "#0ff");
+        return { node: btn.closest("form") || btn };
+      }
+    }
+
     return null;
   }
 
+  function debugAvailableButtons() {
+    // Mostrar los primeros 10 botones para ver cómo son
+    const buttons = qsa("button").slice(0, 8);
+    debugPanel("── Botones en la página: " + qsa("button").length + " ──", "#ff0");
+    buttons.forEach((b, i) => {
+      const txt = (b.textContent || "").trim().substring(0, 30);
+      const cls = (b.className || "").substring(0, 40);
+      const type = b.type || "";
+      const name = b.name || "";
+      debugPanel(`btn${i}: [${type}][${name}] class="${cls}" txt="${txt}"`, "#ff0");
+    });
+
+    // Mostrar todos los forms
+    const forms = qsa("form").slice(0, 5);
+    debugPanel("── Forms: " + qsa("form").length + " ──", "#ff0");
+    forms.forEach((f, i) => {
+      const action = (f.action || "").substring(0, 40);
+      const cls = (f.className || "").substring(0, 40);
+      debugPanel(`form${i}: action="${action}" class="${cls}"`, "#ff0");
+    });
+  }
+
   function findCartTarget() {
-    return qs('.js-cart-page') || qs('[data-store="cart"]') ||
-      qs('.cart-content') || qs('main');
+    return qs('.js-cart-page') || qs('[data-store="cart"]') || qs('.cart-content') || qs('main');
   }
 
   function normalizeConfig(raw) {
