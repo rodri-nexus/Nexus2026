@@ -32,10 +32,8 @@ export default async function DashboardPage() {
   ]);
 
   const store = storeRes.data;
-  // Si no existe el perfil o el campo, asumimos que NO completó el onboarding
   const onboardingCompleted = profileRes.data?.onboarding_completed ?? false;
 
-  // Si hay tienda conectada, traer la cantidad de productos desde Tiendanube
   let productsCount = 0;
   if (store?.store_id && store?.access_token) {
     productsCount = await getProductsCount(
@@ -44,8 +42,6 @@ export default async function DashboardPage() {
     );
   }
 
-  // Preparamos los datos que le pasamos al cliente
-  // (no mandamos el access_token al cliente por seguridad)
   const storeData = store
     ? {
         store_id: store.store_id,
@@ -57,10 +53,11 @@ export default async function DashboardPage() {
   return (
     <DashboardClient
       email={user.email ?? ""}
+      userId={user.id}
       store={storeData}
       productsCount={productsCount}
       activeWidgetsCount={0}
       onboardingCompleted={onboardingCompleted}
     />
   );
-}
+    }
