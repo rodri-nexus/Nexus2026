@@ -27,7 +27,6 @@ interface DashboardClientProps {
   onboardingCompleted: boolean;
 }
 
-// Client ID de la app en Tiendanube (público, no es secreto)
 const TIENDANUBE_CLIENT_ID = "37382";
 
 export default function DashboardClient({
@@ -41,7 +40,6 @@ export default function DashboardClient({
   const [menuOpen, setMenuOpen] = useState(false);
   const hasStore = store !== null;
 
-  // Link directo a Tiendanube (mismo que funciona en el test)
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
   return (
@@ -54,13 +52,10 @@ export default function DashboardClient({
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         }}
       >
-        {/* Header */}
         <DashboardHeader email={email} onMenuClick={() => setMenuOpen(true)} />
 
-        {/* SideMenu */}
         <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
-        {/* Contenido principal */}
         <main
           style={{
             maxWidth: "1200px",
@@ -68,7 +63,6 @@ export default function DashboardClient({
             padding: "2rem 1.25rem 3rem",
           }}
         >
-          {/* Banner si NO hay tienda conectada */}
           {!hasStore && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -145,7 +139,6 @@ export default function DashboardClient({
             </motion.div>
           )}
 
-          {/* Bienvenida + título */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -194,7 +187,6 @@ export default function DashboardClient({
             </p>
           </motion.div>
 
-          {/* Info compacta de la tienda conectada */}
           {hasStore && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -288,7 +280,6 @@ export default function DashboardClient({
             </motion.div>
           )}
 
-          {/* Grid del dashboard */}
           <div
             style={{
               display: "flex",
@@ -296,22 +287,17 @@ export default function DashboardClient({
               gap: "1.5rem",
             }}
           >
-            {/* Métricas de widgets */}
             <MetricsCard />
 
-            {/* Stats: Productos + Widgets activos */}
             <StatsCards
               productsCount={productsCount}
               activeWidgetsCount={activeWidgetsCount}
             />
 
-            {/* Recientes */}
             <RecientesCard storeId={store?.store_id} />
 
-            {/* Acciones rápidas */}
             <AccionesRapidas />
 
-            {/* Centro de ayuda */}
             <CentroAyuda />
           </div>
         </main>
