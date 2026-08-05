@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NEVUX_NS = "nevux-widget";
 
-  console.log("[Nevux] Script cargado - versión 3");
+  console.log("[Nevux] Script cargado - versión 4");
   window.NEVUX_LOADED = true;
 
   // ── PANEL DE DEBUG VISUAL ──
@@ -14,7 +14,7 @@
     if (!d) {
       d = document.createElement("div");
       d.id = "nevux-debug-panel";
-      d.style.cssText = "position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font:12px monospace;padding:8px;z-index:2147483647;max-height:50vh;overflow:auto;white-space:pre-wrap;border-bottom:3px solid #0f0;";
+      d.style.cssText = "position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font:11px monospace;padding:8px;z-index:2147483647;max-height:70vh;overflow:auto;white-space:pre-wrap;border-bottom:3px solid #0f0;";
       document.body.appendChild(d);
     }
     var line = document.createElement("div");
@@ -22,7 +22,7 @@
     line.textContent = "[" + new Date().toISOString().substr(11, 8) + "] " + msg;
     d.appendChild(line);
   }
-  debugPanel("✅ Script cargado v3", "#0f0");
+  debugPanel("✅ Script cargado v4", "#0f0");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -35,22 +35,95 @@
   }
 
   function detectStoreId() {
-    if (window.NEVUX_STORE_ID) return window.NEVUX_STORE_ID;
-    if (window.Store) return window.Store.id || window.Store.store_id;
+    // 1. Manual
+    if (window.NEVUX_STORE_ID) {
+      debugPanel("→ storeId por NEVUX_STORE_ID", "#0ff");
+      return window.NEVUX_STORE_ID;
+    }
+    // 2. window.Store (theme viejo)
+    if (window.Store && (window.Store.id || window.Store.store_id)) {
+      debugPanel("→ storeId por window.Store", "#0ff");
+      return window.Store.id || window.Store.store_id;
+    }
+    // 3. window.LS (theme nuevo - LinkStore)
+    if (window.LS && window.LS.store && window.LS.store.id) {
+      debugPanel("→ storeId por window.LS.store", "#0ff");
+      return window.LS.store.id;
+    }
+    // 4. window.LS.storeId
+    if (window.LS && window.LS.storeId) {
+      debugPanel("→ storeId por window.LS.storeId", "#0ff");
+      return window.LS.storeId;
+    }
+    // 5. window.__NUVEMSHOP_STORE__
+    if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id) {
+      debugPanel("→ storeId por __NUVEMSHOP_STORE__", "#0ff");
+      return window.__NUVEMSHOP_STORE__.id;
+    }
+    // 6. Meta tag
     const meta = qs('meta[name="store-id"]');
-    if (meta) return meta.content;
+    if (meta) {
+      debugPanel("→ storeId por meta tag", "#0ff");
+      return meta.content;
+    }
+    // 7. Regex en HTML - variantes
     const html = document.documentElement.innerHTML;
-    const m = html.match(/"store_id":\s*(\d+)/);
-    return m ? parseInt(m[1], 10) : null;
+    let m = html.match(/"store_id":\s*(\d+)/);
+    if (m) {
+      debugPanel("→ storeId por regex store_id", "#0ff");
+      return parseInt(m[1], 10);
+    }
+    m = html.match(/"storeId":\s*(\d+)/);
+    if (m) {
+      debugPanel("→ storeId por regex storeId", "#0ff");
+      return parseInt(m[1], 10);
+    }
+    m = html.match(/store[=\/](\d{4,})/i);
+    if (m) {
+      debugPanel("→ storeId por regex store= o store/", "#0ff");
+      return parseInt(m[1], 10);
+    }
+    // 8. URL de assets CDN (contiene store_id)
+    const assetLink = qs('link[href*="/stores/"]');
+    if (assetLink) {
+      const cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
+      if (cdnMatch) {
+        debugPanel("→ storeId por CDN link", "#0ff");
+        return parseInt(cdnMatch[1], 10);
+      }
+    }
+
+    // ── DEBUG: mostrar qué hay disponible ──
+    debugPanel("── Debug: buscando globales ──", "#ff0");
+    debugPanel("window.LS: " + (typeof window.LS), "#ff0");
+    if (window.LS) {
+      debugPanel("Keys de LS: " + Object.keys(window.LS).slice(0, 20).join(","), "#ff0");
+    }
+    debugPanel("window.Store: " + (typeof window.Store), "#ff0");
+    debugPanel("window.Nuvem: " + (typeof window.Nuvem), "#ff0");
+    debugPanel("window.__STATE__: " + (typeof window.__STATE__), "#ff0");
+    // Buscar cualquier variable global con "store" en el nombre
+    var globals = Object.keys(window).filter(function(k) {
+      return /store/i.test(k) && typeof window[k] !== "function";
+    });
+    debugPanel("Globals con 'store': " + globals.slice(0, 10).join(","), "#ff0");
+
+    return null;
   }
 
   function detectProductId() {
     if (window.NEVUX_PRODUCT_ID) return window.NEVUX_PRODUCT_ID;
     if (window.Product) return window.Product.id;
+    if (window.LS && window.LS.product && window.LS.product.id) return window.LS.product.id;
     const meta = qs('meta[property="og:product:id"]');
     if (meta) return meta.content;
     const m = document.location.pathname.match(/\/productos\/[^/]+-(\d+)/);
-    return m ? parseInt(m[1], 10) : null;
+    if (m) return parseInt(m[1], 10);
+    // Regex más amplio
+    const html = document.documentElement.innerHTML;
+    const pm = html.match(/"product_id":\s*(\d+)/);
+    if (pm) return parseInt(pm[1], 10);
+    return null;
   }
 
   function detectPageType() {
@@ -61,7 +134,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     ESTILOS GLOBALES (una sola vez)
+     ESTILOS GLOBALES
   ═══════════════════════════════════════════ */
   function injectGlobalStyles() {
     if (qs(`#${NEVUX_NS}-styles`)) return;
@@ -72,114 +145,21 @@
         box-sizing: border-box;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
-      .${NEVUX_NS}-root {
-        margin: 12px 0;
-        line-height: 1.3;
-      }
+      .${NEVUX_NS}-root { margin: 12px 0; line-height: 1.3; }
       .${NEVUX_NS}-topbar {
-        position: fixed !important;
-        top: 0; left: 0; right: 0;
-        z-index: 999999;
-        margin: 0 !important;
-        border-radius: 0 !important;
+        position: fixed !important; top: 0; left: 0; right: 0;
+        z-index: 999999; margin: 0 !important; border-radius: 0 !important;
       }
-      .${NEVUX_NS}-clock-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .${NEVUX_NS}-unit {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-      }
+      .${NEVUX_NS}-unit { display: flex; flex-direction: column; align-items: center; gap: 4px; }
       .${NEVUX_NS}-digit {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-variant-numeric: tabular-nums;
-        letter-spacing: 0.02em;
-        transition: transform 0.2s ease, box-shadow 0.4s ease;
-      }
-      .${NEVUX_NS}-digit.flip {
-        animation: ${NEVUX_NS}-flip 0.3s ease;
-      }
-      .${NEVUX_NS}-digit.urgent {
-        animation: ${NEVUX_NS}-pulse 0.8s ease infinite;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
       }
       .${NEVUX_NS}-label {
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        opacity: 0.75;
+        font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75;
       }
-      .${NEVUX_NS}-sep {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        padding-bottom: 14px;
-      }
-      .${NEVUX_NS}-sep span {
-        width: 4px; height: 4px;
-        border-radius: 50%;
-        opacity: 0.7;
-        animation: ${NEVUX_NS}-blink 1s ease infinite;
-      }
-      .${NEVUX_NS}-retro-digit {
-        display: inline-flex;
-        gap: 2px;
-      }
-      .${NEVUX_NS}-retro-cell {
-        width: 26px; height: 38px;
-        background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 50%, #2a2a3e 100%);
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Courier New', monospace;
-        font-weight: 900;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-      }
-      .${NEVUX_NS}-retro-cell::after {
-        content: '';
-        position: absolute;
-        top: 50%; left: 0; right: 0;
-        height: 1px;
-        background: rgba(0,0,0,0.5);
-      }
-      .${NEVUX_NS}-retro-cell.flip {
-        animation: ${NEVUX_NS}-retroflip 0.3s ease;
-      }
-      .${NEVUX_NS}-finished {
-        text-align: center;
-        padding: 14px;
-        font-weight: 700;
-      }
-      @keyframes ${NEVUX_NS}-flip {
-        0%   { transform: rotateX(0deg);   opacity: 1; }
-        40%  { transform: rotateX(-90deg); opacity: 0.4; }
-        60%  { transform: rotateX(90deg);  opacity: 0.4; }
-        100% { transform: rotateX(0deg);   opacity: 1; }
-      }
-      @keyframes ${NEVUX_NS}-retroflip {
-        0%   { transform: scaleY(1);  opacity: 1; }
-        40%  { transform: scaleY(0);  opacity: 0.5; }
-        60%  { transform: scaleY(0);  opacity: 0.5; }
-        100% { transform: scaleY(1);  opacity: 1; }
-      }
-      @keyframes ${NEVUX_NS}-pulse {
-        0%, 100% { transform: scale(1);    box-shadow: 0 0 12px rgba(239,68,68,0.4); }
-        50%      { transform: scale(1.05); box-shadow: 0 0 22px rgba(239,68,68,0.8); }
-      }
-      @keyframes ${NEVUX_NS}-blink {
-        0%, 100% { opacity: 0.7; }
-        50%      { opacity: 0.15; }
-      }
+      .${NEVUX_NS}-sep { display: flex; flex-direction: column; gap: 4px; padding-bottom: 14px; }
+      .${NEVUX_NS}-sep span { width: 4px; height: 4px; border-radius: 50%; opacity: 0.7; }
     `;
     document.head.appendChild(style);
   }
@@ -191,12 +171,12 @@
   const productId = detectProductId();
   const pageType = detectPageType();
 
-  debugPanel("storeId: " + storeId, "#0ff");
+  debugPanel("storeId: " + storeId, storeId ? "#0f0" : "#f00");
   debugPanel("productId: " + productId, "#0ff");
   debugPanel("pageType: " + pageType, "#0ff");
 
   if (!storeId) {
-    debugPanel("❌ No se detectó store_id", "#f00");
+    debugPanel("❌ No se detectó store_id — abortando", "#f00");
     return;
   }
 
@@ -206,56 +186,38 @@
     productId ? `&product_id=${productId}` : ""
   }`;
 
-  debugPanel("→ Llamando API: " + url, "#ff0");
+  debugPanel("→ API: " + url, "#ff0");
 
   fetch(url)
     .then((r) => r.json())
     .then((data) => {
       debugPanel("✅ API respondió con " + (data.widgets ? data.widgets.length : 0) + " widgets", "#0f0");
-      if (!data.widgets || data.widgets.length === 0) {
-        debugPanel("⚠️ No hay widgets activos", "#ff0");
-        return;
-      }
+      if (!data.widgets || data.widgets.length === 0) return;
       data.widgets.forEach((w) => {
-        debugPanel("→ Widget: " + w.widget_slug, "#0ff");
-        if (w.widget_slug === "cuenta-regresiva") {
-          renderCountdown(w);
-        }
+        if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
       });
     })
-    .catch((err) => {
-      debugPanel("❌ Error API: " + err.message, "#f00");
-    });
+    .catch((err) => debugPanel("❌ Error API: " + err.message, "#f00"));
 
   /* ═══════════════════════════════════════════
-     RENDER COUNTDOWN
+     RENDER
   ═══════════════════════════════════════════ */
   function renderCountdown(widget) {
     const cfg = normalizeConfig(widget.config || {});
-
     const placements = [];
     if (cfg.showAsTopBar) placements.push("topbar");
     if (cfg.showOnProduct && pageType === "product") placements.push("product");
     if (cfg.showOnCart && pageType === "cart") placements.push("cart");
 
     debugPanel("Placements: " + JSON.stringify(placements), "#0ff");
+    if (placements.length === 0) return;
 
-    if (placements.length === 0) {
-      debugPanel("⚠️ Widget no aplica en esta página", "#ff0");
-      return;
-    }
-
-    placements.forEach((placement) => {
-      mountCountdownAt(widget, cfg, placement);
-    });
+    placements.forEach((p) => mountCountdownAt(widget, cfg, p));
   }
 
   function mountCountdownAt(widget, cfg, placement) {
     const uniqueId = `${NEVUX_NS}-${widget.id}-${placement}`;
-    if (qs(`#${uniqueId}`)) {
-      debugPanel("Widget ya montado: " + uniqueId, "#ff0");
-      return;
-    }
+    if (qs(`#${uniqueId}`)) return;
 
     const container = document.createElement("div");
     container.id = uniqueId;
@@ -264,53 +226,31 @@
     if (placement === "topbar") {
       container.classList.add(`${NEVUX_NS}-topbar`);
       document.body.appendChild(container);
-      requestAnimationFrame(() => {
-        const h = container.offsetHeight;
-        if (h > 0) {
-          const prev = parseInt(document.body.style.paddingTop || "0", 10);
-          document.body.style.paddingTop = prev + h + "px";
-        }
-      });
-      debugPanel("✅ Widget montado en TOPBAR", "#0f0");
+      debugPanel("✅ Montado TOPBAR", "#0f0");
     } else if (placement === "product") {
       const target = findProductTarget(cfg.productPosition);
       if (!target) {
-        debugPanel("❌ NO se encontró target en producto (position: " + cfg.productPosition + ")", "#f00");
+        debugPanel("❌ No se encontró target producto", "#f00");
         return;
       }
       target.node.parentNode.insertBefore(container, target.node);
-      debugPanel("✅ Widget montado en PRODUCTO (antes de " + target.node.tagName + ")", "#0f0");
+      debugPanel("✅ Montado PRODUCTO", "#0f0");
     } else if (placement === "cart") {
       const target = findCartTarget();
-      if (!target) {
-        debugPanel("❌ NO se encontró target en carrito", "#f00");
-        return;
-      }
+      if (!target) return;
       target.parentNode.insertBefore(container, target);
-      debugPanel("✅ Widget montado en CARRITO", "#0f0");
     }
 
     updateCountdown(container, cfg);
-    const interval = setInterval(() => {
-      const finished = updateCountdown(container, cfg);
-      if (finished && !cfg.autoRestart) clearInterval(interval);
-    }, 1000);
+    setInterval(() => updateCountdown(container, cfg), 1000);
   }
 
-  /* ═══════════════════════════════════════════
-     ENCONTRAR TARGETS EN EL THEME
-  ═══════════════════════════════════════════ */
   function findProductTarget(position) {
     if (position === "before-title") {
-      const title =
-        qs('h1.product-name') ||
-        qs('h1[itemprop="name"]') ||
-        qs('.product-name') ||
-        qs('.js-product-name') ||
-        qs('h1');
+      const title = qs('h1.product-name') || qs('h1[itemprop="name"]') ||
+        qs('.product-name') || qs('.js-product-name') || qs('h1');
       if (title) return { node: title };
     }
-
     const btnSelectors = [
       'button[data-store="product-buy-button"]',
       'button[name="add-to-cart"]',
@@ -322,9 +262,8 @@
     for (const sel of btnSelectors) {
       const el = qs(sel);
       if (el) {
-        const form = el.closest("form") || el;
-        debugPanel("→ Encontrado botón con selector: " + sel, "#0ff");
-        return { node: form };
+        debugPanel("→ Botón: " + sel, "#0ff");
+        return { node: el.closest("form") || el };
       }
     }
     debugPanel("❌ Ningún selector de botón funcionó", "#f00");
@@ -332,31 +271,22 @@
   }
 
   function findCartTarget() {
-    return (
-      qs('.js-cart-page') ||
-      qs('[data-store="cart"]') ||
-      qs('.cart-content') ||
-      qs('.cart-items') ||
-      qs('main') ||
-      qs('.container')
-    );
+    return qs('.js-cart-page') || qs('[data-store="cart"]') ||
+      qs('.cart-content') || qs('main');
   }
 
-  /* ═══════════════════════════════════════════
-     NORMALIZAR CONFIG
-  ═══════════════════════════════════════════ */
   function normalizeConfig(raw) {
     const n = (v, fb) => {
       if (v === undefined || v === null || v === "") return fb;
-      const parsed = typeof v === "string" ? parseInt(v, 10) : v;
-      return isNaN(parsed) ? fb : parsed;
+      const p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
     };
     return {
       title: raw.title ?? "⚡ Oferta por tiempo limitado",
       subtitle: raw.subtitle ?? "",
       endDate: raw.endDate ?? "",
-      showDays:    raw.showDays    !== false,
-      showHours:   raw.showHours   !== false,
+      showDays: raw.showDays !== false,
+      showHours: raw.showHours !== false,
       showMinutes: raw.showMinutes !== false,
       showSeconds: raw.showSeconds !== false,
       autoRestart: raw.autoRestart === true,
@@ -384,269 +314,49 @@
     };
   }
 
-  /* ═══════════════════════════════════════════
-     UPDATE / RENDER
-  ═══════════════════════════════════════════ */
   function updateCountdown(container, cfg) {
     const diff = calcDiff(cfg);
-
     if (diff.finished) {
-      if (cfg.autoRestart) {
-        const newEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-        cfg.endDate = newEnd;
-        return false;
-      }
-      renderFinished(container, cfg);
+      container.innerHTML = `<div style="background:${getBg(cfg)};border-radius:${cfg.borderRadiusWidget}px;padding:${cfg.paddingWidget}px;text-align:center;color:${cfg.colorTitle};font-weight:700;">⏰ ¡Oferta terminó!</div>`;
       return true;
     }
-
     renderClock(container, cfg, diff);
     return false;
   }
 
   function calcDiff(cfg) {
-    if (!cfg.endDate) {
-      return {
-        finished: false,
-        days: 0,
-        hours: 0,
-        minutes: 59,
-        seconds: 42,
-        urgent: false,
-      };
-    }
-    const end = new Date(cfg.endDate).getTime();
-    const now = Date.now();
-    const ms = end - now;
-    if (ms <= 0) {
-      return {
-        finished: true,
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-        urgent: false,
-      };
-    }
-    const totalSec = Math.floor(ms / 1000);
+    if (!cfg.endDate) return { finished: false, days: 0, hours: 0, minutes: 59, seconds: 42 };
+    const ms = new Date(cfg.endDate).getTime() - Date.now();
+    if (ms <= 0) return { finished: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    const t = Math.floor(ms / 1000);
     return {
       finished: false,
-      days: Math.floor(totalSec / 86400),
-      hours: Math.floor((totalSec % 86400) / 3600),
-      minutes: Math.floor((totalSec % 3600) / 60),
-      seconds: totalSec % 60,
-      urgent: totalSec <= 10,
+      days: Math.floor(t / 86400),
+      hours: Math.floor((t % 86400) / 3600),
+      minutes: Math.floor((t % 3600) / 60),
+      seconds: t % 60,
     };
   }
 
-  function renderFinished(container, cfg) {
-    const bg = getBg(cfg);
-    container.innerHTML = `
-      <div style="
-        background:${bg};
-        border-radius:${cfg.borderRadiusWidget}px;
-        padding:${cfg.paddingWidget}px;
-        text-align:${cfg.alignment};
-      ">
-        <div class="${NEVUX_NS}-finished" style="color:${cfg.colorTitle};font-size:${cfg.fontSizeTitle};">
-          ⏰ ¡La oferta terminó!
-        </div>
-      </div>
-    `;
-  }
-
   function renderClock(container, cfg, diff) {
-    const bg = getBg(cfg);
-
     const units = [
-      ...(cfg.showDays    ? [{ v: diff.days,    l: "DÍAS", k: "d" }] : []),
-      ...(cfg.showHours   ? [{ v: diff.hours,   l: "HRS",  k: "h" }] : []),
-      ...(cfg.showMinutes ? [{ v: diff.minutes, l: "MIN",  k: "m" }] : []),
-      ...(cfg.showSeconds ? [{ v: diff.seconds, l: "SEG",  k: "s" }] : []),
+      ...(cfg.showDays ? [{ v: diff.days, l: "DÍAS" }] : []),
+      ...(cfg.showHours ? [{ v: diff.hours, l: "HRS" }] : []),
+      ...(cfg.showMinutes ? [{ v: diff.minutes, l: "MIN" }] : []),
+      ...(cfg.showSeconds ? [{ v: diff.seconds, l: "SEG" }] : []),
     ];
+    if (units.length === 0) return;
 
-    if (units.length === 0) {
-      container.innerHTML = "";
-      return;
-    }
+    let inner = "";
+    units.forEach((u, i) => {
+      const val = String(u.v).padStart(2, "0");
+      inner += `<div class="${NEVUX_NS}-unit"><div class="${NEVUX_NS}-digit" style="background:${cfg.colorClockBg};color:${cfg.colorNumbers};border-radius:${cfg.borderRadiusClock}px;padding:${cfg.paddingClock+4}px ${cfg.paddingClock+8}px;font-size:${cfg.fontSizeClock};">${val}</div>${cfg.showLabels ? `<span class="${NEVUX_NS}-label" style="font-size:11px;color:${cfg.colorNumbers};">${u.l}</span>` : ""}</div>`;
+      if (i < units.length - 1) inner += `<div class="${NEVUX_NS}-sep"><span style="background:${cfg.colorNumbers};"></span><span style="background:${cfg.colorNumbers};"></span></div>`;
+    });
 
-    const titleHtml = cfg.title
-      ? `<div style="
-          font-size:${cfg.fontSizeTitle};
-          font-weight:800;
-          color:${cfg.colorTitle};
-          margin-bottom:${cfg.subtitle ? "4px" : "12px"};
-          line-height:1.2;
-          text-align:${cfg.alignment};
-        ">${escapeHtml(cfg.title)}</div>`
-      : "";
-
-    const subBg =
-      cfg.bgType === "gradient"
-        ? "rgba(255,255,255,0.15)"
-        : cfg.colorSubtitleBg;
-    const subtitleHtml = cfg.subtitle
-      ? `<div style="text-align:${cfg.alignment};margin-bottom:12px;">
-          <span style="
-            display:inline-block;
-            font-size:${cfg.fontSizeSubtitle};
-            font-weight:600;
-            color:${cfg.colorSubtitle};
-            background:${subBg};
-            padding:4px 12px;
-            border-radius:20px;
-          ">${escapeHtml(cfg.subtitle)}</span>
-        </div>`
-      : "";
-
-    let clockHost = qs(`.${NEVUX_NS}-clock-host`, container);
-    const currentKeys = units.map((u) => u.k).join(",");
-    const needsRebuild =
-      !clockHost ||
-      clockHost.dataset.style !== cfg.style ||
-      clockHost.dataset.keys !== currentKeys;
-
-    if (needsRebuild) {
-      const justify =
-        cfg.alignment === "center"
-          ? "center"
-          : cfg.alignment === "left"
-          ? "flex-start"
-          : "flex-end";
-
-      let clockInner = "";
-      units.forEach((u, i) => {
-        clockInner += renderUnitHtml(u, cfg);
-        if (i < units.length - 1) clockInner += renderSeparatorHtml(cfg);
-      });
-
-      container.innerHTML = `
-        <div style="
-          background:${bg};
-          border-radius:${cfg.borderRadiusWidget}px;
-          padding:${cfg.paddingWidget}px;
-          text-align:${cfg.alignment};
-          overflow:hidden;
-        ">
-          ${titleHtml}
-          ${subtitleHtml}
-          <div
-            class="${NEVUX_NS}-clock-host"
-            data-style="${cfg.style}"
-            data-keys="${currentKeys}"
-            style="
-              display:flex;
-              justify-content:${justify};
-              align-items:center;
-              gap:8px;
-              flex-wrap:wrap;
-            "
-          >${clockInner}</div>
-        </div>
-      `;
-    } else {
-      units.forEach((u) => updateUnit(clockHost, u, cfg));
-    }
+    container.innerHTML = `<div style="background:${getBg(cfg)};border-radius:${cfg.borderRadiusWidget}px;padding:${cfg.paddingWidget}px;text-align:${cfg.alignment};overflow:hidden;">${cfg.title?`<div style="font-size:${cfg.fontSizeTitle};font-weight:800;color:${cfg.colorTitle};margin-bottom:${cfg.subtitle?"4px":"12px"};line-height:1.2;">${escapeHtml(cfg.title)}</div>`:""}${cfg.subtitle?`<div style="margin-bottom:12px;"><span style="display:inline-block;font-size:${cfg.fontSizeSubtitle};font-weight:600;color:${cfg.colorSubtitle};background:${cfg.bgType==="gradient"?"rgba(255,255,255,0.15)":cfg.colorSubtitleBg};padding:4px 12px;border-radius:20px;">${escapeHtml(cfg.subtitle)}</span></div>`:""}<div style="display:flex;justify-content:${cfg.alignment==="center"?"center":"flex-start"};align-items:center;gap:8px;flex-wrap:wrap;">${inner}</div></div>`;
   }
 
-  /* ═══════════════════════════════════════════
-     RENDER UNIT (clásico + retro)
-  ═══════════════════════════════════════════ */
-  function renderUnitHtml(u, cfg) {
-    const val = String(u.v).padStart(2, "0");
-    const labelHtml = cfg.showLabels
-      ? `<span class="${NEVUX_NS}-label" style="
-          font-size:11px;
-          color:${cfg.colorNumbers};
-        ">${u.l}</span>`
-      : "";
-
-    if (cfg.style === "retro") {
-      const cells = val
-        .split("")
-        .map(
-          (d) => `<span class="${NEVUX_NS}-retro-cell" style="
-            font-size:${cfg.fontSizeClock};
-            color:${cfg.colorNumbers};
-          ">${d}</span>`
-        )
-        .join("");
-      return `
-        <div class="${NEVUX_NS}-unit" data-key="${u.k}">
-          <div class="${NEVUX_NS}-retro-digit" data-value="${val}">${cells}</div>
-          ${labelHtml}
-        </div>
-      `;
-    }
-
-    return `
-      <div class="${NEVUX_NS}-unit" data-key="${u.k}">
-        <div class="${NEVUX_NS}-digit" data-value="${val}" style="
-          background:${cfg.colorClockBg};
-          color:${cfg.colorNumbers};
-          border-radius:${cfg.borderRadiusClock}px;
-          padding:${cfg.paddingClock + 4}px ${cfg.paddingClock + 8}px;
-          font-size:${cfg.fontSizeClock};
-          min-width:${parseInt(cfg.fontSizeClock) * 2}px;
-          box-shadow:0 4px 12px rgba(0,0,0,0.15);
-        ">${val}</div>
-        ${labelHtml}
-      </div>
-    `;
-  }
-
-  function renderSeparatorHtml(cfg) {
-    const dot = `<span style="background:${cfg.colorNumbers};"></span>`;
-    return `<div class="${NEVUX_NS}-sep">${dot}${dot}</div>`;
-  }
-
-  function updateUnit(host, u, cfg) {
-    const unitEl = qs(`.${NEVUX_NS}-unit[data-key="${u.k}"]`, host);
-    if (!unitEl) return;
-    const val = String(u.v).padStart(2, "0");
-
-    if (cfg.style === "retro") {
-      const wrap = qs(`.${NEVUX_NS}-retro-digit`, unitEl);
-      if (!wrap) return;
-      if (wrap.dataset.value === val) return;
-      wrap.dataset.value = val;
-      const cells = qsa(`.${NEVUX_NS}-retro-cell`, wrap);
-      val.split("").forEach((d, i) => {
-        if (cells[i] && cells[i].textContent !== d) {
-          cells[i].textContent = d;
-          cells[i].classList.remove("flip");
-          void cells[i].offsetWidth;
-          cells[i].classList.add("flip");
-        }
-      });
-    } else {
-      const digit = qs(`.${NEVUX_NS}-digit`, unitEl);
-      if (!digit) return;
-      if (digit.dataset.value === val) return;
-      digit.dataset.value = val;
-      digit.textContent = val;
-      digit.classList.remove("flip");
-      void digit.offsetWidth;
-      digit.classList.add("flip");
-
-      const totalRemaining = getTotalSecondsFromCfg(cfg);
-      if (totalRemaining > 0 && totalRemaining <= 10) {
-        digit.classList.add("urgent");
-      } else {
-        digit.classList.remove("urgent");
-      }
-    }
-  }
-
-  function getTotalSecondsFromCfg(cfg) {
-    if (!cfg.endDate) return 999;
-    const ms = new Date(cfg.endDate).getTime() - Date.now();
-    return ms <= 0 ? 0 : Math.floor(ms / 1000);
-  }
-
-  /* ═══════════════════════════════════════════
-     HELPERS FINALES
-  ═══════════════════════════════════════════ */
   function getBg(cfg) {
     return cfg.bgType === "gradient"
       ? `linear-gradient(135deg, ${cfg.colorWidgetBg} 0%, ${cfg.colorSubtitleBg} 100%)`
@@ -654,11 +364,6 @@
   }
 
   function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 })();
