@@ -14,7 +14,6 @@ export async function GET(request: Request) {
   const secret = searchParams.get("secret");
   const force = searchParams.get("force") === "1";
 
-  // 1. Validar secreto
   const expectedSecret = process.env.ADMIN_SECRET;
   if (!expectedSecret) {
     return NextResponse.json(
@@ -26,7 +25,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Secreto inválido" }, { status: 401 });
   }
 
-  // 2. Validar store_id
   if (!storeIdParam) {
     return NextResponse.json(
       { error: "Falta el parámetro store_id" },
@@ -41,7 +39,6 @@ export async function GET(request: Request) {
     );
   }
 
-  // 3. Buscar la tienda en Supabase
   const { data: store, error: storeErr } = await supabaseAdmin
     .from("stores")
     .select("store_id, access_token, is_active")
@@ -69,11 +66,10 @@ export async function GET(request: Request) {
 
   const scriptUrl = `${new URL(request.url).origin}/nevux-widget.js`;
 
-  // script_id: identificador único de NUESTRO script (elegido por nosotros)
-  const NEVUX_SCRIPT_ID = "nevux-widgets-main";
+  // script_id: identificador ENTERO único del script en Tiendanube
+  const NEVUX_SCRIPT_ID = 1;
 
   try {
-    // 4. Listar scripts existentes
     const listRes = await fetch(
       `https://api.tiendanube.com/v1/${storeId}/scripts`,
       {
@@ -94,7 +90,6 @@ export async function GET(request: Request) {
       rawList = null;
     }
 
-    // Normalizar a array
     let existingScripts: any[] = [];
     if (Array.isArray(rawList)) {
       existingScripts = rawList;
@@ -117,7 +112,6 @@ export async function GET(request: Request) {
       );
     }
 
-    // Buscar si ya está instalado (por src o por script_id)
     const alreadyInstalled = existingScripts.find(
       (s: any) =>
         s &&
@@ -126,7 +120,6 @@ export async function GET(request: Request) {
           (s.name && String(s.name).includes("Nevux")))
     );
 
-    // Si está y no forzamos → salir
     if (alreadyInstalled && !force) {
       return NextResponse.json({
         success: true,
@@ -136,7 +129,6 @@ export async function GET(request: Request) {
       });
     }
 
-    // Si forzamos, borrar el existente primero
     if (alreadyInstalled && force && alreadyInstalled.id) {
       await fetch(
         `https://api.tiendanube.com/v1/${storeId}/scripts/${alreadyInstalled.id}`,
@@ -151,7 +143,6 @@ export async function GET(request: Request) {
       );
     }
 
-    // 5. Instalar el script (con script_id + event + where correctos)
     const installRes = await fetch(
       `https://api.tiendanube.com/v1/${storeId}/scripts`,
       {
@@ -206,4 +197,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-       }
+  }
