@@ -5,6 +5,8 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
+  console.log("[Nevux] v6 loaded");
+
   /* ═══════════════════════════════════════════
      HELPERS
   ═══════════════════════════════════════════ */
@@ -13,6 +15,36 @@
 
   function log(...args) {
     if (window.NEVUX_DEBUG) console.log("[Nevux]", ...args);
+  }
+
+  // Separar emoji del título SIN regex Unicode (más compatible)
+  function splitEmoji(str) {
+    if (!str) return { emoji: "", text: "" };
+    const s = str.trim();
+    // Detectar los primeros caracteres si están fuera del rango ASCII básico
+    // Un emoji típico ocupa 1-4 code units
+    let emojiEnd = 0;
+    for (let i = 0; i < s.length && i < 4; i++) {
+      const code = s.charCodeAt(i);
+      // Emoji high surrogate range (D800-DBFF) o caracteres Unicode altos
+      if (code >= 0xD800 && code <= 0xDBFF) {
+        emojiEnd = i + 2; // surrogate pair
+      } else if (code > 0x2000 && code !== 0x20) {
+        // símbolos, no espacio normal
+        emojiEnd = i + 1;
+      } else if (emojiEnd > 0) {
+        break;
+      } else {
+        break;
+      }
+    }
+    if (emojiEnd > 0) {
+      return {
+        emoji: s.substring(0, emojiEnd),
+        text: s.substring(emojiEnd).trim(),
+      };
+    }
+    return { emoji: "", text: s };
   }
 
   function detectStoreId() {
@@ -55,8 +87,8 @@
   function detectPageType() {
     const path = document.location.pathname.toLowerCase().replace(/\/$/, "");
     if (path === "" || path === "/home" || path === "/inicio") return "home";
-    if (path.includes("/productos/") || path.includes("/products/")) return "product";
-    if (path.includes("/carrito") || path.includes("/cart")) return "cart";
+    if (path.indexOf("/productos/") >= 0 || path.indexOf("/products/") >= 0) return "product";
+    if (path.indexOf("/carrito") >= 0 || path.indexOf("/cart") >= 0) return "cart";
     return "other";
   }
 
@@ -64,9 +96,9 @@
      ESTILOS GLOBALES + KEYFRAMES
   ═══════════════════════════════════════════ */
   function injectGlobalStyles() {
-    if (qs(`#${NS}-styles`)) return;
+    if (qs("#" + NS + "-styles")) return;
     const style = document.createElement("style");
-    style.id = `${NS}-styles`;
+    style.id = NS + "-styles";
     style.textContent = `
       .${NS}-root, .${NS}-root * {
         box-sizing: border-box;
@@ -85,7 +117,6 @@
         position: relative;
         overflow: hidden;
       }
-      /* ═══ ANNOUNCEMENT BAR (2 líneas responsive) ═══ */
       .${NS}-bar {
         display: flex;
         flex-direction: column;
@@ -102,17 +133,14 @@
         justify-content: center;
         gap: 10px;
         max-width: 100%;
-        flex-wrap: nowrap;
       }
       .${NS}-bar-title {
         font-size: 13px;
         font-weight: 700;
         text-align: center;
         line-height: 1.3;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         max-width: 100%;
+        padding: 0 4px;
       }
       .${NS}-bar-emoji {
         display: inline-block;
@@ -129,8 +157,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 32px;
-        height: 30px;
+        min-width: 34px;
+        height: 32px;
         background: #ffffff;
         color: #0f172a;
         border-radius: 6px;
@@ -138,7 +166,7 @@
         font-size: 14px;
         font-weight: 800;
         font-variant-numeric: tabular-nums;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08);
         position: relative;
         overflow: hidden;
       }
@@ -157,7 +185,7 @@
         opacity: 0.85;
       }
       .${NS}-bar-btn {
-        padding: 6px 14px;
+        padding: 7px 16px;
         background: #ffffff;
         border: none;
         border-radius: 7px;
@@ -174,7 +202,6 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       }
-      /* ═══ FULL WIDGET (product/cart) ═══ */
       .${NS}-digit {
         display: inline-flex;
         align-items: center;
@@ -299,7 +326,6 @@
         border-radius: 2px;
         transition: width 1s linear;
       }
-      /* Keyframes */
       @keyframes ${NS}-bounce {
         0%   { transform: scale(1) translateY(0); }
         40%  { transform: scale(1.15) translateY(-2px); }
@@ -353,8 +379,7 @@
         50% { transform: scale(1.15); }
         100% { transform: scale(1); }
       }
-      /* Desktop: 1 sola línea */
-      @media (min-width: 700px) {
+      @media (min-width: 720px) {
         .${NS}-bar {
           flex-direction: row;
           gap: 20px;
@@ -374,7 +399,7 @@
   const productId = detectProductId();
   const pageType = detectPageType();
 
-  log("storeId:", storeId, "productId:", productId, "pageType:", pageType);
+  console.log("[Nevux] storeId:", storeId, "productId:", productId, "pageType:", pageType);
 
   if (!storeId) {
     console.warn("[Nevux] No se pudo detectar store_id");
@@ -383,19 +408,24 @@
 
   injectGlobalStyles();
 
-  const url = `${API_BASE}/api/widget-render?store_id=${storeId}${
-    productId ? `&product_id=${productId}` : ""
-  }`;
+  const url = API_BASE + "/api/widget-render?store_id=" + storeId +
+    (productId ? "&product_id=" + productId : "");
 
   fetch(url)
-    .then((r) => r.json())
-    .then((data) => {
-      if (!data.widgets || data.widgets.length === 0) return;
-      data.widgets.forEach((w) => {
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data.widgets || data.widgets.length === 0) {
+        console.log("[Nevux] No hay widgets activos");
+        return;
+      }
+      console.log("[Nevux] Widgets recibidos:", data.widgets.length);
+      data.widgets.forEach(function (w) {
         if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
       });
     })
-    .catch((err) => console.error("[Nevux] Error cargando widgets:", err));
+    .catch(function (err) {
+      console.error("[Nevux] Error cargando widgets:", err);
+    });
 
   /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
@@ -409,9 +439,11 @@
     if (cfg.showOnProduct && pageType === "product") placements.push("product");
     if (cfg.showOnCart && pageType === "cart") placements.push("cart");
 
+    console.log("[Nevux] placements:", placements);
+
     if (placements.length === 0) return;
 
-    placements.forEach((p) => mountAt(widget, cfg, p, state));
+    placements.forEach(function (p) { mountAt(widget, cfg, p, state); });
   }
 
   function getInitialEndTime(cfg) {
@@ -428,27 +460,30 @@
   }
 
   function mountAt(widget, cfg, placement, state) {
-    const uniqueId = `${NS}-${widget.id}-${placement}`;
-    if (qs(`#${uniqueId}`)) return;
+    const uniqueId = NS + "-" + widget.id + "-" + placement;
+    if (qs("#" + uniqueId)) return;
 
     const container = document.createElement("div");
     container.id = uniqueId;
-    container.className = `${NS}-root`;
+    container.className = NS + "-root";
     container.dataset.placement = placement;
 
     if (placement === "topbar") {
-      container.classList.add(`${NS}-topbar`);
+      container.classList.add(NS + "-topbar");
       document.body.appendChild(container);
-      requestAnimationFrame(() => {
+      requestAnimationFrame(function () {
         const h = container.offsetHeight;
         if (h > 0) {
           const prev = parseInt(document.body.style.paddingTop || "0", 10);
-          document.body.style.paddingTop = prev + h + "px";
+          document.body.style.paddingTop = (prev + h) + "px";
         }
       });
     } else if (placement === "product") {
       const target = findProductTarget(cfg.productPosition);
-      if (!target) return;
+      if (!target) {
+        console.warn("[Nevux] No target producto");
+        return;
+      }
       target.node.parentNode.insertBefore(container, target.node);
     } else if (placement === "cart") {
       const target = findCartTarget();
@@ -456,14 +491,16 @@
       target.parentNode.insertBefore(container, target);
     }
 
+    console.log("[Nevux] montado", placement);
+
     update(container, cfg, state);
 
     if (cfg.showShimmer) {
-      setInterval(() => triggerShimmer(container), 5000);
-      setTimeout(() => triggerShimmer(container), 400);
+      setInterval(function () { triggerShimmer(container); }, 5000);
+      setTimeout(function () { triggerShimmer(container); }, 400);
     }
 
-    setInterval(() => {
+    setInterval(function () {
       const now = Date.now();
       if (state.endTime <= now) {
         if (cfg.autoRestart) {
@@ -475,7 +512,7 @@
   }
 
   function triggerShimmer(container) {
-    const sh = qs(`.${NS}-shimmer`, container);
+    const sh = qs("." + NS + "-shimmer", container);
     if (!sh) return;
     sh.classList.remove("run");
     void sh.offsetWidth;
@@ -483,13 +520,13 @@
   }
 
   /* ═══════════════════════════════════════════
-     TARGETS EN EL THEME
+     TARGETS
   ═══════════════════════════════════════════ */
   function findProductTarget(position) {
     if (position === "before-title") {
       const sel = ['h1.product-name', 'h1[itemprop="name"]', '.product-name', '.js-product-name', '.product-title', 'h1'];
-      for (const s of sel) {
-        const el = qs(s);
+      for (let i = 0; i < sel.length; i++) {
+        const el = qs(sel[i]);
         if (el) return { node: el };
       }
     }
@@ -513,15 +550,15 @@
       '[data-component="AddToCartButton"]',
       '[data-hook="add-to-cart"]',
     ];
-    for (const s of btnSel) {
-      const el = qs(s);
+    for (let i = 0; i < btnSel.length; i++) {
+      const el = qs(btnSel[i]);
       if (el) return { node: el.closest("form") || el };
     }
     const btns = qsa("button");
-    for (const b of btns) {
-      const t = (b.textContent || "").toLowerCase();
-      if (t.includes("agregar al carrito") || t.includes("añadir al carrito") || t.includes("comprar ahora")) {
-        return { node: b.closest("form") || b };
+    for (let i = 0; i < btns.length; i++) {
+      const t = (btns[i].textContent || "").toLowerCase();
+      if (t.indexOf("agregar al carrito") >= 0 || t.indexOf("añadir al carrito") >= 0 || t.indexOf("comprar ahora") >= 0) {
+        return { node: btns[i].closest("form") || btns[i] };
       }
     }
     return null;
@@ -536,29 +573,29 @@
      NORMALIZAR CONFIG
   ═══════════════════════════════════════════ */
   function normalizeConfig(raw) {
-    const n = (v, fb) => {
+    function n(v, fb) {
       if (v === undefined || v === null || v === "") return fb;
       const p = typeof v === "string" ? parseInt(v, 10) : v;
       return isNaN(p) ? fb : p;
-    };
-    const nf = (v, fb) => {
+    }
+    function nf(v, fb) {
       if (v === undefined || v === null || v === "") return fb;
       const p = typeof v === "string" ? parseFloat(v) : v;
       return isNaN(p) ? fb : p;
-    };
+    }
     return {
-      title: raw.title ?? "🔥 Flash Sale",
-      subtitle: raw.subtitle ?? "",
+      title: raw.title != null ? raw.title : "🔥 Flash Sale",
+      subtitle: raw.subtitle != null ? raw.subtitle : "",
       mode: raw.mode === "fixed" ? "fixed" : "flash",
       flashMinutes: n(raw.flashMinutes, 15),
-      endDate: raw.endDate ?? "",
+      endDate: raw.endDate || "",
       showDays: raw.showDays === true,
       showHours: raw.showHours !== false,
       showMinutes: raw.showMinutes !== false,
       showSeconds: raw.showSeconds !== false,
       autoRestart: raw.autoRestart !== false,
       showOnProduct: raw.showOnProduct !== false,
-      productPosition: raw.productPosition ?? "before-button",
+      productPosition: raw.productPosition || "before-button",
       showAsTopBar: raw.showAsTopBar === true,
       showOnCart: raw.showOnCart === true,
       style:
@@ -570,16 +607,16 @@
       showLabels: raw.showLabels !== false,
       scale: nf(raw.scale, 1),
       bgType: raw.bgType === "gradient" ? "gradient" : "solid",
-      colorWidgetBg: raw.colorWidgetBg ?? "#DC2626",
-      colorSubtitleBg: raw.colorSubtitleBg ?? "#991B1B",
-      colorClockBg: raw.colorClockBg ?? "#1a1a2e",
-      colorTitle: raw.colorTitle ?? "#ffffff",
-      colorSubtitle: raw.colorSubtitle ?? "#fecaca",
-      colorNumbers: raw.colorNumbers ?? "#ffffff",
+      colorWidgetBg: raw.colorWidgetBg || "#DC2626",
+      colorSubtitleBg: raw.colorSubtitleBg || "#991B1B",
+      colorClockBg: raw.colorClockBg || "#1a1a2e",
+      colorTitle: raw.colorTitle || "#ffffff",
+      colorSubtitle: raw.colorSubtitle || "#fecaca",
+      colorNumbers: raw.colorNumbers || "#ffffff",
       auraEnabled: raw.auraEnabled !== false,
-      colorAuraCalm: raw.colorAuraCalm ?? "#8b5cf6",
-      colorAuraMedium: raw.colorAuraMedium ?? "#f97316",
-      colorAuraUrgent: raw.colorAuraUrgent ?? "#ef4444",
+      colorAuraCalm: raw.colorAuraCalm || "#8b5cf6",
+      colorAuraMedium: raw.colorAuraMedium || "#f97316",
+      colorAuraUrgent: raw.colorAuraUrgent || "#ef4444",
       effectsIntensity: n(raw.effectsIntensity, 80),
       showShimmer: raw.showShimmer !== false,
       showProgressRing: raw.showProgressRing === true,
@@ -587,9 +624,9 @@
       showBounce: raw.showBounce !== false,
       showGlowBreath: raw.showGlowBreath !== false,
       showVibration: raw.showVibration !== false,
-      fontSizeTitle: raw.fontSizeTitle ?? "16px",
-      fontSizeSubtitle: raw.fontSizeSubtitle ?? "12px",
-      fontSizeClock: raw.fontSizeClock ?? "22px",
+      fontSizeTitle: raw.fontSizeTitle || "16px",
+      fontSizeSubtitle: raw.fontSizeSubtitle || "12px",
+      fontSizeClock: raw.fontSizeClock || "22px",
       borderRadiusClock: n(raw.borderRadiusClock, 8),
       borderRadiusWidget: n(raw.borderRadiusWidget, 12),
       paddingWidget: n(raw.paddingWidget, 20),
@@ -644,8 +681,8 @@
     }
 
     const auraColor = getAuraColor(cfg, time.totalSeconds);
-    const keys = units.map((u) => u.k).join(",");
-    let host = qs(`.${NS}-widget-host`, container);
+    const keys = units.map(function (u) { return u.k; }).join(",");
+    let host = qs("." + NS + "-widget-host", container);
 
     const needsRebuild =
       !host ||
@@ -661,7 +698,7 @@
       if (isBar) {
         updateBarDigits(host, units);
       } else {
-        units.forEach((u) => updateUnit(host, u, cfg, time));
+        units.forEach(function (u) { updateUnit(host, u, cfg, time); });
         updateAura(container, auraColor, cfg);
         updateProgress(container, cfg, time);
         updateParticles(container, cfg, time);
@@ -671,99 +708,310 @@
   }
 
   function buildUnits(cfg, time) {
-    return [
-      ...(cfg.showDays ? [{ v: time.days, l: "DÍAS", k: "d" }] : []),
-      ...(cfg.showHours ? [{ v: time.hours, l: "HRS", k: "h" }] : []),
-      ...(cfg.showMinutes ? [{ v: time.minutes, l: "MIN", k: "m" }] : []),
-      ...(cfg.showSeconds ? [{ v: time.seconds, l: "SEG", k: "s" }] : []),
-    ];
+    const arr = [];
+    if (cfg.showDays) arr.push({ v: time.days, l: "DÍAS", k: "d" });
+    if (cfg.showHours) arr.push({ v: time.hours, l: "HRS", k: "h" });
+    if (cfg.showMinutes) arr.push({ v: time.minutes, l: "MIN", k: "m" });
+    if (cfg.showSeconds) arr.push({ v: time.seconds, l: "SEG", k: "s" });
+    return arr;
   }
 
   function renderFinished(container, cfg) {
-    container.innerHTML = `
-      <div style="
-        background:${getBg(cfg)};
-        border-radius:${cfg.borderRadiusWidget}px;
-        padding:${cfg.paddingWidget}px;
-        text-align:${cfg.alignment};
-        color:${cfg.colorTitle};
-        font-weight:700;
-      ">⏰ ¡La oferta terminó!</div>
-    `;
+    container.innerHTML =
+      '<div style="background:' + getBg(cfg) + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';color:' + cfg.colorTitle + ';font-weight:700;">' +
+      '⏰ ¡La oferta terminó!</div>';
   }
 
   /* ═══════════════════════════════════════════
-     BUILD BAR (announcement 2 líneas)
+     BUILD BAR
   ═══════════════════════════════════════════ */
   function buildBarHtml(cfg, units, time) {
     const bg = cfg.bgType === "gradient"
-      ? `linear-gradient(90deg, ${cfg.colorWidgetBg} 0%, ${cfg.colorSubtitleBg} 100%)`
+      ? "linear-gradient(90deg, " + cfg.colorWidgetBg + " 0%, " + cfg.colorSubtitleBg + " 100%)"
       : cfg.colorWidgetBg;
 
-    // Separar emoji del título
-    const trimmed = (cfg.title || "").trim();
-    const emojiMatch = trimmed.match(/^(\p{Emoji}+)\s*(.*)$/u);
-    const emoji = emojiMatch ? emojiMatch[1] : "";
-    const restTitle = emojiMatch ? emojiMatch[2] : trimmed;
-    const fullTitle = cfg.subtitle
-      ? `${restTitle} — ${cfg.subtitle}`
-      : restTitle;
+    const split = splitEmoji(cfg.title);
+    const fullText = cfg.subtitle
+      ? (split.text ? split.text + " — " + cfg.subtitle : cfg.subtitle)
+      : split.text;
 
-    const titleHtml = trimmed ? `
-      <div class="${NS}-bar-title" style="color:${cfg.colorTitle};">
-        ${emoji ? `<span class="${NS}-bar-emoji">${emoji}</span>` : ""}
-        ${escapeHtml(fullTitle)}
-      </div>` : "";
+    let titleHtml = "";
+    if (split.emoji || fullText) {
+      titleHtml =
+        '<div class="' + NS + '-bar-title" style="color:' + cfg.colorTitle + ';">' +
+        (split.emoji ? '<span class="' + NS + '-bar-emoji">' + escapeHtml(split.emoji) + '</span>' : "") +
+        escapeHtml(fullText) +
+        '</div>';
+    }
 
     let clockInner = "";
-    units.forEach((u, i) => {
+    for (let i = 0; i < units.length; i++) {
+      const u = units[i];
       const val = String(u.v).padStart(2, "0");
-      clockInner += `<div class="${NS}-bar-digit" data-key="${u.k}">${val}</div>`;
+      clockInner += '<div class="' + NS + '-bar-digit" data-key="' + u.k + '">' + val + '</div>';
       if (i < units.length - 1) {
-        clockInner += `<span class="${NS}-bar-sep" style="color:${cfg.colorTitle};">:</span>`;
+        clockInner += '<span class="' + NS + '-bar-sep" style="color:' + cfg.colorTitle + ';">:</span>';
       }
-    });
+    }
 
     const vibrateStyle = time.isUrgent && cfg.showVibration
-      ? `animation:${NS}-vibrateSlow 0.3s linear infinite;`
+      ? "animation:" + NS + "-vibrateSlow 0.3s linear infinite;"
       : "";
 
     const shimmerHtml = cfg.showShimmer
-      ? `<div class="${NS}-shimmer" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);"></div>`
+      ? '<div class="' + NS + '-shimmer" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);"></div>'
       : "";
 
-    return `
-      <div class="${NS}-widget-host ${NS}-bar"
-        data-style="${cfg.style}"
-        data-keys="${units.map(u=>u.k).join(",")}"
-        data-bar="true"
-        style="background:${bg}; ${vibrateStyle}">
-        ${shimmerHtml}
-        ${titleHtml}
-        <div class="${NS}-bar-row">
-          <div class="${NS}-bar-clock">${clockInner}</div>
-          <button class="${NS}-bar-btn" style="color:${cfg.colorWidgetBg};" onclick="window.location.href='/'">
-            SHOP NOW
-          </button>
-        </div>
-      </div>
-    `;
+    return '' +
+      '<div class="' + NS + '-widget-host ' + NS + '-bar" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="true" style="background:' + bg + ';' + vibrateStyle + '">' +
+      shimmerHtml +
+      titleHtml +
+      '<div class="' + NS + '-bar-row">' +
+        '<div class="' + NS + '-bar-clock">' + clockInner + '</div>' +
+        '<button class="' + NS + '-bar-btn" style="color:' + cfg.colorWidgetBg + ';" onclick="window.location.href=\'/\'">SHOP NOW</button>' +
+      '</div>' +
+      '</div>';
   }
 
   function updateBarDigits(host, units) {
-    units.forEach((u) => {
-      const el = qs(`.${NS}-bar-digit[data-key="${u.k}"]`, host);
+    units.forEach(function (u) {
+      const el = qs("." + NS + "-bar-digit[data-key=\"" + u.k + "\"]", host);
       if (!el) return;
       const val = String(u.v).padStart(2, "0");
       if (el.textContent === val) return;
       el.textContent = val;
       el.style.animation = "none";
       void el.offsetWidth;
-      el.style.animation = `${NS}-bounceDigit 0.4s ease`;
+      el.style.animation = NS + "-bounceDigit 0.4s ease";
     });
   }
 
   /* ═══════════════════════════════════════════
-     BUILD FULL (product / cart)
+     BUILD FULL
   ═══════════════════════════════════════════ */
-  function buildFullHtml(cfg, units, auraColor, 
+  function buildFullHtml(cfg, units, auraColor, time) {
+    const intensity = cfg.effectsIntensity / 100;
+    const bg = cfg.style === "neon" ? "#0a0a1a" : getBg(cfg);
+
+    const border =
+      cfg.style === "neon" ? "1px solid " + cfg.colorNumbers + "30" :
+      cfg.style === "glass" ? "1px solid rgba(255,255,255,0.2)" : "none";
+
+    const boxShadow =
+      cfg.style === "neon" ? "0 0 " + (30 * intensity) + "px " + cfg.colorNumbers + "20, 0 8px 32px rgba(0,0,0,0.3)" :
+      cfg.style === "glass" ? "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)" :
+      cfg.style === "flash" ? "0 4px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)" :
+      "0 8px 32px rgba(0,0,0,0.12)";
+
+    const titleHtml = cfg.title
+      ? '<div style="font-size:' + cfg.fontSizeTitle + ';font-weight:800;color:' + cfg.colorTitle + ';margin-bottom:' + (cfg.subtitle ? "4px" : "12px") + ';line-height:1.2;letter-spacing:-0.01em;' + (cfg.style === "neon" ? "text-shadow:0 0 10px " + cfg.colorTitle + "60;" : "") + '">' + escapeHtml(cfg.title) + '</div>'
+      : "";
+
+    let clockInner = "";
+    for (let i = 0; i < units.length; i++) {
+      clockInner += renderUnit(units[i], cfg);
+      if (i < units.length - 1) clockInner += renderSep(cfg);
+    }
+
+    const subtitleHtml = cfg.subtitle
+      ? '<div style="font-size:' + cfg.fontSizeSubtitle + ';font-weight:500;color:' + cfg.colorSubtitle + ';opacity:0.9;margin-top:6px;">' + escapeHtml(cfg.subtitle) + '</div>'
+      : "";
+
+    const progressPct = Math.max(5, Math.min(100, (time.totalSeconds / (cfg.flashMinutes * 60 || 900)) * 100));
+    const progressHtml = cfg.showProgressRing && !time.isFinished
+      ? '<div class="' + NS + '-progress-track" style="background:' + (cfg.style === "neon" ? cfg.colorNumbers + "20" : "rgba(255,255,255,0.2)") + ';' + (cfg.alignment === "center" ? "margin-left:auto;margin-right:auto;" : "") + '"><div class="' + NS + '-progress-bar" style="background:' + (cfg.style === "neon" ? cfg.colorNumbers : "rgba(255,255,255,0.8)") + ';width:' + progressPct + '%;' + (cfg.style === "neon" ? "box-shadow:0 0 8px " + cfg.colorNumbers + ";" : "") + '"></div></div>'
+      : "";
+
+    const auraHtml = auraColor
+      ? '<div class="' + NS + '-aura on" style="background:radial-gradient(ellipse, ' + auraColor + '66 0%, transparent 70%); opacity:' + (0.5 * intensity) + ';"></div>'
+      : '<div class="' + NS + '-aura"></div>';
+
+    const shimmerHtml = cfg.showShimmer
+      ? '<div class="' + NS + '-shimmer" style="background:' + (cfg.style === "neon" ? "linear-gradient(90deg,transparent," + cfg.colorNumbers + "20,transparent)" : "linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent)") + ';"></div>'
+      : "";
+
+    let particlesHtml = "";
+    if (cfg.showParticles && time.totalSeconds <= 600) {
+      for (let i = 0; i < 5; i++) {
+        particlesHtml += '<div class="' + NS + '-particle" style="left:' + (15 + i * 18) + '%;animation-delay:' + (i * 0.6) + 's;background:' + (cfg.style === "neon" ? cfg.colorNumbers : "rgba(255,255,255,0.7)") + ';box-shadow:' + (cfg.style === "neon" ? "0 0 6px " + cfg.colorNumbers : "0 0 4px rgba(255,255,255,0.5)") + ';"></div>';
+      }
+    }
+
+    const vibrateStyle = time.isUrgent && cfg.showVibration
+      ? "animation:" + NS + "-vibrateSlow 0.3s linear infinite;"
+      : "";
+
+    return '' +
+      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="false" style="background:' + bg + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';box-shadow:' + boxShadow + ';border:' + border + ';transform:scale(' + cfg.scale + ');transform-origin:top ' + (cfg.alignment === "center" ? "center" : "left") + ';' + vibrateStyle + '">' +
+      auraHtml +
+      '<div class="' + NS + '-noise" style="opacity:' + (0.08 * intensity) + ';"></div>' +
+      shimmerHtml +
+      '<div class="' + NS + '-vignette" style="opacity:' + (0.3 * intensity) + ';"></div>' +
+      particlesHtml +
+      '<div class="' + NS + '-content">' +
+        titleHtml +
+        '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:6px;flex-wrap:wrap;margin-top:8px;' + (cfg.subtitle ? "margin-bottom:10px;" : "") + '">' + clockInner + '</div>' +
+        subtitleHtml +
+        progressHtml +
+      '</div>' +
+      '</div>';
+  }
+
+  function renderUnit(u, cfg) {
+    const val = String(u.v).padStart(2, "0");
+    const labelHtml = cfg.showLabels
+      ? '<span class="' + NS + '-label" style="font-size:9px;color:' + cfg.colorNumbers + ';' + (cfg.style === "neon" ? "text-shadow:0 0 6px " + cfg.colorNumbers + "60;" : "") + '">' + u.l + '</span>'
+      : "";
+
+    if (cfg.style === "retro") {
+      const chars = val.split("");
+      let cells = "";
+      for (let i = 0; i < chars.length; i++) {
+        cells += '<span class="' + NS + '-retro-cell" style="font-size:' + cfg.fontSizeClock + ';color:' + cfg.colorNumbers + ';">' + chars[i] + '</span>';
+      }
+      return '<div class="' + NS + '-unit" data-key="' + u.k + '"><div class="' + NS + '-retro-digit" data-value="' + val + '">' + cells + '</div>' + labelHtml + '</div>';
+    }
+
+    if (cfg.style === "flash") {
+      return '<div class="' + NS + '-unit" data-key="' + u.k + '">' +
+        '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:44px;height:44px;background:' + cfg.colorClockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px ' + (cfg.paddingClock + 4) + 'px;font-size:' + cfg.fontSizeClock + ';box-shadow:0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.3);">' +
+          '<div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.15),transparent);pointer-events:none;border-top-left-radius:' + cfg.borderRadiusClock + 'px;border-top-right-radius:' + cfg.borderRadiusClock + 'px;"></div>' +
+          val +
+        '</div>' + labelHtml +
+      '</div>';
+    }
+
+    if (cfg.style === "glass") {
+      return '<div class="' + NS + '-unit" data-key="' + u.k + '">' +
+        '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:56px;height:56px;background:rgba(255,255,255,0.15);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px;font-size:' + cfg.fontSizeClock + ';border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4);">' +
+          '<div style="position:absolute;top:0;left:0;right:0;height:60%;background:linear-gradient(180deg,rgba(255,255,255,0.25),transparent);pointer-events:none;"></div>' +
+          val +
+        '</div>' + labelHtml +
+      '</div>';
+    }
+
+    if (cfg.style === "neon") {
+      const glow = 10 * (cfg.effectsIntensity / 100);
+      return '<div class="' + NS + '-unit" data-key="' + u.k + '">' +
+        '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:56px;height:56px;background:#0a0a1a;color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px;font-size:' + cfg.fontSizeClock + ';font-family:\'Courier New\',monospace;font-weight:900;border:1px solid ' + cfg.colorNumbers + '40;box-shadow:0 0 ' + glow + 'px ' + cfg.colorNumbers + '30, inset 0 0 ' + glow + 'px ' + cfg.colorNumbers + '10;text-shadow:0 0 ' + glow + 'px ' + cfg.colorNumbers + '80, 0 0 ' + (glow * 2) + 'px ' + cfg.colorNumbers + '40;">' + val + '</div>' + labelHtml +
+      '</div>';
+    }
+
+    return '<div class="' + NS + '-unit" data-key="' + u.k + '">' +
+      '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:52px;height:52px;background:' + cfg.colorClockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px;font-size:' + cfg.fontSizeClock + ';box-shadow:0 4px 12px rgba(0,0,0,0.15);">' + val + '</div>' + labelHtml +
+    '</div>';
+  }
+
+  function renderSep(cfg) {
+    const shadow = cfg.style === "neon" ? "box-shadow:0 0 4px " + cfg.colorNumbers + ";" : "";
+    const dot = '<span style="background:' + cfg.colorNumbers + ';' + shadow + '"></span>';
+    return '<div class="' + NS + '-sep">' + dot + dot + '</div>';
+  }
+
+  function updateUnit(host, u, cfg, time) {
+    const unitEl = qs("." + NS + "-unit[data-key=\"" + u.k + "\"]", host);
+    if (!unitEl) return;
+    const val = String(u.v).padStart(2, "0");
+
+    if (cfg.style === "retro") {
+      const wrap = qs("." + NS + "-retro-digit", unitEl);
+      if (!wrap || wrap.dataset.value === val) return;
+      wrap.dataset.value = val;
+      const cells = qsa("." + NS + "-retro-cell", wrap);
+      const chars = val.split("");
+      for (let i = 0; i < chars.length; i++) {
+        if (cells[i] && cells[i].textContent !== chars[i]) {
+          cells[i].textContent = chars[i];
+          cells[i].classList.remove("flip");
+          void cells[i].offsetWidth;
+          cells[i].classList.add("flip");
+        }
+      }
+      return;
+    }
+
+    const digit = qs("." + NS + "-digit", unitEl);
+    if (!digit || digit.dataset.value === val) return;
+    digit.dataset.value = val;
+
+    const overlay = digit.querySelector('div[style*="linear-gradient"]');
+    if (overlay) {
+      digit.innerHTML = overlay.outerHTML + val;
+    } else {
+      digit.textContent = val;
+    }
+
+    digit.classList.remove("bounce");
+    if (cfg.showBounce) {
+      void digit.offsetWidth;
+      digit.classList.add("bounce");
+    }
+
+    digit.classList.remove("vibrate", "neonPulse");
+    if (time.isUrgent) {
+      if (cfg.style === "neon") digit.classList.add("neonPulse");
+      if (cfg.showVibration) digit.classList.add("vibrate");
+    }
+  }
+
+  function updateAura(container, auraColor, cfg) {
+    const aura = qs("." + NS + "-aura", container);
+    if (!aura) return;
+    if (auraColor) {
+      const intensity = cfg.effectsIntensity / 100;
+      aura.style.background = "radial-gradient(ellipse, " + auraColor + "66 0%, transparent 70%)";
+      aura.style.opacity = String(0.5 * intensity);
+      aura.classList.add("on");
+    } else {
+      aura.classList.remove("on");
+      aura.style.opacity = "0";
+    }
+  }
+
+  function updateProgress(container, cfg, time) {
+    const bar = qs("." + NS + "-progress-bar", container);
+    if (!bar) return;
+    const pct = Math.max(5, Math.min(100, (time.totalSeconds / (cfg.flashMinutes * 60 || 900)) * 100));
+    bar.style.width = pct + "%";
+  }
+
+  function updateParticles(container, cfg, time) {
+    const existing = qsa("." + NS + "-particle", container);
+    const should = cfg.showParticles && time.totalSeconds <= 600;
+    if (should && existing.length === 0) {
+      const host = qs("." + NS + "-widget-host", container);
+      if (!host) return;
+      for (let i = 0; i < 5; i++) {
+        const p = document.createElement("div");
+        p.className = NS + "-particle";
+        p.style.cssText = "left:" + (15 + i * 18) + "%;animation-delay:" + (i * 0.6) + "s;background:" + (cfg.style === "neon" ? cfg.colorNumbers : "rgba(255,255,255,0.7)") + ";box-shadow:" + (cfg.style === "neon" ? "0 0 6px " + cfg.colorNumbers : "0 0 4px rgba(255,255,255,0.5)") + ";";
+        host.appendChild(p);
+      }
+    } else if (!should && existing.length > 0) {
+      existing.forEach(function (p) { p.remove(); });
+    }
+  }
+
+  function updateVibration(container, cfg, time) {
+    const host = qs("." + NS + "-widget-host", container);
+    if (!host) return;
+    if (time.isUrgent && cfg.showVibration) {
+      host.style.animation = NS + "-vibrateSlow 0.3s linear infinite";
+    } else {
+      host.style.animation = "";
+    }
+  }
+
+  function getBg(cfg) {
+    return cfg.bgType === "gradient"
+      ? "linear-gradient(135deg, " + cfg.colorWidgetBg + " 0%, " + cfg.colorSubtitleBg + " 100%)"
+      : cfg.colorWidgetBg;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+})();
