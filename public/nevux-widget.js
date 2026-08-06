@@ -52,10 +52,21 @@
     return null;
   }
 
+  /**
+   * Detecta el tipo de página actual.
+   * - "home": home de la tienda ("/" o vacío)
+   * - "product": ficha de producto ("/productos/...")
+   * - "cart": carrito ("/carrito" o "/cart")
+   * - "other": cualquier otra (categoría, contacto, checkout, etc.)
+   */
   function detectPageType() {
-    const path = document.location.pathname.toLowerCase();
-    if (path.includes("/carrito") || path.includes("/cart")) return "cart";
+    const path = document.location.pathname.toLowerCase().replace(/\/$/, ""); // saca "/" final
+    // Home: path vacío, "/", "/home", "/inicio"
+    if (path === "" || path === "/home" || path === "/inicio") return "home";
+    // Producto
     if (path.includes("/productos/") || path.includes("/products/")) return "product";
+    // Carrito
+    if (path.includes("/carrito") || path.includes("/cart")) return "cart";
     return "other";
   }
 
@@ -221,17 +232,23 @@
 
   /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
+     ────────────────────────────────────────────
+     LÓGICA DE UBICACIÓN (estricta):
+     - TOPBAR   → SOLO en home
+     - PRODUCTO → SOLO en ficha de producto
+     - CARRITO  → SOLO en carrito
+     Cada ubicación tiene su lugar sin superponerse.
   ═══════════════════════════════════════════ */
   function renderCountdown(widget) {
     const cfg = normalizeConfig(widget.config || {});
 
     const placements = [];
-    if (cfg.showAsTopBar) placements.push("topbar");
+    if (cfg.showAsTopBar && pageType === "home") placements.push("topbar");
     if (cfg.showOnProduct && pageType === "product") placements.push("product");
     if (cfg.showOnCart && pageType === "cart") placements.push("cart");
 
     if (placements.length === 0) {
-      log("Widget no aplica en esta página");
+      log("Widget no aplica en esta página (pageType:", pageType, ")");
       return;
     }
 
