@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import CountdownEditor from '@/components/widgets/editors/CountdownEditor';
+import BundleQtyEditor from '@/components/widgets/editors/BundleQtyEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -51,8 +52,10 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   }
 
   const { data: existingWidgets } = await existingQuery;
-  const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+  const existingWidget =
+    existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
 
+  /* ── Cuenta regresiva ── */
   if (params.widgetSlug === 'cuenta-regresiva') {
     return (
       <CountdownEditor
@@ -65,9 +68,41 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
+  /* ── Bundle de cantidad ── */
+  if (params.widgetSlug === 'bundle-cantidad') {
+    return (
+      <BundleQtyEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
+
+  /* ── Editor pendiente ── */
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
-      <div style={{ background: '#fff', borderRadius: 16, padding: 40, textAlign: 'center', maxWidth: 500, border: '1px solid #e5e7eb' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f8f9fa',
+        padding: 40,
+      }}
+    >
+      <div
+        style={{
+          background: '#fff',
+          borderRadius: 16,
+          padding: 40,
+          textAlign: 'center',
+          maxWidth: 500,
+          border: '1px solid #e5e7eb',
+        }}
+      >
         <div style={{ fontSize: 48, marginBottom: 16 }}>🚧</div>
         <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
           Editor de &quot;{widgetDef.name}&quot;
@@ -78,4 +113,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+  }
