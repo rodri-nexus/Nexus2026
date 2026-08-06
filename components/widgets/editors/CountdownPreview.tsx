@@ -15,7 +15,7 @@ interface CountdownConfig {
   showMinutes: boolean;
   showSeconds: boolean;
   autoRestart: boolean;
-  style: 'clasico' | 'retro';
+  style: 'clasico' | 'retro' | 'glass' | 'neon';
   alignment: 'center' | 'left';
   showLabels: boolean;
   bgType: 'solid' | 'gradient';
@@ -25,6 +25,13 @@ interface CountdownConfig {
   colorTitle: string;
   colorSubtitle: string;
   colorNumbers: string;
+  auraEnabled: boolean;
+  colorAuraCalm: string;
+  colorAuraMedium: string;
+  colorAuraUrgent: string;
+  showShimmer: boolean;
+  showProgressRing: boolean;
+  showParticles: boolean;
   fontSizeTitle: string;
   fontSizeSubtitle: string;
   fontSizeClock: string;
@@ -43,6 +50,7 @@ interface TimeLeft {
   hours: number;
   minutes: number;
   seconds: number;
+  totalSeconds: number;
   isUrgent: boolean;
   isFinished: boolean;
 }
@@ -56,8 +64,9 @@ function useTimeLeft(endDate: string, autoRestart: boolean): TimeLeft {
       return {
         days: 0,
         hours: 0,
-        minutes: 59,
+        minutes: 15,
         seconds: 42,
+        totalSeconds: 942,
         isUrgent: false,
         isFinished: false,
       };
@@ -69,6 +78,7 @@ function useTimeLeft(endDate: string, autoRestart: boolean): TimeLeft {
         hours: 0,
         minutes: 0,
         seconds: 0,
+        totalSeconds: 0,
         isUrgent: false,
         isFinished: true,
       };
@@ -79,6 +89,7 @@ function useTimeLeft(endDate: string, autoRestart: boolean): TimeLeft {
       hours: Math.floor((totalSec % 86400) / 3600),
       minutes: Math.floor((totalSec % 3600) / 60),
       seconds: totalSec % 60,
+      totalSeconds: totalSec,
       isUrgent: totalSec <= 10,
       isFinished: false,
     };
@@ -93,8 +104,9 @@ function useTimeLeft(endDate: string, autoRestart: boolean): TimeLeft {
         setTimeLeft({
           days: 0,
           hours: 0,
-          minutes: 59,
-          seconds: 59,
+          minutes: 15,
+          seconds: 0,
+          totalSeconds: 900,
           isUrgent: false,
           isFinished: false,
         });
@@ -132,9 +144,7 @@ function FlipDigit({
     }
   }, [value]);
 
-  const isRetro = config.style === 'retro';
-
-  if (isRetro) {
+  if (config.style === 'retro') {
     return (
       <div style={{ display: 'inline-flex', gap: 2 }}>
         {value.split('').map((digit, i) => (
@@ -160,7 +170,6 @@ function FlipDigit({
               animation: flipping ? 'retroFlip 0.3s ease' : 'none',
             }}
           >
-            {/* línea central */}
             <div
               style={{
                 position: 'absolute',
@@ -174,6 +183,76 @@ function FlipDigit({
             {digit}
           </div>
         ))}
+      </div>
+    );
+  }
+
+  if (config.style === 'glass') {
+    return (
+      <div
+        style={{
+          minWidth: 56,
+          height: 56,
+          background: 'rgba(255,255,255,0.15)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderRadius: config.borderRadiusClock,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: config.fontSizeClock,
+          fontWeight: 800,
+          color: config.colorNumbers,
+          padding: config.paddingClock,
+          border: '1px solid rgba(255,255,255,0.25)',
+          boxShadow: isUrgent
+            ? '0 0 20px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)'
+            : '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.3)',
+          animation: flipping
+            ? 'flipNum 0.3s ease'
+            : isUrgent
+            ? 'pulseUrgent 0.8s ease infinite'
+            : 'none',
+          transition: 'box-shadow 0.4s ease',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {value}
+      </div>
+    );
+  }
+
+  if (config.style === 'neon') {
+    return (
+      <div
+        style={{
+          minWidth: 56,
+          height: 56,
+          background: '#0a0a1a',
+          borderRadius: config.borderRadiusClock,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: config.fontSizeClock,
+          fontWeight: 900,
+          color: config.colorNumbers,
+          fontFamily: "'Courier New', monospace",
+          padding: config.paddingClock,
+          border: `1px solid ${config.colorNumbers}40`,
+          boxShadow: isUrgent
+            ? `0 0 20px ${config.colorNumbers}80, 0 0 40px ${config.colorNumbers}40, inset 0 0 20px ${config.colorNumbers}15`
+            : `0 0 10px ${config.colorNumbers}30, inset 0 0 10px ${config.colorNumbers}10`,
+          textShadow: `0 0 10px ${config.colorNumbers}80, 0 0 20px ${config.colorNumbers}40`,
+          animation: flipping
+            ? 'flipNum 0.3s ease'
+            : isUrgent
+            ? 'neonPulse 1s ease infinite'
+            : 'none',
+          transition: 'box-shadow 0.4s ease, text-shadow 0.4s ease',
+        }}
+      >
+        {value}
       </div>
     );
   }
@@ -240,10 +319,17 @@ function ClockUnit({
           style={{
             fontSize: 10,
             fontWeight: 700,
-            color: config.colorNumbers,
+            color:
+              config.style === 'neon'
+                ? config.colorNumbers
+                : config.colorNumbers,
             opacity: 0.7,
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
+            textShadow:
+              config.style === 'neon'
+                ? `0 0 8px ${config.colorNumbers}60`
+                : 'none',
           }}
         >
           {label}
@@ -256,7 +342,13 @@ function ClockUnit({
 /* ═══════════════════════════════════════════
    SEPARADOR animado
 ═══════════════════════════════════════════ */
-function Separator({ color }: { color: string }) {
+function Separator({
+  color,
+  style,
+}: {
+  color: string;
+  style: string;
+}) {
   const [visible, setVisible] = useState(true);
   useEffect(() => {
     const interval = setInterval(() => setVisible((v) => !v), 500);
@@ -280,6 +372,8 @@ function Separator({ color }: { color: string }) {
           borderRadius: '50%',
           background: color,
           opacity: 0.8,
+          boxShadow:
+            style === 'neon' ? `0 0 6px ${color}80` : 'none',
         }}
       />
       <div
@@ -289,6 +383,8 @@ function Separator({ color }: { color: string }) {
           borderRadius: '50%',
           background: color,
           opacity: 0.8,
+          boxShadow:
+            style === 'neon' ? `0 0 6px ${color}80` : 'none',
         }}
       />
     </div>
@@ -333,23 +429,34 @@ function NoUnitsWarning() {
 }
 
 /* ═══════════════════════════════════════════
+   AURA: determinar color según tiempo
+═══════════════════════════════════════════ */
+function getAuraColor(config: CountdownConfig, totalSeconds: number): string | null {
+  if (!config.auraEnabled) return null;
+  if (totalSeconds <= 600) return config.colorAuraUrgent;
+  if (totalSeconds <= 3600) return config.colorAuraMedium;
+  return config.colorAuraCalm;
+}
+
+/* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL: CountdownPreview
 ═══════════════════════════════════════════ */
 export default function CountdownPreview({ config }: CountdownPreviewProps) {
   const timeLeft = useTimeLeft(config.endDate, config.autoRestart);
+  const [shimmerKey, setShimmerKey] = useState(0);
 
-  // pulso de glow sutil
+  // Shimmer cada 5 segundos
   useEffect(() => {
-    const interval = setInterval(() => {}, 2000);
+    if (!config.showShimmer) return;
+    const interval = setInterval(() => setShimmerKey((k) => k + 1), 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [config.showShimmer]);
 
   const widgetBg =
     config.bgType === 'gradient'
       ? `linear-gradient(135deg, ${config.colorWidgetBg} 0%, ${config.colorSubtitleBg} 100%)`
       : config.colorWidgetBg;
 
-  // Construir array de unidades según toggles activos
   const units: { value: number; label: string }[] = [
     ...(config.showDays ? [{ value: timeLeft.days, label: 'DÍAS' }] : []),
     ...(config.showHours ? [{ value: timeLeft.hours, label: 'HRS' }] : []),
@@ -358,6 +465,7 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
   ];
 
   const noUnits = units.length === 0;
+  const auraColor = getAuraColor(config, timeLeft.totalSeconds);
 
   return (
     <>
@@ -379,9 +487,26 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
           0%, 100% { transform: scale(1);    box-shadow: 0 0 16px rgba(239,68,68,0.5); }
           50%       { transform: scale(1.04); box-shadow: 0 0 28px rgba(239,68,68,0.8); }
         }
+        @keyframes neonPulse {
+          0%, 100% { opacity: 1; filter: brightness(1); }
+          50%      { opacity: 0.85; filter: brightness(1.3); }
+        }
         @keyframes glowPulse {
           0%, 100% { opacity: 0.35; transform: scale(1); }
           50%       { opacity: 0.6;  transform: scale(1.08); }
+        }
+        @keyframes shimmerSlide {
+          0%   { transform: translateX(-100%) rotate(15deg); }
+          100% { transform: translateX(200%) rotate(15deg); }
+        }
+        @keyframes auraPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50%      { opacity: 0.55; transform: scale(1.05); }
+        }
+        @keyframes particleFloat {
+          0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+          50%  { transform: translateY(-20px) scale(1.2); opacity: 0.3; }
+          100% { transform: translateY(-40px) scale(0.8); opacity: 0; }
         }
       `}</style>
 
@@ -396,11 +521,11 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: 200,
+          minHeight: 220,
           position: 'relative',
         }}
       >
-        {/* Glow de fondo */}
+        {/* Aura de fondo */}
         <div
           style={{
             position: 'absolute',
@@ -413,13 +538,16 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
         >
           <div
             style={{
-              width: 220,
-              height: 80,
+              width: 260,
+              height: 100,
               borderRadius: '50%',
-              background:
-                'radial-gradient(ellipse, rgba(102,126,234,0.3) 0%, transparent 70%)',
-              filter: 'blur(20px)',
-              animation: 'glowPulse 2s ease infinite',
+              background: `radial-gradient(ellipse, ${
+                auraColor || 'rgba(102,126,234,0.3)'
+              }50 0%, transparent 70%)`,
+              filter: 'blur(25px)',
+              animation: auraColor
+                ? 'auraPulse 2s ease infinite'
+                : 'glowPulse 2s ease infinite',
             }}
           />
         </div>
@@ -429,28 +557,101 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
           style={{
             width: '100%',
             maxWidth: 480,
-            background: widgetBg,
+            background:
+              config.style === 'neon'
+                ? '#0a0a1a'
+                : widgetBg,
             borderRadius: config.borderRadiusWidget,
             padding: config.paddingWidget,
             textAlign: config.alignment as 'center' | 'left',
             position: 'relative',
             overflow: 'hidden',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+            boxShadow:
+              config.style === 'neon'
+                ? `0 0 30px ${config.colorNumbers}20, 0 8px 32px rgba(0,0,0,0.3)`
+                : config.style === 'glass'
+                ? '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
+                : '0 8px 32px rgba(0,0,0,0.12)',
+            border:
+              config.style === 'neon'
+                ? `1px solid ${config.colorNumbers}30`
+                : config.style === 'glass'
+                ? '1px solid rgba(255,255,255,0.2)'
+                : 'none',
           }}
         >
-          {/* Brillo diagonal sutil */}
-          <div
-            style={{
-              position: 'absolute',
-              top: -40,
-              left: -40,
-              width: 160,
-              height: 160,
-              background:
-                'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-              pointerEvents: 'none',
-            }}
-          />
+          {/* Shimmer diagonal */}
+          {config.showShimmer && (
+            <div
+              key={shimmerKey}
+              style={{
+                position: 'absolute',
+                top: -20,
+                left: -60,
+                width: 60,
+                height: '200%',
+                background:
+                  config.style === 'neon'
+                    ? `linear-gradient(90deg, transparent, ${config.colorNumbers}15, transparent)`
+                    : 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                transform: 'rotate(15deg)',
+                animation: 'shimmerSlide 1.2s ease-out forwards',
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+
+          {/* Brillo diagonal sutil (solo glass y clásico) */}
+          {(config.style === 'clasico' || config.style === 'glass') && (
+            <div
+              style={{
+                position: 'absolute',
+                top: -40,
+                left: -40,
+                width: 160,
+                height: 160,
+                background:
+                  'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+
+          {/* Partículas (solo si quedan <10min y está habilitado) */}
+          {config.showParticles && timeLeft.totalSeconds <= 600 && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                pointerEvents: 'none',
+                overflow: 'hidden',
+              }}
+            >
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: `${15 + i * 18}%`,
+                    width: 4,
+                    height: 4,
+                    borderRadius: '50%',
+                    background:
+                      config.style === 'neon'
+                        ? config.colorNumbers
+                        : 'rgba(255,255,255,0.6)',
+                    animation: `particleFloat ${2 + i * 0.4}s ease infinite`,
+                    animationDelay: `${i * 0.6}s`,
+                    boxShadow:
+                      config.style === 'neon'
+                        ? `0 0 6px ${config.colorNumbers}80`
+                        : '0 0 4px rgba(255,255,255,0.4)',
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Título */}
           {config.title && (
@@ -458,10 +659,17 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
               style={{
                 fontSize: config.fontSizeTitle,
                 fontWeight: 800,
-                color: config.colorTitle,
+                color:
+                  config.style === 'neon'
+                    ? config.colorTitle
+                    : config.colorTitle,
                 marginBottom: config.subtitle ? 4 : 16,
                 letterSpacing: '-0.01em',
                 lineHeight: 1.2,
+                textShadow:
+                  config.style === 'neon'
+                    ? `0 0 10px ${config.colorTitle}50`
+                    : 'none',
               }}
             >
               {config.title}
@@ -477,12 +685,22 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
                 fontWeight: 600,
                 color: config.colorSubtitle,
                 background:
-                  config.bgType === 'solid'
+                  config.style === 'neon'
+                    ? `${config.colorNumbers}15`
+                    : config.style === 'glass'
+                    ? 'rgba(255,255,255,0.15)'
+                    : config.bgType === 'solid'
                     ? config.colorSubtitleBg
                     : 'rgba(255,255,255,0.15)',
                 padding: '4px 12px',
                 borderRadius: 20,
                 marginBottom: 16,
+                border:
+                  config.style === 'neon'
+                    ? `1px solid ${config.colorNumbers}20`
+                    : config.style === 'glass'
+                    ? '1px solid rgba(255,255,255,0.15)'
+                    : 'none',
               }}
             >
               {config.subtitle}
@@ -527,14 +745,67 @@ export default function CountdownPreview({ config }: CountdownPreviewProps) {
                     isUrgent={timeLeft.isUrgent}
                   />
                   {i < units.length - 1 && (
-                    <Separator color={config.colorNumbers} />
+                    <Separator
+                      color={config.colorNumbers}
+                      style={config.style}
+                    />
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Progress ring (opcional) */}
+          {config.showProgressRing && !timeLeft.isFinished && !noUnits && (
+            <div
+              style={{
+                marginTop: 14,
+                display: 'flex',
+                justifyContent:
+                  config.alignment === 'center' ? 'center' : 'flex-start',
+              }}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  maxWidth: 200,
+                  height: 4,
+                  borderRadius: 2,
+                  background:
+                    config.style === 'neon'
+                      ? `${config.colorNumbers}20`
+                      : 'rgba(255,255,255,0.2)',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    height: '100%',
+                    borderRadius: 2,
+                    background:
+                      config.style === 'neon'
+                        ? config.colorNumbers
+                        : 'rgba(255,255,255,0.7)',
+                    width: `${Math.min(
+                      100,
+                      Math.max(
+                        5,
+                        (timeLeft.totalSeconds / (timeLeft.totalSeconds + 60)) *
+                          100
+                      )
+                    )}%`,
+                    transition: 'width 1s linear',
+                    boxShadow:
+                      config.style === 'neon'
+                        ? `0 0 8px ${config.colorNumbers}60`
+                        : 'none',
+                  }}
+                />
+              </div>
             </div>
           )}
         </div>
       </div>
     </>
   );
-             }
+}
