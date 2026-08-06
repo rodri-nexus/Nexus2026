@@ -15,10 +15,6 @@
     if (window.NEVUX_DEBUG) console.log("[Nevux]", ...args);
   }
 
-  function isMobile() {
-    return window.innerWidth < 640;
-  }
-
   function detectStoreId() {
     if (window.NEVUX_STORE_ID) return window.NEVUX_STORE_ID;
     if (window.Store && (window.Store.id || window.Store.store_id))
@@ -83,50 +79,102 @@
         z-index: 999999;
         margin: 0 !important;
         border-radius: 0 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       }
       .${NS}-widget-host {
         position: relative;
         overflow: hidden;
       }
-      .${NS}-widget-compact {
+      /* ═══ ANNOUNCEMENT BAR (2 líneas responsive) ═══ */
+      .${NS}-bar {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 10px;
-        padding: 8px 12px;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 16px;
         overflow: hidden;
-        max-width: 100%;
         width: 100%;
       }
-      .${NS}-compact-title {
+      .${NS}-bar-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        max-width: 100%;
+        flex-wrap: nowrap;
+      }
+      .${NS}-bar-title {
+        font-size: 13px;
         font-weight: 700;
-        font-size: 12px;
+        text-align: center;
+        line-height: 1.3;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        flex-shrink: 1;
-        min-width: 0;
+        max-width: 100%;
       }
-      .${NS}-compact-clock {
+      .${NS}-bar-emoji {
+        display: inline-block;
+        animation: ${NS}-heartbeat 1.6s ease infinite;
+        margin-right: 6px;
+      }
+      .${NS}-bar-clock {
         display: inline-flex;
         align-items: center;
-        gap: 3px;
+        gap: 4px;
         flex-shrink: 0;
       }
-      .${NS}-compact-btn {
-        padding: 5px 10px;
-        border: none;
-        border-radius: 5px;
-        font-size: 10px;
+      .${NS}-bar-digit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 30px;
+        background: #ffffff;
+        color: #0f172a;
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-size: 14px;
         font-weight: 800;
-        letter-spacing: 0.05em;
+        font-variant-numeric: tabular-nums;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+      }
+      .${NS}-bar-digit::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 50%;
+        background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+        border-radius: 6px 6px 0 0;
+        pointer-events: none;
+      }
+      .${NS}-bar-sep {
+        font-size: 15px;
+        font-weight: 900;
+        opacity: 0.85;
+      }
+      .${NS}-bar-btn {
+        padding: 6px 14px;
+        background: #ffffff;
+        border: none;
+        border-radius: 7px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
         cursor: pointer;
         white-space: nowrap;
         flex-shrink: 0;
-        transition: transform 0.15s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
       }
-      .${NS}-compact-btn:hover {
+      .${NS}-bar-btn:hover {
         transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       }
+      /* ═══ FULL WIDGET (product/cart) ═══ */
       .${NS}-digit {
         display: inline-flex;
         align-items: center;
@@ -163,12 +211,6 @@
         flex-direction: column;
         gap: 4px;
         padding-bottom: 14px;
-      }
-      .${NS}-sep-compact {
-        display: inline-flex;
-        align-items: center;
-        font-weight: 700;
-        opacity: 0.7;
       }
       .${NS}-sep span {
         width: 4px; height: 4px;
@@ -257,6 +299,7 @@
         border-radius: 2px;
         transition: width 1s linear;
       }
+      /* Keyframes */
       @keyframes ${NS}-bounce {
         0%   { transform: scale(1) translateY(0); }
         40%  { transform: scale(1.15) translateY(-2px); }
@@ -300,23 +343,24 @@
         25% { transform: translateX(-2px); }
         75% { transform: translateX(2px); }
       }
-      /* Mobile: layout compacto */
-      @media (max-width: 640px) {
-        .${NS}-widget-compact {
-          gap: 6px;
-          padding: 8px 8px;
-        }
-        .${NS}-compact-title {
-          font-size: 11px;
-        }
-        .${NS}-compact-btn {
-          padding: 4px 8px;
-          font-size: 9px;
-        }
+      @keyframes ${NS}-heartbeat {
+        0%,100% { transform: scale(1); }
+        25% { transform: scale(1.2); }
+        50% { transform: scale(1); }
       }
-      @media (max-width: 400px) {
-        .${NS}-compact-title-text {
-          display: none;
+      @keyframes ${NS}-bounceDigit {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+        100% { transform: scale(1); }
+      }
+      /* Desktop: 1 sola línea */
+      @media (min-width: 700px) {
+        .${NS}-bar {
+          flex-direction: row;
+          gap: 20px;
+        }
+        .${NS}-bar-title {
+          font-size: 14px;
         }
       }
     `;
@@ -414,9 +458,8 @@
 
     update(container, cfg, state);
 
-    let shimmerInt = null;
     if (cfg.showShimmer) {
-      shimmerInt = setInterval(() => triggerShimmer(container), 5000);
+      setInterval(() => triggerShimmer(container), 5000);
       setTimeout(() => triggerShimmer(container), 400);
     }
 
@@ -450,7 +493,6 @@
         if (el) return { node: el };
       }
     }
-
     const btnSel = [
       'button[data-store="product-buy-button"]',
       'button[name="add-to-cart"]',
@@ -475,7 +517,6 @@
       const el = qs(s);
       if (el) return { node: el.closest("form") || el };
     }
-
     const btns = qsa("button");
     for (const b of btns) {
       const t = (b.textContent || "").toLowerCase();
@@ -594,7 +635,7 @@
       return;
     }
 
-    const compact = container.dataset.placement === "topbar";
+    const isBar = container.dataset.placement === "topbar";
     const units = buildUnits(cfg, time);
 
     if (units.length === 0) {
@@ -610,16 +651,22 @@
       !host ||
       host.dataset.style !== cfg.style ||
       host.dataset.keys !== keys ||
-      host.dataset.compact !== String(compact);
+      host.dataset.bar !== String(isBar);
 
     if (needsRebuild) {
-      container.innerHTML = buildHtml(cfg, units, auraColor, time, compact);
+      container.innerHTML = isBar
+        ? buildBarHtml(cfg, units, time)
+        : buildFullHtml(cfg, units, auraColor, time);
     } else {
-      units.forEach((u) => updateUnit(host, u, cfg, time));
-      updateAura(container, auraColor, cfg);
-      updateProgress(container, cfg, time);
-      updateParticles(container, cfg, time);
-      updateVibration(container, cfg, time);
+      if (isBar) {
+        updateBarDigits(host, units);
+      } else {
+        units.forEach((u) => updateUnit(host, u, cfg, time));
+        updateAura(container, auraColor, cfg);
+        updateProgress(container, cfg, time);
+        updateParticles(container, cfg, time);
+        updateVibration(container, cfg, time);
+      }
     }
   }
 
@@ -646,442 +693,77 @@
   }
 
   /* ═══════════════════════════════════════════
-     BUILD HTML
+     BUILD BAR (announcement 2 líneas)
   ═══════════════════════════════════════════ */
-  function buildHtml(cfg, units, auraColor, time, compact) {
-    if (compact) return buildCompactHtml(cfg, units, time);
-    return buildFullHtml(cfg, units, auraColor, time);
-  }
-
-  // ── FULL (product / cart) ──
-  function buildFullHtml(cfg, units, auraColor, time) {
-    const intensity = cfg.effectsIntensity / 100;
-    const bg = cfg.style === "neon" ? "#0a0a1a" : getBg(cfg);
-
-    const border =
-      cfg.style === "neon" ? `1px solid ${cfg.colorNumbers}30` :
-      cfg.style === "glass" ? "1px solid rgba(255,255,255,0.2)" : "none";
-
-    const boxShadow =
-      cfg.style === "neon" ? `0 0 ${30 * intensity}px ${cfg.colorNumbers}20, 0 8px 32px rgba(0,0,0,0.3)` :
-      cfg.style === "glass" ? "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)" :
-      cfg.style === "flash" ? "0 4px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)" :
-      "0 8px 32px rgba(0,0,0,0.12)";
-
-    const titleHtml = cfg.title ? `
-      <div style="
-        font-size:${cfg.fontSizeTitle};
-        font-weight:800;
-        color:${cfg.colorTitle};
-        margin-bottom:${cfg.subtitle ? "4px" : "12px"};
-        line-height:1.2;
-        letter-spacing:-0.01em;
-        ${cfg.style === "neon" ? `text-shadow:0 0 10px ${cfg.colorTitle}60;` : ""}
-      ">${escapeHtml(cfg.title)}</div>` : "";
-
-    let clockInner = "";
-    units.forEach((u, i) => {
-      clockInner += renderUnit(u, cfg, false);
-      if (i < units.length - 1) clockInner += renderSep(cfg, false);
-    });
-
-    const subtitleHtml = cfg.subtitle ? `
-      <div style="
-        font-size:${cfg.fontSizeSubtitle};
-        font-weight:500;
-        color:${cfg.colorSubtitle};
-        opacity:0.9;
-        margin-top:6px;
-      ">${escapeHtml(cfg.subtitle)}</div>` : "";
-
-    const progressPct = Math.max(5, Math.min(100, (time.totalSeconds / (cfg.flashMinutes * 60 || 900)) * 100));
-    const progressHtml = cfg.showProgressRing && !time.isFinished ? `
-      <div class="${NS}-progress-track" style="
-        background:${cfg.style === "neon" ? cfg.colorNumbers + "20" : "rgba(255,255,255,0.2)"};
-        ${cfg.alignment === "center" ? "margin-left:auto;margin-right:auto;" : ""}
-      ">
-        <div class="${NS}-progress-bar" style="
-          background:${cfg.style === "neon" ? cfg.colorNumbers : "rgba(255,255,255,0.8)"};
-          width:${progressPct}%;
-          ${cfg.style === "neon" ? `box-shadow:0 0 8px ${cfg.colorNumbers};` : ""}
-        "></div>
-      </div>` : "";
-
-    const auraHtml = auraColor ? `
-      <div class="${NS}-aura on" style="background:radial-gradient(ellipse, ${auraColor}66 0%, transparent 70%); opacity:${0.5 * intensity};"></div>
-    ` : `<div class="${NS}-aura"></div>`;
-
-    const shimmerHtml = cfg.showShimmer ? `
-      <div class="${NS}-shimmer" style="
-        background:${cfg.style === "neon"
-          ? `linear-gradient(90deg,transparent,${cfg.colorNumbers}20,transparent)`
-          : "linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent)"};
-      "></div>` : "";
-
-    const particlesHtml = cfg.showParticles && time.totalSeconds <= 600
-      ? [0, 1, 2, 3, 4].map((i) => `
-          <div class="${NS}-particle" style="
-            left:${15 + i * 18}%;
-            animation-delay:${i * 0.6}s;
-            background:${cfg.style === "neon" ? cfg.colorNumbers : "rgba(255,255,255,0.7)"};
-            box-shadow:${cfg.style === "neon" ? `0 0 6px ${cfg.colorNumbers}` : "0 0 4px rgba(255,255,255,0.5)"};
-          "></div>`).join("") : "";
-
-    const vibrateStyle = time.isUrgent && cfg.showVibration ? `animation:${NS}-vibrateSlow 0.3s linear infinite;` : "";
-
-    return `
-      <div class="${NS}-widget-host"
-        data-style="${cfg.style}"
-        data-keys="${units.map(u=>u.k).join(",")}"
-        data-compact="false"
-        style="
-          background:${bg};
-          border-radius:${cfg.borderRadiusWidget}px;
-          padding:${cfg.paddingWidget}px;
-          text-align:${cfg.alignment};
-          box-shadow:${boxShadow};
-          border:${border};
-          transform:scale(${cfg.scale});
-          transform-origin:top ${cfg.alignment === "center" ? "center" : "left"};
-          ${vibrateStyle}
-        ">
-        ${auraHtml}
-        <div class="${NS}-noise" style="opacity:${0.08 * intensity};"></div>
-        ${shimmerHtml}
-        <div class="${NS}-vignette" style="opacity:${0.3 * intensity};"></div>
-        ${particlesHtml}
-        <div class="${NS}-content">
-          ${titleHtml}
-          <div style="
-            display:flex;
-            align-items:center;
-            justify-content:${cfg.alignment === "center" ? "center" : "flex-start"};
-            gap:6px;
-            flex-wrap:wrap;
-            margin-top:8px;
-            ${cfg.subtitle ? "margin-bottom:10px;" : ""}
-          ">${clockInner}</div>
-          ${subtitleHtml}
-          ${progressHtml}
-        </div>
-      </div>
-    `;
-  }
-
-  // ── COMPACT responsive ──
-  function buildCompactHtml(cfg, units, time) {
+  function buildBarHtml(cfg, units, time) {
     const bg = cfg.bgType === "gradient"
       ? `linear-gradient(90deg, ${cfg.colorWidgetBg} 0%, ${cfg.colorSubtitleBg} 100%)`
       : cfg.colorWidgetBg;
 
+    // Separar emoji del título
+    const trimmed = (cfg.title || "").trim();
+    const emojiMatch = trimmed.match(/^(\p{Emoji}+)\s*(.*)$/u);
+    const emoji = emojiMatch ? emojiMatch[1] : "";
+    const restTitle = emojiMatch ? emojiMatch[2] : trimmed;
+    const fullTitle = cfg.subtitle
+      ? `${restTitle} — ${cfg.subtitle}`
+      : restTitle;
+
+    const titleHtml = trimmed ? `
+      <div class="${NS}-bar-title" style="color:${cfg.colorTitle};">
+        ${emoji ? `<span class="${NS}-bar-emoji">${emoji}</span>` : ""}
+        ${escapeHtml(fullTitle)}
+      </div>` : "";
+
     let clockInner = "";
     units.forEach((u, i) => {
-      clockInner += renderCompactDigit(u, cfg);
+      const val = String(u.v).padStart(2, "0");
+      clockInner += `<div class="${NS}-bar-digit" data-key="${u.k}">${val}</div>`;
       if (i < units.length - 1) {
-        clockInner += `<span style="color:${cfg.colorNumbers};font-size:14px;font-weight:700;opacity:0.7;">:</span>`;
+        clockInner += `<span class="${NS}-bar-sep" style="color:${cfg.colorTitle};">:</span>`;
       }
     });
 
-    // Título con emoji separado del texto (para poder ocultar el texto en pantalla chica)
-    let titleHtml = "";
-    if (cfg.title) {
-      // Separar emoji del texto: primer caracter + resto
-      const trimmed = cfg.title.trim();
-      const first = trimmed.slice(0, 2);
-      const rest = trimmed.slice(2).trim();
-      const isEmoji = /\p{Emoji}/u.test(first);
+    const vibrateStyle = time.isUrgent && cfg.showVibration
+      ? `animation:${NS}-vibrateSlow 0.3s linear infinite;`
+      : "";
 
-      if (isEmoji && rest) {
-        titleHtml = `
-          <div class="${NS}-compact-title" style="color:${cfg.colorTitle};">
-            <span>${escapeHtml(first)}</span>
-            <span class="${NS}-compact-title-text"> ${escapeHtml(rest)}</span>
-          </div>`;
-      } else {
-        titleHtml = `<div class="${NS}-compact-title" style="color:${cfg.colorTitle};">${escapeHtml(cfg.title)}</div>`;
-      }
-    }
-
-    const vibrateStyle = time.isUrgent && cfg.showVibration ? `animation:${NS}-vibrateSlow 0.3s linear infinite;` : "";
+    const shimmerHtml = cfg.showShimmer
+      ? `<div class="${NS}-shimmer" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);"></div>`
+      : "";
 
     return `
-      <div class="${NS}-widget-host ${NS}-widget-compact"
+      <div class="${NS}-widget-host ${NS}-bar"
         data-style="${cfg.style}"
         data-keys="${units.map(u=>u.k).join(",")}"
-        data-compact="true"
-        style="
-          background:${bg};
-          ${vibrateStyle}
-        ">
-        ${cfg.showShimmer ? `<div class="${NS}-shimmer" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);"></div>` : ""}
+        data-bar="true"
+        style="background:${bg}; ${vibrateStyle}">
+        ${shimmerHtml}
         ${titleHtml}
-        <div class="${NS}-compact-clock">
-          ${clockInner}
+        <div class="${NS}-bar-row">
+          <div class="${NS}-bar-clock">${clockInner}</div>
+          <button class="${NS}-bar-btn" style="color:${cfg.colorWidgetBg};" onclick="window.location.href='/'">
+            SHOP NOW
+          </button>
         </div>
-        <button class="${NS}-compact-btn" style="
-          background:#ffffff;
-          color:${cfg.colorWidgetBg};
-        " onclick="window.location.href='/'">SHOP</button>
       </div>
     `;
   }
 
-  function renderCompactDigit(u, cfg) {
-    const val = String(u.v).padStart(2, "0");
-    return `
-      <div class="${NS}-unit" data-key="${u.k}">
-        <div class="${NS}-digit" data-value="${val}" style="
-          min-width:26px;
-          height:26px;
-          background:#ffffff;
-          color:${cfg.colorClockBg === "#ffffff" || cfg.colorClockBg === "#fff" ? "#000000" : cfg.colorClockBg};
-          border-radius:6px;
-          padding:2px 6px;
-          font-size:13px;
-          font-weight:800;
-          box-shadow:0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
-        ">${val}</div>
-      </div>
-    `;
+  function updateBarDigits(host, units) {
+    units.forEach((u) => {
+      const el = qs(`.${NS}-bar-digit[data-key="${u.k}"]`, host);
+      if (!el) return;
+      const val = String(u.v).padStart(2, "0");
+      if (el.textContent === val) return;
+      el.textContent = val;
+      el.style.animation = "none";
+      void el.offsetWidth;
+      el.style.animation = `${NS}-bounceDigit 0.4s ease`;
+    });
   }
 
   /* ═══════════════════════════════════════════
-     RENDER UNIT FULL (según estilo)
+     BUILD FULL (product / cart)
   ═══════════════════════════════════════════ */
-  function renderUnit(u, cfg, compact) {
-    const val = String(u.v).padStart(2, "0");
-    const labelHtml = cfg.showLabels && !compact ? `
-      <span class="${NS}-label" style="
-        font-size:9px;
-        color:${cfg.colorNumbers};
-        ${cfg.style === "neon" ? `text-shadow:0 0 6px ${cfg.colorNumbers}60;` : ""}
-      ">${u.l}</span>` : "";
-
-    if (cfg.style === "retro") {
-      const cells = val.split("").map((d) => `
-        <span class="${NS}-retro-cell" style="
-          font-size:${cfg.fontSizeClock};
-          color:${cfg.colorNumbers};
-        ">${d}</span>`).join("");
-      return `
-        <div class="${NS}-unit" data-key="${u.k}">
-          <div class="${NS}-retro-digit" data-value="${val}">${cells}</div>
-          ${labelHtml}
-        </div>
-      `;
-    }
-
-    if (cfg.style === "flash") {
-      const size = "44px";
-      const pad = `${cfg.paddingClock}px ${cfg.paddingClock + 4}px`;
-      return `
-        <div class="${NS}-unit" data-key="${u.k}">
-          <div class="${NS}-digit" data-value="${val}" style="
-            min-width:${size};
-            height:${size};
-            background:${cfg.colorClockBg};
-            color:${cfg.colorNumbers};
-            border-radius:${cfg.borderRadiusClock}px;
-            padding:${pad};
-            font-size:${cfg.fontSizeClock};
-            box-shadow:0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.3);
-          ">
-            <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.15),transparent);pointer-events:none;border-top-left-radius:${cfg.borderRadiusClock}px;border-top-right-radius:${cfg.borderRadiusClock}px;"></div>
-            ${val}
-          </div>
-          ${labelHtml}
-        </div>
-      `;
-    }
-
-    if (cfg.style === "glass") {
-      const size = "56px";
-      return `
-        <div class="${NS}-unit" data-key="${u.k}">
-          <div class="${NS}-digit" data-value="${val}" style="
-            min-width:${size};
-            height:${size};
-            background:rgba(255,255,255,0.15);
-            backdrop-filter:blur(14px);
-            -webkit-backdrop-filter:blur(14px);
-            color:${cfg.colorNumbers};
-            border-radius:${cfg.borderRadiusClock}px;
-            padding:${cfg.paddingClock}px;
-            font-size:${cfg.fontSizeClock};
-            border:1px solid rgba(255,255,255,0.3);
-            box-shadow:0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4);
-          ">
-            <div style="position:absolute;top:0;left:0;right:0;height:60%;background:linear-gradient(180deg,rgba(255,255,255,0.25),transparent);pointer-events:none;"></div>
-            ${val}
-          </div>
-          ${labelHtml}
-        </div>
-      `;
-    }
-
-    if (cfg.style === "neon") {
-      const size = "56px";
-      const glow = 10 * (cfg.effectsIntensity / 100);
-      return `
-        <div class="${NS}-unit" data-key="${u.k}">
-          <div class="${NS}-digit" data-value="${val}" style="
-            min-width:${size};
-            height:${size};
-            background:#0a0a1a;
-            color:${cfg.colorNumbers};
-            border-radius:${cfg.borderRadiusClock}px;
-            padding:${cfg.paddingClock}px;
-            font-size:${cfg.fontSizeClock};
-            font-family:'Courier New',monospace;
-            font-weight:900;
-            border:1px solid ${cfg.colorNumbers}40;
-            box-shadow:0 0 ${glow}px ${cfg.colorNumbers}30, inset 0 0 ${glow}px ${cfg.colorNumbers}10;
-            text-shadow:0 0 ${glow}px ${cfg.colorNumbers}80, 0 0 ${glow * 2}px ${cfg.colorNumbers}40;
-          ">${val}</div>
-          ${labelHtml}
-        </div>
-      `;
-    }
-
-    // CLÁSICO
-    const size = "52px";
-    return `
-      <div class="${NS}-unit" data-key="${u.k}">
-        <div class="${NS}-digit" data-value="${val}" style="
-          min-width:${size};
-          height:${size};
-          background:${cfg.colorClockBg};
-          color:${cfg.colorNumbers};
-          border-radius:${cfg.borderRadiusClock}px;
-          padding:${cfg.paddingClock}px;
-          font-size:${cfg.fontSizeClock};
-          box-shadow:0 4px 12px rgba(0,0,0,0.15);
-        ">${val}</div>
-        ${labelHtml}
-      </div>
-    `;
-  }
-
-  function renderSep(cfg, compact) {
-    if (compact) {
-      return `<span style="color:${cfg.colorNumbers};font-size:14px;font-weight:700;opacity:0.7;">:</span>`;
-    }
-    const shadow = cfg.style === "neon" ? `box-shadow:0 0 4px ${cfg.colorNumbers};` : "";
-    const dot = `<span style="background:${cfg.colorNumbers};${shadow}"></span>`;
-    return `<div class="${NS}-sep">${dot}${dot}</div>`;
-  }
-
-  function updateUnit(host, u, cfg, time) {
-    const unitEl = qs(`.${NS}-unit[data-key="${u.k}"]`, host);
-    if (!unitEl) return;
-    const val = String(u.v).padStart(2, "0");
-
-    if (cfg.style === "retro") {
-      const wrap = qs(`.${NS}-retro-digit`, unitEl);
-      if (!wrap || wrap.dataset.value === val) return;
-      wrap.dataset.value = val;
-      const cells = qsa(`.${NS}-retro-cell`, wrap);
-      val.split("").forEach((d, i) => {
-        if (cells[i] && cells[i].textContent !== d) {
-          cells[i].textContent = d;
-          cells[i].classList.remove("flip");
-          void cells[i].offsetWidth;
-          cells[i].classList.add("flip");
-        }
-      });
-      return;
-    }
-
-    const digit = qs(`.${NS}-digit`, unitEl);
-    if (!digit || digit.dataset.value === val) return;
-    digit.dataset.value = val;
-
-    const overlay = digit.querySelector('div[style*="linear-gradient"]');
-    if (overlay) {
-      digit.innerHTML = overlay.outerHTML + val;
-    } else {
-      digit.textContent = val;
-    }
-
-    digit.classList.remove("bounce");
-    if (cfg.showBounce) {
-      void digit.offsetWidth;
-      digit.classList.add("bounce");
-    }
-
-    digit.classList.remove("vibrate", "neonPulse");
-    if (time.isUrgent) {
-      if (cfg.style === "neon") digit.classList.add("neonPulse");
-      if (cfg.showVibration) digit.classList.add("vibrate");
-    }
-  }
-
-  function updateAura(container, auraColor, cfg) {
-    const aura = qs(`.${NS}-aura`, container);
-    if (!aura) return;
-    if (auraColor) {
-      const intensity = cfg.effectsIntensity / 100;
-      aura.style.background = `radial-gradient(ellipse, ${auraColor}66 0%, transparent 70%)`;
-      aura.style.opacity = String(0.5 * intensity);
-      aura.classList.add("on");
-    } else {
-      aura.classList.remove("on");
-      aura.style.opacity = "0";
-    }
-  }
-
-  function updateProgress(container, cfg, time) {
-    const bar = qs(`.${NS}-progress-bar`, container);
-    if (!bar) return;
-    const pct = Math.max(5, Math.min(100, (time.totalSeconds / (cfg.flashMinutes * 60 || 900)) * 100));
-    bar.style.width = pct + "%";
-  }
-
-  function updateParticles(container, cfg, time) {
-    const existing = qsa(`.${NS}-particle`, container);
-    const should = cfg.showParticles && time.totalSeconds <= 600;
-    if (should && existing.length === 0) {
-      const host = qs(`.${NS}-widget-host`, container);
-      if (!host) return;
-      [0, 1, 2, 3, 4].forEach((i) => {
-        const p = document.createElement("div");
-        p.className = `${NS}-particle`;
-        p.style.cssText = `
-          left:${15 + i * 18}%;
-          animation-delay:${i * 0.6}s;
-          background:${cfg.style === "neon" ? cfg.colorNumbers : "rgba(255,255,255,0.7)"};
-          box-shadow:${cfg.style === "neon" ? `0 0 6px ${cfg.colorNumbers}` : "0 0 4px rgba(255,255,255,0.5)"};
-        `;
-        host.appendChild(p);
-      });
-    } else if (!should && existing.length > 0) {
-      existing.forEach((p) => p.remove());
-    }
-  }
-
-  function updateVibration(container, cfg, time) {
-    const host = qs(`.${NS}-widget-host`, container);
-    if (!host) return;
-    if (time.isUrgent && cfg.showVibration) {
-      host.style.animation = `${NS}-vibrateSlow 0.3s linear infinite`;
-    } else {
-      host.style.animation = "";
-    }
-  }
-
-  /* ═══════════════════════════════════════════
-     HELPERS FINALES
-  ═══════════════════════════════════════════ */
-  function getBg(cfg) {
-    return cfg.bgType === "gradient"
-      ? `linear-gradient(135deg, ${cfg.colorWidgetBg} 0%, ${cfg.colorSubtitleBg} 100%)`
-      : cfg.colorWidgetBg;
-  }
-
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-})();
+  function buildFullHtml(cfg, units, auraColor, 
