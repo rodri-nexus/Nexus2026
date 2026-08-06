@@ -15,6 +15,10 @@
     if (window.NEVUX_DEBUG) console.log("[Nevux]", ...args);
   }
 
+  function isMobile() {
+    return window.innerWidth < 640;
+  }
+
   function detectStoreId() {
     if (window.NEVUX_STORE_ID) return window.NEVUX_STORE_ID;
     if (window.Store && (window.Store.id || window.Store.store_id))
@@ -83,6 +87,45 @@
       .${NS}-widget-host {
         position: relative;
         overflow: hidden;
+      }
+      .${NS}-widget-compact {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        overflow: hidden;
+        max-width: 100%;
+        width: 100%;
+      }
+      .${NS}-compact-title {
+        font-weight: 700;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .${NS}-compact-clock {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        flex-shrink: 0;
+      }
+      .${NS}-compact-btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: transform 0.15s ease;
+      }
+      .${NS}-compact-btn:hover {
+        transform: translateY(-1px);
       }
       .${NS}-digit {
         display: inline-flex;
@@ -214,21 +257,6 @@
         border-radius: 2px;
         transition: width 1s linear;
       }
-      .${NS}-shop-btn {
-        padding: 6px 14px;
-        border: none;
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.05em;
-        cursor: pointer;
-        white-space: nowrap;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-      }
-      .${NS}-shop-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      }
       @keyframes ${NS}-bounce {
         0%   { transform: scale(1) translateY(0); }
         40%  { transform: scale(1.15) translateY(-2px); }
@@ -272,6 +300,25 @@
         25% { transform: translateX(-2px); }
         75% { transform: translateX(2px); }
       }
+      /* Mobile: layout compacto */
+      @media (max-width: 640px) {
+        .${NS}-widget-compact {
+          gap: 6px;
+          padding: 8px 8px;
+        }
+        .${NS}-compact-title {
+          font-size: 11px;
+        }
+        .${NS}-compact-btn {
+          padding: 4px 8px;
+          font-size: 9px;
+        }
+      }
+      @media (max-width: 400px) {
+        .${NS}-compact-title-text {
+          display: none;
+        }
+      }
     `;
     document.head.appendChild(style);
   }
@@ -311,11 +358,7 @@
   ═══════════════════════════════════════════ */
   function renderCountdown(widget) {
     const cfg = normalizeConfig(widget.config || {});
-
-    // Estado runtime del contador (para modo flash loop)
-    const state = {
-      endTime: getInitialEndTime(cfg),
-    };
+    const state = { endTime: getInitialEndTime(cfg) };
 
     const placements = [];
     if (cfg.showAsTopBar && pageType === "home") placements.push("topbar");
@@ -334,7 +377,6 @@
     if (cfg.endDate) {
       const t = new Date(cfg.endDate).getTime();
       if (t > Date.now()) return t;
-      // Fecha vencida: si autoRestart, arranca ciclo flash de flashMinutes
       if (cfg.autoRestart) return Date.now() + (cfg.flashMinutes || 15) * 60 * 1000;
       return t;
     }
@@ -370,21 +412,17 @@
       target.parentNode.insertBefore(container, target);
     }
 
-    // Render inicial
     update(container, cfg, state);
 
-    // Shimmer periódico
     let shimmerInt = null;
     if (cfg.showShimmer) {
       shimmerInt = setInterval(() => triggerShimmer(container), 5000);
       setTimeout(() => triggerShimmer(container), 400);
     }
 
-    // Tick de 1s
     setInterval(() => {
       const now = Date.now();
       if (state.endTime <= now) {
-        // Terminó
         if (cfg.autoRestart) {
           state.endTime = now + (cfg.flashMinutes || 15) * 60 * 1000;
         }
@@ -608,7 +646,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     BUILD HTML (según placement)
+     BUILD HTML
   ═══════════════════════════════════════════ */
   function buildHtml(cfg, units, auraColor, time, compact) {
     if (compact) return buildCompactHtml(cfg, units, time);
@@ -730,7 +768,7 @@
     `;
   }
 
-  // ── COMPACT (topbar / announcement bar) ──
+  // ── COMPACT responsive ──
   function buildCompactHtml(cfg, units, time) {
     const bg = cfg.bgType === "gradient"
       ? `linear-gradient(90deg, ${cfg.colorWidgetBg} 0%, ${cfg.colorSubtitleBg} 100%)`
@@ -738,47 +776,77 @@
 
     let clockInner = "";
     units.forEach((u, i) => {
-      clockInner += renderUnit(u, cfg, true);
+      clockInner += renderCompactDigit(u, cfg);
       if (i < units.length - 1) {
-        clockInner += `<span class="${NS}-sep-compact" style="color:${cfg.colorNumbers};font-size:16px;padding:0 2px;">:</span>`;
+        clockInner += `<span style="color:${cfg.colorNumbers};font-size:14px;font-weight:700;opacity:0.7;">:</span>`;
       }
     });
+
+    // Título con emoji separado del texto (para poder ocultar el texto en pantalla chica)
+    let titleHtml = "";
+    if (cfg.title) {
+      // Separar emoji del texto: primer caracter + resto
+      const trimmed = cfg.title.trim();
+      const first = trimmed.slice(0, 2);
+      const rest = trimmed.slice(2).trim();
+      const isEmoji = /\p{Emoji}/u.test(first);
+
+      if (isEmoji && rest) {
+        titleHtml = `
+          <div class="${NS}-compact-title" style="color:${cfg.colorTitle};">
+            <span>${escapeHtml(first)}</span>
+            <span class="${NS}-compact-title-text"> ${escapeHtml(rest)}</span>
+          </div>`;
+      } else {
+        titleHtml = `<div class="${NS}-compact-title" style="color:${cfg.colorTitle};">${escapeHtml(cfg.title)}</div>`;
+      }
+    }
 
     const vibrateStyle = time.isUrgent && cfg.showVibration ? `animation:${NS}-vibrateSlow 0.3s linear infinite;` : "";
 
     return `
-      <div class="${NS}-widget-host"
+      <div class="${NS}-widget-host ${NS}-widget-compact"
         data-style="${cfg.style}"
         data-keys="${units.map(u=>u.k).join(",")}"
         data-compact="true"
         style="
           background:${bg};
-          padding:10px 16px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          gap:14px;
-          color:${cfg.colorTitle};
-          font-weight:700;
-          font-size:13px;
-          overflow:hidden;
           ${vibrateStyle}
         ">
         ${cfg.showShimmer ? `<div class="${NS}-shimmer" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);"></div>` : ""}
-        ${cfg.title ? `<span style="white-space:nowrap;">${escapeHtml(cfg.title)}</span>` : ""}
-        <div style="display:inline-flex;align-items:center;gap:4px;">
+        ${titleHtml}
+        <div class="${NS}-compact-clock">
           ${clockInner}
         </div>
-        <button class="${NS}-shop-btn" style="
+        <button class="${NS}-compact-btn" style="
           background:#ffffff;
           color:${cfg.colorWidgetBg};
-        " onclick="window.location.href='/'">SHOP NOW</button>
+        " onclick="window.location.href='/'">SHOP</button>
+      </div>
+    `;
+  }
+
+  function renderCompactDigit(u, cfg) {
+    const val = String(u.v).padStart(2, "0");
+    return `
+      <div class="${NS}-unit" data-key="${u.k}">
+        <div class="${NS}-digit" data-value="${val}" style="
+          min-width:26px;
+          height:26px;
+          background:#ffffff;
+          color:${cfg.colorClockBg === "#ffffff" || cfg.colorClockBg === "#fff" ? "#000000" : cfg.colorClockBg};
+          border-radius:6px;
+          padding:2px 6px;
+          font-size:13px;
+          font-weight:800;
+          box-shadow:0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+        ">${val}</div>
       </div>
     `;
   }
 
   /* ═══════════════════════════════════════════
-     RENDER UNIT (según estilo)
+     RENDER UNIT FULL (según estilo)
   ═══════════════════════════════════════════ */
   function renderUnit(u, cfg, compact) {
     const val = String(u.v).padStart(2, "0");
@@ -789,13 +857,11 @@
         ${cfg.style === "neon" ? `text-shadow:0 0 6px ${cfg.colorNumbers}60;` : ""}
       ">${u.l}</span>` : "";
 
-    // RETRO
     if (cfg.style === "retro") {
       const cells = val.split("").map((d) => `
         <span class="${NS}-retro-cell" style="
-          font-size:${compact ? "15px" : cfg.fontSizeClock};
+          font-size:${cfg.fontSizeClock};
           color:${cfg.colorNumbers};
-          ${compact ? "width:22px;height:30px;" : ""}
         ">${d}</span>`).join("");
       return `
         <div class="${NS}-unit" data-key="${u.k}">
@@ -805,10 +871,9 @@
       `;
     }
 
-    // FLASH
     if (cfg.style === "flash") {
-      const size = compact ? "30px" : "44px";
-      const pad = compact ? "4px 8px" : `${cfg.paddingClock}px ${cfg.paddingClock + 4}px`;
+      const size = "44px";
+      const pad = `${cfg.paddingClock}px ${cfg.paddingClock + 4}px`;
       return `
         <div class="${NS}-unit" data-key="${u.k}">
           <div class="${NS}-digit" data-value="${val}" style="
@@ -818,7 +883,7 @@
             color:${cfg.colorNumbers};
             border-radius:${cfg.borderRadiusClock}px;
             padding:${pad};
-            font-size:${compact ? "15px" : cfg.fontSizeClock};
+            font-size:${cfg.fontSizeClock};
             box-shadow:0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.3);
           ">
             <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.15),transparent);pointer-events:none;border-top-left-radius:${cfg.borderRadiusClock}px;border-top-right-radius:${cfg.borderRadiusClock}px;"></div>
@@ -829,9 +894,8 @@
       `;
     }
 
-    // GLASS
     if (cfg.style === "glass") {
-      const size = compact ? "32px" : "56px";
+      const size = "56px";
       return `
         <div class="${NS}-unit" data-key="${u.k}">
           <div class="${NS}-digit" data-value="${val}" style="
@@ -843,7 +907,7 @@
             color:${cfg.colorNumbers};
             border-radius:${cfg.borderRadiusClock}px;
             padding:${cfg.paddingClock}px;
-            font-size:${compact ? "15px" : cfg.fontSizeClock};
+            font-size:${cfg.fontSizeClock};
             border:1px solid rgba(255,255,255,0.3);
             box-shadow:0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4);
           ">
@@ -855,9 +919,8 @@
       `;
     }
 
-    // NEON
     if (cfg.style === "neon") {
-      const size = compact ? "32px" : "56px";
+      const size = "56px";
       const glow = 10 * (cfg.effectsIntensity / 100);
       return `
         <div class="${NS}-unit" data-key="${u.k}">
@@ -868,7 +931,7 @@
             color:${cfg.colorNumbers};
             border-radius:${cfg.borderRadiusClock}px;
             padding:${cfg.paddingClock}px;
-            font-size:${compact ? "15px" : cfg.fontSizeClock};
+            font-size:${cfg.fontSizeClock};
             font-family:'Courier New',monospace;
             font-weight:900;
             border:1px solid ${cfg.colorNumbers}40;
@@ -881,7 +944,7 @@
     }
 
     // CLÁSICO
-    const size = compact ? "30px" : "52px";
+    const size = "52px";
     return `
       <div class="${NS}-unit" data-key="${u.k}">
         <div class="${NS}-digit" data-value="${val}" style="
@@ -891,7 +954,7 @@
           color:${cfg.colorNumbers};
           border-radius:${cfg.borderRadiusClock}px;
           padding:${cfg.paddingClock}px;
-          font-size:${compact ? "15px" : cfg.fontSizeClock};
+          font-size:${cfg.fontSizeClock};
           box-shadow:0 4px 12px rgba(0,0,0,0.15);
         ">${val}</div>
         ${labelHtml}
@@ -901,7 +964,7 @@
 
   function renderSep(cfg, compact) {
     if (compact) {
-      return `<span class="${NS}-sep-compact" style="color:${cfg.colorNumbers};font-size:16px;padding:0 2px;">:</span>`;
+      return `<span style="color:${cfg.colorNumbers};font-size:14px;font-weight:700;opacity:0.7;">:</span>`;
     }
     const shadow = cfg.style === "neon" ? `box-shadow:0 0 4px ${cfg.colorNumbers};` : "";
     const dot = `<span style="background:${cfg.colorNumbers};${shadow}"></span>`;
@@ -933,7 +996,6 @@
     if (!digit || digit.dataset.value === val) return;
     digit.dataset.value = val;
 
-    // Preservar el overlay de brillo si existe (flash/glass)
     const overlay = digit.querySelector('div[style*="linear-gradient"]');
     if (overlay) {
       digit.innerHTML = overlay.outerHTML + val;
@@ -941,14 +1003,12 @@
       digit.textContent = val;
     }
 
-    // Bounce
     digit.classList.remove("bounce");
     if (cfg.showBounce) {
       void digit.offsetWidth;
       digit.classList.add("bounce");
     }
 
-    // Vibration + neon urgent
     digit.classList.remove("vibrate", "neonPulse");
     if (time.isUrgent) {
       if (cfg.style === "neon") digit.classList.add("neonPulse");
