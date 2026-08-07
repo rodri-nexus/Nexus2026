@@ -17,20 +17,15 @@
     if (window.NEVUX_DEBUG) console.log("[Nevux]", ...args);
   }
 
-  // Separar emoji del título SIN regex Unicode (más compatible)
   function splitEmoji(str) {
     if (!str) return { emoji: "", text: "" };
     const s = str.trim();
-    // Detectar los primeros caracteres si están fuera del rango ASCII básico
-    // Un emoji típico ocupa 1-4 code units
     let emojiEnd = 0;
     for (let i = 0; i < s.length && i < 4; i++) {
       const code = s.charCodeAt(i);
-      // Emoji high surrogate range (D800-DBFF) o caracteres Unicode altos
       if (code >= 0xD800 && code <= 0xDBFF) {
-        emojiEnd = i + 2; // surrogate pair
+        emojiEnd = i + 2;
       } else if (code > 0x2000 && code !== 0x20) {
-        // símbolos, no espacio normal
         emojiEnd = i + 1;
       } else if (emojiEnd > 0) {
         break;
@@ -421,6 +416,7 @@
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
         if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
+        if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
       });
     })
     .catch(function (err) {
@@ -570,7 +566,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     NORMALIZAR CONFIG
+     NORMALIZAR CONFIG COUNTDOWN
   ═══════════════════════════════════════════ */
   function normalizeConfig(raw) {
     function n(v, fb) {
@@ -635,7 +631,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     CÁLCULOS
+     CÁLCULOS COUNTDOWN
   ═══════════════════════════════════════════ */
   function calcTime(state) {
     const ms = state.endTime - Date.now();
@@ -662,7 +658,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     UPDATE
+     UPDATE COUNTDOWN
   ═══════════════════════════════════════════ */
   function update(container, cfg, state) {
     const time = calcTime(state);
@@ -723,7 +719,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     BUILD BAR
+     BUILD BAR COUNTDOWN
   ═══════════════════════════════════════════ */
   function buildBarHtml(cfg, units, time) {
     const bg = cfg.bgType === "gradient"
@@ -787,7 +783,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     BUILD FULL
+     BUILD FULL COUNTDOWN
   ═══════════════════════════════════════════ */
   function buildFullHtml(cfg, units, auraColor, time) {
     const intensity = cfg.effectsIntensity / 100;
@@ -1014,4 +1010,124 @@
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
+
+  /* ═══════════════════════════════════════════
+     RENDER BADGE CUOTAS
+  ═══════════════════════════════════════════ */
+  function renderBadgeCuotas(widget) {
+    var cfg = normalizeBadgeCuotasConfig(widget.config || {});
+
+    if (cfg.mostrarEnProducto && pageType === "product") {
+      mountBadgeAt(widget, cfg, "product");
+    }
+    if (cfg.mostrarEnCarrito && pageType === "cart") {
+      mountBadgeAt(widget, cfg, "cart");
+    }
+  }
+
+  function normalizeBadgeCuotasConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      cuotas: n(raw.cuotas, 3),
+      interes: raw.interes === "con_interes" ? "con_interes" : "sin_interes",
+      porcentaje_interes: n(raw.porcentaje_interes, 0),
+      texto_principal: raw.texto_principal || "{cuotas} cuotas sin interés",
+      texto_secundario: raw.texto_secundario || "¡Sin recargo!",
+      mostrarIcono: raw.mostrarIcono !== false,
+      icono: raw.icono || "💳",
+      estilo: raw.estilo || "moderno",
+      colorFondo: raw.colorFondo || "#ffffff",
+      colorTexto: raw.colorTexto || "#1a1a2e",
+      colorAcento: raw.colorAcento || "#6366f1",
+      colorBorde: raw.colorBorde || "#e5e7eb",
+      borderRadius: n(raw.borderRadius, 10),
+      paddingWidget: n(raw.paddingWidget, 14),
+      fontSize: raw.fontSize || "15px",
+      fontSizeSecundario: raw.fontSizeSecundario || "12px",
+      mostrarEnProducto: raw.mostrarEnProducto !== false,
+      mostrarEnCarrito: raw.mostrarEnCarrito === true,
+      posicion: raw.posicion || "before-button",
+      animacion: raw.animacion === true,
+    };
+  }
+
+  function mountBadgeAt(widget, cfg, placement) {
+    var uniqueId = NS + "-badge-" + widget.id + "-" + placement;
+    if (qs("#" + uniqueId)) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (placement === "product") {
+      var target = findProductTarget(cfg.posicion === "before-title" ? "before-title" : "before-button");
+      if (!target) {
+        console.warn("[Nevux] No target para badge en producto");
+        return;
+      }
+      target.node.parentNode.insertBefore(container, target.node);
+    } else if (placement === "cart") {
+      var cartTarget = findCartTarget();
+      if (!cartTarget) return;
+      cartTarget.parentNode.insertBefore(container, cartTarget);
+    }
+
+    container.innerHTML = buildBadgeHtml(cfg);
+    console.log("[Nevux] Badge cuotas montado en", placement);
+  }
+
+  function buildBadgeHtml(cfg) {
+    var texto = cfg.texto_principal.replace("{cuotas}", String(cfg.cuotas));
+    var sinInteres = cfg.interes === "sin_interes";
+    var iconHtml = cfg.mostrarIcono
+      ? '<span style="font-size:20px;flex-shrink:0;">' + escapeHtml(cfg.icono) + '</span>'
+      : "";
+
+    if (cfg.estilo === "moderno") {
+      return '' +
+        '<div style="padding:' + cfg.paddingWidget + 'px;background:' + cfg.colorFondo + ';border-radius:' + cfg.borderRadius + 'px;border:2px solid ' + cfg.colorAcento + '44;box-shadow:0 4px 16px ' + cfg.colorAcento + '22;position:relative;overflow:hidden;margin:8px 0;">' +
+          '<div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:' + cfg.colorAcento + ';border-radius:' + cfg.borderRadius + 'px 0 0 ' + cfg.borderRadius + 'px;"></div>' +
+          '<div style="padding-left:12px;">' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+              iconHtml +
+              '<div style="font-size:' + cfg.fontSize + ';font-weight:800;color:' + cfg.colorTexto + ';">' + escapeHtml(texto) + '</div>' +
+            '</div>' +
+            (sinInteres ? '<div style="margin-top:4px;display:inline-block;padding:2px 8px;background:' + cfg.colorAcento + '22;border-radius:4px;font-size:' + cfg.fontSizeSecundario + ';font-weight:700;color:' + cfg.colorAcento + ';">' + escapeHtml(cfg.texto_secundario) + '</div>' : '') +
+          '</div>' +
+        '</div>';
+    }
+
+    if (cfg.estilo === "destacado") {
+      return '' +
+        '<div style="padding:' + cfg.paddingWidget + 'px;background:' + cfg.colorAcento + ';border-radius:' + cfg.borderRadius + 'px;box-shadow:0 6px 20px ' + cfg.colorAcento + '44;text-align:center;position:relative;overflow:hidden;margin:8px 0;">' +
+          '<div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.15),transparent);pointer-events:none;"></div>' +
+          (cfg.mostrarIcono ? '<div style="font-size:22px;margin-bottom:4px;">' + escapeHtml(cfg.icono) + '</div>' : '') +
+          '<div style="font-size:' + cfg.fontSize + ';font-weight:800;color:#ffffff;">' + escapeHtml(texto) + '</div>' +
+          (sinInteres ? '<div style="margin-top:4px;font-size:' + cfg.fontSizeSecundario + ';font-weight:700;color:rgba(255,255,255,0.85);">' + escapeHtml(cfg.texto_secundario) + '</div>' : '') +
+        '</div>';
+    }
+
+    if (cfg.estilo === "minimal") {
+      return '' +
+        '<div style="display:flex;align-items:center;gap:8px;padding:' + (cfg.paddingWidget - 4) + 'px ' + cfg.paddingWidget + 'px;background:' + cfg.colorFondo + ';border-radius:' + cfg.borderRadius + 'px;border-bottom:2px solid ' + cfg.colorAcento + ';margin:8px 0;">' +
+          iconHtml +
+          '<span style="font-size:' + cfg.fontSize + ';font-weight:700;color:' + cfg.colorTexto + ';">' + escapeHtml(texto) + '</span>' +
+          (sinInteres ? '<span style="font-size:' + cfg.fontSizeSecundario + ';color:' + cfg.colorAcento + ';font-weight:600;">· ' + escapeHtml(cfg.texto_secundario) + '</span>' : '') +
+        '</div>';
+    }
+
+    return '' +
+      '<div style="display:inline-flex;align-items:center;gap:10px;padding:' + cfg.paddingWidget + 'px ' + (cfg.paddingWidget + 8) + 'px;background:' + cfg.colorFondo + ';border-radius:' + cfg.borderRadius + 'px;border:1.5px solid ' + cfg.colorBorde + ';box-shadow:0 2px 8px rgba(0,0,0,0.08);margin:8px 0;">' +
+        iconHtml +
+        '<div>' +
+          '<div style="font-size:' + cfg.fontSize + ';font-weight:800;color:' + cfg.colorTexto + ';line-height:1.2;">' + escapeHtml(texto) + '</div>' +
+          (sinInteres ? '<div style="font-size:' + cfg.fontSizeSecundario + ';font-weight:600;color:' + cfg.colorAcento + ';margin-top:2px;">' + escapeHtml(cfg.texto_secundario) + '</div>' : '') +
+        '</div>' +
+      '</div>';
+  }
+
 })();
