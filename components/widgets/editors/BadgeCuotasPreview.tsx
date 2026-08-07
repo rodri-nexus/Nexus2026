@@ -23,7 +23,6 @@ interface BadgeCuotasConfig {
   fontSizeSecundario: string;
   mostrarEnProducto: boolean;
   mostrarEnCarrito: boolean;
-  posicion: 'before-button' | 'after-price' | 'before-title';
   animacion: boolean;
 }
 
@@ -40,31 +39,33 @@ function BadgeClasico({ config }: { config: BadgeCuotasConfig }) {
     <div style={{
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 10,
-      padding: `${config.paddingWidget}px ${config.paddingWidget + 8}px`,
+      gap: 6,
+      padding: `${config.paddingWidget - 4}px ${config.paddingWidget}px`,
       background: config.colorFondo,
       borderRadius: config.borderRadius,
       border: `1.5px solid ${config.colorBorde}`,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
     }}>
       {config.mostrarIcono && (
-        <span style={{ fontSize: 22 }}>{config.icono}</span>
+        <span style={{ fontSize: 16 }}>{config.icono}</span>
       )}
       <div>
         <div style={{
-          fontSize: config.fontSize,
+          fontSize: `calc(${config.fontSize} * 0.85)`,
           fontWeight: 800,
           color: config.colorTexto,
           lineHeight: 1.2,
+          whiteSpace: 'nowrap',
         }}>
           {config.texto_principal.replace('{cuotas}', String(config.cuotas))}
         </div>
         {sinInteres && (
           <div style={{
-            fontSize: config.fontSizeSecundario,
+            fontSize: `calc(${config.fontSizeSecundario} * 0.85)`,
             fontWeight: 600,
             color: config.colorAcento,
-            marginTop: 2,
+            marginTop: 1,
+            whiteSpace: 'nowrap',
           }}>
             {config.texto_secundario}
           </div>
@@ -81,44 +82,46 @@ function BadgeModerno({ config }: { config: BadgeCuotasConfig }) {
   const sinInteres = config.interes === 'sin_interes';
   return (
     <div style={{
-      padding: `${config.paddingWidget}px`,
+      padding: `${config.paddingWidget - 4}px ${config.paddingWidget}px`,
       background: `linear-gradient(135deg, ${config.colorFondo} 0%, ${config.colorAcento}22 100%)`,
       borderRadius: config.borderRadius,
       border: `2px solid ${config.colorAcento}44`,
-      boxShadow: `0 4px 16px ${config.colorAcento}22`,
+      boxShadow: `0 4px 16px ${config.colorAcento}33`,
       position: 'relative',
       overflow: 'hidden',
     }}>
       <div style={{
         position: 'absolute',
         left: 0, top: 0, bottom: 0,
-        width: 4,
+        width: 3,
         background: config.colorAcento,
         borderRadius: `${config.borderRadius}px 0 0 ${config.borderRadius}px`,
       }} />
-      <div style={{ paddingLeft: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ paddingLeft: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {config.mostrarIcono && (
-            <span style={{ fontSize: 20 }}>{config.icono}</span>
+            <span style={{ fontSize: 16 }}>{config.icono}</span>
           )}
           <div style={{
-            fontSize: config.fontSize,
+            fontSize: `calc(${config.fontSize} * 0.85)`,
             fontWeight: 800,
             color: config.colorTexto,
+            whiteSpace: 'nowrap',
           }}>
             {config.texto_principal.replace('{cuotas}', String(config.cuotas))}
           </div>
         </div>
         {sinInteres && (
           <div style={{
-            marginTop: 4,
+            marginTop: 3,
             display: 'inline-block',
-            padding: '2px 8px',
+            padding: '1px 6px',
             background: `${config.colorAcento}22`,
             borderRadius: 4,
-            fontSize: config.fontSizeSecundario,
+            fontSize: `calc(${config.fontSizeSecundario} * 0.85)`,
             fontWeight: 700,
             color: config.colorAcento,
+            whiteSpace: 'nowrap',
           }}>
             {config.texto_secundario}
           </div>
@@ -137,27 +140,30 @@ function BadgeMinimal({ config }: { config: BadgeCuotasConfig }) {
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      gap: 8,
-      padding: `${config.paddingWidget - 4}px ${config.paddingWidget}px`,
+      gap: 6,
+      padding: `${config.paddingWidget - 6}px ${config.paddingWidget - 2}px`,
       background: config.colorFondo,
       borderRadius: config.borderRadius,
       borderBottom: `2px solid ${config.colorAcento}`,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
     }}>
       {config.mostrarIcono && (
-        <span style={{ fontSize: 18 }}>{config.icono}</span>
+        <span style={{ fontSize: 14 }}>{config.icono}</span>
       )}
       <span style={{
-        fontSize: config.fontSize,
+        fontSize: `calc(${config.fontSize} * 0.85)`,
         fontWeight: 700,
         color: config.colorTexto,
+        whiteSpace: 'nowrap',
       }}>
         {config.texto_principal.replace('{cuotas}', String(config.cuotas))}
       </span>
       {sinInteres && (
         <span style={{
-          fontSize: config.fontSizeSecundario,
+          fontSize: `calc(${config.fontSizeSecundario} * 0.85)`,
           color: config.colorAcento,
           fontWeight: 600,
+          whiteSpace: 'nowrap',
         }}>
           · {config.texto_secundario}
         </span>
@@ -173,10 +179,10 @@ function BadgeDestacado({ config }: { config: BadgeCuotasConfig }) {
   const sinInteres = config.interes === 'sin_interes';
   return (
     <div style={{
-      padding: `${config.paddingWidget}px`,
+      padding: `${config.paddingWidget - 4}px ${config.paddingWidget}px`,
       background: config.colorAcento,
       borderRadius: config.borderRadius,
-      boxShadow: `0 6px 20px ${config.colorAcento}44`,
+      boxShadow: `0 6px 20px ${config.colorAcento}55`,
       textAlign: 'center',
       position: 'relative',
       overflow: 'hidden',
@@ -185,27 +191,29 @@ function BadgeDestacado({ config }: { config: BadgeCuotasConfig }) {
         position: 'absolute',
         top: 0, left: 0, right: 0,
         height: '50%',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%)',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
         pointerEvents: 'none',
         borderRadius: `${config.borderRadius}px ${config.borderRadius}px 0 0`,
       }} />
       {config.mostrarIcono && (
-        <div style={{ fontSize: 24, marginBottom: 4 }}>{config.icono}</div>
+        <div style={{ fontSize: 18, marginBottom: 2 }}>{config.icono}</div>
       )}
       <div style={{
-        fontSize: config.fontSize,
+        fontSize: `calc(${config.fontSize} * 0.85)`,
         fontWeight: 800,
         color: '#ffffff',
         lineHeight: 1.2,
+        whiteSpace: 'nowrap',
       }}>
         {config.texto_principal.replace('{cuotas}', String(config.cuotas))}
       </div>
       {sinInteres && (
         <div style={{
-          marginTop: 4,
-          fontSize: config.fontSizeSecundario,
+          marginTop: 2,
+          fontSize: `calc(${config.fontSizeSecundario} * 0.85)`,
           fontWeight: 700,
           color: 'rgba(255,255,255,0.85)',
+          whiteSpace: 'nowrap',
         }}>
           {config.texto_secundario}
         </div>
@@ -216,6 +224,8 @@ function BadgeDestacado({ config }: { config: BadgeCuotasConfig }) {
 
 /* ═══════════════════════════════════════════
    MOCK PRODUCTO
+   Badge flota en esquina superior derecha
+   de la imagen del producto
 ═══════════════════════════════════════════ */
 function ProductMock({ config }: { config: BadgeCuotasConfig }) {
   const BadgeComponent =
@@ -232,6 +242,7 @@ function ProductMock({ config }: { config: BadgeCuotasConfig }) {
       boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
       border: '1px solid #e5e7eb',
     }}>
+      {/* Header mock */}
       <div style={{
         padding: '12px 16px',
         background: '#1a1a2e',
@@ -247,51 +258,53 @@ function ProductMock({ config }: { config: BadgeCuotasConfig }) {
       </div>
 
       <div style={{ padding: 16, display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-        <div style={{
-          width: 130, height: 160,
-          background: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
-          borderRadius: 10,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 40, flexShrink: 0,
-        }}>
-          🛍
-        </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {config.posicion === 'before-title' && config.mostrarEnProducto && (
-            <div style={{ marginBottom: 10 }}>
+        {/* Imagen con badge flotando en esquina superior derecha */}
+        <div style={{
+          position: 'relative',
+          width: 130,
+          height: 160,
+          flexShrink: 0,
+        }}>
+          {/* Imagen mock */}
+          <div style={{
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 40,
+          }}>
+            🛍
+          </div>
+
+          {/* Badge flotando en esquina superior derecha */}
+          {config.mostrarEnProducto && (
+            <div style={{
+              position: 'absolute',
+              top: -10,
+              right: -10,
+              zIndex: 10,
+              maxWidth: 160,
+            }}>
               <BadgeComponent config={config} />
             </div>
           )}
+        </div>
 
+        {/* Info del producto */}
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 10, color: '#9ca3af', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Colección Verano
           </div>
           <div style={{ fontSize: 16, fontWeight: 800, color: '#1a1a2e', marginTop: 4 }}>
             Camisa Lino Premium
           </div>
-
-          {config.posicion === 'after-price' && config.mostrarEnProducto && (
-            <div style={{ marginTop: 6 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1a2e', marginBottom: 6 }}>
-                $68.00
-              </div>
-              <BadgeComponent config={config} />
-            </div>
-          )}
-
-          {config.posicion !== 'after-price' && (
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1a2e', marginTop: 8 }}>
-              $68.00
-            </div>
-          )}
-
-          {config.posicion === 'before-button' && config.mostrarEnProducto && (
-            <div style={{ marginTop: 14 }}>
-              <BadgeComponent config={config} />
-            </div>
-          )}
-
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1a2e', marginTop: 8 }}>
+            $68.00
+          </div>
           <button style={{
             marginTop: 14, width: '100%', padding: '12px',
             background: '#1a1a2e', color: '#fff', border: 'none',
@@ -336,14 +349,29 @@ function CartMock({ config }: { config: BadgeCuotasConfig }) {
       </div>
 
       <div style={{ padding: 16 }}>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f3f4f6' }}>
-          <div style={{
-            width: 56, height: 56,
-            background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
-            borderRadius: 8, fontSize: 24,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            🛍
+        {/* Item del carrito con badge flotando */}
+        <div style={{ position: 'relative', display: 'flex', gap: 12, marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #f3f4f6' }}>
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <div style={{
+              width: 56, height: 56,
+              background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+              borderRadius: 8, fontSize: 24,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              🛍
+            </div>
+            {/* Badge flotando en esquina superior derecha del item */}
+            {config.mostrarEnCarrito && (
+              <div style={{
+                position: 'absolute',
+                top: -8,
+                right: -8,
+                zIndex: 10,
+                maxWidth: 140,
+              }}>
+                <BadgeComponent config={config} />
+              </div>
+            )}
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a2e' }}>Camisa Lino Premium</div>
@@ -351,12 +379,6 @@ function CartMock({ config }: { config: BadgeCuotasConfig }) {
             <div style={{ fontSize: 14, fontWeight: 800, color: '#1a1a2e', marginTop: 4 }}>$68.00</div>
           </div>
         </div>
-
-        {config.mostrarEnCarrito && (
-          <div style={{ marginBottom: 12 }}>
-            <BadgeComponent config={config} />
-          </div>
-        )}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
           <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>Total</span>
@@ -392,6 +414,8 @@ export default function BadgeCuotasPreview({ config }: Props) {
       `}</style>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* Sin ubicación activa */}
         {!showProducto && !showCarrito && (
           <div style={{
             padding: 30, background: '#fff7ed',
@@ -408,6 +432,7 @@ export default function BadgeCuotasPreview({ config }: Props) {
           </div>
         )}
 
+        {/* PRODUCTO */}
         {showProducto && (
           <div>
             <div style={{
@@ -421,6 +446,7 @@ export default function BadgeCuotasPreview({ config }: Props) {
           </div>
         )}
 
+        {/* Divisor */}
         {showProducto && showCarrito && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 8px' }}>
             <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #d1d5db, transparent)' }} />
@@ -429,6 +455,7 @@ export default function BadgeCuotasPreview({ config }: Props) {
           </div>
         )}
 
+        {/* CARRITO */}
         {showCarrito && (
           <div>
             <div style={{
@@ -444,4 +471,4 @@ export default function BadgeCuotasPreview({ config }: Props) {
       </div>
     </>
   );
-  }
+}
