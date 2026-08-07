@@ -1,7 +1,7 @@
 // components/widgets/editors/CountdownPreview.tsx
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 
 /* ═══════════════════════════════════════════
    TIPOS
@@ -51,13 +51,24 @@ interface TimeLeft {
 
 /* ═══════════════════════════════════════════
    HOOK: tiempo restante
+   Si no hay endDate válida, usa fallback de 15 min
+   desde el momento en que se montó el componente
 ═══════════════════════════════════════════ */
 function useTimeLeft(config: CountdownConfig): TimeLeft {
-  const calc = (): TimeLeft => {
-    if (!config.endDate) {
-      return { days: 0, hours: 0, minutes: 15, seconds: 0, totalSeconds: 900, isFinished: false };
+  // Fallback: fecha simulada +15 min desde el mount (para preview)
+  const fallbackEnd = useRef<number>(Date.now() + 15 * 60 * 1000);
+
+  const getEndTime = (): number => {
+    if (config.endDate) {
+      const t = new Date(config.endDate).getTime();
+      if (!isNaN(t) && t > Date.now()) return t;
     }
-    const diff = new Date(config.endDate).getTime() - Date.now();
+    return fallbackEnd.current;
+  };
+
+  const calc = (): TimeLeft => {
+    const end = getEndTime();
+    const diff = end - Date.now();
     if (diff <= 0) {
       return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isFinished: true };
     }
@@ -75,19 +86,20 @@ function useTimeLeft(config: CountdownConfig): TimeLeft {
   const [time, setTime] = useState<TimeLeft>(calc);
 
   useEffect(() => {
+    // Recalcular ni bien cambia la config
     setTime(calc());
+
     const int = setInterval(() => {
       const next = calc();
       if (next.isFinished && config.autoRestart) {
-        const mins = config.flashMinutes || 15;
-        setTime({
-          days: 0, hours: 0, minutes: mins, seconds: 0,
-          totalSeconds: mins * 60, isFinished: false,
-        });
+        // Renovar el fallback y seguir contando
+        fallbackEnd.current = Date.now() + (config.flashMinutes || 15) * 60 * 1000;
+        setTime(calc());
       } else {
         setTime(next);
       }
     }, 1000);
+
     return () => clearInterval(int);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.endDate, config.autoRestart, config.flashMinutes]);
@@ -193,7 +205,6 @@ function ClockUnit({
 }) {
   const s = String(value).padStart(2, '0');
   const Digit = config.style === 'retro' ? DigitRetro : DigitClasico;
-
   const labelSize = Math.max(9, Math.round((parseInt(config.fontSizeClock, 10) || 16) * 0.55));
 
   return (
@@ -216,7 +227,7 @@ function ClockUnit({
 }
 
 /* ═══════════════════════════════════════════
-   SEPARADOR (dos puntos)
+   SEPARADOR (dos puntos parpadeantes)
 ═══════════════════════════════════════════ */
 function Separator({ config }: { config: CountdownConfig }) {
   const [on, setOn] = useState(true);
@@ -250,12 +261,18 @@ export default function CountdownPreview({ config }: Props) {
   const time = useTimeLeft(config);
 
   // Construir unidades a mostrar
-  const units: { v: number; l: string }[] = [];
-  const showDays = config.showDays && time.days > 0;
-  if (showDays) units.push({ v: time.days, l: 'DÍAS' });
-  if (config.showHours !== false) units.push({ v: time.hours + (config.showDays ? 0 : time.days * 24), l: 'HRS' });
-  if (config.showMinutes !== false) units.push({ v: time.minutes, l: 'MIN' });
-  if (config.showSeconds !== false) units.push({ v: time.seconds, l: 'SEG' });
+  const units: { v: number; l: string }[] = useMemo(() => {
+    const arr: { v: number; l: string }[] = [];
+    const showDaysActive = config.showDays && time.days > 0;
+    if (showDaysActive) arr.push({ v: time.days, l: 'DÍAS' });
+    if (config.showHours !== false) {
+      const hoursValue = showDaysActive ? time.hours : time.hours + time.days * 24;
+      arr.push({ v: hoursValue, l: 'HRS' });
+    }
+    if (config.showMinutes !== false) arr.push({ v: time.minutes, l: 'MIN' });
+    if (config.showSeconds !== false) arr.push({ v: time.seconds, l: 'SEG' });
+    return arr;
+  }, [time, config.showDays, config.showHours, config.showMinutes, config.showSeconds]);
 
   if (units.length === 0) {
     return (
@@ -354,4 +371,4 @@ export default function CountdownPreview({ config }: Props) {
       </div>
     </>
   );
-}
+       }
