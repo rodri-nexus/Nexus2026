@@ -62,7 +62,6 @@ interface BadgeCuotasConfig {
   fontSizeSecundario: string;
   mostrarEnProducto: boolean;
   mostrarEnCarrito: boolean;
-  posicion: 'before-button' | 'after-price' | 'before-title';
   animacion: boolean;
 }
 
@@ -88,7 +87,6 @@ const defaultConfig: BadgeCuotasConfig = {
   fontSizeSecundario: '12px',
   mostrarEnProducto: true,
   mostrarEnCarrito: false,
-  posicion: 'before-button',
   animacion: false,
 };
 
@@ -462,10 +460,33 @@ export default function BadgeCuotasEditor({
 
       {/* ── UBICACIÓN ── */}
       <EditorCard title="Ubicación" icon="📍" defaultOpen={true}>
-        <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 12, lineHeight: 1.4 }}>
-          Elegí dónde aparece el badge en tu tienda.
+
+        {/* Info de posición fija */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 10,
+          padding: '10px 12px',
+          background: '#eef2ff',
+          borderRadius: 10,
+          border: '1.5px solid #c7d2fe',
+          marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 18, flexShrink: 0 }}>📌</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#4f46e5' }}>
+              Esquina superior derecha
+            </div>
+            <div style={{ fontSize: 11, color: '#6366f1', marginTop: 2 }}>
+              El badge flota por encima del borde de la imagen del producto.
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+
+        <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 12, lineHeight: 1.4 }}>
+          Elegí en qué páginas aparece el badge.
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           <PlacementChip
             label="🛍 Producto"
             active={config.mostrarEnProducto}
@@ -477,50 +498,6 @@ export default function BadgeCuotasEditor({
             onClick={() => update('mostrarEnCarrito', !config.mostrarEnCarrito)}
           />
         </div>
-
-        {config.mostrarEnProducto && (
-          <div style={{ paddingLeft: 4 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
-              Posición en el producto:
-            </div>
-            {[
-              { value: 'before-button', label: 'Antes del botón "Agregar al carrito"', desc: 'Máxima conversión' },
-              { value: 'after-price', label: 'Debajo del precio', desc: 'Visible junto al precio' },
-              { value: 'before-title', label: 'Antes del título', desc: 'Impacto visual arriba' },
-            ].map((opt) => {
-              const act = config.posicion === opt.value;
-              return (
-                <label
-                  key={opt.value}
-                  style={{
-                    display: 'flex', gap: 10, padding: '10px 12px', borderRadius: 10,
-                    border: act ? '2px solid #6366f1' : '1.5px solid #e5e7eb',
-                    background: act ? '#eef2ff' : '#fafafa', marginBottom: 8,
-                    cursor: 'pointer', alignItems: 'center',
-                  }}
-                >
-                  <div style={{
-                    width: 18, height: 18, borderRadius: '50%',
-                    border: act ? '5px solid #6366f1' : '2px solid #d1d5db',
-                    flexShrink: 0,
-                  }} />
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e' }}>{opt.label}</div>
-                    <div style={{ fontSize: 11, color: '#9ca3af' }}>{opt.desc}</div>
-                  </div>
-                  <input
-                    type="radio"
-                    name="posicion"
-                    value={opt.value}
-                    checked={act}
-                    onChange={() => update('posicion', opt.value as any)}
-                    style={{ display: 'none' }}
-                  />
-                </label>
-              );
-            })}
-          </div>
-        )}
       </EditorCard>
     </>
   );
@@ -719,4 +696,4 @@ export default function BadgeCuotasEditor({
       )}
     </div>
   );
-  }
+    }
