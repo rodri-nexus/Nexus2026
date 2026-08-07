@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BadgeEnvioPreview from './BadgeEnvioPreview';
 
@@ -15,12 +15,33 @@ interface BadgeEnvioEditorProps {
   storeId: string;
 }
 
-const DEFAULT_CONFIG = {
-  shippingMode: 'always' as 'always' | 'from-amount',
+interface BadgeEnvioConfig {
+  shippingMode: 'always' | 'from-amount';
+  showIcon: boolean;
+  badgeText: string;
+  badgeBounce: boolean;
+  badgePosition: 'top-right' | 'inline-end';
+  showOnProduct: boolean;
+  showOnGrid: boolean;
+  bgColor: string;
+  textColor: string;
+  gradient: boolean;
+  gradientColor: string;
+  fontSize: number;
+  showBorder: boolean;
+  padding: number;
+  borderRadius: number;
+  effect: 'halo' | 'zoom' | 'none';
+  badgeBgColor: string;
+  badgeTextColor: string;
+}
+
+const DEFAULT_CONFIG: BadgeEnvioConfig = {
+  shippingMode: 'always',
   showIcon: true,
   badgeText: '',
   badgeBounce: false,
-  badgePosition: 'top-right' as 'top-right' | 'inline-end',
+  badgePosition: 'top-right',
   showOnProduct: true,
   showOnGrid: false,
   bgColor: '#ededed',
@@ -31,7 +52,7 @@ const DEFAULT_CONFIG = {
   showBorder: false,
   padding: 10,
   borderRadius: 25,
-  effect: 'none' as 'halo' | 'zoom' | 'none',
+  effect: 'none',
   badgeBgColor: '#ff0000',
   badgeTextColor: '#ffffff',
 };
@@ -47,16 +68,19 @@ export default function BadgeEnvioEditor({
   storeId,
 }: BadgeEnvioEditorProps) {
   const router = useRouter();
-  const [config, setConfig] = useState({ ...DEFAULT_CONFIG, ...(initialConfig || {}) });
-  const [isActive, setIsActive] = useState(initialActive);
+  const [config, setConfig] = useState<BadgeEnvioConfig>({
+    ...DEFAULT_CONFIG,
+    ...(initialConfig || {}),
+  });
+  const [isActive, setIsActive] = useState<boolean>(initialActive);
   const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos'>('general');
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState<boolean>(false);
 
   const isEditing = !!widgetId;
   const scopeLabel = targetType === 'product' ? 'Producto' : 'General';
 
-  const updateConfig = (patch: Partial<typeof config>) => {
-    setConfig((prev) => ({ ...prev, ...patch }));
+  const updateConfig = (patch: Partial<BadgeEnvioConfig>) => {
+    setConfig((prev: BadgeEnvioConfig) => ({ ...prev, ...patch }));
   };
 
   const handleSave = async () => {
@@ -281,7 +305,7 @@ export default function BadgeEnvioEditor({
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'general' | 'ubicacion' | 'estilos')}
                 style={{
                   flex: 1,
                   padding: '14px 8px',
@@ -406,7 +430,13 @@ export default function BadgeEnvioEditor({
 /* ============================================================
    TAB GENERAL
 ============================================================ */
-function GeneralTab({ config, update }: { config: any; update: (p: any) => void }) {
+function GeneralTab({
+  config,
+  update,
+}: {
+  config: BadgeEnvioConfig;
+  update: (p: Partial<BadgeEnvioConfig>) => void;
+}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div>
@@ -525,7 +555,13 @@ function GeneralTab({ config, update }: { config: any; update: (p: any) => void 
 /* ============================================================
    TAB UBICACIÓN
 ============================================================ */
-function UbicacionTab({ config, update }: { config: any; update: (p: any) => void }) {
+function UbicacionTab({
+  config,
+  update,
+}: {
+  config: BadgeEnvioConfig;
+  update: (p: Partial<BadgeEnvioConfig>) => void;
+}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>
@@ -568,10 +604,15 @@ function UbicacionTab({ config, update }: { config: any; update: (p: any) => voi
 /* ============================================================
    TAB ESTILOS
 ============================================================ */
-function EstilosTab({ config, update }: { config: any; update: (p: any) => void }) {
+function EstilosTab({
+  config,
+  update,
+}: {
+  config: BadgeEnvioConfig;
+  update: (p: Partial<BadgeEnvioConfig>) => void;
+}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Colores principales */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', gap: 12 }}>
           <ColorField
@@ -601,7 +642,6 @@ function EstilosTab({ config, update }: { config: any; update: (p: any) => void 
         )}
       </div>
 
-      {/* Fuente + Borde */}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 140 }}>
           <label style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
@@ -641,7 +681,6 @@ function EstilosTab({ config, update }: { config: any; update: (p: any) => void 
         </div>
       </div>
 
-      {/* Sliders */}
       <div>
         <label style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
           Margen interno
@@ -654,7 +693,14 @@ function EstilosTab({ config, update }: { config: any; update: (p: any) => void 
           onChange={(e) => update({ padding: Number(e.target.value) })}
           style={{ width: '100%', marginTop: 10 }}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6b7280' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+            color: '#6b7280',
+          }}
+        >
           <span>0px</span>
           <span>{config.padding}px</span>
           <span>30px</span>
@@ -673,14 +719,20 @@ function EstilosTab({ config, update }: { config: any; update: (p: any) => void 
           onChange={(e) => update({ borderRadius: Number(e.target.value) })}
           style={{ width: '100%', marginTop: 10 }}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6b7280' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+            color: '#6b7280',
+          }}
+        >
           <span>0px</span>
           <span>{config.borderRadius}px</span>
           <span>25px</span>
         </div>
       </div>
 
-      {/* Efecto */}
       <div>
         <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 12px' }}>
           Efecto
@@ -707,7 +759,6 @@ function EstilosTab({ config, update }: { config: any; update: (p: any) => void 
         />
       </div>
 
-      {/* Estilos del badge */}
       <div>
         <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 12px' }}>
           Estilos del badge
@@ -832,7 +883,14 @@ function CheckCard({
         }}
       >
         {checked && (
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="3"
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         )}
@@ -922,7 +980,9 @@ function ToggleRow({
   label: string;
 }) {
   return (
-    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+    <label
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+    >
       <span
         onClick={onChange}
         style={{
@@ -951,4 +1011,4 @@ function ToggleRow({
       <span style={{ fontSize: 14, color: '#374151' }}>{label}</span>
     </label>
   );
-  }
+    }
