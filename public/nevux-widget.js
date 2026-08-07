@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v9 loaded");
+  console.log("[Nevux] v10 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -73,12 +73,10 @@
   }
 
   function detectProductPrice() {
-    // Intentar leer el precio del producto de varias fuentes
     if (window.Product && window.Product.price) return parseFloat(window.Product.price);
     if (window.LS && window.LS.product && window.LS.product.price) {
       return parseFloat(window.LS.product.price);
     }
-    // Buscar en el DOM: precio con formato $XX.XXX o $XX,XXX
     const priceEl = qs('[data-store="product-price"]') ||
                     qs('.js-price-display') ||
                     qs('.price-display') ||
@@ -348,6 +346,7 @@
         try {
           if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
           if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
+          if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -784,7 +783,6 @@
     container.className = NS + "-root";
 
     if (placement === "product") {
-      // Insertar antes del botón "Agregar al carrito"
       var target = findProductTarget("before-button");
       if (!target) {
         console.warn("[Nevux] No se encontró target para badge cuotas en producto");
@@ -792,7 +790,6 @@
       }
       target.node.parentNode.insertBefore(container, target.node);
     } else if (placement === "grilla") {
-      // Ubicaciones para grilla (home, categorías)
       var grillaTargets = qsa('.js-item-price, .price-display, [data-store="product-price"]');
       if (grillaTargets.length === 0) return;
       grillaTargets.forEach(function (target, idx) {
@@ -810,23 +807,19 @@
   }
 
   function buildBadgeCuotasHtml(cfg) {
-    // Elegir la mayor cuota seleccionada
     var cuotasOrdenadas = (cfg.cuotasSeleccionadas || []).slice().sort(function (a, b) { return b - a; });
     var cuotaShow = cuotasOrdenadas.length > 0 ? cuotasOrdenadas[0] : 3;
 
-    // Calcular monto por cuota
     var precio = detectProductPrice();
     var montoTxt = "$****";
     if (precio && precio > 0) {
       montoTxt = formatMoney(precio / cuotaShow);
     }
 
-    // Construir mensaje reemplazando variables
     var mensaje = (cfg.mensaje || "{cuotas} cuotas sin interés de {monto}")
       .replace("{cuotas}", String(cuotaShow))
       .replace("{monto}", montoTxt);
 
-    // Fondo
     var fondo = cfg.fondoDegradado
       ? "linear-gradient(135deg, " + cfg.colorFondo + " 0%, " + cfg.colorFondo + "dd 100%)"
       : cfg.colorFondo;
@@ -862,6 +855,122 @@
           '<div style="display:inline-flex;align-items:center;gap:8px;background:' + fondo + ';color:' + cfg.colorTexto + ';font-size:' + cfg.fontSize + ';font-weight:500;padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 8) + 'px;border-radius:' + cfg.bordesRedondeados + 'px;border:' + borde + ';animation:' + animation + ';white-space:nowrap;">' +
             iconHtml +
             '<span>' + escapeHtml(mensaje) + '</span>' +
+            badgeInlineHtml +
+          '</div>' +
+          badgeCornerHtml +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BADGE ENVÍO
+  ═══════════════════════════════════════════ */
+  function renderBadgeEnvio(widget) {
+    const cfg = normalizeBadgeEnvioConfig(widget.config || {});
+
+    if (cfg.mostrarEnProducto && pageType === "product") {
+      mountBadgeEnvio(widget, cfg, "product");
+    }
+    if (cfg.mostrarEnGrilla && (pageType === "home" || pageType === "other")) {
+      mountBadgeEnvio(widget, cfg, "grilla");
+    }
+  }
+
+  function normalizeBadgeEnvioConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      modoEnvio: raw.modoEnvio === "a-partir-de" ? "a-partir-de" : "siempre",
+      mostrarIcono: raw.mostrarIcono !== false,
+      textoBadge: raw.textoBadge || "",
+      efectoRebote: raw.efectoRebote === true,
+      posicionBadge: raw.posicionBadge === "final-texto" ? "final-texto" : "esquina-superior-derecha",
+      mostrarEnProducto: raw.mostrarEnProducto !== false,
+      mostrarEnGrilla: raw.mostrarEnGrilla === true,
+      colorFondo: raw.colorFondo || "#ededed",
+      colorTexto: raw.colorTexto || "#000000",
+      fondoDegradado: raw.fondoDegradado === true,
+      fontSize: raw.fontSize || "13px",
+      mostrarBorde: raw.mostrarBorde === true,
+      paddingInterno: n(raw.paddingInterno, 10),
+      bordesRedondeados: n(raw.bordesRedondeados, 25),
+      efecto: raw.efecto === "aureola" ? "aureola" : (raw.efecto === "zoom" ? "zoom" : "sin-efecto"),
+      colorFondoBadge: raw.colorFondoBadge || "#ff0000",
+      colorTextoBadge: raw.colorTextoBadge || "#ffffff",
+    };
+  }
+
+  function mountBadgeEnvio(widget, cfg, placement) {
+    var uniqueId = NS + "-envio-" + widget.id + "-" + placement;
+    if (qs("#" + uniqueId)) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (placement === "product") {
+      var target = findProductTarget("before-button");
+      if (!target) {
+        console.warn("[Nevux] No se encontró target para badge envío en producto");
+        return;
+      }
+      target.node.parentNode.insertBefore(container, target.node);
+    } else if (placement === "grilla") {
+      var grillaTargets = qsa('.js-item-price, .price-display, [data-store="product-price"]');
+      if (grillaTargets.length === 0) return;
+      grillaTargets.forEach(function (target, idx) {
+        var mini = document.createElement("div");
+        mini.className = NS + "-root";
+        mini.id = uniqueId + "-" + idx;
+        mini.innerHTML = buildBadgeEnvioHtml(cfg);
+        target.parentNode.insertBefore(mini, target.nextSibling);
+      });
+      return;
+    }
+
+    container.innerHTML = buildBadgeEnvioHtml(cfg);
+    console.log("[Nevux] Badge envío montado en", placement);
+  }
+
+  function buildBadgeEnvioHtml(cfg) {
+    var fondo = cfg.fondoDegradado
+      ? "linear-gradient(135deg, " + cfg.colorFondo + " 0%, " + cfg.colorFondo + "dd 100%)"
+      : cfg.colorFondo;
+
+    var borde = cfg.mostrarBorde ? "1px solid " + cfg.colorTexto + "22" : "none";
+
+    var animation =
+      cfg.efecto === "aureola" ? NS + "-aureolaPulse 2s ease-in-out infinite" :
+      cfg.efecto === "zoom" ? NS + "-zoomEffect 2s ease-in-out infinite" :
+      "none";
+
+    var showBadge = cfg.textoBadge && cfg.textoBadge.trim().length > 0;
+    var badgeAnim = cfg.efectoRebote ? NS + "-bounceBadge 1.2s ease-in-out infinite" : "none";
+
+    var iconHtml = cfg.mostrarIcono
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorTexto + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>'
+      : "";
+
+    var badgeInlineHtml = "";
+    var badgeCornerHtml = "";
+    if (showBadge) {
+      var fontSizeNum = parseInt(cfg.fontSize, 10) || 13;
+      if (cfg.posicionBadge === "final-texto") {
+        badgeInlineHtml = '<span style="display:inline-block;background:' + cfg.colorFondoBadge + ';color:' + cfg.colorTextoBadge + ';font-size:' + Math.max(9, fontSizeNum - 3) + 'px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;margin-left:4px;animation:' + badgeAnim + ';">' + escapeHtml(cfg.textoBadge) + '</span>';
+      } else {
+        badgeCornerHtml = '<span style="position:absolute;top:-10px;right:-8px;background:' + cfg.colorFondoBadge + ';color:' + cfg.colorTextoBadge + ';font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:0.05em;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,0.15);animation:' + badgeAnim + ';white-space:nowrap;z-index:2;">' + escapeHtml(cfg.textoBadge) + '</span>';
+      }
+    }
+
+    return '' +
+      '<div style="display:flex;justify-content:flex-start;padding:8px 0;">' +
+        '<div style="position:relative;display:inline-block;">' +
+          '<div style="display:inline-flex;align-items:center;gap:8px;background:' + fondo + ';color:' + cfg.colorTexto + ';font-size:' + cfg.fontSize + ';font-weight:500;padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 8) + 'px;border-radius:' + cfg.bordesRedondeados + 'px;border:' + borde + ';animation:' + animation + ';white-space:nowrap;">' +
+            iconHtml +
+            '<span>Envío gratis</span>' +
             badgeInlineHtml +
           '</div>' +
           badgeCornerHtml +
