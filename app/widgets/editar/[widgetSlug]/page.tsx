@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import CountdownEditor from '@/components/widgets/editors/CountdownEditor';
+import BadgeCuotasEditor from '@/components/widgets/editors/BadgeCuotasEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -56,6 +57,18 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   if (params.widgetSlug === 'cuenta-regresiva') {
     return (
       <CountdownEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
+
+  if (params.widgetSlug === 'badge-cuotas') {
+    return (
+      <BadgeCuotasEditor
         widgetDefinition={widgetDef}
         existingWidget={existingWidget}
         targetType={targetType as 'product' | 'all'}
