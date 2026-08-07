@@ -39,12 +39,10 @@ interface CountdownConfig {
   endDate: string;
   autoRestart: boolean;
   showDays: boolean;
-  // Ubicación
   showOnProduct: boolean;
   productPosition: 'before-button' | 'before-title';
   showAsTopBar: boolean;
   showOnCart: boolean;
-  // Estilos
   style: 'clasico' | 'retro';
   alignment: 'left' | 'center';
   showLabels: boolean;
@@ -62,7 +60,6 @@ interface CountdownConfig {
   borderRadiusWidget: number;
   paddingWidget: number;
   paddingClock: number;
-  // Legacy (no visibles pero enviados al backend con default)
   mode: 'fixed';
   flashMinutes: number;
   showHours: boolean;
@@ -455,8 +452,7 @@ function SelectField({
 }
 
 function RangeSlider({
-  label, value, min, max, onChange,
-  ticks,
+  label, value, min, max, onChange, ticks,
 }: {
   label: string; value: number; min: number; max: number;
   onChange: (v: number) => void;
@@ -572,7 +568,8 @@ export default function CountdownEditor({
   const [isDesktop, setIsDesktop] = useState(false);
 
   const isEditing = !!existingWidget;
-  const scopeLabel = targetType === 'all' ? 'General' : 'Producto';
+  const isForAll = targetType === 'all';
+  const scopeLabel = isForAll ? 'General' : 'Producto';
 
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 900);
@@ -968,18 +965,20 @@ export default function CountdownEditor({
       {/* ── MAIN ── */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* Chip scope */}
-        <div style={{
-          background: '#eff6ff', border: '1px solid #dbeafe',
-          borderRadius: 12, padding: '14px 18px',
-          display: 'flex', alignItems: 'center', gap: 10,
-          marginBottom: 20,
-        }}>
-          <IconStore />
-          <span style={{ fontSize: 15, color: '#1e40af', fontWeight: 500 }}>
-            Widget general para toda la tienda
-          </span>
-        </div>
+        {/* Chip scope: SOLO se muestra si es para toda la tienda */}
+        {isForAll && (
+          <div style={{
+            background: '#eff6ff', border: '1px solid #dbeafe',
+            borderRadius: 12, padding: '14px 18px',
+            display: 'flex', alignItems: 'center', gap: 10,
+            marginBottom: 20,
+          }}>
+            <IconStore />
+            <span style={{ fontSize: 15, color: '#1e40af', fontWeight: 500 }}>
+              Widget general para toda la tienda
+            </span>
+          </div>
+        )}
 
         {/* Título */}
         <h1 style={{
