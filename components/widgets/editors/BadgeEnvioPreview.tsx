@@ -2,90 +2,106 @@
 
 import React from 'react';
 
+interface BadgeEnvioPreviewConfig {
+  modoEnvio?: 'siempre' | 'a-partir-de';
+  mostrarIcono?: boolean;
+  textoBadge?: string;
+  efectoRebote?: boolean;
+  posicionBadge?: 'esquina-superior-derecha' | 'final-texto';
+  mostrarEnProducto?: boolean;
+  mostrarEnGrilla?: boolean;
+  colorFondo?: string;
+  colorTexto?: string;
+  fondoDegradado?: boolean;
+  fontSize?: string;
+  mostrarBorde?: boolean;
+  paddingInterno?: number;
+  bordesRedondeados?: number;
+  efecto?: 'aureola' | 'zoom' | 'sin-efecto';
+  colorFondoBadge?: string;
+  colorTextoBadge?: string;
+}
+
 interface BadgeEnvioPreviewProps {
-  config: {
-    showIcon?: boolean;
-    badgeText?: string;
-    badgeBounce?: boolean;
-    badgePosition?: 'top-right' | 'inline-end';
-    bgColor?: string;
-    textColor?: string;
-    gradient?: boolean;
-    gradientColor?: string;
-    fontSize?: number;
-    showBorder?: boolean;
-    padding?: number;
-    borderRadius?: number;
-    effect?: 'halo' | 'zoom' | 'none';
-    badgeBgColor?: string;
-    badgeTextColor?: string;
-  };
+  config: BadgeEnvioPreviewConfig;
+}
+
+function darken(hex: string, amount: number = 20): string {
+  try {
+    const c = hex.replace('#', '');
+    const num = parseInt(c.length === 3 ? c.split('').map((x) => x + x).join('') : c, 16);
+    let r = (num >> 16) - amount;
+    let g = ((num >> 8) & 0xff) - amount;
+    let b = (num & 0xff) - amount;
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  } catch {
+    return hex;
+  }
 }
 
 export default function BadgeEnvioPreview({ config }: BadgeEnvioPreviewProps) {
   const {
-    showIcon = true,
-    badgeText = '',
-    badgeBounce = false,
-    badgePosition = 'top-right',
-    bgColor = '#ededed',
-    textColor = '#000000',
-    gradient = false,
-    gradientColor = '#d4d4d4',
-    fontSize = 13,
-    showBorder = false,
-    padding = 10,
-    borderRadius = 25,
-    effect = 'none',
-    badgeBgColor = '#ff0000',
-    badgeTextColor = '#ffffff',
+    mostrarIcono = true,
+    textoBadge = '',
+    efectoRebote = false,
+    posicionBadge = 'esquina-superior-derecha',
+    colorFondo = '#ededed',
+    colorTexto = '#000000',
+    fondoDegradado = false,
+    fontSize = '13px',
+    mostrarBorde = false,
+    paddingInterno = 10,
+    bordesRedondeados = 25,
+    efecto = 'sin-efecto',
+    colorFondoBadge = '#ff0000',
+    colorTextoBadge = '#ffffff',
   } = config;
 
-  const background = gradient
-    ? `linear-gradient(90deg, ${bgColor}, ${gradientColor})`
-    : bgColor;
+  const background = fondoDegradado
+    ? `linear-gradient(90deg, ${colorFondo}, ${darken(colorFondo, 25)})`
+    : colorFondo;
 
   const containerStyle: React.CSSProperties = {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: 6,
     background,
-    color: textColor,
-    fontSize: `${fontSize}px`,
-    padding: `${padding}px ${padding + 6}px`,
-    borderRadius: `${borderRadius}px`,
-    border: showBorder ? '1px solid rgba(0,0,0,0.15)' : 'none',
+    color: colorTexto,
+    fontSize,
+    padding: `${paddingInterno}px ${paddingInterno + 6}px`,
+    borderRadius: `${bordesRedondeados}px`,
+    border: mostrarBorde ? '1px solid rgba(0,0,0,0.15)' : 'none',
     fontWeight: 500,
     position: 'relative',
     lineHeight: 1.2,
     whiteSpace: 'nowrap',
     animation:
-      effect === 'zoom'
-        ? 'nevuxEnvioZoom 2s ease-in-out infinite'
-        : undefined,
+      efecto === 'zoom' ? 'nevuxEnvioZoom 2s ease-in-out infinite' : undefined,
   };
 
   const haloStyle: React.CSSProperties = {
-    content: '""',
     position: 'absolute',
     inset: 0,
-    borderRadius: `${borderRadius}px`,
-    boxShadow: `0 0 0 0 ${bgColor}`,
+    borderRadius: `${bordesRedondeados}px`,
+    boxShadow: `0 0 0 0 ${colorFondo}`,
     animation: 'nevuxEnvioHalo 2s ease-out infinite',
     pointerEvents: 'none',
   };
 
   const badgeBase: React.CSSProperties = {
-    background: badgeBgColor,
-    color: badgeTextColor,
-    fontSize: '10px',
+    background: colorFondoBadge,
+    color: colorTextoBadge,
+    fontSize: 10,
     fontWeight: 700,
     padding: '3px 7px',
-    borderRadius: '999px',
+    borderRadius: 999,
     lineHeight: 1,
     letterSpacing: '0.3px',
     textTransform: 'uppercase',
-    animation: badgeBounce
+    animation: efectoRebote
       ? 'nevuxEnvioBounce 1.2s ease-in-out infinite'
       : undefined,
   };
@@ -93,13 +109,13 @@ export default function BadgeEnvioPreview({ config }: BadgeEnvioPreviewProps) {
   const badgeFloating: React.CSSProperties = {
     ...badgeBase,
     position: 'absolute',
-    top: '-8px',
-    right: '-8px',
+    top: -8,
+    right: -8,
   };
 
   const badgeInline: React.CSSProperties = {
     ...badgeBase,
-    marginLeft: '4px',
+    marginLeft: 4,
   };
 
   return (
@@ -109,14 +125,14 @@ export default function BadgeEnvioPreview({ config }: BadgeEnvioPreviewProps) {
         justifyContent: 'flex-start',
         alignItems: 'center',
         padding: '24px 16px',
-        minHeight: '80px',
+        minHeight: 80,
       }}
     >
       <style>{`
         @keyframes nevuxEnvioHalo {
-          0% { box-shadow: 0 0 0 0 ${bgColor}80; }
-          70% { box-shadow: 0 0 0 12px ${bgColor}00; }
-          100% { box-shadow: 0 0 0 0 ${bgColor}00; }
+          0% { box-shadow: 0 0 0 0 ${colorFondo}80; }
+          70% { box-shadow: 0 0 0 12px ${colorFondo}00; }
+          100% { box-shadow: 0 0 0 0 ${colorFondo}00; }
         }
         @keyframes nevuxEnvioZoom {
           0%, 100% { transform: scale(1); }
@@ -129,19 +145,19 @@ export default function BadgeEnvioPreview({ config }: BadgeEnvioPreviewProps) {
       `}</style>
 
       <div style={containerStyle}>
-        {effect === 'halo' && <span style={haloStyle} />}
+        {efecto === 'aureola' && <span style={haloStyle} />}
 
-        {showIcon && (
+        {mostrarIcono && (
           <svg
             width="16"
             height="16"
             viewBox="0 0 24 24"
             fill="none"
-            stroke={textColor}
+            stroke={colorTexto}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ flexShrink: 0 }}
+            style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}
           >
             <path d="M10 17h4V5H2v12h3" />
             <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" />
@@ -153,14 +169,14 @@ export default function BadgeEnvioPreview({ config }: BadgeEnvioPreviewProps) {
 
         <span style={{ position: 'relative', zIndex: 1 }}>Envío gratis</span>
 
-        {badgeText && badgePosition === 'inline-end' && (
-          <span style={badgeInline}>{badgeText}</span>
+        {textoBadge && posicionBadge === 'final-texto' && (
+          <span style={badgeInline}>{textoBadge}</span>
         )}
 
-        {badgeText && badgePosition === 'top-right' && (
-          <span style={badgeFloating}>{badgeText}</span>
+        {textoBadge && posicionBadge === 'esquina-superior-derecha' && (
+          <span style={badgeFloating}>{textoBadge}</span>
         )}
       </div>
     </div>
   );
-    }
+      }
