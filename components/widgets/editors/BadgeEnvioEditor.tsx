@@ -1,1014 +1,913 @@
+// components/widgets/editors/BadgeEnvioEditor.tsx
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BadgeEnvioPreview from './BadgeEnvioPreview';
 
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
+interface WidgetDefinition {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+}
+
+interface ExistingWidget {
+  id: string;
+  config: any;
+  is_active: boolean;
+  target_type: string;
+  target_product_id: number | null;
+}
+
 interface BadgeEnvioEditorProps {
-  widgetId?: string;
+  widgetDefinition: WidgetDefinition;
+  existingWidget: ExistingWidget | null;
   targetType: 'product' | 'all';
-  targetProductId?: string | null;
-  productName?: string | null;
-  productImage?: string | null;
-  initialConfig?: any;
-  initialActive?: boolean;
+  productId: number | null;
   storeId: string;
 }
 
 interface BadgeEnvioConfig {
-  shippingMode: 'always' | 'from-amount';
-  showIcon: boolean;
-  badgeText: string;
-  badgeBounce: boolean;
-  badgePosition: 'top-right' | 'inline-end';
-  showOnProduct: boolean;
-  showOnGrid: boolean;
-  bgColor: string;
-  textColor: string;
-  gradient: boolean;
-  gradientColor: string;
-  fontSize: number;
-  showBorder: boolean;
-  padding: number;
-  borderRadius: number;
-  effect: 'halo' | 'zoom' | 'none';
-  badgeBgColor: string;
-  badgeTextColor: string;
+  modoEnvio: 'siempre' | 'a-partir-de';
+  mostrarIcono: boolean;
+  textoBadge: string;
+  efectoRebote: boolean;
+  posicionBadge: 'esquina-superior-derecha' | 'final-texto';
+  mostrarEnProducto: boolean;
+  mostrarEnGrilla: boolean;
+  colorFondo: string;
+  colorTexto: string;
+  fondoDegradado: boolean;
+  fontSize: string;
+  mostrarBorde: boolean;
+  paddingInterno: number;
+  bordesRedondeados: number;
+  efecto: 'aureola' | 'zoom' | 'sin-efecto';
+  colorFondoBadge: string;
+  colorTextoBadge: string;
 }
 
-const DEFAULT_CONFIG: BadgeEnvioConfig = {
-  shippingMode: 'always',
-  showIcon: true,
-  badgeText: '',
-  badgeBounce: false,
-  badgePosition: 'top-right',
-  showOnProduct: true,
-  showOnGrid: false,
-  bgColor: '#ededed',
-  textColor: '#000000',
-  gradient: false,
-  gradientColor: '#d4d4d4',
-  fontSize: 13,
-  showBorder: false,
-  padding: 10,
-  borderRadius: 25,
-  effect: 'none',
-  badgeBgColor: '#ff0000',
-  badgeTextColor: '#ffffff',
+/* ═══════════════════════════════════════════
+   CONFIG POR DEFECTO
+═══════════════════════════════════════════ */
+const defaultConfig: BadgeEnvioConfig = {
+  modoEnvio: 'siempre',
+  mostrarIcono: true,
+  textoBadge: '',
+  efectoRebote: false,
+  posicionBadge: 'esquina-superior-derecha',
+  mostrarEnProducto: true,
+  mostrarEnGrilla: false,
+  colorFondo: '#ededed',
+  colorTexto: '#000000',
+  fondoDegradado: false,
+  fontSize: '13px',
+  mostrarBorde: false,
+  paddingInterno: 10,
+  bordesRedondeados: 25,
+  efecto: 'sin-efecto',
+  colorFondoBadge: '#ff0000',
+  colorTextoBadge: '#ffffff',
 };
 
+/* ═══════════════════════════════════════════
+   ICONOS
+═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+    <line x1="2" y1="7" x2="22" y2="7"/>
+    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
+    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
+  </svg>
+);
+
+const IconInfo = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
+const IconExternal = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>
+);
+
+/* ═══════════════════════════════════════════
+   LOGO NEVUX
+═══════════════════════════════════════════ */
+const NevuxLogo = () => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+      <ellipse cx="20" cy="14" rx="10" ry="6" fill="#3b82f6"/>
+      <path d="M10 14v10c0 3.3 4.5 6 10 6s10-2.7 10-6V14" fill="#3b82f6"/>
+      <ellipse cx="20" cy="24" rx="10" ry="6" fill="#60a5fa"/>
+    </svg>
+    <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>Nevux</span>
+  </div>
+);
+
+/* ═══════════════════════════════════════════
+   COMPONENTES REUTILIZABLES
+═══════════════════════════════════════════ */
+function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
+  return (
+    <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#1a1a2e', marginBottom: 8 }}>
+      {children}
+      {required && <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>}
+    </label>
+  );
+}
+
+function FieldHelper({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontSize: 13, color: '#6b7280', marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
+      {children}
+    </p>
+  );
+}
+
+function TextInput({
+  value, onChange, placeholder, maxLength,
+}: {
+  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number;
+}) {
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      maxLength={maxLength}
+      style={{
+        width: '100%', padding: '12px 14px', fontSize: 15,
+        border: '1.5px solid #e5e7eb', borderRadius: 10,
+        background: '#ffffff', color: '#1a1a2e', outline: 'none',
+        boxSizing: 'border-box', fontFamily: 'inherit',
+        transition: 'border-color 0.2s',
+      }}
+      onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+    />
+  );
+}
+
+function CheckboxCard({
+  checked, onChange, label, helper, children,
+}: {
+  checked: boolean; onChange: (v: boolean) => void;
+  label: string; helper?: string; children?: React.ReactNode;
+}) {
+  return (
+    <div style={{
+      background: '#ffffff', border: '1.5px solid #e5e7eb',
+      borderRadius: 12, padding: 16, marginBottom: 12,
+    }}>
+      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+        <div
+          onClick={() => onChange(!checked)}
+          style={{
+            width: 22, height: 22, borderRadius: 5,
+            background: checked ? '#3b82f6' : '#ffffff',
+            border: checked ? '2px solid #3b82f6' : '2px solid #d1d5db',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, transition: 'all 0.2s',
+            marginTop: 1,
+          }}
+        >
+          {checked && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          )}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.35 }}>
+            {label}
+          </div>
+          {helper && (
+            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 6, lineHeight: 1.5 }}>
+              {helper}
+            </div>
+          )}
+        </div>
+      </label>
+      {children && <div style={{ marginTop: 16 }}>{children}</div>}
+    </div>
+  );
+}
+
+function RadioCard({
+  checked, onChange, label, helper,
+}: {
+  checked: boolean; onChange: () => void; label: string; helper?: string;
+}) {
+  return (
+    <div style={{
+      background: '#ffffff', border: '1.5px solid #e5e7eb',
+      borderRadius: 12, padding: 16, marginBottom: 12,
+    }}>
+      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+        <div
+          onClick={onChange}
+          style={{
+            width: 22, height: 22, borderRadius: '50%',
+            border: checked ? '7px solid #3b82f6' : '2px solid #d1d5db',
+            background: '#ffffff', flexShrink: 0, transition: 'all 0.2s',
+            marginTop: 1,
+          }}
+        />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.35 }}>
+            {label}
+          </div>
+          {helper && (
+            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 6, lineHeight: 1.5 }}>
+              {helper}
+            </div>
+          )}
+        </div>
+      </label>
+    </div>
+  );
+}
+
+function ColorPickerField({
+  value, onChange,
+}: {
+  value: string; onChange: (v: string) => void;
+}) {
+  const handleClick = () => {
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = value.startsWith('#') && value.length >= 7 ? value : '#000000';
+    input.onchange = (e) => onChange((e.target as HTMLInputElement).value);
+    input.click();
+  };
+
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      width: '100%',
+    }}>
+      <div
+        onClick={handleClick}
+        style={{
+          width: 40, height: 40, borderRadius: 8,
+          background: value, border: '1.5px solid #e5e7eb',
+          cursor: 'pointer', flexShrink: 0,
+        }}
+      />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          const v = e.target.value;
+          onChange(v.startsWith('#') ? v : '#' + v);
+        }}
+        style={{
+          flex: 1, minWidth: 0,
+          padding: '10px 10px', fontSize: 13,
+          border: '1.5px solid #e5e7eb', borderRadius: 8,
+          background: '#ffffff', color: '#1a1a2e', outline: 'none',
+          fontFamily: 'monospace', boxSizing: 'border-box',
+        }}
+      />
+    </div>
+  );
+}
+
+function ToggleField({
+  checked, onChange, label,
+}: {
+  checked: boolean; onChange: (v: boolean) => void; label: string;
+}) {
+  return (
+    <label style={{
+      display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+    }}>
+      <div
+        onClick={() => onChange(!checked)}
+        style={{
+          width: 44, height: 26, borderRadius: 13,
+          background: checked ? '#3b82f6' : '#d1d5db',
+          position: 'relative', transition: 'background 0.25s',
+          flexShrink: 0,
+        }}
+      >
+        <div style={{
+          position: 'absolute', top: 3, left: checked ? 21 : 3,
+          width: 20, height: 20, borderRadius: '50%',
+          background: '#fff', transition: 'left 0.25s',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+        }} />
+      </div>
+      <span style={{ fontSize: 15, color: '#1a1a2e', fontWeight: 500 }}>
+        {label}
+      </span>
+    </label>
+  );
+}
+
+function SelectField({
+  value, onChange, options,
+}: {
+  value: string; onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%', padding: '12px 36px 12px 14px', fontSize: 15,
+          border: '1.5px solid #e5e7eb', borderRadius: 10,
+          background: '#ffffff', color: '#1a1a2e', outline: 'none',
+          appearance: 'none', cursor: 'pointer', boxSizing: 'border-box',
+          fontFamily: 'inherit',
+        }}
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+      <svg
+        width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+      >
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+  );
+}
+
+function RangeSlider({
+  value, min, max, onChange, ticks,
+}: {
+  value: number; min: number; max: number;
+  onChange: (v: number) => void;
+  ticks?: number[];
+}) {
+  return (
+    <div>
+      <input
+        type="range"
+        min={min} max={max} value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{
+          width: '100%', accentColor: '#3b82f6', cursor: 'pointer',
+        }}
+      />
+      {ticks && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+          {ticks.map((t, i) => <span key={i}>{t}px</span>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function BadgeEnvioEditor({
-  widgetId,
+  widgetDefinition,
+  existingWidget,
   targetType,
-  targetProductId,
-  productName,
-  productImage,
-  initialConfig,
-  initialActive = true,
+  productId,
   storeId,
 }: BadgeEnvioEditorProps) {
   const router = useRouter();
-  const [config, setConfig] = useState<BadgeEnvioConfig>({
-    ...DEFAULT_CONFIG,
-    ...(initialConfig || {}),
-  });
-  const [isActive, setIsActive] = useState<boolean>(initialActive);
+
+  const [config, setConfig] = useState<BadgeEnvioConfig>(() => ({
+    ...defaultConfig,
+    ...(existingWidget?.config || {}),
+  }));
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [saving, setSaving] = useState(false);
+  const [savedOK, setSavedOK] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos'>('general');
-  const [saving, setSaving] = useState<boolean>(false);
 
-  const isEditing = !!widgetId;
-  const scopeLabel = targetType === 'product' ? 'Producto' : 'General';
+  const isEditing = !!existingWidget;
+  const isForAll = targetType === 'all';
+  const scopeLabel = isForAll ? 'General' : 'Producto';
 
-  const updateConfig = (patch: Partial<BadgeEnvioConfig>) => {
-    setConfig((prev: BadgeEnvioConfig) => ({ ...prev, ...patch }));
+  const update = <K extends keyof BadgeEnvioConfig>(key: K, value: BadgeEnvioConfig[K]) => {
+    setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSave = async () => {
     setSaving(true);
+    setError(null);
+    setSavedOK(false);
     try {
-      const body: any = {
-        widget_slug: 'badge-envio',
-        widget_type: 'badge-envio',
-        target_type: targetType,
-        target_product_id: targetProductId || null,
-        config,
-        is_active: isActive,
-      };
-
-      const url = isEditing ? `/api/widgets/${widgetId}` : '/api/widgets';
-      const method = isEditing ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          id: existingWidget?.id ?? null,
+          widget_slug: widgetDefinition.slug,
+          store_id: storeId,
+          target_type: targetType,
+          target_product_id: productId,
+          config,
+          is_active: isActive,
+        }),
       });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        alert('Error al guardar: ' + (err.error || res.statusText));
-        setSaving(false);
-        return;
-      }
-
-      router.push('/widgets');
-      router.refresh();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Error al guardar');
+      setSavedOK(true);
+      setTimeout(() => router.push('/dashboard'), 900);
     } catch (e: any) {
-      alert('Error: ' + e.message);
+      setError(e.message || 'Error inesperado');
+    } finally {
       setSaving(false);
     }
   };
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 40 }}>
-      {/* HEADER */}
-      <div
-        style={{
-          background: '#fff',
-          borderBottom: '1px solid #e5e7eb',
-          padding: '14px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-        }}
-      >
-        <button
-          onClick={() => router.push('/widgets')}
-          style={{
-            background: 'none',
-            border: 'none',
-            padding: 4,
-            cursor: 'pointer',
-            fontSize: 20,
-            color: '#374151',
-          }}
-        >
-          ←
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-              <path d="M12 2C10 6 5 10 5 15a7 7 0 0 0 14 0c0-5-5-9-7-13z" />
+  /* ═══ TAB GENERAL ═══ */
+  const tabGeneral = (
+    <div>
+      {/* Configuración de envío */}
+      <div style={{ marginBottom: 24 }}>
+        <FieldLabel required>Configuración de envío</FieldLabel>
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: 8,
+          padding: '10px 14px', background: '#fef2f2',
+          border: '1px solid #fecaca', borderRadius: 10,
+          marginTop: 12, marginBottom: 16,
+        }}>
+          <div style={{ color: '#dc2626', flexShrink: 0, marginTop: 1 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
           </div>
-          <span style={{ fontWeight: 700, fontSize: 17, color: '#111827' }}>Nevux</span>
-        </div>
-      </div>
-
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '16px' }}>
-        {/* SCOPE CHIP */}
-        {targetType === 'all' ? (
-          <div
-            style={{
-              background: '#eff6ff',
-              border: '1px solid #bfdbfe',
-              color: '#1e40af',
-              padding: '10px 14px',
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 500,
-              marginBottom: 14,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-            }}
-          >
-            🌐 Widget general para toda la tienda
-          </div>
-        ) : (
-          <div
-            style={{
-              background: '#fff',
-              border: '1px solid #e5e7eb',
-              padding: '8px 12px',
-              borderRadius: 10,
-              marginBottom: 14,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              maxWidth: '100%',
-            }}
-          >
-            {productImage ? (
-              <img
-                src={productImage}
-                alt=""
-                style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 6,
-                  background: '#f3f4f6',
-                }}
-              />
-            )}
-            <span
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: '#111827',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: 200,
-              }}
-            >
-              {productName || 'Producto'}
-            </span>
-          </div>
-        )}
-
-        {/* TÍTULO */}
-        <h1
-          style={{
-            fontSize: 22,
-            fontWeight: 700,
-            color: '#111827',
-            margin: '0 0 18px 0',
-            lineHeight: 1.3,
-          }}
-        >
-          {isEditing ? 'Editar' : 'Nuevo widget:'} Badge de envío ({scopeLabel})
-        </h1>
-
-        {/* CARD PRINCIPAL */}
-        <div
-          style={{
-            background: '#fff',
-            border: '1px solid #e5e7eb',
-            borderRadius: 14,
-            overflow: 'hidden',
-          }}
-        >
-          {/* PREVIEW */}
-          <BadgeEnvioPreview config={config} />
-
-          {/* INFO AZUL */}
-          <div
-            style={{
-              margin: '0 16px 12px',
-              padding: '10px 12px',
-              borderTop: '1px solid #f3f4f6',
-              display: 'flex',
-              gap: 8,
-              alignItems: 'flex-start',
-              fontSize: 13,
-              color: '#6b7280',
-            }}
-          >
-            <span
-              style={{
-                width: 16,
-                height: 16,
-                borderRadius: '50%',
-                background: '#e5e7eb',
-                color: '#6b7280',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 11,
-                fontWeight: 700,
-                flexShrink: 0,
-                marginTop: 2,
-              }}
-            >
-              i
-            </span>
-            <span>El widget crea su propio mensaje debajo del precio del producto.</span>
-          </div>
-
-          {/* TABS */}
-          <div
-            style={{
-              display: 'flex',
-              borderTop: '1px solid #f3f4f6',
-              background: '#fafafa',
-            }}
-          >
-            {[
-              { id: 'general', label: 'General' },
-              { id: 'ubicacion', label: 'Ubicación' },
-              { id: 'estilos', label: 'Estilos' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'general' | 'ubicacion' | 'estilos')}
-                style={{
-                  flex: 1,
-                  padding: '14px 8px',
-                  background: activeTab === tab.id ? '#fff' : 'transparent',
-                  border: 'none',
-                  borderBottom:
-                    activeTab === tab.id ? '2px solid #111827' : '2px solid transparent',
-                  fontSize: 15,
-                  fontWeight: activeTab === tab.id ? 700 : 500,
-                  color: activeTab === tab.id ? '#111827' : '#6b7280',
-                  cursor: 'pointer',
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* CONTENIDO TABS */}
-          <div style={{ padding: 16 }}>
-            {activeTab === 'general' && (
-              <GeneralTab config={config} update={updateConfig} />
-            )}
-            {activeTab === 'ubicacion' && (
-              <UbicacionTab config={config} update={updateConfig} />
-            )}
-            {activeTab === 'estilos' && (
-              <EstilosTab config={config} update={updateConfig} />
-            )}
-          </div>
-
-          {/* FOOTER */}
-          <div
-            style={{
-              borderTop: '1px solid #f3f4f6',
-              padding: '14px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
-          >
-            <label
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                cursor: 'pointer',
-              }}
-            >
-              <span
-                onClick={() => setIsActive(!isActive)}
-                style={{
-                  width: 40,
-                  height: 22,
-                  borderRadius: 999,
-                  background: isActive ? '#2563eb' : '#d1d5db',
-                  position: 'relative',
-                  transition: 'background 0.2s',
-                  display: 'inline-block',
-                }}
-              >
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: 2,
-                    left: isActive ? 20 : 2,
-                    width: 18,
-                    height: 18,
-                    borderRadius: '50%',
-                    background: '#fff',
-                    transition: 'left 0.2s',
-                  }}
-                />
-              </span>
-              <span style={{ fontSize: 14, fontWeight: 500, color: '#374151' }}>
-                Widget activo
-              </span>
-              <span
-                style={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: '50%',
-                  background: '#e5e7eb',
-                  color: '#6b7280',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 11,
-                  fontWeight: 700,
-                }}
-              >
-                i
-              </span>
-            </label>
-
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              style={{
-                background: '#2563eb',
-                color: '#fff',
-                border: 'none',
-                padding: '10px 22px',
-                borderRadius: 999,
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: saving ? 'not-allowed' : 'pointer',
-                opacity: saving ? 0.6 : 1,
-              }}
-            >
-              {saving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear widget'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ============================================================
-   TAB GENERAL
-============================================================ */
-function GeneralTab({
-  config,
-  update,
-}: {
-  config: BadgeEnvioConfig;
-  update: (p: Partial<BadgeEnvioConfig>) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 6px' }}>
-          Configuración de envío
-        </h3>
-        <p
-          style={{
-            fontSize: 13,
-            color: '#dc2626',
-            margin: '0 0 12px',
-            display: 'flex',
-            gap: 6,
-            alignItems: 'flex-start',
-          }}
-        >
-          <span
-            style={{
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              background: '#fee2e2',
-              color: '#dc2626',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 11,
-              fontWeight: 700,
-              flexShrink: 0,
-              marginTop: 1,
-            }}
-          >
-            i
+          <span style={{ fontSize: 13, color: '#991b1b', lineHeight: 1.5 }}>
+            Utilizá la misma que hayas configurado en tu Tiendanube.
           </span>
-          Utilizá la misma que hayas configurado en tu Tiendanube.
-        </p>
-
-        <RadioCard
-          checked={config.shippingMode === 'always'}
-          onClick={() => update({ shippingMode: 'always' })}
-          title="Siempre envío gratis"
-          desc="El badge aparece sin condición de monto."
-        />
-        <div style={{ height: 10 }} />
-        <RadioCard
-          checked={config.shippingMode === 'from-amount'}
-          onClick={() => update({ shippingMode: 'from-amount' })}
-          title="Envío gratis a partir de $X"
-          desc="El badge mostrará el monto mínimo para acceder al envío gratis al menos que el precio del producto supere dicho monto."
-        />
-      </div>
-
-      <CheckCard
-        checked={config.showIcon}
-        onClick={() => update({ showIcon: !config.showIcon })}
-        title="Mostrar ícono de envío"
-        desc="Muestra un ícono de camión antes del texto del mensaje."
-      />
-
-      <div>
-        <label style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>
-          Badge (opcional)
-        </label>
-        <input
-          type="text"
-          maxLength={15}
-          value={config.badgeText}
-          onChange={(e) => update({ badgeText: e.target.value })}
-          placeholder="Ej: OFERTA"
-          style={{
-            width: '100%',
-            marginTop: 8,
-            padding: '12px 14px',
-            border: '1px solid #e5e7eb',
-            borderRadius: 10,
-            fontSize: 14,
-            color: '#111827',
-            background: '#fff',
-            outline: 'none',
-          }}
-        />
-        <p style={{ fontSize: 12, color: '#6b7280', margin: '6px 0 0' }}>
-          Dejá vacío para no mostrar badge (máximo 15 caracteres)
-        </p>
-      </div>
-
-      <CheckCard
-        checked={config.badgeBounce}
-        onClick={() => update({ badgeBounce: !config.badgeBounce })}
-        title="Efecto rebote en el badge"
-        desc="Aplica una animación de zoom-rebote al badge para llamar la atención."
-      />
-
-      <div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 12px' }}>
-          Posición del badge
-        </h3>
-        <RadioCard
-          checked={config.badgePosition === 'top-right'}
-          onClick={() => update({ badgePosition: 'top-right' })}
-          title="Esquina superior derecha"
-          desc="El badge flota en la esquina del badge (por encima del borde)."
-        />
-        <div style={{ height: 10 }} />
-        <RadioCard
-          checked={config.badgePosition === 'inline-end'}
-          onClick={() => update({ badgePosition: 'inline-end' })}
-          title="Al final del texto"
-          desc="El badge se muestra inline a la derecha, al final del mensaje."
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ============================================================
-   TAB UBICACIÓN
-============================================================ */
-function UbicacionTab({
-  config,
-  update,
-}: {
-  config: BadgeEnvioConfig;
-  update: (p: Partial<BadgeEnvioConfig>) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>
-        ¿Dónde mostrar el badge?
-      </h3>
-
-      <CheckCard
-        checked={config.showOnProduct}
-        onClick={() => update({ showOnProduct: !config.showOnProduct })}
-        title="Mostrar en página de producto"
-        desc="El badge estiliza el mensaje de envío de Tiendanube en la página del producto."
-        extra={
-          <a
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            style={{
-              display: 'inline-block',
-              marginTop: 8,
-              color: '#2563eb',
-              fontSize: 13,
-              fontWeight: 500,
-              textDecoration: 'none',
-            }}
-          >
-            ¿Cómo ocultar el mensaje nativo de Tiendanube? ⌄
-          </a>
-        }
-      />
-
-      <CheckCard
-        checked={config.showOnGrid}
-        onClick={() => update({ showOnGrid: !config.showOnGrid })}
-        title="Mostrar en grilla de productos"
-        desc="El badge aparece debajo del precio en home, categorías y búsqueda. Sin animación."
-      />
-    </div>
-  );
-}
-
-/* ============================================================
-   TAB ESTILOS
-============================================================ */
-function EstilosTab({
-  config,
-  update,
-}: {
-  config: BadgeEnvioConfig;
-  update: (p: Partial<BadgeEnvioConfig>) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <ColorField
-            label="Color de fondo"
-            value={config.bgColor}
-            onChange={(v) => update({ bgColor: v })}
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <RadioCard
+            checked={config.modoEnvio === 'siempre'}
+            onChange={() => update('modoEnvio', 'siempre')}
+            label="Siempre envío gratis"
+            helper="El badge aparece sin condición de monto."
           />
-          <ColorField
-            label="Color de texto"
-            value={config.textColor}
-            onChange={(v) => update({ textColor: v })}
+          <RadioCard
+            checked={config.modoEnvio === 'a-partir-de'}
+            onChange={() => update('modoEnvio', 'a-partir-de')}
+            label="Envío gratis a partir de $X"
+            helper="El badge mostrará el monto mínimo para acceder al envío gratis al menos que el precio del producto supere dicho monto."
           />
         </div>
+      </div>
 
-        <ToggleRow
-          checked={config.gradient}
-          onChange={() => update({ gradient: !config.gradient })}
+      {/* Mostrar ícono */}
+      <CheckboxCard
+        checked={config.mostrarIcono}
+        onChange={(v) => update('mostrarIcono', v)}
+        label="Mostrar ícono de envío"
+        helper="Muestra un ícono de camión antes del texto del mensaje."
+      />
+
+      {/* Badge opcional */}
+      <div style={{ marginBottom: 16, marginTop: 24 }}>
+        <FieldLabel>Badge (opcional)</FieldLabel>
+        <TextInput
+          value={config.textoBadge}
+          onChange={(v) => update('textoBadge', v)}
+          placeholder="Ej: OFERTA"
+          maxLength={15}
+        />
+        <FieldHelper>Dejá vacío para no mostrar badge (máximo 15 caracteres)</FieldHelper>
+      </div>
+
+      {/* Efecto rebote badge */}
+      <CheckboxCard
+        checked={config.efectoRebote}
+        onChange={(v) => update('efectoRebote', v)}
+        label="Efecto rebote en el badge"
+        helper="Aplica una animación de zoom-rebote al badge para llamar la atención."
+      />
+
+      {/* Posición del badge */}
+      <div style={{ marginTop: 24 }}>
+        <FieldLabel>Posición del badge</FieldLabel>
+        <div style={{ marginTop: 12 }}>
+          <RadioCard
+            checked={config.posicionBadge === 'esquina-superior-derecha'}
+            onChange={() => update('posicionBadge', 'esquina-superior-derecha')}
+            label="Esquina superior derecha"
+            helper="El badge flota en la esquina del badge (por encima del borde)."
+          />
+          <RadioCard
+            checked={config.posicionBadge === 'final-texto'}
+            onChange={() => update('posicionBadge', 'final-texto')}
+            label="Al final del texto"
+            helper="El badge se muestra inline a la derecha, al final del mensaje."
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ═══ TAB UBICACIÓN ═══ */
+  const tabUbicacion = (
+    <div>
+      <CheckboxCard
+        checked={config.mostrarEnProducto}
+        onChange={(v) => update('mostrarEnProducto', v)}
+        label="Mostrar en página de producto"
+        helper="El badge estiliza el mensaje de envío de Tiendanube en la página del producto."
+      >
+        <a
+          href="https://ayuda.tiendanube.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 13, color: '#3b82f6', textDecoration: 'none',
+            fontWeight: 500, marginTop: 4,
+          }}
+        >
+          ¿Cómo ocultar el mensaje nativo de Tiendanube?
+          <IconExternal />
+        </a>
+      </CheckboxCard>
+
+      <CheckboxCard
+        checked={config.mostrarEnGrilla}
+        onChange={(v) => update('mostrarEnGrilla', v)}
+        label="Mostrar en grilla de productos"
+        helper="El badge aparece debajo del precio en home, categorías y búsqueda. Sin animación."
+      />
+    </div>
+  );
+
+  /* ═══ TAB ESTILOS ═══ */
+  const tabEstilos = (
+    <div>
+      {/* Color de fondo y texto */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
+        <div>
+          <FieldLabel>Color de fondo</FieldLabel>
+          <ColorPickerField value={config.colorFondo} onChange={(v) => update('colorFondo', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color de texto</FieldLabel>
+          <ColorPickerField value={config.colorTexto} onChange={(v) => update('colorTexto', v)} />
+        </div>
+      </div>
+
+      {/* Fondo degradado */}
+      <div style={{ marginBottom: 24 }}>
+        <ToggleField
+          checked={config.fondoDegradado}
+          onChange={(v) => update('fondoDegradado', v)}
           label="Fondo en degradado"
         />
-
-        {config.gradient && (
-          <ColorField
-            label="Segundo color del degradado"
-            value={config.gradientColor}
-            onChange={(v) => update({ gradientColor: v })}
-          />
-        )}
       </div>
 
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: 140 }}>
-          <label style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
-            Tamaño de fuente
-          </label>
-          <select
+      {/* Tamaño de fuente y Borde */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+        <div>
+          <FieldLabel>Tamaño de fuente</FieldLabel>
+          <SelectField
             value={config.fontSize}
-            onChange={(e) => update({ fontSize: Number(e.target.value) })}
-            style={{
-              width: '100%',
-              marginTop: 8,
-              padding: '10px 12px',
-              border: '1px solid #e5e7eb',
-              borderRadius: 10,
-              fontSize: 14,
-              background: '#fff',
-              color: '#111827',
-            }}
-          >
-            {[11, 12, 13, 14, 15, 16, 18].map((s) => (
-              <option key={s} value={s}>
-                {s}px
-              </option>
-            ))}
-          </select>
+            onChange={(v) => update('fontSize', v)}
+            options={[
+              { value: '11px', label: '11px' },
+              { value: '13px', label: '13px' },
+              { value: '15px', label: '15px' },
+              { value: '17px', label: '17px' },
+            ]}
+          />
         </div>
-
-        <div style={{ flex: 1, minWidth: 140 }}>
-          <label style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>Borde</label>
-          <div style={{ marginTop: 8 }}>
-            <ToggleRow
-              checked={config.showBorder}
-              onChange={() => update({ showBorder: !config.showBorder })}
+        <div>
+          <FieldLabel>Borde</FieldLabel>
+          <div style={{ marginTop: 4 }}>
+            <ToggleField
+              checked={config.mostrarBorde}
+              onChange={(v) => update('mostrarBorde', v)}
               label="Mostrar borde (1px)"
             />
           </div>
         </div>
       </div>
 
-      <div>
-        <label style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
-          Margen interno
-        </label>
-        <input
-          type="range"
-          min={0}
-          max={30}
-          value={config.padding}
-          onChange={(e) => update({ padding: Number(e.target.value) })}
-          style={{ width: '100%', marginTop: 10 }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-            color: '#6b7280',
-          }}
-        >
-          <span>0px</span>
-          <span>{config.padding}px</span>
-          <span>30px</span>
+      {/* Margen interno y Bordes redondeados */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+        <div>
+          <FieldLabel>Margen interno</FieldLabel>
+          <div style={{ marginTop: 8 }}>
+            <RangeSlider
+              value={config.paddingInterno}
+              min={0} max={30}
+              onChange={(v) => update('paddingInterno', v)}
+              ticks={[0, 10, 30]}
+            />
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Bordes redondeados</FieldLabel>
+          <div style={{ marginTop: 8 }}>
+            <RangeSlider
+              value={config.bordesRedondeados}
+              min={0} max={25}
+              onChange={(v) => update('bordesRedondeados', v)}
+              ticks={[0, 25, 25]}
+            />
+          </div>
         </div>
       </div>
 
-      <div>
-        <label style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
-          Bordes redondeados
-        </label>
-        <input
-          type="range"
-          min={0}
-          max={25}
-          value={config.borderRadius}
-          onChange={(e) => update({ borderRadius: Number(e.target.value) })}
-          style={{ width: '100%', marginTop: 10 }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-            color: '#6b7280',
-          }}
-        >
-          <span>0px</span>
-          <span>{config.borderRadius}px</span>
-          <span>25px</span>
+      {/* Efecto */}
+      <div style={{ marginBottom: 24 }}>
+        <FieldLabel>Efecto</FieldLabel>
+        <div style={{ marginTop: 12 }}>
+          <RadioCard
+            checked={config.efecto === 'aureola'}
+            onChange={() => update('efecto', 'aureola')}
+            label="Aureola pulsante"
+            helper="Un halo se expande y difumina alrededor del elemento."
+          />
+          <RadioCard
+            checked={config.efecto === 'zoom'}
+            onChange={() => update('efecto', 'zoom')}
+            label="Zoom"
+            helper="El elemento se agranda y reduce suavemente."
+          />
+          <RadioCard
+            checked={config.efecto === 'sin-efecto'}
+            onChange={() => update('efecto', 'sin-efecto')}
+            label="Sin efecto"
+            helper="El mensaje se muestra estático, sin animación."
+          />
         </div>
       </div>
 
+      {/* Estilos del badge */}
       <div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 12px' }}>
-          Efecto
-        </h3>
-        <RadioCard
-          checked={config.effect === 'halo'}
-          onClick={() => update({ effect: 'halo' })}
-          title="Aureola pulsante"
-          desc="Un halo se expande y difumina alrededor del elemento."
-        />
-        <div style={{ height: 10 }} />
-        <RadioCard
-          checked={config.effect === 'zoom'}
-          onClick={() => update({ effect: 'zoom' })}
-          title="Zoom"
-          desc="El elemento se agranda y reduce suavemente."
-        />
-        <div style={{ height: 10 }} />
-        <RadioCard
-          checked={config.effect === 'none'}
-          onClick={() => update({ effect: 'none' })}
-          title="Sin efecto"
-          desc="El mensaje se muestra estático, sin animación."
-        />
-      </div>
-
-      <div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 12px' }}>
-          Estilos del badge
-        </h3>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <ColorField
-            label="Color de fondo"
-            value={config.badgeBgColor}
-            onChange={(v) => update({ badgeBgColor: v })}
-          />
-          <ColorField
-            label="Color de texto"
-            value={config.badgeTextColor}
-            onChange={(v) => update({ badgeTextColor: v })}
-          />
+        <FieldLabel>Estilos del badge</FieldLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 8 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+              Color de fondo
+            </div>
+            <ColorPickerField value={config.colorFondoBadge} onChange={(v) => update('colorFondoBadge', v)} />
+          </div>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+              Color de texto
+            </div>
+            <ColorPickerField value={config.colorTextoBadge} onChange={(v) => update('colorTextoBadge', v)} />
+          </div>
         </div>
       </div>
     </div>
   );
-}
 
-/* ============================================================
-   COMPONENTES AUXILIARES
-============================================================ */
-function RadioCard({
-  checked,
-  onClick,
-  title,
-  desc,
-}: {
-  checked: boolean;
-  onClick: () => void;
-  title: string;
-  desc: string;
-}) {
+  const tabs = [
+    { id: 'general', label: 'General' },
+    { id: 'ubicacion', label: 'Ubicación' },
+    { id: 'estilos', label: 'Estilos' },
+  ];
+
+  /* ═══ RENDER ═══ */
   return (
-    <div
-      onClick={onClick}
-      style={{
-        border: `1px solid ${checked ? '#2563eb' : '#e5e7eb'}`,
-        borderRadius: 10,
-        padding: '14px',
-        cursor: 'pointer',
-        background: '#fff',
-        display: 'flex',
-        gap: 12,
-        alignItems: 'flex-start',
-      }}
-    >
-      <span
-        style={{
-          width: 20,
-          height: 20,
-          borderRadius: '50%',
-          border: `2px solid ${checked ? '#2563eb' : '#d1d5db'}`,
-          background: '#fff',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          marginTop: 2,
-        }}
-      >
-        {checked && (
-          <span
+    <div style={{ minHeight: '100vh', background: '#f0f2f5', paddingBottom: 100 }}>
+
+      {/* ── HEADER ── */}
+      <div style={{
+        background: '#ffffff', borderBottom: '1px solid #e5e7eb',
+        padding: '16px 20px', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20,
+      }}>
+        <NevuxLogo />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button
+            type="button"
             style={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              background: '#2563eb',
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
-          />
-        )}
-      </span>
-      <div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{title}</div>
-        <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{desc}</div>
-      </div>
-    </div>
-  );
-}
-
-function CheckCard({
-  checked,
-  onClick,
-  title,
-  desc,
-  extra,
-}: {
-  checked: boolean;
-  onClick: () => void;
-  title: string;
-  desc: string;
-  extra?: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        border: `1px solid ${checked ? '#2563eb' : '#e5e7eb'}`,
-        borderRadius: 10,
-        padding: '14px',
-        background: '#fff',
-        display: 'flex',
-        gap: 12,
-        alignItems: 'flex-start',
-      }}
-    >
-      <span
-        onClick={onClick}
-        style={{
-          width: 22,
-          height: 22,
-          borderRadius: 6,
-          background: checked ? '#2563eb' : '#fff',
-          border: `2px solid ${checked ? '#2563eb' : '#d1d5db'}`,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          flexShrink: 0,
-          marginTop: 1,
-        }}
-      >
-        {checked && (
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="3"
           >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )}
-      </span>
-      <div style={{ flex: 1 }}>
-        <div
-          onClick={onClick}
-          style={{ fontSize: 15, fontWeight: 700, color: '#111827', cursor: 'pointer' }}
-        >
-          {title}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <div style={{ width: 1, height: 28, background: '#e5e7eb' }} />
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: '#e5e7eb', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, fontWeight: 700, color: '#6b7280',
+          }}>
+            RL
+          </div>
         </div>
-        <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{desc}</div>
-        {extra}
+      </div>
+
+      {/* ── MAIN ── */}
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
+
+        {/* Chip scope */}
+        {isForAll ? (
+          <div style={{
+            background: '#eff6ff', border: '1px solid #dbeafe',
+            borderRadius: 12, padding: '14px 18px',
+            display: 'flex', alignItems: 'center', gap: 10,
+            marginBottom: 20,
+          }}>
+            <IconStore />
+            <span style={{ fontSize: 15, color: '#1e40af', fontWeight: 500 }}>
+              Widget general para toda la tienda
+            </span>
+          </div>
+        ) : (
+          <div style={{
+            background: '#ffffff', border: '1px solid #e5e7eb',
+            borderRadius: 12, padding: '10px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 10,
+            marginBottom: 20,
+          }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 6,
+              background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16,
+            }}>
+              🛍
+            </div>
+            <span style={{ fontSize: 14, color: '#1a1a2e', fontWeight: 600 }}>
+              NEVUX Widget
+            </span>
+          </div>
+        )}
+
+        {/* Título */}
+        <h1 style={{
+          fontSize: 30, fontWeight: 700, color: '#374151',
+          margin: '0 0 24px', lineHeight: 1.2, letterSpacing: '-0.01em',
+        }}>
+          <span style={{ color: '#9ca3af', fontWeight: 400 }}>
+            {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
+          </span>
+          <span style={{ color: '#1a1a2e' }}>
+            {widgetDefinition.name} ({scopeLabel})
+          </span>
+        </h1>
+
+        {/* Contenedor principal */}
+        <div style={{
+          background: '#ffffff', border: '1px solid #e5e7eb',
+          borderRadius: 16, padding: 20, marginBottom: 20,
+        }}>
+          {/* Preview */}
+          <div style={{ marginBottom: 20 }}>
+            <BadgeEnvioPreview config={config} />
+          </div>
+
+          {/* Info box */}
+          <div style={{
+            background: '#eff6ff', border: '1px solid #dbeafe',
+            borderRadius: 10, padding: '12px 16px',
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+            marginBottom: 20,
+          }}>
+            <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
+            <span style={{ fontSize: 14, color: '#1e40af', lineHeight: 1.5 }}>
+              El widget crea su propio mensaje debajo del precio del producto.
+            </span>
+          </div>
+
+          {/* Tabs */}
+          <div style={{
+            display: 'flex', borderBottom: '1px solid #e5e7eb',
+            marginBottom: 24,
+          }}>
+            {tabs.map((tab) => {
+              const act = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as any)}
+                  style={{
+                    flex: 1, padding: '14px 12px', background: 'none',
+                    border: 'none', borderBottom: act ? '3px solid #1a1a2e' : '3px solid transparent',
+                    color: act ? '#1a1a2e' : '#9ca3af',
+                    fontSize: 15, fontWeight: act ? 700 : 500,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                    marginBottom: -1, transition: 'all 0.2s',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Contenido del tab */}
+          <div>
+            {activeTab === 'general' && tabGeneral}
+            {activeTab === 'ubicacion' && tabUbicacion}
+            {activeTab === 'estilos' && tabEstilos}
+          </div>
+
+          {/* Footer */}
+          <div style={{
+            marginTop: 32, paddingTop: 20,
+            borderTop: '1px solid #e5e7eb',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+            flexWrap: 'wrap',
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+              <div
+                onClick={() => setIsActive(!isActive)}
+                style={{
+                  width: 44, height: 26, borderRadius: 13,
+                  background: isActive ? '#3b82f6' : '#d1d5db',
+                  position: 'relative', transition: 'background 0.25s',
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{
+                  position: 'absolute', top: 3, left: isActive ? 21 : 3,
+                  width: 20, height: 20, borderRadius: '50%',
+                  background: '#fff', transition: 'left 0.25s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }} />
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 500, color: '#1a1a2e', whiteSpace: 'nowrap' }}>
+                Widget activo
+              </span>
+              <div style={{ color: '#3b82f6', display: 'flex', alignItems: 'center' }}>
+                <IconInfo />
+              </div>
+            </label>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                padding: '12px 28px', borderRadius: 999,
+                border: 'none',
+                background: savedOK ? '#10b981' : '#3b82f6',
+                color: '#fff', fontSize: 15, fontWeight: 700,
+                cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.6 : 1,
+                fontFamily: 'inherit',
+                boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {saving ? 'Guardando...' : savedOK ? '✓ Guardado' : isEditing ? 'Guardar cambios' : 'Crear widget'}
+            </button>
+          </div>
+        </div>
+
+        {/* Centro de ayuda */}
+        <div style={{
+          background: '#ffffff', border: '1px solid #e5e7eb',
+          borderRadius: 16, padding: 32, textAlign: 'center',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+            <NevuxLogo />
+          </div>
+          <div style={{ fontSize: 15, color: '#6b7280' }}>Centro de ayuda</div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div style={{
+            position: 'fixed', bottom: 20, left: 16, right: 16,
+            maxWidth: 600, margin: '0 auto',
+            background: '#fee2e2', color: '#991b1b',
+            padding: '12px 16px', borderRadius: 12,
+            fontSize: 14, fontWeight: 600,
+            border: '1px solid #fecaca', zIndex: 40,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-function ColorField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <label style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{label}</label>
-      <div style={{ display: 'flex', gap: 6, marginTop: 8, alignItems: 'center' }}>
-        <label
-          style={{
-            width: 40,
-            height: 36,
-            borderRadius: 8,
-            border: '1px solid #e5e7eb',
-            background: value,
-            cursor: 'pointer',
-            position: 'relative',
-            flexShrink: 0,
-            overflow: 'hidden',
-          }}
-        >
-          <input
-            type="color"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              opacity: 0,
-              cursor: 'pointer',
-              width: '100%',
-              height: '100%',
-            }}
-          />
-        </label>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            padding: '8px 10px',
-            border: '1px solid #e5e7eb',
-            borderRadius: 8,
-            fontSize: 13,
-            color: '#111827',
-            background: '#fff',
-            fontFamily: 'monospace',
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function ToggleRow({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-}) {
-  return (
-    <label
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
-    >
-      <span
-        onClick={onChange}
-        style={{
-          width: 36,
-          height: 20,
-          borderRadius: 999,
-          background: checked ? '#2563eb' : '#d1d5db',
-          position: 'relative',
-          display: 'inline-block',
-          transition: 'background 0.2s',
-        }}
-      >
-        <span
-          style={{
-            position: 'absolute',
-            top: 2,
-            left: checked ? 18 : 2,
-            width: 16,
-            height: 16,
-            borderRadius: '50%',
-            background: '#fff',
-            transition: 'left 0.2s',
-          }}
-        />
-      </span>
-      <span style={{ fontSize: 14, color: '#374151' }}>{label}</span>
-    </label>
-  );
-    }
