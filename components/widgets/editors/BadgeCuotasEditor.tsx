@@ -279,6 +279,9 @@ function RadioCard({
   );
 }
 
+/* ═══════════════════════════════════════════
+   COLOR PICKER (nueva versión: swatch pequeño + hex debajo)
+═══════════════════════════════════════════ */
 function ColorPickerField({
   value, onChange,
 }: {
@@ -293,11 +296,16 @@ function ColorPickerField({
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      width: '100%',
+    }}>
       <div
         onClick={handleClick}
         style={{
-          width: 60, height: 44, borderRadius: 10,
+          width: 40, height: 40, borderRadius: 8,
           background: value, border: '1.5px solid #e5e7eb',
           cursor: 'pointer', flexShrink: 0,
         }}
@@ -310,8 +318,9 @@ function ColorPickerField({
           onChange(v.startsWith('#') ? v : '#' + v);
         }}
         style={{
-          flex: 1, padding: '12px 14px', fontSize: 15,
-          border: '1.5px solid #e5e7eb', borderRadius: 10,
+          flex: 1, minWidth: 0,
+          padding: '10px 10px', fontSize: 13,
+          border: '1.5px solid #e5e7eb', borderRadius: 8,
           background: '#ffffff', color: '#1a1a2e', outline: 'none',
           fontFamily: 'monospace', boxSizing: 'border-box',
         }}
@@ -614,8 +623,8 @@ export default function BadgeCuotasEditor({
   /* ═══ TAB ESTILOS ═══ */
   const tabEstilos = (
     <div>
-      {/* Color de fondo y texto */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+      {/* Color de fondo y texto - APILADO en mobile, grid en desktop */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
         <div>
           <FieldLabel>Color de fondo</FieldLabel>
           <ColorPickerField value={config.colorFondo} onChange={(v) => update('colorFondo', v)} />
@@ -713,10 +722,10 @@ export default function BadgeCuotasEditor({
         </div>
       </div>
 
-      {/* Estilos del badge */}
+      {/* Estilos del badge - APILADO en mobile */}
       <div>
         <FieldLabel>Estilos del badge</FieldLabel>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 8 }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
               Color de fondo
@@ -887,6 +896,7 @@ export default function BadgeCuotasEditor({
             marginTop: 32, paddingTop: 20,
             borderTop: '1px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+            flexWrap: 'wrap',
           }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
               <div
@@ -905,7 +915,7 @@ export default function BadgeCuotasEditor({
                   boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                 }} />
               </div>
-              <span style={{ fontSize: 15, fontWeight: 500, color: '#1a1a2e' }}>
+              <span style={{ fontSize: 15, fontWeight: 500, color: '#1a1a2e', whiteSpace: 'nowrap' }}>
                 Widget activo
               </span>
               <div style={{ color: '#3b82f6', display: 'flex', alignItems: 'center' }}>
@@ -963,4 +973,4 @@ export default function BadgeCuotasEditor({
       </div>
     </div>
   );
-  }
+                      }
