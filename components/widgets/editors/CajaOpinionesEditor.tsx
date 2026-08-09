@@ -52,6 +52,7 @@ const DEFAULT_CONFIG = {
   fuenteOpinion: 15,
   bordeRedondeado: 10,
   padding: 20,
+  tamanoAvatar: 44,
 };
 
 /* ================= HELPERS UI ================= */
@@ -1018,6 +1019,28 @@ export default function CajaOpinionesEditor({
               <SectionCard
                 icon={
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21v-1a7 7 0 0114 0v1" />
+                  </svg>
+                }
+                title="Avatar"
+                description="Ajustá el tamaño del avatar circular que aparece a la izquierda de cada opinión. Si el usuario no cargó foto, se muestra la inicial del nombre."
+              >
+                <div>
+                  <FieldLabel>Tamaño del avatar ({config.tamanoAvatar}px)</FieldLabel>
+                  <RangeSlider
+                    value={config.tamanoAvatar}
+                    onChange={(v) => updateConfig('tamanoAvatar', v)}
+                    min={32}
+                    max={64}
+                    marks={[32, 44, 64]}
+                  />
+                </div>
+              </SectionCard>
+
+              <SectionCard
+                icon={
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
                     <polyline points="4 7 4 4 20 4 20 7" />
                     <line x1="9" y1="20" x2="15" y2="20" />
                     <line x1="12" y1="4" x2="12" y2="20" />
@@ -1170,4 +1193,4 @@ export default function CajaOpinionesEditor({
       )}
     </div>
   );
-  }
+          }
