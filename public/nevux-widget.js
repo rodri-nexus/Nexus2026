@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v11 loaded");
+  console.log("[Nevux] v12 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -265,6 +265,25 @@
         height: 1px; background: rgba(0,0,0,0.5);
       }
       .${NS}-retro-cell.flip { animation: ${NS}-retroflip 0.3s ease; }
+      .${NS}-banner-wrap {
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+        mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+      }
+      .${NS}-banner-track {
+        display: inline-flex;
+        white-space: nowrap;
+        will-change: transform;
+      }
+      .${NS}-banner-item {
+        display: inline-block;
+      }
+      @keyframes ${NS}-banner-scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
       @keyframes ${NS}-bounce {
         0%   { transform: scale(1) translateY(0); }
         40%  { transform: scale(1.15) translateY(-2px); }
@@ -348,6 +367,7 @@
           if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
           if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
           if (w.widget_slug === "badge-transferencia") renderBadgeTransferencia(w);
+          if (w.widget_slug === "banner-deslizante") renderBannerDeslizante(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -462,6 +482,37 @@
       if (t.indexOf("agregar al carrito") >= 0 || t.indexOf("añadir al carrito") >= 0 || t.indexOf("comprar ahora") >= 0) {
         return { node: btns[i].closest("form") || btns[i] };
       }
+    }
+    return null;
+  }
+
+  function findProductPriceTarget() {
+    const sel = [
+      '[data-store="product-price"]',
+      '.js-price-display',
+      '.price-display',
+      'span[itemprop="price"]',
+      '.product-price',
+      '.js-product-price',
+    ];
+    for (let i = 0; i < sel.length; i++) {
+      const el = qs(sel[i]);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  function findProductDescriptionTarget() {
+    const sel = [
+      '[data-store="product-description"]',
+      '.js-product-description',
+      '.product-description',
+      '#product-description',
+      '.description',
+    ];
+    for (let i = 0; i < sel.length; i++) {
+      const el = qs(sel[i]);
+      if (el) return el;
     }
     return null;
   }
@@ -1056,7 +1107,6 @@
   }
 
   function buildBadgeTransferenciaHtml(cfg) {
-    // Construir texto del mensaje
     var texto = "";
     var descuento = cfg.porcentajeDescuento && cfg.porcentajeDescuento.trim() !== ""
       ? cfg.porcentajeDescuento.trim()
@@ -1115,6 +1165,118 @@
             badgeInlineHtml +
           '</div>' +
           badgeCornerHtml +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BANNER DESLIZANTE
+  ═══════════════════════════════════════════ */
+  function renderBannerDeslizante(widget) {
+    const cfg = normalizeBannerDeslizanteConfig(widget.config || {});
+
+    if (cfg.modoBarra) {
+      mountBannerDeslizante(widget, cfg, "topbar");
+    }
+    if (cfg.mostrarEnProducto && pageType === "product") {
+      mountBannerDeslizante(widget, cfg, "product");
+    }
+  }
+
+  function normalizeBannerDeslizanteConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseFloat(v) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      mensajes: Array.isArray(raw.mensajes) && raw.mensajes.length > 0
+        ? raw.mensajes.filter(function (m) { return m && String(m).trim().length > 0; })
+        : ["🎉 ¡Envío gratis en compras nuevas a $25000!"],
+      mostrarEnProducto: raw.mostrarEnProducto !== false,
+      ubicacionProducto: raw.ubicacionProducto === "despues-precio" ? "despues-precio" : "despues-boton",
+      modoBarra: raw.modoBarra === true,
+      tipoFondo: raw.tipoFondo === "degradado" ? "degradado" : "solido",
+      colorFondo: raw.colorFondo || "#333333",
+      colorFondoInicio: raw.colorFondoInicio || "#333333",
+      colorFondoFin: raw.colorFondoFin || "#555555",
+      colorTexto: raw.colorTexto || "#ffffff",
+      tamanoFuente: n(raw.tamanoFuente, 16),
+      bordeRadio: n(raw.bordeRadio, 8),
+      separacionMensajes: n(raw.separacionMensajes, 300),
+      velocidad: n(raw.velocidad, 20),
+    };
+  }
+
+  function mountBannerDeslizante(widget, cfg, placement) {
+    var uniqueId = NS + "-banner-" + widget.id + "-" + placement;
+    if (qs("#" + uniqueId)) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (placement === "topbar") {
+      container.style.margin = "0";
+      if (document.body.firstChild) {
+        document.body.insertBefore(container, document.body.firstChild);
+      } else {
+        document.body.appendChild(container);
+      }
+    } else if (placement === "product") {
+      var target = null;
+      if (cfg.ubicacionProducto === "despues-precio") {
+        target = findProductPriceTarget();
+        if (target && target.parentNode) {
+          target.parentNode.insertBefore(container, target.nextSibling);
+        } else {
+          console.warn("[Nevux] No se encontró target de precio para banner deslizante");
+          return;
+        }
+      } else {
+        // despues-boton (default)
+        var t = findProductTarget("before-button");
+        if (!t) {
+          console.warn("[Nevux] No se encontró target de botón para banner deslizante");
+          return;
+        }
+        // Insertar DESPUÉS del botón (o form)
+        if (t.node.parentNode) {
+          t.node.parentNode.insertBefore(container, t.node.nextSibling);
+        } else {
+          return;
+        }
+      }
+    }
+
+    container.innerHTML = buildBannerDeslizanteHtml(cfg, placement);
+    console.log("[Nevux] Banner deslizante montado en", placement);
+  }
+
+  function buildBannerDeslizanteHtml(cfg, placement) {
+    var isBar = placement === "topbar";
+    var fondo = cfg.tipoFondo === "degradado"
+      ? "linear-gradient(90deg, " + cfg.colorFondoInicio + " 0%, " + cfg.colorFondoFin + " 100%)"
+      : cfg.colorFondo;
+
+    var borderRadius = isBar ? "0" : cfg.bordeRadio + "px";
+    var separacion = cfg.separacionMensajes;
+    var velocidad = cfg.velocidad;
+
+    // Duplicamos los mensajes para lograr scroll infinito continuo
+    var mensajesRender = cfg.mensajes.concat(cfg.mensajes);
+
+    var itemsHtml = "";
+    for (var i = 0; i < mensajesRender.length; i++) {
+      itemsHtml += '<span class="' + NS + '-banner-item" style="padding-right:' + separacion + 'px;font-size:' + cfg.tamanoFuente + 'px;color:' + cfg.colorTexto + ';">' +
+        escapeHtml(mensajesRender[i]) +
+      '</span>';
+    }
+
+    return '' +
+      '<div class="' + NS + '-banner-wrap" style="background:' + fondo + ';color:' + cfg.colorTexto + ';border-radius:' + borderRadius + ';padding:14px 0;font-size:' + cfg.tamanoFuente + 'px;font-weight:500;line-height:1.2;">' +
+        '<div class="' + NS + '-banner-track" style="animation:' + NS + '-banner-scroll ' + velocidad + 's linear infinite;">' +
+          itemsHtml +
         '</div>' +
       '</div>';
   }
