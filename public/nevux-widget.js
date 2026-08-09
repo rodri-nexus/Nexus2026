@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v18 loaded");
+  console.log("[Nevux] v19 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -545,6 +545,34 @@
         font-style: italic;
       }
 
+      /* ═══ MENSAJE DE ALERTA ═══ */
+      .${NS}-alerta-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .${NS}-alerta-icono {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        line-height: 1;
+      }
+      .${NS}-alerta-icono img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+      }
+      .${NS}-alerta-texto {
+        flex: 1;
+        min-width: 0;
+        word-break: break-word;
+        line-height: 1.4;
+      }
+
       @keyframes ${NS}-bundle-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.02); }
@@ -638,6 +666,7 @@
           if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
           if (w.widget_slug === "info-despacho") renderInformacionDespacho(w);
           if (w.widget_slug === "info-envio") renderInformacionEnvio(w);
+          if (w.widget_slug === "mensaje-alerta") renderMensajeAlerta(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -2800,7 +2829,6 @@
     container.id = uniqueId;
     container.className = NS + "-root";
 
-    // Se ubica DESPUÉS del formulario de compra (como en imagen 1)
     if (target.node.parentNode) {
       target.node.parentNode.insertBefore(container, target.node.nextSibling);
     } else {
@@ -2818,12 +2846,6 @@
     console.log("[Nevux] Info envío montado");
   }
 
-  /**
-   * Calcula las 3 fechas para el widget de envío.
-   * - Compra: siempre HOY. Si mostrarHoraLimite y no pasó la hora → mostrar badge "ANTES DE LAS 18:00"
-   * - Envío: hoy + diasHastaEnvio. Si pasó la hora, se empuja +1 día. Si cae sábado/domingo Y noDespacharSabados → salta al lunes.
-   * - Entrega: envío + diasParaEntrega. Si mostrarRangoEntrega → 2 días consecutivos.
-   */
   function calculateEnvioInfo(cfg) {
     var now = new Date();
 
@@ -2834,7 +2856,6 @@
     var corte = new Date(now.getFullYear(), now.getMonth(), now.getDate(), horaCorteH, horaCorteM, 0);
     var pasoCorte = now.getTime() >= corte.getTime();
 
-    // Badge "Antes de las XX:XX" solo si el toggle está ON y aún no pasó
     var badgeAntes = null;
     if (cfg.mostrarHoraLimite && !pasoCorte) {
       var hh = String(horaCorteH).padStart(2, "0");
@@ -2842,25 +2863,21 @@
       badgeAntes = "ANTES DE LAS " + hh + ":" + mm;
     }
 
-    // Fecha de envío: hoy + diasHastaEnvio (+1 si pasó la hora)
     var envioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     envioDate.setDate(envioDate.getDate() + cfg.diasHastaEnvio + (pasoCorte ? 1 : 0));
 
-    // Si cae sábado/domingo y noDespacharSabados → mover al lunes
     if (cfg.noDespacharSabados) {
-      var dow = envioDate.getDay(); // 0=dom, 6=sab
+      var dow = envioDate.getDay();
       if (dow === 6) {
-        envioDate.setDate(envioDate.getDate() + 2); // sábado → lunes
+        envioDate.setDate(envioDate.getDate() + 2);
       } else if (dow === 0) {
-        envioDate.setDate(envioDate.getDate() + 1); // domingo → lunes
+        envioDate.setDate(envioDate.getDate() + 1);
       }
     }
 
-    // Fecha de entrega: envío + diasParaEntrega
     var entregaDate = new Date(envioDate.getFullYear(), envioDate.getMonth(), envioDate.getDate());
     entregaDate.setDate(entregaDate.getDate() + cfg.diasParaEntrega);
 
-    // Etiquetas legibles
     var envioLabel = formatFechaRelativaOCorta(envioDate, now);
     var entregaLabel;
     if (cfg.mostrarRangoEntrega) {
@@ -2908,13 +2925,11 @@
   }
 
   function getEnvioIconoHtml(tipo, kind, colorTexto) {
-    // kind: "compra" | "envio" | "entrega"
     if (tipo === "emojis") {
       if (kind === "compra") return '<span style="font-size:24px;line-height:1;">📦</span>';
       if (kind === "envio") return '<span style="font-size:24px;line-height:1;">🚚</span>';
       if (kind === "entrega") return '<span style="font-size:24px;line-height:1;">📍</span>';
     }
-    // SVG
     var attrs = 'width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + colorTexto + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
     if (kind === "compra") {
       return '<svg ' + attrs + '><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
@@ -2935,7 +2950,6 @@
     var iconoEnvio = getEnvioIconoHtml(cfg.tipoIconos, "envio", cfg.colorTexto);
     var iconoEntrega = getEnvioIconoHtml(cfg.tipoIconos, "entrega", cfg.colorTexto);
 
-    // Badge "ANTES DE LAS 18:00" debajo del subtítulo de Compra
     var badgeHtml = "";
     if (info.badgeAntes) {
       var badgeSize = Math.max(9, cfg.tamanoDia - 3);
@@ -2972,6 +2986,169 @@
           '</div>' +
         '</div>' +
         notaHtml +
+      '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER MENSAJE DE ALERTA
+  ═══════════════════════════════════════════ */
+  function renderMensajeAlerta(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeMensajeAlertaConfig(widget.config || {});
+    if (!cfg.mensaje || cfg.mensaje.trim() === "") return;
+    mountMensajeAlerta(widget, cfg);
+  }
+
+  function normalizeMensajeAlertaConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      mensaje: raw.mensaje || "",
+      icono: raw.icono || "circulo",
+      emojiCustom: raw.emojiCustom || "⭐",
+      imagenUrl: raw.imagenUrl || "",
+      posicion: raw.posicion === "despues-precio" ? "despues-precio" : "antes-titulo",
+      color: raw.color || "verde",
+      colorPersonalizadoFondo: raw.colorPersonalizadoFondo || "#6366f1",
+      colorPersonalizadoTexto: raw.colorPersonalizadoTexto || "#ffffff",
+      tamanoTexto: n(raw.tamanoTexto, 14),
+      estiloTexto: raw.estiloTexto === "resaltado" ? "resaltado" : "normal",
+      efecto: raw.efecto === "aureola" ? "aureola" : (raw.efecto === "zoom" ? "zoom" : "ninguno"),
+      aplicarEfectoA: raw.aplicarEfectoA === "completo" ? "completo" : "icono",
+      bordesRedondeados: n(raw.bordesRedondeados, 8),
+      paddingInterno: n(raw.paddingInterno, 12),
+      mostrarBorde: raw.mostrarBorde === true,
+    };
+  }
+
+  function getMensajeAlertaColores(cfg) {
+    switch (cfg.color) {
+      case "verde":
+        return { fondo: "#22c55e", texto: "#ffffff", borde: "#15803d" };
+      case "rojo":
+        return { fondo: "#ef4444", texto: "#ffffff", borde: "#b91c1c" };
+      case "amarillo":
+        return { fondo: "#f59e0b", texto: "#ffffff", borde: "#b45309" };
+      case "personalizado":
+      default:
+        return {
+          fondo: cfg.colorPersonalizadoFondo || "#6366f1",
+          texto: cfg.colorPersonalizadoTexto || "#ffffff",
+          borde: cfg.colorPersonalizadoFondo || "#6366f1",
+        };
+    }
+  }
+
+  function getMensajeAlertaIconoHtml(cfg, colores) {
+    var iconoSize = Math.round((cfg.tamanoTexto || 14) * 1.4);
+    switch (cfg.icono) {
+      case "circulo": {
+        // Bolita del color inverso al fondo:
+        // amarillo → oscuro; verde/rojo/personalizado → blanco
+        var dotColor = cfg.color === "amarillo" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.85)";
+        var dotSize = Math.max(10, Math.round(iconoSize * 0.55));
+        return '<span class="' + NS + '-alerta-icono" style="width:' + iconoSize + 'px;height:' + iconoSize + 'px;">' +
+          '<span style="display:inline-block;width:' + dotSize + 'px;height:' + dotSize + 'px;border-radius:50%;background:' + dotColor + ';"></span>' +
+        '</span>';
+      }
+      case "corazon":
+        return '<span class="' + NS + '-alerta-icono" style="font-size:' + iconoSize + 'px;">❤️</span>';
+      case "alerta":
+        return '<span class="' + NS + '-alerta-icono" style="font-size:' + iconoSize + 'px;">⚠️</span>';
+      case "emoji":
+        return '<span class="' + NS + '-alerta-icono" style="font-size:' + iconoSize + 'px;">' + escapeHtml(cfg.emojiCustom || "⭐") + '</span>';
+      case "imagen":
+        if (cfg.imagenUrl && cfg.imagenUrl.trim() !== "") {
+          return '<span class="' + NS + '-alerta-icono"><img src="' + escapeHtml(cfg.imagenUrl) + '" alt="" style="width:' + iconoSize + 'px;height:' + iconoSize + 'px;object-fit:contain;display:block;" /></span>';
+        }
+        return "";
+      case "nada":
+      default:
+        return "";
+    }
+  }
+
+  function mountMensajeAlerta(widget, cfg) {
+    var uniqueId = NS + "-alerta-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (cfg.posicion === "despues-precio") {
+      var priceTarget = findProductPriceTarget();
+      if (priceTarget && priceTarget.parentNode) {
+        priceTarget.parentNode.insertBefore(container, priceTarget.nextSibling);
+      } else {
+        // fallback: encima del botón
+        var fallbackTarget = findProductTarget("before-button");
+        if (!fallbackTarget) return;
+        fallbackTarget.node.parentNode.insertBefore(container, fallbackTarget.node);
+      }
+    } else {
+      // antes-titulo: antes del h1 del producto
+      var titleSelectors = ['h1.product-name', 'h1[itemprop="name"]', '.product-name', '.js-product-name', '.product-title', 'h1'];
+      var titleEl = null;
+      for (var i = 0; i < titleSelectors.length; i++) {
+        titleEl = qs(titleSelectors[i]);
+        if (titleEl) break;
+      }
+      if (titleEl && titleEl.parentNode) {
+        titleEl.parentNode.insertBefore(container, titleEl);
+      } else {
+        // fallback: encima del botón
+        var fallbackTarget2 = findProductTarget("before-button");
+        if (!fallbackTarget2) return;
+        fallbackTarget2.node.parentNode.insertBefore(container, fallbackTarget2.node);
+      }
+    }
+
+    container.innerHTML = buildMensajeAlertaHtml(cfg);
+    console.log("[Nevux] Mensaje alerta montado");
+  }
+
+  function buildMensajeAlertaHtml(cfg) {
+    var colores = getMensajeAlertaColores(cfg);
+    var iconoHtml = getMensajeAlertaIconoHtml(cfg, colores);
+
+    var fontWeight = cfg.estiloTexto === "resaltado" ? 700 : 500;
+    var borde = cfg.mostrarBorde ? "2px solid " + colores.borde : "none";
+
+    var efectoAnim =
+      cfg.efecto === "aureola" ? NS + "-aureolaPulse 2s ease-in-out infinite" :
+      cfg.efecto === "zoom" ? NS + "-zoomEffect 2s ease-in-out infinite" :
+      "none";
+
+    var aplicarACompleto = cfg.aplicarEfectoA === "completo";
+    var animacionBox = aplicarACompleto ? efectoAnim : "none";
+    var animacionIcono = !aplicarACompleto ? efectoAnim : "none";
+
+    // Si el icono tiene animación propia, la envolvemos
+    var iconoFinal = iconoHtml;
+    if (iconoHtml && animacionIcono !== "none") {
+      iconoFinal = '<span style="display:inline-flex;animation:' + animacionIcono + ';">' + iconoHtml + '</span>';
+    }
+
+    return '' +
+      '<div class="' + NS + '-alerta-box" style="' +
+        'background:' + colores.fondo + ';' +
+        'color:' + colores.texto + ';' +
+        'border-radius:' + cfg.bordesRedondeados + 'px;' +
+        'padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 6) + 'px;' +
+        'border:' + borde + ';' +
+        'animation:' + animacionBox + ';' +
+        'width:100%;box-sizing:border-box;' +
+      '">' +
+        (iconoFinal ? iconoFinal : "") +
+        '<span class="' + NS + '-alerta-texto" style="' +
+          'font-size:' + cfg.tamanoTexto + 'px;' +
+          'font-weight:' + fontWeight + ';' +
+          'color:' + colores.texto + ';' +
+        '">' + escapeHtml(cfg.mensaje) + '</span>' +
       '</div>';
   }
 
