@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v15 loaded");
+  console.log("[Nevux] v16 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -385,6 +385,60 @@
         border-top: 1px solid #e5e7eb;
       }
 
+      /* ═══ CAJA DE OPINIONES ═══ */
+      .${NS}-opiniones-box {
+        width: 100%; box-sizing: border-box;
+        position: relative;
+      }
+      .${NS}-opiniones-header {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 10px;
+      }
+      .${NS}-opiniones-name-row {
+        display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;
+      }
+      .${NS}-opiniones-name {
+        font-weight: 700; line-height: 1.2;
+      }
+      .${NS}-opiniones-nav {
+        display: flex; gap: 4px; flex-shrink: 0;
+      }
+      .${NS}-opiniones-nav-btn {
+        width: 28px; height: 28px; border-radius: 50%;
+        border: none; background: transparent;
+        color: #6b7280; cursor: pointer;
+        font-size: 22px; line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+        padding: 0;
+      }
+      .${NS}-opiniones-nav-btn:disabled {
+        color: #d1d5db; cursor: not-allowed;
+      }
+      .${NS}-opiniones-stars {
+        display: inline-flex; gap: 2px; margin-bottom: 10px;
+      }
+      .${NS}-opiniones-star {
+        line-height: 1;
+      }
+      .${NS}-opiniones-text {
+        line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+      }
+      .${NS}-opiniones-photo {
+        max-width: 100%; max-height: 240px; border-radius: 8px;
+        display: block; margin-top: 12px;
+      }
+      .${NS}-opiniones-dots {
+        margin-top: 12px; display: flex;
+        justify-content: center; gap: 6px;
+      }
+      .${NS}-opiniones-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: #d1d5db;
+      }
+      .${NS}-opiniones-dot.active {
+        opacity: 0.8;
+      }
+
       @keyframes ${NS}-bundle-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.02); }
@@ -475,6 +529,7 @@
           if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
           if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
+          if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -2009,7 +2064,6 @@
       target.node.style.display = "none";
     }
 
-    // idx por defecto
     var cantidadReal = Math.max(2, Math.min(5, cfg.cantidadUnidades || 2));
     var idxDefault = -1;
     for (var i = 0; i < cantidadReal; i++) {
@@ -2138,7 +2192,6 @@
         subtitleHtml = '<div class="' + NS + '-bundle-subtitle" style="color:' + cfg.colorSubtitulos + ';font-size:' + cfg.fuenteSubtitulo + 'px;' + bgSub + '">' + escapeHtml(u.subtitulo) + '</div>';
       }
 
-      // Complementarios
       var compsHtml = "";
       var compsToShow = [];
       if (cfg.producto1 && !u.ocultarComp1) {
@@ -2158,7 +2211,6 @@
         compsHtml = '<div class="' + NS + '-bundle-comps">' + compsInner + '</div>';
       }
 
-      // Regalo
       var giftHtml = "";
       if (u.agregarRegalo) {
         giftHtml = '<div class="' + NS + '-bundle-gift" style="background:' + cfg.fondoRegalo + ';color:' + cfg.colorTextoRegalo + ';border-radius:6px;">' +
@@ -2207,6 +2259,156 @@
       btnHtml +
       infoHtml +
     '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER CAJA DE OPINIONES
+  ═══════════════════════════════════════════ */
+  function renderCajaOpiniones(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeCajaOpinionesConfig(widget.config || {});
+    var opiniones = (cfg.opiniones || []).filter(function (o) {
+      return o && ((o.nombre && o.nombre.trim().length > 0) || (o.texto && o.texto.trim().length > 0));
+    });
+    if (opiniones.length === 0) return;
+    cfg.opiniones = opiniones;
+    mountCajaOpiniones(widget, cfg);
+  }
+
+  function normalizeCajaOpinionesConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    var op = Array.isArray(raw.opiniones) ? raw.opiniones : [];
+    op = op.map(function (o) {
+      return {
+        nombre: o.nombre || "",
+        estrellas: Math.max(1, Math.min(5, parseInt(o.estrellas, 10) || 5)),
+        texto: o.texto || "",
+        foto: o.foto || "",
+        compraVerificada: o.compraVerificada === true,
+      };
+    });
+    return {
+      opiniones: op,
+      colorFondo: raw.colorFondo || "#f7f7f7",
+      colorTexto: raw.colorTexto || "#333333",
+      colorEstrellas: raw.colorEstrellas || "#f5b301",
+      mostrarBorde: raw.mostrarBorde === true,
+      colorBorde: raw.colorBorde || "#cccccc",
+      fuenteNombre: n(raw.fuenteNombre, 16),
+      fuenteOpinion: n(raw.fuenteOpinion, 15),
+      bordeRedondeado: n(raw.bordeRedondeado, 10),
+      padding: n(raw.padding, 20),
+    };
+  }
+
+  function mountCajaOpiniones(widget, cfg) {
+    var uniqueId = NS + "-opiniones-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para caja de opiniones en producto");
+      return;
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    // Después del form/botón "Agregar al carrito"
+    if (target.node.parentNode) {
+      target.node.parentNode.insertBefore(container, target.node.nextSibling);
+    } else {
+      return;
+    }
+
+    var state = { idx: 0 };
+
+    function render() {
+      container.innerHTML = buildCajaOpinionesHtml(cfg, state);
+      wireEvents();
+    }
+
+    function wireEvents() {
+      var prev = qs("." + NS + "-opiniones-nav-btn[data-dir='prev']", container);
+      var next = qs("." + NS + "-opiniones-nav-btn[data-dir='next']", container);
+      if (prev) {
+        prev.addEventListener("click", function () {
+          if (cfg.opiniones.length < 2) return;
+          state.idx = (state.idx - 1 + cfg.opiniones.length) % cfg.opiniones.length;
+          render();
+        });
+      }
+      if (next) {
+        next.addEventListener("click", function () {
+          if (cfg.opiniones.length < 2) return;
+          state.idx = (state.idx + 1) % cfg.opiniones.length;
+          render();
+        });
+      }
+    }
+
+    render();
+    console.log("[Nevux] Caja de opiniones montada");
+  }
+
+  function buildCajaOpinionesHtml(cfg, state) {
+    var o = cfg.opiniones[state.idx];
+    if (!o) return "";
+
+    var starsHtml = "";
+    for (var i = 1; i <= 5; i++) {
+      var color = i <= o.estrellas ? cfg.colorEstrellas : "#E5E7EB";
+      starsHtml += '<span class="' + NS + '-opiniones-star" style="color:' + color + ';font-size:18px;">★</span>';
+    }
+
+    var verifiedHtml = o.compraVerificada
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#3B82F6" style="flex-shrink:0;"><path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z"/><path d="M9 12l2 2 4-4" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : "";
+
+    var textoHtml = o.texto
+      ? '<div class="' + NS + '-opiniones-text" style="font-size:' + cfg.fuenteOpinion + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(o.texto) + '</div>'
+      : "";
+
+    var photoHtml = o.foto
+      ? '<img class="' + NS + '-opiniones-photo" src="' + o.foto + '" alt="Opinión"/>'
+      : "";
+
+    var multiple = cfg.opiniones.length > 1;
+
+    var dotsHtml = "";
+    if (multiple) {
+      var dots = "";
+      for (var k = 0; k < cfg.opiniones.length; k++) {
+        var active = k === state.idx;
+        dots += '<span class="' + NS + '-opiniones-dot' + (active ? ' active' : '') + '" style="background:' + (active ? cfg.colorTexto : '#d1d5db') + ';opacity:' + (active ? '0.8' : '1') + ';"></span>';
+      }
+      dotsHtml = '<div class="' + NS + '-opiniones-dots">' + dots + '</div>';
+    }
+
+    var borde = cfg.mostrarBorde ? "1px solid " + cfg.colorBorde : "none";
+
+    return '' +
+      '<div class="' + NS + '-opiniones-box" style="background:' + cfg.colorFondo + ';color:' + cfg.colorTexto + ';border-radius:' + cfg.bordeRedondeado + 'px;padding:' + cfg.padding + 'px;border:' + borde + ';">' +
+        '<div class="' + NS + '-opiniones-header">' +
+          '<div class="' + NS + '-opiniones-name-row">' +
+            '<span class="' + NS + '-opiniones-name" style="font-size:' + cfg.fuenteNombre + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(o.nombre || 'Anónimo') + '</span>' +
+            verifiedHtml +
+          '</div>' +
+          '<div class="' + NS + '-opiniones-nav">' +
+            '<button type="button" class="' + NS + '-opiniones-nav-btn" data-dir="prev"' + (multiple ? '' : ' disabled') + '>‹</button>' +
+            '<button type="button" class="' + NS + '-opiniones-nav-btn" data-dir="next"' + (multiple ? '' : ' disabled') + '>›</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="' + NS + '-opiniones-stars">' + starsHtml + '</div>' +
+        textoHtml +
+        photoHtml +
+        dotsHtml +
+      '</div>';
   }
 
 })();
