@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v14 loaded");
+  console.log("[Nevux] v15 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -474,6 +474,7 @@
           if (w.widget_slug === "banner-deslizante") renderBannerDeslizante(w);
           if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
+          if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -1730,15 +1731,12 @@
     container.id = uniqueId;
     container.className = NS + "-root";
 
-    // Insertar antes del form/botón original
     target.node.parentNode.insertBefore(container, target.node);
 
-    // Si el toggle "Reemplazar" está activo, ocultamos el form original
     if (cfg.reemplazarBoton && target.node) {
       target.node.style.display = "none";
     }
 
-    // Estado inicial: promo marcada por defecto o primera
     var idxDefault = 0;
     for (var i = 0; i < cfg.promociones.length; i++) {
       if (cfg.promociones[i].marcarPorDefecto) { idxDefault = i; break; }
@@ -1778,7 +1776,6 @@
       var btn = qs("." + NS + "-bundle-btn", container);
       if (btn) {
         btn.addEventListener("click", function () {
-          // Buscamos el form/botón original y disparamos su submit/click
           var origForm = null;
           var origBtn = null;
           if (target.node) {
@@ -1855,7 +1852,6 @@
         subtitleHtml = '<div class="' + NS + '-bundle-subtitle" style="color:' + cfg.colorSubtitulo + ';font-size:' + cfg.tamanoSubtitulo + ';' + bgSub + '">' + escapeHtml(p.subtitulo) + '</div>';
       }
 
-      // Complementarios de esta card
       var compsHtml = "";
       var compsToShow = [];
       for (var c = 0; c < cfg.complementarios.length; c++) {
@@ -1873,7 +1869,6 @@
         compsHtml = '<div class="' + NS + '-bundle-comps">' + compsInner + '</div>';
       }
 
-      // Bloque regalo
       var giftHtml = "";
       if (p.agregarRegalo) {
         giftHtml = '<div class="' + NS + '-bundle-gift" style="background:' + cfg.fondoRegalo + ';color:' + cfg.colorTextoRegalo + ';border-radius:6px;">' +
@@ -1900,7 +1895,6 @@
         '</div>';
     }
 
-    // Botón
     var btnBg = cfg.botonDegradado
       ? 'background:linear-gradient(135deg, ' + cfg.colorBoton + ' 0%, ' + cfg.colorBoton + 'cc 100%);'
       : 'background:' + cfg.colorBoton + ';';
@@ -1910,7 +1904,299 @@
 
     var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:#fff;font-size:' + cfg.tamanoEtiqueta + ';border-radius:' + cfg.bordeBoton + 'px;">' + escapeHtml(cfg.textoBoton || "Agregar al carrito") + '</button>';
 
-    // Info note (solo si el widget NO reemplaza)
+    var infoHtml = !cfg.reemplazarBoton
+      ? '<div class="' + NS + '-bundle-info-note"><span style="opacity:0.7;">ⓘ</span><span>El formulario original de Tiendanube permanecerá visible y funcional.</span></div>'
+      : "";
+
+    return '<div class="' + NS + '-bundle">' +
+      titleHtml +
+      cardsHtml +
+      btnHtml +
+      infoHtml +
+    '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BUNDLE DE CANTIDAD
+  ═══════════════════════════════════════════ */
+  function renderBundleCantidad(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeBundleCantidadConfig(widget.config || {});
+    if (!cfg.unidades || cfg.unidades.length === 0) return;
+    mountBundleCantidad(widget, cfg);
+  }
+
+  function normalizeBundleCantidadConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+
+    var unidadesRaw = Array.isArray(raw.unidades) ? raw.unidades : [];
+    var unidadesNorm = [];
+    for (var i = 0; i < 5; i++) {
+      var u = unidadesRaw[i] || {};
+      unidadesNorm.push({
+        subtitulo: u.subtitulo || "",
+        descuento: parseFloat(u.descuento) || 0,
+        badgeEnvioGratis: u.badgeEnvioGratis === true,
+        badgeMasVendido: u.badgeMasVendido === true,
+        badgePersonalizado: u.badgePersonalizado === true,
+        ocultar: u.ocultar === true,
+        porDefecto: u.porDefecto === true,
+        ocultarComp1: u.ocultarComp1 === true,
+        ocultarComp2: u.ocultarComp2 === true,
+        agregarRegalo: u.agregarRegalo === true,
+      });
+    }
+
+    return {
+      titulo: raw.titulo || "",
+      cantidadUnidades: n(raw.cantidadUnidades, 2),
+      etiqueta: raw.etiqueta || "Lleva #",
+      mostrarPrecio: raw.mostrarPrecio === "individual" ? "individual" : "total",
+      textoBoton: raw.textoBoton || "",
+      unidades: unidadesNorm,
+      producto1: raw.producto1 || null,
+      producto2: raw.producto2 || null,
+      compDefault: raw.compDefault === true,
+      reemplazarBoton: raw.reemplazarBoton === true,
+      colorBoton: raw.colorBoton || "#000000",
+      botonDegradado: raw.botonDegradado === true,
+      colorBoton2: raw.colorBoton2 || "#3B82F6",
+      colorPrecio: raw.colorPrecio || "#000000",
+      colorSubtitulos: raw.colorSubtitulos || "#059669",
+      fondoSubtitulo: raw.fondoSubtitulo || "",
+      colorTextoRegalo: raw.colorTextoRegalo || "#000000",
+      colorPrecioRegalo: raw.colorPrecioRegalo || "#16a34a",
+      fondoRegalo: raw.fondoRegalo || "#f5fff7",
+      colorBadgeEnvio: raw.colorBadgeEnvio || "#10B981",
+      colorBadgePersonalizado: raw.colorBadgePersonalizado || "#F59E0B",
+      colorBadgeMasVendido: raw.colorBadgeMasVendido || "#EF4444",
+      colorUnidadSeleccionada: raw.colorUnidadSeleccionada || "#170c0e",
+      bordeBoton: n(raw.bordeBoton, 25),
+      bordeUnidad: n(raw.bordeUnidad, 8),
+      fuenteEtiqueta: n(raw.fuenteEtiqueta, 16),
+      fuentePrecio: n(raw.fuentePrecio, 18),
+      fuenteSubtitulo: n(raw.fuenteSubtitulo, 14),
+      efectoBoton: raw.efectoBoton === "zoom" ? "zoom" : "sin-efecto",
+      pulsante: raw.pulsante === true,
+    };
+  }
+
+  function formatEtiquetaCantidad(etiqueta, cantidad) {
+    return String(etiqueta).replace(/#/g, String(cantidad));
+  }
+
+  function mountBundleCantidad(widget, cfg) {
+    var uniqueId = NS + "-bundlecant-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para bundle cantidad en producto");
+      return;
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    target.node.parentNode.insertBefore(container, target.node);
+
+    if (cfg.reemplazarBoton && target.node) {
+      target.node.style.display = "none";
+    }
+
+    // idx por defecto
+    var cantidadReal = Math.max(2, Math.min(5, cfg.cantidadUnidades || 2));
+    var idxDefault = -1;
+    for (var i = 0; i < cantidadReal; i++) {
+      if (cfg.unidades[i] && cfg.unidades[i].porDefecto && !cfg.unidades[i].ocultar) {
+        idxDefault = i; break;
+      }
+    }
+    if (idxDefault === -1) {
+      for (var j = 0; j < cantidadReal; j++) {
+        if (cfg.unidades[j] && !cfg.unidades[j].ocultar) { idxDefault = j; break; }
+      }
+    }
+
+    var state = {
+      selectedIdx: idxDefault,
+      comp1: cfg.compDefault,
+      comp2: cfg.compDefault,
+    };
+
+    function render() {
+      container.innerHTML = buildBundleCantidadHtml(cfg, state, cantidadReal);
+      wireEvents();
+    }
+
+    function wireEvents() {
+      qsa("." + NS + "-bundle-card", container).forEach(function (card) {
+        card.addEventListener("click", function (e) {
+          if (e.target && (e.target.tagName === "INPUT" || e.target.closest("." + NS + "-bundle-comp"))) return;
+          var idx = parseInt(card.dataset.idx, 10);
+          if (!isNaN(idx)) {
+            state.selectedIdx = idx;
+            render();
+          }
+        });
+      });
+
+      qsa("." + NS + "-bundle-comp input", container).forEach(function (chk) {
+        chk.addEventListener("change", function () {
+          var idx = parseInt(chk.dataset.compIdx, 10);
+          if (idx === 0) state.comp1 = chk.checked;
+          if (idx === 1) state.comp2 = chk.checked;
+        });
+      });
+
+      var btn = qs("." + NS + "-bundle-btn", container);
+      if (btn) {
+        btn.addEventListener("click", function () {
+          var origForm = null;
+          var origBtn = null;
+          if (target.node) {
+            if (target.node.tagName === "FORM") {
+              origForm = target.node;
+            } else {
+              origForm = target.node.closest ? target.node.closest("form") : null;
+              origBtn = target.node;
+            }
+          }
+          if (origForm) {
+            try {
+              if (typeof origForm.requestSubmit === "function") {
+                origForm.requestSubmit();
+              } else {
+                origForm.submit();
+              }
+            } catch (e) {
+              var submitBtn = qs('button[type="submit"], input[type="submit"]', origForm);
+              if (submitBtn) submitBtn.click();
+            }
+          } else if (origBtn) {
+            origBtn.click();
+          }
+        });
+      }
+    }
+
+    render();
+    console.log("[Nevux] Bundle cantidad montado");
+  }
+
+  function buildBundleCantidadHtml(cfg, state, cantidadReal) {
+    var precio = detectProductPrice() || 0;
+
+    var titleHtml = cfg.titulo
+      ? '<div class="' + NS + '-bundle-title" style="color:#000;font-size:16px;text-align:center;">' + escapeHtml(cfg.titulo) + '</div>'
+      : "";
+
+    var cardsHtml = "";
+    for (var i = 0; i < cantidadReal; i++) {
+      var u = cfg.unidades[i];
+      if (!u || u.ocultar) continue;
+
+      var cantidad = i + 1;
+      var etiqueta = formatEtiquetaCantidad(cfg.etiqueta, cantidad);
+      var descuento = parseFloat(u.descuento) || 0;
+
+      var precioUnitario = precio * (1 - descuento / 100);
+      var precioTotalOriginal = precio * cantidad;
+      var precioTotalConDesc = precioUnitario * cantidad;
+
+      var mostrarTachado = descuento > 0;
+      var precioMostrar = cfg.mostrarPrecio === "individual" ? precioUnitario : precioTotalConDesc;
+      var precioTachadoMostrar = cfg.mostrarPrecio === "individual" ? precio : precioTotalOriginal;
+
+      var isSelected = i === state.selectedIdx;
+      var borderColor = isSelected ? cfg.colorUnidadSeleccionada : "#e5e7eb";
+
+      var badgesHtml = "";
+      if (u.badgeEnvioGratis) {
+        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeEnvio + ';">Envío gratis</span>';
+      }
+      if (u.badgeMasVendido) {
+        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeMasVendido + ';">Más vendido</span>';
+      }
+      if (u.badgePersonalizado) {
+        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgePersonalizado + ';">Personalizado</span>';
+      }
+      if (badgesHtml) {
+        badgesHtml = '<div class="' + NS + '-bundle-badges">' + badgesHtml + '</div>';
+      }
+
+      var subtitleHtml = "";
+      if (u.subtitulo) {
+        var bgSub = (cfg.fondoSubtitulo && cfg.fondoSubtitulo !== "transparent" && cfg.fondoSubtitulo !== "")
+          ? 'background:' + cfg.fondoSubtitulo + ';padding:2px 6px;border-radius:4px;display:inline-block;'
+          : "";
+        subtitleHtml = '<div class="' + NS + '-bundle-subtitle" style="color:' + cfg.colorSubtitulos + ';font-size:' + cfg.fuenteSubtitulo + 'px;' + bgSub + '">' + escapeHtml(u.subtitulo) + '</div>';
+      }
+
+      // Complementarios
+      var compsHtml = "";
+      var compsToShow = [];
+      if (cfg.producto1 && !u.ocultarComp1) {
+        compsToShow.push({ idx: 0, prod: cfg.producto1, checked: state.comp1 });
+      }
+      if (cfg.producto2 && !u.ocultarComp2) {
+        compsToShow.push({ idx: 1, prod: cfg.producto2, checked: state.comp2 });
+      }
+      if (compsToShow.length > 0) {
+        var compsInner = "";
+        for (var cc = 0; cc < compsToShow.length; cc++) {
+          var comp = compsToShow[cc];
+          var chk = comp.checked ? "checked" : "";
+          var nombreComp = comp.prod.name || comp.prod.nombre || ("Producto " + (comp.idx + 1));
+          compsInner += '<label class="' + NS + '-bundle-comp"><input type="checkbox" data-comp-idx="' + comp.idx + '" ' + chk + '/>' + escapeHtml(nombreComp) + '</label>';
+        }
+        compsHtml = '<div class="' + NS + '-bundle-comps">' + compsInner + '</div>';
+      }
+
+      // Regalo
+      var giftHtml = "";
+      if (u.agregarRegalo) {
+        giftHtml = '<div class="' + NS + '-bundle-gift" style="background:' + cfg.fondoRegalo + ';color:' + cfg.colorTextoRegalo + ';border-radius:6px;">' +
+          '<span class="' + NS + '-bundle-gift-label">🎁 Producto de regalo</span>' +
+          '<span style="color:' + cfg.colorPrecioRegalo + ';font-weight:700;">GRATIS</span>' +
+        '</div>';
+      }
+
+      cardsHtml +=
+        '<div class="' + NS + '-bundle-card' + (isSelected ? ' selected' : '') + '" data-idx="' + i + '" style="border-color:' + borderColor + ';border-radius:' + cfg.bordeUnidad + 'px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;width:100%;">' +
+            '<div class="' + NS + '-bundle-radio" style="border-color:' + (isSelected ? cfg.colorUnidadSeleccionada : "#9ca3af") + ';">' +
+              '<div class="' + NS + '-bundle-radio-dot" style="background:' + cfg.colorUnidadSeleccionada + ';"></div>' +
+            '</div>' +
+            '<div class="' + NS + '-bundle-info">' +
+              '<div class="' + NS + '-bundle-label" style="font-size:' + cfg.fuenteEtiqueta + 'px;">' + escapeHtml(etiqueta) + '</div>' +
+              subtitleHtml +
+              badgesHtml +
+            '</div>' +
+            '<div class="' + NS + '-bundle-prices">' +
+              (mostrarTachado ? '<span class="' + NS + '-bundle-price-old">' + formatMoney(precioTachadoMostrar) + '</span>' : "") +
+              '<span class="' + NS + '-bundle-price-new" style="color:' + cfg.colorPrecio + ';font-size:' + cfg.fuentePrecio + 'px;">' + formatMoney(precioMostrar) + '</span>' +
+            '</div>' +
+          '</div>' +
+          (compsHtml || giftHtml ? '<div style="width:100%;">' + compsHtml + giftHtml + '</div>' : "") +
+        '</div>';
+    }
+
+    var btnBg = cfg.botonDegradado
+      ? 'background:linear-gradient(90deg, ' + cfg.colorBoton + ' 0%, ' + cfg.colorBoton2 + ' 100%);'
+      : 'background:' + cfg.colorBoton + ';';
+    var btnClass = NS + "-bundle-btn";
+    if (cfg.efectoBoton === "zoom") btnClass += " zoom";
+    if (cfg.pulsante) btnClass += " pulse";
+
+    var textoBoton = cfg.textoBoton && cfg.textoBoton.trim() !== "" ? cfg.textoBoton : "Agregar al carrito";
+    var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:#fff;font-size:16px;border-radius:' + cfg.bordeBoton + 'px;">' + escapeHtml(textoBoton) + '</button>';
+
     var infoHtml = !cfg.reemplazarBoton
       ? '<div class="' + NS + '-bundle-info-note"><span style="opacity:0.7;">ⓘ</span><span>El formulario original de Tiendanube permanecerá visible y funcional.</span></div>'
       : "";
