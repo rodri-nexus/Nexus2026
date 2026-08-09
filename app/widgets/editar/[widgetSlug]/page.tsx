@@ -6,6 +6,7 @@ import BadgeCuotasEditor from '@/components/widgets/editors/BadgeCuotasEditor';
 import BadgeEnvioEditor from '@/components/widgets/editors/BadgeEnvioEditor';
 import BadgeTransferenciaEditor from '@/components/widgets/editors/BadgeTransferenciaEditor';
 import BannerDeslizanteEditor from '@/components/widgets/editors/BannerDeslizanteEditor';
+import BarraProgresoEditor from '@/components/widgets/editors/BarraProgresoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -117,6 +118,18 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
+  if (params.widgetSlug === 'barra-progreso') {
+    return (
+      <BarraProgresoEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: 40, textAlign: 'center', maxWidth: 500, border: '1px solid #e5e7eb' }}>
@@ -130,4 +143,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-      }
+        }
