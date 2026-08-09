@@ -170,7 +170,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  if (params.widgetSlug === 'informacion-despacho') {
+  if (params.widgetSlug === 'info-despacho') {
     return (
       <InformacionDespachoEditor
         widgetDefinition={widgetDef}
@@ -195,4 +195,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+      }
