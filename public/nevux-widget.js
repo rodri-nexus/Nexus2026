@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v12 loaded");
+  console.log("[Nevux] v13 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -103,6 +103,64 @@
       return "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
     } catch (e) {
       return "$" + n.toFixed(2);
+    }
+  }
+
+  function formatMoneyInt(n) {
+    if (n === null || n === undefined || isNaN(n)) return "$0";
+    try {
+      return "$" + Math.round(n).toLocaleString("es-AR");
+    } catch (e) {
+      return "$" + Math.round(n);
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     DETECTAR SUBTOTAL DEL CARRITO
+  ═══════════════════════════════════════════ */
+  function detectCartSubtotal() {
+    // Tiendanube objeto global
+    if (window.LS && window.LS.cart) {
+      if (typeof window.LS.cart.subtotal === "number") return window.LS.cart.subtotal;
+      if (typeof window.LS.cart.total === "number") return window.LS.cart.total;
+      if (window.LS.cart.subtotal_cents) return window.LS.cart.subtotal_cents / 100;
+    }
+    if (window.Cart && typeof window.Cart.subtotal === "number") return window.Cart.subtotal;
+
+    // Buscar en DOM (fallback)
+    var sel = [
+      '[data-store="cart-subtotal"]',
+      '[data-store="subtotal"]',
+      '.js-cart-subtotal',
+      '.cart-subtotal',
+      '[data-cart-subtotal]',
+    ];
+    for (var i = 0; i < sel.length; i++) {
+      var el = qs(sel[i]);
+      if (el) {
+        var txt = el.textContent || el.getAttribute("data-cart-subtotal") || "";
+        var num = parseFloat(txt.replace(/[^\d,\.]/g, "").replace(/\./g, "").replace(",", "."));
+        if (!isNaN(num) && num >= 0) return num;
+      }
+    }
+    return 0;
+  }
+
+  function fetchCartSubtotal(callback) {
+    // Intentar via fetch al carrito JSON de Tiendanube
+    try {
+      fetch("/carrito.json", { credentials: "same-origin" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (data) {
+            var sub = data.subtotal || data.total || 0;
+            if (typeof sub === "number") { callback(sub); return; }
+          }
+          callback(detectCartSubtotal());
+        })
+        .catch(function () { callback(detectCartSubtotal()); });
+    } catch (e) {
+      callback(detectCartSubtotal());
     }
   }
 
@@ -280,6 +338,48 @@
       .${NS}-banner-item {
         display: inline-block;
       }
+      .${NS}-progress-wrap {
+        position: relative;
+        width: 100%;
+        padding-right: 24px;
+      }
+      .${NS}-progress-track {
+        position: relative;
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        overflow: visible;
+      }
+      .${NS}-progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.4s ease;
+      }
+      .${NS}-progress-hit {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        transition: background 0.3s ease;
+      }
+      .${NS}-progress-floating {
+        position: fixed !important;
+        bottom: 20px;
+        right: 20px;
+        z-index: 999998;
+        max-width: 340px;
+        width: calc(100% - 40px);
+        margin: 0 !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border-radius: 12px;
+      }
       @keyframes ${NS}-banner-scroll {
         0% { transform: translateX(0); }
         100% { transform: translateX(-50%); }
@@ -368,6 +468,7 @@
           if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
           if (w.widget_slug === "badge-transferencia") renderBadgeTransferencia(w);
           if (w.widget_slug === "banner-deslizante") renderBannerDeslizante(w);
+          if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -520,6 +621,22 @@
   function findCartTarget() {
     return qs('.js-cart-page') || qs('[data-store="cart"]') ||
       qs('.cart-content') || qs('.cart-items') || qs('main') || qs('.container');
+  }
+
+  function findCartCheckoutButton() {
+    var sel = [
+      'button[data-store="cart-checkout-button"]',
+      'a[data-store="cart-checkout-button"]',
+      '.js-cart-checkout',
+      '.js-checkout',
+      'a[href*="/checkout"]',
+      'button[name="checkout"]',
+    ];
+    for (var i = 0; i < sel.length; i++) {
+      var el = qs(sel[i]);
+      if (el) return el;
+    }
+    return null;
   }
 
   function normalizeConfig(raw) {
@@ -1234,13 +1351,11 @@
           return;
         }
       } else {
-        // despues-boton (default)
         var t = findProductTarget("before-button");
         if (!t) {
           console.warn("[Nevux] No se encontró target de botón para banner deslizante");
           return;
         }
-        // Insertar DESPUÉS del botón (o form)
         if (t.node.parentNode) {
           t.node.parentNode.insertBefore(container, t.node.nextSibling);
         } else {
@@ -1263,7 +1378,6 @@
     var separacion = cfg.separacionMensajes;
     var velocidad = cfg.velocidad;
 
-    // Duplicamos los mensajes para lograr scroll infinito continuo
     var mensajesRender = cfg.mensajes.concat(cfg.mensajes);
 
     var itemsHtml = "";
@@ -1279,6 +1393,247 @@
           itemsHtml +
         '</div>' +
       '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BARRA DE PROGRESO
+  ═══════════════════════════════════════════ */
+  function renderBarraProgreso(widget) {
+    var cfg = normalizeBarraProgresoConfig(widget.config || {});
+
+    if (!cfg.objetivos || cfg.objetivos.length === 0) return;
+
+    var mountedContainers = [];
+
+    // 1. En ficha de producto
+    if (pageType === "product" && cfg.posicionFicha !== "no-mostrar") {
+      var containerProd = mountBarraProgreso(widget, cfg, "product");
+      if (containerProd) mountedContainers.push(containerProd);
+    }
+
+    // 2. Elemento flotante (en cualquier página)
+    if (cfg.elementoFlotante) {
+      var containerFloat = mountBarraProgreso(widget, cfg, "floating");
+      if (containerFloat) mountedContainers.push(containerFloat);
+    }
+
+    // 3. En carrito
+    if (cfg.enCarrito && pageType === "cart") {
+      var containerCart = mountBarraProgreso(widget, cfg, "cart");
+      if (containerCart) mountedContainers.push(containerCart);
+    }
+
+    if (mountedContainers.length === 0) return;
+
+    // Función que actualiza todos los containers con el subtotal actual
+    function refreshAll() {
+      fetchCartSubtotal(function (subtotal) {
+        mountedContainers.forEach(function (c) {
+          c.innerHTML = buildBarraProgresoHtml(cfg, subtotal, c._placement);
+        });
+      });
+    }
+
+    // Render inicial
+    refreshAll();
+
+    // Refrescar cada 3 segundos (por si el usuario modifica el carrito)
+    setInterval(refreshAll, 3000);
+
+    // Escuchar eventos comunes de Tiendanube
+    var events = ["cart.update", "cart:update", "cart_updated", "cartUpdated"];
+    events.forEach(function (ev) {
+      try {
+        document.addEventListener(ev, refreshAll);
+        window.addEventListener(ev, refreshAll);
+      } catch (e) {}
+    });
+  }
+
+  function normalizeBarraProgresoConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseFloat(v) : v;
+      return isNaN(p) ? fb : p;
+    }
+    var objetivos = Array.isArray(raw.objetivos) ? raw.objetivos : [];
+    objetivos = objetivos
+      .filter(function (o) { return o && o.nombre && o.monto > 0; })
+      .map(function (o) {
+        return {
+          nombre: String(o.nombre),
+          monto: parseFloat(o.monto) || 0,
+          icono: o.icono || "none",
+        };
+      });
+    if (objetivos.length === 0) {
+      objetivos = [{ nombre: "Envío gratis", monto: 50000, icono: "none" }];
+    }
+    return {
+      objetivos: objetivos,
+      textoFaltante: raw.textoFaltante || "Te faltan {x} para {objetivo}",
+      textoCumplido: raw.textoCumplido || "¡{objetivo} desbloqueado! 🎉",
+      posicionFicha: raw.posicionFicha === "encima-form" ? "encima-form" :
+                     raw.posicionFicha === "no-mostrar" ? "no-mostrar" : "debajo-boton",
+      elementoFlotante: raw.elementoFlotante === true,
+      enCarrito: raw.enCarrito === true,
+      formatoObjetivos: raw.formatoObjetivos === "lista" ? "lista" : "automatico",
+      bordesRedondeados: n(raw.bordesRedondeados, 8),
+      rellenoInterno: n(raw.rellenoInterno, 14),
+      colorBarraVacia: raw.colorBarraVacia || "#e0e0e0",
+      colorBarraLlena: raw.colorBarraLlena || "#22c55e",
+      colorFondo: raw.colorFondo || "#fafafa",
+      colorTexto: raw.colorTexto || "#333333",
+      colorMonto: raw.colorMonto || "#0d6efd",
+      colorObjetivos: raw.colorObjetivos || "#333333",
+      tamanoFuenteObjetivos: n(raw.tamanoFuenteObjetivos, 11),
+      tamanoFuenteTexto: n(raw.tamanoFuenteTexto, 13),
+    };
+  }
+
+  function mountBarraProgreso(widget, cfg, placement) {
+    var uniqueId = NS + "-progreso-" + widget.id + "-" + placement;
+    if (qs("#" + uniqueId)) return null;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+    container._placement = placement;
+
+    if (placement === "product") {
+      var t = findProductTarget("before-button");
+      if (!t) {
+        console.warn("[Nevux] No se encontró target para barra progreso en producto");
+        return null;
+      }
+      if (cfg.posicionFicha === "encima-form") {
+        t.node.parentNode.insertBefore(container, t.node);
+      } else {
+        // debajo-boton
+        t.node.parentNode.insertBefore(container, t.node.nextSibling);
+      }
+    } else if (placement === "floating") {
+      container.classList.add(NS + "-progress-floating");
+      document.body.appendChild(container);
+    } else if (placement === "cart") {
+      var checkoutBtn = findCartCheckoutButton();
+      if (checkoutBtn && checkoutBtn.parentNode) {
+        checkoutBtn.parentNode.insertBefore(container, checkoutBtn);
+      } else {
+        var cartTarget = findCartTarget();
+        if (!cartTarget) return null;
+        cartTarget.parentNode.insertBefore(container, cartTarget);
+      }
+    }
+
+    console.log("[Nevux] Barra progreso montada en", placement);
+    return container;
+  }
+
+  function buildBarraProgresoHtml(cfg, subtotal, placement) {
+    var objetivosOrd = cfg.objetivos.slice().sort(function (a, b) { return a.monto - b.monto; });
+    var montoMax = objetivosOrd[objetivosOrd.length - 1].monto;
+
+    var proximoObj = null;
+    for (var i = 0; i < objetivosOrd.length; i++) {
+      if (subtotal < objetivosOrd[i].monto) { proximoObj = objetivosOrd[i]; break; }
+    }
+    var ultimoCumplido = null;
+    for (var j = objetivosOrd.length - 1; j >= 0; j--) {
+      if (subtotal >= objetivosOrd[j].monto) { ultimoCumplido = objetivosOrd[j]; break; }
+    }
+
+    var faltante = proximoObj ? Math.max(0, proximoObj.monto - subtotal) : 0;
+    var porcentaje = Math.min(100, Math.max(0, (subtotal / montoMax) * 100));
+
+    // Texto principal
+    var textoHtml = "";
+    if (proximoObj) {
+      var t = escapeHtml(cfg.textoFaltante || "Te faltan {x} para {objetivo}");
+      t = t
+        .replace("{x}", '<strong style="color:' + cfg.colorMonto + ';font-weight:700;">' + formatMoneyInt(faltante) + '</strong>')
+        .replace("{objetivo}", '<strong style="color:' + cfg.colorObjetivos + ';font-weight:700;">' + escapeHtml(proximoObj.nombre) + '</strong>');
+      textoHtml = t;
+    } else if (ultimoCumplido) {
+      var tc = escapeHtml(cfg.textoCumplido || "¡{objetivo} desbloqueado! 🎉");
+      tc = tc.replace("{objetivo}", '<strong style="color:' + cfg.colorObjetivos + ';font-weight:700;">' + escapeHtml(ultimoCumplido.nombre) + '</strong>');
+      textoHtml = tc;
+    }
+
+    // Hits
+    var hitsHtml = "";
+    for (var k = 0; k < objetivosOrd.length; k++) {
+      var o = objetivosOrd[k];
+      var isLast = k === objetivosOrd.length - 1;
+      var posPct = isLast ? 100 : (o.monto / montoMax) * 100;
+      var cumplido = subtotal >= o.monto;
+      var iconInner = getIconoSvgProgreso(o.icono, 12, "#ffffff");
+      hitsHtml += '<div class="' + NS + '-progress-hit" style="left:' + posPct + '%;background:' + (cumplido ? cfg.colorBarraLlena : "#c9c9c9") + ';" title="' + escapeHtml(o.nombre) + '">' + iconInner + '</div>';
+    }
+
+    // Modo lista (extra info debajo de la barra)
+    var listaHtml = "";
+    if (cfg.formatoObjetivos === "lista") {
+      var items = "";
+      for (var m = 0; m < objetivosOrd.length; m++) {
+        var oo = objetivosOrd[m];
+        var cc = subtotal >= oo.monto;
+        items += '<div style="display:flex;align-items:center;gap:6px;font-size:' + cfg.tamanoFuenteObjetivos + 'px;color:' + cfg.colorObjetivos + ';opacity:' + (cc ? "1" : "0.6") + ';margin-top:4px;">' +
+          '<span style="width:12px;height:12px;border-radius:50%;background:' + (cc ? cfg.colorBarraLlena : "#c9c9c9") + ';display:inline-block;"></span>' +
+          '<span style="font-weight:' + (cc ? "700" : "500") + ';">' + escapeHtml(oo.nombre) + ' — ' + formatMoneyInt(oo.monto) + '</span>' +
+        '</div>';
+      }
+      listaHtml = '<div style="margin-top:10px;">' + items + '</div>';
+    }
+
+    var bgStyle = cfg.colorFondo === "transparent" ? "transparent" : cfg.colorFondo;
+
+    return '' +
+      '<div style="width:100%;background:' + bgStyle + ';border-radius:' + cfg.bordesRedondeados + 'px;padding:' + cfg.rellenoInterno + 'px ' + (cfg.rellenoInterno + 4) + 'px;box-sizing:border-box;">' +
+        '<div style="color:' + cfg.colorTexto + ';font-size:' + cfg.tamanoFuenteTexto + 'px;line-height:1.4;margin-bottom:10px;">' + textoHtml + '</div>' +
+        '<div class="' + NS + '-progress-wrap">' +
+          '<div class="' + NS + '-progress-track" style="background:' + cfg.colorBarraVacia + ';">' +
+            '<div class="' + NS + '-progress-fill" style="width:' + porcentaje + '%;background:' + cfg.colorBarraLlena + ';"></div>' +
+            hitsHtml +
+          '</div>' +
+          listaHtml +
+        '</div>' +
+      '</div>';
+  }
+
+  function getIconoSvgProgreso(icono, size, color) {
+    var attrs = 'width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"';
+    switch (icono) {
+      case "truck":
+        return '<svg ' + attrs + '><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>';
+      case "gift":
+        return '<svg ' + attrs + '><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>';
+      case "tag":
+        return '<svg ' + attrs + '><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>';
+      case "star":
+        return '<svg ' + attrs + '><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+      case "percent":
+        return '<svg ' + attrs + '><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>';
+      case "check":
+        return '<svg ' + attrs + '><polyline points="20 6 9 17 4 12"/></svg>';
+      case "shield":
+        return '<svg ' + attrs + '><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+      case "bolt":
+        return '<svg ' + attrs + '><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
+      case "heart":
+        return '<svg ' + attrs + '><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+      case "coffee":
+        return '<svg ' + attrs + '><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>';
+      case "hexagon":
+        return '<svg ' + attrs + '><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>';
+      case "card":
+        return '<svg ' + attrs + '><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>';
+      case "smile":
+        return '<span style="font-size:' + (size + 2) + 'px;line-height:1;">😊</span>';
+      case "none":
+      default:
+        return "";
+    }
   }
 
 })();
