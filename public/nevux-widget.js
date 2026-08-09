@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v16 loaded");
+  console.log("[Nevux] v17 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -385,7 +385,7 @@
         border-top: 1px solid #e5e7eb;
       }
 
-      /* ═══ CAJA DE OPINIONES (rediseñada v2 - horizontal tipo testimonio) ═══ */
+      /* ═══ CAJA DE OPINIONES (v2 - horizontal tipo testimonio) ═══ */
       .${NS}-opiniones-list {
         display: flex; flex-direction: column;
         gap: 10px; width: 100%;
@@ -422,6 +422,64 @@
       .${NS}-opiniones-text {
         line-height: 1.5; white-space: pre-wrap; word-break: break-word;
         margin-top: 10px;
+      }
+
+      /* ═══ INFORMACIÓN DE DESPACHO ═══ */
+      .${NS}-despacho-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .${NS}-despacho-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+      }
+      .${NS}-despacho-icon {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .${NS}-despacho-text-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        flex: 1;
+      }
+      .${NS}-despacho-text {
+        line-height: 1.25;
+      }
+      .${NS}-despacho-day-badge {
+        display: inline-block;
+        align-self: flex-start;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+      .${NS}-despacho-right {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        min-width: 78px;
+        line-height: 1.15;
+      }
+      .${NS}-despacho-right-label {
+        opacity: 0.9;
+        font-weight: 500;
+      }
+      .${NS}-despacho-right-value {
+        font-weight: 800;
       }
 
       @keyframes ${NS}-bundle-pulse {
@@ -515,6 +573,7 @@
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
           if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
           if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
+          if (w.widget_slug === "info-despacho") renderInformacionDespacho(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -2247,7 +2306,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     RENDER CAJA DE OPINIONES (v2 - rediseñada horizontal)
+     RENDER CAJA DE OPINIONES (v2 - horizontal)
   ═══════════════════════════════════════════ */
   function renderCajaOpiniones(widget) {
     if (pageType !== "product") return;
@@ -2335,7 +2394,6 @@
     container.id = uniqueId;
     container.className = NS + "-root";
 
-    // Después del form/botón "Agregar al carrito"
     if (target.node.parentNode) {
       target.node.parentNode.insertBefore(container, target.node.nextSibling);
     } else {
@@ -2358,7 +2416,6 @@
       var nombre = (o.nombre || "").trim() || "Cliente";
       var texto = (o.texto || "").trim();
 
-      // AVATAR
       var avatarHtml = "";
       if (o.foto) {
         avatarHtml = '<div class="' + NS + '-opiniones-avatar" style="width:' + avatarSize + 'px;height:' + avatarSize + 'px;">' +
@@ -2373,19 +2430,16 @@
         '</div>';
       }
 
-      // ESTRELLAS
       var starsHtml = "";
       for (var s = 1; s <= 5; s++) {
         var starColor = s <= o.estrellas ? cfg.colorEstrellas : "#E5E7EB";
         starsHtml += '<span class="' + NS + '-opiniones-star" style="color:' + starColor + ';font-size:' + starSize + 'px;">★</span>';
       }
 
-      // VERIFIED
       var verifiedHtml = o.compraVerificada
         ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#3B82F6" style="flex-shrink:0;"><path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z"/><path d="M9 12l2 2 4-4" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         : "";
 
-      // TEXTO
       var textoHtml = texto
         ? '<div class="' + NS + '-opiniones-text" style="font-size:' + cfg.fuenteOpinion + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(texto) + '</div>'
         : "";
@@ -2405,6 +2459,246 @@
     }
 
     return '<div class="' + NS + '-opiniones-list">' + cardsHtml + '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER INFORMACIÓN DE DESPACHO
+  ═══════════════════════════════════════════ */
+  function renderInformacionDespacho(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeInformacionDespachoConfig(widget.config || {});
+    mountInformacionDespacho(widget, cfg);
+  }
+
+  function normalizeInformacionDespachoConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    var dias = raw.diasDespacho || {};
+    return {
+      horaCorte: raw.horaCorte || "18:00",
+      diasDespacho: {
+        lun: dias.lun !== false,
+        mar: dias.mar !== false,
+        mie: dias.mie !== false,
+        jue: dias.jue !== false,
+        vie: dias.vie !== false,
+        sab: dias.sab !== false,
+        dom: dias.dom === true,
+      },
+      ocultarSiPasoCorte: raw.ocultarSiPasoCorte === true,
+      agregarBadge: raw.agregarBadge === true,
+      posicion: raw.posicion === "antes-descripcion" ? "antes-descripcion" : "encima-form",
+      icono: raw.icono || "circulo",
+      efecto: raw.efecto === "aureola" ? "aureola" : (raw.efecto === "sin-efecto" ? "sin-efecto" : "zoom"),
+      aplicarEfectoA: raw.aplicarEfectoA === "mensaje-completo" ? "mensaje-completo" : "solo-icono",
+      tamanoFuente: n(raw.tamanoFuente, 15),
+      estiloTexto: raw.estiloTexto === "normal" ? "normal" : "negrita",
+      colorFondo: raw.colorFondo || "#10b981",
+      fondoDegradado: raw.fondoDegradado === true,
+      colorTexto: raw.colorTexto || "#ffffff",
+      colorBadge: raw.colorBadge && String(raw.colorBadge).trim() !== "" ? raw.colorBadge : "rgba(0,0,0,0.18)",
+      colorTextoBadge: raw.colorTextoBadge || "#ffffff",
+      bordesRedondeados: n(raw.bordesRedondeados, 12),
+      paddingInterno: n(raw.paddingInterno, 10),
+      activarBorde: raw.activarBorde === true,
+    };
+  }
+
+  function mountInformacionDespacho(widget, cfg) {
+    var uniqueId = NS + "-despacho-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para info despacho en producto");
+      return;
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (cfg.posicion === "antes-descripcion") {
+      if (target.node.parentNode) {
+        target.node.parentNode.insertBefore(container, target.node.nextSibling);
+      } else {
+        return;
+      }
+    } else {
+      target.node.parentNode.insertBefore(container, target.node);
+    }
+
+    function refresh() {
+      var info = calculateDespachoInfo(cfg);
+      if (info === null) {
+        // Se ocultó porque pasó la hora y está el toggle activado
+        container.style.display = "none";
+        return;
+      }
+      container.style.display = "";
+      container.innerHTML = buildInformacionDespachoHtml(cfg, info);
+    }
+
+    refresh();
+    // Refresh cada 60s para actualizar el contador "Te quedan Xh Ym"
+    setInterval(refresh, 60 * 1000);
+
+    console.log("[Nevux] Info despacho montado");
+  }
+
+  /**
+   * Calcula la info de despacho:
+   * - Si hoy es día hábil Y todavía no pasó la hora de corte → { dayLabel: "HOY", timeLeft: "2h 30m", showRight: true }
+   * - Si ya pasó la hora Y ocultarSiPasoCorte === true → retorna null (no mostrar)
+   * - Si ya pasó la hora Y ocultarSiPasoCorte === false → busca próximo día hábil { dayLabel: "MAÑANA" / "LUNES", timeLeft: null, showRight: false }
+   */
+  function calculateDespachoInfo(cfg) {
+    var diasArr = ["dom", "lun", "mar", "mie", "jue", "vie", "sab"]; // getDay() → 0=dom, 1=lun...
+    var nombresLargos = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+
+    var now = new Date();
+    var currentDay = now.getDay(); // 0-6
+
+    // Parse hora de corte
+    var horaCorteParts = String(cfg.horaCorte || "18:00").split(":");
+    var horaCorteH = parseInt(horaCorteParts[0], 10) || 18;
+    var horaCorteM = parseInt(horaCorteParts[1], 10) || 0;
+
+    var corte = new Date(now.getFullYear(), now.getMonth(), now.getDate(), horaCorteH, horaCorteM, 0);
+    var msLeft = corte.getTime() - now.getTime();
+
+    var currentDayKey = diasArr[currentDay];
+    var isHoyDespacho = cfg.diasDespacho[currentDayKey] === true;
+
+    // Caso 1: hoy es día de despacho y aún no pasó la hora
+    if (isHoyDespacho && msLeft > 0) {
+      var totalMin = Math.floor(msLeft / 60000);
+      var h = Math.floor(totalMin / 60);
+      var m = totalMin % 60;
+      var timeLeft;
+      if (h > 0) {
+        timeLeft = h + "h " + m + "m";
+      } else {
+        timeLeft = m + "m";
+      }
+      return {
+        dayLabel: "HOY",
+        timeLeft: timeLeft,
+        showRight: true,
+      };
+    }
+
+    // Caso 2: pasó la hora / no es día hábil, y ocultar está activo
+    if (cfg.ocultarSiPasoCorte === true) {
+      return null;
+    }
+
+    // Caso 3: buscar próximo día hábil
+    var found = null;
+    for (var i = 1; i <= 7; i++) {
+      var idx = (currentDay + i) % 7;
+      var key = diasArr[idx];
+      if (cfg.diasDespacho[key] === true) {
+        found = { idx: idx, offset: i };
+        break;
+      }
+    }
+
+    if (!found) {
+      // No hay ningún día de despacho marcado → no mostrar
+      return null;
+    }
+
+    var label;
+    if (found.offset === 1) {
+      label = "MAÑANA";
+    } else {
+      label = nombresLargos[found.idx];
+    }
+
+    return {
+      dayLabel: label,
+      timeLeft: null,
+      showRight: false,
+    };
+  }
+
+  function getDespachoIconSvg(tipo, size, colorTexto) {
+    switch (tipo) {
+      case "circulo":
+        return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#10B981"><circle cx="12" cy="12" r="10"/></svg>';
+      case "corazon":
+        return '<span style="font-size:' + (size + 2) + 'px;line-height:1;">❤️</span>';
+      case "alerta":
+        return '<span style="font-size:' + (size + 2) + 'px;line-height:1;">⚠️</span>';
+      case "emoji":
+        return '<span style="font-size:' + (size + 4) + 'px;line-height:1;">✏️</span>';
+      case "nada":
+      default:
+        return "";
+    }
+  }
+
+  function buildInformacionDespachoHtml(cfg, info) {
+    var fontWeight = cfg.estiloTexto === "negrita" ? 700 : 400;
+    var fontSize = cfg.tamanoFuente || 15;
+
+    var background = cfg.fondoDegradado
+      ? "linear-gradient(135deg, " + cfg.colorFondo + " 0%, " + cfg.colorFondo + "dd 100%)"
+      : cfg.colorFondo;
+
+    var border = cfg.activarBorde ? "1px solid " + cfg.colorTexto + "33" : "none";
+
+    var badgeBg = cfg.colorBadge;
+
+    var efectoAnim =
+      cfg.efecto === "aureola" ? NS + "-aureolaPulse 2s ease-in-out infinite" :
+      cfg.efecto === "zoom" ? NS + "-zoomEffect 2s ease-in-out infinite" :
+      "none";
+
+    var aplicarASoloIcono = cfg.aplicarEfectoA === "solo-icono";
+    var animacionCard = !aplicarASoloIcono ? efectoAnim : "none";
+    var animacionIcono = aplicarASoloIcono ? efectoAnim : "none";
+
+    var iconoSize = fontSize + 2;
+    var iconoSvg = getDespachoIconSvg(cfg.icono, iconoSize, cfg.colorTexto);
+    var iconoHtml = iconoSvg
+      ? '<div class="' + NS + '-despacho-icon" style="animation:' + animacionIcono + ';">' + iconoSvg + '</div>'
+      : "";
+
+    // Texto principal
+    var textoPrincipal = "Comprando ahora tu pedido se despacha";
+    var dayBadgeFontSize = Math.max(11, fontSize - 3);
+
+    var dayBadgeHtml = '<span class="' + NS + '-despacho-day-badge" style="background:' + badgeBg + ';color:' + cfg.colorTextoBadge + ';font-size:' + dayBadgeFontSize + 'px;">' +
+      escapeHtml(info.dayLabel) +
+    '</span>';
+
+    // Bloque derecho (solo si es HOY con contador)
+    var rightHtml = "";
+    if (info.showRight && info.timeLeft) {
+      var rightLabelSize = Math.max(10, fontSize - 5);
+      var rightValueSize = Math.max(14, fontSize);
+      rightHtml = '<div class="' + NS + '-despacho-right" style="background:' + badgeBg + ';color:' + cfg.colorTextoBadge + ';">' +
+        '<span class="' + NS + '-despacho-right-label" style="font-size:' + rightLabelSize + 'px;">Te quedan</span>' +
+        '<span class="' + NS + '-despacho-right-value" style="font-size:' + rightValueSize + 'px;">' + escapeHtml(info.timeLeft) + '</span>' +
+      '</div>';
+    }
+
+    return '' +
+      '<div class="' + NS + '-despacho-box" style="background:' + background + ';color:' + cfg.colorTexto + ';border-radius:' + cfg.bordesRedondeados + 'px;padding:' + (cfg.paddingInterno + 4) + 'px ' + (cfg.paddingInterno + 8) + 'px;border:' + border + ';animation:' + animacionCard + ';">' +
+        '<div class="' + NS + '-despacho-left">' +
+          iconoHtml +
+          '<div class="' + NS + '-despacho-text-wrap">' +
+            '<span class="' + NS + '-despacho-text" style="font-size:' + fontSize + 'px;font-weight:' + fontWeight + ';color:' + cfg.colorTexto + ';">' + escapeHtml(textoPrincipal) + '</span>' +
+            dayBadgeHtml +
+          '</div>' +
+        '</div>' +
+        rightHtml +
+      '</div>';
   }
 
 })();
