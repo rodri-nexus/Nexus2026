@@ -385,58 +385,43 @@
         border-top: 1px solid #e5e7eb;
       }
 
-      /* ═══ CAJA DE OPINIONES ═══ */
-      .${NS}-opiniones-box {
+      /* ═══ CAJA DE OPINIONES (rediseñada v2 - horizontal tipo testimonio) ═══ */
+      .${NS}-opiniones-list {
+        display: flex; flex-direction: column;
+        gap: 10px; width: 100%;
+      }
+      .${NS}-opiniones-card {
         width: 100%; box-sizing: border-box;
-        position: relative;
       }
-      .${NS}-opiniones-header {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; margin-bottom: 10px;
+      .${NS}-opiniones-top {
+        display: flex; align-items: center;
+        gap: 12px;
       }
-      .${NS}-opiniones-name-row {
-        display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;
+      .${NS}-opiniones-avatar {
+        border-radius: 50%; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; user-select: none;
+        overflow: hidden;
+      }
+      .${NS}-opiniones-avatar img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+      }
+      .${NS}-opiniones-name-stars {
+        display: flex; align-items: center;
+        gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0;
       }
       .${NS}-opiniones-name {
         font-weight: 700; line-height: 1.2;
       }
-      .${NS}-opiniones-nav {
-        display: flex; gap: 4px; flex-shrink: 0;
-      }
-      .${NS}-opiniones-nav-btn {
-        width: 28px; height: 28px; border-radius: 50%;
-        border: none; background: transparent;
-        color: #6b7280; cursor: pointer;
-        font-size: 22px; line-height: 1;
-        display: flex; align-items: center; justify-content: center;
-        padding: 0;
-      }
-      .${NS}-opiniones-nav-btn:disabled {
-        color: #d1d5db; cursor: not-allowed;
-      }
       .${NS}-opiniones-stars {
-        display: inline-flex; gap: 2px; margin-bottom: 10px;
+        display: inline-flex; gap: 1px; align-items: center;
       }
       .${NS}-opiniones-star {
         line-height: 1;
       }
       .${NS}-opiniones-text {
         line-height: 1.5; white-space: pre-wrap; word-break: break-word;
-      }
-      .${NS}-opiniones-photo {
-        max-width: 100%; max-height: 240px; border-radius: 8px;
-        display: block; margin-top: 12px;
-      }
-      .${NS}-opiniones-dots {
-        margin-top: 12px; display: flex;
-        justify-content: center; gap: 6px;
-      }
-      .${NS}-opiniones-dot {
-        width: 6px; height: 6px; border-radius: 50%;
-        background: #d1d5db;
-      }
-      .${NS}-opiniones-dot.active {
-        opacity: 0.8;
+        margin-top: 10px;
       }
 
       @keyframes ${NS}-bundle-pulse {
@@ -2262,7 +2247,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     RENDER CAJA DE OPINIONES
+     RENDER CAJA DE OPINIONES (v2 - rediseñada horizontal)
   ═══════════════════════════════════════════ */
   function renderCajaOpiniones(widget) {
     if (pageType !== "product") return;
@@ -2302,7 +2287,38 @@
       fuenteOpinion: n(raw.fuenteOpinion, 15),
       bordeRedondeado: n(raw.bordeRedondeado, 10),
       padding: n(raw.padding, 20),
+      tamanoAvatar: n(raw.tamanoAvatar, 44),
     };
+  }
+
+  function getOpinionInitial(nombre) {
+    var n = (nombre || "").trim();
+    if (!n) return "?";
+    return n.charAt(0).toUpperCase();
+  }
+
+  function getOpinionAvatarBg(nombre) {
+    var palette = [
+      "#DBEAFE", "#FCE7F3", "#DCFCE7", "#FEF3C7",
+      "#EDE9FE", "#FFE4E6", "#CFFAFE", "#FEE2E2"
+    ];
+    var n = (nombre || "").trim();
+    if (!n) return "#E5E7EB";
+    var sum = 0;
+    for (var i = 0; i < n.length; i++) sum += n.charCodeAt(i);
+    return palette[sum % palette.length];
+  }
+
+  function getOpinionAvatarColor(nombre) {
+    var palette = [
+      "#1E40AF", "#9D174D", "#166534", "#92400E",
+      "#5B21B6", "#9F1239", "#155E75", "#991B1B"
+    ];
+    var n = (nombre || "").trim();
+    if (!n) return "#374151";
+    var sum = 0;
+    for (var i = 0; i < n.length; i++) sum += n.charCodeAt(i);
+    return palette[sum % palette.length];
   }
 
   function mountCajaOpiniones(widget, cfg) {
@@ -2326,89 +2342,69 @@
       return;
     }
 
-    var state = { idx: 0 };
-
-    function render() {
-      container.innerHTML = buildCajaOpinionesHtml(cfg, state);
-      wireEvents();
-    }
-
-    function wireEvents() {
-      var prev = qs("." + NS + "-opiniones-nav-btn[data-dir='prev']", container);
-      var next = qs("." + NS + "-opiniones-nav-btn[data-dir='next']", container);
-      if (prev) {
-        prev.addEventListener("click", function () {
-          if (cfg.opiniones.length < 2) return;
-          state.idx = (state.idx - 1 + cfg.opiniones.length) % cfg.opiniones.length;
-          render();
-        });
-      }
-      if (next) {
-        next.addEventListener("click", function () {
-          if (cfg.opiniones.length < 2) return;
-          state.idx = (state.idx + 1) % cfg.opiniones.length;
-          render();
-        });
-      }
-    }
-
-    render();
+    container.innerHTML = buildCajaOpinionesHtml(cfg);
     console.log("[Nevux] Caja de opiniones montada");
   }
 
-  function buildCajaOpinionesHtml(cfg, state) {
-    var o = cfg.opiniones[state.idx];
-    if (!o) return "";
-
-    var starsHtml = "";
-    for (var i = 1; i <= 5; i++) {
-      var color = i <= o.estrellas ? cfg.colorEstrellas : "#E5E7EB";
-      starsHtml += '<span class="' + NS + '-opiniones-star" style="color:' + color + ';font-size:18px;">★</span>';
-    }
-
-    var verifiedHtml = o.compraVerificada
-      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#3B82F6" style="flex-shrink:0;"><path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z"/><path d="M9 12l2 2 4-4" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-      : "";
-
-    var textoHtml = o.texto
-      ? '<div class="' + NS + '-opiniones-text" style="font-size:' + cfg.fuenteOpinion + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(o.texto) + '</div>'
-      : "";
-
-    var photoHtml = o.foto
-      ? '<img class="' + NS + '-opiniones-photo" src="' + o.foto + '" alt="Opinión"/>'
-      : "";
-
-    var multiple = cfg.opiniones.length > 1;
-
-    var dotsHtml = "";
-    if (multiple) {
-      var dots = "";
-      for (var k = 0; k < cfg.opiniones.length; k++) {
-        var active = k === state.idx;
-        dots += '<span class="' + NS + '-opiniones-dot' + (active ? ' active' : '') + '" style="background:' + (active ? cfg.colorTexto : '#d1d5db') + ';opacity:' + (active ? '0.8' : '1') + ';"></span>';
-      }
-      dotsHtml = '<div class="' + NS + '-opiniones-dots">' + dots + '</div>';
-    }
-
+  function buildCajaOpinionesHtml(cfg) {
     var borde = cfg.mostrarBorde ? "1px solid " + cfg.colorBorde : "none";
+    var avatarSize = cfg.tamanoAvatar || 44;
+    var avatarFontSize = Math.round(avatarSize * 0.42);
+    var starSize = Math.max(14, Math.round(cfg.fuenteNombre * 0.95));
 
-    return '' +
-      '<div class="' + NS + '-opiniones-box" style="background:' + cfg.colorFondo + ';color:' + cfg.colorTexto + ';border-radius:' + cfg.bordeRedondeado + 'px;padding:' + cfg.padding + 'px;border:' + borde + ';">' +
-        '<div class="' + NS + '-opiniones-header">' +
-          '<div class="' + NS + '-opiniones-name-row">' +
-            '<span class="' + NS + '-opiniones-name" style="font-size:' + cfg.fuenteNombre + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(o.nombre || 'Anónimo') + '</span>' +
-            verifiedHtml +
+    var cardsHtml = "";
+    for (var i = 0; i < cfg.opiniones.length; i++) {
+      var o = cfg.opiniones[i];
+      var nombre = (o.nombre || "").trim() || "Cliente";
+      var texto = (o.texto || "").trim();
+
+      // AVATAR
+      var avatarHtml = "";
+      if (o.foto) {
+        avatarHtml = '<div class="' + NS + '-opiniones-avatar" style="width:' + avatarSize + 'px;height:' + avatarSize + 'px;">' +
+          '<img src="' + o.foto + '" alt="' + escapeHtml(nombre) + '"/>' +
+        '</div>';
+      } else {
+        var bg = getOpinionAvatarBg(nombre);
+        var color = getOpinionAvatarColor(nombre);
+        var initial = getOpinionInitial(nombre);
+        avatarHtml = '<div class="' + NS + '-opiniones-avatar" style="width:' + avatarSize + 'px;height:' + avatarSize + 'px;background:' + bg + ';color:' + color + ';font-size:' + avatarFontSize + 'px;">' +
+          escapeHtml(initial) +
+        '</div>';
+      }
+
+      // ESTRELLAS
+      var starsHtml = "";
+      for (var s = 1; s <= 5; s++) {
+        var starColor = s <= o.estrellas ? cfg.colorEstrellas : "#E5E7EB";
+        starsHtml += '<span class="' + NS + '-opiniones-star" style="color:' + starColor + ';font-size:' + starSize + 'px;">★</span>';
+      }
+
+      // VERIFIED
+      var verifiedHtml = o.compraVerificada
+        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#3B82F6" style="flex-shrink:0;"><path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z"/><path d="M9 12l2 2 4-4" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : "";
+
+      // TEXTO
+      var textoHtml = texto
+        ? '<div class="' + NS + '-opiniones-text" style="font-size:' + cfg.fuenteOpinion + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(texto) + '</div>'
+        : "";
+
+      cardsHtml +=
+        '<div class="' + NS + '-opiniones-card" style="background:' + cfg.colorFondo + ';color:' + cfg.colorTexto + ';border-radius:' + cfg.bordeRedondeado + 'px;padding:' + cfg.padding + 'px;border:' + borde + ';">' +
+          '<div class="' + NS + '-opiniones-top">' +
+            avatarHtml +
+            '<div class="' + NS + '-opiniones-name-stars">' +
+              '<span class="' + NS + '-opiniones-name" style="font-size:' + cfg.fuenteNombre + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(nombre) + '</span>' +
+              '<span class="' + NS + '-opiniones-stars">' + starsHtml + '</span>' +
+              verifiedHtml +
+            '</div>' +
           '</div>' +
-          '<div class="' + NS + '-opiniones-nav">' +
-            '<button type="button" class="' + NS + '-opiniones-nav-btn" data-dir="prev"' + (multiple ? '' : ' disabled') + '>‹</button>' +
-            '<button type="button" class="' + NS + '-opiniones-nav-btn" data-dir="next"' + (multiple ? '' : ' disabled') + '>›</button>' +
-          '</div>' +
-        '</div>' +
-        '<div class="' + NS + '-opiniones-stars">' + starsHtml + '</div>' +
-        textoHtml +
-        photoHtml +
-        dotsHtml +
-      '</div>';
+          textoHtml +
+        '</div>';
+    }
+
+    return '<div class="' + NS + '-opiniones-list">' + cardsHtml + '</div>';
   }
 
 })();
