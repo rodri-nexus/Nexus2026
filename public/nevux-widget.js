@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v13 loaded");
+  console.log("[Nevux] v14 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -119,7 +119,6 @@
      DETECTAR SUBTOTAL DEL CARRITO
   ═══════════════════════════════════════════ */
   function detectCartSubtotal() {
-    // Tiendanube objeto global
     if (window.LS && window.LS.cart) {
       if (typeof window.LS.cart.subtotal === "number") return window.LS.cart.subtotal;
       if (typeof window.LS.cart.total === "number") return window.LS.cart.total;
@@ -127,7 +126,6 @@
     }
     if (window.Cart && typeof window.Cart.subtotal === "number") return window.Cart.subtotal;
 
-    // Buscar en DOM (fallback)
     var sel = [
       '[data-store="cart-subtotal"]',
       '[data-store="subtotal"]',
@@ -147,7 +145,6 @@
   }
 
   function fetchCartSubtotal(callback) {
-    // Intentar via fetch al carrito JSON de Tiendanube
     try {
       fetch("/carrito.json", { credentials: "same-origin" })
         .then(function (r) { return r.ok ? r.json() : null; })
@@ -185,34 +182,20 @@
         border-radius: 0 !important;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       }
-      .${NS}-widget-host {
-        position: relative;
-        overflow: hidden;
-      }
+      .${NS}-widget-host { position: relative; overflow: hidden; }
       .${NS}-bar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 10px 16px;
-        overflow: hidden;
-        width: 100%;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 6px; padding: 10px 16px; overflow: hidden; width: 100%;
       }
       .${NS}-bar-row {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        max-width: 100%;
+        display: flex; align-items: center; justify-content: center;
+        gap: 10px; max-width: 100%;
       }
       .${NS}-bar-title {
-        font-size: 13px;
-        font-weight: 700;
-        text-align: center;
-        line-height: 1.3;
-        max-width: 100%;
-        padding: 0 4px;
+        font-size: 13px; font-weight: 700;
+        text-align: center; line-height: 1.3;
+        max-width: 100%; padding: 0 4px;
       }
       .${NS}-bar-emoji {
         display: inline-block;
@@ -220,89 +203,59 @@
         margin-right: 6px;
       }
       .${NS}-bar-clock {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        flex-shrink: 0;
+        display: inline-flex; align-items: center;
+        gap: 4px; flex-shrink: 0;
       }
       .${NS}-bar-digit {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 34px;
-        height: 32px;
-        background: #ffffff;
-        color: #0f172a;
-        border-radius: 6px;
-        padding: 2px 6px;
-        font-size: 14px;
-        font-weight: 800;
+        display: inline-flex; align-items: center; justify-content: center;
+        min-width: 34px; height: 32px;
+        background: #ffffff; color: #0f172a;
+        border-radius: 6px; padding: 2px 6px;
+        font-size: 14px; font-weight: 800;
         font-variant-numeric: tabular-nums;
         box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08);
-        position: relative;
-        overflow: hidden;
+        position: relative; overflow: hidden;
       }
       .${NS}-bar-digit::before {
         content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0;
+        position: absolute; top: 0; left: 0; right: 0;
         height: 50%;
         background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
         border-radius: 6px 6px 0 0;
         pointer-events: none;
       }
-      .${NS}-bar-sep {
-        font-size: 15px;
-        font-weight: 900;
-        opacity: 0.85;
-      }
+      .${NS}-bar-sep { font-size: 15px; font-weight: 900; opacity: 0.85; }
       .${NS}-bar-btn {
-        padding: 7px 16px;
-        background: #ffffff;
-        border: none;
-        border-radius: 7px;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.06em;
-        cursor: pointer;
-        white-space: nowrap;
-        flex-shrink: 0;
+        padding: 7px 16px; background: #ffffff;
+        border: none; border-radius: 7px;
+        font-size: 11px; font-weight: 800;
+        letter-spacing: 0.06em; cursor: pointer;
+        white-space: nowrap; flex-shrink: 0;
         box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       }
       .${NS}-digit {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-variant-numeric: tabular-nums;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-weight: 800; font-variant-numeric: tabular-nums;
         letter-spacing: 0.02em;
-        position: relative;
-        overflow: hidden;
+        position: relative; overflow: hidden;
       }
       .${NS}-digit.bounce {
         animation: ${NS}-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
       .${NS}-label {
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        opacity: 0.75;
+        font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.08em; opacity: 0.75;
       }
       .${NS}-unit {
-        display: inline-flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
+        display: inline-flex; flex-direction: column;
+        align-items: center; gap: 3px;
       }
       .${NS}-sep {
-        display: inline-flex;
-        flex-direction: column;
-        gap: 4px;
-        padding-bottom: 14px;
+        display: inline-flex; flex-direction: column;
+        gap: 4px; padding-bottom: 14px;
       }
       .${NS}-sep span {
-        width: 4px; height: 4px;
-        border-radius: 50%;
+        width: 4px; height: 4px; border-radius: 50%;
         opacity: 0.85;
         animation: ${NS}-blink 1s ease infinite;
       }
@@ -312,73 +265,129 @@
         background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 50%, #2a2a3e 100%);
         border-radius: 5px;
         display: flex; align-items: center; justify-content: center;
-        font-family: 'Courier New', monospace;
-        font-weight: 900;
+        font-family: 'Courier New', monospace; font-weight: 900;
         position: relative; overflow: hidden;
         box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
       }
       .${NS}-retro-cell::after {
-        content: '';
-        position: absolute; top: 50%; left: 0; right: 0;
+        content: ''; position: absolute; top: 50%; left: 0; right: 0;
         height: 1px; background: rgba(0,0,0,0.5);
       }
       .${NS}-retro-cell.flip { animation: ${NS}-retroflip 0.3s ease; }
       .${NS}-banner-wrap {
-        width: 100%;
-        overflow: hidden;
-        position: relative;
+        width: 100%; overflow: hidden; position: relative;
         -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
         mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
       }
-      .${NS}-banner-track {
-        display: inline-flex;
-        white-space: nowrap;
-        will-change: transform;
-      }
-      .${NS}-banner-item {
-        display: inline-block;
-      }
-      .${NS}-progress-wrap {
-        position: relative;
-        width: 100%;
-        padding-right: 24px;
-      }
-      .${NS}-progress-track {
-        position: relative;
-        width: 100%;
-        height: 8px;
-        border-radius: 999px;
-        overflow: visible;
-      }
-      .${NS}-progress-fill {
-        height: 100%;
-        border-radius: 999px;
-        transition: width 0.4s ease;
-      }
+      .${NS}-banner-track { display: inline-flex; white-space: nowrap; will-change: transform; }
+      .${NS}-banner-item { display: inline-block; }
+      .${NS}-progress-wrap { position: relative; width: 100%; padding-right: 24px; }
+      .${NS}-progress-track { position: relative; width: 100%; height: 8px; border-radius: 999px; overflow: visible; }
+      .${NS}-progress-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
       .${NS}-progress-hit {
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        position: absolute; top: 50%; transform: translate(-50%, -50%);
+        width: 22px; height: 22px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         transition: background 0.3s ease;
       }
       .${NS}-progress-floating {
-        position: fixed !important;
-        bottom: 20px;
-        right: 20px;
-        z-index: 999998;
-        max-width: 340px;
-        width: calc(100% - 40px);
-        margin: 0 !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        position: fixed !important; bottom: 20px; right: 20px;
+        z-index: 999998; max-width: 340px; width: calc(100% - 40px);
+        margin: 0 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         border-radius: 12px;
+      }
+
+      /* ═══ BUNDLE PROMOCIONES ═══ */
+      .${NS}-bundle {
+        display: flex; flex-direction: column; gap: 10px;
+        width: 100%;
+      }
+      .${NS}-bundle-title {
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .${NS}-bundle-card {
+        display: flex; align-items: center;
+        gap: 12px; padding: 14px 16px;
+        border: 2px solid #e5e7eb; background: #ffffff;
+        cursor: pointer; transition: all 0.15s ease;
+        position: relative;
+      }
+      .${NS}-bundle-card:hover { border-color: #9ca3af; }
+      .${NS}-bundle-card.selected { border-color: #000000; }
+      .${NS}-bundle-radio {
+        width: 20px; height: 20px; border-radius: 50%;
+        border: 2px solid #9ca3af; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: #ffffff; transition: border-color 0.15s ease;
+      }
+      .${NS}-bundle-card.selected .${NS}-bundle-radio { border-color: #000000; }
+      .${NS}-bundle-radio-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        background: #000000; opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+      .${NS}-bundle-card.selected .${NS}-bundle-radio-dot { opacity: 1; }
+      .${NS}-bundle-info {
+        flex: 1; display: flex; flex-direction: column;
+        min-width: 0;
+      }
+      .${NS}-bundle-label { font-weight: 600; line-height: 1.2; }
+      .${NS}-bundle-subtitle { font-weight: 500; line-height: 1.2; margin-top: 3px; }
+      .${NS}-bundle-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+      .${NS}-bundle-badge {
+        display: inline-block; padding: 2px 8px;
+        font-size: 10px; font-weight: 700;
+        border-radius: 4px; color: #ffffff;
+        letter-spacing: 0.04em; text-transform: uppercase;
+      }
+      .${NS}-bundle-prices {
+        display: flex; flex-direction: column; align-items: flex-end;
+        gap: 2px; flex-shrink: 0;
+      }
+      .${NS}-bundle-price-old {
+        text-decoration: line-through; opacity: 0.55;
+        font-size: 12px; font-weight: 500;
+      }
+      .${NS}-bundle-price-new { font-weight: 700; line-height: 1.1; }
+      .${NS}-bundle-comps {
+        display: flex; flex-direction: column; gap: 6px;
+        margin-top: 8px; padding-top: 8px;
+        border-top: 1px solid #e5e7eb;
+      }
+      .${NS}-bundle-comp {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 12px; cursor: pointer;
+      }
+      .${NS}-bundle-comp input { cursor: pointer; margin: 0; }
+      .${NS}-bundle-gift {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 8px; padding: 8px 10px;
+      }
+      .${NS}-bundle-gift-label {
+        font-weight: 600; font-size: 12px;
+      }
+      .${NS}-bundle-btn {
+        width: 100%; padding: 16px;
+        border: none; cursor: pointer;
+        font-weight: 700; text-align: center;
+        transition: transform 0.15s ease;
+        margin-top: 4px;
+      }
+      .${NS}-bundle-btn:hover { opacity: 0.94; }
+      .${NS}-bundle-btn.zoom:hover { transform: scale(1.02); }
+      .${NS}-bundle-btn.pulse { animation: ${NS}-bundle-pulse 1.6s ease infinite; }
+      .${NS}-bundle-info-note {
+        display: flex; align-items: flex-start; gap: 6px;
+        font-size: 12px; color: #6b7280;
+        padding: 8px 0; margin-top: 4px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      @keyframes ${NS}-bundle-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
       }
       @keyframes ${NS}-banner-scroll {
         0% { transform: translateX(0); }
@@ -422,13 +431,8 @@
         50% { transform: scale(1.15); }
       }
       @media (min-width: 720px) {
-        .${NS}-bar {
-          flex-direction: row;
-          gap: 20px;
-        }
-        .${NS}-bar-title {
-          font-size: 14px;
-        }
+        .${NS}-bar { flex-direction: row; gap: 20px; }
+        .${NS}-bar-title { font-size: 14px; }
       }
     `;
     document.head.appendChild(style);
@@ -469,6 +473,7 @@
           if (w.widget_slug === "badge-transferencia") renderBadgeTransferencia(w);
           if (w.widget_slug === "banner-deslizante") renderBannerDeslizante(w);
           if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
+          if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -1405,19 +1410,14 @@
 
     var mountedContainers = [];
 
-    // 1. En ficha de producto
     if (pageType === "product" && cfg.posicionFicha !== "no-mostrar") {
       var containerProd = mountBarraProgreso(widget, cfg, "product");
       if (containerProd) mountedContainers.push(containerProd);
     }
-
-    // 2. Elemento flotante (en cualquier página)
     if (cfg.elementoFlotante) {
       var containerFloat = mountBarraProgreso(widget, cfg, "floating");
       if (containerFloat) mountedContainers.push(containerFloat);
     }
-
-    // 3. En carrito
     if (cfg.enCarrito && pageType === "cart") {
       var containerCart = mountBarraProgreso(widget, cfg, "cart");
       if (containerCart) mountedContainers.push(containerCart);
@@ -1425,7 +1425,6 @@
 
     if (mountedContainers.length === 0) return;
 
-    // Función que actualiza todos los containers con el subtotal actual
     function refreshAll() {
       fetchCartSubtotal(function (subtotal) {
         mountedContainers.forEach(function (c) {
@@ -1434,13 +1433,9 @@
       });
     }
 
-    // Render inicial
     refreshAll();
-
-    // Refrescar cada 3 segundos (por si el usuario modifica el carrito)
     setInterval(refreshAll, 3000);
 
-    // Escuchar eventos comunes de Tiendanube
     var events = ["cart.update", "cart:update", "cart_updated", "cartUpdated"];
     events.forEach(function (ev) {
       try {
@@ -1509,7 +1504,6 @@
       if (cfg.posicionFicha === "encima-form") {
         t.node.parentNode.insertBefore(container, t.node);
       } else {
-        // debajo-boton
         t.node.parentNode.insertBefore(container, t.node.nextSibling);
       }
     } else if (placement === "floating") {
@@ -1546,7 +1540,6 @@
     var faltante = proximoObj ? Math.max(0, proximoObj.monto - subtotal) : 0;
     var porcentaje = Math.min(100, Math.max(0, (subtotal / montoMax) * 100));
 
-    // Texto principal
     var textoHtml = "";
     if (proximoObj) {
       var t = escapeHtml(cfg.textoFaltante || "Te faltan {x} para {objetivo}");
@@ -1560,7 +1553,6 @@
       textoHtml = tc;
     }
 
-    // Hits
     var hitsHtml = "";
     for (var k = 0; k < objetivosOrd.length; k++) {
       var o = objetivosOrd[k];
@@ -1571,7 +1563,6 @@
       hitsHtml += '<div class="' + NS + '-progress-hit" style="left:' + posPct + '%;background:' + (cumplido ? cfg.colorBarraLlena : "#c9c9c9") + ';" title="' + escapeHtml(o.nombre) + '">' + iconInner + '</div>';
     }
 
-    // Modo lista (extra info debajo de la barra)
     var listaHtml = "";
     if (cfg.formatoObjetivos === "lista") {
       var items = "";
@@ -1634,6 +1625,302 @@
       default:
         return "";
     }
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BUNDLE PROMOCIONES
+  ═══════════════════════════════════════════ */
+  function renderBundlePromociones(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeBundlePromocionesConfig(widget.config || {});
+    if (!cfg.promociones || cfg.promociones.length === 0) return;
+    mountBundlePromociones(widget, cfg);
+  }
+
+  function normalizeBundlePromocionesConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+
+    var promos = Array.isArray(raw.promociones) ? raw.promociones : [];
+    promos = promos.map(function (p) {
+      return {
+        tipo: String(p.tipo || "2x1"),
+        formatoEtiqueta: p.formatoEtiqueta || "Lleva # paga #",
+        subtitulo: p.subtitulo || "",
+        badges: {
+          envioGratis: !!(p.badges && p.badges.envioGratis),
+          masVendido: !!(p.badges && p.badges.masVendido),
+          personalizado: !!(p.badges && p.badges.personalizado),
+          personalizadoTexto: (p.badges && p.badges.personalizadoTexto) || "",
+        },
+        ocultarComp1: p.ocultarComp1 === true,
+        ocultarComp2: p.ocultarComp2 === true,
+        agregarRegalo: p.agregarRegalo === true,
+        marcarPorDefecto: p.marcarPorDefecto === true,
+        ocultarUnidad: p.ocultarUnidad === true,
+      };
+    });
+
+    var complementarios = Array.isArray(raw.complementarios) ? raw.complementarios : [];
+
+    return {
+      titulo: raw.titulo || "",
+      textoBoton: raw.textoBoton || "Agregar al carrito",
+      promociones: promos,
+      complementarios: complementarios.slice(0, 2),
+      complementariosDefault: raw.complementariosDefault === true,
+      reemplazarBoton: raw.reemplazarBoton === true,
+      colorBoton: raw.colorBoton || "#000000",
+      botonDegradado: raw.botonDegradado === true,
+      colorPrecio: raw.colorPrecio || "#000000",
+      colorSubtitulo: raw.colorSubtitulo || "#059669",
+      fondoSubtitulo: raw.fondoSubtitulo || "transparent",
+      colorTextoRegalo: raw.colorTextoRegalo || "#000000",
+      colorPrecioRegalo: raw.colorPrecioRegalo || "#16a34a",
+      fondoRegalo: raw.fondoRegalo || "#f5fff7",
+      colorBadgeEnvio: raw.colorBadgeEnvio || "#10B981",
+      colorBadgePersonalizado: raw.colorBadgePersonalizado || "#F59E0B",
+      colorBadgeMasVendido: raw.colorBadgeMasVendido || "#EF4444",
+      colorUnidadSeleccionada: raw.colorUnidadSeleccionada || "#000000",
+      bordeBoton: n(raw.bordeBoton, 25),
+      bordeUnidad: n(raw.bordeUnidad, 8),
+      tamanoEtiqueta: raw.tamanoEtiqueta || "16px",
+      tamanoPrecio: raw.tamanoPrecio || "18px",
+      tamanoSubtitulo: raw.tamanoSubtitulo || "14px",
+      efectoBoton: raw.efectoBoton === "zoom" ? "zoom" : "sin-efecto",
+      botonPulsante: raw.botonPulsante === true,
+    };
+  }
+
+  function parsePromoRatio(tipo) {
+    var m = String(tipo).toLowerCase().match(/(\d+)x(\d+)/);
+    if (!m) return { lleva: 1, paga: 1 };
+    return { lleva: parseInt(m[1], 10), paga: parseInt(m[2], 10) };
+  }
+
+  function formatEtiquetaPromo(formato, ratio) {
+    var partes = String(formato).split("#");
+    var out = "";
+    var vals = [ratio.lleva, ratio.paga];
+    var v = 0;
+    for (var i = 0; i < partes.length; i++) {
+      out += partes[i];
+      if (i < partes.length - 1) {
+        out += (v < vals.length ? vals[v] : "");
+        v++;
+      }
+    }
+    return out;
+  }
+
+  function mountBundlePromociones(widget, cfg) {
+    var uniqueId = NS + "-bundle-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para bundle en producto");
+      return;
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    // Insertar antes del form/botón original
+    target.node.parentNode.insertBefore(container, target.node);
+
+    // Si el toggle "Reemplazar" está activo, ocultamos el form original
+    if (cfg.reemplazarBoton && target.node) {
+      target.node.style.display = "none";
+    }
+
+    // Estado inicial: promo marcada por defecto o primera
+    var idxDefault = 0;
+    for (var i = 0; i < cfg.promociones.length; i++) {
+      if (cfg.promociones[i].marcarPorDefecto) { idxDefault = i; break; }
+    }
+
+    var state = {
+      selectedIdx: idxDefault,
+      comps: cfg.complementarios.map(function () { return cfg.complementariosDefault; }),
+    };
+
+    function render() {
+      container.innerHTML = buildBundlePromocionesHtml(cfg, state);
+      wireEvents();
+    }
+
+    function wireEvents() {
+      qsa("." + NS + "-bundle-card", container).forEach(function (card) {
+        card.addEventListener("click", function (e) {
+          if (e.target && (e.target.tagName === "INPUT" || e.target.closest("." + NS + "-bundle-comp"))) return;
+          var idx = parseInt(card.dataset.idx, 10);
+          if (!isNaN(idx)) {
+            state.selectedIdx = idx;
+            render();
+          }
+        });
+      });
+
+      qsa("." + NS + "-bundle-comp input", container).forEach(function (chk) {
+        chk.addEventListener("change", function () {
+          var idx = parseInt(chk.dataset.compIdx, 10);
+          if (!isNaN(idx)) {
+            state.comps[idx] = chk.checked;
+          }
+        });
+      });
+
+      var btn = qs("." + NS + "-bundle-btn", container);
+      if (btn) {
+        btn.addEventListener("click", function () {
+          // Buscamos el form/botón original y disparamos su submit/click
+          var origForm = null;
+          var origBtn = null;
+          if (target.node) {
+            if (target.node.tagName === "FORM") {
+              origForm = target.node;
+            } else {
+              origForm = target.node.closest ? target.node.closest("form") : null;
+              origBtn = target.node;
+            }
+          }
+          if (origForm) {
+            try {
+              if (typeof origForm.requestSubmit === "function") {
+                origForm.requestSubmit();
+              } else {
+                origForm.submit();
+              }
+            } catch (e) {
+              var submitBtn = qs('button[type="submit"], input[type="submit"]', origForm);
+              if (submitBtn) submitBtn.click();
+            }
+          } else if (origBtn) {
+            origBtn.click();
+          }
+        });
+      }
+    }
+
+    render();
+    console.log("[Nevux] Bundle promociones montado");
+  }
+
+  function buildBundlePromocionesHtml(cfg, state) {
+    var precio = detectProductPrice() || 0;
+
+    var titleHtml = cfg.titulo
+      ? '<div class="' + NS + '-bundle-title" style="color:#000;font-size:16px;">' + escapeHtml(cfg.titulo) + '</div>'
+      : "";
+
+    var cardsHtml = "";
+    for (var i = 0; i < cfg.promociones.length; i++) {
+      var p = cfg.promociones[i];
+      if (p.ocultarUnidad) continue;
+
+      var ratio = parsePromoRatio(p.tipo);
+      var etiqueta = formatEtiquetaPromo(p.formatoEtiqueta, ratio);
+
+      var precioTotalNormal = precio * ratio.lleva;
+      var precioTotalPromo = precio * ratio.paga;
+
+      var isSelected = i === state.selectedIdx;
+      var borderColor = isSelected ? cfg.colorUnidadSeleccionada : "#e5e7eb";
+
+      var badgesHtml = "";
+      if (p.badges.envioGratis) {
+        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeEnvio + ';">Envío gratis</span>';
+      }
+      if (p.badges.masVendido) {
+        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeMasVendido + ';">Más vendido</span>';
+      }
+      if (p.badges.personalizado) {
+        var txtPers = p.badges.personalizadoTexto || "Destacado";
+        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgePersonalizado + ';">' + escapeHtml(txtPers) + '</span>';
+      }
+      if (badgesHtml) {
+        badgesHtml = '<div class="' + NS + '-bundle-badges">' + badgesHtml + '</div>';
+      }
+
+      var subtitleHtml = "";
+      if (p.subtitulo) {
+        var bgSub = (cfg.fondoSubtitulo && cfg.fondoSubtitulo !== "transparent")
+          ? 'background:' + cfg.fondoSubtitulo + ';padding:2px 6px;border-radius:4px;display:inline-block;'
+          : "";
+        subtitleHtml = '<div class="' + NS + '-bundle-subtitle" style="color:' + cfg.colorSubtitulo + ';font-size:' + cfg.tamanoSubtitulo + ';' + bgSub + '">' + escapeHtml(p.subtitulo) + '</div>';
+      }
+
+      // Complementarios de esta card
+      var compsHtml = "";
+      var compsToShow = [];
+      for (var c = 0; c < cfg.complementarios.length; c++) {
+        var oculto = (c === 0 && p.ocultarComp1) || (c === 1 && p.ocultarComp2);
+        if (!oculto && cfg.complementarios[c]) compsToShow.push({ idx: c, prod: cfg.complementarios[c] });
+      }
+      if (compsToShow.length > 0) {
+        var compsInner = "";
+        for (var cc = 0; cc < compsToShow.length; cc++) {
+          var comp = compsToShow[cc];
+          var chk = state.comps[comp.idx] ? "checked" : "";
+          var nombreComp = comp.prod.name || comp.prod.nombre || ("Producto " + (comp.idx + 1));
+          compsInner += '<label class="' + NS + '-bundle-comp"><input type="checkbox" data-comp-idx="' + comp.idx + '" ' + chk + '/>' + escapeHtml(nombreComp) + '</label>';
+        }
+        compsHtml = '<div class="' + NS + '-bundle-comps">' + compsInner + '</div>';
+      }
+
+      // Bloque regalo
+      var giftHtml = "";
+      if (p.agregarRegalo) {
+        giftHtml = '<div class="' + NS + '-bundle-gift" style="background:' + cfg.fondoRegalo + ';color:' + cfg.colorTextoRegalo + ';border-radius:6px;">' +
+          '<span class="' + NS + '-bundle-gift-label">🎁 Producto de regalo</span>' +
+          '<span style="color:' + cfg.colorPrecioRegalo + ';font-weight:700;">Gratis</span>' +
+        '</div>';
+      }
+
+      cardsHtml +=
+        '<div class="' + NS + '-bundle-card' + (isSelected ? ' selected' : '') + '" data-idx="' + i + '" style="border-color:' + borderColor + ';border-radius:' + cfg.bordeUnidad + 'px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;width:100%;">' +
+            '<div class="' + NS + '-bundle-radio"><div class="' + NS + '-bundle-radio-dot"></div></div>' +
+            '<div class="' + NS + '-bundle-info">' +
+              '<div class="' + NS + '-bundle-label" style="font-size:' + cfg.tamanoEtiqueta + ';">' + escapeHtml(etiqueta) + '</div>' +
+              subtitleHtml +
+              badgesHtml +
+            '</div>' +
+            '<div class="' + NS + '-bundle-prices">' +
+              (ratio.lleva !== ratio.paga ? '<span class="' + NS + '-bundle-price-old">' + formatMoney(precioTotalNormal) + '</span>' : "") +
+              '<span class="' + NS + '-bundle-price-new" style="color:' + cfg.colorPrecio + ';font-size:' + cfg.tamanoPrecio + ';">' + formatMoney(precioTotalPromo) + '</span>' +
+            '</div>' +
+          '</div>' +
+          (compsHtml || giftHtml ? '<div style="width:100%;">' + compsHtml + giftHtml + '</div>' : "") +
+        '</div>';
+    }
+
+    // Botón
+    var btnBg = cfg.botonDegradado
+      ? 'background:linear-gradient(135deg, ' + cfg.colorBoton + ' 0%, ' + cfg.colorBoton + 'cc 100%);'
+      : 'background:' + cfg.colorBoton + ';';
+    var btnClass = NS + "-bundle-btn";
+    if (cfg.efectoBoton === "zoom") btnClass += " zoom";
+    if (cfg.botonPulsante) btnClass += " pulse";
+
+    var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:#fff;font-size:' + cfg.tamanoEtiqueta + ';border-radius:' + cfg.bordeBoton + 'px;">' + escapeHtml(cfg.textoBoton || "Agregar al carrito") + '</button>';
+
+    // Info note (solo si el widget NO reemplaza)
+    var infoHtml = !cfg.reemplazarBoton
+      ? '<div class="' + NS + '-bundle-info-note"><span style="opacity:0.7;">ⓘ</span><span>El formulario original de Tiendanube permanecerá visible y funcional.</span></div>'
+      : "";
+
+    return '<div class="' + NS + '-bundle">' +
+      titleHtml +
+      cardsHtml +
+      btnHtml +
+      infoHtml +
+    '</div>';
   }
 
 })();
