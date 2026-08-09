@@ -99,9 +99,9 @@ export default function MensajeAlertaEditor({
   };
 
   const tabs = [
-    { id: 'general', label: 'General' },
-    { id: 'ubicacion', label: 'Ubicación' },
-    { id: 'estilos', label: 'Estilos' },
+    { id: 'general', label: 'General', icon: '⚙️' },
+    { id: 'ubicacion', label: 'Ubicación', icon: '📍' },
+    { id: 'estilos', label: 'Estilos', icon: '🎨' },
   ];
 
   const iconosOpciones = [
@@ -686,4 +686,4 @@ export default function MensajeAlertaEditor({
       </div>
     </div>
   );
-  }
+      }
