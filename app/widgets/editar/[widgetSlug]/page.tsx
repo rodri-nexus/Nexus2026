@@ -10,6 +10,7 @@ import BarraProgresoEditor from '@/components/widgets/editors/BarraProgresoEdito
 import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
 import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
+import InformacionDespachoEditor from '@/components/widgets/editors/InformacionDespachoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -169,6 +170,18 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
+  if (params.widgetSlug === 'informacion-despacho') {
+    return (
+      <InformacionDespachoEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: 40, textAlign: 'center', maxWidth: 500, border: '1px solid #e5e7eb' }}>
@@ -182,4 +195,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-        }
+}
