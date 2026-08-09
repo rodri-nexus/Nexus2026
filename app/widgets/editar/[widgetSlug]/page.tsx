@@ -11,6 +11,7 @@ import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocio
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
 import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
 import InformacionDespachoEditor from '@/components/widgets/editors/InformacionDespachoEditor';
+import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -173,6 +174,18 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   if (params.widgetSlug === 'info-despacho') {
     return (
       <InformacionDespachoEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
+
+  if (params.widgetSlug === 'info-envio') {
+    return (
+      <InformacionEnvioEditor
         widgetDefinition={widgetDef}
         existingWidget={existingWidget}
         targetType={targetType as 'product' | 'all'}
