@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v17 loaded");
+  console.log("[Nevux] v18 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -482,6 +482,69 @@
         font-weight: 800;
       }
 
+      /* ═══ INFORMACIÓN DE ENVÍO ═══ */
+      .${NS}-envio-wrap {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .${NS}-envio-box {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 6px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .${NS}-envio-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+      }
+      .${NS}-envio-col-icon {
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .${NS}-envio-col-label {
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .${NS}-envio-col-value {
+        opacity: 0.85;
+        line-height: 1.2;
+      }
+      .${NS}-envio-badge-antes {
+        display: inline-block;
+        margin-top: 4px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .${NS}-envio-sep {
+        width: 22px;
+        height: 2px;
+        opacity: 0.6;
+        border-radius: 2px;
+        flex-shrink: 0;
+        align-self: center;
+      }
+      .${NS}-envio-nota {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #6b7280;
+        text-align: center;
+        font-style: italic;
+      }
+
       @keyframes ${NS}-bundle-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.02); }
@@ -574,6 +637,7 @@
           if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
           if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
           if (w.widget_slug === "info-despacho") renderInformacionDespacho(w);
+          if (w.widget_slug === "info-envio") renderInformacionEnvio(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -2306,7 +2370,7 @@
   }
 
   /* ═══════════════════════════════════════════
-     RENDER CAJA DE OPINIONES (v2 - horizontal)
+     RENDER CAJA DE OPINIONES
   ═══════════════════════════════════════════ */
   function renderCajaOpiniones(widget) {
     if (pageType !== "product") return;
@@ -2534,7 +2598,6 @@
     function refresh() {
       var info = calculateDespachoInfo(cfg);
       if (info === null) {
-        // Se ocultó porque pasó la hora y está el toggle activado
         container.style.display = "none";
         return;
       }
@@ -2543,26 +2606,18 @@
     }
 
     refresh();
-    // Refresh cada 60s para actualizar el contador "Te quedan Xh Ym"
     setInterval(refresh, 60 * 1000);
 
     console.log("[Nevux] Info despacho montado");
   }
 
-  /**
-   * Calcula la info de despacho:
-   * - Si hoy es día hábil Y todavía no pasó la hora de corte → { dayLabel: "HOY", timeLeft: "2h 30m", showRight: true }
-   * - Si ya pasó la hora Y ocultarSiPasoCorte === true → retorna null (no mostrar)
-   * - Si ya pasó la hora Y ocultarSiPasoCorte === false → busca próximo día hábil { dayLabel: "MAÑANA" / "LUNES", timeLeft: null, showRight: false }
-   */
   function calculateDespachoInfo(cfg) {
-    var diasArr = ["dom", "lun", "mar", "mie", "jue", "vie", "sab"]; // getDay() → 0=dom, 1=lun...
+    var diasArr = ["dom", "lun", "mar", "mie", "jue", "vie", "sab"];
     var nombresLargos = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
 
     var now = new Date();
-    var currentDay = now.getDay(); // 0-6
+    var currentDay = now.getDay();
 
-    // Parse hora de corte
     var horaCorteParts = String(cfg.horaCorte || "18:00").split(":");
     var horaCorteH = parseInt(horaCorteParts[0], 10) || 18;
     var horaCorteM = parseInt(horaCorteParts[1], 10) || 0;
@@ -2573,7 +2628,6 @@
     var currentDayKey = diasArr[currentDay];
     var isHoyDespacho = cfg.diasDespacho[currentDayKey] === true;
 
-    // Caso 1: hoy es día de despacho y aún no pasó la hora
     if (isHoyDespacho && msLeft > 0) {
       var totalMin = Math.floor(msLeft / 60000);
       var h = Math.floor(totalMin / 60);
@@ -2591,12 +2645,10 @@
       };
     }
 
-    // Caso 2: pasó la hora / no es día hábil, y ocultar está activo
     if (cfg.ocultarSiPasoCorte === true) {
       return null;
     }
 
-    // Caso 3: buscar próximo día hábil
     var found = null;
     for (var i = 1; i <= 7; i++) {
       var idx = (currentDay + i) % 7;
@@ -2608,7 +2660,6 @@
     }
 
     if (!found) {
-      // No hay ningún día de despacho marcado → no mostrar
       return null;
     }
 
@@ -2669,7 +2720,6 @@
       ? '<div class="' + NS + '-despacho-icon" style="animation:' + animacionIcono + ';">' + iconoSvg + '</div>'
       : "";
 
-    // Texto principal
     var textoPrincipal = "Comprando ahora tu pedido se despacha";
     var dayBadgeFontSize = Math.max(11, fontSize - 3);
 
@@ -2677,7 +2727,6 @@
       escapeHtml(info.dayLabel) +
     '</span>';
 
-    // Bloque derecho (solo si es HOY con contador)
     var rightHtml = "";
     if (info.showRight && info.timeLeft) {
       var rightLabelSize = Math.max(10, fontSize - 5);
@@ -2698,6 +2747,231 @@
           '</div>' +
         '</div>' +
         rightHtml +
+      '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER INFORMACIÓN DE ENVÍO
+  ═══════════════════════════════════════════ */
+  function renderInformacionEnvio(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeInformacionEnvioConfig(widget.config || {});
+    mountInformacionEnvio(widget, cfg);
+  }
+
+  function normalizeInformacionEnvioConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      diasHastaEnvio: Math.max(0, n(raw.diasHastaEnvio, 1)),
+      diasParaEntrega: Math.max(0, n(raw.diasParaEntrega, 2)),
+      horaCorte: raw.horaCorte || "18:00",
+      mostrarHoraLimite: raw.mostrarHoraLimite === true,
+      mostrarRangoEntrega: raw.mostrarRangoEntrega === true,
+      mostrarFechasAprox: raw.mostrarFechasAprox === true,
+      noDespacharSabados: raw.noDespacharSabados === true,
+      tipoIconos: raw.tipoIconos === "svg" ? "svg" : "emojis",
+      colorFondo: raw.colorFondo || "#d9f5e4",
+      colorTexto: raw.colorTexto || "#1f6b4e",
+      colorBadgeFondo: raw.colorBadgeFondo || "#dc3545",
+      colorBadgeTexto: raw.colorBadgeTexto || "#ffffff",
+      activarBorde: raw.activarBorde === true,
+      tamanoLabel: n(raw.tamanoLabel, 14),
+      tamanoDia: n(raw.tamanoDia, 13),
+      bordesRedondeados: n(raw.bordesRedondeados, 10),
+      paddingInterno: n(raw.paddingInterno, 15),
+    };
+  }
+
+  function mountInformacionEnvio(widget, cfg) {
+    var uniqueId = NS + "-envio-info-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para info envío en producto");
+      return;
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    // Se ubica DESPUÉS del formulario de compra (como en imagen 1)
+    if (target.node.parentNode) {
+      target.node.parentNode.insertBefore(container, target.node.nextSibling);
+    } else {
+      return;
+    }
+
+    function refresh() {
+      var info = calculateEnvioInfo(cfg);
+      container.innerHTML = buildInformacionEnvioHtml(cfg, info);
+    }
+
+    refresh();
+    setInterval(refresh, 60 * 1000);
+
+    console.log("[Nevux] Info envío montado");
+  }
+
+  /**
+   * Calcula las 3 fechas para el widget de envío.
+   * - Compra: siempre HOY. Si mostrarHoraLimite y no pasó la hora → mostrar badge "ANTES DE LAS 18:00"
+   * - Envío: hoy + diasHastaEnvio. Si pasó la hora, se empuja +1 día. Si cae sábado/domingo Y noDespacharSabados → salta al lunes.
+   * - Entrega: envío + diasParaEntrega. Si mostrarRangoEntrega → 2 días consecutivos.
+   */
+  function calculateEnvioInfo(cfg) {
+    var now = new Date();
+
+    var horaCorteParts = String(cfg.horaCorte || "18:00").split(":");
+    var horaCorteH = parseInt(horaCorteParts[0], 10) || 18;
+    var horaCorteM = parseInt(horaCorteParts[1], 10) || 0;
+
+    var corte = new Date(now.getFullYear(), now.getMonth(), now.getDate(), horaCorteH, horaCorteM, 0);
+    var pasoCorte = now.getTime() >= corte.getTime();
+
+    // Badge "Antes de las XX:XX" solo si el toggle está ON y aún no pasó
+    var badgeAntes = null;
+    if (cfg.mostrarHoraLimite && !pasoCorte) {
+      var hh = String(horaCorteH).padStart(2, "0");
+      var mm = String(horaCorteM).padStart(2, "0");
+      badgeAntes = "ANTES DE LAS " + hh + ":" + mm;
+    }
+
+    // Fecha de envío: hoy + diasHastaEnvio (+1 si pasó la hora)
+    var envioDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    envioDate.setDate(envioDate.getDate() + cfg.diasHastaEnvio + (pasoCorte ? 1 : 0));
+
+    // Si cae sábado/domingo y noDespacharSabados → mover al lunes
+    if (cfg.noDespacharSabados) {
+      var dow = envioDate.getDay(); // 0=dom, 6=sab
+      if (dow === 6) {
+        envioDate.setDate(envioDate.getDate() + 2); // sábado → lunes
+      } else if (dow === 0) {
+        envioDate.setDate(envioDate.getDate() + 1); // domingo → lunes
+      }
+    }
+
+    // Fecha de entrega: envío + diasParaEntrega
+    var entregaDate = new Date(envioDate.getFullYear(), envioDate.getMonth(), envioDate.getDate());
+    entregaDate.setDate(entregaDate.getDate() + cfg.diasParaEntrega);
+
+    // Etiquetas legibles
+    var envioLabel = formatFechaRelativaOCorta(envioDate, now);
+    var entregaLabel;
+    if (cfg.mostrarRangoEntrega) {
+      var entregaDate2 = new Date(entregaDate.getFullYear(), entregaDate.getMonth(), entregaDate.getDate());
+      entregaDate2.setDate(entregaDate2.getDate() + 1);
+      entregaLabel = formatRangoFechas(entregaDate, entregaDate2);
+    } else {
+      entregaLabel = formatFechaCorta(entregaDate);
+    }
+
+    return {
+      compraLabel: "Hoy",
+      envioLabel: envioLabel,
+      entregaLabel: entregaLabel,
+      badgeAntes: badgeAntes,
+    };
+  }
+
+  function formatFechaRelativaOCorta(date, now) {
+    var hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    var diffDays = Math.round((target.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return "Hoy";
+    if (diffDays === 1) return "Mañana";
+    return formatFechaCorta(date);
+  }
+
+  function formatFechaCorta(date) {
+    var meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    var d = date.getDate();
+    var m = meses[date.getMonth()];
+    return d + " " + m;
+  }
+
+  function formatRangoFechas(d1, d2) {
+    var meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    var day1 = d1.getDate();
+    var day2 = d2.getDate();
+    var m1 = meses[d1.getMonth()];
+    var m2 = meses[d2.getMonth()];
+    if (m1 === m2) {
+      return day1 + " y " + day2 + " " + m1;
+    }
+    return day1 + " " + m1 + " y " + day2 + " " + m2;
+  }
+
+  function getEnvioIconoHtml(tipo, kind, colorTexto) {
+    // kind: "compra" | "envio" | "entrega"
+    if (tipo === "emojis") {
+      if (kind === "compra") return '<span style="font-size:24px;line-height:1;">📦</span>';
+      if (kind === "envio") return '<span style="font-size:24px;line-height:1;">🚚</span>';
+      if (kind === "entrega") return '<span style="font-size:24px;line-height:1;">📍</span>';
+    }
+    // SVG
+    var attrs = 'width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + colorTexto + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+    if (kind === "compra") {
+      return '<svg ' + attrs + '><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
+    }
+    if (kind === "envio") {
+      return '<svg ' + attrs + '><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>';
+    }
+    if (kind === "entrega") {
+      return '<svg ' + attrs + '><polyline points="20 6 9 17 4 12"/></svg>';
+    }
+    return "";
+  }
+
+  function buildInformacionEnvioHtml(cfg, info) {
+    var borde = cfg.activarBorde ? "1px solid " + cfg.colorTexto + "33" : "none";
+
+    var iconoCompra = getEnvioIconoHtml(cfg.tipoIconos, "compra", cfg.colorTexto);
+    var iconoEnvio = getEnvioIconoHtml(cfg.tipoIconos, "envio", cfg.colorTexto);
+    var iconoEntrega = getEnvioIconoHtml(cfg.tipoIconos, "entrega", cfg.colorTexto);
+
+    // Badge "ANTES DE LAS 18:00" debajo del subtítulo de Compra
+    var badgeHtml = "";
+    if (info.badgeAntes) {
+      var badgeSize = Math.max(9, cfg.tamanoDia - 3);
+      badgeHtml = '<span class="' + NS + '-envio-badge-antes" style="background:' + cfg.colorBadgeFondo + ';color:' + cfg.colorBadgeTexto + ';font-size:' + badgeSize + 'px;">' + escapeHtml(info.badgeAntes) + '</span>';
+    }
+
+    var sepHtml = '<div class="' + NS + '-envio-sep" style="background:' + cfg.colorTexto + ';"></div>';
+
+    var notaHtml = "";
+    if (cfg.mostrarFechasAprox) {
+      notaHtml = '<div class="' + NS + '-envio-nota">* Fechas aproximadas</div>';
+    }
+
+    return '' +
+      '<div class="' + NS + '-envio-wrap">' +
+        '<div class="' + NS + '-envio-box" style="background:' + cfg.colorFondo + ';color:' + cfg.colorTexto + ';border-radius:' + cfg.bordesRedondeados + 'px;padding:' + cfg.paddingInterno + 'px;border:' + borde + ';">' +
+          '<div class="' + NS + '-envio-col">' +
+            '<div class="' + NS + '-envio-col-icon">' + iconoCompra + '</div>' +
+            '<div class="' + NS + '-envio-col-label" style="font-size:' + cfg.tamanoLabel + 'px;color:' + cfg.colorTexto + ';">Compra</div>' +
+            '<div class="' + NS + '-envio-col-value" style="font-size:' + cfg.tamanoDia + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(info.compraLabel) + '</div>' +
+            badgeHtml +
+          '</div>' +
+          sepHtml +
+          '<div class="' + NS + '-envio-col">' +
+            '<div class="' + NS + '-envio-col-icon">' + iconoEnvio + '</div>' +
+            '<div class="' + NS + '-envio-col-label" style="font-size:' + cfg.tamanoLabel + 'px;color:' + cfg.colorTexto + ';">Envío</div>' +
+            '<div class="' + NS + '-envio-col-value" style="font-size:' + cfg.tamanoDia + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(info.envioLabel) + '</div>' +
+          '</div>' +
+          sepHtml +
+          '<div class="' + NS + '-envio-col">' +
+            '<div class="' + NS + '-envio-col-icon">' + iconoEntrega + '</div>' +
+            '<div class="' + NS + '-envio-col-label" style="font-size:' + cfg.tamanoLabel + 'px;color:' + cfg.colorTexto + ';">Entrega</div>' +
+            '<div class="' + NS + '-envio-col-value" style="font-size:' + cfg.tamanoDia + 'px;color:' + cfg.colorTexto + ';">' + escapeHtml(info.entregaLabel) + '</div>' +
+          '</div>' +
+        '</div>' +
+        notaHtml +
       '</div>';
   }
 
