@@ -126,7 +126,7 @@ export default function MensajeAlertaEditor({
   ];
 
   /* ═══════════════════════════════════════
-     TAB CONTENT: General
+     TAB: General
   ═══════════════════════════════════════ */
   const tabGeneral = (
     <div>
@@ -247,7 +247,7 @@ export default function MensajeAlertaEditor({
   );
 
   /* ═══════════════════════════════════════
-     TAB CONTENT: Ubicación
+     TAB: Ubicación
   ═══════════════════════════════════════ */
   const tabUbicacion = (
     <div>
@@ -307,7 +307,7 @@ export default function MensajeAlertaEditor({
   );
 
   /* ═══════════════════════════════════════
-     TAB CONTENT: Estilos
+     TAB: Estilos
   ═══════════════════════════════════════ */
   const tabEstilos = (
     <div>
@@ -535,52 +535,34 @@ export default function MensajeAlertaEditor({
         })}
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 16,
-          marginBottom: 20,
-        }}
-      >
-        <div>
-          <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 8 }}>
-            Bordes redondeados
-          </label>
-          <Slider
-            value={config.bordesRedondeados}
-            onChange={(v) => updateConfig('bordesRedondeados', v)}
-            min={0}
-            max={25}
-            step={1}
-            marks={['0px', '25px']}
-            unit="px"
-          />
-        </div>
-        <div>
-          <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 8 }}>
-            Margen interno (padding)
-          </label>
-          <Slider
-            value={config.paddingInterno}
-            onChange={(v) => updateConfig('paddingInterno', v)}
-            min={0}
-            max={30}
-            step={1}
-            marks={['0px', '30px']}
-            unit="px"
-          />
-        </div>
-      </div>
-
-      <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#111', marginBottom: 10 }}>
-        Borde
-      </label>
-      <Toggle
-        label="Mostrar borde (1px)"
-        value={config.mostrarBorde}
-        onChange={(v) => updateConfig('mostrarBorde', v)}
+      <Slider
+        label="Bordes redondeados"
+        value={config.bordesRedondeados}
+        min={0}
+        max={25}
+        unit="px"
+        onChange={(v) => updateConfig('bordesRedondeados', v)}
       />
+
+      <Slider
+        label="Margen interno (padding)"
+        value={config.paddingInterno}
+        min={0}
+        max={30}
+        unit="px"
+        onChange={(v) => updateConfig('paddingInterno', v)}
+      />
+
+      <div style={{ marginTop: 12 }}>
+        <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#111', marginBottom: 6 }}>
+          Borde
+        </label>
+        <Toggle
+          label="Mostrar borde (1px)"
+          checked={config.mostrarBorde}
+          onChange={(v) => updateConfig('mostrarBorde', v)}
+        />
+      </div>
     </div>
   );
 
@@ -648,12 +630,12 @@ export default function MensajeAlertaEditor({
               flexWrap: 'wrap',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Toggle label="" value={isActive} onChange={setIsActive} />
-              <span style={{ fontSize: 15, color: '#111', fontWeight: 500 }}>
-                Widget activo
-              </span>
-              <span style={{ color: '#9ca3af', fontSize: 14 }}>ⓘ</span>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <Toggle
+                label="Widget activo"
+                checked={isActive}
+                onChange={setIsActive}
+              />
             </div>
 
             <button
@@ -679,4 +661,4 @@ export default function MensajeAlertaEditor({
       </div>
     </div>
   );
-  }
+      }
