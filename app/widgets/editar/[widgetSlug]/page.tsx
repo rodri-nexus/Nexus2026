@@ -13,6 +13,7 @@ import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEdito
 import InformacionDespachoEditor from '@/components/widgets/editors/InformacionDespachoEditor';
 import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
 import MensajeAlertaEditor from '@/components/widgets/editors/MensajeAlertaEditor';
+import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -208,6 +209,18 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
+  if (params.widgetSlug === 'mensaje-garantia') {
+    return (
+      <MensajeGarantiaEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', padding: 40 }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: 40, textAlign: 'center', maxWidth: 500, border: '1px solid #e5e7eb' }}>
@@ -221,4 +234,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+      }
