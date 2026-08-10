@@ -31,27 +31,29 @@ export async function POST(req: NextRequest) {
     // 1. Parsear body
     const body = await req.json()
     const {
-      store_id,
       widget_id,
+      store_id,
       product_id,
       nombre,
+      email,
       estrellas,
       texto,
       foto_url,
       talle,
+      ajuste_talle,
       desde_calificar,
     } = body
 
     // 2. Validaciones básicas
-    if (!store_id || typeof store_id !== 'string') {
-      return NextResponse.json(
-        { error: 'store_id es requerido' },
-        { status: 400, headers: CORS_HEADERS }
-      )
-    }
     if (!widget_id || typeof widget_id !== 'string') {
       return NextResponse.json(
         { error: 'widget_id es requerido' },
+        { status: 400, headers: CORS_HEADERS }
+      )
+    }
+    if (!store_id) {
+      return NextResponse.json(
+        { error: 'store_id es requerido' },
         { status: 400, headers: CORS_HEADERS }
       )
     }
@@ -87,9 +89,20 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 3. Validar tamaño de foto (máx ~2MB en base64)
+    // 3. Validar email si vino
+    if (email && typeof email === 'string' && email.trim().length > 0) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email.trim())) {
+        return NextResponse.json(
+          { error: 'Email inválido' },
+          { status: 400, headers: CORS_HEADERS }
+        )
+      }
+    }
+
+    // 4. Validar tamaño de foto (máx ~2MB en base64)
     if (foto_url && typeof foto_url === 'string') {
-      const MAX_BASE64_SIZE = 2 * 1024 * 1024 // 2MB
+      const MAX_BASE64_SIZE = 2 * 1024 * 1024
       if (foto_url.length > MAX_BASE64_SIZE) {
         return NextResponse.json(
           { error: 'La foto es demasiado grande (máx 2MB)' },
@@ -98,10 +111,23 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Verificar que el widget exista y sea del slug correcto
+    // 5. Validar ajuste_talle si vino
+    const AJUSTES_VALIDOS = ['chico', 'algo_chico', 'como_esperaba', 'algo_grande', 'grande']
+    let ajusteTalleFinal: string | null = null
+    if (ajuste_talle && typeof ajuste_talle === 'string') {
+      if (!AJUSTES_VALIDOS.includes(ajuste_talle)) {
+        return NextResponse.json(
+          { error: 'ajuste_talle inválido' },
+          { status: 400, headers: CORS_HEADERS }
+        )
+      }
+      ajusteTalleFinal = ajuste_talle
+    }
+
+    // 6. Verificar que el widget exista, sea del slug correcto y esté activo
     const { data: widget, error: widgetError } = await supabase
       .from('widgets')
-      .select('id, widget_slug, store_id, is_active')
+      .select('id, widget_slug, store_id, is_active, config')
       .eq('id', widget_id)
       .single()
 
@@ -126,7 +152,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Verificar que el store_id coincida con el del widget
     if (String(widget.store_id) !== String(store_id)) {
       return NextResponse.json(
         { error: 'store_id no coincide con el widget' },
@@ -134,7 +159,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 5. Validar duplicados: mismo nombre + widget + producto
+    // 7. Bloqueo de duplicados: mismo nombre + widget + producto
     const productIdNum = product_id ? parseInt(product_id, 10) : null
 
     let duplicateQuery = supabase
@@ -166,27 +191,34 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 6. Determinar estado y verificación según el origen
+    // 8. Determinar estado según la config del widget
+    const config = widget.config || {}
+    const aprobarAuto = config.aprobarAutomaticamente === true
     const vieneDeCalificar = desde_calificar === true
-    const estadoInicial = vieneDeCalificar ? 'aprobada' : 'pendiente'
+
+    const estadoInicial = aprobarAuto ? 'aprobada' : 'pendiente'
     const verificadaInicial = vieneDeCalificar
 
-    // 7. Insertar reseña
+    // 9. Insertar reseña
     const { data: nuevaReview, error: insertError } = await supabase
       .from('reviews')
       .insert({
-        store_id: String(store_id),
         widget_id,
+        store_id: String(store_id),
         product_id: productIdNum,
         nombre: nombre.trim(),
+        email: email ? String(email).trim().toLowerCase() : null,
         estrellas: estrellasNum,
         texto: texto.trim(),
         foto_url: foto_url || null,
         talle: talle ? String(talle).trim().substring(0, 20) : null,
+        ajuste_talle: ajusteTalleFinal,
         verificada: verificadaInicial,
         estado: estadoInicial,
         desde_calificar: vieneDeCalificar,
-        fecha_creacion: new Date().toISOString(),
+        fecha_resena: new Date().toISOString().split('T')[0],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single()
@@ -199,14 +231,21 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // 10. Responder
+    const mensajeAgradecimiento = config.mensajeAgradecimiento
+      || (aprobarAuto
+        ? '¡Gracias por tu reseña! Ya está publicada.'
+        : '¡Gracias! Tu reseña fue enviada y será publicada luego de ser revisada.')
+
     return NextResponse.json(
       {
         success: true,
         review: nuevaReview,
         estado: estadoInicial,
-        mensaje: vieneDeCalificar
-          ? '¡Gracias por tu reseña! Ya está publicada.'
-          : '¡Gracias por tu reseña! Se publicará luego de ser revisada.',
+        mensaje: mensajeAgradecimiento,
+        cupon: aprobarAuto && config.ofrecerCupon === true && config.codigoCupon
+          ? String(config.codigoCupon).trim()
+          : null,
       },
       { status: 201, headers: CORS_HEADERS }
     )
@@ -265,7 +304,7 @@ export async function GET(req: NextRequest) {
       .from('reviews')
       .select('*')
       .eq('widget_id', widgetIdParam)
-      .order('fecha_creacion', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (estadoParam) {
       if (!['pendiente', 'aprobada', 'rechazada'].includes(estadoParam)) {
@@ -287,29 +326,39 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 5. Calcular stats (promedio + counts por estado)
+    // 5. Calcular stats
     const { data: allReviews } = await supabase
       .from('reviews')
       .select('estrellas, estado')
       .eq('widget_id', widgetIdParam)
 
-    const stats = {
-      total: allReviews?.length || 0,
-      pendientes: allReviews?.filter((r) => r.estado === 'pendiente').length || 0,
-      aprobadas: allReviews?.filter((r) => r.estado === 'aprobada').length || 0,
-      rechazadas: allReviews?.filter((r) => r.estado === 'rechazada').length || 0,
-      promedio: 0,
-    }
-
+    const total = allReviews?.length || 0
+    const pendientes = allReviews?.filter((r) => r.estado === 'pendiente').length || 0
     const aprobadas = allReviews?.filter((r) => r.estado === 'aprobada') || []
+    const rechazadas = allReviews?.filter((r) => r.estado === 'rechazada').length || 0
+
+    let promedio = 0
+    const distribucion: Record<string, number> = { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 }
+
     if (aprobadas.length > 0) {
       const suma = aprobadas.reduce((acc, r) => acc + (r.estrellas || 0), 0)
-      stats.promedio = parseFloat((suma / aprobadas.length).toFixed(2))
+      promedio = parseFloat((suma / aprobadas.length).toFixed(2))
+      aprobadas.forEach((r) => {
+        const key = String(r.estrellas)
+        if (distribucion[key] !== undefined) distribucion[key]++
+      })
     }
 
     return NextResponse.json({
       reviews: reviews || [],
-      stats,
+      stats: {
+        total,
+        pendientes,
+        aprobadas: aprobadas.length,
+        rechazadas,
+        promedio,
+        distribucion,
+      },
     })
   } catch (error: any) {
     console.error('Error en GET /api/reviews:', error)
@@ -318,4 +367,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     )
   }
-      }
+         }
