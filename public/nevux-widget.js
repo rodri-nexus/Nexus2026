@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v20 loaded");
+  console.log("[Nevux] v21 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -620,6 +620,444 @@
         margin: 2px 0;
       }
 
+      /* ═══ RESEÑAS DE CLIENTES ═══ */
+      .${NS}-resenas-wrap {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px 0;
+      }
+      .${NS}-resenas-titulo {
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0 0 4px 0;
+      }
+      .${NS}-resenas-subtitulo {
+        display: inline-block;
+        line-height: 1.3;
+        margin-bottom: 14px;
+      }
+      .${NS}-resenas-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+      .${NS}-resenas-header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .${NS}-resenas-promedio {
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .${NS}-resenas-header-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .${NS}-resenas-header-stars {
+        display: inline-flex;
+        gap: 2px;
+        line-height: 1;
+      }
+      .${NS}-resenas-total {
+        font-size: 13px;
+        color: #999;
+      }
+      .${NS}-resenas-btn {
+        border: none;
+        cursor: pointer;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: opacity 0.15s ease;
+        white-space: nowrap;
+      }
+      .${NS}-resenas-btn:hover {
+        opacity: 0.88;
+      }
+      .${NS}-resenas-grid {
+        display: grid;
+        gap: 14px;
+      }
+      .${NS}-resenas-grid.cuadricula {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+      .${NS}-resenas-grid.lista {
+        grid-template-columns: 1fr;
+      }
+      .${NS}-resenas-card {
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .${NS}-resenas-card-foto {
+        width: 100%;
+        aspect-ratio: 4/3;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #eee;
+      }
+      .${NS}-resenas-card-foto img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .${NS}-resenas-card-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .${NS}-resenas-card-nombre {
+        line-height: 1.2;
+      }
+      .${NS}-resenas-verified {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #1d9bf0;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .${NS}-resenas-card-stars {
+        display: inline-flex;
+        gap: 1px;
+        line-height: 1;
+      }
+      .${NS}-resenas-card-texto {
+        margin: 0;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+      .${NS}-resenas-card-fecha {
+        margin-top: 4px;
+        line-height: 1.2;
+      }
+      .${NS}-resenas-card-talle {
+        display: inline-block;
+        margin-top: 4px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: #f0f0f0;
+        color: #555;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .${NS}-resenas-paginacion {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 20px;
+      }
+      .${NS}-resenas-pag-btn {
+        min-width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .${NS}-resenas-pag-btn:hover {
+        background: #f9fafb;
+      }
+      .${NS}-resenas-pag-btn.active {
+        background: #1a1a1a;
+        color: #fff;
+        border-color: #1a1a1a;
+      }
+      .${NS}-resenas-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+        font-size: 14px;
+      }
+      .${NS}-resenas-titulo-mini {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0 10px 0;
+        font-size: 14px;
+      }
+      .${NS}-resenas-titulo-mini-stars {
+        display: inline-flex;
+        gap: 1px;
+      }
+      .${NS}-resenas-titulo-mini-texto {
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      /* ═══ MODAL PÚBLICO DE RESEÑAS ═══ */
+      .${NS}-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .${NS}-modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .${NS}-modal {
+        background: #ffffff;
+        border-radius: 16px;
+        max-width: 480px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 24px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+        transform: translateY(20px);
+        transition: transform 0.2s ease;
+      }
+      .${NS}-modal-overlay.open .${NS}-modal {
+        transform: translateY(0);
+      }
+      .${NS}-modal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .${NS}-modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+      }
+      .${NS}-modal-close {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 24px;
+        color: #6b7280;
+        line-height: 1;
+        padding: 4px;
+        margin: -4px;
+      }
+      .${NS}-modal-close:hover {
+        color: #111827;
+      }
+      .${NS}-modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .${NS}-modal-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .${NS}-modal-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+      }
+      .${NS}-modal-input,
+      .${NS}-modal-textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #111827;
+        background: #fff;
+        outline: none;
+        font-family: inherit;
+        box-sizing: border-box;
+      }
+      .${NS}-modal-input:focus,
+      .${NS}-modal-textarea:focus {
+        border-color: #2563eb;
+      }
+      .${NS}-modal-textarea {
+        resize: vertical;
+        min-height: 90px;
+        line-height: 1.4;
+      }
+      .${NS}-modal-stars {
+        display: inline-flex;
+        gap: 4px;
+      }
+      .${NS}-modal-star {
+        cursor: pointer;
+        font-size: 30px;
+        color: #e5e7eb;
+        line-height: 1;
+        transition: color 0.1s ease, transform 0.1s ease;
+        user-select: none;
+      }
+      .${NS}-modal-star:hover {
+        transform: scale(1.1);
+      }
+      .${NS}-modal-star.filled {
+        color: #f5b300;
+      }
+      .${NS}-modal-radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .${NS}-modal-radio-option {
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        cursor: pointer;
+        background: #fff;
+        transition: all 0.15s ease;
+        user-select: none;
+      }
+      .${NS}-modal-radio-option.selected {
+        background: #2563eb;
+        color: #fff;
+        border-color: #2563eb;
+      }
+      .${NS}-modal-photo-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .${NS}-modal-photo-preview {
+        max-width: 100%;
+        max-height: 180px;
+        border-radius: 8px;
+        display: block;
+      }
+      .${NS}-modal-photo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border: 1.5px dashed #d1d5db;
+        border-radius: 8px;
+        background: #f9fafb;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        align-self: flex-start;
+      }
+      .${NS}-modal-photo-remove {
+        color: #dc2626;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 4px 0;
+        text-align: left;
+      }
+      .${NS}-modal-submit {
+        width: 100%;
+        padding: 14px;
+        background: #1a1a1a;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 4px;
+        transition: opacity 0.15s ease;
+      }
+      .${NS}-modal-submit:hover {
+        opacity: 0.9;
+      }
+      .${NS}-modal-submit:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+      .${NS}-modal-error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+      }
+      .${NS}-modal-success {
+        text-align: center;
+        padding: 20px 10px;
+      }
+      .${NS}-modal-success-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #d1fae5;
+        color: #059669;
+        font-size: 32px;
+        margin-bottom: 14px;
+      }
+      .${NS}-modal-success-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 8px;
+      }
+      .${NS}-modal-success-text {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+        margin-bottom: 14px;
+      }
+      .${NS}-modal-cupon-box {
+        background: #eff6ff;
+        border: 1px dashed #93c5fd;
+        border-radius: 10px;
+        padding: 14px;
+        margin-top: 12px;
+      }
+      .${NS}-modal-cupon-label {
+        font-size: 12px;
+        color: #1e40af;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .${NS}-modal-cupon-code {
+        display: inline-block;
+        background: #1e40af;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+
       @keyframes ${NS}-bundle-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.02); }
@@ -715,6 +1153,7 @@
           if (w.widget_slug === "info-envio") renderInformacionEnvio(w);
           if (w.widget_slug === "mensaje-alerta") renderMensajeAlerta(w);
           if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
+          if (w.widget_slug === "resenas-clientes") renderResenasClientes(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -723,7 +1162,7 @@
     .catch(function (err) {
       console.error("[Nevux] Error cargando widgets:", err);
     });
-
+  
   /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
   ═══════════════════════════════════════════ */
@@ -1145,8 +1584,9 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;")
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
-      }
-    /* ═══════════════════════════════════════════
+  }
+
+  /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
   ═══════════════════════════════════════════ */
   function renderBadgeCuotas(widget) {
@@ -3199,7 +3639,6 @@
   function renderMensajeGarantia(widget) {
     if (pageType !== "product") return;
     var cfg = normalizeMensajeGarantiaConfig(widget.config || {});
-    // Si no hay ni título ni texto ni imagen, no mostramos nada
     var tieneAlgo =
       (cfg.titulo && cfg.titulo.trim() !== "") ||
       (cfg.texto && cfg.texto.trim() !== "") ||
@@ -3229,21 +3668,11 @@
     };
   }
 
-  /**
-   * Parsea texto con marcadores markdown-style a HTML seguro.
-   * - **texto**  → <strong>
-   * - *texto*    → <em>
-   * - __texto__  → <u>
-   * - líneas "- item" consecutivas → <ul><li>
-   * Escapa HTML primero (anti-XSS).
-   */
   function parseTextoMarkdownGarantia(texto) {
     if (!texto) return "";
 
-    // 1) Escapar HTML
     var out = escapeHtml(texto);
 
-    // 2) Detectar bloques de lista (líneas que empiezan con "- ")
     var lineas = out.split("\n");
     var bloques = [];
     var bufferLista = [];
@@ -3273,15 +3702,12 @@
 
     out = bloques.join("\n");
 
-    // 3) Aplicar formatos (orden importa: ** antes que *, __ antes de _)
     out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     out = out.replace(/__(.+?)__/g, "<u>$1</u>");
     out = out.replace(/\*(.+?)\*/g, "<em>$1</em>");
 
-    // 4) Saltos de línea → <br>
     out = out.replace(/\n/g, "<br/>");
 
-    // 5) Limpiar <br> pegados a <ul>/</ul>
     out = out.replace(/<br\/>\s*<ul/g, "<ul");
     out = out.replace(/<\/ul>\s*<br\/>/g, "</ul>");
 
@@ -3302,7 +3728,6 @@
     container.id = uniqueId;
     container.className = NS + "-root";
 
-    // Se ubica DESPUÉS del botón/formulario "Agregar al carrito"
     if (target.node.parentNode) {
       target.node.parentNode.insertBefore(container, target.node.nextSibling);
     } else {
@@ -3356,6 +3781,694 @@
           textoHtml +
         '</div>' +
       '</div>';
+                   }
+  
+  /* ═══════════════════════════════════════════
+     RENDER RESEÑAS DE CLIENTES (Widget 14)
+  ═══════════════════════════════════════════ */
+  function renderResenasClientes(widget) {
+    var cfg = normalizeResenasClientesConfig(widget.config || {});
+    var reviews = Array.isArray(widget.reviews) ? widget.reviews : [];
+    var stats = widget.stats || { total: 0, promedio: 0, distribucion: {} };
+
+    // Si "ocultar si no hay reseñas" está activado y no hay reseñas → no montar nada
+    if (cfg.ocultarSiNoHayResenas && reviews.length === 0 && cfg.ocultarBotonEscribir) {
+      return;
+    }
+
+    // 1. Estrellas resumen debajo del título del producto
+    if (pageType === "product" && cfg.mostrarPuntuacionBajoTitulo && stats.total > 0) {
+      mountResenasMini(widget, cfg, stats);
+    }
+
+    // 2. Widget principal (solo en página de producto)
+    if (pageType === "product") {
+      var mounted = mountResenasClientes(widget, cfg, reviews, stats);
+
+      // 3. Detección de ?calificar → abrir modal automáticamente
+      if (mounted) {
+        var params = new URLSearchParams(window.location.search);
+        if (params.has("calificar")) {
+          setTimeout(function () {
+            openResenasModal(widget, cfg);
+          }, 500);
+        }
+      }
+    }
+  }
+
+  function normalizeResenasClientesConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      // General
+      titulo: raw.titulo || "",
+      textoBoton: raw.textoBoton || "Escribir reseña",
+      subtitulo: raw.subtitulo || "",
+      mensajeAgradecimiento: raw.mensajeAgradecimiento ||
+        "¡Gracias! Tu reseña fue enviada y será publicada luego de ser revisada.",
+      ofrecerCupon: raw.ofrecerCupon === true,
+      codigoCupon: raw.codigoCupon || "",
+      aprobarAutomaticamente: raw.aprobarAutomaticamente !== false,
+      notificarPendientes: raw.notificarPendientes === true,
+      mostrarTodasLasResenas: raw.mostrarTodasLasResenas === true,
+      activarPreguntaTalle: raw.activarPreguntaTalle === true,
+      ocultarBotonEscribir: raw.ocultarBotonEscribir === true,
+      ocultarSiNoHayResenas: raw.ocultarSiNoHayResenas === true,
+      mostrarFecha: raw.mostrarFecha === true,
+
+      // Ubicaciones
+      mostrarPuntuacionBajoTitulo: raw.mostrarPuntuacionBajoTitulo !== false,
+
+      // Estilos
+      disenoWidget: raw.disenoWidget === "lista" ? "lista" : "cuadricula",
+      reviewsPorPagina: n(raw.reviewsPorPagina, 8),
+      bordeBotones: n(raw.bordeBotones, 25),
+      mostrarOpinionPrimero: raw.mostrarOpinionPrimero === true,
+
+      // Colores
+      colorBotones: raw.colorBotones || "#1a1a1a",
+      colorFondo: raw.colorFondo || "transparent",
+      colorTitulo: raw.colorTitulo || "#1a1a1a",
+      colorSubtitulo: raw.colorSubtitulo || "#1a1a1a",
+      fondoSubtitulo: raw.fondoSubtitulo || "transparent",
+      colorFondoResena: raw.colorFondoResena || "#fafafa",
+      colorNombre: raw.colorNombre || "#1a1a1a",
+      colorEstrellas: raw.colorEstrellas || "#f5b300",
+      colorTextoResena: raw.colorTextoResena || "#555555",
+      colorFecha: raw.colorFecha || "#999999",
+
+      // Tipografías
+      tamanoTitulo: n(raw.tamanoTitulo, 22),
+      tamanoSubtitulo: n(raw.tamanoSubtitulo, 16),
+      tamanoEstrellas: n(raw.tamanoEstrellas, 16),
+      tamanoNombre: n(raw.tamanoNombre, 16),
+      estiloNombre: raw.estiloNombre === "normal" ? "normal" : "resaltado",
+    };
+  }
+
+  function renderResenasStars(cantidad, color, size) {
+    var out = "";
+    for (var i = 1; i <= 5; i++) {
+      var c = i <= cantidad ? color : "#e5e7eb";
+      out += '<span style="color:' + c + ';font-size:' + size + 'px;line-height:1;">★</span>';
+    }
+    return out;
+  }
+
+  function formatFechaResena(fechaStr) {
+    if (!fechaStr) return "";
+    try {
+      var d = new Date(fechaStr);
+      var now = new Date();
+      var diffMs = now.getTime() - d.getTime();
+      var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return "Hoy";
+      if (diffDays === 1) return "Ayer";
+      if (diffDays < 7) return "Hace " + diffDays + " días";
+      if (diffDays < 30) {
+        var semanas = Math.floor(diffDays / 7);
+        return "Hace " + semanas + (semanas === 1 ? " semana" : " semanas");
+      }
+      if (diffDays < 365) {
+        var meses = Math.floor(diffDays / 30);
+        return "Hace " + meses + (meses === 1 ? " mes" : " meses");
+      }
+      var anios = Math.floor(diffDays / 365);
+      return "Hace " + anios + (anios === 1 ? " año" : " años");
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function mountResenasMini(widget, cfg, stats) {
+    var uniqueId = NS + "-resenas-mini-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var titleSelectors = ['h1.product-name', 'h1[itemprop="name"]', '.product-name', '.js-product-name', '.product-title', 'h1'];
+    var titleEl = null;
+    for (var i = 0; i < titleSelectors.length; i++) {
+      titleEl = qs(titleSelectors[i]);
+      if (titleEl) break;
+    }
+    if (!titleEl || !titleEl.parentNode) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+    container.style.margin = "0";
+
+    var starsSize = 16;
+    var promedioTxt = String(stats.promedio).replace(".", ",");
+    var totalTxt = stats.total + (stats.total === 1 ? " reseña" : " reseñas");
+
+    container.innerHTML =
+      '<div class="' + NS + '-resenas-titulo-mini">' +
+        '<span class="' + NS + '-resenas-titulo-mini-stars">' +
+          renderResenasStars(Math.round(stats.promedio), cfg.colorEstrellas, starsSize) +
+        '</span>' +
+        '<span class="' + NS + '-resenas-titulo-mini-texto">' +
+          escapeHtml(promedioTxt) + ' · ' + escapeHtml(totalTxt) +
+        '</span>' +
+      '</div>';
+
+    titleEl.parentNode.insertBefore(container, titleEl.nextSibling);
+    console.log("[Nevux] Reseñas mini (estrellas debajo del título) montado");
+  }
+
+  function mountResenasClientes(widget, cfg, reviews, stats) {
+    var uniqueId = NS + "-resenas-" + widget.id;
+    if (qs("#" + uniqueId)) return false;
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para reseñas en producto");
+      return false;
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (target.node.parentNode) {
+      target.node.parentNode.insertBefore(container, target.node.nextSibling);
+    } else {
+      return false;
+    }
+
+    var state = {
+      pagina: 1,
+      reviews: reviews,
+      stats: stats,
+    };
+
+    function render() {
+      container.innerHTML = buildResenasClientesHtml(cfg, state);
+      wireEvents();
+    }
+
+    function wireEvents() {
+      var btn = qs("." + NS + "-resenas-btn", container);
+      if (btn) {
+        btn.addEventListener("click", function () {
+          openResenasModal(widget, cfg);
+        });
+      }
+
+      qsa("." + NS + "-resenas-pag-btn", container).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var p = parseInt(b.dataset.pag, 10);
+          if (!isNaN(p)) {
+            state.pagina = p;
+            render();
+            container.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+    }
+
+    render();
+    console.log("[Nevux] Reseñas de clientes montado. Total:", reviews.length);
+    return true;
+  }
+
+  function buildResenasClientesHtml(cfg, state) {
+    var reviews = state.reviews || [];
+    var stats = state.stats || { total: 0, promedio: 0 };
+    var total = stats.total || 0;
+
+    // Título del widget
+    var tituloHtml = cfg.titulo
+      ? '<h3 class="' + NS + '-resenas-titulo" style="font-size:' + cfg.tamanoTitulo + 'px;color:' + cfg.colorTitulo + ';">' + escapeHtml(cfg.titulo) + '</h3>'
+      : "";
+
+    // Subtítulo
+    var subtituloHtml = "";
+    if (cfg.subtitulo) {
+      var bgSub = cfg.fondoSubtitulo !== "transparent"
+        ? 'background:' + cfg.fondoSubtitulo + ';padding:4px 10px;border-radius:6px;'
+        : "";
+      subtituloHtml = '<span class="' + NS + '-resenas-subtitulo" style="font-size:' + cfg.tamanoSubtitulo + 'px;color:' + cfg.colorSubtitulo + ';' + bgSub + '">' + escapeHtml(cfg.subtitulo) + '</span>';
+    }
+
+    // Header con promedio + botón
+    var headerHtml = "";
+    if (total > 0 || !cfg.ocultarBotonEscribir) {
+      var promedioTxt = String(stats.promedio || 0).replace(".", ",");
+      var totalTxt = total + (total === 1 ? " reseña" : " reseñas");
+
+      var promedioBlock = total > 0
+        ? '<div class="' + NS + '-resenas-header-left">' +
+            '<div class="' + NS + '-resenas-promedio" style="color:' + cfg.colorTitulo + ';">' + promedioTxt + '</div>' +
+            '<div class="' + NS + '-resenas-header-info">' +
+              '<span class="' + NS + '-resenas-header-stars">' + renderResenasStars(Math.round(stats.promedio || 0), cfg.colorEstrellas, cfg.tamanoEstrellas + 4) + '</span>' +
+              '<span class="' + NS + '-resenas-total">' + escapeHtml(totalTxt) + '</span>' +
+            '</div>' +
+          '</div>'
+        : '<div class="' + NS + '-resenas-header-left"><span class="' + NS + '-resenas-total">Sé el primero en dejar una reseña</span></div>';
+
+      var btnHtml = !cfg.ocultarBotonEscribir
+        ? '<button type="button" class="' + NS + '-resenas-btn" style="background:' + cfg.colorBotones + ';color:#fff;border-radius:' + cfg.bordeBotones + 'px;">' + escapeHtml(cfg.textoBoton) + '</button>'
+        : "";
+
+      headerHtml =
+        '<div class="' + NS + '-resenas-header">' +
+          promedioBlock +
+          btnHtml +
+        '</div>';
+    }
+
+    // Grid de reseñas paginado
+    var gridHtml = "";
+    var paginacionHtml = "";
+    if (reviews.length > 0) {
+      var porPagina = cfg.reviewsPorPagina || 8;
+      var totalPaginas = Math.ceil(reviews.length / porPagina);
+      var pagActual = Math.min(state.pagina || 1, totalPaginas);
+      var inicio = (pagActual - 1) * porPagina;
+      var fin = inicio + porPagina;
+      var slice = reviews.slice(inicio, fin);
+
+      var cardsHtml = "";
+      for (var i = 0; i < slice.length; i++) {
+        var r = slice[i];
+        cardsHtml += buildResenasCardHtml(r, cfg);
+      }
+
+      gridHtml = '<div class="' + NS + '-resenas-grid ' + cfg.disenoWidget + '">' + cardsHtml + '</div>';
+
+      // Paginación
+      if (totalPaginas > 1) {
+        var pagBtns = "";
+        for (var p = 1; p <= totalPaginas; p++) {
+          var activeClass = p === pagActual ? " active" : "";
+          pagBtns += '<button type="button" class="' + NS + '-resenas-pag-btn' + activeClass + '" data-pag="' + p + '">' + p + '</button>';
+        }
+        paginacionHtml = '<div class="' + NS + '-resenas-paginacion">' + pagBtns + '</div>';
+      }
+    } else if (!cfg.ocultarSiNoHayResenas) {
+      gridHtml = '<div class="' + NS + '-resenas-empty">Todavía no hay reseñas para este producto.</div>';
+    }
+
+    var bgStyle = cfg.colorFondo === "transparent" ? "transparent" : cfg.colorFondo;
+
+    return '' +
+      '<div class="' + NS + '-resenas-wrap" style="background:' + bgStyle + ';">' +
+        tituloHtml +
+        subtituloHtml +
+        headerHtml +
+        gridHtml +
+        paginacionHtml +
+      '</div>';
+  }
+
+  function buildResenasCardHtml(r, cfg) {
+    var nombre = (r.nombre || "Cliente").trim();
+    var texto = (r.texto || "").trim();
+    var fotoUrl = r.foto_url || "";
+
+    // Foto
+    var fotoHtml = fotoUrl
+      ? '<div class="' + NS + '-resenas-card-foto"><img src="' + escapeHtml(fotoUrl) + '" alt=""/></div>'
+      : "";
+
+    // Verificada
+    var verifiedHtml = r.verificada
+      ? '<span class="' + NS + '-resenas-verified" title="Compra verificada">✓</span>'
+      : "";
+
+    // Estrellas
+    var starsHtml = '<span class="' + NS + '-resenas-card-stars">' + renderResenasStars(r.estrellas || 5, cfg.colorEstrellas, cfg.tamanoEstrellas) + '</span>';
+
+    // Nombre
+    var fontWeightNombre = cfg.estiloNombre === "resaltado" ? 700 : 500;
+    var nombreHtml = '<span class="' + NS + '-resenas-card-nombre" style="font-size:' + cfg.tamanoNombre + 'px;font-weight:' + fontWeightNombre + ';color:' + cfg.colorNombre + ';">' + escapeHtml(nombre) + '</span>';
+
+    // Texto
+    var textoHtml = texto
+      ? '<p class="' + NS + '-resenas-card-texto" style="font-size:14px;color:' + cfg.colorTextoResena + ';">' + escapeHtml(texto) + '</p>'
+      : "";
+
+    // Fecha
+    var fechaHtml = "";
+    if (cfg.mostrarFecha && r.fecha_resena) {
+      var fechaLabel = formatFechaResena(r.fecha_resena);
+      if (fechaLabel) {
+        fechaHtml = '<div class="' + NS + '-resenas-card-fecha" style="font-size:12px;color:' + cfg.colorFecha + ';">' + escapeHtml(fechaLabel) + '</div>';
+      }
+    }
+
+    // Talle
+    var talleHtml = "";
+    if (cfg.activarPreguntaTalle && r.talle) {
+      talleHtml = '<span class="' + NS + '-resenas-card-talle">Talle ' + escapeHtml(r.talle) + '</span>';
+    }
+
+    // Header con nombre + verificado
+    var headerHtml =
+      '<div class="' + NS + '-resenas-card-header">' +
+        nombreHtml +
+        verifiedHtml +
+      '</div>';
+
+    // Orden según config
+    var innerHtml;
+    if (cfg.mostrarOpinionPrimero) {
+      innerHtml =
+        fotoHtml +
+        starsHtml +
+        textoHtml +
+        headerHtml +
+        (talleHtml ? '<div>' + talleHtml + '</div>' : "") +
+        fechaHtml;
+    } else {
+      innerHtml =
+        fotoHtml +
+        headerHtml +
+        starsHtml +
+        textoHtml +
+        (talleHtml ? '<div>' + talleHtml + '</div>' : "") +
+        fechaHtml;
+    }
+
+    return '<div class="' + NS + '-resenas-card" style="background:' + cfg.colorFondoResena + ';">' + innerHtml + '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     MODAL PÚBLICO DE RESEÑAS
+  ═══════════════════════════════════════════ */
+  function openResenasModal(widget, cfg) {
+    var existing = qs("#" + NS + "-modal-overlay");
+    if (existing) {
+      existing.remove();
+    }
+
+    var overlay = document.createElement("div");
+    overlay.id = NS + "-modal-overlay";
+    overlay.className = NS + "-modal-overlay";
+
+    var state = {
+      nombre: "",
+      email: "",
+      estrellas: 0,
+      texto: "",
+      foto_url: "",
+      talle: "",
+      ajuste_talle: "",
+      loading: false,
+      error: "",
+      success: false,
+      cupon: null,
+      mensajeFinal: "",
+    };
+
+    overlay.innerHTML = buildResenasModalHtml(cfg, state);
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(function () {
+      overlay.classList.add("open");
+    });
+
+    wireModalEvents(overlay, widget, cfg, state);
+  }
+
+  function buildResenasModalHtml(cfg, state) {
+    if (state.success) {
+      var cuponHtml = "";
+      if (state.cupon) {
+        cuponHtml =
+          '<div class="' + NS + '-modal-cupon-box">' +
+            '<div class="' + NS + '-modal-cupon-label">🎁 Tu cupón de descuento:</div>' +
+            '<div class="' + NS + '-modal-cupon-code">' + escapeHtml(state.cupon) + '</div>' +
+          '</div>';
+      }
+
+      return '' +
+        '<div class="' + NS + '-modal">' +
+          '<div class="' + NS + '-modal-success">' +
+            '<div class="' + NS + '-modal-success-icon">✓</div>' +
+            '<div class="' + NS + '-modal-success-title">¡Gracias!</div>' +
+            '<div class="' + NS + '-modal-success-text">' + escapeHtml(state.mensajeFinal || cfg.mensajeAgradecimiento) + '</div>' +
+            cuponHtml +
+            '<button type="button" class="' + NS + '-modal-submit" data-action="close" style="background:' + cfg.colorBotones + ';border-radius:' + cfg.bordeBotones + 'px;margin-top:16px;">Cerrar</button>' +
+          '</div>' +
+        '</div>';
+    }
+
+    var starsHtml = "";
+    for (var i = 1; i <= 5; i++) {
+      var filled = i <= state.estrellas ? " filled" : "";
+      starsHtml += '<span class="' + NS + '-modal-star' + filled + '" data-star="' + i + '">★</span>';
+    }
+
+    var talleFieldHtml = "";
+    if (cfg.activarPreguntaTalle) {
+      var opcionesAjuste = [
+        { value: "chico", label: "Chico" },
+        { value: "algo_chico", label: "Algo chico" },
+        { value: "como_esperaba", label: "Como esperaba" },
+        { value: "algo_grande", label: "Algo grande" },
+        { value: "grande", label: "Grande" },
+      ];
+      var optsHtml = "";
+      for (var j = 0; j < opcionesAjuste.length; j++) {
+        var o = opcionesAjuste[j];
+        var sel = state.ajuste_talle === o.value ? " selected" : "";
+        optsHtml += '<div class="' + NS + '-modal-radio-option' + sel + '" data-ajuste="' + o.value + '">' + o.label + '</div>';
+      }
+      talleFieldHtml =
+        '<div class="' + NS + '-modal-field">' +
+          '<label class="' + NS + '-modal-label">Talle (opcional)</label>' +
+          '<input type="text" class="' + NS + '-modal-input" data-field="talle" value="' + escapeHtml(state.talle) + '" placeholder="Ej: M, 42, XL"/>' +
+        '</div>' +
+        '<div class="' + NS + '-modal-field">' +
+          '<label class="' + NS + '-modal-label">¿Te quedó como esperabas?</label>' +
+          '<div class="' + NS + '-modal-radio-group">' + optsHtml + '</div>' +
+        '</div>';
+    }
+
+    var fotoFieldHtml = "";
+    if (state.foto_url) {
+      fotoFieldHtml =
+        '<div class="' + NS + '-modal-photo-upload">' +
+          '<img src="' + state.foto_url + '" class="' + NS + '-modal-photo-preview" alt=""/>' +
+          '<button type="button" class="' + NS + '-modal-photo-remove" data-action="remove-photo">Quitar foto</button>' +
+        '</div>';
+    } else {
+      fotoFieldHtml =
+        '<label class="' + NS + '-modal-photo-btn">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+          'Agregar foto (opcional)' +
+          '<input type="file" accept="image/*" data-action="upload-photo" style="display:none;"/>' +
+        '</label>';
+    }
+
+    var errorHtml = state.error
+      ? '<div class="' + NS + '-modal-error">' + escapeHtml(state.error) + '</div>'
+      : "";
+
+    var submitDisabled = state.loading ? " disabled" : "";
+    var submitText = state.loading ? "Enviando..." : "Enviar reseña";
+
+    return '' +
+      '<div class="' + NS + '-modal" data-modal-content>' +
+        '<div class="' + NS + '-modal-header">' +
+          '<h3 class="' + NS + '-modal-title">Escribir reseña</h3>' +
+          '<button type="button" class="' + NS + '-modal-close" data-action="close">×</button>' +
+        '</div>' +
+        '<form class="' + NS + '-modal-form" data-action="submit">' +
+          errorHtml +
+          '<div class="' + NS + '-modal-field">' +
+            '<label class="' + NS + '-modal-label">Tu nombre *</label>' +
+            '<input type="text" class="' + NS + '-modal-input" data-field="nombre" value="' + escapeHtml(state.nombre) + '" placeholder="Ej: María P." required maxlength="80"/>' +
+          '</div>' +
+          '<div class="' + NS + '-modal-field">' +
+            '<label class="' + NS + '-modal-label">Email (opcional)</label>' +
+            '<input type="email" class="' + NS + '-modal-input" data-field="email" value="' + escapeHtml(state.email) + '" placeholder="tu@email.com"/>' +
+          '</div>' +
+          '<div class="' + NS + '-modal-field">' +
+            '<label class="' + NS + '-modal-label">Puntuación *</label>' +
+            '<div class="' + NS + '-modal-stars">' + starsHtml + '</div>' +
+          '</div>' +
+          '<div class="' + NS + '-modal-field">' +
+            '<label class="' + NS + '-modal-label">Tu opinión *</label>' +
+            '<textarea class="' + NS + '-modal-textarea" data-field="texto" placeholder="Contá tu experiencia con el producto..." required maxlength="2000">' + escapeHtml(state.texto) + '</textarea>' +
+          '</div>' +
+          talleFieldHtml +
+          '<div class="' + NS + '-modal-field">' +
+            '<label class="' + NS + '-modal-label">Foto (opcional)</label>' +
+            fotoFieldHtml +
+          '</div>' +
+          '<button type="submit" class="' + NS + '-modal-submit" style="background:' + cfg.colorBotones + ';border-radius:' + cfg.bordeBotones + 'px;"' + submitDisabled + '>' + submitText + '</button>' +
+        '</form>' +
+      '</div>';
+  }
+
+  function wireModalEvents(overlay, widget, cfg, state) {
+    function render() {
+      overlay.innerHTML = buildResenasModalHtml(cfg, state);
+      wireModalEvents(overlay, widget, cfg, state);
+    }
+
+    function closeModal() {
+      overlay.classList.remove("open");
+      setTimeout(function () {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }, 200);
+    }
+
+    // Cerrar al clickear overlay (fuera del modal)
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) {
+        closeModal();
+      }
+    });
+
+    // Cerrar con botón
+    qsa('[data-action="close"]', overlay).forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        closeModal();
+      });
+    });
+
+    // Estrellas
+    qsa("." + NS + "-modal-star", overlay).forEach(function (star) {
+      star.addEventListener("click", function () {
+        state.estrellas = parseInt(star.dataset.star, 10) || 0;
+        state.error = "";
+        render();
+      });
+    });
+
+    // Radio ajuste_talle
+    qsa("[data-ajuste]", overlay).forEach(function (opt) {
+      opt.addEventListener("click", function () {
+        state.ajuste_talle = opt.dataset.ajuste;
+        render();
+      });
+    });
+
+    // Inputs y textarea
+    qsa("[data-field]", overlay).forEach(function (input) {
+      input.addEventListener("input", function () {
+        var field = input.dataset.field;
+        state[field] = input.value;
+      });
+    });
+
+    // Upload foto
+    var uploadInput = qs('[data-action="upload-photo"]', overlay);
+    if (uploadInput) {
+      uploadInput.addEventListener("change", function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+          state.error = "La foto es demasiado grande (máx 2MB)";
+          render();
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          state.foto_url = ev.target.result;
+          state.error = "";
+          render();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Quitar foto
+    var removePhoto = qs('[data-action="remove-photo"]', overlay);
+    if (removePhoto) {
+      removePhoto.addEventListener("click", function (e) {
+        e.preventDefault();
+        state.foto_url = "";
+        render();
+      });
+    }
+
+    // Submit
+    var form = qs('form[data-action="submit"]', overlay);
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        submitResena(widget, cfg, state, render);
+      });
+    }
+  }
+
+  function submitResena(widget, cfg, state, render) {
+    // Validaciones básicas
+    if (!state.nombre || state.nombre.trim().length < 2) {
+      state.error = "El nombre debe tener al menos 2 caracteres";
+      render();
+      return;
+    }
+    if (!state.estrellas || state.estrellas < 1 || state.estrellas > 5) {
+      state.error = "Seleccioná una puntuación de 1 a 5 estrellas";
+      render();
+      return;
+    }
+    if (!state.texto || state.texto.trim().length < 5) {
+      state.error = "El texto debe tener al menos 5 caracteres";
+      render();
+      return;
+    }
+
+    state.loading = true;
+    state.error = "";
+    render();
+
+    var params = new URLSearchParams(window.location.search);
+    var vieneDeCalificar = params.has("calificar");
+
+    var body = {
+      widget_id: widget.id,
+      store_id: storeId,
+      product_id: productId,
+      nombre: state.nombre.trim(),
+      email: state.email ? state.email.trim() : null,
+      estrellas: state.estrellas,
+      texto: state.texto.trim(),
+      foto_url: state.foto_url || null,
+      talle: state.talle ? state.talle.trim() : null,
+      ajuste_talle: state.ajuste_talle || null,
+      desde_calificar: vieneDeCalificar,
+    };
+
+    fetch(API_BASE + "/api/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+      .then(function (r) {
+        return r.json().then(function (data) {
+          return { ok: r.ok, status: r.status, data: data };
+        });
+      })
+      .then(function (res) {
+        state.loading = false;
+        if (!res.ok) {
+          state.error = (res.data && res.data.error) || "Error al enviar la reseña";
+          render();
+          return;
+        }
+        state.success = true;
+        state.mensajeFinal = res.data.mensaje || cfg.mensajeAgradecimiento;
+        state.cupon = res.data.cupon || null;
+        render();
+      })
+      .catch(function (err) {
+        state.loading = false;
+        state.error = "Error de conexión. Intentalo de nuevo.";
+        render();
+        console.error("[Nevux] Error enviando reseña:", err);
+      });
   }
 
 })();
