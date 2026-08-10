@@ -111,12 +111,64 @@ export async function GET(req: NextRequest) {
       definitions = defs || []
     }
 
-    const enrichedWidgets = (widgets || []).map((w) => ({
+    let enrichedWidgets = (widgets || []).map((w) => ({
       ...w,
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
 
-    // 6. Devolver widgets
+    // 6. Enriquecer widgets de reseñas con reviews aprobadas + stats
+    const widgetsResenas = enrichedWidgets.filter(
+      (w) => w.widget_slug === 'resenas-clientes'
+    )
+
+    if (widgetsResenas.length > 0) {
+      // Procesamos cada widget de reseñas por separado
+      // (puede haber más de uno si el comerciante los asignó a distintos productos)
+      const enriquecidos = await Promise.all(
+        widgetsResenas.map(async (w) => {
+          // Determinar filtro de product_id
+          // Si el widget es para un producto específico, filtramos por ese producto
+          // Si es para toda la tienda, traemos todas las reseñas aprobadas del widget
+          let reviewsQuery = supabase
+            .from('reviews')
+            .select(
+              'id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, ' +
+              'verificada, desde_calificar, respuesta_texto, respuesta_fecha, ' +
+              'fecha_resena, orden, product_id'
+            )
+            .eq('widget_id', w.id)
+            .eq('estado', 'aprobada')
+            .order('orden', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(100)
+
+          if (w.target_type === 'product' && w.target_product_id) {
+            reviewsQuery = reviewsQuery.eq('product_id', w.target_product_id)
+          }
+
+          const { data: reviews, error: reviewsError } = await reviewsQuery
+
+          if (reviewsError) {
+            console.error(`Error obteniendo reseñas para widget ${w.id}:`, reviewsError)
+            return { ...w, reviews: [], stats: defaultStats() }
+          }
+
+          const aprobadas = reviews || []
+          const stats = calcularStats(aprobadas)
+
+          return { ...w, reviews: aprobadas, stats }
+        })
+      )
+
+      // Reemplazar los widgets de reseñas con sus versiones enriquecidas
+      enrichedWidgets = enrichedWidgets.map((w) => {
+        if (w.widget_slug !== 'resenas-clientes') return w
+        const enriquecido = enriquecidos.find((e) => e.id === w.id)
+        return enriquecido ?? w
+      })
+    }
+
+    // 7. Devolver widgets
     return NextResponse.json(
       { widgets: enrichedWidgets },
       { status: 200, headers: corsHeaders }
@@ -128,4 +180,45 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-      }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Helper: calcula stats sobre un array de reseñas aprobadas
+// ═══════════════════════════════════════════════════════════
+function calcularStats(reviews: any[]) {
+  const total = reviews.length
+
+  if (total === 0) return defaultStats()
+
+  const distribucion: Record<string, number> = {
+    '5': 0,
+    '4': 0,
+    '3': 0,
+    '2': 0,
+    '1': 0,
+  }
+
+  let suma = 0
+  for (const r of reviews) {
+    suma += r.estrellas || 0
+    const key = String(r.estrellas)
+    if (distribucion[key] !== undefined) {
+      distribucion[key]++
+    }
+  }
+
+  const promedio = parseFloat((suma / total).toFixed(2))
+
+  return { total, promedio, distribucion }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Helper: stats vacías por defecto
+// ═══════════════════════════════════════════════════════════
+function defaultStats() {
+  return {
+    total: 0,
+    promedio: 0,
+    distribucion: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 },
+  }
+  }
