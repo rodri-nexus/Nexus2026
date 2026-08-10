@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v19 loaded");
+  console.log("[Nevux] v20 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -573,6 +573,53 @@
         line-height: 1.4;
       }
 
+      /* ═══ MENSAJE DE GARANTÍA ═══ */
+      .${NS}-garantia-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .${NS}-garantia-img-wrap {
+        flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+      }
+      .${NS}-garantia-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .${NS}-garantia-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .${NS}-garantia-titulo {
+        font-weight: 700;
+        line-height: 1.3;
+        word-break: break-word;
+      }
+      .${NS}-garantia-texto {
+        line-height: 1.5;
+        word-break: break-word;
+        margin-top: 6px;
+      }
+      .${NS}-garantia-texto ul {
+        margin: 6px 0;
+        padding-left: 20px;
+      }
+      .${NS}-garantia-texto li {
+        margin: 2px 0;
+      }
+
       @keyframes ${NS}-bundle-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.02); }
@@ -667,6 +714,7 @@
           if (w.widget_slug === "info-despacho") renderInformacionDespacho(w);
           if (w.widget_slug === "info-envio") renderInformacionEnvio(w);
           if (w.widget_slug === "mensaje-alerta") renderMensajeAlerta(w);
+          if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -1097,9 +1145,8 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;")
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
-  }
-
-  /* ═══════════════════════════════════════════
+      }
+    /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
   ═══════════════════════════════════════════ */
   function renderBadgeCuotas(widget) {
@@ -3046,8 +3093,6 @@
     var iconoSize = Math.round((cfg.tamanoTexto || 14) * 1.4);
     switch (cfg.icono) {
       case "circulo": {
-        // Bolita del color inverso al fondo:
-        // amarillo → oscuro; verde/rojo/personalizado → blanco
         var dotColor = cfg.color === "amarillo" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.85)";
         var dotSize = Math.max(10, Math.round(iconoSize * 0.55));
         return '<span class="' + NS + '-alerta-icono" style="width:' + iconoSize + 'px;height:' + iconoSize + 'px;">' +
@@ -3084,13 +3129,11 @@
       if (priceTarget && priceTarget.parentNode) {
         priceTarget.parentNode.insertBefore(container, priceTarget.nextSibling);
       } else {
-        // fallback: encima del botón
         var fallbackTarget = findProductTarget("before-button");
         if (!fallbackTarget) return;
         fallbackTarget.node.parentNode.insertBefore(container, fallbackTarget.node);
       }
     } else {
-      // antes-titulo: antes del h1 del producto
       var titleSelectors = ['h1.product-name', 'h1[itemprop="name"]', '.product-name', '.js-product-name', '.product-title', 'h1'];
       var titleEl = null;
       for (var i = 0; i < titleSelectors.length; i++) {
@@ -3100,7 +3143,6 @@
       if (titleEl && titleEl.parentNode) {
         titleEl.parentNode.insertBefore(container, titleEl);
       } else {
-        // fallback: encima del botón
         var fallbackTarget2 = findProductTarget("before-button");
         if (!fallbackTarget2) return;
         fallbackTarget2.node.parentNode.insertBefore(container, fallbackTarget2.node);
@@ -3127,7 +3169,6 @@
     var animacionBox = aplicarACompleto ? efectoAnim : "none";
     var animacionIcono = !aplicarACompleto ? efectoAnim : "none";
 
-    // Si el icono tiene animación propia, la envolvemos
     var iconoFinal = iconoHtml;
     if (iconoHtml && animacionIcono !== "none") {
       iconoFinal = '<span style="display:inline-flex;animation:' + animacionIcono + ';">' + iconoHtml + '</span>';
@@ -3149,6 +3190,171 @@
           'font-weight:' + fontWeight + ';' +
           'color:' + colores.texto + ';' +
         '">' + escapeHtml(cfg.mensaje) + '</span>' +
+      '</div>';
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER MENSAJE DE GARANTÍA
+  ═══════════════════════════════════════════ */
+  function renderMensajeGarantia(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeMensajeGarantiaConfig(widget.config || {});
+    // Si no hay ni título ni texto ni imagen, no mostramos nada
+    var tieneAlgo =
+      (cfg.titulo && cfg.titulo.trim() !== "") ||
+      (cfg.texto && cfg.texto.trim() !== "") ||
+      (cfg.imagenBase64 && cfg.imagenBase64.trim() !== "");
+    if (!tieneAlgo) return;
+    mountMensajeGarantia(widget, cfg);
+  }
+
+  function normalizeMensajeGarantiaConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      titulo: raw.titulo || "",
+      texto: raw.texto || "",
+      imagenBase64: raw.imagenBase64 || "",
+      colorFondo: raw.colorFondo || "#fff9f3",
+      colorTitulo: raw.colorTitulo || "#000000",
+      colorTexto: raw.colorTexto || "#333333",
+      colorBorde: raw.colorBorde || "#e7decf",
+      tamanoTitulo: raw.tamanoTitulo || "16px",
+      tamanoTexto: raw.tamanoTexto || "16px",
+      bordesRedondeados: n(raw.bordesRedondeados, 5),
+      paddingInterno: n(raw.paddingInterno, 20),
+    };
+  }
+
+  /**
+   * Parsea texto con marcadores markdown-style a HTML seguro.
+   * - **texto**  → <strong>
+   * - *texto*    → <em>
+   * - __texto__  → <u>
+   * - líneas "- item" consecutivas → <ul><li>
+   * Escapa HTML primero (anti-XSS).
+   */
+  function parseTextoMarkdownGarantia(texto) {
+    if (!texto) return "";
+
+    // 1) Escapar HTML
+    var out = escapeHtml(texto);
+
+    // 2) Detectar bloques de lista (líneas que empiezan con "- ")
+    var lineas = out.split("\n");
+    var bloques = [];
+    var bufferLista = [];
+
+    function flushLista() {
+      if (bufferLista.length > 0) {
+        var items = "";
+        for (var k = 0; k < bufferLista.length; k++) {
+          items += "<li>" + bufferLista[k] + "</li>";
+        }
+        bloques.push("<ul>" + items + "</ul>");
+        bufferLista = [];
+      }
+    }
+
+    for (var i = 0; i < lineas.length; i++) {
+      var linea = lineas[i];
+      var trimmed = linea.trim();
+      if (trimmed.indexOf("- ") === 0) {
+        bufferLista.push(trimmed.substring(2));
+      } else {
+        flushLista();
+        bloques.push(linea);
+      }
+    }
+    flushLista();
+
+    out = bloques.join("\n");
+
+    // 3) Aplicar formatos (orden importa: ** antes que *, __ antes de _)
+    out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    out = out.replace(/__(.+?)__/g, "<u>$1</u>");
+    out = out.replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+    // 4) Saltos de línea → <br>
+    out = out.replace(/\n/g, "<br/>");
+
+    // 5) Limpiar <br> pegados a <ul>/</ul>
+    out = out.replace(/<br\/>\s*<ul/g, "<ul");
+    out = out.replace(/<\/ul>\s*<br\/>/g, "</ul>");
+
+    return out;
+  }
+
+  function mountMensajeGarantia(widget, cfg) {
+    var uniqueId = NS + "-garantia-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para mensaje garantía en producto");
+      return;
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    // Se ubica DESPUÉS del botón/formulario "Agregar al carrito"
+    if (target.node.parentNode) {
+      target.node.parentNode.insertBefore(container, target.node.nextSibling);
+    } else {
+      return;
+    }
+
+    container.innerHTML = buildMensajeGarantiaHtml(cfg);
+    console.log("[Nevux] Mensaje garantía montado");
+  }
+
+  function buildMensajeGarantiaHtml(cfg) {
+    var tieneImagen = cfg.imagenBase64 && cfg.imagenBase64.trim() !== "";
+    var tieneTitulo = cfg.titulo && cfg.titulo.trim() !== "";
+    var tieneTexto = cfg.texto && cfg.texto.trim() !== "";
+
+    var imgHtml = "";
+    if (tieneImagen) {
+      imgHtml = '<div class="' + NS + '-garantia-img-wrap">' +
+        '<img src="' + cfg.imagenBase64 + '" alt="" />' +
+      '</div>';
+    }
+
+    var tituloHtml = "";
+    if (tieneTitulo) {
+      tituloHtml = '<div class="' + NS + '-garantia-titulo" style="' +
+        'font-size:' + cfg.tamanoTitulo + ';' +
+        'color:' + cfg.colorTitulo + ';' +
+        (tieneTexto ? '' : 'margin-bottom:0;') +
+      '">' + escapeHtml(cfg.titulo) + '</div>';
+    }
+
+    var textoHtml = "";
+    if (tieneTexto) {
+      var textoParseado = parseTextoMarkdownGarantia(cfg.texto);
+      textoHtml = '<div class="' + NS + '-garantia-texto" style="' +
+        'font-size:' + cfg.tamanoTexto + ';' +
+        'color:' + cfg.colorTexto + ';' +
+      '">' + textoParseado + '</div>';
+    }
+
+    return '' +
+      '<div class="' + NS + '-garantia-box" style="' +
+        'background:' + cfg.colorFondo + ';' +
+        'border:1px solid ' + cfg.colorBorde + ';' +
+        'border-radius:' + cfg.bordesRedondeados + 'px;' +
+        'padding:' + cfg.paddingInterno + 'px;' +
+      '">' +
+        imgHtml +
+        '<div class="' + NS + '-garantia-content">' +
+          tituloHtml +
+          textoHtml +
+        '</div>' +
       '</div>';
   }
 
