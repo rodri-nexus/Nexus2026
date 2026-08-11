@@ -16,8 +16,8 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Buscar en paralelo: tienda vinculada + perfil (onboarding)
-  const [storeRes, profileRes] = await Promise.all([
+  // Buscar en paralelo: tienda vinculada + perfil (onboarding) + widgets activos
+  const [storeRes, profileRes, widgetsCountRes] = await Promise.all([
     supabase
       .from("stores")
       .select("store_id, access_token, installed_at, is_active")
@@ -29,10 +29,16 @@ export default async function DashboardPage() {
       .select("onboarding_completed")
       .eq("id", user.id)
       .maybeSingle(),
+    supabase
+      .from("widgets")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("is_active", true),
   ]);
 
   const store = storeRes.data;
   const onboardingCompleted = profileRes.data?.onboarding_completed ?? false;
+  const activeWidgetsCount = widgetsCountRes.count ?? 0;
 
   let productsCount = 0;
   if (store?.store_id && store?.access_token) {
@@ -56,7 +62,7 @@ export default async function DashboardPage() {
       userId={user.id}
       store={storeData}
       productsCount={productsCount}
-      activeWidgetsCount={0}
+      activeWidgetsCount={activeWidgetsCount}
       onboardingCompleted={onboardingCompleted}
     />
   );
