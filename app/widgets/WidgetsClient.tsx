@@ -1,9 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { LayoutGrid, Plus, Sparkles, ArrowLeft } from "lucide-react";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutGrid,
+  Plus,
+  ArrowLeft,
+  Pencil,
+  Trash2,
+  CheckCircle2,
+  X,
+  ExternalLink,
+  Search,
+  Store,
+  Package,
+  AlertCircle,
+} from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../dashboard/components/DashboardHeader";
 import SideMenu from "../dashboard/components/SideMenu";
 
@@ -13,16 +27,189 @@ interface StoreData {
   is_active: boolean;
 }
 
+interface WidgetDefinition {
+  name: string;
+  icon: string;
+  category: string;
+  description: string;
+}
+
+interface WidgetRow {
+  id: string;
+  widget_slug: string;
+  widget_type: string;
+  target_type: string;
+  target_product_id: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  definition: WidgetDefinition | null;
+}
+
+interface ProductInfo {
+  id: number;
+  name: string;
+  image: string | null;
+  slug: string;
+}
+
 interface WidgetsClientProps {
   email: string;
   store: StoreData | null;
+  widgets: WidgetRow[];
+  productsMap: Record<number, ProductInfo | null>;
 }
 
 export default function WidgetsClient({
   email,
   store,
+  widgets,
+  productsMap,
 }: WidgetsClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [toast, setToast] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [dismissBanner, setDismissBanner] = useState(false);
+
+  // Detectar ?created=slug para mostrar banner de éxito
+  const createdSlug = searchParams.get("created");
+  const createdProductId = searchParams.get("product");
+  const showCreatedBanner =
+    !!createdSlug && !dismissBanner;
+
+  const createdWidget = useMemo(() => {
+    if (!createdSlug) return null;
+    return widgets.find((w) => {
+      if (w.widget_slug !== createdSlug) return false;
+      if (createdProductId) {
+        return String(w.target_product_id) === createdProductId;
+      }
+      return w.target_type === "all";
+    });
+  }, [createdSlug, createdProductId, widgets]);
+
+  const createdWidgetName =
+    createdWidget?.definition?.name ?? createdSlug ?? "Widget";
+
+  // Filtro por búsqueda
+  const filteredWidgets = useMemo(() => {
+    if (!search.trim()) return widgets;
+    const q = search.toLowerCase().trim();
+    return widgets.filter((w) => {
+      const name = w.definition?.name?.toLowerCase() ?? "";
+      const cat = w.definition?.category?.toLowerCase() ?? "";
+      const slug = w.widget_slug.toLowerCase();
+      const productName =
+        w.target_product_id && productsMap[w.target_product_id]
+          ? productsMap[w.target_product_id]!.name.toLowerCase()
+          : "";
+      return (
+        name.includes(q) ||
+        cat.includes(q) ||
+        slug.includes(q) ||
+        productName.includes(q)
+      );
+    });
+  }, [widgets, search, productsMap]);
+
+  // Agrupar widgets: "all" primero, luego por producto
+  const groupedWidgets = useMemo(() => {
+    const generales = filteredWidgets.filter((w) => w.target_type === "all");
+    const porProducto = new Map<number, WidgetRow[]>();
+
+    filteredWidgets
+      .filter((w) => w.target_type === "product" && w.target_product_id)
+      .forEach((w) => {
+        const pid = w.target_product_id as number;
+        if (!porProducto.has(pid)) porProducto.set(pid, []);
+        porProducto.get(pid)!.push(w);
+      });
+
+    return { generales, porProducto };
+  }, [filteredWidgets]);
+
+  const totalWidgets = widgets.length;
+  const activeWidgets = widgets.filter((w) => w.is_active).length;
+
+  const showToast = (type: "success" | "error", text: string) => {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const handleToggle = async (widget: WidgetRow) => {
+    setBusyId(widget.id);
+    try {
+      const res = await fetch("/api/widgets", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: widget.id,
+          is_active: !widget.is_active,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "No se pudo actualizar el widget");
+      }
+      showToast(
+        "success",
+        !widget.is_active ? "Widget activado" : "Widget desactivado"
+      );
+      router.refresh();
+    } catch (e: any) {
+      showToast("error", e.message || "Error al actualizar");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleDelete = async (widget: WidgetRow) => {
+    const confirmMsg = `¿Eliminar el widget "${
+      widget.definition?.name ?? widget.widget_slug
+    }"? Esta acción no se puede deshacer.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setBusyId(widget.id);
+    try {
+      const res = await fetch(`/api/widgets?id=${widget.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "No se pudo eliminar el widget");
+      }
+      showToast("success", "Widget eliminado");
+      router.refresh();
+    } catch (e: any) {
+      showToast("error", e.message || "Error al eliminar");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const goToEditor = (widget: WidgetRow) => {
+    const base = `/widgets/editar/${widget.widget_slug}`;
+    const url =
+      widget.target_type === "product" && widget.target_product_id
+        ? `${base}?product=${widget.target_product_id}`
+        : base;
+    router.push(url);
+  };
+
+  const goToProduct = (productId: number) => {
+    const p = productsMap[productId];
+    if (!p) return;
+    // Abrir ficha del producto en la tienda pública
+    window.open(`https://tienda.com.ar/productos/${p.slug}`, "_blank");
+  };
+
+  const hasWidgets = totalWidgets > 0;
 
   return (
     <div
@@ -61,12 +248,127 @@ export default function WidgetsClient({
           Volver al dashboard
         </Link>
 
-        {/* Header de la página */}
+        {/* Banner de widget creado */}
+        <AnimatePresence>
+          {showCreatedBanner && createdWidget && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                border: "1px solid #6ee7b7",
+                borderRadius: "16px",
+                padding: "1.25rem",
+                marginBottom: "1.5rem",
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "0.9rem",
+                flexWrap: "wrap",
+              }}
+            >
+              <div
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  background: "#059669",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <CheckCircle2 size={20} />
+              </div>
+              <div style={{ flex: 1, minWidth: 220 }}>
+                <div
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    color: "#065f46",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Widget &quot;{createdWidgetName}&quot; creado exitosamente
+                </div>
+                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => goToEditor(createdWidget)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      background: "transparent",
+                      border: "1.5px solid #059669",
+                      color: "#065f46",
+                      padding: "0.55rem 1.1rem",
+                      borderRadius: "999px",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <Pencil size={14} />
+                    Editar widget
+                  </button>
+                  {createdWidget.target_product_id &&
+                    productsMap[createdWidget.target_product_id] && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          goToProduct(createdWidget.target_product_id as number)
+                        }
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.4rem",
+                          background: "transparent",
+                          border: "1.5px solid #059669",
+                          color: "#065f46",
+                          padding: "0.55rem 1.1rem",
+                          borderRadius: "999px",
+                          fontSize: "0.85rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          fontFamily: "inherit",
+                        }}
+                      >
+                        <ExternalLink size={14} />
+                        Abrir el producto
+                      </button>
+                    )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDismissBanner(true)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#065f46",
+                  cursor: "pointer",
+                  padding: "4px",
+                  flexShrink: 0,
+                }}
+                aria-label="Cerrar"
+              >
+                <X size={20} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          style={{ marginBottom: "2rem" }}
+          style={{ marginBottom: "1.5rem" }}
         >
           <div
             style={{
@@ -87,7 +389,7 @@ export default function WidgetsClient({
                   letterSpacing: "-0.02em",
                 }}
               >
-                Widgets
+                Mis widgets
               </h1>
               <p
                 style={{
@@ -96,15 +398,19 @@ export default function WidgetsClient({
                   color: "#6b7280",
                 }}
               >
-                {store
-                  ? "Todavía no creaste ningún widget. Empezá creando uno."
-                  : "Conectá tu Tiendanube para empezar a crear widgets."}
+                {!store
+                  ? "Conectá tu Tiendanube para empezar a crear widgets."
+                  : hasWidgets
+                  ? `${activeWidgets} activo${
+                      activeWidgets === 1 ? "" : "s"
+                    } · ${totalWidgets} total`
+                  : "Todavía no creaste ningún widget. Empezá creando uno."}
               </p>
             </div>
 
             {store && (
-              <button
-                disabled
+              <Link
+                href="/widgets/nuevo/todos"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -114,97 +420,573 @@ export default function WidgetsClient({
                   border: "none",
                   background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
                   color: "#ffffff",
-                  fontSize: "0.85rem",
+                  fontSize: "0.9rem",
                   fontWeight: 600,
-                  cursor: "not-allowed",
-                  opacity: 0.7,
+                  cursor: "pointer",
                   boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
                   fontFamily: "inherit",
+                  textDecoration: "none",
                 }}
               >
-                <Plus size={14} />
+                <Plus size={16} />
                 Crear widget
-              </button>
+              </Link>
             )}
           </div>
         </motion.div>
 
-        {/* Contenido: placeholder */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
+        {/* Buscador */}
+        {store && hasWidgets && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.05 }}
+            style={{
+              position: "relative",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <Search
+              size={18}
+              color="#9ca3af"
+              style={{
+                position: "absolute",
+                left: "1rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Busca un producto, categoría o widget..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.85rem 1rem 0.85rem 2.75rem",
+                borderRadius: "999px",
+                border: "1px solid #e5e7eb",
+                background: "#ffffff",
+                fontSize: "0.9rem",
+                color: "#111827",
+                outline: "none",
+                fontFamily: "inherit",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
+                boxSizing: "border-box",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#6366f1";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "#e5e7eb";
+              }}
+            />
+          </motion.div>
+        )}
+
+        {/* Contenido principal */}
+        {!store ? (
+          <EmptyState
+            title="Conectá tu Tiendanube"
+            description="Necesitás vincular tu tienda para poder crear widgets."
+          />
+        ) : !hasWidgets ? (
+          <EmptyState
+            title="Aún no tenés widgets"
+            description="Empezá creando tu primer widget para aumentar tus ventas."
+            ctaLabel="Crear widget"
+            ctaHref="/widgets/nuevo/todos"
+          />
+        ) : filteredWidgets.length === 0 ? (
+          <EmptyState
+            title="No se encontraron widgets"
+            description={`No hay resultados para "${search}". Probá con otro término.`}
+          />
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            {/* Grupo: Todos los productos */}
+            {groupedWidgets.generales.length > 0 && (
+              <WidgetGroup
+                icon={
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "12px",
+                      background:
+                        "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#fff",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Store size={22} />
+                  </div>
+                }
+                title="Todos los productos"
+                subtitle={`${groupedWidgets.generales.length} widget${
+                  groupedWidgets.generales.length === 1 ? "" : "s"
+                }`}
+                widgets={groupedWidgets.generales}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onEdit={goToEditor}
+                busyId={busyId}
+              />
+            )}
+
+            {/* Grupo: por producto */}
+            {Array.from(groupedWidgets.porProducto.entries()).map(
+              ([productId, wgs]) => {
+                const product = productsMap[productId];
+                return (
+                  <WidgetGroup
+                    key={productId}
+                    icon={
+                      product?.image ? (
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          style={{
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            objectFit: "cover",
+                            flexShrink: 0,
+                            background: "#f3f4f6",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: "44px",
+                            height: "44px",
+                            borderRadius: "12px",
+                            background: "#f3f4f6",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#9ca3af",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <Package size={22} />
+                        </div>
+                      )
+                    }
+                    title={product?.name ?? `Producto #${productId}`}
+                    subtitle={
+                      product
+                        ? `${wgs.length} widget${wgs.length === 1 ? "" : "s"}`
+                        : "Producto no disponible en Tiendanube"
+                    }
+                    productDisabled={!product}
+                    widgets={wgs}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                    onEdit={goToEditor}
+                    busyId={busyId}
+                  />
+                );
+              }
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            style={{
+              position: "fixed",
+              bottom: "1.5rem",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background:
+                toast.type === "success" ? "#059669" : "#dc2626",
+              color: "#fff",
+              padding: "0.85rem 1.4rem",
+              borderRadius: "999px",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+              zIndex: 100,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            {toast.type === "success" ? (
+              <CheckCircle2 size={18} />
+            ) : (
+              <AlertCircle size={18} />
+            )}
+            {toast.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ================= EMPTY STATE ================= */
+
+function EmptyState({
+  title,
+  description,
+  ctaLabel,
+  ctaHref,
+}: {
+  title: string;
+  description: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.1 }}
+      style={{
+        background: "#ffffff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "16px",
+        padding: "3rem 2rem",
+        textAlign: "center",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+      }}
+    >
+      <div
+        style={{
+          width: "72px",
+          height: "72px",
+          borderRadius: "18px",
+          background:
+            "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: "1.25rem",
+        }}
+      >
+        <LayoutGrid size={34} color="#6366f1" strokeWidth={1.75} />
+      </div>
+
+      <h2
+        style={{
+          margin: "0 0 0.75rem",
+          fontSize: "1.35rem",
+          fontWeight: 700,
+          color: "#111827",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {title}
+      </h2>
+
+      <p
+        style={{
+          margin: "0 auto 1.5rem",
+          maxWidth: "460px",
+          fontSize: "0.95rem",
+          color: "#6b7280",
+          lineHeight: 1.6,
+        }}
+      >
+        {description}
+      </p>
+
+      {ctaLabel && ctaHref && (
+        <Link
+          href={ctaHref}
           style={{
-            background: "#ffffff",
-            border: "1px solid #e5e7eb",
-            borderRadius: "16px",
-            padding: "3rem 2rem",
-            textAlign: "center",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.7rem 1.4rem",
+            borderRadius: "999px",
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            color: "#ffffff",
+            fontSize: "0.9rem",
+            fontWeight: 600,
+            textDecoration: "none",
+            boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+          }}
+        >
+          <Plus size={16} />
+          {ctaLabel}
+        </Link>
+      )}
+    </motion.div>
+  );
+}
+
+/* ================= WIDGET GROUP ================= */
+
+function WidgetGroup({
+  icon,
+  title,
+  subtitle,
+  widgets,
+  onToggle,
+  onDelete,
+  onEdit,
+  busyId,
+  productDisabled = false,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  widgets: WidgetRow[];
+  onToggle: (w: WidgetRow) => void;
+  onDelete: (w: WidgetRow) => void;
+  onEdit: (w: WidgetRow) => void;
+  busyId: string | null;
+  productDisabled?: boolean;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      style={{
+        background: "#ffffff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "16px",
+        padding: "1.25rem",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+      }}
+    >
+      {/* Header del grupo */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.9rem",
+          marginBottom: "1rem",
+          paddingBottom: "1rem",
+          borderBottom: "1px solid #f3f4f6",
+        }}
+      >
+        {icon}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: "1rem",
+              fontWeight: 700,
+              color: productDisabled ? "#9ca3af" : "#111827",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {title}
+          </div>
+          <div
+            style={{
+              fontSize: "0.8rem",
+              color: "#6b7280",
+              marginTop: "0.15rem",
+            }}
+          >
+            {subtitle}
+          </div>
+        </div>
+      </div>
+
+      {/* Filas de widgets */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+        {widgets.map((w) => (
+          <WidgetRowItem
+            key={w.id}
+            widget={w}
+            onToggle={onToggle}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            busy={busyId === w.id}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ================= WIDGET ROW ================= */
+
+function WidgetRowItem({
+  widget,
+  onToggle,
+  onDelete,
+  onEdit,
+  busy,
+}: {
+  widget: WidgetRow;
+  onToggle: (w: WidgetRow) => void;
+  onDelete: (w: WidgetRow) => void;
+  onEdit: (w: WidgetRow) => void;
+  busy: boolean;
+}) {
+  const name = widget.definition?.name ?? widget.widget_slug;
+  const icon = widget.definition?.icon ?? "🧩";
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "0.75rem",
+        padding: "0.75rem",
+        background: "#f9fafb",
+        border: "1px solid #f0f2f5",
+        borderRadius: "12px",
+        opacity: busy ? 0.6 : 1,
+        transition: "opacity 0.15s",
+        flexWrap: "wrap",
+      }}
+    >
+      {/* Toggle */}
+      <button
+        type="button"
+        onClick={() => onToggle(widget)}
+        disabled={busy}
+        aria-label={widget.is_active ? "Desactivar" : "Activar"}
+        style={{
+          background: "transparent",
+          border: "none",
+          padding: 0,
+          cursor: busy ? "wait" : "pointer",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: "40px",
+            height: "22px",
+            borderRadius: "999px",
+            background: widget.is_active ? "#6366f1" : "#d1d5db",
+            position: "relative",
+            transition: "background 0.15s",
           }}
         >
           <div
             style={{
-              width: "72px",
-              height: "72px",
-              borderRadius: "18px",
-              background:
-                "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: "1.25rem",
+              width: "18px",
+              height: "18px",
+              borderRadius: "50%",
+              background: "#ffffff",
+              position: "absolute",
+              top: "2px",
+              left: widget.is_active ? "20px" : "2px",
+              transition: "left 0.15s",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.2)",
             }}
-          >
-            <LayoutGrid size={34} color="#6366f1" strokeWidth={1.75} />
-          </div>
+          />
+        </div>
+      </button>
 
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              padding: "0.3rem 0.85rem",
-              background: "linear-gradient(135deg, #eef2ff, #ede9fe)",
-              borderRadius: "999px",
-              fontSize: "0.75rem",
-              color: "#6366f1",
-              fontWeight: 700,
-              marginBottom: "1rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            <Sparkles size={12} />
-            Próximamente
-          </div>
+      {/* Chip con nombre */}
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.4rem",
+          padding: "0.4rem 0.85rem",
+          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          color: "#ffffff",
+          borderRadius: "999px",
+          fontSize: "0.8rem",
+          fontWeight: 600,
+          maxWidth: "100%",
+          minWidth: 0,
+        }}
+      >
+        <span style={{ fontSize: "0.95rem", lineHeight: 1 }}>{icon}</span>
+        <span
+          style={{
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {name}
+        </span>
+      </div>
 
-          <h2
-            style={{
-              margin: "0 0 0.75rem",
-              fontSize: "1.35rem",
-              fontWeight: 700,
-              color: "#111827",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Editor de widgets
-          </h2>
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
 
-          <p
-            style={{
-              margin: "0 auto",
-              maxWidth: "460px",
-              fontSize: "0.95rem",
-              color: "#6b7280",
-              lineHeight: 1.6,
-            }}
-          >
-            Muy pronto vas a poder crear bundles, upsells y cross-sells para
-            aumentar el ticket promedio de tus ventas.
-          </p>
-        </motion.div>
-      </main>
+      {/* Botón editar */}
+      <button
+        type="button"
+        onClick={() => onEdit(widget)}
+        disabled={busy}
+        aria-label="Editar"
+        title="Editar widget"
+        style={{
+          width: "38px",
+          height: "38px",
+          borderRadius: "50%",
+          border: "1.5px solid #dbeafe",
+          background: "#ffffff",
+          color: "#2563eb",
+          cursor: busy ? "wait" : "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "all 0.15s",
+          flexShrink: 0,
+        }}
+        onMouseEnter={(e) => {
+          if (!busy) {
+            e.currentTarget.style.background = "#eff6ff";
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#ffffff";
+        }}
+      >
+        <Pencil size={16} />
+      </button>
+
+      {/* Botón eliminar */}
+      <button
+        type="button"
+        onClick={() => onDelete(widget)}
+        disabled={busy}
+        aria-label="Eliminar"
+        title="Eliminar widget"
+        style={{
+          width: "38px",
+          height: "38px",
+          borderRadius: "50%",
+          border: "1.5px solid #fecaca",
+          background: "#ffffff",
+          color: "#dc2626",
+          cursor: busy ? "wait" : "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "all 0.15s",
+          flexShrink: 0,
+        }}
+        onMouseEnter={(e) => {
+          if (!busy) {
+            e.currentTarget.style.background = "#fef2f2";
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#ffffff";
+        }}
+      >
+        <Trash2 size={16} />
+      </button>
     </div>
   );
-              }
+                                }
