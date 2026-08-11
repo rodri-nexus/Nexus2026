@@ -678,11 +678,23 @@ export default function CajaOpinionesEditor({
           is_active: isActive,
         }),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Error al guardar el widget');
       }
-      router.push('/widgets');
+
+      // Si fue una creación nueva → banner verde de éxito
+      // Si fue una actualización → redirigir sin banner
+      if (data.action === 'created') {
+        const params = new URLSearchParams();
+        params.set('created', widgetDefinition.slug);
+        if (targetType === 'product' && productId) {
+          params.set('product', String(productId));
+        }
+        router.push(`/widgets?${params.toString()}`);
+      } else {
+        router.push('/widgets');
+      }
     } catch (e: any) {
       setError(e.message || 'Error al guardar');
       setSaving(false);
@@ -1193,4 +1205,4 @@ export default function CajaOpinionesEditor({
       )}
     </div>
   );
-          }
+}
