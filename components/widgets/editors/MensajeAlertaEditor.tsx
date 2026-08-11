@@ -82,14 +82,26 @@ export default function MensajeAlertaEditor({
         }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const err = await res.json();
-        alert('Error al guardar: ' + (err.error || 'desconocido'));
+        alert('Error al guardar: ' + (data.error || 'desconocido'));
         setIsSaving(false);
         return;
       }
 
-      router.push('/widgets');
+      // Si fue una creación nueva → banner verde de éxito
+      // Si fue una actualización → redirigir sin banner
+      if (data.action === 'created') {
+        const params = new URLSearchParams();
+        params.set('created', widgetDefinition.slug);
+        if (targetType === 'product' && productId) {
+          params.set('product', String(productId));
+        }
+        router.push(`/widgets?${params.toString()}`);
+      } else {
+        router.push('/widgets');
+      }
       router.refresh();
     } catch (e) {
       alert('Error al guardar el widget');
@@ -661,4 +673,4 @@ export default function MensajeAlertaEditor({
       </div>
     </div>
   );
-      }
+    }
