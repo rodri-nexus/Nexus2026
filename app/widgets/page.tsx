@@ -47,49 +47,58 @@ export default async function WidgetsPage() {
     .eq("is_active", true)
     .maybeSingle();
 
-  // Traer widgets con JOIN a widget_definitions
   let widgets: WidgetRow[] = [];
+
   if (store?.store_id) {
-    const { data: widgetsData } = await supabase
+    // 1) Traer widgets del usuario (sin JOIN)
+    const { data: widgetsData, error: widgetsError } = await supabase
       .from("widgets")
       .select(
-        `
-        id,
-        widget_slug,
-        widget_type,
-        target_type,
-        target_product_id,
-        is_active,
-        created_at,
-        updated_at,
-        definition:widget_definitions!widgets_widget_slug_fkey (
-          name,
-          icon,
-          category,
-          description
-        )
-      `
+        "id, widget_slug, widget_type, target_type, target_product_id, is_active, created_at, updated_at"
       )
       .eq("user_id", user.id)
       .eq("store_id", store.store_id)
       .order("updated_at", { ascending: false });
 
-    if (widgetsData) {
-      widgets = widgetsData.map((w: any) => ({
-        id: w.id,
-        widget_slug: w.widget_slug,
-        widget_type: w.widget_type,
-        target_type: w.target_type,
-        target_product_id: w.target_product_id,
-        is_active: w.is_active,
-        created_at: w.created_at,
-        updated_at: w.updated_at,
-        definition: Array.isArray(w.definition) ? w.definition[0] : w.definition,
-      }));
+    if (widgetsError) {
+      console.error("[widgets/page] Error trayendo widgets:", widgetsError);
     }
+
+    // 2) Traer todas las widget_definitions (15 filas, súper barato)
+    const { data: defsData, error: defsError } = await supabase
+      .from("widget_definitions")
+      .select("slug, name, icon, category, description");
+
+    if (defsError) {
+      console.error("[widgets/page] Error trayendo definitions:", defsError);
+    }
+
+    // 3) Armar map de definitions por slug
+    const defsMap = new Map<string, WidgetDefinition>();
+    (defsData || []).forEach((d: any) => {
+      defsMap.set(d.slug, {
+        name: d.name,
+        icon: d.icon,
+        category: d.category,
+        description: d.description,
+      });
+    });
+
+    // 4) Combinar
+    widgets = (widgetsData || []).map((w: any) => ({
+      id: w.id,
+      widget_slug: w.widget_slug,
+      widget_type: w.widget_type,
+      target_type: w.target_type,
+      target_product_id: w.target_product_id,
+      is_active: w.is_active,
+      created_at: w.created_at,
+      updated_at: w.updated_at,
+      definition: defsMap.get(w.widget_slug) ?? null,
+    }));
   }
 
-  // Productos únicos a traer
+  // Productos únicos a traer desde Tiendanube
   const productIds = Array.from(
     new Set(
       widgets
@@ -98,7 +107,6 @@ export default async function WidgetsPage() {
     )
   );
 
-  // Traer productos en paralelo desde Tiendanube
   const productsMap: Record<number, ProductInfo | null> = {};
   if (store?.store_id && store?.access_token && productIds.length > 0) {
     const results = await Promise.all(
@@ -141,4 +149,4 @@ export default async function WidgetsPage() {
       productsMap={productsMap}
     />
   );
-    }
+              }
