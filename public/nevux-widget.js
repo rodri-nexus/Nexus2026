@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v21 loaded");
+  console.log("[Nevux] v22 loaded");
 
   /* ═══════════════════════════════════════════
      HELPERS
@@ -1058,6 +1058,326 @@
         letter-spacing: 0.08em;
       }
 
+      /* ═══ SLIDER DE VIDEO (Widget 15) ═══ */
+      .${NS}-sv-wrap {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px 0;
+      }
+      .${NS}-sv-titulo {
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0 0 4px 0;
+      }
+      .${NS}-sv-subtitulo {
+        line-height: 1.4;
+        opacity: 0.85;
+        margin-bottom: 14px;
+      }
+      .${NS}-sv-carousel {
+        position: relative;
+        width: 100%;
+      }
+      .${NS}-sv-track {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .${NS}-sv-track::-webkit-scrollbar {
+        display: none;
+      }
+      .${NS}-sv-video-card {
+        flex: 0 0 auto;
+        width: 180px;
+        display: flex;
+        flex-direction: column;
+      }
+      .${NS}-sv-video-thumb {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        overflow: hidden;
+        background: #111827;
+        cursor: pointer;
+      }
+      .${NS}-sv-video-thumb video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .${NS}-sv-video-thumb.inline {
+        cursor: default;
+      }
+      .${NS}-sv-play-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.18);
+        pointer-events: none;
+        transition: background 0.2s ease;
+      }
+      .${NS}-sv-video-thumb:hover .${NS}-sv-play-overlay {
+        background: rgba(0, 0, 0, 0.32);
+      }
+      .${NS}-sv-play-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.94);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+      .${NS}-sv-arrow {
+        position: absolute;
+        top: 40%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+      .${NS}-sv-arrow:hover {
+        transform: translateY(-50%) scale(1.08);
+      }
+      .${NS}-sv-arrow.left {
+        left: -8px;
+      }
+      .${NS}-sv-arrow.right {
+        right: -8px;
+      }
+      .${NS}-sv-arrow:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .${NS}-sv-circles-row {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        padding: 8px 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .${NS}-sv-circles-row::-webkit-scrollbar {
+        display: none;
+      }
+      .${NS}-sv-circle {
+        flex: 0 0 auto;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      .${NS}-sv-circle-ring {
+        padding: 3px;
+        border-radius: 50%;
+      }
+      .${NS}-sv-circle-inner {
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #111827;
+        border: 3px solid #ffffff;
+        position: relative;
+      }
+      .${NS}-sv-circle-inner video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .${NS}-sv-circle-play {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.15);
+      }
+      .${NS}-sv-producto-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: #ffffff;
+        border: 1px solid #eeeeee;
+        margin-top: 10px;
+        border-radius: 10px;
+      }
+      .${NS}-sv-producto-img {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: #f3f4f6;
+      }
+      .${NS}-sv-producto-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .${NS}-sv-producto-nombre {
+        font-size: 13px;
+        font-weight: 600;
+        color: #111827;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+      }
+      .${NS}-sv-producto-precio {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 2px;
+        line-height: 1.2;
+      }
+      .${NS}-sv-producto-btn {
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+      }
+      .${NS}-sv-producto-btn:hover {
+        opacity: 0.88;
+      }
+      .${NS}-sv-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.92);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+      .${NS}-sv-modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .${NS}-sv-modal {
+        position: relative;
+        max-width: 420px;
+        width: 100%;
+        max-height: calc(100vh - 40px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .${NS}-sv-modal-video-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        max-height: calc(100vh - 140px);
+        background: #000000;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .${NS}-sv-modal-video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #000000;
+      }
+      .${NS}-sv-modal-close {
+        position: absolute;
+        top: -46px;
+        right: 0;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.14);
+        border: none;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease;
+      }
+      .${NS}-sv-modal-close:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .${NS}-sv-modal-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.14);
+        border: none;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+        transition: background 0.15s ease;
+      }
+      .${NS}-sv-modal-nav:hover {
+        background: rgba(255, 255, 255, 0.28);
+      }
+      .${NS}-sv-modal-nav:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .${NS}-sv-modal-nav.prev {
+        left: -54px;
+      }
+      .${NS}-sv-modal-nav.next {
+        right: -54px;
+      }
+      .${NS}-sv-modal-cta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: #ffffff;
+        border-radius: 12px;
+        margin-top: 14px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      @media (max-width: 540px) {
+        .${NS}-sv-modal-nav.prev {
+          left: 6px;
+        }
+        .${NS}-sv-modal-nav.next {
+          right: 6px;
+        }
+        .${NS}-sv-modal-close {
+          top: 6px;
+          right: 6px;
+          background: rgba(0, 0, 0, 0.5);
+        }
+      }
+
       @keyframes ${NS}-bundle-pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.02); }
@@ -1109,8 +1429,8 @@
       }
     `;
     document.head.appendChild(style);
-  }
-
+        }
+  
   /* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
@@ -1154,6 +1474,7 @@
           if (w.widget_slug === "mensaje-alerta") renderMensajeAlerta(w);
           if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
           if (w.widget_slug === "resenas-clientes") renderResenasClientes(w);
+          if (w.widget_slug === "slider-video") renderSliderVideo(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -1494,7 +1815,7 @@
     for (let i = 0; i < units.length; i++) {
       clockInner += renderUnit(units[i], cfg);
       if (i < units.length - 1) clockInner += renderSep(cfg);
-    }
+    } 
 
     const subtitleHtml = cfg.subtitle
       ? '<div style="margin-bottom:14px;text-align:' + cfg.alignment + ';">' +
@@ -1594,7 +1915,7 @@
 
     if (cfg.mostrarEnProducto && pageType === "product") {
       mountBadgeCuotas(widget, cfg, "product");
-    }
+    } 
     if (cfg.mostrarEnGrilla && (pageType === "home" || pageType === "other")) {
       mountBadgeCuotas(widget, cfg, "grilla");
     }
@@ -1927,7 +2248,7 @@
     } else {
       texto = (cfg.mensajeDescuento || "{descuento}% de descuento pagando con transferencia")
         .replace("{descuento}", descuento);
-    }
+    } 
 
     var fondo = cfg.fondoDegradado
       ? "linear-gradient(135deg, " + cfg.colorFondo + " 0%, " + cfg.colorFondo + "dd 100%)"
@@ -2305,9 +2626,8 @@
       default:
         return "";
     }
-  }
-
-  /* ═══════════════════════════════════════════
+     }
+    /* ═══════════════════════════════════════════
      RENDER BUNDLE PROMOCIONES
   ═══════════════════════════════════════════ */
   function renderBundlePromociones(widget) {
@@ -3781,9 +4101,8 @@
           textoHtml +
         '</div>' +
       '</div>';
-                   }
-  
-  /* ═══════════════════════════════════════════
+      }
+    /* ═══════════════════════════════════════════
      RENDER RESEÑAS DE CLIENTES (Widget 14)
   ═══════════════════════════════════════════ */
   function renderResenasClientes(widget) {
@@ -3791,21 +4110,17 @@
     var reviews = Array.isArray(widget.reviews) ? widget.reviews : [];
     var stats = widget.stats || { total: 0, promedio: 0, distribucion: {} };
 
-    // Si "ocultar si no hay reseñas" está activado y no hay reseñas → no montar nada
     if (cfg.ocultarSiNoHayResenas && reviews.length === 0 && cfg.ocultarBotonEscribir) {
       return;
     }
 
-    // 1. Estrellas resumen debajo del título del producto
     if (pageType === "product" && cfg.mostrarPuntuacionBajoTitulo && stats.total > 0) {
       mountResenasMini(widget, cfg, stats);
     }
 
-    // 2. Widget principal (solo en página de producto)
     if (pageType === "product") {
       var mounted = mountResenasClientes(widget, cfg, reviews, stats);
 
-      // 3. Detección de ?calificar → abrir modal automáticamente
       if (mounted) {
         var params = new URLSearchParams(window.location.search);
         if (params.has("calificar")) {
@@ -3824,7 +4139,6 @@
       return isNaN(p) ? fb : p;
     }
     return {
-      // General
       titulo: raw.titulo || "",
       textoBoton: raw.textoBoton || "Escribir reseña",
       subtitulo: raw.subtitulo || "",
@@ -3839,17 +4153,11 @@
       ocultarBotonEscribir: raw.ocultarBotonEscribir === true,
       ocultarSiNoHayResenas: raw.ocultarSiNoHayResenas === true,
       mostrarFecha: raw.mostrarFecha === true,
-
-      // Ubicaciones
       mostrarPuntuacionBajoTitulo: raw.mostrarPuntuacionBajoTitulo !== false,
-
-      // Estilos
       disenoWidget: raw.disenoWidget === "lista" ? "lista" : "cuadricula",
       reviewsPorPagina: n(raw.reviewsPorPagina, 8),
       bordeBotones: n(raw.bordeBotones, 25),
       mostrarOpinionPrimero: raw.mostrarOpinionPrimero === true,
-
-      // Colores
       colorBotones: raw.colorBotones || "#1a1a1a",
       colorFondo: raw.colorFondo || "transparent",
       colorTitulo: raw.colorTitulo || "#1a1a1a",
@@ -3860,8 +4168,6 @@
       colorEstrellas: raw.colorEstrellas || "#f5b300",
       colorTextoResena: raw.colorTextoResena || "#555555",
       colorFecha: raw.colorFecha || "#999999",
-
-      // Tipografías
       tamanoTitulo: n(raw.tamanoTitulo, 22),
       tamanoSubtitulo: n(raw.tamanoSubtitulo, 16),
       tamanoEstrellas: n(raw.tamanoEstrellas, 16),
@@ -4001,12 +4307,10 @@
     var stats = state.stats || { total: 0, promedio: 0 };
     var total = stats.total || 0;
 
-    // Título del widget
     var tituloHtml = cfg.titulo
       ? '<h3 class="' + NS + '-resenas-titulo" style="font-size:' + cfg.tamanoTitulo + 'px;color:' + cfg.colorTitulo + ';">' + escapeHtml(cfg.titulo) + '</h3>'
       : "";
 
-    // Subtítulo
     var subtituloHtml = "";
     if (cfg.subtitulo) {
       var bgSub = cfg.fondoSubtitulo !== "transparent"
@@ -4015,7 +4319,6 @@
       subtituloHtml = '<span class="' + NS + '-resenas-subtitulo" style="font-size:' + cfg.tamanoSubtitulo + 'px;color:' + cfg.colorSubtitulo + ';' + bgSub + '">' + escapeHtml(cfg.subtitulo) + '</span>';
     }
 
-    // Header con promedio + botón
     var headerHtml = "";
     if (total > 0 || !cfg.ocultarBotonEscribir) {
       var promedioTxt = String(stats.promedio || 0).replace(".", ",");
@@ -4042,7 +4345,6 @@
         '</div>';
     }
 
-    // Grid de reseñas paginado
     var gridHtml = "";
     var paginacionHtml = "";
     if (reviews.length > 0) {
@@ -4061,7 +4363,6 @@
 
       gridHtml = '<div class="' + NS + '-resenas-grid ' + cfg.disenoWidget + '">' + cardsHtml + '</div>';
 
-      // Paginación
       if (totalPaginas > 1) {
         var pagBtns = "";
         for (var p = 1; p <= totalPaginas; p++) {
@@ -4091,29 +4392,23 @@
     var texto = (r.texto || "").trim();
     var fotoUrl = r.foto_url || "";
 
-    // Foto
     var fotoHtml = fotoUrl
       ? '<div class="' + NS + '-resenas-card-foto"><img src="' + escapeHtml(fotoUrl) + '" alt=""/></div>'
       : "";
 
-    // Verificada
     var verifiedHtml = r.verificada
       ? '<span class="' + NS + '-resenas-verified" title="Compra verificada">✓</span>'
       : "";
 
-    // Estrellas
     var starsHtml = '<span class="' + NS + '-resenas-card-stars">' + renderResenasStars(r.estrellas || 5, cfg.colorEstrellas, cfg.tamanoEstrellas) + '</span>';
 
-    // Nombre
     var fontWeightNombre = cfg.estiloNombre === "resaltado" ? 700 : 500;
     var nombreHtml = '<span class="' + NS + '-resenas-card-nombre" style="font-size:' + cfg.tamanoNombre + 'px;font-weight:' + fontWeightNombre + ';color:' + cfg.colorNombre + ';">' + escapeHtml(nombre) + '</span>';
 
-    // Texto
     var textoHtml = texto
       ? '<p class="' + NS + '-resenas-card-texto" style="font-size:14px;color:' + cfg.colorTextoResena + ';">' + escapeHtml(texto) + '</p>'
       : "";
 
-    // Fecha
     var fechaHtml = "";
     if (cfg.mostrarFecha && r.fecha_resena) {
       var fechaLabel = formatFechaResena(r.fecha_resena);
@@ -4122,20 +4417,17 @@
       }
     }
 
-    // Talle
     var talleHtml = "";
     if (cfg.activarPreguntaTalle && r.talle) {
       talleHtml = '<span class="' + NS + '-resenas-card-talle">Talle ' + escapeHtml(r.talle) + '</span>';
     }
 
-    // Header con nombre + verificado
     var headerHtml =
       '<div class="' + NS + '-resenas-card-header">' +
         nombreHtml +
         verifiedHtml +
       '</div>';
 
-    // Orden según config
     var innerHtml;
     if (cfg.mostrarOpinionPrimero) {
       innerHtml =
@@ -4321,14 +4613,12 @@
       }, 200);
     }
 
-    // Cerrar al clickear overlay (fuera del modal)
     overlay.addEventListener("click", function (e) {
       if (e.target === overlay) {
         closeModal();
       }
     });
 
-    // Cerrar con botón
     qsa('[data-action="close"]', overlay).forEach(function (btn) {
       btn.addEventListener("click", function (e) {
         e.preventDefault();
@@ -4336,7 +4626,6 @@
       });
     });
 
-    // Estrellas
     qsa("." + NS + "-modal-star", overlay).forEach(function (star) {
       star.addEventListener("click", function () {
         state.estrellas = parseInt(star.dataset.star, 10) || 0;
@@ -4345,7 +4634,6 @@
       });
     });
 
-    // Radio ajuste_talle
     qsa("[data-ajuste]", overlay).forEach(function (opt) {
       opt.addEventListener("click", function () {
         state.ajuste_talle = opt.dataset.ajuste;
@@ -4353,7 +4641,6 @@
       });
     });
 
-    // Inputs y textarea
     qsa("[data-field]", overlay).forEach(function (input) {
       input.addEventListener("input", function () {
         var field = input.dataset.field;
@@ -4361,7 +4648,6 @@
       });
     });
 
-    // Upload foto
     var uploadInput = qs('[data-action="upload-photo"]', overlay);
     if (uploadInput) {
       uploadInput.addEventListener("change", function (e) {
@@ -4382,7 +4668,6 @@
       });
     }
 
-    // Quitar foto
     var removePhoto = qs('[data-action="remove-photo"]', overlay);
     if (removePhoto) {
       removePhoto.addEventListener("click", function (e) {
@@ -4392,7 +4677,6 @@
       });
     }
 
-    // Submit
     var form = qs('form[data-action="submit"]', overlay);
     if (form) {
       form.addEventListener("submit", function (e) {
@@ -4403,7 +4687,6 @@
   }
 
   function submitResena(widget, cfg, state, render) {
-    // Validaciones básicas
     if (!state.nombre || state.nombre.trim().length < 2) {
       state.error = "El nombre debe tener al menos 2 caracteres";
       render();
@@ -4469,6 +4752,447 @@
         render();
         console.error("[Nevux] Error enviando reseña:", err);
       });
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER SLIDER DE VIDEO (Widget 15)
+  ═══════════════════════════════════════════ */
+  function renderSliderVideo(widget) {
+    if (pageType !== "product") return;
+    var cfg = normalizeSliderVideoConfig(widget.config || {});
+    if (!cfg.videos || cfg.videos.length === 0) return;
+    mountSliderVideo(widget, cfg);
+  }
+
+  function normalizeSliderVideoConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    var videos = Array.isArray(raw.videos) ? raw.videos : [];
+    videos = videos
+      .filter(function (v) { return v && v.url && String(v.url).trim() !== ""; })
+      .map(function (v) {
+        return {
+          url: String(v.url),
+          nombre: v.nombre || "",
+          productoId: v.productoId || null,
+          productoData: v.productoData || null,
+        };
+      });
+
+    return {
+      titulo: raw.titulo || "",
+      subtitulo: raw.subtitulo || "",
+      videos: videos,
+      posicion: raw.posicion === "antes" ? "antes" : "despues",
+      formato: raw.formato === "circulos" ? "circulos" : "slider",
+      colorControles: raw.colorControles || "#000000",
+      colorTitulo: raw.colorTitulo || "#333333",
+      colorFondo: raw.colorFondo || "#fafafa",
+      tamanoTitulo: raw.tamanoTitulo || "20px",
+      tamanoSubtitulo: raw.tamanoSubtitulo || "16px",
+      alineacion: raw.alineacion === "izquierda" ? "izquierda" : (raw.alineacion === "derecha" ? "derecha" : "centrado"),
+      reproduccionAutomatica: raw.reproduccionAutomatica === true,
+      desactivarExpandir: raw.desactivarExpandir === true,
+      productosBajoVideo: raw.productosBajoVideo === true,
+      radioBordeVideos: n(raw.radioBordeVideos, 20),
+      mostrarPrecio: raw.mostrarPrecio !== false,
+      mostrarBotonCarrito: raw.mostrarBotonCarrito !== false,
+      colorBotonFondo: raw.colorBotonFondo || "#000000",
+      colorBotonTexto: raw.colorBotonTexto || "#ffffff",
+      radioBordeBoton: n(raw.radioBordeBoton, 8),
+    };
+  }
+
+  function parseSubtituloSliderMarkdown(texto) {
+    if (!texto) return "";
+    var out = escapeHtml(texto);
+    out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    out = out.replace(/__(.+?)__/g, "<u>$1</u>");
+    out = out.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    out = out.replace(/\n/g, "<br/>");
+    return out;
+  }
+
+  function formatMoneySliderProducto(precio) {
+    if (precio === null || precio === undefined || isNaN(precio)) return "";
+    try {
+      return "$" + Number(precio).toLocaleString("es-AR", { maximumFractionDigits: 0 });
+    } catch (e) {
+      return "$" + Math.round(precio);
+    }
+  }
+
+  function mountSliderVideo(widget, cfg) {
+    var uniqueId = NS + "-sv-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (cfg.posicion === "antes") {
+      var target = findProductTarget("before-button");
+      if (!target) {
+        console.warn("[Nevux] No se encontró target para slider-video (antes)");
+        return;
+      }
+      if (target.node.parentNode) {
+        target.node.parentNode.insertBefore(container, target.node.nextSibling);
+      } else {
+        return;
+      }
+    } else {
+      var descTarget = findProductDescriptionTarget();
+      if (descTarget && descTarget.parentNode) {
+        descTarget.parentNode.insertBefore(container, descTarget.nextSibling);
+      } else {
+        var fallback = findProductTarget("before-button");
+        if (!fallback) {
+          console.warn("[Nevux] No se encontró target para slider-video (despues)");
+          return;
+        }
+        if (fallback.node.parentNode) {
+          fallback.node.parentNode.insertBefore(container, fallback.node.nextSibling);
+        } else {
+          return;
+        }
+      }
+    }
+
+    container.innerHTML = buildSliderVideoHtml(cfg);
+    wireSliderVideoEvents(container, cfg);
+    console.log("[Nevux] Slider de video montado. Videos:", cfg.videos.length);
+  }
+
+  function buildSliderVideoHtml(cfg) {
+    var alignMap = { izquierda: "left", centrado: "center", derecha: "right" };
+    var textAlign = alignMap[cfg.alineacion] || "center";
+    var mostrarFondo = cfg.posicion === "despues";
+    var bgStyle = mostrarFondo ? cfg.colorFondo : "transparent";
+    var pad = mostrarFondo ? "20px 16px" : "16px 0";
+    var borderRadius = mostrarFondo ? "12px" : "0";
+
+    var tituloHtml = cfg.titulo
+      ? '<div class="' + NS + '-sv-titulo" style="font-size:' + cfg.tamanoTitulo + ';color:' + cfg.colorTitulo + ';text-align:' + textAlign + ';">' + escapeHtml(cfg.titulo) + '</div>'
+      : "";
+
+    var subtituloHtml = cfg.subtitulo
+      ? '<div class="' + NS + '-sv-subtitulo" style="font-size:' + cfg.tamanoSubtitulo + ';color:' + cfg.colorTitulo + ';text-align:' + textAlign + ';">' + parseSubtituloSliderMarkdown(cfg.subtitulo) + '</div>'
+      : "";
+
+    var contenidoHtml = cfg.formato === "circulos"
+      ? buildSliderVideoCirculosHtml(cfg)
+      : buildSliderVideoSliderHtml(cfg);
+
+    return '' +
+      '<div class="' + NS + '-sv-wrap" style="background:' + bgStyle + ';padding:' + pad + ';border-radius:' + borderRadius + ';">' +
+        tituloHtml +
+        subtituloHtml +
+        contenidoHtml +
+      '</div>';
+  }
+
+  function buildSliderVideoSliderHtml(cfg) {
+    var cardsHtml = "";
+    for (var i = 0; i < cfg.videos.length; i++) {
+      cardsHtml += buildSliderVideoCard(cfg.videos[i], i, cfg);
+    }
+
+    var arrowsHtml = "";
+    if (cfg.videos.length > 1) {
+      arrowsHtml =
+        '<button type="button" class="' + NS + '-sv-arrow left" data-sv-arrow="prev" style="color:' + cfg.colorControles + ';">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+        '</button>' +
+        '<button type="button" class="' + NS + '-sv-arrow right" data-sv-arrow="next" style="color:' + cfg.colorControles + ';">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+        '</button>';
+    }
+
+    return '' +
+      '<div class="' + NS + '-sv-carousel">' +
+        '<div class="' + NS + '-sv-track" data-sv-track>' +
+          cardsHtml +
+        '</div>' +
+        arrowsHtml +
+      '</div>';
+  }
+
+  function buildSliderVideoCard(video, index, cfg) {
+    var autoplay = cfg.reproduccionAutomatica;
+    var inline = cfg.desactivarExpandir;
+
+    var videoAttrs = 'preload="metadata" muted playsinline';
+    if (autoplay) videoAttrs += ' autoplay loop';
+    if (inline) videoAttrs += ' controls';
+
+    var overlayHtml = !inline
+      ? '<div class="' + NS + '-sv-play-overlay"><div class="' + NS + '-sv-play-btn">' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="#111827"><path d="M8 5v14l11-7z"/></svg>' +
+        '</div></div>'
+      : "";
+
+    var thumbClass = NS + "-sv-video-thumb" + (inline ? " inline" : "");
+    var thumbOnClick = inline
+      ? ""
+      : ' data-sv-open="' + index + '"';
+
+    var productoCardHtml = "";
+    if (cfg.productosBajoVideo && video.productoData) {
+      productoCardHtml = buildSliderVideoProductoCard(video, cfg);
+    }
+
+    return '' +
+      '<div class="' + NS + '-sv-video-card">' +
+        '<div class="' + thumbClass + '" style="border-radius:' + cfg.radioBordeVideos + 'px;"' + thumbOnClick + '>' +
+          '<video src="' + escapeHtml(video.url) + '" ' + videoAttrs + '></video>' +
+          overlayHtml +
+        '</div>' +
+        productoCardHtml +
+      '</div>';
+  }
+
+  function buildSliderVideoCirculosHtml(cfg) {
+    var circlesHtml = "";
+    for (var i = 0; i < cfg.videos.length; i++) {
+      var v = cfg.videos[i];
+      var gradientBg = 'linear-gradient(135deg, ' + cfg.colorControles + ' 0%, ' + cfg.colorControles + 'aa 100%)';
+      circlesHtml +=
+        '<div class="' + NS + '-sv-circle" data-sv-open="' + i + '">' +
+          '<div class="' + NS + '-sv-circle-ring" style="background:' + gradientBg + ';">' +
+            '<div class="' + NS + '-sv-circle-inner">' +
+              '<video src="' + escapeHtml(v.url) + '" preload="metadata" muted playsinline></video>' +
+              '<div class="' + NS + '-sv-circle-play">' +
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    var justifyContent = cfg.videos.length <= 3 ? "center" : "flex-start";
+
+    return '<div class="' + NS + '-sv-circles-row" style="justify-content:' + justifyContent + ';">' + circlesHtml + '</div>';
+  }
+
+  function buildSliderVideoProductoCard(video, cfg) {
+    var p = video.productoData;
+    if (!p) return "";
+    var imgSrc = p.image || "";
+    var precioHtml = cfg.mostrarPrecio
+      ? '<div class="' + NS + '-sv-producto-precio">' + escapeHtml(formatMoneySliderProducto(p.price)) + '</div>'
+      : "";
+
+    var imgHtml = imgSrc
+      ? '<img class="' + NS + '-sv-producto-img" src="' + escapeHtml(imgSrc) + '" alt=""/>'
+      : '<div class="' + NS + '-sv-producto-img"></div>';
+
+    var btnHtml = cfg.mostrarBotonCarrito
+      ? '<button type="button" class="' + NS + '-sv-producto-btn" data-sv-buy="' + p.id + '" style="background:' + cfg.colorBotonFondo + ';color:' + cfg.colorBotonTexto + ';border-radius:' + cfg.radioBordeBoton + 'px;padding:8px 12px;font-size:12px;">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.07 15.93 4.52 17 5.4 17H17M17 17C15.9 17 15 17.9 15 19C15 20.1 15.9 21 17 21C18.1 21 19 20.1 19 19C19 17.9 18.1 17 17 17ZM9 19C9 20.1 8.1 21 7 21C5.9 21 5 20.1 5 19C5 17.9 5.9 17 7 17C8.1 17 9 17.9 9 19Z"/></svg>' +
+          'Agregar' +
+        '</button>'
+      : "";
+
+    return '' +
+      '<div class="' + NS + '-sv-producto-card">' +
+        imgHtml +
+        '<div class="' + NS + '-sv-producto-info">' +
+          '<div class="' + NS + '-sv-producto-nombre">' + escapeHtml(p.name || "") + '</div>' +
+          precioHtml +
+        '</div>' +
+        btnHtml +
+      '</div>';
+  }
+
+  function wireSliderVideoEvents(container, cfg) {
+    // Flechas del slider
+    var track = qs("[data-sv-track]", container);
+    qsa("[data-sv-arrow]", container).forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (!track) return;
+        var dir = btn.dataset.svArrow === "next" ? 1 : -1;
+        var scrollAmount = Math.round(track.clientWidth * 0.85) * dir;
+        track.scrollBy({ left: scrollAmount, behavior: "smooth" });
+      });
+    });
+
+    // Abrir modal (excepto si desactivarExpandir=true)
+    if (!cfg.desactivarExpandir) {
+      qsa("[data-sv-open]", container).forEach(function (el) {
+        el.addEventListener("click", function () {
+          var idx = parseInt(el.dataset.svOpen, 10);
+          if (!isNaN(idx)) {
+            openSliderVideoModal(cfg, idx);
+          }
+        });
+      });
+    }
+
+    // Botón "Agregar" del producto asociado
+    qsa("[data-sv-buy]", container).forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var pid = parseInt(btn.dataset.svBuy, 10);
+        if (isNaN(pid)) return;
+        handleSliderVideoBuy(pid);
+      });
+    });
+  }
+
+  function handleSliderVideoBuy(prodId) {
+    // Si el producto asociado es el mismo de la página, dispara el form nativo
+    if (productId && Number(productId) === Number(prodId)) {
+      var target = findProductTarget("before-button");
+      if (target && target.node) {
+        var origForm = target.node.tagName === "FORM"
+          ? target.node
+          : (target.node.closest ? target.node.closest("form") : null);
+        if (origForm) {
+          try {
+            if (typeof origForm.requestSubmit === "function") {
+              origForm.requestSubmit();
+            } else {
+              origForm.submit();
+            }
+            return;
+          } catch (e) {
+            var submitBtn = qs('button[type="submit"], input[type="submit"]', origForm);
+            if (submitBtn) { submitBtn.click(); return; }
+          }
+        }
+        if (target.node.click) { target.node.click(); return; }
+      }
+    }
+    // Si es otro producto, redirigir a su ficha
+    window.location.href = "/productos/" + prodId;
+  }
+
+  function openSliderVideoModal(cfg, startIndex) {
+    var existing = qs("#" + NS + "-sv-modal-overlay");
+    if (existing) existing.remove();
+
+    var overlay = document.createElement("div");
+    overlay.id = NS + "-sv-modal-overlay";
+    overlay.className = NS + "-sv-modal-overlay";
+
+    var state = { index: startIndex };
+
+    overlay.innerHTML = buildSliderVideoModalHtml(cfg, state);
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(function () {
+      overlay.classList.add("open");
+    });
+
+    wireSliderVideoModal(overlay, cfg, state);
+  }
+
+  function buildSliderVideoModalHtml(cfg, state) {
+    var video = cfg.videos[state.index];
+    if (!video) return "";
+
+    var showNav = cfg.videos.length > 1;
+    var prevDisabled = state.index === 0 ? " disabled" : "";
+    var nextDisabled = state.index === cfg.videos.length - 1 ? " disabled" : "";
+
+    var navHtml = "";
+    if (showNav) {
+      navHtml =
+        '<button type="button" class="' + NS + '-sv-modal-nav prev" data-sv-modal="prev"' + prevDisabled + '>' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>' +
+        '</button>' +
+        '<button type="button" class="' + NS + '-sv-modal-nav next" data-sv-modal="next"' + nextDisabled + '>' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+        '</button>';
+    }
+
+    var ctaHtml = "";
+    if (video.productoData) {
+      var p = video.productoData;
+      var imgHtml = p.image
+        ? '<img class="' + NS + '-sv-producto-img" src="' + escapeHtml(p.image) + '" alt=""/>'
+        : '<div class="' + NS + '-sv-producto-img"></div>';
+      var precioHtml = cfg.mostrarPrecio
+        ? '<div class="' + NS + '-sv-producto-precio">' + escapeHtml(formatMoneySliderProducto(p.price)) + '</div>'
+        : "";
+      var btnHtml = cfg.mostrarBotonCarrito
+        ? '<button type="button" class="' + NS + '-sv-producto-btn" data-sv-modal-buy="' + p.id + '" style="background:' + cfg.colorBotonFondo + ';color:' + cfg.colorBotonTexto + ';border-radius:' + cfg.radioBordeBoton + 'px;padding:10px 14px;font-size:13px;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.07 15.93 4.52 17 5.4 17H17M17 17C15.9 17 15 17.9 15 19C15 20.1 15.9 21 17 21C18.1 21 19 20.1 19 19C19 17.9 18.1 17 17 17ZM9 19C9 20.1 8.1 21 7 21C5.9 21 5 20.1 5 19C5 17.9 5.9 17 7 17C8.1 17 9 17.9 9 19Z"/></svg>' +
+            'Agregar' +
+          '</button>'
+        : "";
+      ctaHtml =
+        '<div class="' + NS + '-sv-modal-cta">' +
+          imgHtml +
+          '<div class="' + NS + '-sv-producto-info">' +
+            '<div class="' + NS + '-sv-producto-nombre">' + escapeHtml(p.name || "") + '</div>' +
+            precioHtml +
+          '</div>' +
+          btnHtml +
+        '</div>';
+    }
+
+    return '' +
+      '<div class="' + NS + '-sv-modal">' +
+        '<button type="button" class="' + NS + '-sv-modal-close" data-sv-modal="close">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
+        '<div class="' + NS + '-sv-modal-video-wrap">' +
+          '<video class="' + NS + '-sv-modal-video" src="' + escapeHtml(video.url) + '" autoplay controls playsinline></video>' +
+          navHtml +
+        '</div>' +
+        ctaHtml +
+      '</div>';
+  }
+
+  function wireSliderVideoModal(overlay, cfg, state) {
+    function render() {
+      overlay.innerHTML = buildSliderVideoModalHtml(cfg, state);
+      wireSliderVideoModal(overlay, cfg, state);
+    }
+
+    function closeModal() {
+      var vid = qs("." + NS + "-sv-modal-video", overlay);
+      if (vid) { try { vid.pause(); } catch (e) {} }
+      overlay.classList.remove("open");
+      setTimeout(function () {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }, 250);
+    }
+
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) closeModal();
+    });
+
+    qsa("[data-sv-modal]", overlay).forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var action = btn.dataset.svModal;
+        if (action === "close") {
+          closeModal();
+        } else if (action === "prev" && state.index > 0) {
+          state.index--;
+          render();
+        } else if (action === "next" && state.index < cfg.videos.length - 1) {
+          state.index++;
+          render();
+        }
+      });
+    });
+
+    qsa("[data-sv-modal-buy]", overlay).forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var pid = parseInt(btn.dataset.svModalBuy, 10);
+        if (!isNaN(pid)) {
+          handleSliderVideoBuy(pid);
+        }
+      });
+    });
   }
 
 })();
