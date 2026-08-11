@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../dashboard/components/DashboardHeader";
 import SideMenu from "../dashboard/components/SideMenu";
+import EliminarWidgetModal from "@/components/widgets/EliminarWidgetModal";
 
 interface StoreData {
   store_id: number;
@@ -76,6 +77,10 @@ export default function WidgetsClient({
   } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [dismissBanner, setDismissBanner] = useState(false);
+
+  // Estado del modal de eliminación
+  const [deleteTarget, setDeleteTarget] = useState<WidgetRow | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Detectar ?created=slug para mostrar banner de éxito
   const createdSlug = searchParams.get("created");
@@ -169,12 +174,23 @@ export default function WidgetsClient({
     }
   };
 
-  const handleDelete = async (widget: WidgetRow) => {
-    const confirmMsg = `¿Eliminar el widget "${
-      widget.definition?.name ?? widget.widget_slug
-    }"? Esta acción no se puede deshacer.`;
-    if (!window.confirm(confirmMsg)) return;
+  // Abrir el modal de confirmación
+  const handleDelete = (widget: WidgetRow) => {
+    setDeleteTarget(widget);
+  };
 
+  // Cerrar el modal
+  const handleCloseModal = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
+  };
+
+  // Ejecutar la eliminación (desde el modal)
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const widget = deleteTarget;
+
+    setIsDeleting(true);
     setBusyId(widget.id);
     try {
       const res = await fetch(`/api/widgets?id=${widget.id}`, {
@@ -185,12 +201,29 @@ export default function WidgetsClient({
         throw new Error(data.error || "No se pudo eliminar el widget");
       }
       showToast("success", "Widget eliminado");
+      setDeleteTarget(null);
       router.refresh();
     } catch (e: any) {
       showToast("error", e.message || "Error al eliminar");
     } finally {
+      setIsDeleting(false);
       setBusyId(null);
     }
+  };
+
+  // Helper: texto del alcance del widget (para el modal)
+  const getScopeLabel = (widget: WidgetRow): string => {
+    if (widget.target_type === "all") {
+      return "Todos los productos";
+    }
+    if (widget.target_product_id) {
+      const product = productsMap[widget.target_product_id];
+      if (product) {
+        return `Producto: ${product.name}`;
+      }
+      return `Producto #${widget.target_product_id}`;
+    }
+    return "—";
   };
 
   const goToEditor = (widget: WidgetRow) => {
@@ -632,6 +665,20 @@ export default function WidgetsClient({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Modal de confirmación de eliminación */}
+      <EliminarWidgetModal
+        isOpen={!!deleteTarget}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmDelete}
+        widgetName={
+          deleteTarget?.definition?.name ??
+          deleteTarget?.widget_slug ??
+          "Widget"
+        }
+        scopeLabel={deleteTarget ? getScopeLabel(deleteTarget) : ""}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }
@@ -989,4 +1036,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-                                }
+}
