@@ -241,4 +241,133 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     )
   }
-          }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PATCH /api/widgets
+// Activa/desactiva un widget (toggle is_active)
+// Body: { id: string, is_active: boolean }
+// ═══════════════════════════════════════════════════════════
+export async function PATCH(req: NextRequest) {
+  try {
+    const supabase = await createClient()
+
+    // 1. Verificar autenticación
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    // 2. Parsear body
+    const body = await req.json()
+    const { id, is_active } = body
+
+    // 3. Validaciones
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json(
+        { error: 'id es requerido y debe ser un string' },
+        { status: 400 }
+      )
+    }
+    if (typeof is_active !== 'boolean') {
+      return NextResponse.json(
+        { error: 'is_active es requerido y debe ser un boolean' },
+        { status: 400 }
+      )
+    }
+
+    // 4. Update con ownership check (id + user_id)
+    const { data, error } = await supabase
+      .from('widgets')
+      .update({
+        is_active,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error actualizando is_active del widget:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+    if (!data) {
+      return NextResponse.json(
+        { error: 'Widget no encontrado o no autorizado' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ data, widget: data, action: 'toggled' })
+  } catch (error: any) {
+    console.error('Error en PATCH /api/widgets:', error)
+    return NextResponse.json(
+      { error: 'Error interno del servidor', details: error?.message },
+      { status: 500 }
+    )
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// DELETE /api/widgets?id=xxx
+// Elimina un widget permanentemente
+// ═══════════════════════════════════════════════════════════
+export async function DELETE(req: NextRequest) {
+  try {
+    const supabase = await createClient()
+
+    // 1. Verificar autenticación
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    // 2. Leer query param id
+    const { searchParams } = new URL(req.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'id es requerido en query params' },
+        { status: 400 }
+      )
+    }
+
+    // 3. Delete con ownership check (id + user_id)
+    const { data, error } = await supabase
+      .from('widgets')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error eliminando widget:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+    if (!data) {
+      return NextResponse.json(
+        { error: 'Widget no encontrado o no autorizado' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ success: true, deleted: data, action: 'deleted' })
+  } catch (error: any) {
+    console.error('Error en DELETE /api/widgets:', error)
+    return NextResponse.json(
+      { error: 'Error interno del servidor', details: error?.message },
+      { status: 500 }
+    )
+  }
+    }
