@@ -73,6 +73,13 @@ const DEFAULT_CONFIG = {
   radioBordeBoton: 8,
 };
 
+// Grid responsive común
+const GRID_RESPONSIVE_2COL: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+  gap: 14,
+};
+
 /* ================= HELPERS UI ================= */
 
 function NevuxLogo() {
@@ -331,7 +338,7 @@ function RadioCard({
             />
           )}
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
               fontSize: 15,
@@ -365,11 +372,11 @@ function ColorPickerField({
   onChange: (v: string) => void;
 }) {
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', minWidth: 0 }}>
       <div
         style={{
           position: 'relative',
-          width: 48,
+          width: 44,
           height: 40,
           borderRadius: 8,
           border: '1px solid #E5E7EB',
@@ -401,6 +408,8 @@ function ColorPickerField({
         onChange={(e) => onChange(e.target.value)}
         style={{
           flex: 1,
+          minWidth: 0,
+          width: '100%',
           padding: '10px 12px',
           border: '1px solid #E5E7EB',
           borderRadius: 8,
@@ -526,7 +535,7 @@ function SectionCard({
     >
       <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{title}</div>
           <div
             style={{
@@ -613,6 +622,7 @@ function MarkdownTextarea({
           padding: '6px 8px',
           borderBottom: '1px solid #E5E7EB',
           background: '#FAFAFA',
+          flexWrap: 'wrap',
         }}
       >
         <button
@@ -1348,29 +1358,29 @@ export default function SliderVideoEditor({
                 title="Colores principales"
                 description="Configurá la paleta general del slider, título y fondo."
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div>
+                <div style={GRID_RESPONSIVE_2COL}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de controles del slider</FieldLabel>
                     <ColorPickerField
                       value={config.colorControles}
                       onChange={(v) => updateConfig('colorControles', v)}
                     />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del título</FieldLabel>
                     <ColorPickerField
                       value={config.colorTitulo}
                       onChange={(v) => updateConfig('colorTitulo', v)}
                     />
                   </div>
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <FieldLabel>Color de fondo de la sección</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorFondo}
-                      onChange={(v) => updateConfig('colorFondo', v)}
-                    />
-                    <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
-                  </div>
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <FieldLabel>Color de fondo de la sección</FieldLabel>
+                  <ColorPickerField
+                    value={config.colorFondo}
+                    onChange={(v) => updateConfig('colorFondo', v)}
+                  />
+                  <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
                 </div>
               </SectionCard>
 
@@ -1379,8 +1389,8 @@ export default function SliderVideoEditor({
                 title="Tipografías"
                 description="Ajustá los tamaños del título y del subtítulo."
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div>
+                <div style={GRID_RESPONSIVE_2COL}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño del título</FieldLabel>
                     <SelectField
                       value={config.tamanoTitulo}
@@ -1390,7 +1400,7 @@ export default function SliderVideoEditor({
                       )}
                     />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño del subtítulo</FieldLabel>
                     <SelectField
                       value={config.tamanoSubtitulo}
@@ -1402,7 +1412,7 @@ export default function SliderVideoEditor({
                     />
                   </div>
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <FieldLabel>Alineación del título y subtítulo</FieldLabel>
                   <SelectField
                     value={config.alineacion}
@@ -1421,8 +1431,8 @@ export default function SliderVideoEditor({
                 title="Comportamiento y estructura"
                 description="Ajustá reproducción, productos inline y bordes de video."
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div>
+                <div style={GRID_RESPONSIVE_2COL}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Reproducción automática</FieldLabel>
                     <SelectField
                       value={config.reproduccionAutomatica ? 'si' : 'no'}
@@ -1433,7 +1443,7 @@ export default function SliderVideoEditor({
                       ]}
                     />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Desactivar expandir video</FieldLabel>
                     <SelectField
                       value={config.desactivarExpandir ? 'si' : 'no'}
@@ -1444,7 +1454,7 @@ export default function SliderVideoEditor({
                       ]}
                     />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Productos bajo el video</FieldLabel>
                     <SelectField
                       value={config.productosBajoVideo ? 'si' : 'no'}
@@ -1456,7 +1466,7 @@ export default function SliderVideoEditor({
                     />
                     <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Radio de borde de los videos</FieldLabel>
                     <SelectField
                       value={String(config.radioBordeVideos)}
@@ -1467,7 +1477,7 @@ export default function SliderVideoEditor({
                       }))}
                     />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Precio de productos</FieldLabel>
                     <SelectField
                       value={config.mostrarPrecio ? 'si' : 'no'}
@@ -1478,7 +1488,7 @@ export default function SliderVideoEditor({
                       ]}
                     />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Botón agregar al carrito</FieldLabel>
                     <SelectField
                       value={config.mostrarBotonCarrito ? 'si' : 'no'}
@@ -1497,15 +1507,15 @@ export default function SliderVideoEditor({
                 title="Botón de acción"
                 description="Definí colores y redondeado del botón asociado a cada video."
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div>
+                <div style={GRID_RESPONSIVE_2COL}>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de fondo</FieldLabel>
                     <ColorPickerField
                       value={config.colorBotonFondo}
                       onChange={(v) => updateConfig('colorBotonFondo', v)}
                     />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del texto</FieldLabel>
                     <ColorPickerField
                       value={config.colorBotonTexto}
@@ -1513,7 +1523,7 @@ export default function SliderVideoEditor({
                     />
                   </div>
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <FieldLabel>Radio de borde del botón ({config.radioBordeBoton}px)</FieldLabel>
                   <RangeSlider
                     value={config.radioBordeBoton}
@@ -2013,6 +2023,7 @@ function ProductoSelectorInline({
           placeholder="Buscar producto…"
           style={{
             flex: 1,
+            minWidth: 0,
             padding: '8px 12px',
             border: '1px solid #E5E7EB',
             borderRadius: 8,
@@ -2033,6 +2044,7 @@ function ProductoSelectorInline({
             fontSize: 13,
             fontWeight: 600,
             cursor: 'pointer',
+            flexShrink: 0,
           }}
         >
           Buscar
@@ -2130,4 +2142,4 @@ function ProductoSelectorInline({
       </div>
     </div>
   );
-  }
+}
