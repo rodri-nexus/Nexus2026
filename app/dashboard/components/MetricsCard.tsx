@@ -31,28 +31,28 @@ export default function MetricsCard() {
       value: "0",
       sublabel: "Vistas de widgets",
       icon: Eye,
-      gradient: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+      gradient: "#FF0000",
     },
     {
       label: "Clicks",
       value: "0",
       sublabel: "Interacciones",
       icon: MousePointerClick,
-      gradient: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
+      gradient: "#FF0000",
     },
     {
       label: "Agregados al carrito",
       value: "0",
       sublabel: "Desde widgets",
       icon: ShoppingCart,
-      gradient: "linear-gradient(135deg, #6366f1, #818cf8)",
+      gradient: "#FF0000",
     },
     {
       label: "Facturación estimada",
       value: "$ -",
       sublabel: "Desde widgets",
       icon: DollarSign,
-      gradient: "linear-gradient(135deg, #7c3aed, #6366f1)",
+      gradient: "#FF0000",
     },
   ];
 
@@ -83,7 +83,8 @@ export default function MetricsCard() {
           alignItems: "center",
           gap: "0.5rem",
           marginBottom: "0.75rem",
-          color: "#6b7280",
+          color: "#000000",
+          opacity: 0.5,
           fontSize: "0.8rem",
         }}
       >
@@ -96,7 +97,7 @@ export default function MetricsCard() {
           margin: 0,
           fontSize: "1.35rem",
           fontWeight: 700,
-          color: "#111827",
+          color: "#000000",
           letterSpacing: "-0.01em",
         }}
       >
@@ -106,7 +107,8 @@ export default function MetricsCard() {
         style={{
           margin: "0.25rem 0 1.25rem",
           fontSize: "0.9rem",
-          color: "#6b7280",
+          color: "#000000",
+          opacity: 0.6,
         }}
       >
         {period === "hoy" && "Hoy"}
@@ -135,10 +137,8 @@ export default function MetricsCard() {
                 border: isActive
                   ? "1px solid transparent"
                   : "1px solid #e5e7eb",
-                background: isActive
-                  ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
-                  : "#ffffff",
-                color: isActive ? "#ffffff" : "#374151",
+                background: isActive ? "#FF0000" : "#ffffff",
+                color: isActive ? "#ffffff" : "#000000",
                 fontSize: "0.85rem",
                 fontWeight: 600,
                 cursor: "pointer",
@@ -148,15 +148,15 @@ export default function MetricsCard() {
               onMouseEnter={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.background = "#f9fafb";
-                  e.currentTarget.style.borderColor = "#6366f1";
-                  e.currentTarget.style.color = "#6366f1";
+                  e.currentTarget.style.borderColor = "#FF0000";
+                  e.currentTarget.style.color = "#FF0000";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.background = "#ffffff";
                   e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.color = "#374151";
+                  e.currentTarget.style.color = "#000000";
                 }
               }}
             >
@@ -183,7 +183,7 @@ export default function MetricsCard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               style={{
-                background: "#f9fafb",
+                background: "#ffffff",
                 border: "1px solid #f3f4f6",
                 borderRadius: "12px",
                 padding: "1.15rem",
@@ -195,7 +195,7 @@ export default function MetricsCard() {
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
                 e.currentTarget.style.boxShadow =
-                  "0 6px 16px rgba(99, 102, 241, 0.08)";
+                  "0 6px 16px rgba(255, 0, 0, 0.1)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -212,7 +212,7 @@ export default function MetricsCard() {
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: "0.85rem",
-                  boxShadow: "0 4px 10px rgba(99, 102, 241, 0.2)",
+                  boxShadow: "0 4px 10px rgba(255, 0, 0, 0.2)",
                 }}
               >
                 <Icon size={18} color="#ffffff" />
@@ -221,7 +221,8 @@ export default function MetricsCard() {
               <div
                 style={{
                   fontSize: "0.8rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                   fontWeight: 500,
                   marginBottom: "0.35rem",
                 }}
@@ -233,7 +234,7 @@ export default function MetricsCard() {
                 style={{
                   fontSize: "1.75rem",
                   fontWeight: 700,
-                  color: "#111827",
+                  color: "#000000",
                   lineHeight: 1,
                   marginBottom: "0.4rem",
                   letterSpacing: "-0.02em",
@@ -245,7 +246,8 @@ export default function MetricsCard() {
               <div
                 style={{
                   fontSize: "0.75rem",
-                  color: "#9ca3af",
+                  color: "#000000",
+                  opacity: 0.5,
                   fontWeight: 500,
                 }}
               >
@@ -268,7 +270,7 @@ export default function MetricsCard() {
             margin: 0,
             fontSize: "1rem",
             fontWeight: 700,
-            color: "#111827",
+            color: "#000000",
           }}
         >
           Evolución del período
@@ -277,7 +279,8 @@ export default function MetricsCard() {
           style={{
             margin: "0.25rem 0 1.25rem",
             fontSize: "0.85rem",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
           }}
         >
           Agrupado por día
@@ -290,7 +293,7 @@ export default function MetricsCard() {
             alignItems: "center",
             justifyContent: "center",
             padding: "2.5rem 1rem",
-            background: "#f9fafb",
+            background: "#ffffff",
             borderRadius: "12px",
             border: "1px dashed #e5e7eb",
           }}
@@ -300,7 +303,8 @@ export default function MetricsCard() {
             style={{
               margin: "0.75rem 0 0",
               fontSize: "0.9rem",
-              color: "#9ca3af",
+              color: "#000000",
+              opacity: 0.5,
               textAlign: "center",
             }}
           >
@@ -320,7 +324,7 @@ export default function MetricsCard() {
             margin: 0,
             fontSize: "1rem",
             fontWeight: 700,
-            color: "#111827",
+            color: "#000000",
           }}
         >
           Rendimiento por widget
@@ -329,7 +333,8 @@ export default function MetricsCard() {
           style={{
             margin: "0.25rem 0 1rem",
             fontSize: "0.85rem",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
           }}
         >
           Ordená para ver cuáles funcionan mejor en el período.
@@ -355,7 +360,7 @@ export default function MetricsCard() {
                 border: "1px solid #e5e7eb",
                 background: "#ffffff",
                 fontSize: "0.85rem",
-                color: "#374151",
+                color: "#000000",
                 fontWeight: 500,
                 cursor: "pointer",
                 fontFamily: "inherit",
@@ -368,13 +373,14 @@ export default function MetricsCard() {
             </select>
             <ChevronDown
               size={16}
-              color="#6b7280"
+              color="#000000"
               style={{
                 position: "absolute",
                 right: "0.75rem",
                 top: "50%",
                 transform: "translateY(-50%)",
                 pointerEvents: "none",
+                opacity: 0.6,
               }}
             />
           </div>
@@ -391,7 +397,7 @@ export default function MetricsCard() {
                 border: "1px solid #e5e7eb",
                 background: "#ffffff",
                 fontSize: "0.85rem",
-                color: "#374151",
+                color: "#000000",
                 fontWeight: 500,
                 cursor: "pointer",
                 fontFamily: "inherit",
@@ -402,13 +408,14 @@ export default function MetricsCard() {
             </select>
             <ChevronDown
               size={16}
-              color="#6b7280"
+              color="#000000"
               style={{
                 position: "absolute",
                 right: "0.75rem",
                 top: "50%",
                 transform: "translateY(-50%)",
                 pointerEvents: "none",
+                opacity: 0.6,
               }}
             />
           </div>
@@ -421,7 +428,7 @@ export default function MetricsCard() {
             alignItems: "center",
             justifyContent: "center",
             padding: "2rem 1rem",
-            background: "#f9fafb",
+            background: "#ffffff",
             borderRadius: "12px",
             border: "1px dashed #e5e7eb",
           }}
@@ -430,7 +437,8 @@ export default function MetricsCard() {
             style={{
               margin: 0,
               fontSize: "0.9rem",
-              color: "#9ca3af",
+              color: "#000000",
+              opacity: 0.5,
               textAlign: "center",
             }}
           >
@@ -440,4 +448,4 @@ export default function MetricsCard() {
       </div>
     </motion.section>
   );
-      }
+                   }
