@@ -47,7 +47,7 @@ export default function DashboardClient({
       <div
         style={{
           minHeight: "100vh",
-          background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+          background: "#ffffff",
           fontFamily:
             "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         }}
@@ -72,8 +72,8 @@ export default function DashboardClient({
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "1rem",
-                background: "linear-gradient(135deg, #fef3c7, #fde68a)",
-                border: "1px solid #fcd34d",
+                background: "#ffffff",
+                border: "1.5px solid #000000",
                 borderRadius: "14px",
                 padding: "1.25rem 1.5rem",
                 marginBottom: "1.5rem",
@@ -84,21 +84,21 @@ export default function DashboardClient({
                   width: "40px",
                   height: "40px",
                   borderRadius: "10px",
-                  background: "rgba(255,255,255,0.6)",
+                  background: "#fff5f5",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
                 }}
               >
-                <AlertCircle size={22} color="#b45309" />
+                <AlertCircle size={22} color="#FF0000" />
               </div>
               <div style={{ flex: 1 }}>
                 <div
                   style={{
                     fontSize: "1rem",
                     fontWeight: 700,
-                    color: "#78350f",
+                    color: "#000000",
                     marginBottom: "0.35rem",
                   }}
                 >
@@ -108,7 +108,8 @@ export default function DashboardClient({
                   style={{
                     margin: 0,
                     fontSize: "0.9rem",
-                    color: "#92400e",
+                    color: "#000000",
+                    opacity: 0.7,
                     lineHeight: 1.5,
                   }}
                 >
@@ -124,12 +125,12 @@ export default function DashboardClient({
                     marginTop: "0.85rem",
                     padding: "0.55rem 1.1rem",
                     borderRadius: "999px",
-                    background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    background: "#FF0000",
                     color: "#ffffff",
                     textDecoration: "none",
                     fontSize: "0.85rem",
                     fontWeight: 600,
-                    boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+                    boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
                   }}
                 >
                   <Store size={15} />
@@ -151,10 +152,10 @@ export default function DashboardClient({
                 alignItems: "center",
                 gap: "0.5rem",
                 padding: "0.35rem 0.85rem",
-                background: "linear-gradient(135deg, #eef2ff, #ede9fe)",
+                background: "#fff5f5",
                 borderRadius: "999px",
                 fontSize: "0.8rem",
-                color: "#6366f1",
+                color: "#FF0000",
                 fontWeight: 600,
                 marginBottom: "0.75rem",
               }}
@@ -168,7 +169,7 @@ export default function DashboardClient({
                 margin: 0,
                 fontSize: "2rem",
                 fontWeight: 800,
-                color: "#111827",
+                color: "#000000",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.1,
               }}
@@ -180,10 +181,11 @@ export default function DashboardClient({
               style={{
                 margin: "0.5rem 0 0",
                 fontSize: "0.95rem",
-                color: "#6b7280",
+                color: "#000000",
+                opacity: 0.6,
               }}
             >
-              Hola, <strong style={{ color: "#374151" }}>{email}</strong> 👋
+              Hola, <strong style={{ color: "#000000", opacity: 1 }}>{email}</strong> 👋
             </p>
           </motion.div>
 
@@ -217,7 +219,7 @@ export default function DashboardClient({
                     width: "28px",
                     height: "28px",
                     borderRadius: "8px",
-                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    background: "#FF0000",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -228,7 +230,7 @@ export default function DashboardClient({
                 <span
                   style={{
                     fontSize: "0.85rem",
-                    color: "#059669",
+                    color: "#FF0000",
                     fontWeight: 700,
                   }}
                 >
@@ -242,14 +244,16 @@ export default function DashboardClient({
                   alignItems: "center",
                   gap: "0.4rem",
                   fontSize: "0.8rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                 }}
               >
                 <Store size={14} />
                 <span>ID:</span>
                 <strong
                   style={{
-                    color: "#111827",
+                    color: "#000000",
+                    opacity: 1,
                     fontFamily: "monospace",
                     fontWeight: 600,
                   }}
@@ -264,12 +268,13 @@ export default function DashboardClient({
                   alignItems: "center",
                   gap: "0.4rem",
                   fontSize: "0.8rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                 }}
               >
                 <Calendar size={14} />
                 <span>Desde:</span>
-                <strong style={{ color: "#111827", fontWeight: 600 }}>
+                <strong style={{ color: "#000000", opacity: 1, fontWeight: 600 }}>
                   {new Date(store.installed_at).toLocaleDateString("es-AR", {
                     day: "numeric",
                     month: "long",
@@ -304,4 +309,4 @@ export default function DashboardClient({
       </div>
     </TutorialProvider>
   );
-                  }
+                }
