@@ -32,8 +32,8 @@ const packs: Pack[] = [
     originalPrice: 90000,
     price: 65500,
     badge: "MÁS VENDIDO",
-    badgeColor: "#dc2626",
-    badgeBg: "#fee2e2",
+    badgeColor: "#FFFFFF",
+    badgeBg: "#FF0000",
     discount: 27,
   },
   {
@@ -43,8 +43,8 @@ const packs: Pack[] = [
     originalPrice: 135000,
     price: 89000,
     badge: "RECOMENDADO",
-    badgeColor: "#059669",
-    badgeBg: "#d1fae5",
+    badgeColor: "#FFFFFF",
+    badgeBg: "#000000",
     discount: 34,
   },
 ];
@@ -80,10 +80,10 @@ export default function FeatureBundles() {
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.45rem 0.95rem",
-              background: "linear-gradient(135deg, #eef2ff, #ede9fe)",
+              background: "#fff5f5",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#6366f1",
+              color: "#FF0000",
               fontWeight: 700,
               letterSpacing: "0.02em",
             }}
@@ -102,7 +102,7 @@ export default function FeatureBundles() {
           style={{
             fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
             fontWeight: 800,
-            color: "#111827",
+            color: "#000000",
             textAlign: "center",
             margin: "0 0 1rem 0",
             letterSpacing: "-0.02em",
@@ -112,10 +112,7 @@ export default function FeatureBundles() {
           Incrementa tu facturación{" "}
           <span
             style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#FF0000",
             }}
           >
             impulsando tu ticket promedio
@@ -130,15 +127,16 @@ export default function FeatureBundles() {
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{
             fontSize: "clamp(1rem, 2vw, 1.15rem)",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.7,
             textAlign: "center",
             lineHeight: 1.6,
             maxWidth: "680px",
             margin: "0 auto 3.5rem auto",
           }}
         >
-          Ofrece <strong style={{ color: "#374151" }}>bundles</strong> y{" "}
-          <strong style={{ color: "#374151" }}>promociones especiales</strong>{" "}
+          Ofrece <strong style={{ color: "#000000", opacity: 1 }}>bundles</strong> y{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>promociones especiales</strong>{" "}
           para incentivar a tus clientes a comprar más y aumentar el ticket
           promedio de tu tienda.
         </motion.p>
@@ -154,7 +152,7 @@ export default function FeatureBundles() {
             borderRadius: "24px",
             padding: "clamp(1.25rem, 3vw, 2rem)",
             boxShadow:
-              "0 20px 60px rgba(99, 102, 241, 0.12), 0 8px 24px rgba(0, 0, 0, 0.05)",
+              "0 20px 60px rgba(255, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.05)",
             border: "1px solid #f3f4f6",
             maxWidth: "500px",
             margin: "0 auto",
@@ -177,7 +175,7 @@ export default function FeatureBundles() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                background: "#ef4444",
+                background: "#FF0000",
               }}
             />
             <div
@@ -185,7 +183,8 @@ export default function FeatureBundles() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                background: "#f59e0b",
+                background: "#000000",
+                opacity: 0.4,
               }}
             />
             <div
@@ -193,14 +192,16 @@ export default function FeatureBundles() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                background: "#10b981",
+                background: "#000000",
+                opacity: 0.2,
               }}
             />
             <div
               style={{
                 marginLeft: "auto",
                 fontSize: "0.7rem",
-                color: "#9ca3af",
+                color: "#000000",
+                opacity: 0.5,
                 fontWeight: 500,
               }}
             >
@@ -214,7 +215,7 @@ export default function FeatureBundles() {
               style={{
                 display: "inline-block",
                 padding: "0.25rem 0.7rem",
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                background: "#FF0000",
                 color: "white",
                 borderRadius: "6px",
                 fontSize: "0.7rem",
@@ -229,7 +230,7 @@ export default function FeatureBundles() {
               style={{
                 fontSize: "1.25rem",
                 fontWeight: 700,
-                color: "#111827",
+                color: "#000000",
                 margin: "0.25rem 0 0.25rem 0",
                 letterSpacing: "-0.01em",
               }}
@@ -239,7 +240,8 @@ export default function FeatureBundles() {
             <p
               style={{
                 fontSize: "0.85rem",
-                color: "#6b7280",
+                color: "#000000",
+                opacity: 0.6,
                 margin: 0,
               }}
             >
@@ -267,11 +269,9 @@ export default function FeatureBundles() {
                     alignItems: "center",
                     gap: "0.85rem",
                     padding: "0.9rem 1rem",
-                    background: isSelected
-                      ? "linear-gradient(135deg, #eef2ff, #ede9fe)"
-                      : "white",
+                    background: isSelected ? "#fff5f5" : "white",
                     border: isSelected
-                      ? "2px solid #6366f1"
+                      ? "2px solid #FF0000"
                       : "2px solid #e5e7eb",
                     borderRadius: "12px",
                     cursor: "pointer",
@@ -289,9 +289,9 @@ export default function FeatureBundles() {
                       height: "22px",
                       borderRadius: "50%",
                       border: isSelected
-                        ? "2px solid #6366f1"
+                        ? "2px solid #FF0000"
                         : "2px solid #d1d5db",
-                      background: isSelected ? "#6366f1" : "white",
+                      background: isSelected ? "#FF0000" : "white",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -328,7 +328,7 @@ export default function FeatureBundles() {
                         style={{
                           fontSize: "0.95rem",
                           fontWeight: 700,
-                          color: "#111827",
+                          color: "#000000",
                         }}
                       >
                         {pack.title}
@@ -352,7 +352,8 @@ export default function FeatureBundles() {
                     <div
                       style={{
                         fontSize: "0.75rem",
-                        color: "#6b7280",
+                        color: "#000000",
+                        opacity: 0.6,
                       }}
                     >
                       {pack.subtitle}
@@ -364,7 +365,8 @@ export default function FeatureBundles() {
                     <div
                       style={{
                         fontSize: "0.7rem",
-                        color: "#9ca3af",
+                        color: "#000000",
+                        opacity: 0.4,
                         textDecoration: "line-through",
                         marginBottom: "0.1rem",
                       }}
@@ -375,7 +377,7 @@ export default function FeatureBundles() {
                       style={{
                         fontSize: "0.95rem",
                         fontWeight: 800,
-                        color: "#111827",
+                        color: "#000000",
                       }}
                     >
                       ${pack.price.toLocaleString("es-AR")}
@@ -395,7 +397,7 @@ export default function FeatureBundles() {
             style={{
               width: "100%",
               padding: "1rem",
-              background: "linear-gradient(135deg, #111827, #374151)",
+              background: "#000000",
               color: "white",
               border: "none",
               borderRadius: "12px",
@@ -474,7 +476,7 @@ function MiniFeature({ icon, text }: { icon: React.ReactNode; text: string }) {
         alignItems: "center",
         gap: "0.3rem",
         fontSize: "0.7rem",
-        color: "#059669",
+        color: "#FF0000",
         fontWeight: 600,
       }}
     >
@@ -498,20 +500,20 @@ function BundleFeature({
           width: "36px",
           height: "36px",
           borderRadius: "10px",
-          background: "linear-gradient(135deg, #eef2ff, #ede9fe)",
+          background: "#fff5f5",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           marginBottom: "0.75rem",
         }}
       >
-        <Check size={18} color="#6366f1" strokeWidth={2.5} />
+        <Check size={18} color="#FF0000" strokeWidth={2.5} />
       </div>
       <h4
         style={{
           fontSize: "1rem",
           fontWeight: 700,
-          color: "#111827",
+          color: "#000000",
           margin: "0 0 0.35rem 0",
           letterSpacing: "-0.01em",
         }}
@@ -521,7 +523,8 @@ function BundleFeature({
       <p
         style={{
           fontSize: "0.9rem",
-          color: "#6b7280",
+          color: "#000000",
+          opacity: 0.6,
           lineHeight: 1.5,
           margin: 0,
         }}
