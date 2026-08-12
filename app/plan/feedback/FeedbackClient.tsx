@@ -33,7 +33,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         throw new Error("Error al enviar respuesta");
       }
 
-      // Redirigir según la respuesta
       if (liked) {
         router.push("/plan/expirado");
       } else {
@@ -56,15 +55,13 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         alignItems: "center",
         justifyContent: "center",
         padding: "2rem 1.25rem",
-        background:
-          "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* Círculos decorativos de fondo */}
       <div
         style={{
           position: "absolute",
@@ -92,7 +89,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         }}
       />
 
-      {/* Logo Nevux arriba */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -108,7 +104,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         <NevuxLogo size="medium" />
       </motion.div>
 
-      {/* Contenido central */}
       <div
         style={{
           maxWidth: "620px",
@@ -119,7 +114,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           marginTop: "3rem",
         }}
       >
-        {/* Ícono animado */}
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
@@ -144,7 +138,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           <Heart size={48} color="white" fill="white" strokeWidth={0} />
         </motion.div>
 
-        {/* Badge "7 días completados" */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -170,7 +163,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           Usaste Nevux por 7 días
         </motion.div>
 
-        {/* Título */}
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -187,7 +179,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           Se terminaron tus 7 días de prueba 🎉
         </motion.h1>
 
-        {/* Subtítulo */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -201,10 +192,11 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             fontWeight: 500,
           }}
         >
-          ¿Te gustó <strong style={{ color: "#FF0000", opacity: 1 }}>Nevux</strong> hasta ahora?
+          ¿Te gustó{" "}
+          <strong style={{ color: "#FF0000", opacity: 1 }}>Nevux</strong> hasta
+          ahora?
         </motion.p>
 
-        {/* Botones grandes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -217,7 +209,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             margin: "0 auto",
           }}
         >
-          {/* Botón SÍ */}
           <motion.button
             whileHover={{ scale: loading ? 1 : 1.03 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
@@ -268,7 +259,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             </div>
           </motion.button>
 
-          {/* Botón NO */}
           <motion.button
             whileHover={{ scale: loading ? 1 : 1.03 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
@@ -330,7 +320,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           </motion.button>
         </motion.div>
 
-        {/* Error */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -352,7 +341,6 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           </motion.div>
         )}
 
-        {/* Email logueado abajo */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -370,4 +358,4 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
       </div>
     </div>
   );
-  }
+        }
