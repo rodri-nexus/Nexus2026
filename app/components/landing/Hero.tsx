@@ -13,8 +13,7 @@ export default function Hero() {
         paddingBottom: "4rem",
         paddingLeft: "1.25rem",
         paddingRight: "1.25rem",
-        background:
-          "linear-gradient(180deg, #f9fafb 0%, #eef2ff 50%, #f9fafb 100%)",
+        background: "#ffffff",
         overflow: "hidden",
       }}
     >
@@ -27,7 +26,7 @@ export default function Hero() {
           width: "300px",
           height: "300px",
           background:
-            "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -40,7 +39,7 @@ export default function Hero() {
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -71,7 +70,7 @@ export default function Hero() {
             boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
             marginBottom: "1.75rem",
             fontSize: "0.9rem",
-            color: "#374151",
+            color: "#000000",
             fontWeight: 500,
           }}
         >
@@ -109,7 +108,7 @@ export default function Hero() {
             fontSize: "clamp(2rem, 6vw, 3.5rem)",
             fontWeight: 800,
             lineHeight: 1.1,
-            color: "#111827",
+            color: "#000000",
             margin: "0 0 1.5rem 0",
             letterSpacing: "-0.03em",
           }}
@@ -117,10 +116,7 @@ export default function Hero() {
           Aumenta tus ventas con{" "}
           <span
             style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#FF0000",
             }}
           >
             +12 widgets
@@ -135,15 +131,16 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.2 }}
           style={{
             fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.7,
             lineHeight: 1.6,
             margin: "0 auto 2rem auto",
             maxWidth: "620px",
           }}
         >
-          Crea <strong style={{ color: "#374151" }}>bundles</strong>,{" "}
-          <strong style={{ color: "#374151" }}>widgets</strong> y{" "}
-          <strong style={{ color: "#374151" }}>ofertas especiales</strong> que
+          Crea <strong style={{ color: "#000000", opacity: 1 }}>bundles</strong>,{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>widgets</strong> y{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>ofertas especiales</strong> que
           impulsen tu ticket promedio y tu tasa de conversión. Sin código,
           interactivo y en minutos.
         </motion.p>
@@ -180,13 +177,13 @@ export default function Hero() {
               justifyContent: "center",
               gap: "0.5rem",
               padding: "1.1rem 2.5rem",
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              background: "#FF0000",
               color: "white",
               borderRadius: "999px",
               fontSize: "1.1rem",
               fontWeight: 600,
               textDecoration: "none",
-              boxShadow: "0 10px 30px rgba(99, 102, 241, 0.4)",
+              boxShadow: "0 10px 30px rgba(255, 0, 0, 0.4)",
               transition: "all 0.2s",
               minWidth: "260px",
             }}
@@ -221,7 +218,7 @@ export default function Hero() {
               padding: "1.75rem 1.5rem",
               borderRadius: "20px",
               boxShadow:
-                "0 20px 60px rgba(99, 102, 241, 0.15), 0 8px 20px rgba(0, 0, 0, 0.05)",
+                "0 20px 60px rgba(255, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.05)",
               border: "1px solid #f3f4f6",
               width: "min(340px, 90%)",
               display: "flex",
@@ -232,22 +229,22 @@ export default function Hero() {
             <FloatingWidget
               icon={<Sparkles size={14} />}
               text="¡Oferta sorpresa!"
-              color="#10b981"
-              bg="#d1fae5"
+              color="#FF0000"
+              bg="#fff5f5"
               delay={0}
             />
             <FloatingWidget
               icon={<Zap size={14} />}
               text="¡Últimas en stock!"
-              color="#ef4444"
-              bg="#fee2e2"
+              color="#000000"
+              bg="#f3f4f6"
               delay={0.2}
             />
             <FloatingWidget
               icon={<TrendingUp size={14} />}
               text="¡Apurate, quedan pocas unidades!"
-              color="#f59e0b"
-              bg="#fef3c7"
+              color="#FF0000"
+              bg="#fff5f5"
               delay={0.4}
             />
           </motion.div>
@@ -277,14 +274,14 @@ export default function Hero() {
               background: "white",
               padding: "0.6rem 1rem",
               borderRadius: "14px",
-              boxShadow: "0 8px 20px rgba(16, 185, 129, 0.2)",
-              border: "1px solid #d1fae5",
+              boxShadow: "0 8px 20px rgba(255, 0, 0, 0.2)",
+              border: "1px solid #fecaca",
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
               fontSize: "0.8rem",
               fontWeight: 600,
-              color: "#059669",
+              color: "#FF0000",
             }}
           >
             <Package size={14} />
@@ -316,14 +313,14 @@ export default function Hero() {
               background: "white",
               padding: "0.6rem 1rem",
               borderRadius: "14px",
-              boxShadow: "0 8px 20px rgba(139, 92, 246, 0.2)",
-              border: "1px solid #ede9fe",
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+              border: "1px solid #e5e7eb",
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
               fontSize: "0.8rem",
               fontWeight: 600,
-              color: "#7c3aed",
+              color: "#000000",
             }}
           >
             <Sparkles size={14} />
@@ -344,7 +341,7 @@ function BulletItem({ text }: { text: string }) {
         alignItems: "center",
         gap: "0.6rem",
         fontSize: "0.95rem",
-        color: "#374151",
+        color: "#000000",
         fontWeight: 500,
       }}
     >
@@ -353,12 +350,12 @@ function BulletItem({ text }: { text: string }) {
           width: "22px",
           height: "22px",
           borderRadius: "50%",
-          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          background: "#FF0000",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          boxShadow: "0 2px 8px rgba(99, 102, 241, 0.3)",
+          boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
         }}
       >
         <Check size={13} color="white" strokeWidth={3} />
@@ -417,4 +414,4 @@ function FloatingWidget({
       <span>{text}</span>
     </motion.div>
   );
-      }
+          }
