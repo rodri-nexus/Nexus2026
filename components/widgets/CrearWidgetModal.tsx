@@ -30,7 +30,7 @@ export default function CrearWidgetModal({
             style={{
               position: "fixed",
               inset: 0,
-              background: "rgba(17, 24, 39, 0.5)",
+              background: "rgba(0, 0, 0, 0.5)",
               backdropFilter: "blur(4px)",
               zIndex: 100,
             }}
@@ -83,7 +83,7 @@ export default function CrearWidgetModal({
                     margin: 0,
                     fontSize: "1.25rem",
                     fontWeight: 700,
-                    color: "#111827",
+                    color: "#000000",
                   }}
                 >
                   Crear nuevo widget
@@ -100,7 +100,7 @@ export default function CrearWidgetModal({
                     justifyContent: "center",
                     cursor: "pointer",
                     borderRadius: "10px",
-                    color: "#6b7280",
+                    color: "#000000",
                     transition: "background 0.15s",
                   }}
                   onMouseEnter={(e) => {
@@ -118,7 +118,8 @@ export default function CrearWidgetModal({
                 style={{
                   margin: "0 0 1.25rem 0",
                   fontSize: "0.95rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                 }}
               >
                 ¿Qué tipo de widget querés crear?
@@ -143,9 +144,9 @@ export default function CrearWidgetModal({
                     transition: "border-color 0.15s, box-shadow 0.15s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "#6366f1";
+                    e.currentTarget.style.borderColor = "#FF0000";
                     e.currentTarget.style.boxShadow =
-                      "0 0 0 3px rgba(99, 102, 241, 0.08)";
+                      "0 0 0 3px rgba(255, 0, 0, 0.08)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = "#e5e7eb";
@@ -157,21 +158,21 @@ export default function CrearWidgetModal({
                       width: "48px",
                       height: "48px",
                       borderRadius: "10px",
-                      background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                      background: "#fff5f5",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                     }}
                   >
-                    <Package size={22} color="#059669" />
+                    <Package size={22} color="#FF0000" />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div
                       style={{
                         fontSize: "0.95rem",
                         fontWeight: 600,
-                        color: "#111827",
+                        color: "#000000",
                         marginBottom: "0.25rem",
                       }}
                     >
@@ -180,7 +181,8 @@ export default function CrearWidgetModal({
                     <div
                       style={{
                         fontSize: "0.85rem",
-                        color: "#6b7280",
+                        color: "#000000",
+                        opacity: 0.6,
                         lineHeight: 1.4,
                       }}
                     >
@@ -192,10 +194,11 @@ export default function CrearWidgetModal({
                     height="20"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#9ca3af"
+                    stroke="#000000"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    style={{ opacity: 0.4 }}
                   >
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
@@ -218,9 +221,9 @@ export default function CrearWidgetModal({
                     transition: "border-color 0.15s, box-shadow 0.15s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "#6366f1";
+                    e.currentTarget.style.borderColor = "#FF0000";
                     e.currentTarget.style.boxShadow =
-                      "0 0 0 3px rgba(99, 102, 241, 0.08)";
+                      "0 0 0 3px rgba(255, 0, 0, 0.08)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = "#e5e7eb";
@@ -232,21 +235,21 @@ export default function CrearWidgetModal({
                       width: "48px",
                       height: "48px",
                       borderRadius: "10px",
-                      background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+                      background: "#000000",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                     }}
                   >
-                    <Store size={22} color="#2563eb" />
+                    <Store size={22} color="#ffffff" />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div
                       style={{
                         fontSize: "0.95rem",
                         fontWeight: 600,
-                        color: "#111827",
+                        color: "#000000",
                         marginBottom: "0.25rem",
                       }}
                     >
@@ -255,7 +258,8 @@ export default function CrearWidgetModal({
                     <div
                       style={{
                         fontSize: "0.85rem",
-                        color: "#6b7280",
+                        color: "#000000",
+                        opacity: 0.6,
                         lineHeight: 1.4,
                       }}
                     >
@@ -267,10 +271,11 @@ export default function CrearWidgetModal({
                     height="20"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#9ca3af"
+                    stroke="#000000"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    style={{ opacity: 0.4 }}
                   >
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
@@ -282,4 +287,4 @@ export default function CrearWidgetModal({
       )}
     </AnimatePresence>
   );
-                }
+              }
