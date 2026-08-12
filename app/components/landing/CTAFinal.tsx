@@ -20,14 +20,13 @@ export default function CTAFinal() {
         style={{
           maxWidth: "900px",
           margin: "0 auto",
-          background:
-            "linear-gradient(135deg, #eef2ff 0%, #ede9fe 50%, #f5f3ff 100%)",
+          background: "#ffffff",
           borderRadius: "32px",
           padding: "clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 3rem)",
           position: "relative",
           overflow: "hidden",
-          border: "1px solid rgba(99, 102, 241, 0.15)",
-          boxShadow: "0 20px 60px rgba(99, 102, 241, 0.1)",
+          border: "1.5px solid #FF0000",
+          boxShadow: "0 20px 60px rgba(255, 0, 0, 0.1)",
         }}
       >
         {/* Orbes decorativos de fondo */}
@@ -39,7 +38,7 @@ export default function CTAFinal() {
             width: "300px",
             height: "300px",
             background:
-              "radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(255, 0, 0, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
           }}
@@ -52,7 +51,7 @@ export default function CTAFinal() {
             width: "350px",
             height: "350px",
             background:
-              "radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(255, 0, 0, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
           }}
@@ -73,8 +72,8 @@ export default function CTAFinal() {
             position: "absolute",
             top: "15%",
             left: "8%",
-            color: "#a78bfa",
-            opacity: 0.5,
+            color: "#FF0000",
+            opacity: 0.35,
             pointerEvents: "none",
           }}
         >
@@ -96,8 +95,8 @@ export default function CTAFinal() {
             position: "absolute",
             top: "20%",
             right: "10%",
-            color: "#818cf8",
-            opacity: 0.5,
+            color: "#FF0000",
+            opacity: 0.35,
             pointerEvents: "none",
           }}
         >
@@ -118,8 +117,8 @@ export default function CTAFinal() {
             position: "absolute",
             bottom: "20%",
             left: "12%",
-            color: "#c4b5fd",
-            opacity: 0.6,
+            color: "#FF0000",
+            opacity: 0.35,
             pointerEvents: "none",
           }}
         >
@@ -143,11 +142,11 @@ export default function CTAFinal() {
               height: "72px",
               margin: "0 auto 1.5rem auto",
               borderRadius: "20px",
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              background: "#FF0000",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 15px 40px rgba(99, 102, 241, 0.4)",
+              boxShadow: "0 15px 40px rgba(255, 0, 0, 0.4)",
             }}
           >
             <Rocket size={32} color="white" strokeWidth={2} />
@@ -162,7 +161,7 @@ export default function CTAFinal() {
             style={{
               fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
               fontWeight: 800,
-              color: "#111827",
+              color: "#000000",
               margin: "0 0 1rem 0",
               letterSpacing: "-0.02em",
               lineHeight: 1.15,
@@ -171,10 +170,7 @@ export default function CTAFinal() {
             ¿Listo para{" "}
             <span
               style={{
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                color: "#FF0000",
               }}
             >
               aumentar tus ventas
@@ -190,14 +186,15 @@ export default function CTAFinal() {
             transition={{ duration: 0.5, delay: 0.3 }}
             style={{
               fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
-              color: "#4b5563",
+              color: "#000000",
+              opacity: 0.7,
               lineHeight: 1.6,
               margin: "0 auto 2.5rem auto",
               maxWidth: "560px",
             }}
           >
             Sumate a las tiendas que ya están convirtiendo más con{" "}
-            <strong style={{ color: "#111827" }}>Nevux</strong>
+            <strong style={{ color: "#000000", opacity: 1 }}>Nevux</strong>
           </motion.p>
 
           {/* Bullets */}
@@ -240,13 +237,13 @@ export default function CTAFinal() {
               style={{
                 width: "100%",
                 padding: "1.1rem 2rem",
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                background: "#FF0000",
                 color: "white",
                 borderRadius: "999px",
                 fontSize: "1.05rem",
                 fontWeight: 700,
                 textDecoration: "none",
-                boxShadow: "0 10px 30px rgba(99, 102, 241, 0.4)",
+                boxShadow: "0 10px 30px rgba(255, 0, 0, 0.4)",
                 transition: "all 0.2s",
                 display: "flex",
                 alignItems: "center",
@@ -291,12 +288,12 @@ export default function CTAFinal() {
                 width: "100%",
                 padding: "1.05rem 2rem",
                 background: "white",
-                color: "#111827",
+                color: "#000000",
                 borderRadius: "999px",
                 fontSize: "1.05rem",
                 fontWeight: 600,
                 textDecoration: "none",
-                border: "1.5px solid #e5e7eb",
+                border: "1.5px solid #000000",
                 transition: "all 0.2s",
                 display: "flex",
                 alignItems: "center",
@@ -318,7 +315,8 @@ export default function CTAFinal() {
             style={{
               marginTop: "1.5rem",
               fontSize: "0.8rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
               margin: "1.5rem 0 0 0",
               fontWeight: 500,
             }}
@@ -340,7 +338,7 @@ function BulletItem({ text }: { text: string }) {
         alignItems: "center",
         gap: "0.6rem",
         fontSize: "0.95rem",
-        color: "#374151",
+        color: "#000000",
         fontWeight: 500,
       }}
     >
@@ -349,12 +347,12 @@ function BulletItem({ text }: { text: string }) {
           width: "24px",
           height: "24px",
           borderRadius: "50%",
-          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          background: "#FF0000",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          boxShadow: "0 2px 8px rgba(99, 102, 241, 0.3)",
+          boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
         }}
       >
         <Check size={14} color="white" strokeWidth={3} />
