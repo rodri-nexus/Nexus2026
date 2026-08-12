@@ -29,8 +29,10 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         body: JSON.stringify({ liked }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Error al enviar respuesta");
+        throw new Error(data.error || "Error al enviar respuesta");
       }
 
       if (liked) {
@@ -38,9 +40,9 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
       } else {
         router.push("/plan/opinion");
       }
-    } catch (err) {
-      console.error(err);
-      setError("Ocurrió un error. Intentá de nuevo.");
+    } catch (err: any) {
+      console.error("Error enviando feedback:", err);
+      setError(err?.message || "Ocurrió un error. Intentá de nuevo.");
       setLoading(null);
     }
   }
@@ -332,9 +334,11 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
               borderRadius: "10px",
               fontSize: "0.85rem",
               border: "1px solid #fecaca",
-              maxWidth: "400px",
+              maxWidth: "500px",
               marginLeft: "auto",
               marginRight: "auto",
+              textAlign: "left",
+              wordBreak: "break-word",
             }}
           >
             {error}
