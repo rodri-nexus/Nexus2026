@@ -31,10 +31,10 @@ export default async function WidgetsNuevoTodosPage() {
         borderRadius: "10px",
         fontSize: "0.85rem",
         fontWeight: 500,
-        color: "#374151",
+        color: "#000000",
       }}
     >
-      <Store size={16} color="#6366f1" />
+      <Store size={16} color="#FF0000" />
       Widgets generales para la tienda
     </div>
   );
@@ -43,7 +43,7 @@ export default async function WidgetsNuevoTodosPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         padding: "2rem 1.25rem",
@@ -60,4 +60,4 @@ export default async function WidgetsNuevoTodosPage() {
       </div>
     </div>
   );
-        }
+}
