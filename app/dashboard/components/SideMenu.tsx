@@ -73,7 +73,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(17, 24, 39, 0.5)",
+              background: "rgba(0, 0, 0, 0.5)",
               backdropFilter: "blur(4px)",
               WebkitBackdropFilter: "blur(4px)",
               zIndex: 100,
@@ -109,7 +109,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                 justifyContent: "space-between",
                 padding: "1.1rem 1.25rem",
                 borderBottom: "1px solid #e5e7eb",
-                background: "linear-gradient(135deg, #f9fafb, #ffffff)",
+                background: "#ffffff",
               }}
             >
               <NevuxLogo size="medium" />
@@ -126,7 +126,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  color: "#374151",
+                  color: "#000000",
                   borderRadius: "10px",
                   transition: "background 0.15s",
                 }}
@@ -155,7 +155,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                 style={{
                   fontSize: "0.7rem",
                   fontWeight: 600,
-                  color: "#9ca3af",
+                  color: "#000000",
+                  opacity: 0.5,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
                   padding: "0.5rem 0.75rem 0.5rem",
@@ -193,11 +194,12 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                           fontSize: "0.65rem",
                           fontWeight: 600,
                           background: "#f3f4f6",
-                          color: "#6b7280",
+                          color: "#000000",
                           padding: "0.15rem 0.5rem",
                           borderRadius: "999px",
                           textTransform: "uppercase",
                           letterSpacing: "0.03em",
+                          opacity: 0.6,
                         }}
                       >
                         Pronto
@@ -218,10 +220,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                       padding: "0.75rem",
                       borderRadius: "10px",
                       textDecoration: "none",
-                      color: isActive ? "#6366f1" : "#374151",
-                      background: isActive
-                        ? "linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08))"
-                        : "transparent",
+                      color: isActive ? "#FF0000" : "#000000",
+                      background: isActive ? "#fff5f5" : "transparent",
                       fontSize: "0.9rem",
                       fontWeight: isActive ? 600 : 500,
                       transition: "background 0.15s, color 0.15s",
@@ -247,15 +247,14 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                           transform: "translateY(-50%)",
                           width: "3px",
                           height: "60%",
-                          background:
-                            "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                          background: "#FF0000",
                           borderRadius: "0 3px 3px 0",
                         }}
                       />
                     )}
                     <Icon
                       size={18}
-                      color={isActive ? "#6366f1" : "#6b7280"}
+                      color={isActive ? "#FF0000" : "#000000"}
                     />
                     <span>{item.label}</span>
                   </Link>
@@ -268,14 +267,15 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
               style={{
                 padding: "1rem 1.25rem",
                 borderTop: "1px solid #e5e7eb",
-                background: "#f9fafb",
+                background: "#ffffff",
               }}
             >
               <p
                 style={{
                   margin: 0,
                   fontSize: "0.7rem",
-                  color: "#9ca3af",
+                  color: "#000000",
+                  opacity: 0.5,
                   textAlign: "center",
                   fontWeight: 500,
                 }}
@@ -288,4 +288,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-  }
+    }
