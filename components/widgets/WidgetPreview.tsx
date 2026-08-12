@@ -31,8 +31,8 @@ function renderPreview(slug: string) {
       return <CuentaRegresivaPreview />;
     case "bundle-cantidad":
       return <BundleCantidadPreview />;
-    case "bundle-nxm":
-      return <BundleNxMPreview />;
+    case "bundle-promociones":
+      return <BundlePromocionesPreview />;
     case "slider-video":
       return <SliderVideoPreview />;
     case "mensaje-alerta":
@@ -158,7 +158,7 @@ function BundleCantidadPreview() {
   );
 }
 
-function BundleNxMPreview() {
+function BundlePromocionesPreview() {
   return (
     <div
       style={{
@@ -538,8 +538,138 @@ function BarraProgresoPreview() {
 
 function DefaultPreview() {
   return (
-    <div style={{ fontSize: "24px", color: "#9ca3af" }}>
-      ✨
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+      }}
+    >
+      {/* SVG custom: cajas apiladas con etiqueta de descuento (representa bundle/paquete) */}
+      <svg
+        width="56"
+        height="56"
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Caja del fondo (más chica, atrás) */}
+        <rect
+          x="8"
+          y="20"
+          width="24"
+          height="24"
+          rx="3"
+          fill="#e0e7ff"
+          stroke="#6366f1"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="8"
+          y1="26"
+          x2="32"
+          y2="26"
+          stroke="#6366f1"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="20"
+          y1="20"
+          x2="20"
+          y2="26"
+          stroke="#6366f1"
+          strokeWidth="1.5"
+        />
+
+        {/* Caja del medio */}
+        <rect
+          x="20"
+          y="14"
+          width="28"
+          height="28"
+          rx="3"
+          fill="#c7d2fe"
+          stroke="#4f46e5"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="20"
+          y1="21"
+          x2="48"
+          y2="21"
+          stroke="#4f46e5"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="34"
+          y1="14"
+          x2="34"
+          y2="21"
+          stroke="#4f46e5"
+          strokeWidth="1.5"
+        />
+
+        {/* Caja frontal (más grande) */}
+        <rect
+          x="32"
+          y="26"
+          width="24"
+          height="24"
+          rx="3"
+          fill="#6366f1"
+          stroke="#4338ca"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="32"
+          y1="32"
+          x2="56"
+          y2="32"
+          stroke="#4338ca"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="44"
+          y1="26"
+          x2="44"
+          y2="32"
+          stroke="#4338ca"
+          strokeWidth="1.5"
+        />
+
+        {/* Badge de descuento circular */}
+        <circle
+          cx="52"
+          cy="18"
+          r="10"
+          fill="#ef4444"
+          stroke="#ffffff"
+          strokeWidth="2"
+        />
+        <text
+          x="52"
+          y="22"
+          textAnchor="middle"
+          fill="#ffffff"
+          fontSize="9"
+          fontWeight="800"
+          fontFamily="system-ui, -apple-system, sans-serif"
+        >
+          %
+        </text>
+      </svg>
+      <div
+        style={{
+          fontSize: "10px",
+          color: "#6b7280",
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+        }}
+      >
+        Vista previa
+      </div>
     </div>
   );
-               }
+                }
