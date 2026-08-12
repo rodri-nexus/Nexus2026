@@ -227,35 +227,78 @@ export default function Hero() {
           </Link>
         </motion.div>
 
-        {/* Widgets flotantes — wrapper 100% contenido, todo adentro */}
+        {/* ─────────────────────────────────────────────
+            WIDGET MOCKUP FLOTANTE — NUEVO LAYOUT
+            - Wrapper flex centrado
+            - Card blanca con margin auto (naturalmente centrada)
+            - Píldoras absolute respecto al wrapper
+        ───────────────────────────────────────────── */}
         <div
           style={{
             marginTop: "4rem",
             position: "relative",
             width: "100%",
-            maxWidth: "380px",
-            height: "340px",
-            marginLeft: "auto",
-            marginRight: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingTop: "50px",
+            paddingBottom: "50px",
           }}
         >
-          {/* Card contenedora blanca central */}
+          {/* Píldora +45% ventas — arriba, ligeramente a la izquierda */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{
+              opacity: 1,
+              y: [0, -8, 0],
+            }}
+            transition={{
+              opacity: { duration: 0.6, delay: 0.8 },
+              y: {
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1.5,
+              },
+            }}
+            style={{
+              position: "absolute",
+              top: "0",
+              left: "50%",
+              transform: "translateX(-140px)",
+              background: "white",
+              padding: "0.55rem 0.9rem",
+              borderRadius: "14px",
+              boxShadow: "0 8px 20px rgba(255, 0, 0, 0.2)",
+              border: "1px solid #fecaca",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              color: "#FF0000",
+              whiteSpace: "nowrap",
+              zIndex: 3,
+            }}
+          >
+            <Package size={13} />
+            +45% ventas
+          </motion.div>
+
+          {/* Card blanca central — naturalmente centrada */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.5 }}
             style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
               background: "white",
               padding: "1.5rem 1.25rem",
               borderRadius: "20px",
               boxShadow:
                 "0 20px 60px rgba(255, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.05)",
               border: "1px solid #f3f4f6",
-              width: "min(280px, 78%)",
+              width: "100%",
+              maxWidth: "280px",
               display: "flex",
               flexDirection: "column",
               gap: "0.65rem",
@@ -285,58 +328,15 @@ export default function Hero() {
             />
           </motion.div>
 
-          {/* Píldora +45% ventas — arriba a la izquierda, dentro del wrapper */}
+          {/* Píldora Ticket +2.3x — abajo, ligeramente a la derecha */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{
               opacity: 1,
-              x: 0,
-              y: [0, -8, 0],
-            }}
-            transition={{
-              opacity: { duration: 0.6, delay: 0.8 },
-              x: { duration: 0.6, delay: 0.8 },
-              y: {
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1.5,
-              },
-            }}
-            style={{
-              position: "absolute",
-              top: "0",
-              left: "0",
-              background: "white",
-              padding: "0.55rem 0.9rem",
-              borderRadius: "14px",
-              boxShadow: "0 8px 20px rgba(255, 0, 0, 0.2)",
-              border: "1px solid #fecaca",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "#FF0000",
-              whiteSpace: "nowrap",
-              zIndex: 3,
-            }}
-          >
-            <Package size={13} />
-            +45% ventas
-          </motion.div>
-
-          {/* Píldora Ticket +2.3x — abajo a la derecha, dentro del wrapper */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{
-              opacity: 1,
-              x: 0,
               y: [0, 8, 0],
             }}
             transition={{
               opacity: { duration: 0.6, delay: 1 },
-              x: { duration: 0.6, delay: 1 },
               y: {
                 duration: 3.5,
                 repeat: Infinity,
@@ -347,7 +347,8 @@ export default function Hero() {
             style={{
               position: "absolute",
               bottom: "0",
-              right: "0",
+              left: "50%",
+              transform: "translateX(30px)",
               background: "white",
               padding: "0.55rem 0.9rem",
               borderRadius: "14px",
