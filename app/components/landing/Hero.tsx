@@ -24,7 +24,6 @@ export default function Hero() {
 
         if (currentCount >= 15) {
           clearInterval(intervalId);
-          // Pausa de 2 segundos antes de reiniciar
           timeoutId = setTimeout(startCounting, 2000);
         }
       }, 120);
@@ -108,7 +107,6 @@ export default function Hero() {
           }}
         >
           <span>Hecho para</span>
-          {/* Logo Tiendanube inline SVG */}
           <svg
             width="90"
             height="16"
@@ -229,19 +227,19 @@ export default function Hero() {
           </Link>
         </motion.div>
 
-        {/* Widgets flotantes animados — contenedor centrado con ancho fijo */}
+        {/* Widgets flotantes — wrapper 100% contenido, todo adentro */}
         <div
           style={{
             marginTop: "4rem",
             position: "relative",
-            height: "320px",
-            width: "min(340px, 100%)",
-            maxWidth: "340px",
+            width: "100%",
+            maxWidth: "380px",
+            height: "340px",
             marginLeft: "auto",
             marginRight: "auto",
           }}
         >
-          {/* Card contenedora blanca — centrada en el wrapper */}
+          {/* Card contenedora blanca central */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -252,15 +250,16 @@ export default function Hero() {
               left: "50%",
               transform: "translate(-50%, -50%)",
               background: "white",
-              padding: "1.75rem 1.5rem",
+              padding: "1.5rem 1.25rem",
               borderRadius: "20px",
               boxShadow:
                 "0 20px 60px rgba(255, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.05)",
               border: "1px solid #f3f4f6",
-              width: "100%",
+              width: "min(280px, 78%)",
               display: "flex",
               flexDirection: "column",
-              gap: "0.75rem",
+              gap: "0.65rem",
+              zIndex: 2,
             }}
           >
             <FloatingWidget
@@ -279,20 +278,20 @@ export default function Hero() {
             />
             <FloatingWidget
               icon={<TrendingUp size={14} />}
-              text="¡Apurate, quedan pocas unidades!"
+              text="¡Apurate!"
               color="#FF0000"
               bg="#fff5f5"
               delay={0.4}
             />
           </motion.div>
 
-          {/* Píldora flotante izquierda superior — ahora relativa al wrapper */}
+          {/* Píldora +45% ventas — arriba a la izquierda, dentro del wrapper */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{
               opacity: 1,
               x: 0,
-              y: [0, -10, 0],
+              y: [0, -8, 0],
             }}
             transition={{
               opacity: { duration: 0.6, delay: 0.8 },
@@ -306,34 +305,34 @@ export default function Hero() {
             }}
             style={{
               position: "absolute",
-              top: "5%",
-              left: "-8%",
+              top: "0",
+              left: "0",
               background: "white",
-              padding: "0.6rem 1rem",
+              padding: "0.55rem 0.9rem",
               borderRadius: "14px",
               boxShadow: "0 8px 20px rgba(255, 0, 0, 0.2)",
               border: "1px solid #fecaca",
               display: "flex",
               alignItems: "center",
-              gap: "0.5rem",
-              fontSize: "0.8rem",
+              gap: "0.4rem",
+              fontSize: "0.75rem",
               fontWeight: 600,
               color: "#FF0000",
               whiteSpace: "nowrap",
               zIndex: 3,
             }}
           >
-            <Package size={14} />
+            <Package size={13} />
             +45% ventas
           </motion.div>
 
-          {/* Píldora flotante derecha inferior — ahora relativa al wrapper */}
+          {/* Píldora Ticket +2.3x — abajo a la derecha, dentro del wrapper */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{
               opacity: 1,
               x: 0,
-              y: [0, 10, 0],
+              y: [0, 8, 0],
             }}
             transition={{
               opacity: { duration: 0.6, delay: 1 },
@@ -347,24 +346,24 @@ export default function Hero() {
             }}
             style={{
               position: "absolute",
-              bottom: "5%",
-              right: "-8%",
+              bottom: "0",
+              right: "0",
               background: "white",
-              padding: "0.6rem 1rem",
+              padding: "0.55rem 0.9rem",
               borderRadius: "14px",
               boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
               border: "1px solid #e5e7eb",
               display: "flex",
               alignItems: "center",
-              gap: "0.5rem",
-              fontSize: "0.8rem",
+              gap: "0.4rem",
+              fontSize: "0.75rem",
               fontWeight: 600,
               color: "#000000",
               whiteSpace: "nowrap",
               zIndex: 3,
             }}
           >
-            <Sparkles size={14} />
+            <Sparkles size={13} />
             Ticket +2.3x
           </motion.div>
         </div>
@@ -428,19 +427,19 @@ function FloatingWidget({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "0.6rem",
-        padding: "0.7rem 1rem",
+        gap: "0.5rem",
+        padding: "0.6rem 0.85rem",
         background: bg,
         borderRadius: "999px",
         color: color,
-        fontSize: "0.85rem",
+        fontSize: "0.8rem",
         fontWeight: 600,
       }}
     >
       <div
         style={{
-          width: "22px",
-          height: "22px",
+          width: "20px",
+          height: "20px",
           borderRadius: "50%",
           background: color,
           display: "flex",
@@ -455,4 +454,4 @@ function FloatingWidget({
       <span>{text}</span>
     </motion.div>
   );
-            }
+        }
