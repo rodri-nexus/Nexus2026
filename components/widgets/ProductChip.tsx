@@ -21,7 +21,7 @@ export default function ProductChip({ name, image }: ProductChipProps) {
         borderRadius: "10px",
         fontSize: "0.85rem",
         fontWeight: 500,
-        color: "#374151",
+        color: "#000000",
         maxWidth: "100%",
       }}
     >
@@ -63,4 +63,4 @@ export default function ProductChip({ name, image }: ProductChipProps) {
       </span>
     </div>
   );
-            }
+}
