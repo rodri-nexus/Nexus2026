@@ -56,7 +56,7 @@ export default async function WidgetsNuevoProductoPage({ params }: PageProps) {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         padding: "2rem 1.25rem",
@@ -73,4 +73,4 @@ export default async function WidgetsNuevoProductoPage({ params }: PageProps) {
       </div>
     </div>
   );
-      }
+                   }
