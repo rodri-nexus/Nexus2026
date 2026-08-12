@@ -43,7 +43,8 @@ export default function SocialProof() {
         <p
           style={{
             fontSize: "clamp(0.85rem, 2vw, 1rem)",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.1em",
@@ -54,11 +55,10 @@ export default function SocialProof() {
           Sumate a las{" "}
           <span
             style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#FF0000",
+              opacity: 1,
               fontWeight: 800,
+              WebkitTextFillColor: "#FF0000",
             }}
           >
             +3.000 tiendas
@@ -105,17 +105,17 @@ export default function SocialProof() {
                 minWidth: "160px",
                 height: "60px",
                 fontSize: "1.35rem",
-                color: "#9ca3af",
+                color: "rgba(0, 0, 0, 0.4)",
                 whiteSpace: "nowrap",
                 transition: "color 0.3s",
                 cursor: "default",
                 ...brand.style,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#6366f1";
+                e.currentTarget.style.color = "#FF0000";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "#9ca3af";
+                e.currentTarget.style.color = "rgba(0, 0, 0, 0.4)";
               }}
             >
               {brand.name}
@@ -154,10 +154,7 @@ function MetricItem({ number, label }: { number: string; label: string }) {
         style={{
           fontSize: "clamp(1.5rem, 4vw, 2rem)",
           fontWeight: 800,
-          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
+          color: "#FF0000",
           letterSpacing: "-0.02em",
           lineHeight: 1,
         }}
@@ -167,7 +164,8 @@ function MetricItem({ number, label }: { number: string; label: string }) {
       <div
         style={{
           fontSize: "0.85rem",
-          color: "#6b7280",
+          color: "#000000",
+          opacity: 0.6,
           marginTop: "0.35rem",
           fontWeight: 500,
         }}
@@ -176,4 +174,4 @@ function MetricItem({ number, label }: { number: string; label: string }) {
       </div>
     </div>
   );
-}
+          }
