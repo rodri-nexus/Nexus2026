@@ -48,8 +48,7 @@ export default function CentroAyuda() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       style={{
-        background:
-          "linear-gradient(135deg, #f9fafb 0%, #ffffff 50%, rgba(99, 102, 241, 0.03) 100%)",
+        background: "#ffffff",
         border: "1px solid #e5e7eb",
         borderRadius: "16px",
         padding: "2rem 1.5rem",
@@ -68,7 +67,7 @@ export default function CentroAyuda() {
           height: "160px",
           borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(255, 0, 0, 0.06) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -101,7 +100,7 @@ export default function CentroAyuda() {
             margin: "0.25rem 0 0.35rem",
             fontSize: "1.15rem",
             fontWeight: 700,
-            color: "#111827",
+            color: "#000000",
             letterSpacing: "-0.01em",
           }}
         >
@@ -112,7 +111,8 @@ export default function CentroAyuda() {
           style={{
             margin: 0,
             fontSize: "0.85rem",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             maxWidth: "320px",
           }}
         >
@@ -150,7 +150,8 @@ export default function CentroAyuda() {
           justifyContent: "center",
           gap: "0.4rem",
           fontSize: "0.8rem",
-          color: "#9ca3af",
+          color: "#000000",
+          opacity: 0.5,
           position: "relative",
           zIndex: 1,
         }}
@@ -176,15 +177,14 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
           width: "38px",
           height: "38px",
           borderRadius: "10px",
-          background:
-            "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))",
+          background: "rgba(255, 0, 0, 0.08)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
         }}
       >
-        <Icon size={17} color="#6366f1" />
+        <Icon size={17} color="#FF0000" />
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -192,7 +192,7 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
           style={{
             fontSize: "0.9rem",
             fontWeight: 600,
-            color: "#111827",
+            color: "#000000",
             marginBottom: "0.1rem",
           }}
         >
@@ -201,7 +201,8 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
         <div
           style={{
             fontSize: "0.75rem",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -213,8 +214,8 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
 
       <ArrowUpRight
         size={16}
-        color="#9ca3af"
-        style={{ flexShrink: 0 }}
+        color="#000000"
+        style={{ flexShrink: 0, opacity: 0.4 }}
       />
     </>
   );
@@ -234,8 +235,8 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-    e.currentTarget.style.borderColor = "#c7d2fe";
-    e.currentTarget.style.background = "#f9fafb";
+    e.currentTarget.style.borderColor = "#fecaca";
+    e.currentTarget.style.background = "#fff5f5";
     e.currentTarget.style.transform = "translateX(2px)";
   };
 
@@ -270,4 +271,4 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
       {content}
     </Link>
   );
-        }
+      }
