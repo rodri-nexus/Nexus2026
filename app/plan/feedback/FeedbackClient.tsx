@@ -1,0 +1,373 @@
+// app/plan/feedback/FeedbackClient.tsx
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Heart, ThumbsUp, ThumbsDown, Loader2, Sparkles } from "lucide-react";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
+
+interface FeedbackClientProps {
+  email: string;
+}
+
+export default function FeedbackClient({ email }: FeedbackClientProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState<"yes" | "no" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleAnswer(liked: boolean) {
+    if (loading) return;
+
+    setError(null);
+    setLoading(liked ? "yes" : "no");
+
+    try {
+      const res = await fetch("/api/plan/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ liked }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al enviar respuesta");
+      }
+
+      // Redirigir según la respuesta
+      if (liked) {
+        router.push("/plan/expirado");
+      } else {
+        router.push("/plan/opinion");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Ocurrió un error. Intentá de nuevo.");
+      setLoading(null);
+    }
+  }
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem 1.25rem",
+        background:
+          "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Círculos decorativos de fondo */}
+      <div
+        style={{
+          position: "absolute",
+          top: "-100px",
+          left: "-100px",
+          width: "300px",
+          height: "300px",
+          background:
+            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+          borderRadius: "50%",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "-100px",
+          right: "-100px",
+          width: "400px",
+          height: "400px",
+          background:
+            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+          borderRadius: "50%",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Logo Nevux arriba */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          position: "absolute",
+          top: "2rem",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 2,
+        }}
+      >
+        <NevuxLogo size="medium" />
+      </motion.div>
+
+      {/* Contenido central */}
+      <div
+        style={{
+          maxWidth: "620px",
+          width: "100%",
+          textAlign: "center",
+          position: "relative",
+          zIndex: 2,
+          marginTop: "3rem",
+        }}
+      >
+        {/* Ícono animado */}
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{
+            duration: 0.7,
+            type: "spring",
+            stiffness: 150,
+            delay: 0.1,
+          }}
+          style={{
+            width: "100px",
+            height: "100px",
+            borderRadius: "50%",
+            background: "#FF0000",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "2rem",
+            boxShadow: "0 20px 40px rgba(255, 0, 0, 0.35)",
+          }}
+        >
+          <Heart size={48} color="white" fill="white" strokeWidth={0} />
+        </motion.div>
+
+        {/* Badge "7 días completados" */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            padding: "0.4rem 0.95rem",
+            background: "white",
+            border: "1px solid #fecaca",
+            borderRadius: "999px",
+            fontSize: "0.8rem",
+            color: "#FF0000",
+            fontWeight: 700,
+            marginBottom: "1.25rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            boxShadow: "0 2px 8px rgba(255, 0, 0, 0.1)",
+          }}
+        >
+          <Sparkles size={12} />
+          Usaste Nevux por 7 días
+        </motion.div>
+
+        {/* Título */}
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          style={{
+            fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
+            fontWeight: 800,
+            color: "#000000",
+            margin: "0 0 1rem 0",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.15,
+          }}
+        >
+          Se terminaron tus 7 días de prueba 🎉
+        </motion.h1>
+
+        {/* Subtítulo */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          style={{
+            fontSize: "clamp(1.05rem, 2.5vw, 1.25rem)",
+            color: "#000000",
+            opacity: 0.7,
+            margin: "0 0 2.5rem 0",
+            lineHeight: 1.5,
+            fontWeight: 500,
+          }}
+        >
+          ¿Te gustó <strong style={{ color: "#FF0000", opacity: 1 }}>Nevux</strong> hasta ahora?
+        </motion.p>
+
+        {/* Botones grandes */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: "1rem",
+            maxWidth: "520px",
+            margin: "0 auto",
+          }}
+        >
+          {/* Botón SÍ */}
+          <motion.button
+            whileHover={{ scale: loading ? 1 : 1.03 }}
+            whileTap={{ scale: loading ? 1 : 0.98 }}
+            onClick={() => handleAnswer(true)}
+            disabled={loading !== null}
+            style={{
+              padding: "1.5rem 1.25rem",
+              background: "#FF0000",
+              color: "white",
+              border: "none",
+              borderRadius: "18px",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+              boxShadow: "0 10px 30px rgba(255, 0, 0, 0.35)",
+              transition: "all 0.2s",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "0.6rem",
+              opacity: loading === "no" ? 0.5 : 1,
+            }}
+          >
+            {loading === "yes" ? (
+              <Loader2 size={32} className="animate-spin" />
+            ) : (
+              <ThumbsUp size={32} strokeWidth={2.5} />
+            )}
+            <div>
+              <div
+                style={{
+                  fontSize: "1.15rem",
+                  fontWeight: 800,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                ¡Sí, me encantó!
+              </div>
+              <div
+                style={{
+                  fontSize: "0.8rem",
+                  opacity: 0.9,
+                  marginTop: "0.15rem",
+                  fontWeight: 500,
+                }}
+              >
+                Quiero seguir usando Nevux
+              </div>
+            </div>
+          </motion.button>
+
+          {/* Botón NO */}
+          <motion.button
+            whileHover={{ scale: loading ? 1 : 1.03 }}
+            whileTap={{ scale: loading ? 1 : 0.98 }}
+            onClick={() => handleAnswer(false)}
+            disabled={loading !== null}
+            style={{
+              padding: "1.5rem 1.25rem",
+              background: "white",
+              color: "#000000",
+              border: "2px solid #e5e7eb",
+              borderRadius: "18px",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+              transition: "all 0.2s",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "0.6rem",
+              opacity: loading === "yes" ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.borderColor = "#000000";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.currentTarget.style.borderColor = "#e5e7eb";
+              }
+            }}
+          >
+            {loading === "no" ? (
+              <Loader2 size={32} className="animate-spin" />
+            ) : (
+              <ThumbsDown size={32} strokeWidth={2.5} />
+            )}
+            <div>
+              <div
+                style={{
+                  fontSize: "1.15rem",
+                  fontWeight: 800,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                No mucho
+              </div>
+              <div
+                style={{
+                  fontSize: "0.8rem",
+                  opacity: 0.6,
+                  marginTop: "0.15rem",
+                  fontWeight: 500,
+                }}
+              >
+                Contanos qué podemos mejorar
+              </div>
+            </div>
+          </motion.button>
+        </motion.div>
+
+        {/* Error */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              marginTop: "1.5rem",
+              padding: "0.75rem 1rem",
+              background: "#fef2f2",
+              color: "#dc2626",
+              borderRadius: "10px",
+              fontSize: "0.85rem",
+              border: "1px solid #fecaca",
+              maxWidth: "400px",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            {error}
+          </motion.div>
+        )}
+
+        {/* Email logueado abajo */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          style={{
+            marginTop: "2.5rem",
+            fontSize: "0.8rem",
+            color: "#000000",
+            opacity: 0.4,
+            fontWeight: 500,
+          }}
+        >
+          Conectado como {email}
+        </motion.p>
+      </div>
+    </div>
+  );
+  }
