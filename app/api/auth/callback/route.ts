@@ -85,34 +85,50 @@ export async function GET(request: Request) {
     const accessToken = data.access_token;
     const scope = data.scope || null;
 
-    // 2. Buscar si la tienda ya estaba vinculada a algún user_id
+    // 2. Buscar si la tienda ya existía y traer trial_started_at
+    //    Esto es CLAVE para no resetear el trial si es una reinstalación
+    const { data: existingStore } = await supabaseAdmin
+      .from("stores")
+      .select("user_id, trial_started_at, trial_ends_at, plan_status")
+      .eq("store_id", storeId)
+      .maybeSingle();
+
     let userIdToLink: string | null = state || null;
 
-    if (!userIdToLink) {
-      const { data: existing } = await supabaseAdmin
-        .from("stores")
-        .select("user_id")
-        .eq("store_id", storeId)
-        .maybeSingle();
-
-      if (existing?.user_id) {
-        userIdToLink = existing.user_id;
-        console.log("Reinstalación: recupero user_id existente", userIdToLink);
-      }
+    if (!userIdToLink && existingStore?.user_id) {
+      userIdToLink = existingStore.user_id;
+      console.log("Reinstalación: recupero user_id existente", userIdToLink);
     }
 
-    // 3. Upsert de la tienda
+    // 3. Determinar el trial: solo setear si es PRIMERA instalación
+    const isFirstInstall = !existingStore?.trial_started_at;
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 días
+
+    // 4. Upsert de la tienda
     const upsertPayload: any = {
       store_id: storeId,
       access_token: accessToken,
       scope: scope,
-      updated_at: new Date().toISOString(),
-      installed_at: new Date().toISOString(),
+      updated_at: now.toISOString(),
+      installed_at: now.toISOString(),
       is_active: true,
     };
 
     if (userIdToLink) {
       upsertPayload.user_id = userIdToLink;
+    }
+
+    // Solo setear campos de trial si es PRIMERA instalación
+    if (isFirstInstall) {
+      upsertPayload.trial_started_at = now.toISOString();
+      upsertPayload.trial_ends_at = trialEndsAt.toISOString();
+      upsertPayload.plan_status = "trial";
+      upsertPayload.feedback_shown = false;
+      upsertPayload.months_active = 0;
+      console.log("🎁 Primera instalación: trial de 7 días iniciado hasta", trialEndsAt.toISOString());
+    } else {
+      console.log("🔄 Reinstalación: mantengo trial existente. Estado actual:", existingStore.plan_status);
     }
 
     const { error: dbError } = await supabaseAdmin
@@ -127,7 +143,7 @@ export async function GET(request: Request) {
       );
     }
 
-    // 4. Instalar el script de widgets en la tienda del cliente
+    // 5. Instalar el script de widgets en la tienda del cliente
     const appUrl = new URL(request.url).origin;
     const scriptUrl = `${appUrl}/nevux-widget.js`;
 
@@ -141,9 +157,10 @@ export async function GET(request: Request) {
     console.log("Tienda conectada:", {
       store_id: storeId,
       user_id: userIdToLink || "PENDIENTE_VINCULACION",
+      trial_active: isFirstInstall,
     });
 
-    // 5. Redirección final
+    // 6. Redirección final
     if (userIdToLink) {
       // Todo OK, tienda vinculada al user
       return NextResponse.redirect(new URL("/dashboard", request.url));
@@ -160,4 +177,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-    }
+  }
