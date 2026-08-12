@@ -51,7 +51,7 @@ export default function LoginPage() {
         alignItems: "center",
         justifyContent: "center",
         padding: "1.5rem",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#f9fafb",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
@@ -66,7 +66,7 @@ export default function LoginPage() {
           borderRadius: "20px",
           padding: "2.5rem 2rem",
           boxShadow:
-            "0 20px 60px rgba(99, 102, 241, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05)",
+            "0 20px 60px rgba(255, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05)",
         }}
       >
         {/* Logo/Título */}
@@ -81,16 +81,20 @@ export default function LoginPage() {
               fontSize: "2.5rem",
               margin: "0 0 0.5rem 0",
               fontWeight: 800,
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#FF0000",
               letterSpacing: "-0.02em",
             }}
           >
             Nevux
           </h1>
-          <p style={{ color: "#6b7280", margin: 0, fontSize: "0.95rem" }}>
+          <p
+            style={{
+              color: "#000000",
+              opacity: 0.6,
+              margin: 0,
+              fontSize: "0.95rem",
+            }}
+          >
             Bienvenido de vuelta
           </p>
         </motion.div>
@@ -109,7 +113,7 @@ export default function LoginPage() {
                 display: "block",
                 fontSize: "0.85rem",
                 fontWeight: 600,
-                color: "#374151",
+                color: "#000000",
                 marginBottom: "0.5rem",
               }}
             >
@@ -123,7 +127,7 @@ export default function LoginPage() {
                   left: "0.9rem",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: "#9ca3af",
+                  color: "rgba(0, 0, 0, 0.4)",
                 }}
               />
               <input
@@ -143,7 +147,7 @@ export default function LoginPage() {
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+                onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
                 onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
@@ -161,7 +165,7 @@ export default function LoginPage() {
                 display: "block",
                 fontSize: "0.85rem",
                 fontWeight: 600,
-                color: "#374151",
+                color: "#000000",
                 marginBottom: "0.5rem",
               }}
             >
@@ -175,7 +179,7 @@ export default function LoginPage() {
                   left: "0.9rem",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: "#9ca3af",
+                  color: "rgba(0, 0, 0, 0.4)",
                 }}
               />
               <input
@@ -195,13 +199,13 @@ export default function LoginPage() {
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#6366f1")}
+                onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
                 onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
           </motion.div>
 
-          {/* Error */}
+          {/* Error — semántico destructivo, se mantiene */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -230,8 +234,8 @@ export default function LoginPage() {
               width: "100%",
               padding: "0.95rem",
               background: loading
-                ? "#a5b4fc"
-                : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                ? "rgba(255, 0, 0, 0.4)"
+                : "#FF0000",
               color: "white",
               border: "none",
               borderRadius: "12px",
@@ -242,7 +246,7 @@ export default function LoginPage() {
               alignItems: "center",
               justifyContent: "center",
               gap: "0.5rem",
-              boxShadow: "0 4px 14px rgba(99, 102, 241, 0.3)",
+              boxShadow: "0 4px 14px rgba(255, 0, 0, 0.3)",
               transition: "all 0.2s",
               fontFamily: "inherit",
             }}
@@ -267,14 +271,15 @@ export default function LoginPage() {
             textAlign: "center",
             marginTop: "1.5rem",
             fontSize: "0.9rem",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
           }}
         >
           ¿No tenés cuenta?{" "}
           <Link
             href="/registro"
             style={{
-              color: "#6366f1",
+              color: "#FF0000",
               fontWeight: 600,
               textDecoration: "none",
             }}
@@ -285,4 +290,4 @@ export default function LoginPage() {
       </motion.div>
     </div>
   );
-  }
+                 }
