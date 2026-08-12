@@ -94,7 +94,7 @@ export default function SeleccionarProductoModal({
             style={{
               position: "fixed",
               inset: 0,
-              background: "rgba(17, 24, 39, 0.5)",
+              background: "rgba(0, 0, 0, 0.5)",
               backdropFilter: "blur(4px)",
               zIndex: 100,
             }}
@@ -152,7 +152,7 @@ export default function SeleccionarProductoModal({
                     margin: 0,
                     fontSize: "1.15rem",
                     fontWeight: 700,
-                    color: "#111827",
+                    color: "#000000",
                   }}
                 >
                   Seleccionar producto
@@ -169,7 +169,7 @@ export default function SeleccionarProductoModal({
                     justifyContent: "center",
                     cursor: "pointer",
                     borderRadius: "10px",
-                    color: "#6b7280",
+                    color: "#000000",
                     transition: "background 0.15s",
                   }}
                   onMouseEnter={(e) => {
@@ -211,13 +211,13 @@ export default function SeleccionarProductoModal({
                       border: "1.5px solid #e5e7eb",
                       borderRadius: "10px",
                       fontSize: "0.9rem",
-                      color: "#374151",
+                      color: "#000000",
                       outline: "none",
                       fontFamily: "inherit",
                       transition: "border-color 0.15s",
                     }}
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "#6366f1";
+                      e.currentTarget.style.borderColor = "#FF0000";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "#e5e7eb";
@@ -242,7 +242,8 @@ export default function SeleccionarProductoModal({
                       alignItems: "center",
                       justifyContent: "center",
                       padding: "3rem 0",
-                      color: "#9ca3af",
+                      color: "#000000",
+                      opacity: 0.5,
                       fontSize: "0.9rem",
                     }}
                   >
@@ -289,7 +290,8 @@ export default function SeleccionarProductoModal({
                       alignItems: "center",
                       justifyContent: "center",
                       padding: "3rem 0",
-                      color: "#9ca3af",
+                      color: "#000000",
+                      opacity: 0.5,
                       fontSize: "0.9rem",
                       gap: "0.5rem",
                     }}
@@ -323,8 +325,8 @@ export default function SeleccionarProductoModal({
                           transition: "border-color 0.15s, background 0.15s",
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "#6366f1";
-                          e.currentTarget.style.background = "#f5f3ff";
+                          e.currentTarget.style.borderColor = "#FF0000";
+                          e.currentTarget.style.background = "#fff5f5";
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.borderColor = "#f3f4f6";
@@ -369,7 +371,7 @@ export default function SeleccionarProductoModal({
                             style={{
                               fontSize: "0.9rem",
                               fontWeight: 600,
-                              color: "#111827",
+                              color: "#000000",
                               whiteSpace: "nowrap",
                               overflow: "hidden",
                               textOverflow: "ellipsis",
@@ -380,14 +382,15 @@ export default function SeleccionarProductoModal({
                           <div
                             style={{
                               fontSize: "0.85rem",
-                              color: "#6b7280",
+                              color: "#000000",
+                              opacity: 0.6,
                               marginTop: "0.15rem",
                             }}
                           >
                             {formatPrice(product.price)}
                           </div>
                         </div>
-                        <ChevronRight size={18} color="#9ca3af" />
+                        <ChevronRight size={18} color="#000000" style={{ opacity: 0.4 }} />
                       </button>
                     ))}
                   </div>
@@ -415,7 +418,7 @@ export default function SeleccionarProductoModal({
                     gap: "0.4rem",
                     background: "transparent",
                     border: "none",
-                    color: "#6366f1",
+                    color: "#FF0000",
                     fontSize: "0.85rem",
                     fontWeight: 600,
                     cursor: syncing ? "not-allowed" : "pointer",
@@ -437,4 +440,4 @@ export default function SeleccionarProductoModal({
       )}
     </AnimatePresence>
   );
-                                    }
+  }
