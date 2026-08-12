@@ -122,7 +122,7 @@ export default function DashboardHeader({
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              color: "#374151",
+              color: "#000000",
               borderRadius: "10px",
               transition: "background 0.15s",
             }}
@@ -171,14 +171,14 @@ export default function DashboardHeader({
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                background: "#FF0000",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "white",
                 fontSize: "0.85rem",
                 fontWeight: 700,
-                boxShadow: "0 2px 8px rgba(99, 102, 241, 0.3)",
+                boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
               }}
             >
               {initials}
@@ -186,10 +186,11 @@ export default function DashboardHeader({
 
             <ChevronDown
               size={16}
-              color="#6b7280"
+              color="#000000"
               style={{
                 transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
                 transition: "transform 0.2s",
+                opacity: 0.6,
               }}
             />
           </button>
@@ -221,7 +222,7 @@ export default function DashboardHeader({
                   style={{
                     padding: "1rem 1.1rem",
                     borderBottom: "1px solid #f3f4f6",
-                    background: "linear-gradient(135deg, #f9fafb, #ffffff)",
+                    background: "#ffffff",
                   }}
                 >
                   <div
@@ -236,8 +237,7 @@ export default function DashboardHeader({
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
-                        background:
-                          "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                        background: "#FF0000",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -245,7 +245,7 @@ export default function DashboardHeader({
                         fontSize: "0.9rem",
                         fontWeight: 700,
                         flexShrink: 0,
-                        boxShadow: "0 2px 8px rgba(99, 102, 241, 0.3)",
+                        boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
                       }}
                     >
                       {initials}
@@ -254,7 +254,8 @@ export default function DashboardHeader({
                       <div
                         style={{
                           fontSize: "0.75rem",
-                          color: "#9ca3af",
+                          color: "#000000",
+                          opacity: 0.5,
                           fontWeight: 600,
                           marginBottom: "0.15rem",
                         }}
@@ -264,7 +265,7 @@ export default function DashboardHeader({
                       <div
                         style={{
                           fontSize: "0.85rem",
-                          color: "#111827",
+                          color: "#000000",
                           fontWeight: 600,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -289,7 +290,7 @@ export default function DashboardHeader({
                       e.currentTarget.style.background = "transparent";
                     }}
                   >
-                    <User size={16} color="#6366f1" />
+                    <User size={16} color="#FF0000" />
                     <span>Mi cuenta</span>
                   </button>
 
@@ -303,7 +304,7 @@ export default function DashboardHeader({
                       e.currentTarget.style.background = "transparent";
                     }}
                   >
-                    <Store size={16} color="#10b981" />
+                    <Store size={16} color="#000000" />
                     <span>Mi tienda</span>
                   </button>
 
@@ -317,7 +318,7 @@ export default function DashboardHeader({
                       e.currentTarget.style.background = "transparent";
                     }}
                   >
-                    <HelpCircle size={16} color="#f59e0b" />
+                    <HelpCircle size={16} color="#000000" />
                     <span>Centro de ayuda</span>
                   </button>
 
@@ -384,7 +385,7 @@ const dropdownItemStyle: React.CSSProperties = {
   border: "none",
   borderRadius: "8px",
   fontSize: "0.9rem",
-  color: "#111827",
+  color: "#000000",
   fontWeight: 500,
   cursor: "pointer",
   fontFamily: "inherit",
