@@ -241,9 +241,9 @@ export default function TutorialOverlay({
                 width: targetRect.width + SPOTLIGHT_PADDING * 2,
                 height: targetRect.height + SPOTLIGHT_PADDING * 2,
                 borderRadius: "14px",
-                border: "2px solid #6366f1",
+                border: "2px solid #FF0000",
                 boxShadow:
-                  "0 0 0 4px rgba(99, 102, 241, 0.25), 0 8px 24px rgba(99, 102, 241, 0.35)",
+                  "0 0 0 4px rgba(255, 0, 0, 0.25), 0 8px 24px rgba(255, 0, 0, 0.35)",
                 pointerEvents: "none",
               }}
             />
@@ -270,12 +270,7 @@ export default function TutorialOverlay({
           />
         )}
 
-        {/* ─────────────────────────────────────────────
-            CARD FLOTANTE:
-            - Wrapper con position:fixed que ocupa todo el ancho
-            - Card centrada con margin auto + max-width
-            - X siempre centrada en pantalla (nunca se sale)
-        ───────────────────────────────────────────── */}
+        {/* Card flotante */}
         <div
           style={{
             position: "fixed",
@@ -332,11 +327,10 @@ export default function TutorialOverlay({
                       alignItems: "center",
                       gap: "0.35rem",
                       padding: "0.25rem 0.65rem",
-                      background:
-                        "linear-gradient(135deg, #eef2ff, #ede9fe)",
+                      background: "#fff5f5",
                       borderRadius: "999px",
                       fontSize: "0.65rem",
-                      color: "#6366f1",
+                      color: "#FF0000",
                       fontWeight: 700,
                       marginBottom: "0.6rem",
                       textTransform: "uppercase",
@@ -353,7 +347,7 @@ export default function TutorialOverlay({
                     margin: 0,
                     fontSize: "1.05rem",
                     fontWeight: 700,
-                    color: "#111827",
+                    color: "#000000",
                     letterSpacing: "-0.01em",
                     lineHeight: 1.3,
                     wordBreak: "break-word",
@@ -376,7 +370,7 @@ export default function TutorialOverlay({
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
-                    color: "#9ca3af",
+                    color: "rgba(0, 0, 0, 0.4)",
                     borderRadius: "8px",
                     flexShrink: 0,
                     padding: 0,
@@ -393,7 +387,8 @@ export default function TutorialOverlay({
                 style={{
                   margin: 0,
                   fontSize: "0.85rem",
-                  color: "#4b5563",
+                  color: "#000000",
+                  opacity: 0.7,
                   lineHeight: 1.5,
                   wordBreak: "break-word",
                 }}
@@ -409,7 +404,7 @@ export default function TutorialOverlay({
                     display: "inline-block",
                     marginTop: "0.75rem",
                     fontSize: "0.8rem",
-                    color: "#6366f1",
+                    color: "#FF0000",
                     fontWeight: 600,
                     textDecoration: "none",
                   }}
@@ -435,7 +430,8 @@ export default function TutorialOverlay({
               <div
                 style={{
                   fontSize: "0.75rem",
-                  color: "#9ca3af",
+                  color: "#000000",
+                  opacity: 0.5,
                   fontWeight: 600,
                   minWidth: "30px",
                 }}
@@ -446,7 +442,8 @@ export default function TutorialOverlay({
                     style={{
                       background: "transparent",
                       border: "none",
-                      color: "#6b7280",
+                      color: "#000000",
+                      opacity: 0.6,
                       fontSize: "0.8rem",
                       fontWeight: 600,
                       cursor: "pointer",
@@ -479,7 +476,8 @@ export default function TutorialOverlay({
                       borderRadius: "999px",
                       border: "none",
                       background: "transparent",
-                      color: "#6b7280",
+                      color: "#000000",
+                      opacity: 0.6,
                       fontSize: "0.78rem",
                       fontWeight: 600,
                       cursor: "pointer",
@@ -500,13 +498,12 @@ export default function TutorialOverlay({
                     padding: "0.6rem 1rem",
                     borderRadius: "999px",
                     border: "none",
-                    background:
-                      "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    background: "#FF0000",
                     color: "#ffffff",
                     fontSize: "0.8rem",
                     fontWeight: 700,
                     cursor: "pointer",
-                    boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+                    boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
                     fontFamily: "inherit",
                     whiteSpace: "nowrap",
                   }}
@@ -520,4 +517,4 @@ export default function TutorialOverlay({
       </>
     </AnimatePresence>
   );
-          }
+                                                }
