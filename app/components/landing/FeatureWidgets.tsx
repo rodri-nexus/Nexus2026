@@ -46,7 +46,7 @@ export default function FeatureWidgets() {
     <section
       style={{
         padding: "5rem 1.25rem",
-        background: "linear-gradient(180deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#ffffff",
       }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -71,7 +71,7 @@ export default function FeatureWidgets() {
               background: "white",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#6366f1",
+              color: "#FF0000",
               fontWeight: 700,
               letterSpacing: "0.02em",
               border: "1px solid #e5e7eb",
@@ -92,7 +92,7 @@ export default function FeatureWidgets() {
           style={{
             fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
             fontWeight: 800,
-            color: "#111827",
+            color: "#000000",
             textAlign: "center",
             margin: "0 0 1rem 0",
             letterSpacing: "-0.02em",
@@ -102,10 +102,7 @@ export default function FeatureWidgets() {
           Impulsa tu{" "}
           <span
             style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#FF0000",
             }}
           >
             tasa de conversión
@@ -120,7 +117,8 @@ export default function FeatureWidgets() {
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{
             fontSize: "clamp(1rem, 2vw, 1.15rem)",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             textAlign: "center",
             lineHeight: 1.6,
             maxWidth: "680px",
@@ -128,10 +126,10 @@ export default function FeatureWidgets() {
           }}
         >
           Captá la atención de tus visitantes con{" "}
-          <strong style={{ color: "#374151" }}>mensajes destacados</strong>,{" "}
-          <strong style={{ color: "#374151" }}>videos</strong>,{" "}
-          <strong style={{ color: "#374151" }}>alertas</strong> y{" "}
-          <strong style={{ color: "#374151" }}>banners</strong> que resalten tus
+          <strong style={{ color: "#000000", opacity: 1 }}>mensajes destacados</strong>,{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>videos</strong>,{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>alertas</strong> y{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>banners</strong> que resalten tus
           productos y ofertas especiales.
         </motion.p>
 
@@ -156,7 +154,7 @@ export default function FeatureWidgets() {
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(99, 102, 241, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
@@ -190,7 +188,8 @@ export default function FeatureWidgets() {
                   <div
                     style={{
                       fontSize: "0.7rem",
-                      color: "#9ca3af",
+                      color: "#000000",
+                      opacity: 0.5,
                       fontWeight: 600,
                       letterSpacing: "0.05em",
                     }}
@@ -201,7 +200,7 @@ export default function FeatureWidgets() {
                     style={{
                       fontSize: "0.85rem",
                       fontWeight: 700,
-                      color: "#111827",
+                      color: "#000000",
                     }}
                   >
                     Descuento extra
@@ -209,7 +208,7 @@ export default function FeatureWidgets() {
                 </div>
               </div>
 
-              {/* Cupón visual */}
+              {/* Cupón visual — rojo semántico de descuento, se mantiene */}
               <div
                 style={{
                   background: "linear-gradient(135deg, #ef4444, #dc2626)",
@@ -290,7 +289,7 @@ export default function FeatureWidgets() {
                 padding: "0.75rem",
                 background: copied
                   ? "linear-gradient(135deg, #10b981, #059669)"
-                  : "linear-gradient(135deg, #111827, #374151)",
+                  : "#000000",
                 color: "white",
                 border: "none",
                 borderRadius: "10px",
@@ -333,7 +332,7 @@ export default function FeatureWidgets() {
             </button>
           </motion.div>
 
-          {/* MOCKUP 2: Contador regresivo Black Friday */}
+          {/* MOCKUP 2: Contador regresivo Black Friday — fondo oscuro, se mantiene */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -401,7 +400,7 @@ export default function FeatureWidgets() {
               <p
                 style={{
                   fontSize: "0.85rem",
-                  color: "#9ca3af",
+                  color: "rgba(255, 255, 255, 0.6)",
                   margin: "0 0 1.25rem 0",
                 }}
               >
@@ -456,7 +455,7 @@ export default function FeatureWidgets() {
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(99, 102, 241, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               minHeight: "280px",
               display: "flex",
@@ -476,7 +475,7 @@ export default function FeatureWidgets() {
                   width: "32px",
                   height: "32px",
                   borderRadius: "8px",
-                  background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+                  background: "#FF0000",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -488,7 +487,8 @@ export default function FeatureWidgets() {
                 <div
                   style={{
                     fontSize: "0.7rem",
-                    color: "#9ca3af",
+                    color: "#000000",
+                    opacity: 0.5,
                     fontWeight: 600,
                     letterSpacing: "0.05em",
                   }}
@@ -499,7 +499,7 @@ export default function FeatureWidgets() {
                   style={{
                     fontSize: "0.85rem",
                     fontWeight: 700,
-                    color: "#111827",
+                    color: "#000000",
                   }}
                 >
                   Mostrá tu producto
@@ -538,6 +538,7 @@ export default function FeatureWidgets() {
               />
             </div>
 
+            {/* Paginación */}
             <div
               style={{
                 display: "flex",
@@ -551,7 +552,7 @@ export default function FeatureWidgets() {
                   width: "20px",
                   height: "6px",
                   borderRadius: "3px",
-                  background: "#6366f1",
+                  background: "#FF0000",
                 }}
               />
               <div
@@ -606,7 +607,7 @@ function TimeUnit({ value, label }: { value: number; label: string }) {
       <div
         style={{
           fontSize: "0.6rem",
-          color: "#9ca3af",
+          color: "rgba(255, 255, 255, 0.6)",
           fontWeight: 700,
           marginTop: "0.25rem",
           letterSpacing: "0.05em",
@@ -664,8 +665,8 @@ function VideoThumbnail({
           justifyContent: "center",
         }}
       >
-        <Play size={14} color="#111827" fill="#111827" />
+        <Play size={14} color="#000000" fill="#000000" />
       </motion.div>
     </motion.div>
   );
-            }
+      }
