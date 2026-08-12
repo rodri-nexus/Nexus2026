@@ -10,7 +10,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       style={{
         width: "100%",
         aspectRatio: "16 / 10",
-        background: "linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)",
+        background: "#ffffff",
+        border: "1px solid #f3f4f6",
         borderRadius: "10px",
         display: "flex",
         alignItems: "center",
@@ -71,7 +72,7 @@ function CuentaRegresivaPreview() {
   return (
     <div
       style={{
-        background: "#1e1e1e",
+        background: "#000000",
         borderRadius: "8px",
         padding: "12px 16px",
         display: "flex",
@@ -89,7 +90,7 @@ function CuentaRegresivaPreview() {
           <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             <div
               style={{
-                background: "#ef4444",
+                background: "#FF0000",
                 color: "#fff",
                 padding: "4px 6px",
                 borderRadius: "4px",
@@ -136,21 +137,21 @@ function BundleCantidadPreview() {
             justifyContent: "space-between",
             alignItems: "center",
             padding: "5px 8px",
-            border: row.active ? "1.5px solid #6366f1" : "1px solid #e5e7eb",
+            border: row.active ? "1.5px solid #FF0000" : "1px solid #e5e7eb",
             borderRadius: "5px",
-            background: row.active ? "#eef2ff" : "#fff",
+            background: row.active ? "#fff5f5" : "#fff",
             fontSize: "9px",
             fontWeight: 600,
           }}
         >
-          <span style={{ color: "#111" }}>{row.label}</span>
+          <span style={{ color: "#000000" }}>{row.label}</span>
           <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
             {row.badge && (
-              <span style={{ background: "#10b981", color: "#fff", padding: "1px 4px", borderRadius: "3px", fontSize: "7px" }}>
+              <span style={{ background: "#000000", color: "#fff", padding: "1px 4px", borderRadius: "3px", fontSize: "7px" }}>
                 {row.badge}
               </span>
             )}
-            <span style={{ color: "#6366f1" }}>{row.price}</span>
+            <span style={{ color: row.active ? "#FF0000" : "#000000" }}>{row.price}</span>
           </div>
         </div>
       ))}
@@ -180,15 +181,15 @@ function BundlePromocionesPreview() {
             justifyContent: "space-between",
             alignItems: "center",
             padding: "6px 8px",
-            border: i === 1 ? "1.5px solid #10b981" : "1px solid #e5e7eb",
+            border: i === 1 ? "1.5px solid #FF0000" : "1px solid #e5e7eb",
             borderRadius: "5px",
-            background: i === 1 ? "#ecfdf5" : "#fff",
+            background: i === 1 ? "#fff5f5" : "#fff",
             fontSize: "9px",
             fontWeight: 700,
           }}
         >
-          <span style={{ color: "#111" }}>{label}</span>
-          <span style={{ color: i === 1 ? "#10b981" : "#6b7280" }}>${(i + 1) * 20}k</span>
+          <span style={{ color: "#000000" }}>{label}</span>
+          <span style={{ color: i === 1 ? "#FF0000" : "#000000", opacity: i === 1 ? 1 : 0.5 }}>${(i + 1) * 20}k</span>
         </div>
       ))}
     </div>
@@ -204,7 +205,7 @@ function SliderVideoPreview() {
           style={{
             width: `${40 * scale}px`,
             height: `${60 * scale}px`,
-            background: "linear-gradient(135deg, #1e293b, #334155)",
+            background: "#000000",
             borderRadius: "6px",
             display: "flex",
             alignItems: "center",
@@ -234,8 +235,8 @@ function MensajeAlertaPreview() {
   return (
     <div
       style={{
-        background: "#fffbeb",
-        border: "1.5px solid #fbbf24",
+        background: "#fff5f5",
+        border: "1.5px solid #FF0000",
         borderRadius: "8px",
         padding: "8px 12px",
         display: "flex",
@@ -245,7 +246,7 @@ function MensajeAlertaPreview() {
       }}
     >
       <div style={{ fontSize: "16px" }}>⚠️</div>
-      <div style={{ fontSize: "10px", color: "#92400e", fontWeight: 600, lineHeight: 1.3 }}>
+      <div style={{ fontSize: "10px", color: "#000000", fontWeight: 600, lineHeight: 1.3 }}>
         Últimas unidades disponibles. ¡No te lo pierdas!
       </div>
     </div>
@@ -256,8 +257,8 @@ function MensajeGarantiaPreview() {
   return (
     <div
       style={{
-        background: "#ecfdf5",
-        border: "1.5px solid #10b981",
+        background: "#ffffff",
+        border: "1.5px solid #000000",
         borderRadius: "8px",
         padding: "10px 12px",
         display: "flex",
@@ -268,10 +269,10 @@ function MensajeGarantiaPreview() {
     >
       <div style={{ fontSize: "20px" }}>🛡️</div>
       <div>
-        <div style={{ fontSize: "10px", color: "#065f46", fontWeight: 800 }}>
+        <div style={{ fontSize: "10px", color: "#000000", fontWeight: 800 }}>
           Garantía de 12 meses
         </div>
-        <div style={{ fontSize: "8px", color: "#047857" }}>
+        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.6 }}>
           Cambio y devolución sin cargo
         </div>
       </div>
@@ -294,13 +295,13 @@ function ResenasPreview() {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ color: "#fbbf24", fontSize: "11px" }}>★★★★★</div>
-        <div style={{ fontSize: "8px", color: "#6b7280" }}>hace 2 días</div>
+        <div style={{ color: "#FF0000", fontSize: "11px" }}>★★★★★</div>
+        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.5 }}>hace 2 días</div>
       </div>
-      <div style={{ fontSize: "9px", color: "#374151", lineHeight: 1.3 }}>
+      <div style={{ fontSize: "9px", color: "#000000", opacity: 0.8, lineHeight: 1.3 }}>
         "Excelente calidad y llegó súper rápido. Muy recomendado."
       </div>
-      <div style={{ fontSize: "8px", color: "#6b7280", fontWeight: 600 }}>
+      <div style={{ fontSize: "8px", color: "#000000", fontWeight: 600 }}>
         — Lucía M.
       </div>
     </div>
@@ -313,7 +314,7 @@ function BannerDeslizantePreview() {
       <div
         style={{
           height: "50px",
-          background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
+          background: "#FF0000",
           borderRadius: "6px",
           display: "flex",
           alignItems: "center",
@@ -326,7 +327,7 @@ function BannerDeslizantePreview() {
         ¡ENVÍO GRATIS!
       </div>
       <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
-        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#6366f1" }} />
+        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#FF0000" }} />
         <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d1d5db" }} />
         <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d1d5db" }} />
       </div>
@@ -339,7 +340,7 @@ function BadgeEnvioPreview() {
     <div
       style={{
         background: "#fff",
-        border: "1.5px solid #10b981",
+        border: "1.5px solid #000000",
         borderRadius: "8px",
         padding: "10px 14px",
         display: "flex",
@@ -349,10 +350,10 @@ function BadgeEnvioPreview() {
     >
       <div style={{ fontSize: "22px" }}>🚚</div>
       <div>
-        <div style={{ fontSize: "11px", fontWeight: 800, color: "#065f46" }}>
+        <div style={{ fontSize: "11px", fontWeight: 800, color: "#000000" }}>
           Envío GRATIS
         </div>
-        <div style={{ fontSize: "8px", color: "#047857" }}>
+        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.6 }}>
           En compras +$50.000
         </div>
       </div>
@@ -364,8 +365,8 @@ function BadgeCuotasPreview() {
   return (
     <div
       style={{
-        background: "#eef2ff",
-        border: "1.5px solid #6366f1",
+        background: "#fff5f5",
+        border: "1.5px solid #FF0000",
         borderRadius: "8px",
         padding: "10px 14px",
         display: "flex",
@@ -375,10 +376,10 @@ function BadgeCuotasPreview() {
     >
       <div style={{ fontSize: "22px" }}>💳</div>
       <div>
-        <div style={{ fontSize: "11px", fontWeight: 800, color: "#3730a3" }}>
+        <div style={{ fontSize: "11px", fontWeight: 800, color: "#FF0000" }}>
           12 cuotas SIN interés
         </div>
-        <div style={{ fontSize: "8px", color: "#4f46e5" }}>
+        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.7 }}>
           Con todas las tarjetas
         </div>
       </div>
@@ -390,8 +391,8 @@ function BadgeTransferenciaPreview() {
   return (
     <div
       style={{
-        background: "#fef3c7",
-        border: "1.5px solid #f59e0b",
+        background: "#ffffff",
+        border: "1.5px solid #000000",
         borderRadius: "8px",
         padding: "10px 14px",
         display: "flex",
@@ -401,10 +402,10 @@ function BadgeTransferenciaPreview() {
     >
       <div style={{ fontSize: "22px" }}>💰</div>
       <div>
-        <div style={{ fontSize: "11px", fontWeight: 800, color: "#92400e" }}>
+        <div style={{ fontSize: "11px", fontWeight: 800, color: "#000000" }}>
           15% OFF por transferencia
         </div>
-        <div style={{ fontSize: "8px", color: "#b45309" }}>
+        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.6 }}>
           Descuento automático
         </div>
       </div>
@@ -427,16 +428,16 @@ function CajaOpinionesPreview() {
       }}
     >
       <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-        <div style={{ color: "#fbbf24", fontSize: "13px" }}>★★★★★</div>
-        <div style={{ fontSize: "10px", fontWeight: 700, color: "#111" }}>4.9</div>
-        <div style={{ fontSize: "8px", color: "#6b7280" }}>(234 opiniones)</div>
+        <div style={{ color: "#FF0000", fontSize: "13px" }}>★★★★★</div>
+        <div style={{ fontSize: "10px", fontWeight: 700, color: "#000000" }}>4.9</div>
+        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.5 }}>(234 opiniones)</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
         {[90, 60, 30].map((w, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <span style={{ fontSize: "8px", color: "#6b7280" }}>{5 - i}★</span>
+            <span style={{ fontSize: "8px", color: "#000000", opacity: 0.6 }}>{5 - i}★</span>
             <div style={{ flex: 1, height: "4px", background: "#f3f4f6", borderRadius: "2px" }}>
-              <div style={{ width: `${w}%`, height: "100%", background: "#fbbf24", borderRadius: "2px" }} />
+              <div style={{ width: `${w}%`, height: "100%", background: "#FF0000", borderRadius: "2px" }} />
             </div>
           </div>
         ))}
@@ -461,15 +462,15 @@ function InfoEnvioPreview() {
     >
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
         <div style={{ fontSize: "12px" }}>📍</div>
-        <div style={{ fontSize: "10px", fontWeight: 700, color: "#111" }}>Envíos a todo el país</div>
+        <div style={{ fontSize: "10px", fontWeight: 700, color: "#000000" }}>Envíos a todo el país</div>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#6b7280", borderTop: "1px solid #f3f4f6", paddingTop: "4px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#000000", opacity: 0.7, borderTop: "1px solid #f3f4f6", paddingTop: "4px" }}>
         <span>Correo Argentino</span>
-        <span style={{ fontWeight: 700, color: "#111" }}>$1.200</span>
+        <span style={{ fontWeight: 700, color: "#000000", opacity: 1 }}>$1.200</span>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#6b7280" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#000000", opacity: 0.7 }}>
         <span>Andreani</span>
-        <span style={{ fontWeight: 700, color: "#111" }}>$1.800</span>
+        <span style={{ fontWeight: 700, color: "#000000", opacity: 1 }}>$1.800</span>
       </div>
     </div>
   );
@@ -479,8 +480,8 @@ function InfoDespachoPreview() {
   return (
     <div
       style={{
-        background: "#eff6ff",
-        border: "1px solid #bfdbfe",
+        background: "#fff5f5",
+        border: "1px solid #FF0000",
         borderRadius: "8px",
         padding: "10px 12px",
         width: "80%",
@@ -491,10 +492,10 @@ function InfoDespachoPreview() {
     >
       <div style={{ fontSize: "20px" }}>📦</div>
       <div>
-        <div style={{ fontSize: "10px", fontWeight: 800, color: "#1e40af" }}>
+        <div style={{ fontSize: "10px", fontWeight: 800, color: "#FF0000" }}>
           Despacho en 24-48hs
         </div>
-        <div style={{ fontSize: "8px", color: "#2563eb" }}>
+        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.7 }}>
           Comprando antes de las 15:00hs
         </div>
       </div>
@@ -509,7 +510,7 @@ function BarraProgresoPreview() {
         style={{
           fontSize: "10px",
           fontWeight: 700,
-          color: "#065f46",
+          color: "#000000",
           marginBottom: "6px",
           textAlign: "center",
         }}
@@ -519,7 +520,7 @@ function BarraProgresoPreview() {
       <div
         style={{
           height: "10px",
-          background: "#d1fae5",
+          background: "#f3f4f6",
           borderRadius: "5px",
           overflow: "hidden",
         }}
@@ -528,7 +529,7 @@ function BarraProgresoPreview() {
           style={{
             width: "70%",
             height: "100%",
-            background: "linear-gradient(90deg, #10b981, #059669)",
+            background: "#FF0000",
           }}
         />
       </div>
@@ -562,8 +563,8 @@ function DefaultPreview() {
           width="24"
           height="24"
           rx="3"
-          fill="#e0e7ff"
-          stroke="#6366f1"
+          fill="#ffffff"
+          stroke="#000000"
           strokeWidth="1.5"
         />
         <line
@@ -571,7 +572,7 @@ function DefaultPreview() {
           y1="26"
           x2="32"
           y2="26"
-          stroke="#6366f1"
+          stroke="#000000"
           strokeWidth="1.5"
         />
         <line
@@ -579,7 +580,7 @@ function DefaultPreview() {
           y1="20"
           x2="20"
           y2="26"
-          stroke="#6366f1"
+          stroke="#000000"
           strokeWidth="1.5"
         />
 
@@ -590,8 +591,8 @@ function DefaultPreview() {
           width="28"
           height="28"
           rx="3"
-          fill="#c7d2fe"
-          stroke="#4f46e5"
+          fill="#f3f4f6"
+          stroke="#000000"
           strokeWidth="1.5"
         />
         <line
@@ -599,7 +600,7 @@ function DefaultPreview() {
           y1="21"
           x2="48"
           y2="21"
-          stroke="#4f46e5"
+          stroke="#000000"
           strokeWidth="1.5"
         />
         <line
@@ -607,19 +608,19 @@ function DefaultPreview() {
           y1="14"
           x2="34"
           y2="21"
-          stroke="#4f46e5"
+          stroke="#000000"
           strokeWidth="1.5"
         />
 
-        {/* Caja frontal (más grande) */}
+        {/* Caja frontal (más grande) — rojo */}
         <rect
           x="32"
           y="26"
           width="24"
           height="24"
           rx="3"
-          fill="#6366f1"
-          stroke="#4338ca"
+          fill="#FF0000"
+          stroke="#000000"
           strokeWidth="1.5"
         />
         <line
@@ -627,7 +628,7 @@ function DefaultPreview() {
           y1="32"
           x2="56"
           y2="32"
-          stroke="#4338ca"
+          stroke="#000000"
           strokeWidth="1.5"
         />
         <line
@@ -635,7 +636,7 @@ function DefaultPreview() {
           y1="26"
           x2="44"
           y2="32"
-          stroke="#4338ca"
+          stroke="#000000"
           strokeWidth="1.5"
         />
 
@@ -644,7 +645,7 @@ function DefaultPreview() {
           cx="52"
           cy="18"
           r="10"
-          fill="#ef4444"
+          fill="#000000"
           stroke="#ffffff"
           strokeWidth="2"
         />
@@ -663,7 +664,8 @@ function DefaultPreview() {
       <div
         style={{
           fontSize: "10px",
-          color: "#6b7280",
+          color: "#000000",
+          opacity: 0.5,
           fontWeight: 600,
           letterSpacing: "0.02em",
         }}
@@ -672,4 +674,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-                }
+            }
