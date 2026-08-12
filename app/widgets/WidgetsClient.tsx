@@ -248,7 +248,7 @@ export default function WidgetsClient({
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
@@ -271,10 +271,11 @@ export default function WidgetsClient({
             alignItems: "center",
             gap: "0.35rem",
             fontSize: "0.85rem",
-            color: "#6b7280",
+            color: "#000000",
             textDecoration: "none",
             marginBottom: "1rem",
             fontWeight: 500,
+            opacity: 0.6,
           }}
         >
           <ArrowLeft size={14} />
@@ -418,7 +419,7 @@ export default function WidgetsClient({
                   margin: 0,
                   fontSize: "2rem",
                   fontWeight: 800,
-                  color: "#111827",
+                  color: "#000000",
                   letterSpacing: "-0.02em",
                 }}
               >
@@ -428,7 +429,8 @@ export default function WidgetsClient({
                 style={{
                   margin: "0.5rem 0 0",
                   fontSize: "0.95rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                 }}
               >
                 {!store
@@ -451,12 +453,12 @@ export default function WidgetsClient({
                   padding: "0.7rem 1.25rem",
                   borderRadius: "999px",
                   border: "none",
-                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                  background: "#FF0000",
                   color: "#ffffff",
                   fontSize: "0.9rem",
                   fontWeight: 600,
                   cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+                  boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
                   fontFamily: "inherit",
                   textDecoration: "none",
                 }}
@@ -502,14 +504,14 @@ export default function WidgetsClient({
                 border: "1px solid #e5e7eb",
                 background: "#ffffff",
                 fontSize: "0.9rem",
-                color: "#111827",
+                color: "#000000",
                 outline: "none",
                 fontFamily: "inherit",
                 boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
                 boxSizing: "border-box",
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#6366f1";
+                e.currentTarget.style.borderColor = "#FF0000";
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = "#e5e7eb";
@@ -547,8 +549,7 @@ export default function WidgetsClient({
                       width: "44px",
                       height: "44px",
                       borderRadius: "12px",
-                      background:
-                        "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                      background: "#FF0000",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -715,15 +716,14 @@ function EmptyState({
           width: "72px",
           height: "72px",
           borderRadius: "18px",
-          background:
-            "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))",
+          background: "rgba(255, 0, 0, 0.08)",
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
           marginBottom: "1.25rem",
         }}
       >
-        <LayoutGrid size={34} color="#6366f1" strokeWidth={1.75} />
+        <LayoutGrid size={34} color="#FF0000" strokeWidth={1.75} />
       </div>
 
       <h2
@@ -731,7 +731,7 @@ function EmptyState({
           margin: "0 0 0.75rem",
           fontSize: "1.35rem",
           fontWeight: 700,
-          color: "#111827",
+          color: "#000000",
           letterSpacing: "-0.01em",
         }}
       >
@@ -743,7 +743,8 @@ function EmptyState({
           margin: "0 auto 1.5rem",
           maxWidth: "460px",
           fontSize: "0.95rem",
-          color: "#6b7280",
+          color: "#000000",
+          opacity: 0.6,
           lineHeight: 1.6,
         }}
       >
@@ -759,12 +760,12 @@ function EmptyState({
             gap: "0.5rem",
             padding: "0.7rem 1.4rem",
             borderRadius: "999px",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            background: "#FF0000",
             color: "#ffffff",
             fontSize: "0.9rem",
             fontWeight: 600,
             textDecoration: "none",
-            boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+            boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
           }}
         >
           <Plus size={16} />
@@ -828,7 +829,7 @@ function WidgetGroup({
             style={{
               fontSize: "1rem",
               fontWeight: 700,
-              color: productDisabled ? "#9ca3af" : "#111827",
+              color: productDisabled ? "#9ca3af" : "#000000",
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -839,7 +840,8 @@ function WidgetGroup({
           <div
             style={{
               fontSize: "0.8rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
               marginTop: "0.15rem",
             }}
           >
@@ -890,7 +892,7 @@ function WidgetRowItem({
         alignItems: "center",
         gap: "0.75rem",
         padding: "0.75rem",
-        background: "#f9fafb",
+        background: "#ffffff",
         border: "1px solid #f0f2f5",
         borderRadius: "12px",
         opacity: busy ? 0.6 : 1,
@@ -917,7 +919,7 @@ function WidgetRowItem({
             width: "40px",
             height: "22px",
             borderRadius: "999px",
-            background: widget.is_active ? "#6366f1" : "#d1d5db",
+            background: widget.is_active ? "#FF0000" : "#d1d5db",
             position: "relative",
             transition: "background 0.15s",
           }}
@@ -945,7 +947,7 @@ function WidgetRowItem({
           alignItems: "center",
           gap: "0.4rem",
           padding: "0.4rem 0.85rem",
-          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          background: "#FF0000",
           color: "#ffffff",
           borderRadius: "999px",
           fontSize: "0.8rem",
@@ -980,9 +982,9 @@ function WidgetRowItem({
           width: "38px",
           height: "38px",
           borderRadius: "50%",
-          border: "1.5px solid #dbeafe",
+          border: "1.5px solid #e5e7eb",
           background: "#ffffff",
-          color: "#2563eb",
+          color: "#000000",
           cursor: busy ? "wait" : "pointer",
           display: "flex",
           alignItems: "center",
@@ -992,11 +994,13 @@ function WidgetRowItem({
         }}
         onMouseEnter={(e) => {
           if (!busy) {
-            e.currentTarget.style.background = "#eff6ff";
+            e.currentTarget.style.background = "#f9fafb";
+            e.currentTarget.style.borderColor = "#000000";
           }
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = "#ffffff";
+          e.currentTarget.style.borderColor = "#e5e7eb";
         }}
       >
         <Pencil size={16} />
@@ -1036,4 +1040,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-}
+            }
