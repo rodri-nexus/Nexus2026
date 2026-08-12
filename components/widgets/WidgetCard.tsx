@@ -30,8 +30,8 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
         transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "#c7d2fe";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(99, 102, 241, 0.1)";
+        e.currentTarget.style.borderColor = "#fecaca";
+        e.currentTarget.style.boxShadow = "0 8px 24px rgba(255, 0, 0, 0.12)";
         e.currentTarget.style.transform = "translateY(-3px)";
       }}
       onMouseLeave={(e) => {
@@ -60,7 +60,7 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
             style={{
               fontSize: "1rem",
               fontWeight: 700,
-              color: "#111827",
+              color: "#000000",
               marginBottom: "0.35rem",
             }}
           >
@@ -69,7 +69,8 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
           <div
             style={{
               fontSize: "0.85rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
               lineHeight: 1.45,
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -96,7 +97,7 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
             style={{
               flex: 1,
               padding: "0.7rem 1rem",
-              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+              background: "#FF0000",
               color: "#ffffff",
               border: "none",
               borderRadius: "10px",
@@ -105,7 +106,7 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
               cursor: "pointer",
               fontFamily: "inherit",
               transition: "opacity 0.15s, transform 0.15s",
-              boxShadow: "0 2px 8px rgba(99, 102, 241, 0.25)",
+              boxShadow: "0 2px 8px rgba(255, 0, 0, 0.25)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.opacity = "0.92";
@@ -138,4 +139,4 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
       </div>
     </motion.div>
   );
-        }
+            }
