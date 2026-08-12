@@ -54,7 +54,7 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
             margin: 0,
             fontSize: "1.15rem",
             fontWeight: 700,
-            color: "#111827",
+            color: "#000000",
             letterSpacing: "-0.01em",
           }}
         >
@@ -75,7 +75,7 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
               borderRadius: "999px",
               border: "1.5px solid #e5e7eb",
               background: "#ffffff",
-              color: "#374151",
+              color: "#000000",
               fontSize: "0.85rem",
               fontWeight: 500,
               textDecoration: "none",
@@ -85,13 +85,13 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "#f9fafb";
-              e.currentTarget.style.borderColor = "#6366f1";
-              e.currentTarget.style.color = "#6366f1";
+              e.currentTarget.style.borderColor = "#FF0000";
+              e.currentTarget.style.color = "#FF0000";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "#ffffff";
               e.currentTarget.style.borderColor = "#e5e7eb";
-              e.currentTarget.style.color = "#374151";
+              e.currentTarget.style.color = "#000000";
             }}
           >
             Ver
@@ -105,23 +105,23 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
               width: "38px",
               height: "38px",
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              background: "#FF0000",
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
               color: "#ffffff",
               border: "none",
-              boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+              boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
               transition: "transform 0.15s, box-shadow 0.15s",
               cursor: "pointer",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "scale(1.05)";
-              e.currentTarget.style.boxShadow = "0 6px 16px rgba(99, 102, 241, 0.45)";
+              e.currentTarget.style.boxShadow = "0 6px 16px rgba(255, 0, 0, 0.45)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(99, 102, 241, 0.35)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 0, 0, 0.35)";
             }}
           >
             <Plus size={20} />
@@ -163,22 +163,21 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
                   width: "38px",
                   height: "38px",
                   borderRadius: "10px",
-                  background:
-                    "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))",
+                  background: "rgba(255, 0, 0, 0.08)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
                 }}
               >
-                <LayoutGrid size={16} color="#6366f1" />
+                <LayoutGrid size={16} color="#FF0000" />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   style={{
                     fontSize: "0.9rem",
                     fontWeight: 600,
-                    color: "#111827",
+                    color: "#000000",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -189,7 +188,8 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
                 <div
                   style={{
                     fontSize: "0.75rem",
-                    color: "#9ca3af",
+                    color: "#000000",
+                    opacity: 0.5,
                     marginTop: "0.1rem",
                   }}
                 >
@@ -207,7 +207,7 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
             alignItems: "center",
             justifyContent: "center",
             padding: "2.5rem 1rem",
-            background: "#f9fafb",
+            background: "#ffffff",
             borderRadius: "12px",
             border: "1px dashed #e5e7eb",
           }}
@@ -217,22 +217,22 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
               width: "56px",
               height: "56px",
               borderRadius: "14px",
-              background:
-                "linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08))",
+              background: "rgba(255, 0, 0, 0.08)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               marginBottom: "1rem",
             }}
           >
-            <LayoutGrid size={26} color="#a5b4fc" strokeWidth={1.75} />
+            <LayoutGrid size={26} color="#FF0000" strokeWidth={1.75} />
           </div>
 
           <p
             style={{
               margin: "0 0 1.25rem",
               fontSize: "0.95rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
               textAlign: "center",
               fontWeight: 500,
             }}
@@ -248,22 +248,22 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
               gap: "0.5rem",
               padding: "0.7rem 1.5rem",
               borderRadius: "999px",
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              background: "#FF0000",
               color: "#ffffff",
               fontSize: "0.9rem",
               fontWeight: 600,
               border: "none",
-              boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+              boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
               transition: "transform 0.15s, box-shadow 0.15s",
               cursor: "pointer",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 6px 16px rgba(99, 102, 241, 0.45)";
+              e.currentTarget.style.boxShadow = "0 6px 16px rgba(255, 0, 0, 0.45)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(99, 102, 241, 0.35)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(255, 0, 0, 0.35)";
             }}
           >
             <Plus size={16} />
@@ -295,4 +295,4 @@ export default function RecientesCard({ widgets = [], storeId }: RecientesCardPr
       )}
     </motion.section>
   );
-          }
+            }
