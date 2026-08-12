@@ -28,7 +28,7 @@ export default function StatsCards({
       label: "Productos",
       value: productsCount,
       icon: Package,
-      gradient: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+      gradient: "#FF0000",
       href: "/productos",
       actionLabel: "Ver productos",
       tutorialId: "stats-productos",
@@ -37,7 +37,7 @@ export default function StatsCards({
       label: "Widgets activos",
       value: activeWidgetsCount,
       icon: LayoutGrid,
-      gradient: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
+      gradient: "#FF0000",
       href: "/widgets",
       actionLabel: "Ver widgets",
     },
@@ -88,8 +88,8 @@ export default function StatsCards({
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-3px)";
                   e.currentTarget.style.boxShadow =
-                    "0 8px 20px rgba(99, 102, 241, 0.1)";
-                  e.currentTarget.style.borderColor = "#c7d2fe";
+                    "0 8px 20px rgba(255, 0, 0, 0.12)";
+                  e.currentTarget.style.borderColor = "#fecaca";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
@@ -116,7 +116,7 @@ export default function StatsCards({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        boxShadow: "0 6px 14px rgba(99, 102, 241, 0.25)",
+                        boxShadow: "0 6px 14px rgba(255, 0, 0, 0.25)",
                       }}
                     >
                       <Icon size={20} color="#ffffff" />
@@ -132,7 +132,8 @@ export default function StatsCards({
                   <div
                     style={{
                       fontSize: "0.85rem",
-                      color: "#6b7280",
+                      color: "#000000",
+                      opacity: 0.6,
                       fontWeight: 500,
                       marginBottom: "0.35rem",
                     }}
@@ -144,7 +145,7 @@ export default function StatsCards({
                     style={{
                       fontSize: "2.25rem",
                       fontWeight: 700,
-                      color: "#111827",
+                      color: "#000000",
                       lineHeight: 1,
                       letterSpacing: "-0.02em",
                     }}
@@ -159,7 +160,7 @@ export default function StatsCards({
                     paddingTop: "0.85rem",
                     borderTop: "1px solid #f3f4f6",
                     fontSize: "0.8rem",
-                    color: "#6366f1",
+                    color: "#FF0000",
                     fontWeight: 600,
                     display: "flex",
                     alignItems: "center",
@@ -175,4 +176,4 @@ export default function StatsCards({
       })}
     </div>
   );
-                }
+                      }
