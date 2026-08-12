@@ -125,7 +125,7 @@ export default function Testimonials() {
             flexWrap: "wrap",
           }}
         >
-          {/* Logo Tiendanube */}
+          {/* Logo Tiendanube — se mantiene en su azul original */}
           <svg
             width="105"
             height="20"
@@ -158,7 +158,7 @@ export default function Testimonials() {
               style={{
                 fontSize: "1.35rem",
                 fontWeight: 800,
-                color: "#111827",
+                color: "#000000",
                 letterSpacing: "-0.02em",
               }}
             >
@@ -187,7 +187,7 @@ export default function Testimonials() {
           style={{
             fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
             fontWeight: 800,
-            color: "#111827",
+            color: "#000000",
             textAlign: "center",
             margin: "0 0 1rem 0",
             letterSpacing: "-0.02em",
@@ -197,10 +197,7 @@ export default function Testimonials() {
           Lo que dicen{" "}
           <span
             style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#FF0000",
             }}
           >
             nuestros clientes
@@ -215,14 +212,15 @@ export default function Testimonials() {
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{
             fontSize: "clamp(1rem, 2vw, 1.15rem)",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             textAlign: "center",
             lineHeight: 1.6,
             maxWidth: "580px",
             margin: "0 auto 3rem auto",
           }}
         >
-          <strong style={{ color: "#374151" }}>+3.000 tiendas</strong> ya usan
+          <strong style={{ color: "#000000", opacity: 1 }}>+3.000 tiendas</strong> ya usan
           Nevux para vender más
         </motion.p>
 
@@ -246,7 +244,7 @@ export default function Testimonials() {
                 borderRadius: "24px",
                 padding: "clamp(1.5rem, 4vw, 2.5rem)",
                 boxShadow:
-                  "0 20px 60px rgba(99, 102, 241, 0.12), 0 8px 24px rgba(0, 0, 0, 0.05)",
+                  "0 20px 60px rgba(255, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.05)",
                 border: "1px solid #f3f4f6",
                 position: "relative",
                 overflow: "hidden",
@@ -261,7 +259,7 @@ export default function Testimonials() {
                   opacity: 0.08,
                 }}
               >
-                <Quote size={80} color="#6366f1" fill="#6366f1" />
+                <Quote size={80} color="#FF0000" fill="#FF0000" />
               </div>
 
               {/* Header con foto y datos */}
@@ -315,12 +313,13 @@ export default function Testimonials() {
                       style={{
                         fontSize: "1rem",
                         fontWeight: 700,
-                        color: "#111827",
+                        color: "#000000",
                         margin: 0,
                       }}
                     >
                       {currentTestimonial.name}
                     </h4>
+                    {/* CheckCircle azul — semántico verificado, se mantiene */}
                     <CheckCircle2
                       size={16}
                       fill="#3b82f6"
@@ -331,11 +330,12 @@ export default function Testimonials() {
                   <div
                     style={{
                       fontSize: "0.85rem",
-                      color: "#6b7280",
+                      color: "#000000",
+                      opacity: 0.6,
                       marginBottom: "0.35rem",
                     }}
                   >
-                    <strong style={{ color: "#374151" }}>
+                    <strong style={{ color: "#000000", opacity: 1 }}>
                       {currentTestimonial.store}
                     </strong>{" "}
                     · {currentTestimonial.location}
@@ -357,7 +357,7 @@ export default function Testimonials() {
                   </div>
                 </div>
 
-                {/* Métrica */}
+                {/* Métrica — verde semántico, se mantiene */}
                 {currentTestimonial.metric && (
                   <div
                     style={{
@@ -381,7 +381,8 @@ export default function Testimonials() {
               <p
                 style={{
                   fontSize: "clamp(0.95rem, 2vw, 1.05rem)",
-                  color: "#374151",
+                  color: "#000000",
+                  opacity: 0.8,
                   lineHeight: 1.7,
                   margin: "0 0 1.25rem 0",
                   position: "relative",
@@ -408,12 +409,14 @@ export default function Testimonials() {
                 <div
                   style={{
                     fontSize: "0.8rem",
-                    color: "#9ca3af",
+                    color: "#000000",
+                    opacity: 0.5,
                     fontWeight: 500,
                   }}
                 >
                   {currentTestimonial.date}
                 </div>
+                {/* Badge verde semántico de métrica — se mantiene */}
                 {currentTestimonial.metric && (
                   <div
                     style={{
@@ -465,9 +468,7 @@ export default function Testimonials() {
                     height: "8px",
                     borderRadius: "999px",
                     background:
-                      i === currentIndex
-                        ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
-                        : "#e5e7eb",
+                      i === currentIndex ? "#FF0000" : "#e5e7eb",
                     border: "none",
                     cursor: "pointer",
                     transition: "all 0.3s",
@@ -491,7 +492,8 @@ export default function Testimonials() {
             style={{
               textAlign: "center",
               fontSize: "0.8rem",
-              color: "#9ca3af",
+              color: "#000000",
+              opacity: 0.5,
               marginTop: "0.75rem",
               fontWeight: 500,
             }}
@@ -515,7 +517,7 @@ const navButtonStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
-  color: "#374151",
+  color: "#000000",
   transition: "all 0.2s",
   flexShrink: 0,
 };
