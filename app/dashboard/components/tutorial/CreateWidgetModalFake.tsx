@@ -5,12 +5,8 @@ import { Package, Store, X, ChevronRight } from "lucide-react";
 
 interface CreateWidgetModalFakeProps {
   isOpen: boolean;
-  // No permitimos cerrar el modal manualmente durante el tutorial.
-  // Solo se cierra cuando el tutorial pasa al paso "listo" o se salta.
   onClose?: () => void;
-  // Callback cuando se toca "Crear mi primer widget" en el paso 8
   onCreatePrimary?: () => void;
-  // Mostrar el CTA "Crear mi primer widget" (paso 8)
   showCTA?: boolean;
 }
 
@@ -91,7 +87,7 @@ export default function CreateWidgetModalFake({
                     margin: 0,
                     fontSize: "1.2rem",
                     fontWeight: 700,
-                    color: "#111827",
+                    color: "#000000",
                     letterSpacing: "-0.01em",
                   }}
                 >
@@ -111,7 +107,7 @@ export default function CreateWidgetModalFake({
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: onClose ? "pointer" : "default",
-                    color: "#6b7280",
+                    color: "rgba(0, 0, 0, 0.5)",
                     borderRadius: "10px",
                     transition: "background 0.15s",
                     opacity: onClose ? 1 : 0.4,
@@ -135,14 +131,15 @@ export default function CreateWidgetModalFake({
                   style={{
                     margin: "0 0 1.25rem",
                     fontSize: "0.9rem",
-                    color: "#6b7280",
+                    color: "#000000",
+                    opacity: 0.6,
                     fontWeight: 500,
                   }}
                 >
                   ¿Qué tipo de widget querés crear?
                 </p>
 
-                {/* Opción 1: Widget para un producto específico */}
+                {/* Opción 1: Widget para un producto específico — hover verde semántico, se mantiene */}
                 <div
                   data-tutorial="widget-producto-especifico"
                   style={{
@@ -187,7 +184,7 @@ export default function CreateWidgetModalFake({
                       style={{
                         fontSize: "0.95rem",
                         fontWeight: 700,
-                        color: "#111827",
+                        color: "#000000",
                         marginBottom: "0.25rem",
                         letterSpacing: "-0.005em",
                       }}
@@ -197,7 +194,8 @@ export default function CreateWidgetModalFake({
                     <div
                       style={{
                         fontSize: "0.82rem",
-                        color: "#6b7280",
+                        color: "#000000",
+                        opacity: 0.6,
                         lineHeight: 1.45,
                       }}
                     >
@@ -207,7 +205,7 @@ export default function CreateWidgetModalFake({
 
                   <ChevronRight
                     size={20}
-                    color="#9ca3af"
+                    color="rgba(0, 0, 0, 0.4)"
                     style={{ flexShrink: 0 }}
                   />
                 </div>
@@ -227,8 +225,8 @@ export default function CreateWidgetModalFake({
                     transition: "all 0.15s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "#6366f1";
-                    e.currentTarget.style.background = "#eef2ff";
+                    e.currentTarget.style.borderColor = "#FF0000";
+                    e.currentTarget.style.background = "#fff5f5";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = "#e5e7eb";
@@ -240,15 +238,14 @@ export default function CreateWidgetModalFake({
                       width: "56px",
                       height: "56px",
                       borderRadius: "14px",
-                      background:
-                        "linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.12))",
+                      background: "rgba(255, 0, 0, 0.08)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                     }}
                   >
-                    <Store size={26} color="#6366f1" strokeWidth={1.75} />
+                    <Store size={26} color="#FF0000" strokeWidth={1.75} />
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -256,7 +253,7 @@ export default function CreateWidgetModalFake({
                       style={{
                         fontSize: "0.95rem",
                         fontWeight: 700,
-                        color: "#111827",
+                        color: "#000000",
                         marginBottom: "0.25rem",
                         letterSpacing: "-0.005em",
                       }}
@@ -266,7 +263,8 @@ export default function CreateWidgetModalFake({
                     <div
                       style={{
                         fontSize: "0.82rem",
-                        color: "#6b7280",
+                        color: "#000000",
+                        opacity: 0.6,
                         lineHeight: 1.45,
                       }}
                     >
@@ -277,7 +275,7 @@ export default function CreateWidgetModalFake({
 
                   <ChevronRight
                     size={20}
-                    color="#9ca3af"
+                    color="rgba(0, 0, 0, 0.4)"
                     style={{ flexShrink: 0 }}
                   />
                 </div>
@@ -302,25 +300,24 @@ export default function CreateWidgetModalFake({
                         padding: "0.85rem 2rem",
                         borderRadius: "999px",
                         border: "none",
-                        background:
-                          "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                        background: "#FF0000",
                         color: "#ffffff",
                         fontSize: "0.95rem",
                         fontWeight: 700,
                         cursor: "pointer",
-                        boxShadow: "0 6px 16px rgba(99, 102, 241, 0.35)",
+                        boxShadow: "0 6px 16px rgba(255, 0, 0, 0.35)",
                         transition: "transform 0.15s, box-shadow 0.15s",
                         fontFamily: "inherit",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "translateY(-2px)";
                         e.currentTarget.style.boxShadow =
-                          "0 8px 20px rgba(99, 102, 241, 0.45)";
+                          "0 8px 20px rgba(255, 0, 0, 0.45)";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = "translateY(0)";
                         e.currentTarget.style.boxShadow =
-                          "0 6px 16px rgba(99, 102, 241, 0.35)";
+                          "0 6px 16px rgba(255, 0, 0, 0.35)";
                       }}
                     >
                       Crear mi primer widget
