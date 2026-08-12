@@ -33,7 +33,7 @@ export default function AccionesRapidas() {
           margin: "0 0 1.25rem",
           fontSize: "1.15rem",
           fontWeight: 700,
-          color: "#111827",
+          color: "#000000",
           letterSpacing: "-0.01em",
         }}
       >
@@ -76,14 +76,12 @@ export default function AccionesRapidas() {
             padding: "0.85rem 1.25rem",
             borderRadius: "999px",
             border: "none",
-            background: syncing
-              ? "linear-gradient(135deg, #a5b4fc, #c4b5fd)"
-              : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            background: syncing ? "#fca5a5" : "#FF0000",
             color: "#ffffff",
             fontSize: "0.9rem",
             fontWeight: 600,
             cursor: syncing ? "not-allowed" : "pointer",
-            boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+            boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
             transition: "transform 0.15s, box-shadow 0.15s",
             fontFamily: "inherit",
           }}
@@ -91,14 +89,14 @@ export default function AccionesRapidas() {
             if (!syncing) {
               e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.boxShadow =
-                "0 6px 16px rgba(99, 102, 241, 0.45)";
+                "0 6px 16px rgba(255, 0, 0, 0.45)";
             }
           }}
           onMouseLeave={(e) => {
             if (!syncing) {
               e.currentTarget.style.transform = "translateY(0)";
               e.currentTarget.style.boxShadow =
-                "0 4px 12px rgba(99, 102, 241, 0.35)";
+                "0 4px 12px rgba(255, 0, 0, 0.35)";
             }
           }}
         >
@@ -148,7 +146,7 @@ function SecondaryButton({ href, icon: Icon, label }: SecondaryButtonProps) {
         borderRadius: "999px",
         border: "1.5px solid #e5e7eb",
         background: "#ffffff",
-        color: "#6366f1",
+        color: "#FF0000",
         fontSize: "0.9rem",
         fontWeight: 600,
         textDecoration: "none",
@@ -156,9 +154,8 @@ function SecondaryButton({ href, icon: Icon, label }: SecondaryButtonProps) {
         boxSizing: "border-box",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "#6366f1";
-        e.currentTarget.style.background =
-          "linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(139, 92, 246, 0.04))";
+        e.currentTarget.style.borderColor = "#FF0000";
+        e.currentTarget.style.background = "#fff5f5";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = "#e5e7eb";
@@ -169,4 +166,4 @@ function SecondaryButton({ href, icon: Icon, label }: SecondaryButtonProps) {
       <span>{label}</span>
     </Link>
   );
-          }
+    }
