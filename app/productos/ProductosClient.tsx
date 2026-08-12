@@ -39,7 +39,7 @@ export default function ProductosClient({
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#f9fafb",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
@@ -62,7 +62,8 @@ export default function ProductosClient({
             alignItems: "center",
             gap: "0.35rem",
             fontSize: "0.85rem",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             textDecoration: "none",
             marginBottom: "1rem",
             fontWeight: 500,
@@ -94,7 +95,7 @@ export default function ProductosClient({
                   margin: 0,
                   fontSize: "2rem",
                   fontWeight: 800,
-                  color: "#111827",
+                  color: "#000000",
                   letterSpacing: "-0.02em",
                 }}
               >
@@ -104,7 +105,8 @@ export default function ProductosClient({
                 style={{
                   margin: "0.5rem 0 0",
                   fontSize: "0.95rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                 }}
               >
                 {store
@@ -127,13 +129,13 @@ export default function ProductosClient({
                   borderRadius: "999px",
                   border: "none",
                   background: syncing
-                    ? "linear-gradient(135deg, #a5b4fc, #c4b5fd)"
-                    : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                    ? "rgba(255, 0, 0, 0.4)"
+                    : "#FF0000",
                   color: "#ffffff",
                   fontSize: "0.85rem",
                   fontWeight: 600,
                   cursor: syncing ? "not-allowed" : "pointer",
-                  boxShadow: "0 4px 12px rgba(99, 102, 241, 0.35)",
+                  boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
                   fontFamily: "inherit",
                 }}
               >
@@ -168,15 +170,14 @@ export default function ProductosClient({
               width: "72px",
               height: "72px",
               borderRadius: "18px",
-              background:
-                "linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))",
+              background: "rgba(255, 0, 0, 0.08)",
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
               marginBottom: "1.25rem",
             }}
           >
-            <Package size={34} color="#6366f1" strokeWidth={1.75} />
+            <Package size={34} color="#FF0000" strokeWidth={1.75} />
           </div>
 
           <div
@@ -185,10 +186,10 @@ export default function ProductosClient({
               alignItems: "center",
               gap: "0.4rem",
               padding: "0.3rem 0.85rem",
-              background: "linear-gradient(135deg, #eef2ff, #ede9fe)",
+              background: "#fff5f5",
               borderRadius: "999px",
               fontSize: "0.75rem",
-              color: "#6366f1",
+              color: "#FF0000",
               fontWeight: 700,
               marginBottom: "1rem",
               textTransform: "uppercase",
@@ -204,7 +205,7 @@ export default function ProductosClient({
               margin: "0 0 0.75rem",
               fontSize: "1.35rem",
               fontWeight: 700,
-              color: "#111827",
+              color: "#000000",
               letterSpacing: "-0.01em",
             }}
           >
@@ -216,7 +217,8 @@ export default function ProductosClient({
               margin: "0 auto",
               maxWidth: "460px",
               fontSize: "0.95rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
               lineHeight: 1.6,
             }}
           >
@@ -238,4 +240,4 @@ export default function ProductosClient({
       `}</style>
     </div>
   );
-    }
+        }
