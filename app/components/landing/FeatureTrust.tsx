@@ -63,7 +63,7 @@ export default function FeatureTrust() {
           style={{
             fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
             fontWeight: 800,
-            color: "#111827",
+            color: "#000000",
             textAlign: "center",
             margin: "0 0 1rem 0",
             letterSpacing: "-0.02em",
@@ -91,15 +91,16 @@ export default function FeatureTrust() {
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{
             fontSize: "clamp(1rem, 2vw, 1.15rem)",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             textAlign: "center",
             lineHeight: 1.6,
             maxWidth: "680px",
             margin: "0 auto 3.5rem auto",
           }}
         >
-          Mostrá <strong style={{ color: "#374151" }}>reseñas</strong> y{" "}
-          <strong style={{ color: "#374151" }}>widgets</strong> que generen
+          Mostrá <strong style={{ color: "#000000", opacity: 1 }}>reseñas</strong> y{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>widgets</strong> que generen
           confianza para que tus clientes se sientan seguros al momento de
           comprar.
         </motion.p>
@@ -147,7 +148,7 @@ export default function FeatureTrust() {
                   style={{
                     fontSize: "3rem",
                     fontWeight: 800,
-                    color: "#111827",
+                    color: "#000000",
                     lineHeight: 1,
                     letterSpacing: "-0.03em",
                   }}
@@ -177,7 +178,14 @@ export default function FeatureTrust() {
                       </motion.div>
                     ))}
                   </div>
-                  <div style={{ fontSize: "0.8rem", color: "#6b7280", fontWeight: 500 }}>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "#000000",
+                      opacity: 0.6,
+                      fontWeight: 500,
+                    }}
+                  >
                     Basado en 247 reseñas
                   </div>
                 </div>
@@ -196,7 +204,7 @@ export default function FeatureTrust() {
                 style={{
                   marginTop: "1rem",
                   padding: "0.6rem 1.1rem",
-                  background: "linear-gradient(135deg, #111827, #374151)",
+                  background: "#000000",
                   color: "white",
                   border: "none",
                   borderRadius: "10px",
@@ -233,7 +241,7 @@ export default function FeatureTrust() {
             </div>
           </motion.div>
 
-          {/* MOCKUP 2: Alerta de despacho */}
+          {/* MOCKUP 2: Alerta de despacho — SE MANTIENE VERDE (semántico) */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -341,7 +349,7 @@ export default function FeatureTrust() {
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(99, 102, 241, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
@@ -350,7 +358,7 @@ export default function FeatureTrust() {
             }}
           >
             <div style={{ display: "flex", gap: "0.85rem", alignItems: "flex-start" }}>
-              {/* Badge circular */}
+              {/* Badge circular dorado — semántico, se mantiene */}
               <motion.div
                 initial={{ rotate: -180, scale: 0 }}
                 whileInView={{ rotate: 0, scale: 1 }}
@@ -397,7 +405,7 @@ export default function FeatureTrust() {
                   style={{
                     fontSize: "1rem",
                     fontWeight: 800,
-                    color: "#111827",
+                    color: "#000000",
                     margin: "0 0 0.35rem 0",
                     letterSpacing: "-0.01em",
                   }}
@@ -407,13 +415,14 @@ export default function FeatureTrust() {
                 <p
                   style={{
                     fontSize: "0.8rem",
-                    color: "#6b7280",
+                    color: "#000000",
+                    opacity: 0.6,
                     margin: 0,
                     lineHeight: 1.5,
                   }}
                 >
                   Confiamos en los resultados. Si no te gusta, te reintegramos el{" "}
-                  <strong style={{ color: "#374151" }}>100% de tu compra</strong>.
+                  <strong style={{ color: "#000000", opacity: 1 }}>100% de tu compra</strong>.
                 </p>
               </div>
             </div>
@@ -442,7 +451,7 @@ function RatingBar({ stars, percent }: { stars: number; percent: number }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "0.15rem", minWidth: "18px" }}>
-        <span style={{ color: "#6b7280", fontWeight: 600 }}>{stars}</span>
+        <span style={{ color: "#000000", opacity: 0.6, fontWeight: 600 }}>{stars}</span>
         <Star size={10} fill="#fbbf24" color="#fbbf24" strokeWidth={0} />
       </div>
       <div
@@ -466,7 +475,15 @@ function RatingBar({ stars, percent }: { stars: number; percent: number }) {
           }}
         />
       </div>
-      <span style={{ color: "#9ca3af", fontWeight: 500, minWidth: "28px", textAlign: "right" }}>
+      <span
+        style={{
+          color: "#000000",
+          opacity: 0.5,
+          fontWeight: 500,
+          minWidth: "28px",
+          textAlign: "right",
+        }}
+      >
         {percent}%
       </span>
     </div>
@@ -525,7 +542,7 @@ function ReviewCard({
             flexWrap: "wrap",
           }}
         >
-          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#111827" }}>
+          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#000000" }}>
             {name}
           </span>
           <div style={{ display: "flex", gap: "0.1rem" }}>
@@ -540,7 +557,7 @@ function ReviewCard({
             ))}
           </div>
         </div>
-        <p style={{ fontSize: "0.78rem", color: "#4b5563", margin: 0, lineHeight: 1.4 }}>
+        <p style={{ fontSize: "0.78rem", color: "#000000", opacity: 0.7, margin: 0, lineHeight: 1.4 }}>
           {text}
         </p>
       </div>
@@ -548,7 +565,7 @@ function ReviewCard({
   );
 }
 
-// Badge de trust
+// Badge de trust — SE MANTIENE VERDE (semántico)
 function TrustBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <div
@@ -568,4 +585,4 @@ function TrustBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
       {text}
     </div>
   );
-            }
+        }
