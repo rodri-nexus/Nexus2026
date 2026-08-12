@@ -33,20 +33,20 @@ export default function NevuxLogo({
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Gradient principal violeta */}
+          {/* Gradient superior: rojo brillante → rojo puro */}
           <linearGradient id="nevuxGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#818cf8" />
-            <stop offset="100%" stopColor="#6366f1" />
+            <stop offset="0%" stopColor="#FF3333" />
+            <stop offset="100%" stopColor="#FF0000" />
           </linearGradient>
-          {/* Gradient medio */}
+          {/* Gradient medio: rojo → rojo oscuro */}
           <linearGradient id="nevuxGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#7c3aed" />
+            <stop offset="0%" stopColor="#FF0000" />
+            <stop offset="100%" stopColor="#CC0000" />
           </linearGradient>
-          {/* Gradient inferior más oscuro */}
+          {/* Gradient inferior: rojo oscuro → negro */}
           <linearGradient id="nevuxGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#7c3aed" />
-            <stop offset="100%" stopColor="#8b5cf6" />
+            <stop offset="0%" stopColor="#CC0000" />
+            <stop offset="100%" stopColor="#000000" />
           </linearGradient>
           {/* Sombra suave */}
           <filter id="nevuxShadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -62,7 +62,7 @@ export default function NevuxLogo({
           </filter>
         </defs>
 
-        {/* Gema inferior (más grande) */}
+        {/* Gema inferior (más grande) — rojo oscuro tirando a negro */}
         <g filter="url(#nevuxShadow)">
           <path
             d="M20 30 L6 23 L20 16 L34 23 Z"
@@ -76,7 +76,7 @@ export default function NevuxLogo({
           />
         </g>
 
-        {/* Gema media */}
+        {/* Gema media — rojo puro */}
         <g filter="url(#nevuxShadow)">
           <path
             d="M20 22 L8 16 L20 10 L32 16 Z"
@@ -89,7 +89,7 @@ export default function NevuxLogo({
           />
         </g>
 
-        {/* Gema superior (más chica) */}
+        {/* Gema superior (más chica) — rojo brillante */}
         <g filter="url(#nevuxShadow)">
           <path
             d="M20 14 L10 9 L20 4 L30 9 Z"
@@ -99,7 +99,7 @@ export default function NevuxLogo({
           <path
             d="M20 4 L14 7 L20 8 L26 7 Z"
             fill="white"
-            opacity="0.4"
+            opacity="0.5"
           />
         </g>
 
@@ -114,10 +114,7 @@ export default function NevuxLogo({
           style={{
             fontSize: currentSize.text,
             fontWeight: 800,
-            background: "linear-gradient(135deg, #111827 0%, #374151 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
+            color: "#000000",
             letterSpacing: "-0.03em",
             fontFamily:
               "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -128,4 +125,4 @@ export default function NevuxLogo({
       )}
     </div>
   );
-            }
+          }
