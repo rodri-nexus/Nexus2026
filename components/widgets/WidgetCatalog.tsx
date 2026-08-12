@@ -71,7 +71,7 @@ export default function WidgetCatalog({
             margin: "0 0 1.5rem 0",
             fontSize: "1.35rem",
             fontWeight: 800,
-            color: "#111827",
+            color: "#000000",
             lineHeight: 1.25,
           }}
         >
@@ -104,17 +104,15 @@ export default function WidgetCatalog({
                 padding: "0.5rem 1rem",
                 borderRadius: "999px",
                 border: isActive ? "none" : "1.5px solid #e5e7eb",
-                background: isActive
-                  ? "linear-gradient(135deg, #6366f1, #4f46e5)"
-                  : "#ffffff",
-                color: isActive ? "#ffffff" : "#374151",
+                background: isActive ? "#FF0000" : "#ffffff",
+                color: isActive ? "#ffffff" : "#000000",
                 fontSize: "0.85rem",
                 fontWeight: 500,
                 cursor: "pointer",
                 fontFamily: "inherit",
                 transition: "all 0.15s",
                 boxShadow: isActive
-                  ? "0 2px 8px rgba(99, 102, 241, 0.25)"
+                  ? "0 2px 8px rgba(255, 0, 0, 0.25)"
                   : "none",
               }}
             >
@@ -154,14 +152,14 @@ export default function WidgetCatalog({
               border: "1.5px solid #e5e7eb",
               borderRadius: "10px",
               fontSize: "0.9rem",
-              color: "#374151",
+              color: "#000000",
               outline: "none",
               fontFamily: "inherit",
               background: "#ffffff",
               transition: "border-color 0.15s",
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = "#6366f1";
+              e.currentTarget.style.borderColor = "#FF0000";
             }}
             onBlur={(e) => {
               e.currentTarget.style.borderColor = "#e5e7eb";
@@ -205,4 +203,4 @@ export default function WidgetCatalog({
       )}
     </div>
   );
-}
+  }
