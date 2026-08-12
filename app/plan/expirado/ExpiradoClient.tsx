@@ -143,11 +143,13 @@ export default function ExpiradoClient({
       style={{
         minHeight: "100vh",
         width: "100%",
+        maxWidth: "100vw",
         background: "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
         overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
       {/* Círculos decorativos */}
@@ -186,6 +188,7 @@ export default function ExpiradoClient({
           justifyContent: "center",
           position: "relative",
           zIndex: 2,
+          boxSizing: "border-box",
         }}
       >
         <NevuxLogo size="medium" />
@@ -195,10 +198,12 @@ export default function ExpiradoClient({
       <div
         style={{
           maxWidth: "900px",
+          width: "100%",
           margin: "0 auto",
-          padding: "1rem 1.25rem 3rem 1.25rem",
+          padding: "1rem 1rem 3rem 1rem",
           position: "relative",
           zIndex: 2,
+          boxSizing: "border-box",
         }}
       >
         {/* ─────────────── HERO ─────────────── */}
@@ -233,12 +238,13 @@ export default function ExpiradoClient({
 
           <h1
             style={{
-              fontSize: "clamp(1.85rem, 5.5vw, 3rem)",
+              fontSize: "clamp(1.75rem, 5.5vw, 3rem)",
               fontWeight: 800,
               color: "#000000",
               margin: "0 0 1rem 0",
               letterSpacing: "-0.03em",
-              lineHeight: 1.1,
+              lineHeight: 1.15,
+              wordBreak: "break-word",
             }}
           >
             Seguí vendiendo más con{" "}
@@ -247,7 +253,7 @@ export default function ExpiradoClient({
 
           <p
             style={{
-              fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
+              fontSize: "clamp(0.95rem, 2.5vw, 1.2rem)",
               color: "#000000",
               opacity: 0.7,
               margin: "0 auto",
@@ -271,12 +277,15 @@ export default function ExpiradoClient({
           style={{
             background: "white",
             borderRadius: "28px",
-            padding: "2.5rem 2rem",
+            padding: "clamp(1.5rem, 5vw, 2.5rem) clamp(1rem, 4vw, 2rem)",
             border: "2px solid #FF0000",
             boxShadow:
               "0 30px 80px rgba(255, 0, 0, 0.15), 0 10px 30px rgba(0, 0, 0, 0.08)",
             marginBottom: "3rem",
             position: "relative",
+            width: "100%",
+            maxWidth: "100%",
+            boxSizing: "border-box",
           }}
         >
           {/* Badge encima */}
@@ -295,6 +304,7 @@ export default function ExpiradoClient({
               letterSpacing: "0.08em",
               textTransform: "uppercase",
               boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
+              whiteSpace: "nowrap",
             }}
           >
             ⚡ Plan Único
@@ -304,7 +314,7 @@ export default function ExpiradoClient({
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <h2
               style={{
-                fontSize: "clamp(1.5rem, 4vw, 2rem)",
+                fontSize: "clamp(1.4rem, 4vw, 2rem)",
                 fontWeight: 800,
                 color: "#000000",
                 margin: "0.5rem 0 1rem 0",
@@ -320,11 +330,13 @@ export default function ExpiradoClient({
                 alignItems: "baseline",
                 gap: "0.35rem",
                 marginBottom: "0.5rem",
+                flexWrap: "wrap",
+                justifyContent: "center",
               }}
             >
               <span
                 style={{
-                  fontSize: "clamp(2.5rem, 8vw, 4rem)",
+                  fontSize: "clamp(2.25rem, 7vw, 4rem)",
                   fontWeight: 900,
                   color: "#FF0000",
                   letterSpacing: "-0.04em",
@@ -362,7 +374,7 @@ export default function ExpiradoClient({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
               gap: "0.75rem",
               marginBottom: "2rem",
             }}
@@ -377,6 +389,7 @@ export default function ExpiradoClient({
                   display: "flex",
                   alignItems: "flex-start",
                   gap: "0.65rem",
+                  minWidth: 0,
                 }}
               >
                 <div
@@ -400,6 +413,8 @@ export default function ExpiradoClient({
                     color: "#000000",
                     lineHeight: 1.4,
                     fontWeight: 500,
+                    minWidth: 0,
+                    wordBreak: "break-word",
                   }}
                 >
                   {feature}
@@ -409,11 +424,11 @@ export default function ExpiradoClient({
           </div>
 
           {/* CTA */}
-          <div style={{ textAlign: "center" }}>
+          <div style={{ textAlign: "center", width: "100%" }}>
             <motion.div
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              style={{ display: "inline-block" }}
+              style={{ display: "block", width: "100%" }}
             >
               <Link
                 href="/plan/pagar"
@@ -422,16 +437,18 @@ export default function ExpiradoClient({
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "0.5rem",
-                  padding: "1.15rem 3rem",
+                  padding: "1.05rem 2rem",
                   background: "#FF0000",
                   color: "white",
                   borderRadius: "999px",
-                  fontSize: "1.1rem",
+                  fontSize: "1.05rem",
                   fontWeight: 700,
                   textDecoration: "none",
                   boxShadow: "0 15px 35px rgba(255, 0, 0, 0.4)",
                   transition: "all 0.2s",
-                  minWidth: "280px",
+                  width: "100%",
+                  maxWidth: "360px",
+                  boxSizing: "border-box",
                 }}
               >
                 Activar mi cuenta
@@ -483,11 +500,12 @@ export default function ExpiradoClient({
             </div>
             <h2
               style={{
-                fontSize: "clamp(1.5rem, 4vw, 2rem)",
+                fontSize: "clamp(1.4rem, 4vw, 2rem)",
                 fontWeight: 800,
                 color: "#000000",
                 margin: "0 0 0.75rem 0",
                 letterSpacing: "-0.02em",
+                wordBreak: "break-word",
               }}
             >
               Cuantos más meses usás Nevux,{" "}
@@ -508,7 +526,7 @@ export default function ExpiradoClient({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
               gap: "1rem",
             }}
           >
@@ -527,6 +545,7 @@ export default function ExpiradoClient({
                     borderRadius: "18px",
                     border: "1px solid #f3f4f6",
                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.04)",
+                    boxSizing: "border-box",
                   }}
                 >
                   <div
@@ -604,7 +623,7 @@ export default function ExpiradoClient({
             </div>
             <h2
               style={{
-                fontSize: "clamp(1.5rem, 4vw, 2rem)",
+                fontSize: "clamp(1.4rem, 4vw, 2rem)",
                 fontWeight: 800,
                 color: "#000000",
                 margin: "0 0 0.75rem 0",
@@ -646,6 +665,7 @@ export default function ExpiradoClient({
                     padding: "1.25rem",
                     borderRadius: "14px",
                     border: "1px solid #f3f4f6",
+                    boxSizing: "border-box",
                   }}
                 >
                   <div
@@ -742,6 +762,7 @@ export default function ExpiradoClient({
                     cursor: "pointer",
                     fontFamily: "inherit",
                     textAlign: "left",
+                    boxSizing: "border-box",
                   }}
                 >
                   <span
@@ -750,6 +771,7 @@ export default function ExpiradoClient({
                       fontWeight: 700,
                       color: "#000000",
                       flex: 1,
+                      minWidth: 0,
                     }}
                   >
                     {faq.q}
@@ -757,6 +779,7 @@ export default function ExpiradoClient({
                   <motion.div
                     animate={{ rotate: openFaq === i ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
+                    style={{ flexShrink: 0 }}
                   >
                     <ChevronDown
                       size={18}
@@ -799,11 +822,12 @@ export default function ExpiradoClient({
           transition={{ duration: 0.5 }}
           style={{
             textAlign: "center",
-            padding: "2rem",
+            padding: "2rem 1.25rem",
             background: "white",
             borderRadius: "20px",
             border: "1px solid #f3f4f6",
             marginBottom: "2rem",
+            boxSizing: "border-box",
           }}
         >
           <h3
@@ -889,4 +913,4 @@ export default function ExpiradoClient({
       </div>
     </div>
   );
-  }
+    }
