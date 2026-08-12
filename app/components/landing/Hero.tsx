@@ -1,10 +1,43 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Sparkles, Zap, TrendingUp, Package } from "lucide-react";
 
 export default function Hero() {
+  // ─── Contador animado de widgets (+1 → +15, loop infinito) ───
+  const [widgetCount, setWidgetCount] = useState(1);
+
+  useEffect(() => {
+    let currentCount = 1;
+    let timeoutId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout;
+
+    const startCounting = () => {
+      currentCount = 1;
+      setWidgetCount(1);
+
+      intervalId = setInterval(() => {
+        currentCount++;
+        setWidgetCount(currentCount);
+
+        if (currentCount >= 15) {
+          clearInterval(intervalId);
+          // Pausa de 2 segundos antes de reiniciar
+          timeoutId = setTimeout(startCounting, 2000);
+        }
+      }, 120);
+    };
+
+    startCounting();
+
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   return (
     <section
       style={{
@@ -117,9 +150,12 @@ export default function Hero() {
           <span
             style={{
               color: "#FF0000",
+              display: "inline-block",
+              minWidth: "5.5ch",
+              textAlign: "left",
             }}
           >
-            +12 widgets
+            +{widgetCount} widgets
           </span>{" "}
           interactivos en tu Tiendanube
         </motion.h1>
@@ -193,18 +229,19 @@ export default function Hero() {
           </Link>
         </motion.div>
 
-        {/* Widgets flotantes animados */}
+        {/* Widgets flotantes animados — contenedor centrado con ancho fijo */}
         <div
           style={{
             marginTop: "4rem",
             position: "relative",
             height: "320px",
-            maxWidth: "500px",
+            width: "min(340px, 100%)",
+            maxWidth: "340px",
             marginLeft: "auto",
             marginRight: "auto",
           }}
         >
-          {/* Card contenedora blanca */}
+          {/* Card contenedora blanca — centrada en el wrapper */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -220,7 +257,7 @@ export default function Hero() {
               boxShadow:
                 "0 20px 60px rgba(255, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.05)",
               border: "1px solid #f3f4f6",
-              width: "min(340px, 90%)",
+              width: "100%",
               display: "flex",
               flexDirection: "column",
               gap: "0.75rem",
@@ -249,9 +286,9 @@ export default function Hero() {
             />
           </motion.div>
 
-          {/* Píldora flotante izquierda superior */}
+          {/* Píldora flotante izquierda superior — ahora relativa al wrapper */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{
               opacity: 1,
               x: 0,
@@ -269,8 +306,8 @@ export default function Hero() {
             }}
             style={{
               position: "absolute",
-              top: "10%",
-              left: "0%",
+              top: "5%",
+              left: "-8%",
               background: "white",
               padding: "0.6rem 1rem",
               borderRadius: "14px",
@@ -282,15 +319,17 @@ export default function Hero() {
               fontSize: "0.8rem",
               fontWeight: 600,
               color: "#FF0000",
+              whiteSpace: "nowrap",
+              zIndex: 3,
             }}
           >
             <Package size={14} />
             +45% ventas
           </motion.div>
 
-          {/* Píldora flotante derecha inferior */}
+          {/* Píldora flotante derecha inferior — ahora relativa al wrapper */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{
               opacity: 1,
               x: 0,
@@ -309,7 +348,7 @@ export default function Hero() {
             style={{
               position: "absolute",
               bottom: "5%",
-              right: "0%",
+              right: "-8%",
               background: "white",
               padding: "0.6rem 1rem",
               borderRadius: "14px",
@@ -321,6 +360,8 @@ export default function Hero() {
               fontSize: "0.8rem",
               fontWeight: 600,
               color: "#000000",
+              whiteSpace: "nowrap",
+              zIndex: 3,
             }}
           >
             <Sparkles size={14} />
@@ -414,4 +455,4 @@ function FloatingWidget({
       <span>{text}</span>
     </motion.div>
   );
-          }
+            }
