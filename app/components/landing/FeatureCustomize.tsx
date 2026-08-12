@@ -6,10 +6,10 @@ import { Palette, Sparkles } from "lucide-react";
 
 // Colores disponibles para el botón
 const buttonColors = [
-  { name: "Violeta", value: "#6366f1", gradient: "linear-gradient(135deg, #6366f1, #8b5cf6)" },
+  { name: "Rojo", value: "#FF0000", gradient: "linear-gradient(135deg, #FF0000, #cc0000)" },
   { name: "Negro", value: "#111827", gradient: "linear-gradient(135deg, #111827, #374151)" },
   { name: "Verde", value: "#10b981", gradient: "linear-gradient(135deg, #10b981, #059669)" },
-  { name: "Rojo", value: "#ef4444", gradient: "linear-gradient(135deg, #ef4444, #dc2626)" },
+  { name: "Rojo oscuro", value: "#ef4444", gradient: "linear-gradient(135deg, #ef4444, #dc2626)" },
   { name: "Azul", value: "#3b82f6", gradient: "linear-gradient(135deg, #3b82f6, #2563eb)" },
   { name: "Naranja", value: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b, #d97706)" },
 ];
@@ -35,7 +35,7 @@ export default function FeatureCustomize() {
     <section
       style={{
         padding: "5rem 1.25rem",
-        background: "linear-gradient(180deg, #eef2ff 0%, #f9fafb 100%)",
+        background: "#ffffff",
       }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -60,7 +60,7 @@ export default function FeatureCustomize() {
               background: "white",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#6366f1",
+              color: "#FF0000",
               fontWeight: 700,
               letterSpacing: "0.02em",
               border: "1px solid #e5e7eb",
@@ -81,7 +81,7 @@ export default function FeatureCustomize() {
           style={{
             fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
             fontWeight: 800,
-            color: "#111827",
+            color: "#000000",
             textAlign: "center",
             margin: "0 0 1rem 0",
             letterSpacing: "-0.02em",
@@ -91,10 +91,7 @@ export default function FeatureCustomize() {
           Customiza los widgets{" "}
           <span
             style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#FF0000",
             }}
           >
             a tu medida
@@ -109,17 +106,18 @@ export default function FeatureCustomize() {
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{
             fontSize: "clamp(1rem, 2vw, 1.15rem)",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             textAlign: "center",
             lineHeight: 1.6,
             maxWidth: "680px",
             margin: "0 auto 1rem auto",
           }}
         >
-          Edita <strong style={{ color: "#374151" }}>colores</strong>,{" "}
-          <strong style={{ color: "#374151" }}>textos</strong>,{" "}
-          <strong style={{ color: "#374151" }}>productos</strong> y{" "}
-          <strong style={{ color: "#374151" }}>estilos</strong> para que cada
+          Edita <strong style={{ color: "#000000", opacity: 1 }}>colores</strong>,{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>textos</strong>,{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>productos</strong> y{" "}
+          <strong style={{ color: "#000000", opacity: 1 }}>estilos</strong> para que cada
           widget se adapte perfectamente a tu tienda y a tu marca.
         </motion.p>
 
@@ -132,7 +130,7 @@ export default function FeatureCustomize() {
           style={{
             textAlign: "center",
             fontSize: "0.85rem",
-            color: "#6366f1",
+            color: "#FF0000",
             fontWeight: 600,
             margin: "0 0 3rem 0",
           }}
@@ -160,7 +158,7 @@ export default function FeatureCustomize() {
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(99, 102, 241, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
@@ -177,10 +175,25 @@ export default function FeatureCustomize() {
               }}
             >
               <div>
-                <div style={{ fontSize: "0.7rem", color: "#9ca3af", fontWeight: 600, letterSpacing: "0.05em" }}>
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    color: "#000000",
+                    opacity: 0.5,
+                    fontWeight: 600,
+                    letterSpacing: "0.05em",
+                  }}
+                >
                   PREVIEW EN VIVO
                 </div>
-                <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#111827", marginTop: "0.15rem" }}>
+                <div
+                  style={{
+                    fontSize: "0.9rem",
+                    fontWeight: 700,
+                    color: "#000000",
+                    marginTop: "0.15rem",
+                  }}
+                >
                   Widget de Bundle
                 </div>
               </div>
@@ -292,7 +305,8 @@ export default function FeatureCustomize() {
             <p
               style={{
                 fontSize: "0.7rem",
-                color: "#9ca3af",
+                color: "#000000",
+                opacity: 0.5,
                 textAlign: "center",
                 marginTop: "0.75rem",
                 marginBottom: 0,
@@ -311,7 +325,7 @@ export default function FeatureCustomize() {
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(99, 102, 241, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
@@ -324,10 +338,25 @@ export default function FeatureCustomize() {
                 borderBottom: "1px solid #f3f4f6",
               }}
             >
-              <div style={{ fontSize: "0.7rem", color: "#9ca3af", fontWeight: 600, letterSpacing: "0.05em" }}>
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  color: "#000000",
+                  opacity: 0.5,
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                }}
+              >
                 CONFIGURACIÓN
               </div>
-              <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#111827", marginTop: "0.15rem" }}>
+              <div
+                style={{
+                  fontSize: "0.9rem",
+                  fontWeight: 700,
+                  color: "#000000",
+                  marginTop: "0.15rem",
+                }}
+              >
                 Estilo del botón
               </div>
             </div>
@@ -353,7 +382,7 @@ export default function FeatureCustomize() {
                       background: color.gradient,
                       border:
                         selectedColor.value === color.value
-                          ? "3px solid #111827"
+                          ? "3px solid #000000"
                           : "3px solid transparent",
                       borderRadius: "8px",
                       cursor: "pointer",
@@ -387,7 +416,8 @@ export default function FeatureCustomize() {
                 style={{
                   marginTop: "0.5rem",
                   fontSize: "0.75rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                   fontFamily: "monospace",
                 }}
               >
@@ -414,19 +444,20 @@ export default function FeatureCustomize() {
                       padding: "0.55rem 0.5rem",
                       background:
                         selectedRadius.value === option.value
-                          ? "linear-gradient(135deg, #eef2ff, #ede9fe)"
+                          ? "#fff5f5"
                           : "white",
                       border:
                         selectedRadius.value === option.value
-                          ? "1.5px solid #6366f1"
+                          ? "1.5px solid #FF0000"
                           : "1.5px solid #e5e7eb",
                       borderRadius: "8px",
                       fontSize: "0.7rem",
                       fontWeight: 600,
                       color:
                         selectedRadius.value === option.value
-                          ? "#6366f1"
-                          : "#6b7280",
+                          ? "#FF0000"
+                          : "#000000",
+                      opacity: selectedRadius.value === option.value ? 1 : 0.6,
                       cursor: "pointer",
                       fontFamily: "inherit",
                       transition: "all 0.15s",
@@ -457,19 +488,20 @@ export default function FeatureCustomize() {
                       padding: "0.55rem 0.5rem",
                       background:
                         selectedEffect.value === effect.value
-                          ? "linear-gradient(135deg, #eef2ff, #ede9fe)"
+                          ? "#fff5f5"
                           : "white",
                       border:
                         selectedEffect.value === effect.value
-                          ? "1.5px solid #6366f1"
+                          ? "1.5px solid #FF0000"
                           : "1.5px solid #e5e7eb",
                       borderRadius: "8px",
                       fontSize: "0.7rem",
                       fontWeight: 600,
                       color:
                         selectedEffect.value === effect.value
-                          ? "#6366f1"
-                          : "#6b7280",
+                          ? "#FF0000"
+                          : "#000000",
+                      opacity: selectedEffect.value === effect.value ? 1 : 0.6,
                       cursor: "pointer",
                       fontFamily: "inherit",
                       transition: "all 0.15s",
@@ -486,15 +518,15 @@ export default function FeatureCustomize() {
               style={{
                 marginTop: "auto",
                 padding: "0.75rem",
-                background: "linear-gradient(135deg, #eef2ff, #ede9fe)",
+                background: "#fff5f5",
                 borderRadius: "10px",
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "0.5rem",
               }}
             >
-              <Sparkles size={14} color="#6366f1" style={{ marginTop: "2px", flexShrink: 0 }} />
-              <p style={{ fontSize: "0.75rem", color: "#4f46e5", margin: 0, lineHeight: 1.4 }}>
+              <Sparkles size={14} color="#FF0000" style={{ marginTop: "2px", flexShrink: 0 }} />
+              <p style={{ fontSize: "0.75rem", color: "#000000", margin: 0, lineHeight: 1.4 }}>
                 <strong>Y hay más:</strong> también podés editar textos,
                 fuentes, badges, animaciones y mucho más.
               </p>
@@ -509,7 +541,7 @@ export default function FeatureCustomize() {
 // Estilo de labels
 const labelStyle: React.CSSProperties = {
   fontSize: "0.75rem",
-  color: "#374151",
+  color: "#000000",
   fontWeight: 600,
   display: "block",
 };
@@ -586,7 +618,7 @@ function PackOption({
             flexWrap: "wrap",
           }}
         >
-          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#111827" }}>
+          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#000000" }}>
             {title}
           </span>
           {badge && (
@@ -605,11 +637,11 @@ function PackOption({
             </span>
           )}
         </div>
-        <div style={{ fontSize: "0.65rem", color: "#6b7280" }}>{subtitle}</div>
+        <div style={{ fontSize: "0.65rem", color: "#000000", opacity: 0.6 }}>{subtitle}</div>
       </div>
-      <div style={{ fontSize: "0.85rem", fontWeight: 800, color: "#111827" }}>
+      <div style={{ fontSize: "0.85rem", fontWeight: 800, color: "#000000" }}>
         ${price}
       </div>
     </div>
   );
-    }
+}
