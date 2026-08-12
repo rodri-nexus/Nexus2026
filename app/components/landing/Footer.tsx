@@ -11,7 +11,7 @@ export default function Footer() {
   return (
     <footer
       style={{
-        background: "linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%)",
+        background: "#ffffff",
         borderTop: "1px solid #e5e7eb",
         padding: "3.5rem 1.25rem 1.5rem 1.25rem",
       }}
@@ -39,7 +39,8 @@ export default function Footer() {
             <p
               style={{
                 fontSize: "0.9rem",
-                color: "#6b7280",
+                color: "#000000",
+                opacity: 0.6,
                 lineHeight: 1.6,
                 margin: "0 0 1.25rem 0",
                 maxWidth: "280px",
@@ -60,11 +61,13 @@ export default function Footer() {
                 border: "1px solid #e5e7eb",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
-                color: "#6b7280",
+                color: "#000000",
+                opacity: 0.6,
                 fontWeight: 500,
               }}
             >
               <span>Hecho para</span>
+              {/* Logo Tiendanube — se mantiene en su azul original */}
               <svg
                 width="75"
                 height="14"
@@ -115,7 +118,7 @@ export default function Footer() {
             </ul>
           </motion.div>
 
-          {/* Columna 3: Empresa */}
+          {/* Columna 3: Ayuda */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -166,7 +169,7 @@ export default function Footer() {
               </li>
             </ul>
 
-            {/* CTA WhatsApp destacado */}
+            {/* CTA WhatsApp — SE MANTIENE VERDE (WhatsApp universal) */}
             <a
               href="https://wa.me/5493434163999"
               target="_blank"
@@ -215,7 +218,8 @@ export default function Footer() {
           <p
             style={{
               fontSize: "0.85rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
               margin: 0,
               fontWeight: 500,
             }}
@@ -226,7 +230,8 @@ export default function Footer() {
           <p
             style={{
               fontSize: "0.8rem",
-              color: "#9ca3af",
+              color: "#000000",
+              opacity: 0.5,
               margin: 0,
               display: "flex",
               alignItems: "center",
@@ -235,6 +240,7 @@ export default function Footer() {
             }}
           >
             Hecho con{" "}
+            {/* Corazón rojo — semántico amor/Argentina, se mantiene */}
             <Heart
               size={13}
               fill="#ef4444"
@@ -253,7 +259,7 @@ export default function Footer() {
 const columnTitleStyle: React.CSSProperties = {
   fontSize: "0.85rem",
   fontWeight: 700,
-  color: "#111827",
+  color: "#000000",
   margin: "0 0 1rem 0",
   letterSpacing: "0.02em",
   textTransform: "uppercase",
@@ -269,7 +275,8 @@ const listStyle: React.CSSProperties = {
 };
 
 const linkStyle: React.CSSProperties = {
-  color: "#4b5563",
+  color: "#000000",
+  opacity: 0.7,
   textDecoration: "none",
   fontSize: "0.9rem",
   fontWeight: 500,
