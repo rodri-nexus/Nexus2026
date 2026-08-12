@@ -13,7 +13,7 @@ export default function VerificarEmailPage() {
         alignItems: "center",
         justifyContent: "center",
         padding: "1.5rem",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#f9fafb",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
@@ -28,7 +28,7 @@ export default function VerificarEmailPage() {
           borderRadius: "20px",
           padding: "3rem 2rem",
           boxShadow:
-            "0 20px 60px rgba(99, 102, 241, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05)",
+            "0 20px 60px rgba(255, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05)",
           textAlign: "center",
         }}
       >
@@ -41,12 +41,12 @@ export default function VerificarEmailPage() {
             width: "80px",
             height: "80px",
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            background: "#FF0000",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 1.5rem auto",
-            boxShadow: "0 10px 30px rgba(99, 102, 241, 0.3)",
+            boxShadow: "0 10px 30px rgba(255, 0, 0, 0.3)",
           }}
         >
           <Mail size={40} color="white" strokeWidth={2} />
@@ -60,7 +60,7 @@ export default function VerificarEmailPage() {
           style={{
             fontSize: "1.75rem",
             fontWeight: 800,
-            color: "#111827",
+            color: "#000000",
             margin: "0 0 0.75rem 0",
             letterSpacing: "-0.02em",
           }}
@@ -74,7 +74,8 @@ export default function VerificarEmailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           style={{
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             fontSize: "1rem",
             lineHeight: 1.6,
             margin: "0 0 2rem 0",
@@ -106,11 +107,16 @@ export default function VerificarEmailPage() {
               marginBottom: "0.75rem",
             }}
           >
-            <CheckCircle2 size={20} color="#10b981" style={{ flexShrink: 0, marginTop: "2px" }} />
-            <div style={{ fontSize: "0.9rem", color: "#374151" }}>
+            {/* CheckCircle verde — semántico confirmación, se mantiene */}
+            <CheckCircle2
+              size={20}
+              color="#10b981"
+              style={{ flexShrink: 0, marginTop: "2px" }}
+            />
+            <div style={{ fontSize: "0.9rem", color: "#000000" }}>
               <strong>Revisá tu bandeja de entrada</strong>
               <br />
-              <span style={{ color: "#6b7280", fontSize: "0.85rem" }}>
+              <span style={{ color: "#000000", opacity: 0.6, fontSize: "0.85rem" }}>
                 A veces puede tardar unos minutos en llegar
               </span>
             </div>
@@ -122,11 +128,16 @@ export default function VerificarEmailPage() {
               gap: "0.75rem",
             }}
           >
-            <CheckCircle2 size={20} color="#10b981" style={{ flexShrink: 0, marginTop: "2px" }} />
-            <div style={{ fontSize: "0.9rem", color: "#374151" }}>
+            {/* CheckCircle verde — semántico confirmación, se mantiene */}
+            <CheckCircle2
+              size={20}
+              color="#10b981"
+              style={{ flexShrink: 0, marginTop: "2px" }}
+            />
+            <div style={{ fontSize: "0.9rem", color: "#000000" }}>
               <strong>¿No lo encontrás?</strong>
               <br />
-              <span style={{ color: "#6b7280", fontSize: "0.85rem" }}>
+              <span style={{ color: "#000000", opacity: 0.6, fontSize: "0.85rem" }}>
                 Revisá la carpeta de spam o correo no deseado
               </span>
             </div>
@@ -142,7 +153,7 @@ export default function VerificarEmailPage() {
           <Link
             href="/login"
             style={{
-              color: "#6366f1",
+              color: "#FF0000",
               fontWeight: 600,
               textDecoration: "none",
               fontSize: "0.95rem",
@@ -154,4 +165,4 @@ export default function VerificarEmailPage() {
       </motion.div>
     </div>
   );
-          }
+        }
