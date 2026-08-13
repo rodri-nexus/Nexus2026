@@ -74,6 +74,12 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
     progressPercent = Math.min(100, Math.max(0, (current / total) * 100));
   }
 
+  // Cuántos meses faltan hasta la próxima recompensa
+  const monthsToNext = nextReward ? nextReward.month - monthsActive : 0;
+  const monthsToNextLabel = `${monthsToNext} ${
+    monthsToNext === 1 ? "mes restante" : "meses restantes"
+  }`;
+
   // ─── ESTILOS SEGÚN ESTADO ─────────────────
   const gradientBg = isVIP
     ? "linear-gradient(135deg, #FF0000 0%, #000000 100%)"
@@ -267,6 +273,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
                   marginTop: "0.2rem",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {daysRemaining > 0
@@ -298,6 +305,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               marginBottom: "1.25rem",
               fontSize: "0.85rem",
               color: textColor,
+              flexWrap: "wrap",
             }}
           >
             <Calendar size={15} style={{ opacity: 0.6, flexShrink: 0 }} />
@@ -324,14 +332,14 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
             <div
               style={{
                 display: "flex",
-                alignItems: "baseline",
+                alignItems: "flex-start",
                 justifyContent: "space-between",
-                gap: "0.5rem",
-                marginBottom: nextReward ? "1rem" : "0.5rem",
+                gap: "0.75rem",
+                marginBottom: nextReward ? "1.25rem" : "0.5rem",
                 flexWrap: "wrap",
               }}
             >
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div
                   style={{
                     fontSize: "0.7rem",
@@ -340,13 +348,13 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                     opacity: isVIP ? 0.75 : 0.5,
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
-                    marginBottom: "0.2rem",
+                    marginBottom: "0.25rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
                   }}
                 >
-                  <TrendingUp
-                    size={11}
-                    style={{ display: "inline", marginRight: "0.3rem" }}
-                  />
+                  <TrendingUp size={11} />
                   Fidelidad
                 </div>
                 <div
@@ -376,9 +384,10 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                 <div
                   style={{
                     display: "flex",
-                    gap: "0.3rem",
+                    gap: "0.35rem",
                     flexWrap: "wrap",
                     justifyContent: "flex-end",
+                    alignItems: "center",
                   }}
                 >
                   {unlockedRewards.map((r) => (
@@ -388,15 +397,16 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: "0.25rem",
-                        padding: "0.3rem 0.6rem",
+                        gap: "0.3rem",
+                        padding: "0.3rem 0.65rem",
                         background: isVIP
                           ? "rgba(255,255,255,0.2)"
                           : "#FF0000",
                         color: "#ffffff",
                         borderRadius: "999px",
-                        fontSize: "0.68rem",
+                        fontSize: "0.7rem",
                         fontWeight: 700,
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {r.icon}
@@ -410,27 +420,36 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
             {/* Barra de progreso hacia próxima recompensa */}
             {nextReward && (
               <div>
+                {/* Header progreso — FIX: layout que no se rompe en angostas */}
                 <div
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginBottom: "0.5rem",
+                    gap: "0.75rem",
+                    marginBottom: "0.6rem",
                     fontSize: "0.78rem",
                     color: textColor,
-                    opacity: isVIP ? 0.85 : 0.7,
-                    fontWeight: 600,
+                    flexWrap: "wrap",
                   }}
                 >
-                  <span>
+                  <span
+                    style={{
+                      opacity: isVIP ? 0.85 : 0.7,
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     Próxima recompensa · Mes {nextReward.month}
                   </span>
-                  <span style={{ fontWeight: 700 }}>
-                    {nextReward.month - monthsActive}{" "}
-                    {nextReward.month - monthsActive === 1
-                      ? "mes"
-                      : "meses"}{" "}
-                    restante{nextReward.month - monthsActive === 1 ? "" : "s"}
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      whiteSpace: "nowrap",
+                      color: isVIP ? "#ffffff" : "#FF0000",
+                    }}
+                  >
+                    {monthsToNextLabel}
                   </span>
                 </div>
 
@@ -443,7 +462,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                       : "#e5e7eb",
                     borderRadius: "999px",
                     overflow: "hidden",
-                    marginBottom: "0.6rem",
+                    marginBottom: "0.75rem",
                   }}
                 >
                   <motion.div
@@ -464,9 +483,9 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.6rem 0.85rem",
+                    alignItems: "flex-start",
+                    gap: "0.6rem",
+                    padding: "0.7rem 0.9rem",
                     background: isVIP
                       ? "rgba(255,255,255,0.1)"
                       : "#ffffff",
@@ -474,8 +493,9 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                       ? "1px solid rgba(255,255,255,0.2)"
                       : "1px dashed #FF0000",
                     borderRadius: "10px",
-                    fontSize: "0.78rem",
+                    fontSize: "0.8rem",
                     color: textColor,
+                    lineHeight: 1.4,
                   }}
                 >
                   <span
@@ -483,6 +503,8 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                       color: isVIP ? "#ffffff" : "#FF0000",
                       display: "inline-flex",
                       alignItems: "center",
+                      flexShrink: 0,
+                      marginTop: "1px",
                     }}
                   >
                     {nextReward.icon}
@@ -518,9 +540,10 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                   fontSize: "0.82rem",
                   color: "#ffffff",
                   marginTop: "0.5rem",
+                  lineHeight: 1.4,
                 }}
               >
-                <Crown size={16} />
+                <Crown size={16} style={{ flexShrink: 0 }} />
                 <span style={{ fontWeight: 600 }}>
                   Desbloqueaste todas las recompensas · Sos parte de la élite
                 </span>
@@ -558,4 +581,4 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
       </div>
     </motion.div>
   );
-      }
+    }
