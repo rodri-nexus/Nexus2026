@@ -85,7 +85,10 @@ export default function DashboardClient({
     : null;
 
   return (
-    <TutorialProvider initialCompleted={onboardingCompleted}>
+    <TutorialProvider
+      initialCompleted={onboardingCompleted}
+      userId={userId}
+    >
       <div
         style={{
           minHeight: "100vh",
@@ -354,4 +357,4 @@ export default function DashboardClient({
       </div>
     </TutorialProvider>
   );
-      }
+          }
