@@ -35,20 +35,50 @@ export function useTutorial() {
   return ctx;
 }
 
-const STORAGE_KEY = "nevux_tutorial_completed";
+// ─── Helper para armar la clave por usuario ───
+// Cada usuario tiene su propia key en localStorage para que el tutorial
+// se muestre correctamente cuando cambia el usuario logueado en el mismo navegador.
+const OLD_STORAGE_KEY = "nevux_tutorial_completed"; // clave vieja (compartida entre usuarios)
+
+function getStorageKey(userId: string | null | undefined): string {
+  if (userId) {
+    return `nevux_tutorial_completed_${userId}`;
+  }
+  // Fallback muy defensivo: si por algún motivo no viene el userId,
+  // usamos la clave vieja para no romper.
+  return OLD_STORAGE_KEY;
+}
 
 // ─── Provider ───
 
 interface TutorialProviderProps {
   children: ReactNode;
   initialCompleted: boolean;
+  userId: string | null;
 }
 
 export default function TutorialProvider({
   children,
   initialCompleted,
+  userId,
 }: TutorialProviderProps) {
-  // localStorage como fuente de verdad del navegador
+  // Cleanup: borrar la clave vieja (sin userId) para no dejar basura de la versión anterior.
+  // Se ejecuta 1 sola vez al montar el componente en el browser.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (localStorage.getItem(OLD_STORAGE_KEY) !== null) {
+        localStorage.removeItem(OLD_STORAGE_KEY);
+      }
+    } catch {
+      // Ignorar errores de localStorage (modo privado, etc.)
+    }
+  }, []);
+
+  // Clave dinámica por usuario
+  const STORAGE_KEY = getStorageKey(userId);
+
+  // localStorage como fuente de verdad del navegador (por usuario)
   const wasCompletedInBrowser =
     typeof window !== "undefined"
       ? localStorage.getItem(STORAGE_KEY) === "true"
@@ -72,7 +102,11 @@ export default function TutorialProvider({
 
   const markAsCompleted = useCallback(async () => {
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, "true");
+      try {
+        localStorage.setItem(STORAGE_KEY, "true");
+      } catch {
+        // Ignorar errores de localStorage
+      }
     }
 
     try {
@@ -84,7 +118,7 @@ export default function TutorialProvider({
     } catch (err) {
       console.error("Error al marcar onboarding como completado:", err);
     }
-  }, []);
+  }, [STORAGE_KEY]);
 
   // ─── Navegación ───
 
@@ -198,4 +232,4 @@ export default function TutorialProvider({
       )}
     </TutorialContext.Provider>
   );
-      }
+    }
