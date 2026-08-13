@@ -1,0 +1,1581 @@
+// app/admin/pagos/AdminPagosClient.tsx
+"use client";
+
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Clock,
+  CheckCircle2,
+  XCircle,
+  DollarSign,
+  Eye,
+  Check,
+  X,
+  Loader2,
+  LogOut,
+  Shield,
+  AlertCircle,
+  Calendar,
+  User,
+  Store,
+  Copy,
+  FileText,
+  Image as ImageIcon,
+  ExternalLink,
+} from "lucide-react";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
+import { createClient } from "@/lib/supabase-browser";
+import type { PaymentWithUser } from "./page";
+
+interface AdminPagosClientProps {
+  adminEmail: string;
+  payments: PaymentWithUser[];
+  stats: {
+    pending: number;
+    approved: number;
+    rejected: number;
+    totalRevenue: number;
+  };
+}
+
+type TabKey = "pending" | "approved" | "rejected" | "all";
+
+export default function AdminPagosClient({
+  adminEmail,
+  payments,
+  stats,
+}: AdminPagosClientProps) {
+  const router = useRouter();
+
+  const [activeTab, setActiveTab] = useState<TabKey>("pending");
+  const [viewingReceipt, setViewingReceipt] = useState<PaymentWithUser | null>(
+    null
+  );
+  const [approvingPayment, setApprovingPayment] =
+    useState<PaymentWithUser | null>(null);
+  const [rejectingPayment, setRejectingPayment] =
+    useState<PaymentWithUser | null>(null);
+
+  // Filtrado por tab
+  const filteredPayments = useMemo(() => {
+    if (activeTab === "all") return payments;
+    return payments.filter((p) => p.status === activeTab);
+  }, [payments, activeTab]);
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        maxWidth: "100vw",
+        background: "#f9fafb",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        overflow: "hidden",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          background: "white",
+          borderBottom: "1px solid #f3f4f6",
+          padding: "1rem 1.25rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          gap: "1rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <NevuxLogo size="small" />
+          <div
+            style={{
+              padding: "0.25rem 0.6rem",
+              background: "#000000",
+              color: "white",
+              borderRadius: "6px",
+              fontSize: "0.65rem",
+              fontWeight: 800,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+            }}
+          >
+            Admin
+          </div>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.35rem",
+            padding: "0.5rem 0.85rem",
+            background: "transparent",
+            border: "1px solid #e5e7eb",
+            borderRadius: "8px",
+            color: "#000000",
+            fontSize: "0.8rem",
+            fontWeight: 600,
+            cursor: "pointer",
+            fontFamily: "inherit",
+          }}
+        >
+          <LogOut size={14} />
+          Salir
+        </button>
+      </header>
+
+      {/* Contenido */}
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "1.5rem 1rem 3rem 1rem",
+          boxSizing: "border-box",
+        }}
+      >
+        {/* Título */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h1
+            style={{
+              fontSize: "clamp(1.5rem, 4vw, 2rem)",
+              fontWeight: 800,
+              color: "#000000",
+              margin: "0 0 0.4rem 0",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Panel de pagos
+          </h1>
+          <p
+            style={{
+              fontSize: "0.9rem",
+              color: "#000000",
+              opacity: 0.6,
+              margin: 0,
+            }}
+          >
+            Aprobá o rechazá los pagos de los clientes
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gap: "0.75rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <StatCard
+            icon={<Clock size={18} />}
+            label="Pendientes"
+            value={stats.pending}
+            color="#f59e0b"
+            bg="#fef3c7"
+            highlight={stats.pending > 0}
+          />
+          <StatCard
+            icon={<CheckCircle2 size={18} />}
+            label="Aprobados"
+            value={stats.approved}
+            color="#059669"
+            bg="#d1fae5"
+          />
+          <StatCard
+            icon={<XCircle size={18} />}
+            label="Rechazados"
+            value={stats.rejected}
+            color="#dc2626"
+            bg="#fee2e2"
+          />
+          <StatCard
+            icon={<DollarSign size={18} />}
+            label="Ingresos totales"
+            value={`$${stats.totalRevenue.toLocaleString("es-AR")}`}
+            color="#FF0000"
+            bg="#fff5f5"
+            isText
+          />
+        </div>
+
+        {/* Tabs */}
+        <div
+          style={{
+            display: "flex",
+            gap: "0.35rem",
+            marginBottom: "1.25rem",
+            overflowX: "auto",
+            paddingBottom: "0.25rem",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <TabButton
+            active={activeTab === "pending"}
+            onClick={() => setActiveTab("pending")}
+            count={stats.pending}
+            urgent={stats.pending > 0}
+          >
+            Pendientes
+          </TabButton>
+          <TabButton
+            active={activeTab === "approved"}
+            onClick={() => setActiveTab("approved")}
+            count={stats.approved}
+          >
+            Aprobados
+          </TabButton>
+          <TabButton
+            active={activeTab === "rejected"}
+            onClick={() => setActiveTab("rejected")}
+            count={stats.rejected}
+          >
+            Rechazados
+          </TabButton>
+          <TabButton
+            active={activeTab === "all"}
+            onClick={() => setActiveTab("all")}
+            count={payments.length}
+          >
+            Todos
+          </TabButton>
+        </div>
+
+        {/* Lista de pagos */}
+        {filteredPayments.length === 0 ? (
+          <EmptyState tab={activeTab} />
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.75rem",
+            }}
+          >
+            {filteredPayments.map((payment) => (
+              <PaymentCard
+                key={payment.id}
+                payment={payment}
+                onViewReceipt={() => setViewingReceipt(payment)}
+                onApprove={() => setApprovingPayment(payment)}
+                onReject={() => setRejectingPayment(payment)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div
+          style={{
+            marginTop: "2rem",
+            textAlign: "center",
+            fontSize: "0.75rem",
+            color: "#000000",
+            opacity: 0.5,
+          }}
+        >
+          Admin · {adminEmail}
+        </div>
+      </div>
+
+      {/* Modales */}
+      <AnimatePresence>
+        {viewingReceipt && (
+          <ReceiptModal
+            payment={viewingReceipt}
+            onClose={() => setViewingReceipt(null)}
+          />
+        )}
+        {approvingPayment && (
+          <ApproveModal
+            payment={approvingPayment}
+            onClose={() => setApprovingPayment(null)}
+            onSuccess={() => {
+              setApprovingPayment(null);
+              router.refresh();
+            }}
+          />
+        )}
+        {rejectingPayment && (
+          <RejectModal
+            payment={rejectingPayment}
+            onClose={() => setRejectingPayment(null)}
+            onSuccess={() => {
+              setRejectingPayment(null);
+              router.refresh();
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// STAT CARD
+// ═══════════════════════════════════════════════
+function StatCard({
+  icon,
+  label,
+  value,
+  color,
+  bg,
+  isText = false,
+  highlight = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+  color: string;
+  bg: string;
+  isText?: boolean;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        background: "white",
+        padding: "1rem 1.15rem",
+        borderRadius: "14px",
+        border: highlight ? `2px solid ${color}` : "1px solid #f3f4f6",
+        boxShadow: highlight
+          ? `0 4px 20px ${color}25`
+          : "0 2px 8px rgba(0,0,0,0.03)",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "34px",
+          height: "34px",
+          borderRadius: "10px",
+          background: bg,
+          color: color,
+          marginBottom: "0.6rem",
+        }}
+      >
+        {icon}
+      </div>
+      <div
+        style={{
+          fontSize: "0.72rem",
+          color: "#000000",
+          opacity: 0.6,
+          fontWeight: 600,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          marginBottom: "0.15rem",
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: isText ? "1.1rem" : "1.5rem",
+          fontWeight: 800,
+          color: highlight ? color : "#000000",
+          letterSpacing: "-0.02em",
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// TAB BUTTON
+// ═══════════════════════════════════════════════
+function TabButton({
+  active,
+  onClick,
+  children,
+  count,
+  urgent = false,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  count: number;
+  urgent?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.4rem",
+        padding: "0.6rem 1rem",
+        background: active ? "#000000" : "white",
+        color: active ? "white" : "#000000",
+        border: active ? "1px solid #000000" : "1px solid #e5e7eb",
+        borderRadius: "999px",
+        fontSize: "0.85rem",
+        fontWeight: 700,
+        cursor: "pointer",
+        fontFamily: "inherit",
+        whiteSpace: "nowrap",
+        transition: "all 0.15s",
+      }}
+    >
+      {children}
+      {count > 0 && (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: "20px",
+            height: "20px",
+            padding: "0 6px",
+            background: active
+              ? "white"
+              : urgent
+              ? "#FF0000"
+              : "#f3f4f6",
+            color: active ? "#000000" : urgent ? "white" : "#000000",
+            borderRadius: "999px",
+            fontSize: "0.7rem",
+            fontWeight: 800,
+          }}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// EMPTY STATE
+// ═══════════════════════════════════════════════
+function EmptyState({ tab }: { tab: TabKey }) {
+  const messages: Record<TabKey, { icon: React.ReactNode; text: string }> = {
+    pending: {
+      icon: <Clock size={40} color="#000000" style={{ opacity: 0.3 }} />,
+      text: "No hay pagos pendientes por ahora",
+    },
+    approved: {
+      icon: <CheckCircle2 size={40} color="#000000" style={{ opacity: 0.3 }} />,
+      text: "Todavía no aprobaste ningún pago",
+    },
+    rejected: {
+      icon: <XCircle size={40} color="#000000" style={{ opacity: 0.3 }} />,
+      text: "Todavía no rechazaste ningún pago",
+    },
+    all: {
+      icon: <DollarSign size={40} color="#000000" style={{ opacity: 0.3 }} />,
+      text: "Todavía no hay ningún pago registrado",
+    },
+  };
+
+  return (
+    <div
+      style={{
+        background: "white",
+        borderRadius: "16px",
+        padding: "3rem 1.5rem",
+        textAlign: "center",
+        border: "1px solid #f3f4f6",
+      }}
+    >
+      <div style={{ marginBottom: "0.85rem" }}>{messages[tab].icon}</div>
+      <p
+        style={{
+          fontSize: "0.95rem",
+          color: "#000000",
+          opacity: 0.6,
+          margin: 0,
+          fontWeight: 500,
+        }}
+      >
+        {messages[tab].text}
+      </p>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// PAYMENT CARD
+// ═══════════════════════════════════════════════
+function PaymentCard({
+  payment,
+  onViewReceipt,
+  onApprove,
+  onReject,
+}: {
+  payment: PaymentWithUser;
+  onViewReceipt: () => void;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
+  const isPending = payment.status === "pending";
+  const isApproved = payment.status === "approved";
+  const isRejected = payment.status === "rejected";
+
+  const createdDate = new Date(payment.created_at);
+  const formattedDate = createdDate.toLocaleString("es-AR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const shortId = payment.id.slice(0, 8).toUpperCase();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        background: "white",
+        borderRadius: "14px",
+        padding: "1.15rem",
+        border: `1px solid ${
+          isPending ? "#fef3c7" : isApproved ? "#d1fae5" : "#fee2e2"
+        }`,
+        boxShadow: isPending
+          ? "0 4px 14px rgba(245, 158, 11, 0.08)"
+          : "0 2px 8px rgba(0,0,0,0.03)",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Header: status + fecha */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "0.5rem",
+          marginBottom: "0.85rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <StatusBadge status={payment.status} />
+        <div
+          style={{
+            fontSize: "0.7rem",
+            color: "#000000",
+            opacity: 0.5,
+            fontWeight: 600,
+          }}
+        >
+          {formattedDate}
+        </div>
+      </div>
+
+      {/* Monto */}
+      <div
+        style={{
+          fontSize: "1.75rem",
+          fontWeight: 900,
+          color: "#000000",
+          letterSpacing: "-0.02em",
+          lineHeight: 1,
+          marginBottom: "0.85rem",
+        }}
+      >
+        ${payment.amount.toLocaleString("es-AR")}
+      </div>
+
+      {/* Info del usuario */}
+      <div
+        style={{
+          background: "#f9fafb",
+          borderRadius: "10px",
+          padding: "0.85rem 1rem",
+          marginBottom: "0.85rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+        }}
+      >
+        <InfoRow
+          icon={<User size={13} />}
+          label="Cliente"
+          value={payment.user_email || "—"}
+        />
+        <InfoRow
+          icon={<Store size={13} />}
+          label="Tienda"
+          value={`#${payment.store_id}`}
+        />
+        <InfoRow
+          icon={<Calendar size={13} />}
+          label="Meses activo"
+          value={`${payment.store_months_active} ${
+            payment.store_months_active === 1 ? "mes" : "meses"
+          }`}
+        />
+        {payment.transfer_reference && (
+          <InfoRow
+            icon={<Copy size={13} />}
+            label="Ref."
+            value={payment.transfer_reference}
+            mono
+          />
+        )}
+        <InfoRow
+          icon={<Shield size={13} />}
+          label="ID pago"
+          value={`#${shortId}`}
+          mono
+        />
+      </div>
+
+      {/* Info de aprobación/rechazo */}
+      {isApproved && payment.approved_at && (
+        <div
+          style={{
+            background: "#d1fae5",
+            borderRadius: "10px",
+            padding: "0.65rem 0.85rem",
+            marginBottom: "0.85rem",
+            fontSize: "0.78rem",
+            color: "#065f46",
+            fontWeight: 600,
+          }}
+        >
+          ✓ Aprobado el{" "}
+          {new Date(payment.approved_at).toLocaleDateString("es-AR")}
+          {payment.approved_by && ` por ${payment.approved_by}`}
+        </div>
+      )}
+      {isRejected && payment.rejected_reason && (
+        <div
+          style={{
+            background: "#fee2e2",
+            borderRadius: "10px",
+            padding: "0.65rem 0.85rem",
+            marginBottom: "0.85rem",
+            fontSize: "0.78rem",
+            color: "#991b1b",
+            fontWeight: 600,
+          }}
+        >
+          ✗ Rechazado: {payment.rejected_reason}
+        </div>
+      )}
+
+      {/* Botones */}
+      <div
+        style={{
+          display: "flex",
+          gap: "0.5rem",
+          flexWrap: "wrap",
+        }}
+      >
+        {payment.receipt_url && (
+          <button
+            onClick={onViewReceipt}
+            style={{
+              flex: "1 1 100%",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.4rem",
+              padding: "0.7rem 1rem",
+              background: "#000000",
+              color: "white",
+              border: "none",
+              borderRadius: "10px",
+              fontSize: "0.85rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            <Eye size={15} />
+            Ver comprobante
+          </button>
+        )}
+        {isPending && (
+          <>
+            <button
+              onClick={onApprove}
+              style={{
+                flex: "1 1 45%",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.4rem",
+                padding: "0.7rem 1rem",
+                background: "#059669",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <Check size={15} />
+              Aprobar
+            </button>
+            <button
+              onClick={onReject}
+              style={{
+                flex: "1 1 45%",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.4rem",
+                padding: "0.7rem 1rem",
+                background: "white",
+                color: "#dc2626",
+                border: "1px solid #fecaca",
+                borderRadius: "10px",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <X size={15} />
+              Rechazar
+            </button>
+          </>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// STATUS BADGE
+// ═══════════════════════════════════════════════
+function StatusBadge({ status }: { status: string }) {
+  const config = {
+    pending: {
+      bg: "#fef3c7",
+      color: "#b45309",
+      icon: <Clock size={11} />,
+      text: "Pendiente",
+    },
+    approved: {
+      bg: "#d1fae5",
+      color: "#059669",
+      icon: <CheckCircle2 size={11} />,
+      text: "Aprobado",
+    },
+    rejected: {
+      bg: "#fee2e2",
+      color: "#dc2626",
+      icon: <XCircle size={11} />,
+      text: "Rechazado",
+    },
+  }[status] || {
+    bg: "#f3f4f6",
+    color: "#000000",
+    icon: <AlertCircle size={11} />,
+    text: status,
+  };
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.3rem",
+        padding: "0.3rem 0.7rem",
+        background: config.bg,
+        color: config.color,
+        borderRadius: "999px",
+        fontSize: "0.72rem",
+        fontWeight: 800,
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+      }}
+    >
+      {config.icon}
+      {config.text}
+    </span>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// INFO ROW
+// ═══════════════════════════════════════════════
+function InfoRow({
+  icon,
+  label,
+  value,
+  mono = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "0.5rem",
+        fontSize: "0.82rem",
+      }}
+    >
+      <span
+        style={{
+          color: "#000000",
+          opacity: 0.4,
+          display: "inline-flex",
+          alignItems: "center",
+        }}
+      >
+        {icon}
+      </span>
+      <span
+        style={{
+          color: "#000000",
+          opacity: 0.6,
+          fontWeight: 500,
+          minWidth: "70px",
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          color: "#000000",
+          fontWeight: 700,
+          flex: 1,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          fontFamily: mono
+            ? "'SF Mono', Monaco, Consolas, monospace"
+            : "inherit",
+          fontSize: mono ? "0.78rem" : "0.82rem",
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// MODAL: VER COMPROBANTE
+// ═══════════════════════════════════════════════
+function ReceiptModal({
+  payment,
+  onClose,
+}: {
+  payment: PaymentWithUser;
+  onClose: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [url, setUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useMemo(() => {
+    async function fetchUrl() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/admin/receipt-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId: payment.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error");
+        setUrl(data.url);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUrl();
+  }, [payment.id]);
+
+  const isPdf = url?.toLowerCase().includes(".pdf");
+
+  return (
+    <ModalBackdrop onClose={onClose}>
+      <ModalContent title="Comprobante de pago" onClose={onClose} large>
+        {loading && (
+          <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
+            <Loader2
+              size={32}
+              color="#FF0000"
+              style={{ animation: "spin 1s linear infinite" }}
+            />
+            <p
+              style={{
+                marginTop: "1rem",
+                color: "#000000",
+                opacity: 0.6,
+                fontSize: "0.9rem",
+              }}
+            >
+              Cargando comprobante...
+            </p>
+          </div>
+        )}
+        {error && (
+          <div
+            style={{
+              padding: "1rem",
+              background: "#fee2e2",
+              borderRadius: "10px",
+              color: "#991b1b",
+              fontSize: "0.85rem",
+            }}
+          >
+            {error}
+          </div>
+        )}
+        {url && !loading && (
+          <div>
+            {isPdf ? (
+              <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
+                <FileText
+                  size={56}
+                  color="#FF0000"
+                  style={{ marginBottom: "1rem" }}
+                />
+                <p
+                  style={{
+                    fontSize: "0.95rem",
+                    color: "#000000",
+                    marginBottom: "1.25rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Comprobante en PDF
+                </p>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.7rem 1.4rem",
+                    background: "#FF0000",
+                    color: "white",
+                    borderRadius: "10px",
+                    fontSize: "0.9rem",
+                    fontWeight: 700,
+                    textDecoration: "none",
+                  }}
+                >
+                  <ExternalLink size={15} />
+                  Abrir PDF
+                </a>
+              </div>
+            ) : (
+              <img
+                src={url}
+                alt="Comprobante"
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: "70vh",
+                  objectFit: "contain",
+                  borderRadius: "10px",
+                  background: "#f9fafb",
+                }}
+              />
+            )}
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                marginTop: "1rem",
+                fontSize: "0.8rem",
+                color: "#FF0000",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              <ExternalLink size={13} />
+              Abrir en pestaña nueva
+            </a>
+          </div>
+        )}
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// MODAL: APROBAR
+// ═══════════════════════════════════════════════
+function ApproveModal({
+  payment,
+  onClose,
+  onSuccess,
+}: {
+  payment: PaymentWithUser;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleApprove() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/approve-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentId: payment.id,
+          adminNotes: notes.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error");
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message);
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <ModalBackdrop onClose={submitting ? () => {} : onClose}>
+      <ModalContent title="Aprobar pago" onClose={onClose}>
+        <div
+          style={{
+            padding: "1rem",
+            background: "#d1fae5",
+            borderRadius: "10px",
+            marginBottom: "1rem",
+            display: "flex",
+            gap: "0.65rem",
+            alignItems: "flex-start",
+          }}
+        >
+          <CheckCircle2
+            size={18}
+            color="#059669"
+            style={{ flexShrink: 0, marginTop: "1px" }}
+          />
+          <div style={{ fontSize: "0.85rem", color: "#065f46" }}>
+            Se va a activar el plan del cliente por{" "}
+            <strong>30 días</strong> desde hoy. El usuario podrá usar todos los
+            widgets inmediatamente.
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: "0.85rem",
+            background: "#f9fafb",
+            borderRadius: "10px",
+            marginBottom: "1rem",
+            fontSize: "0.85rem",
+          }}
+        >
+          <div style={{ marginBottom: "0.35rem" }}>
+            <strong>Cliente:</strong> {payment.user_email}
+          </div>
+          <div style={{ marginBottom: "0.35rem" }}>
+            <strong>Monto:</strong> ${payment.amount.toLocaleString("es-AR")}
+          </div>
+          <div>
+            <strong>Tienda:</strong> #{payment.store_id}
+          </div>
+        </div>
+
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.8rem",
+            fontWeight: 700,
+            color: "#000000",
+            opacity: 0.75,
+            marginBottom: "0.4rem",
+          }}
+        >
+          Notas internas (opcional)
+        </label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Ej: Verificado en Naranja X, transferencia recibida ok"
+          disabled={submitting}
+          maxLength={500}
+          style={{
+            width: "100%",
+            minHeight: "80px",
+            padding: "0.75rem 0.9rem",
+            borderRadius: "10px",
+            border: "1px solid #e5e7eb",
+            fontSize: "0.9rem",
+            fontFamily: "inherit",
+            boxSizing: "border-box",
+            resize: "vertical",
+            outline: "none",
+          }}
+        />
+
+        {error && (
+          <div
+            style={{
+              marginTop: "0.85rem",
+              padding: "0.75rem 0.9rem",
+              background: "#fee2e2",
+              borderRadius: "10px",
+              color: "#991b1b",
+              fontSize: "0.82rem",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            marginTop: "1.25rem",
+          }}
+        >
+          <button
+            onClick={onClose}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: "0.85rem",
+              background: "white",
+              color: "#000000",
+              border: "1px solid #e5e7eb",
+              borderRadius: "10px",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              cursor: submitting ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+              opacity: submitting ? 0.5 : 1,
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleApprove}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: "0.85rem",
+              background: "#059669",
+              color: "white",
+              border: "none",
+              borderRadius: "10px",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              cursor: submitting ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.4rem",
+            }}
+          >
+            {submitting ? (
+              <>
+                <Loader2
+                  size={15}
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
+                Aprobando...
+              </>
+            ) : (
+              <>
+                <Check size={15} />
+                Aprobar pago
+              </>
+            )}
+          </button>
+        </div>
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// MODAL: RECHAZAR
+// ═══════════════════════════════════════════════
+function RejectModal({
+  payment,
+  onClose,
+  onSuccess,
+}: {
+  payment: PaymentWithUser;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const REASONS = [
+    "Comprobante ilegible",
+    "El monto no coincide",
+    "No se encontró la transferencia",
+    "Comprobante duplicado",
+    "Datos incorrectos",
+  ];
+
+  async function handleReject() {
+    if (reason.trim().length < 3) {
+      setError("Ingresá una razón válida");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/reject-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentId: payment.id,
+          reason: reason.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error");
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message);
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <ModalBackdrop onClose={submitting ? () => {} : onClose}>
+      <ModalContent title="Rechazar pago" onClose={onClose}>
+        <div
+          style={{
+            padding: "1rem",
+            background: "#fee2e2",
+            borderRadius: "10px",
+            marginBottom: "1rem",
+            display: "flex",
+            gap: "0.65rem",
+            alignItems: "flex-start",
+          }}
+        >
+          <AlertCircle
+            size={18}
+            color="#dc2626"
+            style={{ flexShrink: 0, marginTop: "1px" }}
+          />
+          <div style={{ fontSize: "0.85rem", color: "#991b1b" }}>
+            El cliente va a ver la razón. Se le va a permitir subir un nuevo
+            comprobante.
+          </div>
+        </div>
+
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.8rem",
+            fontWeight: 700,
+            color: "#000000",
+            opacity: 0.75,
+            marginBottom: "0.5rem",
+          }}
+        >
+          Razones rápidas
+        </label>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.35rem",
+            marginBottom: "1rem",
+          }}
+        >
+          {REASONS.map((r) => (
+            <button
+              key={r}
+              onClick={() => setReason(r)}
+              disabled={submitting}
+              style={{
+                padding: "0.4rem 0.75rem",
+                background: reason === r ? "#FF0000" : "white",
+                color: reason === r ? "white" : "#000000",
+                border:
+                  reason === r ? "1px solid #FF0000" : "1px solid #e5e7eb",
+                borderRadius: "999px",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                cursor: submitting ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.8rem",
+            fontWeight: 700,
+            color: "#000000",
+            opacity: 0.75,
+            marginBottom: "0.4rem",
+          }}
+        >
+          Razón del rechazo *
+        </label>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Explicá por qué se rechaza el pago"
+          disabled={submitting}
+          maxLength={500}
+          style={{
+            width: "100%",
+            minHeight: "90px",
+            padding: "0.75rem 0.9rem",
+            borderRadius: "10px",
+            border: "1px solid #e5e7eb",
+            fontSize: "0.9rem",
+            fontFamily: "inherit",
+            boxSizing: "border-box",
+            resize: "vertical",
+            outline: "none",
+          }}
+        />
+
+        {error && (
+          <div
+            style={{
+              marginTop: "0.85rem",
+              padding: "0.75rem 0.9rem",
+              background: "#fee2e2",
+              borderRadius: "10px",
+              color: "#991b1b",
+              fontSize: "0.82rem",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            marginTop: "1.25rem",
+          }}
+        >
+          <button
+            onClick={onClose}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: "0.85rem",
+              background: "white",
+              color: "#000000",
+              border: "1px solid #e5e7eb",
+              borderRadius: "10px",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              cursor: submitting ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+              opacity: submitting ? 0.5 : 1,
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleReject}
+            disabled={submitting || reason.trim().length < 3}
+            style={{
+              flex: 1,
+              padding: "0.85rem",
+              background:
+                submitting || reason.trim().length < 3 ? "#000000" : "#dc2626",
+              color: "white",
+              border: "none",
+              borderRadius: "10px",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              cursor:
+                submitting || reason.trim().length < 3
+                  ? "not-allowed"
+                  : "pointer",
+              fontFamily: "inherit",
+              opacity: submitting || reason.trim().length < 3 ? 0.5 : 1,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.4rem",
+            }}
+          >
+            {submitting ? (
+              <>
+                <Loader2
+                  size={15}
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
+                Rechazando...
+              </>
+            ) : (
+              <>
+                <X size={15} />
+                Rechazar pago
+              </>
+            )}
+          </button>
+        </div>
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// MODAL BACKDROP & CONTENT
+// ═══════════════════════════════════════════════
+function ModalBackdrop({
+  children,
+  onClose,
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.6)",
+        zIndex: 100,
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "center",
+        padding: "1rem",
+        overflowY: "auto",
+        boxSizing: "border-box",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function ModalContent({
+  children,
+  title,
+  onClose,
+  large = false,
+}: {
+  children: React.ReactNode;
+  title: string;
+  onClose: () => void;
+  large?: boolean;
+}) {
+  return (
+    <motion.div
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 30, opacity: 0 }}
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        background: "white",
+        borderRadius: "20px 20px 0 0",
+        padding: "1.5rem 1.25rem",
+        width: "100%",
+        maxWidth: large ? "720px" : "500px",
+        maxHeight: "90vh",
+        overflowY: "auto",
+        boxSizing: "border-box",
+        boxShadow: "0 -10px 40px rgba(0,0,0,0.15)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.5rem",
+          marginBottom: "1.25rem",
+          paddingBottom: "0.85rem",
+          borderBottom: "1px solid #f3f4f6",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "1.05rem",
+            fontWeight: 800,
+            color: "#000000",
+            margin: 0,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {title}
+        </h3>
+        <button
+          onClick={onClose}
+          style={{
+            width: "32px",
+            height: "32px",
+            borderRadius: "8px",
+            border: "none",
+            background: "#f3f4f6",
+            color: "#000000",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <X size={16} />
+        </button>
+      </div>
+      {children}
+      <style jsx global>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+    </motion.div>
+  );
+    }
