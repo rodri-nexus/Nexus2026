@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Lock, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Mail, Lock, Loader2, CheckCircle2, XCircle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 
 export default function RegistroPage() {
@@ -14,6 +14,7 @@ export default function RegistroPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +38,13 @@ export default function RegistroPage() {
       return;
     }
 
+    if (!acceptedTerms) {
+      setError(
+        "Tenés que aceptar los Términos y la Política de Privacidad para continuar"
+      );
+      return;
+    }
+
     setLoading(true);
 
     const { error: signUpError } = await supabase.auth.signUp({
@@ -57,6 +65,11 @@ export default function RegistroPage() {
     router.push("/verificar-email");
   }
 
+  // El botón se deshabilita si:
+  // - Está cargando
+  // - Falta aceptar términos
+  const isButtonDisabled = loading || !acceptedTerms;
+
   return (
     <div
       style={{
@@ -66,7 +79,8 @@ export default function RegistroPage() {
         justifyContent: "center",
         padding: "1.5rem",
         background: "#f9fafb",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
       <motion.div
@@ -322,6 +336,122 @@ export default function RegistroPage() {
             </motion.div>
           )}
 
+          {/* Checkbox de términos y privacidad */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            style={{ marginBottom: "1.25rem" }}
+          >
+            <label
+              htmlFor="accept-terms"
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "0.65rem",
+                padding: "0.85rem 1rem",
+                background: acceptedTerms ? "#fff5f5" : "#f9fafb",
+                border: acceptedTerms
+                  ? "1.5px solid #FF0000"
+                  : "1.5px solid #e5e7eb",
+                borderRadius: "12px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                userSelect: "none",
+              }}
+            >
+              {/* Checkbox custom */}
+              <div
+                style={{
+                  position: "relative",
+                  flexShrink: 0,
+                  marginTop: "1px",
+                }}
+              >
+                <input
+                  id="accept-terms"
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  style={{
+                    position: "absolute",
+                    opacity: 0,
+                    width: "20px",
+                    height: "20px",
+                    cursor: "pointer",
+                    margin: 0,
+                  }}
+                />
+                <div
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "6px",
+                    border: acceptedTerms
+                      ? "2px solid #FF0000"
+                      : "2px solid #d1d5db",
+                    background: acceptedTerms ? "#FF0000" : "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {acceptedTerms && (
+                    <Check
+                      size={14}
+                      color="#ffffff"
+                      strokeWidth={3}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Texto */}
+              <div
+                style={{
+                  fontSize: "0.82rem",
+                  color: "#000000",
+                  lineHeight: 1.5,
+                  flex: 1,
+                }}
+              >
+                Acepto los{" "}
+                <Link
+                  href="/terminos"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    color: "#FF0000",
+                    fontWeight: 700,
+                    textDecoration: "underline",
+                    textUnderlineOffset: "2px",
+                  }}
+                >
+                  Términos y Condiciones
+                </Link>{" "}
+                y la{" "}
+                <Link
+                  href="/privacidad"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    color: "#FF0000",
+                    fontWeight: 700,
+                    textDecoration: "underline",
+                    textUnderlineOffset: "2px",
+                  }}
+                >
+                  Política de Privacidad
+                </Link>{" "}
+                de Nevux.
+              </div>
+            </label>
+          </motion.div>
+
           {/* Error — semántico destructivo, se mantiene */}
           {error && (
             <motion.div
@@ -344,13 +474,13 @@ export default function RegistroPage() {
           {/* Botón submit */}
           <motion.button
             type="submit"
-            disabled={loading}
-            whileHover={{ scale: loading ? 1 : 1.02 }}
-            whileTap={{ scale: loading ? 1 : 0.98 }}
+            disabled={isButtonDisabled}
+            whileHover={{ scale: isButtonDisabled ? 1 : 1.02 }}
+            whileTap={{ scale: isButtonDisabled ? 1 : 0.98 }}
             style={{
               width: "100%",
               padding: "0.95rem",
-              background: loading
+              background: isButtonDisabled
                 ? "rgba(255, 0, 0, 0.4)"
                 : "#FF0000",
               color: "white",
@@ -358,7 +488,7 @@ export default function RegistroPage() {
               borderRadius: "12px",
               fontSize: "1rem",
               fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
+              cursor: isButtonDisabled ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -407,4 +537,4 @@ export default function RegistroPage() {
       </motion.div>
     </div>
   );
-      }
+                }
