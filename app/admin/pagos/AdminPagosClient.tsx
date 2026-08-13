@@ -29,6 +29,7 @@ import {
   Search,
   Filter,
   RotateCcw,
+  Download,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { createClient } from "@/lib/supabase-browser";
@@ -164,6 +165,118 @@ function isInDateRange(dateStr: string, range: DateFilterKey): boolean {
 }
 
 // ═══════════════════════════════════════════════
+// HELPER: EXPORTAR A CSV
+// ═══════════════════════════════════════════════
+
+/**
+ * Escapa un valor para que sea seguro en CSV:
+ * - Envuelve en comillas si contiene coma, comilla o salto de línea
+ * - Escapa comillas duplicándolas
+ */
+function csvEscape(value: any): string {
+  if (value === null || value === undefined) return "";
+  const str = String(value);
+  const needsQuotes = /[",\n\r]/.test(str);
+  const escaped = str.replace(/"/g, '""');
+  return needsQuotes ? `"${escaped}"` : escaped;
+}
+
+/**
+ * Formatea una fecha ISO a "DD/MM/YYYY HH:MM"
+ */
+function formatDateForCSV(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
+}
+
+/**
+ * Traduce el status a español
+ */
+function translateStatus(status: string): string {
+  const map: Record<string, string> = {
+    pending: "Pendiente",
+    approved: "Aprobado",
+    rejected: "Rechazado",
+  };
+  return map[status] || status;
+}
+
+/**
+ * Genera y descarga el CSV con los pagos dados.
+ */
+function exportPaymentsToCSV(payments: PaymentWithUser[]) {
+  // Encabezados de las columnas
+  const headers = [
+    "ID Pago",
+    "Fecha creación",
+    "Estado",
+    "Email cliente",
+    "Store ID",
+    "Monto (ARS)",
+    "Método pago",
+    "Referencia transferencia",
+    "Meses activo",
+    "Fecha aprobación",
+    "Aprobado por",
+    "Fecha rechazo",
+    "Razón rechazo",
+    "Notas admin",
+  ];
+
+  // Filas
+  const rows = payments.map((p) => [
+    p.id,
+    formatDateForCSV(p.created_at),
+    translateStatus(p.status),
+    p.user_email || "",
+    p.store_id,
+    p.amount,
+    p.payment_method || "",
+    p.transfer_reference || "",
+    p.store_months_active ?? 0,
+    formatDateForCSV(p.approved_at),
+    p.approved_by || "",
+    formatDateForCSV(p.rejected_at),
+    p.rejected_reason || "",
+    p.admin_notes || "",
+  ]);
+
+  // Armar el CSV
+  const csvContent = [
+    headers.map(csvEscape).join(","),
+    ...rows.map((row) => row.map(csvEscape).join(",")),
+  ].join("\n");
+
+  // BOM UTF-8 para que Excel abra los acentos bien
+  const BOM = "\uFEFF";
+  const blob = new Blob([BOM + csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  // Descargar
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const today = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const dateStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(
+    today.getDate()
+  )}`;
+  const filename = `nevux-pagos-${dateStr}.csv`;
+
+  link.href = url;
+  link.download = filename;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ═══════════════════════════════════════════════
 
@@ -223,6 +336,11 @@ export default function AdminPagosClient({
   function handleClearFilters() {
     setSearchQuery("");
     setDateFilter("all");
+  }
+
+  function handleExportCSV() {
+    if (filteredPayments.length === 0) return;
+    exportPaymentsToCSV(filteredPayments);
   }
 
   async function handleLogout() {
@@ -451,6 +569,7 @@ export default function AdminPagosClient({
           onClearFilters={handleClearFilters}
           resultsCount={filteredPayments.length}
           totalCount={totalInTab}
+          onExportCSV={handleExportCSV}
         />
 
         {/* Lista de pagos */}
@@ -527,7 +646,7 @@ export default function AdminPagosClient({
 }
 
 // ═══════════════════════════════════════════════
-// FILTERS BAR (NUEVO)
+// FILTERS BAR (con botón CSV)
 // ═══════════════════════════════════════════════
 function FiltersBar({
   searchQuery,
@@ -538,6 +657,7 @@ function FiltersBar({
   onClearFilters,
   resultsCount,
   totalCount,
+  onExportCSV,
 }: {
   searchQuery: string;
   onSearchChange: (v: string) => void;
@@ -547,6 +667,7 @@ function FiltersBar({
   onClearFilters: () => void;
   resultsCount: number;
   totalCount: number;
+  onExportCSV: () => void;
 }) {
   const dateFilters: { key: DateFilterKey; label: string }[] = [
     { key: "all", label: "Todas" },
@@ -555,6 +676,8 @@ function FiltersBar({
     { key: "30days", label: "30 días" },
     { key: "thisMonth", label: "Este mes" },
   ];
+
+  const canExport = resultsCount > 0;
 
   return (
     <div
@@ -685,7 +808,7 @@ function FiltersBar({
         ))}
       </div>
 
-      {/* Contador de resultados + limpiar */}
+      {/* Contador + acciones (limpiar / exportar) */}
       <div
         style={{
           display: "flex",
@@ -718,28 +841,67 @@ function FiltersBar({
           de <strong style={{ color: "#000000", opacity: 1, fontWeight: 800 }}>{totalCount}</strong>{" "}
           {totalCount === 1 ? "pago" : "pagos"}
         </div>
-        {hasActiveFilters && (
+
+        <div
+          style={{
+            display: "flex",
+            gap: "0.4rem",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          {hasActiveFilters && (
+            <button
+              onClick={onClearFilters}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                padding: "0.35rem 0.75rem",
+                background: "transparent",
+                color: "#FF0000",
+                border: "1px solid #fecaca",
+                borderRadius: "999px",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              <RotateCcw size={12} />
+              Limpiar filtros
+            </button>
+          )}
+
           <button
-            onClick={onClearFilters}
+            onClick={onExportCSV}
+            disabled={!canExport}
+            title={
+              canExport
+                ? "Descargar CSV con los pagos mostrados"
+                : "No hay pagos para exportar"
+            }
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "0.3rem",
-              padding: "0.35rem 0.75rem",
-              background: "transparent",
-              color: "#FF0000",
-              border: "1px solid #fecaca",
+              gap: "0.35rem",
+              padding: "0.4rem 0.85rem",
+              background: canExport ? "#000000" : "#f3f4f6",
+              color: canExport ? "white" : "#000000",
+              border: "none",
               borderRadius: "999px",
               fontSize: "0.75rem",
               fontWeight: 700,
-              cursor: "pointer",
+              cursor: canExport ? "pointer" : "not-allowed",
               fontFamily: "inherit",
+              opacity: canExport ? 1 : 0.5,
+              transition: "all 0.15s",
             }}
           >
-            <RotateCcw size={12} />
-            Limpiar filtros
+            <Download size={12} />
+            Exportar CSV
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -886,7 +1048,7 @@ function TabButton({
 }
 
 // ═══════════════════════════════════════════════
-// EMPTY STATE (mejorado para filtros)
+// EMPTY STATE
 // ═══════════════════════════════════════════════
 function EmptyState({
   tab,
@@ -2777,4 +2939,4 @@ function ModalContent({
       `}</style>
     </motion.div>
   );
-}
+  }
