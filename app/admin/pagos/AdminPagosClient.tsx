@@ -26,6 +26,9 @@ import {
   Mail,
   RefreshCw,
   Zap,
+  Search,
+  Filter,
+  RotateCcw,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { createClient } from "@/lib/supabase-browser";
@@ -43,6 +46,7 @@ interface AdminPagosClientProps {
 }
 
 type TabKey = "pending" | "approved" | "rejected" | "all";
+type DateFilterKey = "all" | "today" | "7days" | "30days" | "thisMonth";
 
 // ═══════════════════════════════════════════════
 // HELPERS: construir mailto: para el cliente
@@ -122,6 +126,44 @@ Gracias por confiar en Nevux 🚀`;
 }
 
 // ═══════════════════════════════════════════════
+// HELPER: filtrar por rango de fechas
+// ═══════════════════════════════════════════════
+function isInDateRange(dateStr: string, range: DateFilterKey): boolean {
+  if (range === "all") return true;
+  const date = new Date(dateStr);
+  const now = new Date();
+
+  if (range === "today") {
+    return (
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
+  }
+
+  if (range === "7days") {
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(now.getDate() - 7);
+    return date >= sevenDaysAgo;
+  }
+
+  if (range === "30days") {
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+    return date >= thirtyDaysAgo;
+  }
+
+  if (range === "thisMonth") {
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
+  }
+
+  return true;
+}
+
+// ═══════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ═══════════════════════════════════════════════
 
@@ -133,6 +175,8 @@ export default function AdminPagosClient({
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<TabKey>("pending");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState<DateFilterKey>("all");
   const [viewingReceipt, setViewingReceipt] = useState<PaymentWithUser | null>(
     null
   );
@@ -142,11 +186,44 @@ export default function AdminPagosClient({
     useState<PaymentWithUser | null>(null);
   const [showCronModal, setShowCronModal] = useState(false);
 
-  // Filtrado por tab
+  // Filtrado combinado: tab + búsqueda + fecha
   const filteredPayments = useMemo(() => {
-    if (activeTab === "all") return payments;
-    return payments.filter((p) => p.status === activeTab);
+    let result = payments;
+
+    // 1. Filtro por tab
+    if (activeTab !== "all") {
+      result = result.filter((p) => p.status === activeTab);
+    }
+
+    // 2. Filtro por búsqueda de email
+    const trimmedQuery = searchQuery.trim().toLowerCase();
+    if (trimmedQuery.length > 0) {
+      result = result.filter((p) =>
+        (p.user_email || "").toLowerCase().includes(trimmedQuery)
+      );
+    }
+
+    // 3. Filtro por fecha
+    if (dateFilter !== "all") {
+      result = result.filter((p) => isInDateRange(p.created_at, dateFilter));
+    }
+
+    return result;
+  }, [payments, activeTab, searchQuery, dateFilter]);
+
+  // Total de pagos en el tab actual (sin otros filtros)
+  const totalInTab = useMemo(() => {
+    if (activeTab === "all") return payments.length;
+    return payments.filter((p) => p.status === activeTab).length;
   }, [payments, activeTab]);
+
+  const hasActiveFilters = searchQuery.trim().length > 0 || dateFilter !== "all";
+  const isFiltering = hasActiveFilters;
+
+  function handleClearFilters() {
+    setSearchQuery("");
+    setDateFilter("all");
+  }
 
   async function handleLogout() {
     const supabase = createClient();
@@ -327,7 +404,7 @@ export default function AdminPagosClient({
           style={{
             display: "flex",
             gap: "0.35rem",
-            marginBottom: "1.25rem",
+            marginBottom: "1rem",
             overflowX: "auto",
             paddingBottom: "0.25rem",
             WebkitOverflowScrolling: "touch",
@@ -364,9 +441,21 @@ export default function AdminPagosClient({
           </TabButton>
         </div>
 
+        {/* Filtros */}
+        <FiltersBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          dateFilter={dateFilter}
+          onDateFilterChange={setDateFilter}
+          hasActiveFilters={hasActiveFilters}
+          onClearFilters={handleClearFilters}
+          resultsCount={filteredPayments.length}
+          totalCount={totalInTab}
+        />
+
         {/* Lista de pagos */}
         {filteredPayments.length === 0 ? (
-          <EmptyState tab={activeTab} />
+          <EmptyState tab={activeTab} isFiltering={isFiltering} />
         ) : (
           <div
             style={{
@@ -433,6 +522,225 @@ export default function AdminPagosClient({
           <CronModal onClose={() => setShowCronModal(false)} />
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// FILTERS BAR (NUEVO)
+// ═══════════════════════════════════════════════
+function FiltersBar({
+  searchQuery,
+  onSearchChange,
+  dateFilter,
+  onDateFilterChange,
+  hasActiveFilters,
+  onClearFilters,
+  resultsCount,
+  totalCount,
+}: {
+  searchQuery: string;
+  onSearchChange: (v: string) => void;
+  dateFilter: DateFilterKey;
+  onDateFilterChange: (v: DateFilterKey) => void;
+  hasActiveFilters: boolean;
+  onClearFilters: () => void;
+  resultsCount: number;
+  totalCount: number;
+}) {
+  const dateFilters: { key: DateFilterKey; label: string }[] = [
+    { key: "all", label: "Todas" },
+    { key: "today", label: "Hoy" },
+    { key: "7days", label: "7 días" },
+    { key: "30days", label: "30 días" },
+    { key: "thisMonth", label: "Este mes" },
+  ];
+
+  return (
+    <div
+      style={{
+        background: "white",
+        border: "1px solid #f3f4f6",
+        borderRadius: "14px",
+        padding: "0.85rem 1rem",
+        marginBottom: "1rem",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Input de búsqueda */}
+      <div
+        style={{
+          position: "relative",
+          marginBottom: "0.85rem",
+        }}
+      >
+        <Search
+          size={16}
+          color="#000000"
+          style={{
+            position: "absolute",
+            left: "0.85rem",
+            top: "50%",
+            transform: "translateY(-50%)",
+            opacity: 0.4,
+            pointerEvents: "none",
+          }}
+        />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Buscar por email del cliente..."
+          style={{
+            width: "100%",
+            padding: "0.65rem 2.5rem 0.65rem 2.4rem",
+            border: searchQuery.length > 0 ? "1px solid #FF0000" : "1px solid #e5e7eb",
+            borderRadius: "10px",
+            fontSize: "0.88rem",
+            fontFamily: "inherit",
+            outline: "none",
+            boxSizing: "border-box",
+            background: "#f9fafb",
+            color: "#000000",
+            transition: "border-color 0.15s",
+          }}
+        />
+        {searchQuery.length > 0 && (
+          <button
+            onClick={() => onSearchChange("")}
+            aria-label="Limpiar búsqueda"
+            style={{
+              position: "absolute",
+              right: "0.65rem",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              border: "none",
+              background: "#000000",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            <X size={12} />
+          </button>
+        )}
+      </div>
+
+      {/* Filtros de fecha */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.4rem",
+          marginBottom: "0.75rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.3rem",
+            fontSize: "0.72rem",
+            fontWeight: 700,
+            color: "#000000",
+            opacity: 0.5,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginRight: "0.25rem",
+          }}
+        >
+          <Filter size={11} />
+          Fecha
+        </div>
+        {dateFilters.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => onDateFilterChange(f.key)}
+            style={{
+              padding: "0.35rem 0.75rem",
+              background: dateFilter === f.key ? "#FF0000" : "white",
+              color: dateFilter === f.key ? "white" : "#000000",
+              border:
+                dateFilter === f.key
+                  ? "1px solid #FF0000"
+                  : "1px solid #e5e7eb",
+              borderRadius: "999px",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              whiteSpace: "nowrap",
+              transition: "all 0.15s",
+            }}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Contador de resultados + limpiar */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "0.5rem",
+          paddingTop: "0.75rem",
+          borderTop: "1px solid #f3f4f6",
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "0.78rem",
+            color: "#000000",
+            opacity: 0.65,
+            fontWeight: 500,
+          }}
+        >
+          Mostrando{" "}
+          <strong
+            style={{
+              color: hasActiveFilters ? "#FF0000" : "#000000",
+              opacity: 1,
+              fontWeight: 800,
+            }}
+          >
+            {resultsCount}
+          </strong>{" "}
+          de <strong style={{ color: "#000000", opacity: 1, fontWeight: 800 }}>{totalCount}</strong>{" "}
+          {totalCount === 1 ? "pago" : "pagos"}
+        </div>
+        {hasActiveFilters && (
+          <button
+            onClick={onClearFilters}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              padding: "0.35rem 0.75rem",
+              background: "transparent",
+              color: "#FF0000",
+              border: "1px solid #fecaca",
+              borderRadius: "999px",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            <RotateCcw size={12} />
+            Limpiar filtros
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -578,9 +886,54 @@ function TabButton({
 }
 
 // ═══════════════════════════════════════════════
-// EMPTY STATE
+// EMPTY STATE (mejorado para filtros)
 // ═══════════════════════════════════════════════
-function EmptyState({ tab }: { tab: TabKey }) {
+function EmptyState({
+  tab,
+  isFiltering,
+}: {
+  tab: TabKey;
+  isFiltering: boolean;
+}) {
+  if (isFiltering) {
+    return (
+      <div
+        style={{
+          background: "white",
+          borderRadius: "16px",
+          padding: "3rem 1.5rem",
+          textAlign: "center",
+          border: "1px solid #f3f4f6",
+        }}
+      >
+        <div style={{ marginBottom: "0.85rem" }}>
+          <Search size={40} color="#000000" style={{ opacity: 0.3 }} />
+        </div>
+        <p
+          style={{
+            fontSize: "0.95rem",
+            color: "#000000",
+            opacity: 0.75,
+            margin: "0 0 0.35rem 0",
+            fontWeight: 700,
+          }}
+        >
+          Sin resultados
+        </p>
+        <p
+          style={{
+            fontSize: "0.82rem",
+            color: "#000000",
+            opacity: 0.5,
+            margin: 0,
+          }}
+        >
+          No se encontraron pagos que coincidan con los filtros
+        </p>
+      </div>
+    );
+  }
+
   const messages: Record<TabKey, { icon: React.ReactNode; text: string }> = {
     pending: {
       icon: <Clock size={40} color="#000000" style={{ opacity: 0.3 }} />,
@@ -2424,4 +2777,4 @@ function ModalContent({
       `}</style>
     </motion.div>
   );
-  }
+}
