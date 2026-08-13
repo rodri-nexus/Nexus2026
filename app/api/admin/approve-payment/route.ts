@@ -149,17 +149,21 @@ export async function POST(request: Request) {
 
     if (updateStoreError) {
       console.error("❌ [approve] Error actualizando store:", updateStoreError);
-      // Rollback del payment
-      await supabaseAdmin
-        .from("payments")
-        .update({
-          status: "pending",
-          approved_at: null,
-          approved_by: null,
-          admin_notes: null,
-        })
-        .eq("id", paymentId)
-        .catch((e) => console.error("Error rollback:", e));
+
+      // Rollback del payment (sin .catch, con try/catch)
+      try {
+        await supabaseAdmin
+          .from("payments")
+          .update({
+            status: "pending",
+            approved_at: null,
+            approved_by: null,
+            admin_notes: null,
+          })
+          .eq("id", paymentId);
+      } catch (rollbackErr) {
+        console.error("Error en rollback:", rollbackErr);
+      }
 
       return NextResponse.json(
         { error: `Error activando plan: ${updateStoreError.message}` },
@@ -184,4 +188,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-                    }
+  }
