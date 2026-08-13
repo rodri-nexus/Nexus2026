@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { getProductsCount } from "@/lib/tiendanube";
-import { buildPlanInfo, type StorePlanData } from "@/lib/plan";
+import { buildPlanInfo, type StorePlanData, type PlanInfo } from "@/lib/plan";
 import { supabaseAdmin } from "@/lib/supabase";
 import DashboardClient from "./DashboardClient";
 
@@ -49,6 +49,8 @@ export default async function DashboardPage() {
   // Solo aplica si YA tiene tienda conectada.
   // Si no tiene tienda, lo dejamos entrar para que la conecte.
   // ─────────────────────────────────────────────
+  let planInfo: PlanInfo | null = null;
+
   if (store) {
     const planData: StorePlanData = {
       store_id: store.store_id,
@@ -63,6 +65,7 @@ export default async function DashboardPage() {
     };
 
     const plan = buildPlanInfo(planData);
+    planInfo = plan;
 
     if (!plan.canUseApp) {
       // Necesita ver la pantalla de feedback
@@ -116,6 +119,29 @@ export default async function DashboardPage() {
       }
     : null;
 
+  // Serializamos el plan para pasarlo al Client Component
+  // (las fechas Date no se pueden pasar directo, las convertimos a ISO string)
+  const planSerialized = planInfo
+    ? {
+        status: planInfo.status,
+        rawStatus: planInfo.rawStatus,
+        isBlocked: planInfo.isBlocked,
+        daysRemaining: planInfo.daysRemaining,
+        hoursRemaining: planInfo.hoursRemaining,
+        trialEndsAtISO: planInfo.trialEndsAt
+          ? planInfo.trialEndsAt.toISOString()
+          : null,
+        planActiveUntilISO: planInfo.planActiveUntil
+          ? planInfo.planActiveUntil.toISOString()
+          : null,
+        monthsActive: planInfo.monthsActive,
+        needsFeedback: planInfo.needsFeedback,
+        needsPayment: planInfo.needsPayment,
+        canUseApp: planInfo.canUseApp,
+        canCreateWidgets: planInfo.canCreateWidgets,
+      }
+    : null;
+
   return (
     <DashboardClient
       email={user.email ?? ""}
@@ -124,6 +150,7 @@ export default async function DashboardPage() {
       productsCount={productsCount}
       activeWidgetsCount={activeWidgetsCount}
       onboardingCompleted={onboardingCompleted}
+      plan={planSerialized}
     />
   );
-    }
+}
