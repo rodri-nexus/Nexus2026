@@ -23,6 +23,7 @@ import {
   FileText,
   Image as ImageIcon,
   ExternalLink,
+  Mail,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { createClient } from "@/lib/supabase-browser";
@@ -40,6 +41,87 @@ interface AdminPagosClientProps {
 }
 
 type TabKey = "pending" | "approved" | "rejected" | "all";
+
+// ═══════════════════════════════════════════════
+// HELPERS: construir mailto: para el cliente
+// ═══════════════════════════════════════════════
+
+function buildApprovedEmailMailto(
+  customerEmail: string,
+  amount: number,
+  newPlanEndISO: string
+): string {
+  const formattedAmount = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    minimumFractionDigits: 0,
+  }).format(amount);
+
+  const endDate = new Date(newPlanEndISO).toLocaleDateString("es-AR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const subject = "✅ Tu plan Nevux está activo";
+
+  const body = `¡Hola!
+
+Confirmamos que recibimos tu pago de ${formattedAmount} y tu plan Nevux ya está ACTIVO. 🎉
+
+📅 Tu plan está activo hasta el ${endDate}.
+
+Ya podés volver a tu dashboard y:
+• Instalar y personalizar los 15 widgets disponibles
+• Activar y desactivar los que quieras en cualquier momento
+• Modificar colores, textos y diseño para que combinen con tu tienda
+
+🎁 Beneficios por fidelidad
+Cuanto más tiempo lleves con Nevux, más recompensas vas a desbloquear:
+• Mes 3: widgets premium + 1 widget personalizado único
+• Mes 6: más widgets custom + descuentos exclusivos
+• Mes 12+: beneficios VIP
+
+👉 Volvé a tu dashboard: https://nexus2026-gx7e.vercel.app/dashboard
+
+Si tenés cualquier consulta, respondé este mail y te ayudamos.
+
+Gracias por confiar en Nevux 🚀`;
+
+  return `mailto:${encodeURIComponent(customerEmail)}?subject=${encodeURIComponent(
+    subject
+  )}&body=${encodeURIComponent(body)}`;
+}
+
+function buildRejectedEmailMailto(
+  customerEmail: string,
+  reason: string
+): string {
+  const subject = "❌ Problema con tu comprobante Nevux";
+
+  const body = `¡Hola!
+
+Recibimos tu comprobante de pago, pero lamentablemente NO pudimos aprobarlo.
+
+📝 Motivo del rechazo:
+${reason}
+
+No te preocupes: podés volver a subir un nuevo comprobante desde el mismo lugar. Todavía tenés tu cuenta y tus widgets guardados.
+
+👉 Subir un nuevo comprobante: https://nexus2026-gx7e.vercel.app/plan/pagar
+
+Si tenés dudas o necesitás ayuda con el pago, respondé este mail y te ayudamos personalmente.
+
+Gracias por confiar en Nevux 🚀`;
+
+  return `mailto:${encodeURIComponent(customerEmail)}?subject=${encodeURIComponent(
+    subject
+  )}&body=${encodeURIComponent(body)}`;
+}
+
+// ═══════════════════════════════════════════════
+// COMPONENTE PRINCIPAL
+// ═══════════════════════════════════════════════
 
 export default function AdminPagosClient({
   adminEmail,
@@ -1043,6 +1125,9 @@ function ApproveModal({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successData, setSuccessData] = useState<{
+    newPlanEnd: string;
+  } | null>(null);
 
   async function handleApprove() {
     setSubmitting(true);
@@ -1058,13 +1143,157 @@ function ApproveModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error");
-      onSuccess();
+      setSuccessData({ newPlanEnd: data.newPlanEnd });
+      setSubmitting(false);
     } catch (err: any) {
       setError(err.message);
       setSubmitting(false);
     }
   }
 
+  // Pantalla de éxito con botón mailto:
+  if (successData) {
+    const mailtoLink = buildApprovedEmailMailto(
+      payment.user_email || "",
+      payment.amount,
+      successData.newPlanEnd
+    );
+    const endDate = new Date(successData.newPlanEnd).toLocaleDateString(
+      "es-AR",
+      { day: "numeric", month: "long", year: "numeric" }
+    );
+
+    return (
+      <ModalBackdrop onClose={onSuccess}>
+        <ModalContent title="Pago aprobado ✓" onClose={onSuccess}>
+          {/* Ícono grande de éxito */}
+          <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                background: "#d1fae5",
+                marginBottom: "0.75rem",
+              }}
+            >
+              <CheckCircle2 size={36} color="#059669" />
+            </div>
+            <h4
+              style={{
+                fontSize: "1.15rem",
+                fontWeight: 800,
+                color: "#000000",
+                margin: "0 0 0.4rem 0",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Plan activado con éxito
+            </h4>
+            <p
+              style={{
+                fontSize: "0.88rem",
+                color: "#000000",
+                opacity: 0.6,
+                margin: 0,
+              }}
+            >
+              Vence el {endDate}
+            </p>
+          </div>
+
+          {/* Info del cliente */}
+          <div
+            style={{
+              padding: "0.85rem 1rem",
+              background: "#f9fafb",
+              borderRadius: "10px",
+              marginBottom: "1rem",
+              fontSize: "0.85rem",
+            }}
+          >
+            <div style={{ marginBottom: "0.35rem" }}>
+              <strong>Cliente:</strong> {payment.user_email}
+            </div>
+            <div>
+              <strong>Monto:</strong> $
+              {payment.amount.toLocaleString("es-AR")}
+            </div>
+          </div>
+
+          {/* CTA principal: enviar email */}
+          <div
+            style={{
+              padding: "1rem",
+              background: "#fff5f5",
+              border: "1px solid #fecaca",
+              borderRadius: "12px",
+              marginBottom: "1rem",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "0.82rem",
+                color: "#000000",
+                fontWeight: 600,
+                marginBottom: "0.75rem",
+                lineHeight: 1.5,
+              }}
+            >
+              📧 Enviale el email de bienvenida al cliente desde tu Gmail. Ya
+              está todo redactado, solo tenés que tocar "Enviar".
+            </div>
+            <a
+              href={mailtoLink}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                width: "100%",
+                padding: "0.85rem",
+                background: "#FF0000",
+                color: "white",
+                borderRadius: "10px",
+                fontSize: "0.9rem",
+                fontWeight: 800,
+                textDecoration: "none",
+                boxSizing: "border-box",
+              }}
+            >
+              <Mail size={16} />
+              Enviar email al cliente
+            </a>
+          </div>
+
+          {/* Cerrar sin enviar */}
+          <button
+            onClick={onSuccess}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              background: "white",
+              color: "#000000",
+              border: "1px solid #e5e7eb",
+              borderRadius: "10px",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              opacity: 0.7,
+            }}
+          >
+            Cerrar sin enviar email
+          </button>
+        </ModalContent>
+      </ModalBackdrop>
+    );
+  }
+
+  // Pantalla normal de aprobación
   return (
     <ModalBackdrop onClose={submitting ? () => {} : onClose}>
       <ModalContent title="Aprobar pago" onClose={onClose}>
@@ -1240,6 +1469,7 @@ function RejectModal({
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successReason, setSuccessReason] = useState<string | null>(null);
 
   const REASONS = [
     "Comprobante ilegible",
@@ -1267,13 +1497,150 @@ function RejectModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error");
-      onSuccess();
+      setSuccessReason(reason.trim());
+      setSubmitting(false);
     } catch (err: any) {
       setError(err.message);
       setSubmitting(false);
     }
   }
 
+  // Pantalla de éxito con botón mailto:
+  if (successReason) {
+    const mailtoLink = buildRejectedEmailMailto(
+      payment.user_email || "",
+      successReason
+    );
+
+    return (
+      <ModalBackdrop onClose={onSuccess}>
+        <ModalContent title="Pago rechazado" onClose={onSuccess}>
+          {/* Ícono grande */}
+          <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                background: "#fee2e2",
+                marginBottom: "0.75rem",
+              }}
+            >
+              <XCircle size={36} color="#dc2626" />
+            </div>
+            <h4
+              style={{
+                fontSize: "1.15rem",
+                fontWeight: 800,
+                color: "#000000",
+                margin: "0 0 0.4rem 0",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Pago rechazado
+            </h4>
+            <p
+              style={{
+                fontSize: "0.88rem",
+                color: "#000000",
+                opacity: 0.6,
+                margin: 0,
+              }}
+            >
+              El cliente puede volver a subir un nuevo comprobante
+            </p>
+          </div>
+
+          {/* Info */}
+          <div
+            style={{
+              padding: "0.85rem 1rem",
+              background: "#f9fafb",
+              borderRadius: "10px",
+              marginBottom: "1rem",
+              fontSize: "0.85rem",
+            }}
+          >
+            <div style={{ marginBottom: "0.35rem" }}>
+              <strong>Cliente:</strong> {payment.user_email}
+            </div>
+            <div>
+              <strong>Razón:</strong> {successReason}
+            </div>
+          </div>
+
+          {/* CTA email */}
+          <div
+            style={{
+              padding: "1rem",
+              background: "#fff5f5",
+              border: "1px solid #fecaca",
+              borderRadius: "12px",
+              marginBottom: "1rem",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "0.82rem",
+                color: "#000000",
+                fontWeight: 600,
+                marginBottom: "0.75rem",
+                lineHeight: 1.5,
+              }}
+            >
+              📧 Avisale al cliente por email desde tu Gmail. Ya está el mensaje
+              redactado con la razón del rechazo.
+            </div>
+            <a
+              href={mailtoLink}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                width: "100%",
+                padding: "0.85rem",
+                background: "#FF0000",
+                color: "white",
+                borderRadius: "10px",
+                fontSize: "0.9rem",
+                fontWeight: 800,
+                textDecoration: "none",
+                boxSizing: "border-box",
+              }}
+            >
+              <Mail size={16} />
+              Enviar email al cliente
+            </a>
+          </div>
+
+          <button
+            onClick={onSuccess}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              background: "white",
+              color: "#000000",
+              border: "1px solid #e5e7eb",
+              borderRadius: "10px",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              opacity: 0.7,
+            }}
+          >
+            Cerrar sin enviar email
+          </button>
+        </ModalContent>
+      </ModalBackdrop>
+    );
+  }
+
+  // Pantalla normal de rechazo
   return (
     <ModalBackdrop onClose={submitting ? () => {} : onClose}>
       <ModalContent title="Rechazar pago" onClose={onClose}>
@@ -1578,4 +1945,4 @@ function ModalContent({
       `}</style>
     </motion.div>
   );
-    }
+}
