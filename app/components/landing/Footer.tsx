@@ -139,7 +139,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:soporte@nevux.app"
+                  href="mailto:soportenevux@gmail.com"
                   style={linkStyle}
                 >
                   Contacto
