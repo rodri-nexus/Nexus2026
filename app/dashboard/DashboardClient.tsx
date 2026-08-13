@@ -10,12 +10,30 @@ import StatsCards from "./components/StatsCards";
 import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
+import PlanStatusCard from "./components/PlanStatusCard";
 import TutorialProvider from "./components/tutorial/TutorialProvider";
+import type { PlanInfo, PlanStatus, RawPlanStatus } from "@/lib/plan";
 
 interface StoreData {
   store_id: number;
   installed_at: string;
   is_active: boolean;
+}
+
+// Plan serializado (fechas como ISO strings, listo para pasar client-side)
+interface SerializedPlan {
+  status: PlanStatus;
+  rawStatus: RawPlanStatus;
+  isBlocked: boolean;
+  daysRemaining: number;
+  hoursRemaining: number;
+  trialEndsAtISO: string | null;
+  planActiveUntilISO: string | null;
+  monthsActive: number;
+  needsFeedback: boolean;
+  needsPayment: boolean;
+  canUseApp: boolean;
+  canCreateWidgets: boolean;
 }
 
 interface DashboardClientProps {
@@ -25,6 +43,7 @@ interface DashboardClientProps {
   productsCount: number;
   activeWidgetsCount: number;
   onboardingCompleted: boolean;
+  plan: SerializedPlan | null;
 }
 
 const TIENDANUBE_CLIENT_ID = "37382";
@@ -36,11 +55,34 @@ export default function DashboardClient({
   productsCount,
   activeWidgetsCount,
   onboardingCompleted,
+  plan,
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const hasStore = store !== null;
 
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
+
+  // Reconstruimos el PlanInfo con las Date objects para pasarlo al PlanStatusCard
+  const planInfo: PlanInfo | null = plan
+    ? {
+        status: plan.status,
+        rawStatus: plan.rawStatus,
+        isBlocked: plan.isBlocked,
+        daysRemaining: plan.daysRemaining,
+        hoursRemaining: plan.hoursRemaining,
+        trialEndsAt: plan.trialEndsAtISO
+          ? new Date(plan.trialEndsAtISO)
+          : null,
+        planActiveUntil: plan.planActiveUntilISO
+          ? new Date(plan.planActiveUntilISO)
+          : null,
+        monthsActive: plan.monthsActive,
+        needsFeedback: plan.needsFeedback,
+        needsPayment: plan.needsPayment,
+        canUseApp: plan.canUseApp,
+        canCreateWidgets: plan.canCreateWidgets,
+      }
+    : null;
 
   return (
     <TutorialProvider initialCompleted={onboardingCompleted}>
@@ -292,6 +334,9 @@ export default function DashboardClient({
               gap: "1.5rem",
             }}
           >
+            {/* Card del estado del plan (solo si tiene tienda conectada) */}
+            {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
+
             <MetricsCard />
 
             <StatsCards
@@ -309,4 +354,4 @@ export default function DashboardClient({
       </div>
     </TutorialProvider>
   );
-                }
+      }
