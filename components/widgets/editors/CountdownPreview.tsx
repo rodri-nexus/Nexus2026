@@ -20,6 +20,8 @@ interface CountdownConfig {
   alignment: 'left' | 'center';
   bgType: 'solid' | 'gradient';
   colorWidgetBg: string;
+  colorWidgetBg2?: string;
+  gradientDirection?: 'to bottom' | 'to right' | 'to bottom right';
   colorSubtitleBg: string;
   colorClockBg: string;
   colorTitle: string;
@@ -160,6 +162,7 @@ function DigitRetro({
   }, [value]);
 
   const size = parseInt(config.fontSizeClock, 10) || 16;
+  const baseColor = config.colorClockBg || '#000000';
 
   return (
     <div style={{ display: 'inline-flex', gap: 2 }}>
@@ -169,8 +172,8 @@ function DigitRetro({
           style={{
             width: size * 1.4,
             height: size * 2.4,
-            background: 'linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 50%, #2a2a3e 100%)',
-            borderRadius: 6,
+            background: `linear-gradient(180deg, ${baseColor} 0%, ${baseColor} 49%, rgba(0,0,0,0.35) 50%, ${baseColor} 51%, ${baseColor} 100%)`,
+            borderRadius: config.borderRadiusClock,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -184,10 +187,6 @@ function DigitRetro({
             animation: flip ? 'nvxRetroFlip 0.3s ease' : 'none',
           }}
         >
-          <div style={{
-            position: 'absolute', top: '50%', left: 0, right: 0, height: 1,
-            background: 'rgba(0,0,0,0.5)',
-          }} />
           {d}
         </div>
       ))}
@@ -261,10 +260,16 @@ export default function CountdownPreview({ config }: Props) {
   const time = useTimeLeft(config);
 
   // Construir unidades a mostrar
+  // Lógica showDays:
+  //  - Si showDays = false → SIEMPRE ocultar días y acumular en horas (ej: 1d 2h → 26 HRS)
+  //  - Si showDays = true y days > 0 → mostrar días
+  //  - Si showDays = true y days = 0 → ocultar días automáticamente
   const units: { v: number; l: string }[] = useMemo(() => {
     const arr: { v: number; l: string }[] = [];
     const showDaysActive = config.showDays && time.days > 0;
+
     if (showDaysActive) arr.push({ v: time.days, l: 'DÍAS' });
+
     if (config.showHours !== false) {
       const hoursValue = showDaysActive ? time.hours : time.hours + time.days * 24;
       arr.push({ v: hoursValue, l: 'HRS' });
@@ -277,19 +282,26 @@ export default function CountdownPreview({ config }: Props) {
   if (units.length === 0) {
     return (
       <div style={{
-        padding: 20, background: '#fff7ed',
-        border: '1.5px dashed #fb923c',
+        padding: 20, background: '#fff5f5',
+        border: '1.5px dashed #FF0000',
         borderRadius: 12, textAlign: 'center',
-        fontSize: 13, color: '#c2410c', fontWeight: 700,
+        fontSize: 13, color: '#FF0000', fontWeight: 700,
       }}>
         ⚠️ Activá al menos una unidad
       </div>
     );
   }
 
-  const bg = config.bgType === 'gradient'
-    ? `linear-gradient(135deg, ${config.colorWidgetBg} 0%, ${config.colorSubtitleBg} 100%)`
-    : config.colorWidgetBg;
+  // Fondo del widget: sólido o degradé
+  const bg = (() => {
+    if (config.bgType === 'gradient') {
+      const c1 = config.colorWidgetBg || '#000000';
+      const c2 = config.colorWidgetBg2 || '#FF0000';
+      const dir = config.gradientDirection || 'to bottom right';
+      return `linear-gradient(${dir}, ${c1}, ${c2})`;
+    }
+    return config.colorWidgetBg;
+  })();
 
   return (
     <>
@@ -321,7 +333,7 @@ export default function CountdownPreview({ config }: Props) {
           </div>
         )}
 
-        {/* Subtítulo (chip amarillo) */}
+        {/* Subtítulo (chip con fondo personalizable) */}
         {config.subtitle && (
           <div style={{
             marginBottom: 14,
@@ -371,4 +383,4 @@ export default function CountdownPreview({ config }: Props) {
       </div>
     </>
   );
-       }
+      }
