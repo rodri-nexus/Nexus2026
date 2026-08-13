@@ -24,6 +24,8 @@ import {
   Image as ImageIcon,
   ExternalLink,
   Mail,
+  RefreshCw,
+  Zap,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { createClient } from "@/lib/supabase-browser";
@@ -138,6 +140,7 @@ export default function AdminPagosClient({
     useState<PaymentWithUser | null>(null);
   const [rejectingPayment, setRejectingPayment] =
     useState<PaymentWithUser | null>(null);
+  const [showCronModal, setShowCronModal] = useState(false);
 
   // Filtrado por tab
   const filteredPayments = useMemo(() => {
@@ -198,26 +201,50 @@ export default function AdminPagosClient({
           </div>
         </div>
 
-        <button
-          onClick={handleLogout}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.35rem",
-            padding: "0.5rem 0.85rem",
-            background: "transparent",
-            border: "1px solid #e5e7eb",
-            borderRadius: "8px",
-            color: "#000000",
-            fontSize: "0.8rem",
-            fontWeight: 600,
-            cursor: "pointer",
-            fontFamily: "inherit",
-          }}
-        >
-          <LogOut size={14} />
-          Salir
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <button
+            onClick={() => setShowCronModal(true)}
+            title="Ejecutar cron manualmente"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              padding: "0.5rem 0.7rem",
+              background: "transparent",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              color: "#000000",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            <Zap size={14} color="#FF0000" />
+            Cron
+          </button>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              padding: "0.5rem 0.85rem",
+              background: "transparent",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              color: "#000000",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            <LogOut size={14} />
+            Salir
+          </button>
+        </div>
       </header>
 
       {/* Contenido */}
@@ -401,6 +428,9 @@ export default function AdminPagosClient({
               router.refresh();
             }}
           />
+        )}
+        {showCronModal && (
+          <CronModal onClose={() => setShowCronModal(false)} />
         )}
       </AnimatePresence>
     </div>
@@ -1829,6 +1859,455 @@ function RejectModal({
 }
 
 // ═══════════════════════════════════════════════
+// MODAL: EJECUTAR CRON MANUALMENTE
+// ═══════════════════════════════════════════════
+function CronModal({ onClose }: { onClose: () => void }) {
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleRun() {
+    setRunning(true);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await fetch("/api/admin/run-cron", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error");
+      setResult(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <ModalBackdrop onClose={running ? () => {} : onClose}>
+      <ModalContent title="Ejecutar cron manualmente" onClose={onClose}>
+        {!result && !error && (
+          <>
+            <div
+              style={{
+                padding: "1rem",
+                background: "#fff5f5",
+                border: "1px solid #fecaca",
+                borderRadius: "10px",
+                marginBottom: "1rem",
+                display: "flex",
+                gap: "0.65rem",
+                alignItems: "flex-start",
+              }}
+            >
+              <Zap
+                size={18}
+                color="#FF0000"
+                style={{ flexShrink: 0, marginTop: "1px" }}
+              />
+              <div style={{ fontSize: "0.85rem", color: "#000000" }}>
+                Esta acción va a ejecutar el chequeo diario de planes al
+                instante. Se van a marcar como <strong>expirados</strong> los
+                planes vencidos y se enviarán <strong>recordatorios</strong>{" "}
+                por email para planes que vencen en 3 días o 1 día.
+              </div>
+            </div>
+
+            <div
+              style={{
+                padding: "0.85rem 1rem",
+                background: "#f9fafb",
+                borderRadius: "10px",
+                marginBottom: "1.25rem",
+                fontSize: "0.82rem",
+                color: "#000000",
+                opacity: 0.7,
+                lineHeight: 1.5,
+              }}
+            >
+              <strong>Nota:</strong> El cron corre automáticamente todos los
+              días a las 10:00 AM (Argentina). Usá este botón solo para
+              testear o forzar un chequeo manual.
+            </div>
+
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                onClick={onClose}
+                disabled={running}
+                style={{
+                  flex: 1,
+                  padding: "0.85rem",
+                  background: "white",
+                  color: "#000000",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "10px",
+                  fontSize: "0.9rem",
+                  fontWeight: 700,
+                  cursor: running ? "not-allowed" : "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleRun}
+                disabled={running}
+                style={{
+                  flex: 1,
+                  padding: "0.85rem",
+                  background: "#FF0000",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "10px",
+                  fontSize: "0.9rem",
+                  fontWeight: 700,
+                  cursor: running ? "not-allowed" : "pointer",
+                  fontFamily: "inherit",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.4rem",
+                }}
+              >
+                {running ? (
+                  <>
+                    <Loader2
+                      size={15}
+                      style={{ animation: "spin 1s linear infinite" }}
+                    />
+                    Ejecutando...
+                  </>
+                ) : (
+                  <>
+                    <Zap size={15} />
+                    Ejecutar ahora
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        )}
+
+        {result && (
+          <>
+            <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "56px",
+                  height: "56px",
+                  borderRadius: "50%",
+                  background: "#d1fae5",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                <CheckCircle2 size={30} color="#059669" />
+              </div>
+              <h4
+                style={{
+                  fontSize: "1.1rem",
+                  fontWeight: 800,
+                  color: "#000000",
+                  margin: "0 0 0.4rem 0",
+                }}
+              >
+                Cron ejecutado ✓
+              </h4>
+              <p
+                style={{
+                  fontSize: "0.82rem",
+                  color: "#000000",
+                  opacity: 0.6,
+                  margin: 0,
+                }}
+              >
+                Chequeo completado con éxito
+              </p>
+            </div>
+
+            {/* Contadores */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <CronStat
+                label="Expirados"
+                value={result.report?.expired ?? 0}
+                color="#dc2626"
+                bg="#fee2e2"
+              />
+              <CronStat
+                label="Emails OK"
+                value={result.report?.remindersSent ?? 0}
+                color="#059669"
+                bg="#d1fae5"
+              />
+              <CronStat
+                label="Fallidos"
+                value={result.report?.remindersFailed ?? 0}
+                color="#f59e0b"
+                bg="#fef3c7"
+              />
+            </div>
+
+            {/* Detalles: expirados */}
+            {result.report?.details?.expiredStores?.length > 0 && (
+              <div
+                style={{
+                  padding: "0.85rem",
+                  background: "#fee2e2",
+                  borderRadius: "10px",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    color: "#991b1b",
+                    marginBottom: "0.5rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Planes expirados
+                </div>
+                {result.report.details.expiredStores.map(
+                  (s: any, i: number) => (
+                    <div
+                      key={i}
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "#000000",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      • {s.email} <span style={{ opacity: 0.5 }}>#{s.storeId}</span>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+
+            {/* Detalles: recordatorios enviados */}
+            {result.report?.details?.remindersToSend?.length > 0 && (
+              <div
+                style={{
+                  padding: "0.85rem",
+                  background: "#fef3c7",
+                  borderRadius: "10px",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    color: "#b45309",
+                    marginBottom: "0.5rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Recordatorios enviados
+                </div>
+                {result.report.details.remindersToSend.map(
+                  (r: any, i: number) => (
+                    <div
+                      key={i}
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "#000000",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      • {r.email} — vence en {r.daysLeft}d
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+
+            {/* Errores */}
+            {result.report?.errors?.length > 0 && (
+              <div
+                style={{
+                  padding: "0.85rem",
+                  background: "#fee2e2",
+                  borderRadius: "10px",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    color: "#991b1b",
+                    marginBottom: "0.5rem",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Errores
+                </div>
+                {result.report.errors.map((e: string, i: number) => (
+                  <div
+                    key={i}
+                    style={{
+                      fontSize: "0.75rem",
+                      color: "#991b1b",
+                      marginBottom: "0.25rem",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    • {e}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Estado vacío si no pasó nada */}
+            {(result.report?.expired ?? 0) === 0 &&
+              (result.report?.remindersSent ?? 0) === 0 &&
+              (result.report?.errors?.length ?? 0) === 0 && (
+                <div
+                  style={{
+                    padding: "1rem",
+                    background: "#f9fafb",
+                    borderRadius: "10px",
+                    marginBottom: "0.75rem",
+                    textAlign: "center",
+                    fontSize: "0.85rem",
+                    color: "#000000",
+                    opacity: 0.6,
+                  }}
+                >
+                  ℹ️ No había planes vencidos ni por vencer en este momento.
+                </div>
+              )}
+
+            <button
+              onClick={onClose}
+              style={{
+                width: "100%",
+                padding: "0.85rem",
+                background: "#000000",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "0.9rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              Cerrar
+            </button>
+          </>
+        )}
+
+        {error && (
+          <>
+            <div
+              style={{
+                padding: "1rem",
+                background: "#fee2e2",
+                borderRadius: "10px",
+                marginBottom: "1rem",
+                display: "flex",
+                gap: "0.65rem",
+                alignItems: "flex-start",
+              }}
+            >
+              <XCircle
+                size={18}
+                color="#dc2626"
+                style={{ flexShrink: 0, marginTop: "1px" }}
+              />
+              <div style={{ fontSize: "0.85rem", color: "#991b1b" }}>
+                <strong>Error al ejecutar el cron:</strong>
+                <br />
+                {error}
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                width: "100%",
+                padding: "0.85rem",
+                background: "#000000",
+                color: "white",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "0.9rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              Cerrar
+            </button>
+          </>
+        )}
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+function CronStat({
+  label,
+  value,
+  color,
+  bg,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  bg: string;
+}) {
+  return (
+    <div
+      style={{
+        padding: "0.75rem 0.5rem",
+        background: bg,
+        borderRadius: "10px",
+        textAlign: "center",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "1.4rem",
+          fontWeight: 900,
+          color,
+          lineHeight: 1,
+          marginBottom: "0.25rem",
+        }}
+      >
+        {value}
+      </div>
+      <div
+        style={{
+          fontSize: "0.65rem",
+          fontWeight: 700,
+          color: "#000000",
+          opacity: 0.7,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+        }}
+      >
+        {label}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
 // MODAL BACKDROP & CONTENT
 // ═══════════════════════════════════════════════
 function ModalBackdrop({
@@ -1945,4 +2424,4 @@ function ModalContent({
       `}</style>
     </motion.div>
   );
-}
+  }
