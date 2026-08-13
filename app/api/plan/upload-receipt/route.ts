@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { sendNewPaymentAlert } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -180,6 +181,20 @@ export async function POST(request: Request) {
       // No es crítico, seguimos
     }
 
+    // 8. Notificar al admin por email (no bloquea el flujo si falla)
+    try {
+      await sendNewPaymentAlert({
+        customerEmail: user.email || "sin-email",
+        amount: 30000,
+        transferReference,
+        paymentId: payment.id,
+        storeId: store.store_id,
+      });
+    } catch (emailErr) {
+      console.error("⚠️ [upload-receipt] Error enviando email admin:", emailErr);
+      // No es crítico, seguimos
+    }
+
     console.log(`✅ [upload-receipt] OK: user=${user.email}, payment=${payment.id}`);
 
     return NextResponse.json({
@@ -196,4 +211,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-                }
+      }
