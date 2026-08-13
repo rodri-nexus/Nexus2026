@@ -48,6 +48,8 @@ interface CountdownConfig {
   showLabels: boolean;
   bgType: 'solid' | 'gradient';
   colorWidgetBg: string;
+  colorWidgetBg2: string;
+  gradientDirection: 'to bottom' | 'to right' | 'to bottom right';
   colorSubtitleBg: string;
   colorClockBg: string;
   colorTitle: string;
@@ -104,11 +106,13 @@ const defaultConfig: CountdownConfig = {
   alignment: 'left',
   showLabels: true,
   bgType: 'solid',
-  colorWidgetBg: '#1e1e1e',
-  colorSubtitleBg: '#fdc624',
-  colorClockBg: '#ef4444',
+  colorWidgetBg: '#000000',
+  colorWidgetBg2: '#FF0000',
+  gradientDirection: 'to bottom right',
+  colorSubtitleBg: '#FF0000',
+  colorClockBg: '#FF0000',
   colorTitle: '#ffffff',
-  colorSubtitle: '#000000',
+  colorSubtitle: '#ffffff',
   colorNumbers: '#ffffff',
   fontSizeTitle: '16px',
   fontSizeSubtitle: '11px',
@@ -126,7 +130,7 @@ const defaultConfig: CountdownConfig = {
   auraEnabled: false,
   colorAuraCalm: '#8b5cf6',
   colorAuraMedium: '#f97316',
-  colorAuraUrgent: '#ef4444',
+  colorAuraUrgent: '#FF0000',
   effectsIntensity: 0,
   showShimmer: false,
   showProgressRing: false,
@@ -137,10 +141,10 @@ const defaultConfig: CountdownConfig = {
 };
 
 /* ═══════════════════════════════════════════
-   ICONOS (SVG inline)
+   ICONOS (SVG inline) — TODOS EN ROJO NEVUX
 ═══════════════════════════════════════════ */
 const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
     <line x1="2" y1="7" x2="22" y2="7"/>
     <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
@@ -149,38 +153,38 @@ const IconStore = () => (
 );
 
 const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 
 const IconClock = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
   </svg>
 );
 
 const IconLayers = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
   </svg>
 );
 
 const IconPalette = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/>
     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/>
   </svg>
 );
 
 const IconType = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
   </svg>
 );
 
 const IconSpacing = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/>
   </svg>
 );
@@ -210,17 +214,35 @@ const IconAlignCenter = () => (
   </svg>
 );
 
+const IconArrowDown = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+  </svg>
+);
+
+const IconArrowRight = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+  </svg>
+);
+
+const IconArrowDiagonal = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 8 17 17 8 17"/>
+  </svg>
+);
+
 /* ═══════════════════════════════════════════
-   LOGO NEVUX
+   LOGO NEVUX (gemas rojo/negro)
 ═══════════════════════════════════════════ */
 const NevuxLogo = () => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
     <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-      <ellipse cx="20" cy="14" rx="10" ry="6" fill="#3b82f6"/>
-      <path d="M10 14v10c0 3.3 4.5 6 10 6s10-2.7 10-6V14" fill="#3b82f6"/>
-      <ellipse cx="20" cy="24" rx="10" ry="6" fill="#60a5fa"/>
+      <ellipse cx="20" cy="14" rx="10" ry="6" fill="#FF0000"/>
+      <path d="M10 14v10c0 3.3 4.5 6 10 6s10-2.7 10-6V14" fill="#000000"/>
+      <ellipse cx="20" cy="24" rx="10" ry="6" fill="#FF0000"/>
     </svg>
-    <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>Nevux</span>
+    <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', letterSpacing: '-0.02em' }}>Nevux</span>
   </div>
 );
 
@@ -229,16 +251,16 @@ const NevuxLogo = () => (
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#1a1a2e', marginBottom: 8 }}>
+    <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
-      {required && <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>}
+      {required && <span style={{ color: '#FF0000', marginLeft: 4 }}>*</span>}
     </label>
   );
 }
 
 function FieldHelper({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: 13, color: '#6b7280', marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
+    <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
       {children}
     </p>
   );
@@ -258,11 +280,11 @@ function TextInput({
       style={{
         width: '100%', padding: '12px 14px', fontSize: 15,
         border: '1.5px solid #e5e7eb', borderRadius: 10,
-        background: '#ffffff', color: '#1a1a2e', outline: 'none',
+        background: '#ffffff', color: '#000000', outline: 'none',
         boxSizing: 'border-box', fontFamily: 'inherit',
         transition: 'border-color 0.2s',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -281,10 +303,10 @@ function DateTimeInput({
       style={{
         width: '100%', padding: '12px 14px', fontSize: 15,
         border: '1.5px solid #e5e7eb', borderRadius: 10,
-        background: '#ffffff', color: '#1a1a2e', outline: 'none',
+        background: '#ffffff', color: '#000000', outline: 'none',
         boxSizing: 'border-box', fontFamily: 'inherit',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -306,8 +328,8 @@ function CheckboxCard({
           onClick={() => onChange(!checked)}
           style={{
             width: 22, height: 22, borderRadius: 5,
-            background: checked ? '#3b82f6' : '#ffffff',
-            border: checked ? '2px solid #3b82f6' : '2px solid #d1d5db',
+            background: checked ? '#FF0000' : '#ffffff',
+            border: checked ? '2px solid #FF0000' : '2px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, transition: 'all 0.2s',
             marginTop: 1,
@@ -320,11 +342,11 @@ function CheckboxCard({
           )}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.35 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.35 }}>
             {label}
           </div>
           {helper && (
-            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 6, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
               {helper}
             </div>
           )}
@@ -349,11 +371,11 @@ function RadioOption({
         onClick={onChange}
         style={{
           width: 20, height: 20, borderRadius: '50%',
-          border: checked ? '6px solid #3b82f6' : '2px solid #d1d5db',
+          border: checked ? '6px solid #FF0000' : '2px solid #e5e7eb',
           background: '#ffffff', flexShrink: 0, transition: 'all 0.2s',
         }}
       />
-      <span style={{ fontSize: 15, color: '#1a1a2e', fontWeight: 500 }}>
+      <span style={{ fontSize: 15, color: '#000000', fontWeight: 500 }}>
         {label}
       </span>
     </label>
@@ -379,7 +401,7 @@ function ColorPickerField({
         onClick={handleClick}
         style={{
           width: 60, height: 44, borderRadius: 10,
-          background: value, border: '1.5px solid #e5e7eb',
+          background: value || '#ffffff', border: '1.5px solid #e5e7eb',
           cursor: 'pointer', flexShrink: 0,
         }}
       />
@@ -389,12 +411,12 @@ function ColorPickerField({
           value={value}
           onChange={(e) => {
             const v = e.target.value;
-            onChange(v.startsWith('#') ? v : '#' + v);
+            onChange(v.startsWith('#') || v === '' ? v : '#' + v);
           }}
           style={{
             width: '100%', padding: '12px 36px 12px 14px', fontSize: 15,
             border: '1.5px solid #e5e7eb', borderRadius: 10,
-            background: '#ffffff', color: '#1a1a2e', outline: 'none',
+            background: '#ffffff', color: '#000000', outline: 'none',
             fontFamily: 'monospace', boxSizing: 'border-box',
           }}
         />
@@ -405,7 +427,8 @@ function ColorPickerField({
             style={{
               position: 'absolute', right: 10, top: '50%',
               transform: 'translateY(-50%)', background: 'none',
-              border: 'none', cursor: 'pointer', color: '#9ca3af',
+              border: 'none', cursor: 'pointer', color: '#000000',
+              opacity: 0.5,
               fontSize: 20, padding: 4, lineHeight: 1,
             }}
           >
@@ -431,7 +454,7 @@ function SelectField({
         style={{
           width: '100%', padding: '12px 36px 12px 14px', fontSize: 15,
           border: '1.5px solid #e5e7eb', borderRadius: 10,
-          background: '#ffffff', color: '#1a1a2e', outline: 'none',
+          background: '#ffffff', color: '#000000', outline: 'none',
           appearance: 'none', cursor: 'pointer', boxSizing: 'border-box',
           fontFamily: 'inherit',
         }}
@@ -442,7 +465,7 @@ function SelectField({
       </select>
       <svg
         width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        stroke="#000000" strokeOpacity="0.5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
         style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
       >
         <polyline points="6 9 12 15 18 9"/>
@@ -460,7 +483,7 @@ function RangeSlider({
 }) {
   return (
     <div>
-      <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e', marginBottom: 10 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 10 }}>
         {label}
       </div>
       <input
@@ -468,11 +491,11 @@ function RangeSlider({
         min={min} max={max} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
-          width: '100%', accentColor: '#3b82f6', cursor: 'pointer',
+          width: '100%', accentColor: '#FF0000', cursor: 'pointer',
         }}
       />
       {ticks && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 4 }}>
           {ticks.map((t) => <span key={t}>{t}px</span>)}
         </div>
       )}
@@ -494,9 +517,9 @@ function SectionCard({
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: helper ? 4 : 20 }}>
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#1a1a2e' }}>{title}</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>{title}</div>
           {helper && (
-            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4, lineHeight: 1.4 }}>
+            <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
               {helper}
             </div>
           )}
@@ -525,9 +548,9 @@ function ChoiceButtons({
             onClick={() => onChange(opt.value)}
             style={{
               padding: '12px 14px', borderRadius: 10,
-              border: act ? '2px solid #3b82f6' : '1.5px solid #e5e7eb',
-              background: act ? '#eff6ff' : '#ffffff',
-              color: act ? '#3b82f6' : '#374151',
+              border: act ? '2px solid #FF0000' : '1.5px solid #e5e7eb',
+              background: act ? '#fff5f5' : '#ffffff',
+              color: act ? '#FF0000' : '#000000',
               fontSize: 14, fontWeight: 600,
               cursor: 'pointer', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
@@ -682,7 +705,7 @@ export default function CountdownEditor({
         helper="El widget aparecerá dentro de la ficha de producto."
       >
         <div style={{ paddingLeft: 4 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e', marginBottom: 12 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 12 }}>
             Ubicación del widget
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -697,7 +720,7 @@ export default function CountdownEditor({
               label="Antes del título del producto"
             />
           </div>
-          <div style={{ fontSize: 13, color: '#6b7280', marginTop: 12, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 12, lineHeight: 1.5 }}>
             Selecciona dónde quieres que aparezca la cuenta regresiva en la ficha del producto
           </div>
         </div>
@@ -778,12 +801,59 @@ export default function CountdownEditor({
           />
         </div>
 
-        <FieldLabel>Color de fondo</FieldLabel>
-        <ColorPickerField
-          value={config.colorWidgetBg}
-          onChange={(v) => update('colorWidgetBg', v)}
-          showClear={false}
-        />
+        {config.bgType === 'solid' ? (
+          <>
+            <FieldLabel>Color de fondo</FieldLabel>
+            <ColorPickerField
+              value={config.colorWidgetBg}
+              onChange={(v) => update('colorWidgetBg', v)}
+              showClear={false}
+            />
+          </>
+        ) : (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              <FieldLabel>Color inicial</FieldLabel>
+              <ColorPickerField
+                value={config.colorWidgetBg}
+                onChange={(v) => update('colorWidgetBg', v)}
+                showClear={false}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <FieldLabel>Color final</FieldLabel>
+              <ColorPickerField
+                value={config.colorWidgetBg2}
+                onChange={(v) => update('colorWidgetBg2', v)}
+                showClear={false}
+              />
+            </div>
+
+            <div>
+              <FieldLabel>Dirección del degradé</FieldLabel>
+              <ChoiceButtons
+                value={config.gradientDirection}
+                onChange={(v) => update('gradientDirection', v as any)}
+                options={[
+                  { value: 'to bottom', label: 'Vertical', icon: <IconArrowDown /> },
+                  { value: 'to right', label: 'Horizontal', icon: <IconArrowRight /> },
+                  { value: 'to bottom right', label: 'Diagonal', icon: <IconArrowDiagonal /> },
+                ]}
+              />
+            </div>
+
+            {/* Vista previa del degradé */}
+            <div style={{ marginTop: 16 }}>
+              <FieldLabel>Vista previa</FieldLabel>
+              <div style={{
+                width: '100%', height: 60, borderRadius: 10,
+                background: `linear-gradient(${config.gradientDirection}, ${config.colorWidgetBg}, ${config.colorWidgetBg2})`,
+                border: '1.5px solid #e5e7eb',
+              }} />
+            </div>
+          </>
+        )}
       </SectionCard>
 
       <SectionCard
@@ -940,7 +1010,7 @@ export default function CountdownEditor({
 
   /* ═══ RENDER ═══ */
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f5', paddingBottom: 100 }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 100 }}>
 
       {/* ── HEADER ── */}
       <div style={{
@@ -957,16 +1027,16 @@ export default function CountdownEditor({
               padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
           <div style={{ width: 1, height: 28, background: '#e5e7eb' }} />
           <div style={{
             width: 36, height: 36, borderRadius: '50%',
-            background: '#e5e7eb', display: 'flex',
+            background: '#000000', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: '#6b7280',
+            fontSize: 13, fontWeight: 700, color: '#ffffff',
           }}>
             RL
           </div>
@@ -979,13 +1049,13 @@ export default function CountdownEditor({
         {/* Chip scope: SOLO se muestra si es para toda la tienda */}
         {isForAll && (
           <div style={{
-            background: '#eff6ff', border: '1px solid #dbeafe',
+            background: '#fff5f5', border: '1px solid #fecaca',
             borderRadius: 12, padding: '14px 18px',
             display: 'flex', alignItems: 'center', gap: 10,
             marginBottom: 20,
           }}>
             <IconStore />
-            <span style={{ fontSize: 15, color: '#1e40af', fontWeight: 500 }}>
+            <span style={{ fontSize: 15, color: '#FF0000', fontWeight: 600 }}>
               Widget general para toda la tienda
             </span>
           </div>
@@ -993,13 +1063,13 @@ export default function CountdownEditor({
 
         {/* Título */}
         <h1 style={{
-          fontSize: 30, fontWeight: 700, color: '#374151',
+          fontSize: 30, fontWeight: 700, color: '#000000',
           margin: '0 0 24px', lineHeight: 1.2, letterSpacing: '-0.01em',
         }}>
-          <span style={{ color: '#9ca3af', fontWeight: 400 }}>
+          <span style={{ color: '#000000', opacity: 0.5, fontWeight: 400 }}>
             {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
           </span>
-          <span style={{ color: '#1a1a2e' }}>
+          <span style={{ color: '#000000' }}>
             {widgetDefinition.name} ({scopeLabel})
           </span>
         </h1>
@@ -1016,13 +1086,13 @@ export default function CountdownEditor({
 
           {/* Info box */}
           <div style={{
-            background: '#eff6ff', border: '1px solid #dbeafe',
+            background: '#fff5f5', border: '1px solid #fecaca',
             borderRadius: 10, padding: '12px 16px',
             display: 'flex', alignItems: 'flex-start', gap: 10,
             marginBottom: 20,
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
-            <span style={{ fontSize: 14, color: '#1e40af', lineHeight: 1.5 }}>
+            <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
               {infoBoxText}
             </span>
           </div>
@@ -1041,8 +1111,9 @@ export default function CountdownEditor({
                   onClick={() => setActiveTab(tab.id as any)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
-                    border: 'none', borderBottom: act ? '3px solid #1a1a2e' : '3px solid transparent',
-                    color: act ? '#1a1a2e' : '#9ca3af',
+                    border: 'none', borderBottom: act ? '3px solid #FF0000' : '3px solid transparent',
+                    color: act ? '#FF0000' : '#000000',
+                    opacity: act ? 1 : 0.5,
                     fontSize: 15, fontWeight: act ? 700 : 500,
                     cursor: 'pointer', fontFamily: 'inherit',
                     marginBottom: -1, transition: 'all 0.2s',
@@ -1072,7 +1143,7 @@ export default function CountdownEditor({
                 onClick={() => setIsActive(!isActive)}
                 style={{
                   width: 44, height: 26, borderRadius: 13,
-                  background: isActive ? '#3b82f6' : '#d1d5db',
+                  background: isActive ? '#FF0000' : '#e5e7eb',
                   position: 'relative', transition: 'background 0.25s',
                   flexShrink: 0,
                 }}
@@ -1084,10 +1155,10 @@ export default function CountdownEditor({
                   boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                 }} />
               </div>
-              <span style={{ fontSize: 15, fontWeight: 500, color: '#1a1a2e' }}>
+              <span style={{ fontSize: 15, fontWeight: 500, color: '#000000' }}>
                 Widget activo
               </span>
-              <div style={{ color: '#3b82f6', display: 'flex', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <IconInfo />
               </div>
             </label>
@@ -1099,12 +1170,12 @@ export default function CountdownEditor({
               style={{
                 padding: '12px 28px', borderRadius: 999,
                 border: 'none',
-                background: savedOK ? '#10b981' : '#3b82f6',
+                background: savedOK ? '#059669' : '#FF0000',
                 color: '#fff', fontSize: 15, fontWeight: 700,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.6 : 1,
                 fontFamily: 'inherit',
-                boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
+                boxShadow: '0 2px 8px rgba(255,0,0,0.3)',
                 transition: 'all 0.2s',
                 whiteSpace: 'nowrap',
               }}
@@ -1122,7 +1193,7 @@ export default function CountdownEditor({
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
             <NevuxLogo />
           </div>
-          <div style={{ fontSize: 15, color: '#6b7280' }}>Centro de ayuda</div>
+          <div style={{ fontSize: 15, color: '#000000', opacity: 0.6 }}>Centro de ayuda</div>
         </div>
 
         {/* Error */}
@@ -1130,7 +1201,7 @@ export default function CountdownEditor({
           <div style={{
             position: 'fixed', bottom: 20, left: 16, right: 16,
             maxWidth: 600, margin: '0 auto',
-            background: '#fee2e2', color: '#991b1b',
+            background: '#fef2f2', color: '#dc2626',
             padding: '12px 16px', borderRadius: 12,
             fontSize: 14, fontWeight: 600,
             border: '1px solid #fecaca', zIndex: 40,
@@ -1142,4 +1213,4 @@ export default function CountdownEditor({
       </div>
     </div>
   );
-   }
+}
