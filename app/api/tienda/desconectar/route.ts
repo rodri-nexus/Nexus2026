@@ -121,11 +121,13 @@ export async function POST(request: Request) {
     }
 
     // 5. Marcar la tienda como inactiva (soft delete)
+    // ⚠️ NO seteamos access_token a null porque la columna es NOT NULL.
+    // El token viejo queda guardado (no importa, porque is_active = false).
+    // Cuando el usuario reconecte, se sobreescribe con uno nuevo.
     const { error: updateErr } = await supabaseAdmin
       .from("stores")
       .update({
         is_active: false,
-        access_token: null,
         updated_at: new Date().toISOString(),
       })
       .eq("store_id", store.store_id)
@@ -134,7 +136,10 @@ export async function POST(request: Request) {
     if (updateErr) {
       console.error("Error desactivando tienda:", updateErr);
       return NextResponse.json(
-        { error: "Error desactivando la tienda" },
+        {
+          error: "Error desactivando la tienda",
+          details: updateErr.message,
+        },
         { status: 500 }
       );
     }
@@ -157,4 +162,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-          }
+         }
