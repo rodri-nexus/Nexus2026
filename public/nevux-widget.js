@@ -1430,7 +1430,6 @@
     `;
     document.head.appendChild(style);
         }
-  
   /* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
@@ -1483,44 +1482,13 @@
     .catch(function (err) {
       console.error("[Nevux] Error cargando widgets:", err);
     });
-        
+  
   /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
   ═══════════════════════════════════════════ */
-  injectCountdownStyles();
-
-  function injectCountdownStyles() {
-    if (document.getElementById(NS + "-countdown-styles")) return;
-    const style = document.createElement("style");
-    style.id = NS + "-countdown-styles";
-    style.textContent =
-      "@keyframes " + NS + "-bounceDigit{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}" +
-      "@keyframes " + NS + "-criticalPulse{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(220,38,38,0.55)}50%{transform:scale(1.04);box-shadow:0 0 0 8px rgba(220,38,38,0)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(220,38,38,0)}}" +
-      "@keyframes " + NS + "-flipDown{0%{transform:rotateX(0);opacity:1}50%{transform:rotateX(-90deg);opacity:0.4}100%{transform:rotateX(0);opacity:1}}" +
-      "@keyframes " + NS + "-bounce{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}" +
-      "." + NS + "-digit.bounce{animation:" + NS + "-bounce 0.35s ease}" +
-      "." + NS + "-retro-cell.flip{animation:" + NS + "-flipDown 0.5s ease}" +
-      "." + NS + "-digit.nvx-critical{animation:" + NS + "-criticalPulse 1s ease-in-out infinite}" +
-      "." + NS + "-retro-digit.nvx-critical{animation:" + NS + "-criticalPulse 1s ease-in-out infinite}" +
-      "." + NS + "-unit{display:inline-flex;flex-direction:column;align-items:center;gap:4px}" +
-      "." + NS + "-digit{display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-variant-numeric:tabular-nums}" +
-      "." + NS + "-retro-digit{display:inline-flex;gap:2px;perspective:400px}" +
-      "." + NS + "-retro-cell{display:inline-flex;align-items:center;justify-content:center;min-width:1ch;font-weight:800;font-variant-numeric:tabular-nums;padding:6px 4px;border-radius:4px;background:rgba(0,0,0,0.15);backface-visibility:hidden}" +
-      "." + NS + "-sep{display:inline-flex;flex-direction:column;justify-content:center;align-items:center}" +
-      "." + NS + "-sep span{display:block;border-radius:50%}" +
-      "." + NS + "-label{font-weight:700;letter-spacing:0.05em;text-transform:uppercase}" +
-      "." + NS + "-topbar{position:fixed;top:0;left:0;right:0;z-index:99999;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.15)}" +
-      "." + NS + "-bar-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}" +
-      "." + NS + "-bar-title{font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px}" +
-      "." + NS + "-bar-clock{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-variant-numeric:tabular-nums}" +
-      "." + NS + "-bar-digit{min-width:2ch;text-align:center;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.15)}" +
-      "." + NS + "-bar-sep{opacity:0.7;font-weight:700}";
-    document.head.appendChild(style);
-  }
-
   function renderCountdown(widget) {
     const cfg = normalizeConfig(widget.config || {});
-    const state = { endTime: getInitialEndTime(cfg, widget.id) };
+    const state = { endTime: getInitialEndTime(cfg) };
 
     const placements = [];
     if (cfg.showAsTopBar && pageType === "home") placements.push("topbar");
@@ -1532,26 +1500,7 @@
     placements.forEach(function (p) { mountAt(widget, cfg, p, state); });
   }
 
-  function getInitialEndTime(cfg, widgetId) {
-    // Modo duración corta: por sesión (persiste si recarga)
-    if (cfg.mode === "duration") {
-      const mins = cfg.durationMinutes > 0 ? cfg.durationMinutes : 15;
-      const key = NS + "-cd-session-" + widgetId;
-      try {
-        const stored = sessionStorage.getItem(key);
-        if (stored) {
-          const t = parseInt(stored, 10);
-          if (!isNaN(t) && t > Date.now()) return t;
-        }
-        const t = Date.now() + mins * 60 * 1000;
-        sessionStorage.setItem(key, String(t));
-        return t;
-      } catch (e) {
-        return Date.now() + mins * 60 * 1000;
-      }
-    }
-
-    // Modo fecha fija
+  function getInitialEndTime(cfg) {
     if (cfg.endDate) {
       const t = new Date(cfg.endDate).getTime();
       if (t > Date.now()) return t;
@@ -1569,7 +1518,6 @@
     container.id = uniqueId;
     container.className = NS + "-root";
     container.dataset.placement = placement;
-    container.dataset.widgetId = widget.id;
 
     if (placement === "topbar") {
       container.classList.add(NS + "-topbar");
@@ -1591,26 +1539,14 @@
       target.parentNode.insertBefore(container, target);
     }
 
-    // Guardamos duración total inicial para calcular % en modo urgencia
-    state.totalMs = state.endTime - Date.now();
-    if (state.totalMs <= 0) state.totalMs = 15 * 60 * 1000;
-
-    update(container, cfg, state, widget.id);
+    update(container, cfg, state);
 
     setInterval(function () {
       const now = Date.now();
       if (state.endTime <= now && cfg.autoRestart) {
-        if (cfg.mode === "duration") {
-          const mins = cfg.durationMinutes > 0 ? cfg.durationMinutes : 15;
-          state.endTime = now + mins * 60 * 1000;
-          state.totalMs = mins * 60 * 1000;
-          try { sessionStorage.setItem(NS + "-cd-session-" + widget.id, String(state.endTime)); } catch (e) {}
-        } else {
-          state.endTime = now + 15 * 60 * 1000;
-          state.totalMs = 15 * 60 * 1000;
-        }
+        state.endTime = now + 15 * 60 * 1000;
       }
-      update(container, cfg, state, widget.id);
+      update(container, cfg, state);
     }, 1000);
   }
 
@@ -1714,81 +1650,45 @@
       const p = typeof v === "string" ? parseInt(v, 10) : v;
       return isNaN(p) ? fb : p;
     }
-    function pick() {
-      for (let i = 0; i < arguments.length - 1; i++) {
-        const v = arguments[i];
-        if (v !== undefined && v !== null && v !== "") return v;
-      }
-      return arguments[arguments.length - 1];
-    }
-    function bool(v, fb) {
-      if (v === undefined || v === null) return fb;
-      if (typeof v === "boolean") return v;
-      if (typeof v === "string") return v === "true" || v === "1";
-      return !!v;
-    }
-
-    // Compat legacy: acepta snake_case Y camelCase
-    const mode = raw.mode === "duration" ? "duration" : "fixed";
-    const style = pick(raw.style, raw.clock_style, "clasico");
-    const alignment = pick(raw.alignment, raw.content_alignment, "center");
-    const bgType = pick(raw.bgType, raw.background_type, "solid");
-    const productPosition = raw.productPosition || "before-button";
-
-    // Gradient direction (nuevo con fallback)
-    const gradDir = pick(raw.gradientDirection, "to bottom right");
-    const gradientDirection = (gradDir === "to bottom" || gradDir === "to right" || gradDir === "to bottom right")
-      ? gradDir
-      : "to bottom right";
-
     return {
-      title: pick(raw.title, "🔥 Oferta"),
-      subtitle: pick(raw.subtitle, ""),
-      mode: mode,
-      endDate: pick(raw.endDate, raw.end_datetime, ""),
-      durationMinutes: n(pick(raw.durationMinutes, raw.duration_minutes, 15), 15),
-      autoRestart: bool(pick(raw.autoRestart, raw.auto_restart, false), false),
-      showDays: bool(pick(raw.showDays, raw.show_days, true), true),
-      showHours: bool(pick(raw.showHours, raw.show_hours, true), true),
-      showMinutes: bool(pick(raw.showMinutes, raw.show_minutes, true), true),
-      showSeconds: bool(pick(raw.showSeconds, raw.show_seconds, true), true),
-      showOnProduct: bool(pick(raw.showOnProduct, raw.show_on_product, true), true),
-      productPosition: productPosition,
-      showAsTopBar: bool(pick(raw.showAsTopBar, raw.show_as_top_bar, false), false),
-      showOnCart: bool(pick(raw.showOnCart, raw.show_on_cart, false), false),
-      style: style === "retro" ? "retro" : "clasico",
-      alignment: alignment === "left" ? "left" : "center",
-      showLabels: bool(pick(raw.showLabels, raw.show_clock_labels, true), true),
-      bgType: bgType === "gradient" ? "gradient" : "solid",
-      gradientDirection: gradientDirection,
-      colorWidgetBg: pick(raw.colorWidgetBg, raw.background_color, "#000000"),
-      colorWidgetBg2: pick(raw.colorWidgetBg2, raw.subtitle_bg_color, "#FF0000"),
-      colorSubtitleBg: pick(raw.colorSubtitleBg, raw.subtitle_bg_color, "#FF0000"),
-      colorClockBg: pick(raw.colorClockBg, raw.clock_bg_color, "#FF0000"),
-      colorTitle: pick(raw.colorTitle, raw.title_font_color, "#ffffff"),
-      colorSubtitle: pick(raw.colorSubtitle, raw.subtitle_font_color, "#ffffff"),
-      colorNumbers: pick(raw.colorNumbers, raw.number_font_color, "#ffffff"),
-      fontSizeTitle: pick(raw.fontSizeTitle, raw.title_font_size, "16px"),
-      fontSizeSubtitle: pick(raw.fontSizeSubtitle, raw.subtitle_font_size, "11px"),
-      fontSizeClock: pick(raw.fontSizeClock, raw.clock_font_size, "16px"),
-      borderRadiusClock: n(pick(raw.borderRadiusClock, raw.clock_border_radius, 5), 5),
-      borderRadiusWidget: n(pick(raw.borderRadiusWidget, raw.widget_border_radius, 12), 12),
-      paddingWidget: n(pick(raw.paddingWidget, raw.widget_padding, 15), 15),
-      paddingClock: n(pick(raw.paddingClock, raw.clock_padding, 7), 7),
-      // MODO URGENCIA 🔥
-      urgencyEnabled: bool(pick(raw.urgencyEnabled, raw.urgency_enabled, false), false),
-      colorClockBgMedium: pick(raw.colorClockBgMedium, raw.clock_bg_color_medium, "#f97316"),
-      colorClockBgCritical: pick(raw.colorClockBgCritical, raw.clock_bg_color_critical, "#dc2626"),
+      title: raw.title != null ? raw.title : "🔥 Oferta",
+      subtitle: raw.subtitle != null ? raw.subtitle : "",
+      endDate: raw.endDate || "",
+      showDays: raw.showDays === true,
+      showHours: raw.showHours !== false,
+      showMinutes: raw.showMinutes !== false,
+      showSeconds: raw.showSeconds !== false,
+      autoRestart: raw.autoRestart === true,
+      showOnProduct: raw.showOnProduct !== false,
+      productPosition: raw.productPosition || "before-button",
+      showAsTopBar: raw.showAsTopBar === true,
+      showOnCart: raw.showOnCart === true,
+      style: raw.style === "retro" ? "retro" : "clasico",
+      alignment: raw.alignment === "left" ? "left" : "center",
+      showLabels: raw.showLabels !== false,
+      bgType: raw.bgType === "gradient" ? "gradient" : "solid",
+      colorWidgetBg: raw.colorWidgetBg || "#1e1e1e",
+      colorSubtitleBg: raw.colorSubtitleBg || "#fdc624",
+      colorClockBg: raw.colorClockBg || "#ef4444",
+      colorTitle: raw.colorTitle || "#ffffff",
+      colorSubtitle: raw.colorSubtitle || "#000000",
+      colorNumbers: raw.colorNumbers || "#ffffff",
+      fontSizeTitle: raw.fontSizeTitle || "16px",
+      fontSizeSubtitle: raw.fontSizeSubtitle || "11px",
+      fontSizeClock: raw.fontSizeClock || "16px",
+      borderRadiusClock: n(raw.borderRadiusClock, 5),
+      borderRadiusWidget: n(raw.borderRadiusWidget, 12),
+      paddingWidget: n(raw.paddingWidget, 15),
+      paddingClock: n(raw.paddingClock, 7),
     };
   }
 
   function calcTime(state) {
     const ms = state.endTime - Date.now();
     if (ms <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isFinished: true, remainingRatio: 0 };
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isFinished: true };
     }
     const t = Math.floor(ms / 1000);
-    const ratio = state.totalMs > 0 ? Math.max(0, Math.min(1, ms / state.totalMs)) : 1;
     return {
       days: Math.floor(t / 86400),
       hours: Math.floor((t % 86400) / 3600),
@@ -1796,19 +1696,10 @@
       seconds: t % 60,
       totalSeconds: t,
       isFinished: false,
-      remainingRatio: ratio,
     };
   }
 
-  function getUrgencyState(cfg, time) {
-    if (!cfg.urgencyEnabled) return { level: "normal", clockBg: cfg.colorClockBg, isCritical: false };
-    const r = time.remainingRatio;
-    if (r <= 0.33) return { level: "critical", clockBg: cfg.colorClockBgCritical, isCritical: true };
-    if (r <= 0.66) return { level: "medium", clockBg: cfg.colorClockBgMedium, isCritical: false };
-    return { level: "normal", clockBg: cfg.colorClockBg, isCritical: false };
-  }
-
-  function update(container, cfg, state, widgetId) {
+  function update(container, cfg, state) {
     const time = calcTime(state);
 
     if (time.isFinished && !cfg.autoRestart) {
@@ -1826,7 +1717,6 @@
       return;
     }
 
-    const urgency = getUrgencyState(cfg, time);
     const keys = units.map(function (u) { return u.k; }).join(",");
     let host = qs("." + NS + "-widget-host", container);
 
@@ -1834,18 +1724,17 @@
       !host ||
       host.dataset.style !== cfg.style ||
       host.dataset.keys !== keys ||
-      host.dataset.bar !== String(isBar) ||
-      host.dataset.urgency !== urgency.level;
+      host.dataset.bar !== String(isBar);
 
     if (needsRebuild) {
       container.innerHTML = isBar
-        ? buildBarHtml(cfg, units, time, urgency)
-        : buildFullHtml(cfg, units, time, urgency);
+        ? buildBarHtml(cfg, units, time)
+        : buildFullHtml(cfg, units, time);
     } else {
       if (isBar) {
         updateBarDigits(host, units);
       } else {
-        units.forEach(function (u) { updateUnit(host, u, cfg, urgency); });
+        units.forEach(function (u) { updateUnit(host, u, cfg); });
       }
     }
   }
@@ -1863,9 +1752,10 @@
     return arr;
   }
 
-  function buildBarHtml(cfg, units, time, urgency) {
-    const bg = getBg(cfg);
-    const clockBg = urgency.clockBg;
+  function buildBarHtml(cfg, units, time) {
+    const bg = cfg.bgType === "gradient"
+      ? "linear-gradient(90deg, " + cfg.colorWidgetBg + " 0%, " + cfg.colorSubtitleBg + " 100%)"
+      : cfg.colorWidgetBg;
 
     const split = splitEmoji(cfg.title);
     const fullText = cfg.subtitle
@@ -1885,18 +1775,18 @@
     for (let i = 0; i < units.length; i++) {
       const u = units[i];
       const val = String(u.v).padStart(2, "0");
-      const critClass = urgency.isCritical ? " nvx-critical" : "";
-      clockInner += '<div class="' + NS + '-bar-digit' + critClass + '" data-key="' + u.k + '" style="background:' + clockBg + ';color:' + cfg.colorNumbers + ';">' + val + '</div>';
+      clockInner += '<div class="' + NS + '-bar-digit" data-key="' + u.k + '">' + val + '</div>';
       if (i < units.length - 1) {
         clockInner += '<span class="' + NS + '-bar-sep" style="color:' + cfg.colorTitle + ';">:</span>';
       }
     }
 
     return '' +
-      '<div class="' + NS + '-widget-host ' + NS + '-bar" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="true" data-urgency="' + urgency.level + '" style="background:' + bg + ';">' +
+      '<div class="' + NS + '-widget-host ' + NS + '-bar" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="true" style="background:' + bg + ';">' +
+      titleHtml +
       '<div class="' + NS + '-bar-row">' +
-        titleHtml +
         '<div class="' + NS + '-bar-clock">' + clockInner + '</div>' +
+        '<button class="' + NS + '-bar-btn" style="color:' + cfg.colorWidgetBg + ';" onclick="window.location.href=\'/\'">SHOP NOW</button>' +
       '</div>' +
       '</div>';
   }
@@ -1914,7 +1804,7 @@
     });
   }
 
-  function buildFullHtml(cfg, units, time, urgency) {
+  function buildFullHtml(cfg, units, time) {
     const bg = getBg(cfg);
     const titleHtml = cfg.title
       ? '<div style="font-size:' + cfg.fontSizeTitle + ';font-weight:700;color:' + cfg.colorTitle + ';margin-bottom:14px;line-height:1.2;text-align:' + cfg.alignment + ';">' + escapeHtml(cfg.title) + '</div>'
@@ -1922,9 +1812,9 @@
 
     let clockInner = "";
     for (let i = 0; i < units.length; i++) {
-      clockInner += renderUnit(units[i], cfg, urgency);
+      clockInner += renderUnit(units[i], cfg);
       if (i < units.length - 1) clockInner += renderSep(cfg);
-    }
+    } 
 
     const subtitleHtml = cfg.subtitle
       ? '<div style="margin-bottom:14px;text-align:' + cfg.alignment + ';">' +
@@ -1935,34 +1825,32 @@
       : "";
 
     return '' +
-      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="false" data-urgency="' + urgency.level + '" style="background:' + bg + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';">' +
+      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="false" style="background:' + bg + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';">' +
         titleHtml +
         subtitleHtml +
         '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:8px;flex-wrap:wrap;">' + clockInner + '</div>' +
       '</div>';
   }
 
-  function renderUnit(u, cfg, urgency) {
+  function renderUnit(u, cfg) {
     const val = String(u.v).padStart(2, "0");
     const size = parseInt(cfg.fontSizeClock, 10) || 16;
     const labelSize = Math.max(9, Math.round(size * 0.55));
     const labelHtml = cfg.showLabels
       ? '<span class="' + NS + '-label" style="font-size:' + labelSize + 'px;color:' + cfg.colorTitle + ';opacity:0.8;">' + u.l + '</span>'
       : "";
-    const clockBg = urgency.clockBg;
-    const critClass = urgency.isCritical ? " nvx-critical" : "";
 
     if (cfg.style === "retro") {
       const chars = val.split("");
       let cells = "";
       for (let i = 0; i < chars.length; i++) {
-        cells += '<span class="' + NS + '-retro-cell" style="font-size:' + cfg.fontSizeClock + ';color:' + cfg.colorNumbers + ';background:' + clockBg + ';">' + chars[i] + '</span>';
+        cells += '<span class="' + NS + '-retro-cell" style="font-size:' + cfg.fontSizeClock + ';color:' + cfg.colorNumbers + ';">' + chars[i] + '</span>';
       }
-      return '<div class="' + NS + '-unit" data-key="' + u.k + '"><div class="' + NS + '-retro-digit' + critClass + '" data-value="' + val + '">' + cells + '</div>' + labelHtml + '</div>';
+      return '<div class="' + NS + '-unit" data-key="' + u.k + '"><div class="' + NS + '-retro-digit" data-value="' + val + '">' + cells + '</div>' + labelHtml + '</div>';
     }
 
     return '<div class="' + NS + '-unit" data-key="' + u.k + '">' +
-      '<div class="' + NS + '-digit' + critClass + '" data-value="' + val + '" style="min-width:' + (size * 2.5) + 'px;min-height:' + (size * 2.5) + 'px;background:' + clockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px ' + (cfg.paddingClock + 2) + 'px;font-size:' + cfg.fontSizeClock + ';line-height:1;">' + val + '</div>' + labelHtml +
+      '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:' + (size * 2.5) + 'px;min-height:' + (size * 2.5) + 'px;background:' + cfg.colorClockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px ' + (cfg.paddingClock + 2) + 'px;font-size:' + cfg.fontSizeClock + ';line-height:1;">' + val + '</div>' + labelHtml +
     '</div>';
   }
 
@@ -1974,7 +1862,7 @@
     return '<div class="' + NS + '-sep" style="padding-bottom:' + padBottom + 'px;gap:' + dotSize + 'px;">' + dot + dot + '</div>';
   }
 
-  function updateUnit(host, u, cfg, urgency) {
+  function updateUnit(host, u, cfg) {
     const unitEl = qs("." + NS + "-unit[data-key=\"" + u.k + "\"]", host);
     if (!unitEl) return;
     const val = String(u.v).padStart(2, "0");
@@ -2006,11 +1894,9 @@
   }
 
   function getBg(cfg) {
-    if (cfg.bgType !== "gradient") return cfg.colorWidgetBg;
-    const dir = cfg.gradientDirection || "to bottom right";
-    const c1 = cfg.colorWidgetBg;
-    const c2 = cfg.colorWidgetBg2 || cfg.colorSubtitleBg || "#FF0000";
-    return "linear-gradient(" + dir + ", " + c1 + " 0%, " + c2 + " 100%)";
+    return cfg.bgType === "gradient"
+      ? "linear-gradient(135deg, " + cfg.colorWidgetBg + " 0%, " + cfg.colorSubtitleBg + " 100%)"
+      : cfg.colorWidgetBg;
   }
 
   function escapeHtml(str) {
@@ -2018,6 +1904,136 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;")
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER BADGE CUOTAS
+  ═══════════════════════════════════════════ */
+  function renderBadgeCuotas(widget) {
+    const cfg = normalizeBadgeCuotasConfig(widget.config || {});
+
+    if (cfg.mostrarEnProducto && pageType === "product") {
+      mountBadgeCuotas(widget, cfg, "product");
+    } 
+    if (cfg.mostrarEnGrilla && (pageType === "home" || pageType === "other")) {
+      mountBadgeCuotas(widget, cfg, "grilla");
+    }
+  }
+
+  function normalizeBadgeCuotasConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      cuotasSeleccionadas: Array.isArray(raw.cuotasSeleccionadas) ? raw.cuotasSeleccionadas : [3, 6, 12],
+      mensaje: raw.mensaje || "{cuotas} cuotas sin interés de {monto}",
+      mostrarIconoTarjeta: raw.mostrarIconoTarjeta === true,
+      textoBadge: raw.textoBadge || "",
+      efectoRebote: raw.efectoRebote === true,
+      posicionBadge: raw.posicionBadge === "final-texto" ? "final-texto" : "esquina-superior-derecha",
+      mostrarEnProducto: raw.mostrarEnProducto !== false,
+      mostrarEnGrilla: raw.mostrarEnGrilla === true,
+      colorFondo: raw.colorFondo || "#ededed",
+      colorTexto: raw.colorTexto || "#000000",
+      fondoDegradado: raw.fondoDegradado === true,
+      fontSize: raw.fontSize || "13px",
+      mostrarBorde: raw.mostrarBorde === true,
+      paddingInterno: n(raw.paddingInterno, 10),
+      bordesRedondeados: n(raw.bordesRedondeados, 25),
+      efecto: raw.efecto === "aureola" ? "aureola" : (raw.efecto === "zoom" ? "zoom" : "sin-efecto"),
+      colorFondoBadge: raw.colorFondoBadge || "#ff0000",
+      colorTextoBadge: raw.colorTextoBadge || "#ffffff",
+    };
+  }
+
+  function mountBadgeCuotas(widget, cfg, placement) {
+    var uniqueId = NS + "-badge-" + widget.id + "-" + placement;
+    if (qs("#" + uniqueId)) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    if (placement === "product") {
+      var target = findProductTarget("before-button");
+      if (!target) {
+        console.warn("[Nevux] No se encontró target para badge cuotas en producto");
+        return;
+      }
+      target.node.parentNode.insertBefore(container, target.node);
+    } else if (placement === "grilla") {
+      var grillaTargets = qsa('.js-item-price, .price-display, [data-store="product-price"]');
+      if (grillaTargets.length === 0) return;
+      grillaTargets.forEach(function (target, idx) {
+        var mini = document.createElement("div");
+        mini.className = NS + "-root";
+        mini.id = uniqueId + "-" + idx;
+        mini.innerHTML = buildBadgeCuotasHtml(cfg);
+        target.parentNode.insertBefore(mini, target.nextSibling);
+      });
+      return;
+    }
+
+    container.innerHTML = buildBadgeCuotasHtml(cfg);
+    console.log("[Nevux] Badge cuotas montado en", placement);
+  }
+
+  function buildBadgeCuotasHtml(cfg) {
+    var cuotasOrdenadas = (cfg.cuotasSeleccionadas || []).slice().sort(function (a, b) { return b - a; });
+    var cuotaShow = cuotasOrdenadas.length > 0 ? cuotasOrdenadas[0] : 3;
+
+    var precio = detectProductPrice();
+    var montoTxt = "$****";
+    if (precio && precio > 0) {
+      montoTxt = formatMoney(precio / cuotaShow);
+    }
+
+    var mensaje = (cfg.mensaje || "{cuotas} cuotas sin interés de {monto}")
+      .replace("{cuotas}", String(cuotaShow))
+      .replace("{monto}", montoTxt);
+
+    var fondo = cfg.fondoDegradado
+      ? "linear-gradient(135deg, " + cfg.colorFondo + " 0%, " + cfg.colorFondo + "dd 100%)"
+      : cfg.colorFondo;
+
+    var borde = cfg.mostrarBorde ? "1px solid " + cfg.colorTexto + "22" : "none";
+
+    var animation =
+      cfg.efecto === "aureola" ? NS + "-aureolaPulse 2s ease-in-out infinite" :
+      cfg.efecto === "zoom" ? NS + "-zoomEffect 2s ease-in-out infinite" :
+      "none";
+
+    var showBadge = cfg.textoBadge && cfg.textoBadge.trim().length > 0;
+    var badgeAnim = cfg.efectoRebote ? NS + "-bounceBadge 1.2s ease-in-out infinite" : "none";
+
+    var iconHtml = cfg.mostrarIconoTarjeta
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorTexto + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
+      : "";
+
+    var badgeInlineHtml = "";
+    var badgeCornerHtml = "";
+    if (showBadge) {
+      var fontSizeNum = parseInt(cfg.fontSize, 10) || 13;
+      if (cfg.posicionBadge === "final-texto") {
+        badgeInlineHtml = '<span style="display:inline-block;background:' + cfg.colorFondoBadge + ';color:' + cfg.colorTextoBadge + ';font-size:' + Math.max(9, fontSizeNum - 3) + 'px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;margin-left:4px;animation:' + badgeAnim + ';">' + escapeHtml(cfg.textoBadge) + '</span>';
+      } else {
+        badgeCornerHtml = '<span style="position:absolute;top:-10px;right:-8px;background:' + cfg.colorFondoBadge + ';color:' + cfg.colorTextoBadge + ';font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:0.05em;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,0.15);animation:' + badgeAnim + ';white-space:nowrap;z-index:2;">' + escapeHtml(cfg.textoBadge) + '</span>';
+      }
+    }
+
+    return '' +
+      '<div style="display:flex;justify-content:flex-start;padding:8px 0;">' +
+        '<div style="position:relative;display:inline-block;">' +
+          '<div style="display:inline-flex;align-items:center;gap:8px;background:' + fondo + ';color:' + cfg.colorTexto + ';font-size:' + cfg.fontSize + ';font-weight:500;padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 8) + 'px;border-radius:' + cfg.bordesRedondeados + 'px;border:' + borde + ';animation:' + animation + ';white-space:nowrap;">' +
+            iconHtml +
+            '<span>' + escapeHtml(mensaje) + '</span>' +
+            badgeInlineHtml +
+          '</div>' +
+          badgeCornerHtml +
+        '</div>' +
+      '</div>';
   }
 
   /* ═══════════════════════════════════════════
@@ -2609,8 +2625,8 @@
       default:
         return "";
     }
-     }
-    /* ═══════════════════════════════════════════
+          }
+  /* ═══════════════════════════════════════════
      RENDER BUNDLE PROMOCIONES
   ═══════════════════════════════════════════ */
   function renderBundlePromociones(widget) {
@@ -3568,8 +3584,7 @@
         rightHtml +
       '</div>';
   }
-
-  /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE ENVÍO
   ═══════════════════════════════════════════ */
   function renderInformacionEnvio(widget) {
