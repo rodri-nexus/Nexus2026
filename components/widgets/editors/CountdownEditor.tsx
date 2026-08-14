@@ -36,33 +36,47 @@ interface CountdownEditorProps {
 interface CountdownConfig {
   title: string;
   subtitle: string;
+  // Modo del contador
+  mode: 'fixed' | 'duration';
   endDate: string;
+  durationMinutes: number;
+  // Comportamiento
   autoRestart: boolean;
   showDays: boolean;
+  // Ubicación
   showOnProduct: boolean;
   productPosition: 'before-button' | 'before-title';
   showAsTopBar: boolean;
   showOnCart: boolean;
+  // Estilo
   style: 'clasico' | 'retro';
   alignment: 'left' | 'center';
   showLabels: boolean;
+  // Fondo
   bgType: 'solid' | 'gradient';
   colorWidgetBg: string;
   colorWidgetBg2: string;
   gradientDirection: 'to bottom' | 'to right' | 'to bottom right';
+  // Colores
   colorSubtitleBg: string;
   colorClockBg: string;
   colorTitle: string;
   colorSubtitle: string;
   colorNumbers: string;
+  // Tipografía
   fontSizeTitle: string;
   fontSizeSubtitle: string;
   fontSizeClock: string;
+  // Espacios
   borderRadiusClock: number;
   borderRadiusWidget: number;
   paddingWidget: number;
   paddingClock: number;
-  mode: 'fixed';
+  // Modo urgencia
+  urgencyEnabled: boolean;
+  colorClockBgMedium: string;
+  colorClockBgCritical: string;
+  // Compatibilidad legacy
   flashMinutes: number;
   showHours: boolean;
   showMinutes: boolean;
@@ -95,7 +109,9 @@ function getDefaultEndDate(): string {
 const defaultConfig: CountdownConfig = {
   title: 'Oferta 🔥',
   subtitle: '',
+  mode: 'fixed',
   endDate: getDefaultEndDate(),
+  durationMinutes: 15,
   autoRestart: false,
   showDays: true,
   showOnProduct: true,
@@ -121,7 +137,9 @@ const defaultConfig: CountdownConfig = {
   borderRadiusWidget: 12,
   paddingWidget: 15,
   paddingClock: 7,
-  mode: 'fixed',
+  urgencyEnabled: false,
+  colorClockBgMedium: '#f97316',
+  colorClockBgCritical: '#dc2626',
   flashMinutes: 15,
   showHours: true,
   showMinutes: true,
@@ -141,7 +159,7 @@ const defaultConfig: CountdownConfig = {
 };
 
 /* ═══════════════════════════════════════════
-   ICONOS (SVG inline) — TODOS EN ROJO NEVUX
+   ICONOS (SVG inline) — PALETA NEVUX
 ═══════════════════════════════════════════ */
 const IconStore = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -189,6 +207,12 @@ const IconSpacing = () => (
   </svg>
 );
 
+const IconFire = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+  </svg>
+);
+
 const IconRotate = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
@@ -229,6 +253,18 @@ const IconArrowRight = () => (
 const IconArrowDiagonal = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 8 17 17 8 17"/>
+  </svg>
+);
+
+const IconCalendar = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+
+const IconBolt = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
   </svg>
 );
 
@@ -276,6 +312,36 @@ function TextInput({
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{
+        width: '100%', padding: '12px 14px', fontSize: 15,
+        border: '1.5px solid #e5e7eb', borderRadius: 10,
+        background: '#ffffff', color: '#000000', outline: 'none',
+        boxSizing: 'border-box', fontFamily: 'inherit',
+        transition: 'border-color 0.2s',
+      }}
+      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+    />
+  );
+}
+
+function NumberInput({
+  value, onChange, min, max, placeholder,
+}: {
+  value: number; onChange: (v: number) => void;
+  min?: number; max?: number; placeholder?: string;
+}) {
+  return (
+    <input
+      type="number"
+      value={value}
+      min={min}
+      max={max}
+      onChange={(e) => {
+        const n = parseInt(e.target.value, 10);
+        if (!isNaN(n)) onChange(n);
+      }}
       placeholder={placeholder}
       style={{
         width: '100%', padding: '12px 14px', fontSize: 15,
@@ -443,8 +509,8 @@ function ColorPickerField({
 function SelectField({
   value, onChange, options,
 }: {
-  value: string; onChange: (v: string) => void;
-  options: { value: string; label: string }[];
+  value: string | number; onChange: (v: string) => void;
+  options: { value: string | number; label: string }[];
 }) {
   return (
     <div style={{ position: 'relative' }}>
@@ -460,7 +526,7 @@ function SelectField({
         }}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+          <option key={String(opt.value)} value={opt.value}>{opt.label}</option>
         ))}
       </select>
       <svg
@@ -589,6 +655,7 @@ export default function CountdownEditor({
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos'>('general');
   const [isDesktop, setIsDesktop] = useState(false);
+  const [customDurationOpen, setCustomDurationOpen] = useState(false);
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
@@ -627,8 +694,6 @@ export default function CountdownEditor({
       if (!res.ok) throw new Error(data?.error || 'Error al guardar');
       setSavedOK(true);
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -644,6 +709,10 @@ export default function CountdownEditor({
       setSaving(false);
     }
   };
+
+  // Duraciones predefinidas
+  const durationPresets = [5, 10, 15, 30, 45, 60, 90, 120];
+  const isCustomDuration = !durationPresets.includes(config.durationMinutes);
 
   /* ═══ TAB GENERAL ═══ */
   const tabGeneral = (
@@ -668,23 +737,86 @@ export default function CountdownEditor({
         <FieldHelper>Descripción o promoción</FieldHelper>
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <FieldLabel required>Fecha y hora final</FieldLabel>
-        <DateTimeInput
-          value={config.endDate}
-          onChange={(v) => update('endDate', v)}
+      {/* Tipo de contador */}
+      <div style={{ marginBottom: 20 }}>
+        <FieldLabel required>Tipo de contador</FieldLabel>
+        <ChoiceButtons
+          value={config.mode}
+          onChange={(v) => update('mode', v as any)}
+          options={[
+            { value: 'fixed', label: 'Fecha específica', icon: <IconCalendar /> },
+            { value: 'duration', label: 'Duración corta', icon: <IconBolt /> },
+          ]}
         />
         <FieldHelper>
-          Selecciona cuándo termina la cuenta regresiva. Llegado a la fecha se ocultará automáticamente a menos que tenga configurado el reinicio automático.
+          <strong>Fecha específica:</strong> el contador termina en la fecha y hora que elijas.<br />
+          <strong>Duración corta ⚡:</strong> cada visitante ve un contador nuevo que arranca al entrar (ideal para urgencia tipo "flash sale").
         </FieldHelper>
       </div>
 
-      <CheckboxCard
-        checked={config.autoRestart}
-        onChange={(v) => update('autoRestart', v)}
-        label="Reiniciar automáticamente cuando termine"
-        helper="El contador se reiniciará con la duración configurada cada vez que llegue a 00:00:00"
-      />
+      {/* Config específica según modo */}
+      {config.mode === 'fixed' ? (
+        <div style={{ marginBottom: 24 }}>
+          <FieldLabel required>Fecha y hora final</FieldLabel>
+          <DateTimeInput
+            value={config.endDate}
+            onChange={(v) => update('endDate', v)}
+          />
+          <FieldHelper>
+            Selecciona cuándo termina la cuenta regresiva. Llegado a la fecha se ocultará automáticamente a menos que tenga configurado el reinicio automático.
+          </FieldHelper>
+        </div>
+      ) : (
+        <div style={{ marginBottom: 24 }}>
+          <FieldLabel required>Duración por sesión</FieldLabel>
+          <SelectField
+            value={isCustomDuration ? 'custom' : String(config.durationMinutes)}
+            onChange={(v) => {
+              if (v === 'custom') {
+                setCustomDurationOpen(true);
+              } else {
+                setCustomDurationOpen(false);
+                update('durationMinutes', parseInt(v, 10));
+              }
+            }}
+            options={[
+              { value: '5', label: '⚡ 5 minutos' },
+              { value: '10', label: '⚡ 10 minutos' },
+              { value: '15', label: '🔥 15 minutos (recomendado)' },
+              { value: '30', label: '30 minutos' },
+              { value: '45', label: '45 minutos' },
+              { value: '60', label: '1 hora' },
+              { value: '90', label: '1 hora 30 minutos' },
+              { value: '120', label: '2 horas' },
+              { value: 'custom', label: '⚙️ Personalizado...' },
+            ]}
+          />
+          {(customDurationOpen || isCustomDuration) && (
+            <div style={{ marginTop: 12 }}>
+              <FieldLabel>Minutos personalizados</FieldLabel>
+              <NumberInput
+                value={config.durationMinutes}
+                min={1}
+                max={1440}
+                onChange={(v) => update('durationMinutes', v)}
+                placeholder="Ej: 20"
+              />
+            </div>
+          )}
+          <FieldHelper>
+            Cada visitante ve un contador nuevo que arranca en <strong>{config.durationMinutes} min</strong> al entrar a la página. Genera máxima urgencia.
+          </FieldHelper>
+        </div>
+      )}
+
+      {config.mode === 'fixed' && (
+        <CheckboxCard
+          checked={config.autoRestart}
+          onChange={(v) => update('autoRestart', v)}
+          label="Reiniciar automáticamente cuando termine"
+          helper="El contador se reiniciará con la duración configurada cada vez que llegue a 00:00:00"
+        />
+      )}
 
       <CheckboxCard
         checked={config.showDays}
@@ -782,6 +914,50 @@ export default function CountdownEditor({
         </div>
       </SectionCard>
 
+      {/* ═══ NUEVA SECCIÓN: MODO URGENCIA ═══ */}
+      <SectionCard
+        icon={<IconFire />}
+        title="Modo urgencia 🔥"
+        helper="Cambiá los colores del reloj a medida que se acerca el final para generar más urgencia."
+      >
+        <CheckboxCard
+          checked={config.urgencyEnabled}
+          onChange={(v) => update('urgencyEnabled', v)}
+          label="Activar modo urgencia"
+          helper="Cuando quede menos del 66% del tiempo → color medio. Cuando quede menos del 33% → color crítico con pulso."
+        >
+          <div style={{ marginBottom: 16 }}>
+            <FieldLabel>🟩 Color normal (100% - 67% restante)</FieldLabel>
+            <ColorPickerField
+              value={config.colorClockBg}
+              onChange={(v) => update('colorClockBg', v)}
+              showClear={false}
+            />
+            <FieldHelper>Este es el color de fondo del reloj cuando queda mucho tiempo.</FieldHelper>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <FieldLabel>🟧 Color medio (66% - 34% restante)</FieldLabel>
+            <ColorPickerField
+              value={config.colorClockBgMedium}
+              onChange={(v) => update('colorClockBgMedium', v)}
+              showClear={false}
+            />
+            <FieldHelper>Color de advertencia cuando queda un tercio del tiempo.</FieldHelper>
+          </div>
+
+          <div>
+            <FieldLabel>🟥 Color crítico (33% - 0% restante)</FieldLabel>
+            <ColorPickerField
+              value={config.colorClockBgCritical}
+              onChange={(v) => update('colorClockBgCritical', v)}
+              showClear={false}
+            />
+            <FieldHelper>Color de urgencia máxima con animación de pulso.</FieldHelper>
+          </div>
+        </CheckboxCard>
+      </SectionCard>
+
       <SectionCard
         icon={<IconLayers />}
         title="Fondo del widget"
@@ -843,7 +1019,6 @@ export default function CountdownEditor({
               />
             </div>
 
-            {/* Vista previa del degradé */}
             <div style={{ marginTop: 16 }}>
               <FieldLabel>Vista previa</FieldLabel>
               <div style={{
@@ -869,14 +1044,17 @@ export default function CountdownEditor({
           />
         </div>
 
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Color de fondo del reloj</FieldLabel>
-          <ColorPickerField
-            value={config.colorClockBg}
-            onChange={(v) => update('colorClockBg', v)}
-            showClear={false}
-          />
-        </div>
+        {!config.urgencyEnabled && (
+          <div style={{ marginBottom: 16 }}>
+            <FieldLabel>Color de fondo del reloj</FieldLabel>
+            <ColorPickerField
+              value={config.colorClockBg}
+              onChange={(v) => update('colorClockBg', v)}
+              showClear={false}
+            />
+            <FieldHelper>💡 Si activás el modo urgencia, este color se maneja desde esa sección.</FieldHelper>
+          </div>
+        )}
 
         <div style={{ marginBottom: 16 }}>
           <FieldLabel>Color de fuente del título</FieldLabel>
@@ -1046,7 +1224,6 @@ export default function CountdownEditor({
       {/* ── MAIN ── */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* Chip scope: SOLO se muestra si es para toda la tienda */}
         {isForAll && (
           <div style={{
             background: '#fff5f5', border: '1px solid #fecaca',
@@ -1061,7 +1238,6 @@ export default function CountdownEditor({
           </div>
         )}
 
-        {/* Título */}
         <h1 style={{
           fontSize: 30, fontWeight: 700, color: '#000000',
           margin: '0 0 24px', lineHeight: 1.2, letterSpacing: '-0.01em',
@@ -1074,17 +1250,14 @@ export default function CountdownEditor({
           </span>
         </h1>
 
-        {/* Contenedor principal */}
         <div style={{
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 20, marginBottom: 20,
         }}>
-          {/* Preview */}
           <div style={{ marginBottom: 20 }}>
             <CountdownPreview config={config as any} />
           </div>
 
-          {/* Info box */}
           <div style={{
             background: '#fff5f5', border: '1px solid #fecaca',
             borderRadius: 10, padding: '12px 16px',
@@ -1097,7 +1270,6 @@ export default function CountdownEditor({
             </span>
           </div>
 
-          {/* Tabs */}
           <div style={{
             display: 'flex', borderBottom: '1px solid #e5e7eb',
             marginBottom: 24,
@@ -1125,14 +1297,12 @@ export default function CountdownEditor({
             })}
           </div>
 
-          {/* Contenido del tab */}
           <div>
             {activeTab === 'general' && tabGeneral}
             {activeTab === 'ubicacion' && tabUbicacion}
             {activeTab === 'estilos' && tabEstilos}
           </div>
 
-          {/* Footer */}
           <div style={{
             marginTop: 32, paddingTop: 20,
             borderTop: '1px solid #e5e7eb',
@@ -1185,7 +1355,6 @@ export default function CountdownEditor({
           </div>
         </div>
 
-        {/* Centro de ayuda */}
         <div style={{
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 32, textAlign: 'center',
@@ -1196,7 +1365,6 @@ export default function CountdownEditor({
           <div style={{ fontSize: 15, color: '#000000', opacity: 0.6 }}>Centro de ayuda</div>
         </div>
 
-        {/* Error */}
         {error && (
           <div style={{
             position: 'fixed', bottom: 20, left: 16, right: 16,
@@ -1213,4 +1381,4 @@ export default function CountdownEditor({
       </div>
     </div>
   );
-}
+                                                                                           }
