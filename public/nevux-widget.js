@@ -1483,12 +1483,13 @@
       console.error("[Nevux] Error cargando widgets:", err);
     });
   
-  /* ═══════════════════════════════════════════
+    /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
   ═══════════════════════════════════════════ */
   function renderCountdown(widget) {
+    injectCountdownStyles();
     const cfg = normalizeConfig(widget.config || {});
-    const state = { endTime: getInitialEndTime(cfg) };
+    const state = { endTime: getInitialEndTime(cfg, widget.id) };
 
     const placements = [];
     if (cfg.showAsTopBar && pageType === "home") placements.push("topbar");
@@ -1500,14 +1501,43 @@
     placements.forEach(function (p) { mountAt(widget, cfg, p, state); });
   }
 
-  function getInitialEndTime(cfg) {
+  function injectCountdownStyles() {
+    if (document.getElementById("nvx-cd-styles")) return;
+    const st = document.createElement("style");
+    st.id = "nvx-cd-styles";
+    st.textContent =
+      "@keyframes nvx-criticalPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(220,38,38,0.55)}50%{transform:scale(1.06);box-shadow:0 0 0 8px rgba(220,38,38,0)}}" +
+      "@keyframes nvx-flipDown{0%{transform:rotateX(0);opacity:1}50%{transform:rotateX(-90deg);opacity:0.4}100%{transform:rotateX(0);opacity:1}}" +
+      "@keyframes nvx-bounceDigit{0%{transform:scale(0.85)}50%{transform:scale(1.1)}100%{transform:scale(1)}}" +
+      "." + NS + "-digit.bounce{animation:nvx-bounceDigit 0.4s ease}" +
+      "." + NS + "-retro-cell.flip{animation:nvx-flipDown 0.5s ease}" +
+      "." + NS + "-critical{animation:nvx-criticalPulse 1s ease-in-out infinite}";
+    document.head.appendChild(st);
+  }
+
+  function getInitialEndTime(cfg, widgetId) {
+    if (cfg.mode === "duration") {
+      const key = NS + "-cd-session-" + widgetId;
+      try {
+        const saved = sessionStorage.getItem(key);
+        if (saved) {
+          const t = parseInt(saved, 10);
+          if (t > Date.now()) return t;
+        }
+        const newEnd = Date.now() + cfg.durationMinutes * 60 * 1000;
+        sessionStorage.setItem(key, String(newEnd));
+        return newEnd;
+      } catch (e) {
+        return Date.now() + cfg.durationMinutes * 60 * 1000;
+      }
+    }
     if (cfg.endDate) {
       const t = new Date(cfg.endDate).getTime();
       if (t > Date.now()) return t;
-      if (cfg.autoRestart) return Date.now() + 15 * 60 * 1000;
+      if (cfg.autoRestart) return Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
       return t;
     }
-    return Date.now() + 15 * 60 * 1000;
+    return Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
   }
 
   function mountAt(widget, cfg, placement, state) {
@@ -1539,14 +1569,17 @@
       target.parentNode.insertBefore(container, target);
     }
 
-    update(container, cfg, state);
+    update(container, cfg, state, widget.id);
 
     setInterval(function () {
       const now = Date.now();
       if (state.endTime <= now && cfg.autoRestart) {
-        state.endTime = now + 15 * 60 * 1000;
+        state.endTime = now + (cfg.durationMinutes || 15) * 60 * 1000;
+        if (cfg.mode === "duration") {
+          try { sessionStorage.setItem(NS + "-cd-session-" + widget.id, String(state.endTime)); } catch (e) {}
+        }
       }
-      update(container, cfg, state);
+      update(container, cfg, state, widget.id);
     }, 1000);
   }
 
@@ -1650,36 +1683,50 @@
       const p = typeof v === "string" ? parseInt(v, 10) : v;
       return isNaN(p) ? fb : p;
     }
+    function pick() {
+      for (var i = 0; i < arguments.length - 1; i++) {
+        if (arguments[i] !== undefined && arguments[i] !== null && arguments[i] !== "") return arguments[i];
+      }
+      return arguments[arguments.length - 1];
+    }
+    const mode = pick(raw.mode, "fixed");
     return {
-      title: raw.title != null ? raw.title : "🔥 Oferta",
-      subtitle: raw.subtitle != null ? raw.subtitle : "",
-      endDate: raw.endDate || "",
-      showDays: raw.showDays === true,
-      showHours: raw.showHours !== false,
-      showMinutes: raw.showMinutes !== false,
-      showSeconds: raw.showSeconds !== false,
-      autoRestart: raw.autoRestart === true,
-      showOnProduct: raw.showOnProduct !== false,
-      productPosition: raw.productPosition || "before-button",
-      showAsTopBar: raw.showAsTopBar === true,
-      showOnCart: raw.showOnCart === true,
-      style: raw.style === "retro" ? "retro" : "clasico",
-      alignment: raw.alignment === "left" ? "left" : "center",
-      showLabels: raw.showLabels !== false,
-      bgType: raw.bgType === "gradient" ? "gradient" : "solid",
-      colorWidgetBg: raw.colorWidgetBg || "#1e1e1e",
-      colorSubtitleBg: raw.colorSubtitleBg || "#fdc624",
-      colorClockBg: raw.colorClockBg || "#ef4444",
-      colorTitle: raw.colorTitle || "#ffffff",
-      colorSubtitle: raw.colorSubtitle || "#000000",
-      colorNumbers: raw.colorNumbers || "#ffffff",
-      fontSizeTitle: raw.fontSizeTitle || "16px",
-      fontSizeSubtitle: raw.fontSizeSubtitle || "11px",
-      fontSizeClock: raw.fontSizeClock || "16px",
-      borderRadiusClock: n(raw.borderRadiusClock, 5),
-      borderRadiusWidget: n(raw.borderRadiusWidget, 12),
-      paddingWidget: n(raw.paddingWidget, 15),
-      paddingClock: n(raw.paddingClock, 7),
+      title: pick(raw.title, "🔥 Oferta"),
+      subtitle: pick(raw.subtitle, ""),
+      mode: mode === "duration" ? "duration" : "fixed",
+      endDate: pick(raw.endDate, raw.end_datetime, ""),
+      durationMinutes: n(pick(raw.durationMinutes, raw.hours, 15), 15),
+      autoRestart: pick(raw.autoRestart, raw.auto_restart, false) === true,
+      showDays: pick(raw.showDays, raw.show_days, false) === true,
+      showHours: pick(raw.showHours, raw.show_hours, true) !== false,
+      showMinutes: pick(raw.showMinutes, raw.show_minutes, true) !== false,
+      showSeconds: pick(raw.showSeconds, raw.show_seconds, true) !== false,
+      showOnProduct: pick(raw.showOnProduct, true) !== false,
+      productPosition: pick(raw.productPosition, "before-button"),
+      showAsTopBar: pick(raw.showAsTopBar, false) === true,
+      showOnCart: pick(raw.showOnCart, false) === true,
+      style: pick(raw.style, raw.clock_style, "clasico") === "retro" ? "retro" : "clasico",
+      alignment: pick(raw.alignment, raw.content_alignment, "center") === "left" ? "left" : "center",
+      showLabels: pick(raw.showLabels, raw.show_clock_labels, true) !== false,
+      bgType: pick(raw.bgType, raw.background_type, "solid") === "gradient" ? "gradient" : "solid",
+      colorWidgetBg: pick(raw.colorWidgetBg, raw.background_color, "#000000"),
+      colorWidgetBg2: pick(raw.colorWidgetBg2, "#FF0000"),
+      gradientDirection: pick(raw.gradientDirection, "to bottom right"),
+      colorSubtitleBg: pick(raw.colorSubtitleBg, raw.subtitle_bg_color, "#FF0000"),
+      colorClockBg: pick(raw.colorClockBg, raw.clock_bg_color, "#FF0000"),
+      colorTitle: pick(raw.colorTitle, raw.title_font_color, "#ffffff"),
+      colorSubtitle: pick(raw.colorSubtitle, raw.subtitle_font_color, "#ffffff"),
+      colorNumbers: pick(raw.colorNumbers, raw.number_font_color, "#ffffff"),
+      fontSizeTitle: pick(raw.fontSizeTitle, raw.title_font_size, "16px"),
+      fontSizeSubtitle: pick(raw.fontSizeSubtitle, raw.subtitle_font_size, "11px"),
+      fontSizeClock: pick(raw.fontSizeClock, raw.clock_font_size, "16px"),
+      borderRadiusClock: n(pick(raw.borderRadiusClock, raw.clock_border_radius, 5), 5),
+      borderRadiusWidget: n(pick(raw.borderRadiusWidget, raw.widget_border_radius, 12), 12),
+      paddingWidget: n(pick(raw.paddingWidget, raw.widget_padding, 15), 15),
+      paddingClock: n(pick(raw.paddingClock, raw.clock_padding, 7), 7),
+      urgencyEnabled: pick(raw.urgencyEnabled, false) === true,
+      colorClockBgMedium: pick(raw.colorClockBgMedium, "#f97316"),
+      colorClockBgCritical: pick(raw.colorClockBgCritical, "#dc2626"),
     };
   }
 
@@ -1699,8 +1746,45 @@
     };
   }
 
-  function update(container, cfg, state) {
+  function getUrgencyState(cfg, time, widgetId) {
+    if (!cfg.urgencyEnabled) return "normal";
+    let totalDuration;
+    if (cfg.mode === "duration") {
+      totalDuration = cfg.durationMinutes * 60;
+    } else if (cfg.endDate) {
+      const endT = new Date(cfg.endDate).getTime();
+      const key = NS + "-cd-start-" + widgetId;
+      let startT;
+      try {
+        const saved = sessionStorage.getItem(key);
+        if (saved) {
+          startT = parseInt(saved, 10);
+        } else {
+          startT = Date.now();
+          sessionStorage.setItem(key, String(startT));
+        }
+      } catch (e) {
+        startT = Date.now();
+      }
+      totalDuration = Math.max(1, Math.floor((endT - startT) / 1000));
+    } else {
+      totalDuration = (cfg.durationMinutes || 15) * 60;
+    }
+    const remainingRatio = time.totalSeconds / totalDuration;
+    if (remainingRatio <= 0.33) return "critical";
+    if (remainingRatio <= 0.66) return "medium";
+    return "normal";
+  }
+
+  function getClockBg(cfg, urgencyState) {
+    if (urgencyState === "critical") return cfg.colorClockBgCritical;
+    if (urgencyState === "medium") return cfg.colorClockBgMedium;
+    return cfg.colorClockBg;
+  }
+
+  function update(container, cfg, state, widgetId) {
     const time = calcTime(state);
+    const urgency = getUrgencyState(cfg, time, widgetId);
 
     if (time.isFinished && !cfg.autoRestart) {
       container.innerHTML =
@@ -1724,12 +1808,13 @@
       !host ||
       host.dataset.style !== cfg.style ||
       host.dataset.keys !== keys ||
-      host.dataset.bar !== String(isBar);
+      host.dataset.bar !== String(isBar) ||
+      host.dataset.urgency !== urgency;
 
     if (needsRebuild) {
       container.innerHTML = isBar
-        ? buildBarHtml(cfg, units, time)
-        : buildFullHtml(cfg, units, time);
+        ? buildBarHtml(cfg, units, time, urgency)
+        : buildFullHtml(cfg, units, time, urgency);
     } else {
       if (isBar) {
         updateBarDigits(host, units);
@@ -1752,10 +1837,10 @@
     return arr;
   }
 
-  function buildBarHtml(cfg, units, time) {
-    const bg = cfg.bgType === "gradient"
-      ? "linear-gradient(90deg, " + cfg.colorWidgetBg + " 0%, " + cfg.colorSubtitleBg + " 100%)"
-      : cfg.colorWidgetBg;
+  function buildBarHtml(cfg, units, time, urgency) {
+    const bg = getBg(cfg);
+    const clockBg = getClockBg(cfg, urgency);
+    const criticalClass = urgency === "critical" ? " " + NS + "-critical" : "";
 
     const split = splitEmoji(cfg.title);
     const fullText = cfg.subtitle
@@ -1775,18 +1860,17 @@
     for (let i = 0; i < units.length; i++) {
       const u = units[i];
       const val = String(u.v).padStart(2, "0");
-      clockInner += '<div class="' + NS + '-bar-digit" data-key="' + u.k + '">' + val + '</div>';
+      clockInner += '<div class="' + NS + '-bar-digit' + criticalClass + '" data-key="' + u.k + '" style="background:' + clockBg + ';color:' + cfg.colorNumbers + ';">' + val + '</div>';
       if (i < units.length - 1) {
         clockInner += '<span class="' + NS + '-bar-sep" style="color:' + cfg.colorTitle + ';">:</span>';
       }
     }
 
     return '' +
-      '<div class="' + NS + '-widget-host ' + NS + '-bar" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="true" style="background:' + bg + ';">' +
+      '<div class="' + NS + '-widget-host ' + NS + '-bar" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="true" data-urgency="' + urgency + '" style="background:' + bg + ';">' +
       titleHtml +
       '<div class="' + NS + '-bar-row">' +
         '<div class="' + NS + '-bar-clock">' + clockInner + '</div>' +
-        '<button class="' + NS + '-bar-btn" style="color:' + cfg.colorWidgetBg + ';" onclick="window.location.href=\'/\'">SHOP NOW</button>' +
       '</div>' +
       '</div>';
   }
@@ -1800,11 +1884,11 @@
       el.textContent = val;
       el.style.animation = "none";
       void el.offsetWidth;
-      el.style.animation = NS + "-bounceDigit 0.4s ease";
+      el.style.animation = "nvx-bounceDigit 0.4s ease";
     });
   }
 
-  function buildFullHtml(cfg, units, time) {
+  function buildFullHtml(cfg, units, time, urgency) {
     const bg = getBg(cfg);
     const titleHtml = cfg.title
       ? '<div style="font-size:' + cfg.fontSizeTitle + ';font-weight:700;color:' + cfg.colorTitle + ';margin-bottom:14px;line-height:1.2;text-align:' + cfg.alignment + ';">' + escapeHtml(cfg.title) + '</div>'
@@ -1812,9 +1896,9 @@
 
     let clockInner = "";
     for (let i = 0; i < units.length; i++) {
-      clockInner += renderUnit(units[i], cfg);
+      clockInner += renderUnit(units[i], cfg, urgency);
       if (i < units.length - 1) clockInner += renderSep(cfg);
-    } 
+    }
 
     const subtitleHtml = cfg.subtitle
       ? '<div style="margin-bottom:14px;text-align:' + cfg.alignment + ';">' +
@@ -1825,17 +1909,19 @@
       : "";
 
     return '' +
-      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="false" style="background:' + bg + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';">' +
+      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="false" data-urgency="' + urgency + '" style="background:' + bg + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';">' +
         titleHtml +
         subtitleHtml +
         '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:8px;flex-wrap:wrap;">' + clockInner + '</div>' +
       '</div>';
   }
 
-  function renderUnit(u, cfg) {
+  function renderUnit(u, cfg, urgency) {
     const val = String(u.v).padStart(2, "0");
     const size = parseInt(cfg.fontSizeClock, 10) || 16;
     const labelSize = Math.max(9, Math.round(size * 0.55));
+    const clockBg = getClockBg(cfg, urgency);
+    const criticalClass = urgency === "critical" ? " " + NS + "-critical" : "";
     const labelHtml = cfg.showLabels
       ? '<span class="' + NS + '-label" style="font-size:' + labelSize + 'px;color:' + cfg.colorTitle + ';opacity:0.8;">' + u.l + '</span>'
       : "";
@@ -1844,13 +1930,13 @@
       const chars = val.split("");
       let cells = "";
       for (let i = 0; i < chars.length; i++) {
-        cells += '<span class="' + NS + '-retro-cell" style="font-size:' + cfg.fontSizeClock + ';color:' + cfg.colorNumbers + ';">' + chars[i] + '</span>';
+        cells += '<span class="' + NS + '-retro-cell" style="display:inline-block;min-width:' + (size * 1.2) + 'px;padding:' + cfg.paddingClock + 'px;background:' + clockBg + ';font-size:' + cfg.fontSizeClock + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;margin:0 1px;text-align:center;font-weight:700;">' + chars[i] + '</span>';
       }
-      return '<div class="' + NS + '-unit" data-key="' + u.k + '"><div class="' + NS + '-retro-digit" data-value="' + val + '">' + cells + '</div>' + labelHtml + '</div>';
+      return '<div class="' + NS + '-unit' + criticalClass + '" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;"><div class="' + NS + '-retro-digit" data-value="' + val + '" style="display:inline-flex;">' + cells + '</div>' + labelHtml + '</div>';
     }
 
-    return '<div class="' + NS + '-unit" data-key="' + u.k + '">' +
-      '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:' + (size * 2.5) + 'px;min-height:' + (size * 2.5) + 'px;background:' + cfg.colorClockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px ' + (cfg.paddingClock + 2) + 'px;font-size:' + cfg.fontSizeClock + ';line-height:1;">' + val + '</div>' + labelHtml +
+    return '<div class="' + NS + '-unit' + criticalClass + '" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;">' +
+      '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:' + (size * 2.5) + 'px;min-height:' + (size * 2.5) + 'px;display:inline-flex;align-items:center;justify-content:center;background:' + clockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px ' + (cfg.paddingClock + 2) + 'px;font-size:' + cfg.fontSizeClock + ';line-height:1;font-weight:700;">' + val + '</div>' + labelHtml +
     '</div>';
   }
 
@@ -1858,8 +1944,8 @@
     const size = parseInt(cfg.fontSizeClock, 10) || 16;
     const dotSize = Math.max(3, Math.round(size * 0.18));
     const padBottom = cfg.showLabels ? Math.round(size * 0.85) : 0;
-    const dot = '<span style="width:' + dotSize + 'px;height:' + dotSize + 'px;background:' + cfg.colorTitle + ';"></span>';
-    return '<div class="' + NS + '-sep" style="padding-bottom:' + padBottom + 'px;gap:' + dotSize + 'px;">' + dot + dot + '</div>';
+    const dot = '<span style="display:inline-block;border-radius:50%;width:' + dotSize + 'px;height:' + dotSize + 'px;background:' + cfg.colorTitle + ';"></span>';
+    return '<div class="' + NS + '-sep" style="display:inline-flex;flex-direction:column;justify-content:center;padding-bottom:' + padBottom + 'px;gap:' + dotSize + 'px;">' + dot + dot + '</div>';
   }
 
   function updateUnit(host, u, cfg) {
@@ -1894,9 +1980,11 @@
   }
 
   function getBg(cfg) {
-    return cfg.bgType === "gradient"
-      ? "linear-gradient(135deg, " + cfg.colorWidgetBg + " 0%, " + cfg.colorSubtitleBg + " 100%)"
-      : cfg.colorWidgetBg;
+    if (cfg.bgType === "gradient") {
+      const dir = cfg.gradientDirection || "to bottom right";
+      return "linear-gradient(" + dir + ", " + cfg.colorWidgetBg + " 0%, " + cfg.colorWidgetBg2 + " 100%)";
+    }
+    return cfg.colorWidgetBg;
   }
 
   function escapeHtml(str) {
