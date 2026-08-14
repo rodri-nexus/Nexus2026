@@ -1,7 +1,7 @@
+// components/widgets/previews/CountdownWidget.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 interface CountdownWidgetProps {
   config: Record<string, any>;
@@ -13,344 +13,524 @@ interface TimeLeft {
   minutes: number;
   seconds: number;
   totalSeconds: number;
-  initialSeconds: number;
+  percentConsumed: number;
+  isFinished: boolean;
 }
 
-function parseEndDate(config: Record<string, any>): Date | null {
-  const endDateStr = config.end_datetime || config.endDate;
-  if (endDateStr) {
-    const d = new Date(endDateStr);
-    if (!isNaN(d.getTime())) return d;
+type UrgencyState = 'normal' | 'medium' | 'critical';
+
+/* ═══════════════════════════════════════════
+   HELPER: leer config con fallback (compat viejo+nuevo)
+═══════════════════════════════════════════ */
+function readConfig(config: Record<string, any>) {
+  // Acepta AMBOS formatos: camelCase (nuevo) Y snake_case (viejo)
+  return {
+    title: config.title ?? 'Oferta 🔥',
+    subtitle: config.subtitle ?? '',
+
+    // Modo
+    mode: (config.mode ?? 'fixed') as 'fixed' | 'duration',
+    endDate: config.endDate ?? config.end_datetime ?? '',
+    durationMinutes: Number(config.durationMinutes ?? config.hours * 60 ?? 15) || 15,
+
+    // Comportamiento
+    autoRestart: config.autoRestart ?? config.auto_restart ?? false,
+    showDays: config.showDays ?? config.show_days ?? true,
+    showHours: config.showHours ?? config.show_hours ?? true,
+    showMinutes: config.showMinutes ?? config.show_minutes ?? true,
+    showSeconds: config.showSeconds ?? config.show_seconds ?? true,
+    showLabels: config.showLabels ?? config.show_clock_labels ?? true,
+
+    // Estilo
+    style: (config.style ?? config.clock_style ?? 'clasico') as string,
+    alignment: (config.alignment ?? config.content_alignment ?? 'left') as 'left' | 'center' | 'right',
+
+    // Fondo
+    bgType: (config.bgType ?? config.background_type ?? 'solid') as 'solid' | 'gradient',
+    colorWidgetBg: config.colorWidgetBg ?? config.background_color ?? '#000000',
+    colorWidgetBg2: config.colorWidgetBg2 ?? '#FF0000',
+    gradientDirection: (config.gradientDirection ?? 'to bottom right') as string,
+
+    // Colores
+    colorSubtitleBg: config.colorSubtitleBg ?? config.subtitle_bg_color ?? '#FF0000',
+    colorClockBg: config.colorClockBg ?? config.clock_bg_color ?? '#FF0000',
+    colorTitle: config.colorTitle ?? config.title_font_color ?? '#ffffff',
+    colorSubtitle: config.colorSubtitle ?? config.subtitle_font_color ?? '#ffffff',
+    colorNumbers: config.colorNumbers ?? config.number_font_color ?? '#ffffff',
+
+    // Tipografía (siempre número, no string "16px")
+    fontSizeTitle: parseIntSafe(config.fontSizeTitle ?? config.title_font_size, 16),
+    fontSizeSubtitle: parseIntSafe(config.fontSizeSubtitle ?? config.subtitle_font_size, 11),
+    fontSizeClock: parseIntSafe(config.fontSizeClock ?? config.clock_font_size, 16),
+
+    // Espacios
+    borderRadiusClock: Number(config.borderRadiusClock ?? config.clock_border_radius ?? 5),
+    borderRadiusWidget: Number(config.borderRadiusWidget ?? config.widget_border_radius ?? 12),
+    paddingWidget: Number(config.paddingWidget ?? config.widget_padding ?? 15),
+    paddingClock: Number(config.paddingClock ?? config.clock_padding ?? 7),
+
+    // Modo urgencia
+    urgencyEnabled: !!(config.urgencyEnabled ?? false),
+    colorClockBgMedium: config.colorClockBgMedium ?? '#f97316',
+    colorClockBgCritical: config.colorClockBgCritical ?? '#dc2626',
+  };
+}
+
+function parseIntSafe(v: any, fallback: number): number {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') {
+    const n = parseInt(v, 10);
+    return isNaN(n) ? fallback : n;
   }
-  const hours = config.hours || 24;
-  const d = new Date();
-  d.setHours(d.getHours() + hours);
-  return d;
+  return fallback;
 }
 
-function getTimeLeft(endDate: Date | null): TimeLeft {
-  if (!endDate) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, initialSeconds: 86400 };
-  }
-  const now = new Date().getTime();
-  const end = endDate.getTime();
-  const diff = Math.max(0, end - now);
-
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-  const totalSeconds = Math.floor(diff / 1000);
-
-  return { days, hours, minutes, seconds, totalSeconds, initialSeconds: totalSeconds + 3600 };
-}
-
-function FlipDigit({ value, color, bgColor, fontSize, padding, borderRadius }: any) {
-  const displayValue = String(value).padStart(2, "0");
-  const [prevValue, setPrevValue] = useState(displayValue);
+/* ═══════════════════════════════════════════
+   HOOK: tiempo restante (fixed + duration)
+═══════════════════════════════════════════ */
+function useTimeLeft(cfg: ReturnType<typeof readConfig>): TimeLeft {
+  const startTime = useRef<number>(Date.now());
+  const totalDuration = useRef<number>(cfg.durationMinutes * 60 * 1000);
 
   useEffect(() => {
-    if (displayValue !== prevValue) setPrevValue(displayValue);
-  }, [displayValue, prevValue]);
+    startTime.current = Date.now();
+    totalDuration.current = cfg.durationMinutes * 60 * 1000;
+  }, [cfg.mode, cfg.durationMinutes]);
 
-  return (
-    <div
-      style={{
-        position: "relative",
-        width: `${fontSize * 2.2}px`,
-        height: `${fontSize * 2.6}px`,
-        perspective: "400px",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: bgColor,
-          borderRadius: `${borderRadius}px`,
-          overflow: "hidden",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "50%",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)",
-            borderRadius: `${borderRadius}px ${borderRadius}px 0 0`,
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "4px",
-            right: "4px",
-            height: "1px",
-            background: "rgba(0,0,0,0.25)",
-            zIndex: 3,
-          }}
-        />
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={displayValue}
-            initial={{ rotateX: -90, opacity: 0 }}
-            animate={{ rotateX: 0, opacity: 1 }}
-            exit={{ rotateX: 90, opacity: 0 }}
-            transition={{ duration: 0.35, ease: "easeInOut" }}
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: `${fontSize}px`,
-              fontWeight: 800,
-              color: color,
-              fontVariantNumeric: "tabular-nums",
-              letterSpacing: "0.05em",
-              transformStyle: "preserve-3d",
-              padding: `${padding}px`,
-            }}
-          >
-            {displayValue}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
+  const getEndInfo = () => {
+    // Modo duración corta
+    if (cfg.mode === 'duration') {
+      return {
+        end: startTime.current + totalDuration.current,
+        total: totalDuration.current,
+      };
+    }
 
-function ClassicDigit({ value, color, bgColor, fontSize, padding, borderRadius }: any) {
-  const displayValue = String(value).padStart(2, "0");
-  return (
-    <div
-      style={{
-        background: bgColor,
-        borderRadius: `${borderRadius}px`,
-        padding: `${padding}px ${padding * 1.5}px`,
-        minWidth: `${fontSize * 2}px`,
-        textAlign: "center",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-      }}
-    >
-      <div
-        style={{
-          fontSize: `${fontSize}px`,
-          fontWeight: 800,
-          color: color,
-          fontVariantNumeric: "tabular-nums",
-          letterSpacing: "0.05em",
-          lineHeight: 1,
-        }}
-      >
-        {displayValue}
-      </div>
-    </div>
-  );
-}
+    // Modo fecha fija
+    if (cfg.endDate) {
+      const t = new Date(cfg.endDate).getTime();
+      if (!isNaN(t) && t > Date.now()) {
+        // Total: asumimos 7 días como referencia para el % de urgencia
+        const total = t - (Date.now() - 7 * 24 * 60 * 60 * 1000);
+        return { end: t, total };
+      }
+    }
 
-export default function CountdownWidget({ config }: CountdownWidgetProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
-    days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, initialSeconds: 86400,
-  });
-
-  const endDate = useMemo(() => parseEndDate(config), [config]);
-
-  // Configs con defaults de Wigy
-  const title = config.title || "Oferta🔥";
-  const subtitle = config.subtitle || "";
-  const showDays = config.show_days !== false;
-  const showLabels = config.show_clock_labels !== false;
-  const clockStyle = config.clock_style || "classic";
-  const alignment = config.content_alignment || "center";
-  const bgType = config.background_type || "solid";
-  const bgColor = config.background_color || "#1e1e1e";
-  const clockBg = config.clock_bg_color || "#ef4444";
-  const subtitleBg = config.subtitle_bg_color || "#fdc624";
-  const titleColor = config.title_font_color || "#ffffff";
-  const subtitleColor = config.subtitle_font_color || "#000000";
-  const numberColor = config.number_font_color || "#ffffff";
-  const titleSize = config.title_font_size || 16;
-  const subtitleSize = config.subtitle_font_size || 11;
-  const clockSize = config.clock_font_size || 16;
-  const clockRadius = config.clock_border_radius || 5;
-  const widgetRadius = config.widget_border_radius || 5;
-  const widgetPad = config.widget_padding || 15;
-  const clockPad = config.clock_padding || 7;
-
-  useEffect(() => {
-    setTimeLeft(getTimeLeft(endDate));
-    const interval = setInterval(() => setTimeLeft(getTimeLeft(endDate)), 1000);
-    return () => clearInterval(interval);
-  }, [endDate]);
-
-  const alignStyle = alignment === "left" ? "flex-start" : alignment === "right" ? "flex-end" : "center";
-
-  const getBg = () => {
-    if (bgType === "gradient") return `linear-gradient(135deg, ${bgColor}, ${bgColor}dd)`;
-    return bgColor;
+    // Fallback
+    return {
+      end: startTime.current + 15 * 60 * 1000,
+      total: 15 * 60 * 1000,
+    };
   };
 
-  const units = [
-    { value: timeLeft.days, label: "DÍAS", show: showDays && timeLeft.days > 0 },
-    { value: timeLeft.hours, label: "HRS", show: true },
-    { value: timeLeft.minutes, label: "MIN", show: true },
-    { value: timeLeft.seconds, label: "SEG", show: true },
-  ].filter((u) => u.show);
+  const calc = (): TimeLeft => {
+    const { end, total } = getEndInfo();
+    const now = Date.now();
+    const diff = end - now;
 
-  if (timeLeft.totalSeconds <= 0) {
-    return (
-      <div
-        style={{
-          textAlign: "center",
-          padding: `${widgetPad}px`,
-          background: getBg(),
-          borderRadius: `${widgetRadius}px`,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <motion.div
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          style={{ fontSize: "2rem", marginBottom: "0.5rem" }}
+    if (diff <= 0) {
+      return {
+        days: 0, hours: 0, minutes: 0, seconds: 0,
+        totalSeconds: 0, percentConsumed: 100, isFinished: true,
+      };
+    }
+
+    const t = Math.floor(diff / 1000);
+    const consumed = Math.max(0, Math.min(100, ((total - diff) / total) * 100));
+
+    return {
+      days: Math.floor(t / 86400),
+      hours: Math.floor((t % 86400) / 3600),
+      minutes: Math.floor((t % 3600) / 60),
+      seconds: t % 60,
+      totalSeconds: t,
+      percentConsumed: consumed,
+      isFinished: false,
+    };
+  };
+
+  const [time, setTime] = useState<TimeLeft>(calc);
+
+  useEffect(() => {
+    setTime(calc());
+    const int = setInterval(() => {
+      const next = calc();
+      if (next.isFinished && cfg.autoRestart) {
+        startTime.current = Date.now();
+        totalDuration.current = cfg.durationMinutes * 60 * 1000;
+        setTime(calc());
+      } else {
+        setTime(next);
+      }
+    }, 1000);
+    return () => clearInterval(int);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cfg.endDate, cfg.autoRestart, cfg.durationMinutes, cfg.mode]);
+
+  return time;
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS: estado urgencia + colores
+═══════════════════════════════════════════ */
+function getUrgencyState(percent: number, enabled: boolean): UrgencyState {
+  if (!enabled) return 'normal';
+  if (percent >= 67) return 'critical';
+  if (percent >= 34) return 'medium';
+  return 'normal';
+}
+
+function getClockBg(cfg: ReturnType<typeof readConfig>, state: UrgencyState): string {
+  if (state === 'critical') return cfg.colorClockBgCritical;
+  if (state === 'medium') return cfg.colorClockBgMedium;
+  return cfg.colorClockBg;
+}
+
+/* ═══════════════════════════════════════════
+   DIGIT: CLÁSICO
+═══════════════════════════════════════════ */
+function DigitClasico({
+  value, cfg, bgColor, isCritical,
+}: {
+  value: string;
+  cfg: ReturnType<typeof readConfig>;
+  bgColor: string;
+  isCritical: boolean;
+}) {
+  return (
+    <div
+      style={{
+        minWidth: cfg.fontSizeClock * 2.5,
+        minHeight: cfg.fontSizeClock * 2.5,
+        background: bgColor,
+        color: cfg.colorNumbers,
+        borderRadius: cfg.borderRadiusClock,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: cfg.fontSizeClock,
+        fontWeight: 800,
+        fontVariantNumeric: 'tabular-nums',
+        padding: `${cfg.paddingClock}px ${cfg.paddingClock + 2}px`,
+        lineHeight: 1,
+        transition: 'background-color 0.4s ease',
+        animation: isCritical ? 'nvxCriticalPulse 1s ease-in-out infinite' : 'none',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+      }}
+    >
+      {value}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   DIGIT: RETRO FLIP (CSS puro, sin framer-motion)
+═══════════════════════════════════════════ */
+function DigitRetro({
+  value, cfg, bgColor, isCritical,
+}: {
+  value: string;
+  cfg: ReturnType<typeof readConfig>;
+  bgColor: string;
+  isCritical: boolean;
+}) {
+  const prevRef = useRef(value);
+  const [flip, setFlip] = useState(false);
+
+  useEffect(() => {
+    if (prevRef.current !== value) {
+      setFlip(true);
+      const t = setTimeout(() => setFlip(false), 400);
+      prevRef.current = value;
+      return () => clearTimeout(t);
+    }
+  }, [value]);
+
+  return (
+    <div style={{ display: 'inline-flex', gap: 2 }}>
+      {value.split('').map((d, i) => (
+        <div
+          key={i}
+          style={{
+            width: cfg.fontSizeClock * 1.4,
+            height: cfg.fontSizeClock * 2.4,
+            background: `linear-gradient(180deg, ${bgColor} 0%, ${bgColor} 49%, rgba(0,0,0,0.35) 50%, ${bgColor} 51%, ${bgColor} 100%)`,
+            borderRadius: cfg.borderRadiusClock,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: cfg.fontSizeClock,
+            fontWeight: 900,
+            color: cfg.colorNumbers,
+            fontFamily: "'Courier New', monospace",
+            boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+            position: 'relative',
+            overflow: 'hidden',
+            transition: 'background 0.4s ease',
+            animation: flip
+              ? 'nvxRetroFlip 0.3s ease'
+              : isCritical
+                ? 'nvxCriticalPulse 1s ease-in-out infinite'
+                : 'none',
+          }}
         >
-          ⏰
-        </motion.div>
-        <h3 style={{ margin: "0 0 0.5rem", fontSize: `${titleSize}px`, fontWeight: 800, color: "#ef4444" }}>
-          ¡La oferta terminó!
-        </h3>
-        <p style={{ margin: 0, fontSize: `${subtitleSize}px`, color: "#94a3b8" }}>
-          Esta promoción ya no está disponible
-        </p>
+          {d}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   UNIDAD DEL RELOJ (dígito + label)
+═══════════════════════════════════════════ */
+function ClockUnit({
+  value, label, cfg, bgColor, isCritical,
+}: {
+  value: number; label: string;
+  cfg: ReturnType<typeof readConfig>;
+  bgColor: string; isCritical: boolean;
+}) {
+  const s = String(value).padStart(2, '0');
+  const Digit = cfg.style === 'retro' || cfg.style === 'retro_flip' ? DigitRetro : DigitClasico;
+  const labelSize = Math.max(9, Math.round(cfg.fontSizeClock * 0.55));
+
+  return (
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <Digit value={s} cfg={cfg} bgColor={bgColor} isCritical={isCritical} />
+      {cfg.showLabels && (
+        <span style={{
+          fontSize: labelSize,
+          fontWeight: 700,
+          color: cfg.colorTitle,
+          opacity: 0.8,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+        }}>
+          {label}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SEPARADOR (dos puntos parpadeantes)
+═══════════════════════════════════════════ */
+function Separator({ cfg }: { cfg: ReturnType<typeof readConfig> }) {
+  const [on, setOn] = useState(true);
+  useEffect(() => {
+    const i = setInterval(() => setOn((v) => !v), 500);
+    return () => clearInterval(i);
+  }, []);
+
+  const dotSize = Math.max(3, Math.round(cfg.fontSizeClock * 0.18));
+
+  return (
+    <div style={{
+      display: 'inline-flex',
+      flexDirection: 'column',
+      gap: dotSize,
+      paddingBottom: cfg.showLabels ? Math.round(cfg.fontSizeClock * 0.85) : 0,
+      opacity: on ? 1 : 0.25,
+      transition: 'opacity 0.25s',
+    }}>
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: cfg.colorTitle, opacity: 0.85 }} />
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: cfg.colorTitle, opacity: 0.85 }} />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
+export default function CountdownWidget({ config }: CountdownWidgetProps) {
+  const cfg = useMemo(() => readConfig(config), [config]);
+  const time = useTimeLeft(cfg);
+
+  // Estado urgencia
+  const urgencyState = getUrgencyState(time.percentConsumed, cfg.urgencyEnabled);
+  const currentClockBg = getClockBg(cfg, urgencyState);
+  const isCritical = urgencyState === 'critical';
+
+  // Alineación
+  const flexAlign = cfg.alignment === 'left' ? 'flex-start'
+    : cfg.alignment === 'right' ? 'flex-end' : 'center';
+  const textAlign = cfg.alignment as 'left' | 'center' | 'right';
+
+  // Unidades del reloj (lógica showDays corregida)
+  const units = useMemo(() => {
+    const arr: { v: number; l: string }[] = [];
+    const showDaysActive = cfg.showDays && time.days > 0;
+
+    if (showDaysActive) arr.push({ v: time.days, l: 'DÍAS' });
+    if (cfg.showHours) {
+      const hoursValue = showDaysActive ? time.hours : time.hours + time.days * 24;
+      arr.push({ v: hoursValue, l: 'HRS' });
+    }
+    if (cfg.showMinutes) arr.push({ v: time.minutes, l: 'MIN' });
+    if (cfg.showSeconds) arr.push({ v: time.seconds, l: 'SEG' });
+    return arr;
+  }, [time, cfg.showDays, cfg.showHours, cfg.showMinutes, cfg.showSeconds]);
+
+  // Fondo del widget (sólido o degradé)
+  const bg = (() => {
+    if (cfg.bgType === 'gradient') {
+      return `linear-gradient(${cfg.gradientDirection}, ${cfg.colorWidgetBg}, ${cfg.colorWidgetBg2})`;
+    }
+    return cfg.colorWidgetBg;
+  })();
+
+  // Estado finalizado
+  if (time.isFinished) {
+    return (
+      <>
+        <style>{keyframes}</style>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: cfg.paddingWidget,
+            background: bg,
+            borderRadius: cfg.borderRadiusWidget,
+            color: cfg.colorTitle,
+          }}
+        >
+          <div style={{ fontSize: '2rem', marginBottom: 8, animation: 'nvxFinishedBlink 2s ease-in-out infinite' }}>
+            ⏰
+          </div>
+          <div style={{
+            fontSize: cfg.fontSizeTitle,
+            fontWeight: 800,
+            marginBottom: 4,
+          }}>
+            ¡La oferta terminó!
+          </div>
+          <div style={{
+            fontSize: cfg.fontSizeSubtitle,
+            opacity: 0.7,
+          }}>
+            Esta promoción ya no está disponible
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (units.length === 0) {
+    return (
+      <div style={{
+        padding: 20,
+        background: '#fff5f5',
+        border: '1.5px dashed #FF0000',
+        borderRadius: 12,
+        textAlign: 'center',
+        fontSize: 13,
+        color: '#FF0000',
+        fontWeight: 700,
+      }}>
+        ⚠️ Activá al menos una unidad
       </div>
     );
   }
 
-  const DigitComponent = clockStyle === "retro_flip" ? FlipDigit : ClassicDigit;
-
   return (
-    <div
-      style={{
-        padding: `${widgetPad}px`,
-        background: getBg(),
-        borderRadius: `${widgetRadius}px`,
-        position: "relative",
-        overflow: "hidden",
-        textAlign: alignment as any,
-      }}
-    >
-      {/* Glow sutil */}
-      <motion.div
-        animate={{ opacity: [0.1, 0.25, 0.1] }}
-        transition={{ duration: 3, repeat: Infinity }}
+    <>
+      <style>{keyframes}</style>
+
+      <div
         style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: "200px",
-          height: "200px",
-          background: `radial-gradient(circle, ${clockBg}30 0%, transparent 70%)`,
-          transform: "translate(-50%, -50%)",
-          filter: "blur(40px)",
-          pointerEvents: "none",
+          padding: cfg.paddingWidget,
+          background: bg,
+          borderRadius: cfg.borderRadiusWidget,
+          textAlign,
+          position: 'relative',
+          overflow: 'hidden',
         }}
-      />
-
-      <div style={{ position: "relative", zIndex: 2 }}>
+      >
         {/* Título */}
-        <div style={{ marginBottom: subtitle ? "0.3rem" : "0.8rem", textAlign: alignment as any }}>
-          <h3
-            style={{
-              margin: 0,
-              fontSize: `${titleSize}px`,
-              fontWeight: 800,
-              color: titleColor,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.3rem",
-              justifyContent: alignStyle,
-            }}
-          >
-            {title}
-            <motion.span
-              animate={{ opacity: [1, 0.4, 1], scale: [1, 1.15, 1] }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-            >
-              🔥
-            </motion.span>
-          </h3>
-        </div>
-
-        {/* Subtítulo */}
-        {subtitle && (
+        {cfg.title && (
           <div
             style={{
-              display: "inline-block",
-              marginBottom: "0.8rem",
-              padding: "0.25rem 0.7rem",
-              background: subtitleBg,
-              borderRadius: "6px",
-              textAlign: alignment as any,
+              fontSize: cfg.fontSizeTitle,
+              fontWeight: 800,
+              color: cfg.colorTitle,
+              marginBottom: cfg.subtitle ? 6 : 12,
+              lineHeight: 1.2,
+              textAlign,
             }}
           >
-            <span style={{ fontSize: `${subtitleSize}px`, fontWeight: 600, color: subtitleColor }}>
-              {subtitle}
+            {cfg.title}
+          </div>
+        )}
+
+        {/* Subtítulo (chip) */}
+        {cfg.subtitle && (
+          <div style={{ marginBottom: 12, textAlign }}>
+            <span
+              style={{
+                display: 'inline-block',
+                background: cfg.colorSubtitleBg,
+                color: cfg.colorSubtitle,
+                fontSize: cfg.fontSizeSubtitle,
+                fontWeight: 700,
+                padding: '4px 10px',
+                borderRadius: 6,
+              }}
+            >
+              {cfg.subtitle}
             </span>
           </div>
         )}
 
         {/* Reloj */}
-        <div style={{ display: "flex", justifyContent: alignStyle, alignItems: "center", gap: "0.4rem" }}>
-          {units.map((unit, i) => (
-            <div key={unit.label} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
-                <DigitComponent
-                  value={unit.value}
-                  color={numberColor}
-                  bgColor={clockBg}
-                  fontSize={clockSize}
-                  padding={clockPad}
-                  borderRadius={clockRadius}
-                />
-                {showLabels && (
-                  <span
-                    style={{
-                      fontSize: `${Math.max(9, clockSize * 0.45)}px`,
-                      fontWeight: 700,
-                      color: `${titleColor}aa`,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.12em",
-                    }}
-                  >
-                    {unit.label}
-                  </span>
-                )}
-              </div>
-              {i < units.length - 1 && (
-                <motion.span
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                  style={{
-                    fontSize: `${clockSize * 0.9}px`,
-                    fontWeight: 800,
-                    color: `${titleColor}66`,
-                    marginTop: showLabels ? "-0.8rem" : "0",
-                  }}
-                >
-                  :
-                </motion.span>
-              )}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: flexAlign,
+            gap: 8,
+            flexWrap: 'wrap',
+          }}
+        >
+          {units.map((u, i) => (
+            <div key={u.l} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <ClockUnit
+                value={u.v}
+                label={u.l}
+                cfg={cfg}
+                bgColor={currentClockBg}
+                isCritical={isCritical}
+              />
+              {i < units.length - 1 && <Separator cfg={cfg} />}
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
+}
+
+/* ═══════════════════════════════════════════
+   KEYFRAMES (CSS puro, sin framer-motion)
+═══════════════════════════════════════════ */
+const keyframes = `
+  @keyframes nvxRetroFlip {
+    0% { transform: scaleY(1); opacity: 1; }
+    40%, 60% { transform: scaleY(0); opacity: 0.5; }
+    100% { transform: scaleY(1); opacity: 1; }
+  }
+  @keyframes nvxCriticalPulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
     }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+    }
+  }
+  @keyframes nvxFinishedBlink {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+`;
