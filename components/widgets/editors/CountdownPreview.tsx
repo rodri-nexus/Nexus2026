@@ -9,7 +9,9 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 interface CountdownConfig {
   title: string;
   subtitle: string;
+  mode?: 'fixed' | 'duration';
   endDate: string;
+  durationMinutes?: number;
   autoRestart: boolean;
   showDays: boolean;
   showHours?: boolean;
@@ -34,8 +36,12 @@ interface CountdownConfig {
   borderRadiusWidget: number;
   paddingWidget: number;
   paddingClock: number;
+  // Modo urgencia
+  urgencyEnabled?: boolean;
+  colorClockBgMedium?: string;
+  colorClockBgCritical?: string;
+  // Legacy
   flashMinutes?: number;
-  mode?: 'fixed' | 'flash';
 }
 
 interface Props {
@@ -49,32 +55,70 @@ interface TimeLeft {
   seconds: number;
   totalSeconds: number;
   isFinished: boolean;
+  percentConsumed: number; // 0-100 (para modo urgencia)
 }
+
+type UrgencyState = 'normal' | 'medium' | 'critical';
 
 /* ═══════════════════════════════════════════
    HOOK: tiempo restante
-   Si no hay endDate válida, usa fallback de 15 min
-   desde el momento en que se montó el componente
+   - Modo 'fixed': usa endDate específica
+   - Modo 'duration': usa durationMinutes (reinicia por sesión)
 ═══════════════════════════════════════════ */
 function useTimeLeft(config: CountdownConfig): TimeLeft {
-  // Fallback: fecha simulada +15 min desde el mount (para preview)
-  const fallbackEnd = useRef<number>(Date.now() + 15 * 60 * 1000);
+  // Referencia al momento de arranque (para modo duration)
+  const startTime = useRef<number>(Date.now());
+  const totalDuration = useRef<number>(
+    (config.durationMinutes || 15) * 60 * 1000
+  );
 
-  const getEndTime = (): number => {
+  // Reset cuando cambia el modo o la duración
+  useEffect(() => {
+    startTime.current = Date.now();
+    totalDuration.current = (config.durationMinutes || 15) * 60 * 1000;
+  }, [config.mode, config.durationMinutes]);
+
+  const getEndTime = (): { end: number; total: number } => {
+    // Modo duración corta
+    if (config.mode === 'duration') {
+      return {
+        end: startTime.current + totalDuration.current,
+        total: totalDuration.current,
+      };
+    }
+
+    // Modo fecha fija
     if (config.endDate) {
       const t = new Date(config.endDate).getTime();
-      if (!isNaN(t) && t > Date.now()) return t;
+      if (!isNaN(t) && t > Date.now()) {
+        // Total: desde hace 7 días hasta el fin (para calcular % urgencia)
+        const total = t - (Date.now() - 7 * 24 * 60 * 60 * 1000);
+        return { end: t, total };
+      }
     }
-    return fallbackEnd.current;
+
+    // Fallback: +15 min desde ahora
+    return {
+      end: startTime.current + 15 * 60 * 1000,
+      total: 15 * 60 * 1000,
+    };
   };
 
   const calc = (): TimeLeft => {
-    const end = getEndTime();
-    const diff = end - Date.now();
+    const { end, total } = getEndTime();
+    const now = Date.now();
+    const diff = end - now;
+
     if (diff <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isFinished: true };
+      return {
+        days: 0, hours: 0, minutes: 0, seconds: 0,
+        totalSeconds: 0, isFinished: true, percentConsumed: 100,
+      };
     }
+
     const t = Math.floor(diff / 1000);
+    const consumed = Math.max(0, Math.min(100, ((total - diff) / total) * 100));
+
     return {
       days: Math.floor(t / 86400),
       hours: Math.floor((t % 86400) / 3600),
@@ -82,20 +126,22 @@ function useTimeLeft(config: CountdownConfig): TimeLeft {
       seconds: t % 60,
       totalSeconds: t,
       isFinished: false,
+      percentConsumed: consumed,
     };
   };
 
   const [time, setTime] = useState<TimeLeft>(calc);
 
   useEffect(() => {
-    // Recalcular ni bien cambia la config
     setTime(calc());
 
     const int = setInterval(() => {
       const next = calc();
+
       if (next.isFinished && config.autoRestart) {
-        // Renovar el fallback y seguir contando
-        fallbackEnd.current = Date.now() + (config.flashMinutes || 15) * 60 * 1000;
+        // Reiniciar: nuevo startTime y recalcular
+        startTime.current = Date.now();
+        totalDuration.current = (config.durationMinutes || 15) * 60 * 1000;
         setTime(calc());
       } else {
         setTime(next);
@@ -104,18 +150,34 @@ function useTimeLeft(config: CountdownConfig): TimeLeft {
 
     return () => clearInterval(int);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.endDate, config.autoRestart, config.flashMinutes]);
+  }, [config.endDate, config.autoRestart, config.durationMinutes, config.mode]);
 
   return time;
+}
+
+/* ═══════════════════════════════════════════
+   HELPER: calcular estado de urgencia
+═══════════════════════════════════════════ */
+function getUrgencyState(percentConsumed: number, enabled: boolean): UrgencyState {
+  if (!enabled) return 'normal';
+  if (percentConsumed >= 67) return 'critical';
+  if (percentConsumed >= 34) return 'medium';
+  return 'normal';
+}
+
+function getClockBgColor(config: CountdownConfig, state: UrgencyState): string {
+  if (state === 'critical') return config.colorClockBgCritical || '#dc2626';
+  if (state === 'medium') return config.colorClockBgMedium || '#f97316';
+  return config.colorClockBg || '#FF0000';
 }
 
 /* ═══════════════════════════════════════════
    DIGIT CLÁSICO
 ═══════════════════════════════════════════ */
 function DigitClasico({
-  value, config,
+  value, config, bgColor, isCritical,
 }: {
-  value: string; config: CountdownConfig;
+  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean;
 }) {
   const size = parseInt(config.fontSizeClock, 10) || 16;
   return (
@@ -123,7 +185,7 @@ function DigitClasico({
       style={{
         minWidth: size * 2.5,
         minHeight: size * 2.5,
-        background: config.colorClockBg,
+        background: bgColor,
         color: config.colorNumbers,
         borderRadius: config.borderRadiusClock,
         display: 'inline-flex',
@@ -134,6 +196,8 @@ function DigitClasico({
         fontVariantNumeric: 'tabular-nums',
         padding: `${config.paddingClock}px ${config.paddingClock + 2}px`,
         lineHeight: 1,
+        transition: 'background-color 0.4s ease',
+        animation: isCritical ? 'nvxCriticalPulse 1s ease-in-out infinite' : 'none',
       }}
     >
       {value}
@@ -145,9 +209,9 @@ function DigitClasico({
    DIGIT RETRO FLIP
 ═══════════════════════════════════════════ */
 function DigitRetro({
-  value, config,
+  value, config, bgColor, isCritical,
 }: {
-  value: string; config: CountdownConfig;
+  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean;
 }) {
   const prevRef = useRef(value);
   const [flip, setFlip] = useState(false);
@@ -162,7 +226,6 @@ function DigitRetro({
   }, [value]);
 
   const size = parseInt(config.fontSizeClock, 10) || 16;
-  const baseColor = config.colorClockBg || '#000000';
 
   return (
     <div style={{ display: 'inline-flex', gap: 2 }}>
@@ -172,7 +235,7 @@ function DigitRetro({
           style={{
             width: size * 1.4,
             height: size * 2.4,
-            background: `linear-gradient(180deg, ${baseColor} 0%, ${baseColor} 49%, rgba(0,0,0,0.35) 50%, ${baseColor} 51%, ${baseColor} 100%)`,
+            background: `linear-gradient(180deg, ${bgColor} 0%, ${bgColor} 49%, rgba(0,0,0,0.35) 50%, ${bgColor} 51%, ${bgColor} 100%)`,
             borderRadius: config.borderRadiusClock,
             display: 'flex',
             alignItems: 'center',
@@ -184,7 +247,12 @@ function DigitRetro({
             boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
             position: 'relative',
             overflow: 'hidden',
-            animation: flip ? 'nvxRetroFlip 0.3s ease' : 'none',
+            transition: 'background 0.4s ease',
+            animation: flip
+              ? 'nvxRetroFlip 0.3s ease'
+              : isCritical
+                ? 'nvxCriticalPulse 1s ease-in-out infinite'
+                : 'none',
           }}
         >
           {d}
@@ -198,9 +266,10 @@ function DigitRetro({
    UNIDAD DEL RELOJ (dígito + label)
 ═══════════════════════════════════════════ */
 function ClockUnit({
-  value, label, config,
+  value, label, config, bgColor, isCritical,
 }: {
   value: number; label: string; config: CountdownConfig;
+  bgColor: string; isCritical: boolean;
 }) {
   const s = String(value).padStart(2, '0');
   const Digit = config.style === 'retro' ? DigitRetro : DigitClasico;
@@ -208,7 +277,7 @@ function ClockUnit({
 
   return (
     <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <Digit value={s} config={config} />
+      <Digit value={s} config={config} bgColor={bgColor} isCritical={isCritical} />
       {config.showLabels && (
         <span style={{
           fontSize: labelSize,
@@ -259,11 +328,12 @@ function Separator({ config }: { config: CountdownConfig }) {
 export default function CountdownPreview({ config }: Props) {
   const time = useTimeLeft(config);
 
+  // Estado de urgencia
+  const urgencyState = getUrgencyState(time.percentConsumed, !!config.urgencyEnabled);
+  const currentClockBg = getClockBgColor(config, urgencyState);
+  const isCritical = urgencyState === 'critical';
+
   // Construir unidades a mostrar
-  // Lógica showDays:
-  //  - Si showDays = false → SIEMPRE ocultar días y acumular en horas (ej: 1d 2h → 26 HRS)
-  //  - Si showDays = true y days > 0 → mostrar días
-  //  - Si showDays = true y days = 0 → ocultar días automáticamente
   const units: { v: number; l: string }[] = useMemo(() => {
     const arr: { v: number; l: string }[] = [];
     const showDaysActive = config.showDays && time.days > 0;
@@ -292,7 +362,7 @@ export default function CountdownPreview({ config }: Props) {
     );
   }
 
-  // Fondo del widget: sólido o degradé
+  // Fondo del widget
   const bg = (() => {
     if (config.bgType === 'gradient') {
       const c1 = config.colorWidgetBg || '#000000';
@@ -310,6 +380,16 @@ export default function CountdownPreview({ config }: Props) {
           0% { transform: scaleY(1); opacity: 1; }
           40%,60% { transform: scaleY(0); opacity: 0.5; }
           100% { transform: scaleY(1); opacity: 1; }
+        }
+        @keyframes nvxCriticalPulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+          }
         }
       `}</style>
 
@@ -374,7 +454,13 @@ export default function CountdownPreview({ config }: Props) {
           }}>
             {units.map((u, i) => (
               <div key={u.l} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <ClockUnit value={u.v} label={u.l} config={config} />
+                <ClockUnit
+                  value={u.v}
+                  label={u.l}
+                  config={config}
+                  bgColor={currentClockBg}
+                  isCritical={isCritical}
+                />
                 {i < units.length - 1 && <Separator config={config} />}
               </div>
             ))}
@@ -383,4 +469,4 @@ export default function CountdownPreview({ config }: Props) {
       </div>
     </>
   );
-      }
+  }
