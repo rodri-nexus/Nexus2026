@@ -1483,7 +1483,7 @@
       console.error("[Nevux] Error cargando widgets:", err);
     });
   
-    /* ═══════════════════════════════════════════
+      /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
   ═══════════════════════════════════════════ */
   function renderCountdown(widget) {
@@ -1511,7 +1511,9 @@
       "@keyframes nvx-bounceDigit{0%{transform:scale(0.85)}50%{transform:scale(1.1)}100%{transform:scale(1)}}" +
       "." + NS + "-digit.bounce{animation:nvx-bounceDigit 0.4s ease}" +
       "." + NS + "-retro-cell.flip{animation:nvx-flipDown 0.5s ease}" +
-      "." + NS + "-critical{animation:nvx-criticalPulse 1s ease-in-out infinite}";
+      "." + NS + "-critical{animation:nvx-criticalPulse 1s ease-in-out infinite}" +
+      "." + NS + "-topbar{position:relative;width:100%;left:0;right:0;z-index:9999}" +
+      "." + NS + "-topbar ." + NS + "-widget-host{border-radius:0 !important;width:100%;max-width:100%;box-sizing:border-box}";
     document.head.appendChild(st);
   }
 
@@ -1551,7 +1553,7 @@
 
     if (placement === "topbar") {
       container.classList.add(NS + "-topbar");
-      document.body.appendChild(container);
+      document.body.insertBefore(container, document.body.firstChild);
       requestAnimationFrame(function () {
         const h = container.offsetHeight;
         if (h > 0) {
@@ -1785,15 +1787,16 @@
   function update(container, cfg, state, widgetId) {
     const time = calcTime(state);
     const urgency = getUrgencyState(cfg, time, widgetId);
+    const isBar = container.dataset.placement === "topbar";
 
     if (time.isFinished && !cfg.autoRestart) {
+      const finishedRadius = isBar ? 0 : cfg.borderRadiusWidget;
       container.innerHTML =
-        '<div style="background:' + getBg(cfg) + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';color:' + cfg.colorTitle + ';font-weight:700;">' +
+        '<div style="background:' + getBg(cfg) + ';border-radius:' + finishedRadius + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';color:' + cfg.colorTitle + ';font-weight:700;">' +
         '⏰ ¡La oferta terminó!</div>';
       return;
     }
 
-    const isBar = container.dataset.placement === "topbar";
     const units = buildUnits(cfg, time);
 
     if (units.length === 0) {
@@ -1812,15 +1815,9 @@
       host.dataset.urgency !== urgency;
 
     if (needsRebuild) {
-      container.innerHTML = isBar
-        ? buildBarHtml(cfg, units, time, urgency)
-        : buildFullHtml(cfg, units, time, urgency);
+      container.innerHTML = buildFullHtml(cfg, units, time, urgency, isBar);
     } else {
-      if (isBar) {
-        updateBarDigits(host, units);
-      } else {
-        units.forEach(function (u) { updateUnit(host, u, cfg); });
-      }
+      units.forEach(function (u) { updateUnit(host, u, cfg); });
     }
   }
 
@@ -1837,58 +1834,7 @@
     return arr;
   }
 
-  function buildBarHtml(cfg, units, time, urgency) {
-    const bg = getBg(cfg);
-    const clockBg = getClockBg(cfg, urgency);
-    const criticalClass = urgency === "critical" ? " " + NS + "-critical" : "";
-
-    const split = splitEmoji(cfg.title);
-    const fullText = cfg.subtitle
-      ? (split.text ? split.text + " — " + cfg.subtitle : cfg.subtitle)
-      : split.text;
-
-    let titleHtml = "";
-    if (split.emoji || fullText) {
-      titleHtml =
-        '<div class="' + NS + '-bar-title" style="color:' + cfg.colorTitle + ';">' +
-        (split.emoji ? '<span class="' + NS + '-bar-emoji">' + escapeHtml(split.emoji) + '</span>' : "") +
-        escapeHtml(fullText) +
-        '</div>';
-    }
-
-    let clockInner = "";
-    for (let i = 0; i < units.length; i++) {
-      const u = units[i];
-      const val = String(u.v).padStart(2, "0");
-      clockInner += '<div class="' + NS + '-bar-digit' + criticalClass + '" data-key="' + u.k + '" style="background:' + clockBg + ';color:' + cfg.colorNumbers + ';">' + val + '</div>';
-      if (i < units.length - 1) {
-        clockInner += '<span class="' + NS + '-bar-sep" style="color:' + cfg.colorTitle + ';">:</span>';
-      }
-    }
-
-    return '' +
-      '<div class="' + NS + '-widget-host ' + NS + '-bar" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="true" data-urgency="' + urgency + '" style="background:' + bg + ';">' +
-      titleHtml +
-      '<div class="' + NS + '-bar-row">' +
-        '<div class="' + NS + '-bar-clock">' + clockInner + '</div>' +
-      '</div>' +
-      '</div>';
-  }
-
-  function updateBarDigits(host, units) {
-    units.forEach(function (u) {
-      const el = qs("." + NS + "-bar-digit[data-key=\"" + u.k + "\"]", host);
-      if (!el) return;
-      const val = String(u.v).padStart(2, "0");
-      if (el.textContent === val) return;
-      el.textContent = val;
-      el.style.animation = "none";
-      void el.offsetWidth;
-      el.style.animation = "nvx-bounceDigit 0.4s ease";
-    });
-  }
-
-  function buildFullHtml(cfg, units, time, urgency) {
+  function buildFullHtml(cfg, units, time, urgency, isBar) {
     const bg = getBg(cfg);
     const titleHtml = cfg.title
       ? '<div style="font-size:' + cfg.fontSizeTitle + ';font-weight:700;color:' + cfg.colorTitle + ';margin-bottom:14px;line-height:1.2;text-align:' + cfg.alignment + ';">' + escapeHtml(cfg.title) + '</div>'
@@ -1908,11 +1854,20 @@
         '</div>'
       : "";
 
+    const radius = isBar ? 0 : cfg.borderRadiusWidget;
+    const padding = isBar ? Math.max(10, Math.min(cfg.paddingWidget, 20)) : cfg.paddingWidget;
+    const innerWrap = isBar
+      ? '<div style="max-width:1200px;margin:0 auto;">'
+      : '';
+    const innerWrapClose = isBar ? '</div>' : '';
+
     return '' +
-      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="false" data-urgency="' + urgency + '" style="background:' + bg + ';border-radius:' + cfg.borderRadiusWidget + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';">' +
-        titleHtml +
-        subtitleHtml +
-        '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:8px;flex-wrap:wrap;">' + clockInner + '</div>' +
+      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="' + String(isBar) + '" data-urgency="' + urgency + '" style="background:' + bg + ';border-radius:' + radius + 'px;padding:' + padding + 'px;text-align:' + cfg.alignment + ';">' +
+        innerWrap +
+          titleHtml +
+          subtitleHtml +
+          '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:8px;flex-wrap:wrap;">' + clockInner + '</div>' +
+        innerWrapClose +
       '</div>';
   }
 
@@ -1992,7 +1947,7 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;")
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
-  }
+      }
 
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
