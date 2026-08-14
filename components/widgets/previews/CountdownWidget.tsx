@@ -23,7 +23,12 @@ type UrgencyState = 'normal' | 'medium' | 'critical';
    HELPER: leer config con fallback (compat viejo+nuevo)
 ═══════════════════════════════════════════ */
 function readConfig(config: Record<string, any>) {
-  // Acepta AMBOS formatos: camelCase (nuevo) Y snake_case (viejo)
+  // Compat: legacy usaba "hours" en vez de "durationMinutes"
+  let legacyDurationFromHours: number | undefined;
+  if (typeof config.hours === 'number' && !isNaN(config.hours)) {
+    legacyDurationFromHours = config.hours * 60;
+  }
+
   return {
     title: config.title ?? 'Oferta 🔥',
     subtitle: config.subtitle ?? '',
@@ -31,7 +36,8 @@ function readConfig(config: Record<string, any>) {
     // Modo
     mode: (config.mode ?? 'fixed') as 'fixed' | 'duration',
     endDate: config.endDate ?? config.end_datetime ?? '',
-    durationMinutes: Number(config.durationMinutes ?? config.hours * 60 ?? 15) || 15,
+    durationMinutes:
+      Number(config.durationMinutes ?? legacyDurationFromHours ?? 15) || 15,
 
     // Comportamiento
     autoRestart: config.autoRestart ?? config.auto_restart ?? false,
@@ -110,7 +116,6 @@ function useTimeLeft(cfg: ReturnType<typeof readConfig>): TimeLeft {
     if (cfg.endDate) {
       const t = new Date(cfg.endDate).getTime();
       if (!isNaN(t) && t > Date.now()) {
-        // Total: asumimos 7 días como referencia para el % de urgencia
         const total = t - (Date.now() - 7 * 24 * 60 * 60 * 1000);
         return { end: t, total };
       }
@@ -224,7 +229,7 @@ function DigitClasico({
 }
 
 /* ═══════════════════════════════════════════
-   DIGIT: RETRO FLIP (CSS puro, sin framer-motion)
+   DIGIT: RETRO FLIP (CSS puro)
 ═══════════════════════════════════════════ */
 function DigitRetro({
   value, cfg, bgColor, isCritical,
@@ -282,7 +287,7 @@ function DigitRetro({
 }
 
 /* ═══════════════════════════════════════════
-   UNIDAD DEL RELOJ (dígito + label)
+   UNIDAD DEL RELOJ
 ═══════════════════════════════════════════ */
 function ClockUnit({
   value, label, cfg, bgColor, isCritical,
@@ -315,7 +320,7 @@ function ClockUnit({
 }
 
 /* ═══════════════════════════════════════════
-   SEPARADOR (dos puntos parpadeantes)
+   SEPARADOR
 ═══════════════════════════════════════════ */
 function Separator({ cfg }: { cfg: ReturnType<typeof readConfig> }) {
   const [on, setOn] = useState(true);
@@ -348,17 +353,14 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
   const cfg = useMemo(() => readConfig(config), [config]);
   const time = useTimeLeft(cfg);
 
-  // Estado urgencia
   const urgencyState = getUrgencyState(time.percentConsumed, cfg.urgencyEnabled);
   const currentClockBg = getClockBg(cfg, urgencyState);
   const isCritical = urgencyState === 'critical';
 
-  // Alineación
   const flexAlign = cfg.alignment === 'left' ? 'flex-start'
     : cfg.alignment === 'right' ? 'flex-end' : 'center';
   const textAlign = cfg.alignment as 'left' | 'center' | 'right';
 
-  // Unidades del reloj (lógica showDays corregida)
   const units = useMemo(() => {
     const arr: { v: number; l: string }[] = [];
     const showDaysActive = cfg.showDays && time.days > 0;
@@ -373,7 +375,6 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
     return arr;
   }, [time, cfg.showDays, cfg.showHours, cfg.showMinutes, cfg.showSeconds]);
 
-  // Fondo del widget (sólido o degradé)
   const bg = (() => {
     if (cfg.bgType === 'gradient') {
       return `linear-gradient(${cfg.gradientDirection}, ${cfg.colorWidgetBg}, ${cfg.colorWidgetBg2})`;
@@ -381,7 +382,6 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
     return cfg.colorWidgetBg;
   })();
 
-  // Estado finalizado
   if (time.isFinished) {
     return (
       <>
@@ -447,7 +447,6 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
           overflow: 'hidden',
         }}
       >
-        {/* Título */}
         {cfg.title && (
           <div
             style={{
@@ -463,7 +462,6 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
           </div>
         )}
 
-        {/* Subtítulo (chip) */}
         {cfg.subtitle && (
           <div style={{ marginBottom: 12, textAlign }}>
             <span
@@ -482,7 +480,6 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
           </div>
         )}
 
-        {/* Reloj */}
         <div
           style={{
             display: 'flex',
@@ -511,7 +508,7 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
 }
 
 /* ═══════════════════════════════════════════
-   KEYFRAMES (CSS puro, sin framer-motion)
+   KEYFRAMES
 ═══════════════════════════════════════════ */
 const keyframes = `
   @keyframes nvxRetroFlip {
