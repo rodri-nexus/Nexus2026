@@ -105,10 +105,20 @@ export default function MiTiendaClient({
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
-      const data = await res.json();
+
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        // Respuesta sin JSON
+      }
 
       if (!res.ok) {
-        throw new Error(data?.error || "Error al desconectar");
+        const errorMsg =
+          data?.error ||
+          data?.details ||
+          `Error ${res.status}: ${res.statusText || "no se pudo desconectar"}`;
+        throw new Error(errorMsg);
       }
 
       setToast({
@@ -122,7 +132,11 @@ export default function MiTiendaClient({
         router.refresh();
       }, 1200);
     } catch (e: any) {
-      setToast({ type: "error", msg: e.message || "Error inesperado" });
+      console.error("[Nevux] Error desconectando:", e);
+      setToast({
+        type: "error",
+        msg: e?.message || "Error inesperado al desconectar",
+      });
       setDisconnecting(false);
     }
   };
@@ -131,7 +145,7 @@ export default function MiTiendaClient({
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
@@ -154,7 +168,8 @@ export default function MiTiendaClient({
             alignItems: "center",
             gap: "0.35rem",
             fontSize: "0.85rem",
-            color: "#6b7280",
+            color: "#000000",
+            opacity: 0.6,
             textDecoration: "none",
             marginBottom: "1rem",
             fontWeight: 500,
@@ -176,7 +191,7 @@ export default function MiTiendaClient({
               margin: 0,
               fontSize: "1.85rem",
               fontWeight: 800,
-              color: "#111827",
+              color: "#000000",
               letterSpacing: "-0.02em",
               lineHeight: 1.15,
             }}
@@ -187,7 +202,8 @@ export default function MiTiendaClient({
             style={{
               margin: "0.35rem 0 0",
               fontSize: "0.9rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
             }}
           >
             Administrá la conexión de tu tienda de Tiendanube.
@@ -201,7 +217,7 @@ export default function MiTiendaClient({
             animate={{ opacity: 1, y: 0 }}
             style={{
               background: "#ffffff",
-              border: "1px solid #e5e7eb",
+              border: "1.5px solid #000000",
               borderRadius: "16px",
               padding: "2.5rem 1.5rem",
               textAlign: "center",
@@ -213,21 +229,21 @@ export default function MiTiendaClient({
                 width: "64px",
                 height: "64px",
                 borderRadius: "16px",
-                background: "linear-gradient(135deg, #fef3c7, #fde68a)",
+                background: "#fff5f5",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 margin: "0 auto 1.25rem",
               }}
             >
-              <Store size={30} color="#b45309" />
+              <Store size={30} color="#FF0000" />
             </div>
             <h2
               style={{
                 margin: 0,
                 fontSize: "1.15rem",
                 fontWeight: 700,
-                color: "#111827",
+                color: "#000000",
               }}
             >
               No hay tienda conectada
@@ -236,7 +252,8 @@ export default function MiTiendaClient({
               style={{
                 margin: "0.5rem auto 1.5rem",
                 fontSize: "0.9rem",
-                color: "#6b7280",
+                color: "#000000",
+                opacity: 0.6,
                 maxWidth: "400px",
               }}
             >
@@ -251,12 +268,12 @@ export default function MiTiendaClient({
                 gap: "0.5rem",
                 padding: "0.75rem 1.5rem",
                 borderRadius: "999px",
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                background: "#FF0000",
                 color: "#ffffff",
                 textDecoration: "none",
                 fontSize: "0.9rem",
                 fontWeight: 600,
-                boxShadow: "0 4px 14px rgba(99, 102, 241, 0.4)",
+                boxShadow: "0 4px 14px rgba(255, 0, 0, 0.35)",
               }}
             >
               <Store size={16} />
@@ -283,7 +300,7 @@ export default function MiTiendaClient({
                 <div
                   style={{
                     fontSize: "0.95rem",
-                    color: "#111827",
+                    color: "#000000",
                     fontWeight: 600,
                   }}
                 >
@@ -301,9 +318,9 @@ export default function MiTiendaClient({
                     alignItems: "center",
                     gap: "0.4rem",
                     fontSize: "0.9rem",
-                    color: "#2563eb",
+                    color: "#FF0000",
                     textDecoration: "none",
-                    fontWeight: 500,
+                    fontWeight: 600,
                     wordBreak: "break-all",
                   }}
                 >
@@ -317,12 +334,13 @@ export default function MiTiendaClient({
                   style={{
                     fontSize: "0.85rem",
                     fontFamily: "monospace",
-                    color: "#374151",
+                    color: "#000000",
                     fontWeight: 600,
-                    background: "#f3f4f6",
+                    background: "#f9fafb",
                     display: "inline-block",
                     padding: "0.25rem 0.6rem",
                     borderRadius: "6px",
+                    border: "1px solid #e5e7eb",
                   }}
                 >
                   {storeInfo.store_id}
@@ -336,12 +354,12 @@ export default function MiTiendaClient({
                     alignItems: "center",
                     gap: "0.4rem",
                     padding: "0.35rem 0.75rem",
-                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    background: "#FF0000",
                     borderRadius: "8px",
                     color: "#ffffff",
                     fontSize: "0.8rem",
                     fontWeight: 700,
-                    boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
+                    boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
                   }}
                 >
                   <CheckCircle2 size={14} strokeWidth={2.5} />
@@ -350,20 +368,21 @@ export default function MiTiendaClient({
               </Field>
 
               <Field label="Conectado desde">
-                <div style={{ fontSize: "0.9rem", color: "#111827" }}>
+                <div style={{ fontSize: "0.9rem", color: "#000000" }}>
                   {formatDate(storeInfo.installed_at)}
                 </div>
               </Field>
 
               <Field label="Última sincronización">
-                <div style={{ fontSize: "0.9rem", color: "#111827" }}>
+                <div style={{ fontSize: "0.9rem", color: "#000000" }}>
                   {formatDate(storeInfo.updated_at)}
                   {storeInfo.updated_at && (
                     <span
                       style={{
                         marginLeft: "0.5rem",
                         fontSize: "0.8rem",
-                        color: "#9ca3af",
+                        color: "#000000",
+                        opacity: 0.5,
                       }}
                     >
                       ({timeAgo(storeInfo.updated_at)})
@@ -387,7 +406,7 @@ export default function MiTiendaClient({
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "0.75rem",
+                  gap: "0.65rem",
                 }}
               >
                 <ActionButton
@@ -415,13 +434,13 @@ export default function MiTiendaClient({
                 <ActionButton
                   icon={<Package size={16} />}
                   label={`Ver productos (${productsCount})`}
-                  onClick={() => router.push("/widgets/nuevo")}
+                  onClick={() => router.push("/productos")}
                 />
 
                 <ActionButton
                   icon={<LayoutGrid size={16} />}
                   label={`Ver widgets (${widgetsCount})`}
-                  onClick={() => router.push("/dashboard")}
+                  onClick={() => router.push("/widgets")}
                 />
               </div>
             </motion.section>
@@ -475,14 +494,14 @@ export default function MiTiendaClient({
                   alignItems: "center",
                   gap: "0.5rem",
                   padding: "0.75rem 1.25rem",
-                  borderRadius: "10px",
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  borderRadius: "999px",
+                  background: "#dc2626",
                   color: "#ffffff",
                   border: "none",
                   fontSize: "0.9rem",
                   fontWeight: 700,
                   cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(239, 68, 68, 0.35)",
+                  boxShadow: "0 4px 14px rgba(220, 38, 38, 0.35)",
                   transition: "transform 0.15s",
                   fontFamily: "inherit",
                 }}
@@ -501,43 +520,41 @@ export default function MiTiendaClient({
         )}
       </main>
 
-      {/* ═══════════ MODAL CONFIRMACIÓN ═══════════ */}
+      {/* ═══════════ MODAL CONFIRMACIÓN (FIX CENTRADO) ═══════════ */}
       <AnimatePresence>
         {confirmOpen && (
-          <>
-            {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => !disconnecting && setConfirmOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.55)",
+              backdropFilter: "blur(4px)",
+              zIndex: 200,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "1rem",
+              boxSizing: "border-box",
+            }}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => !disconnecting && setConfirmOpen(false)}
-              style={{
-                position: "fixed",
-                inset: 0,
-                background: "rgba(0, 0, 0, 0.5)",
-                backdropFilter: "blur(4px)",
-                zIndex: 200,
-              }}
-            />
-
-            {/* Modal */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.2 }}
               style={{
-                position: "fixed",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
                 background: "#ffffff",
                 borderRadius: "18px",
-                padding: "1.75rem",
-                width: "calc(100% - 2rem)",
+                padding: "1.75rem 1.5rem",
+                width: "100%",
                 maxWidth: "420px",
-                zIndex: 201,
                 boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+                boxSizing: "border-box",
               }}
             >
               <div
@@ -545,7 +562,8 @@ export default function MiTiendaClient({
                   width: "56px",
                   height: "56px",
                   borderRadius: "14px",
-                  background: "linear-gradient(135deg, #fee2e2, #fecaca)",
+                  background: "#fef2f2",
+                  border: "1.5px solid #fecaca",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -560,7 +578,7 @@ export default function MiTiendaClient({
                   margin: 0,
                   fontSize: "1.15rem",
                   fontWeight: 800,
-                  color: "#111827",
+                  color: "#000000",
                   textAlign: "center",
                 }}
               >
@@ -571,13 +589,17 @@ export default function MiTiendaClient({
                 style={{
                   margin: "0.6rem 0 1.5rem",
                   fontSize: "0.88rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.65,
                   textAlign: "center",
                   lineHeight: 1.55,
                 }}
               >
-                Se van a eliminar <strong>{widgetsCount} widgets</strong> y se
-                revocará el acceso a tu tienda. Esta acción no se puede
+                Se van a eliminar{" "}
+                <strong style={{ opacity: 1, color: "#000000" }}>
+                  {widgetsCount} widget{widgetsCount === 1 ? "" : "s"}
+                </strong>{" "}
+                y se revocará el acceso a tu tienda. Esta acción no se puede
                 deshacer.
               </p>
 
@@ -585,17 +607,18 @@ export default function MiTiendaClient({
                 style={{
                   display: "flex",
                   gap: "0.6rem",
+                  flexWrap: "wrap",
                 }}
               >
                 <button
                   onClick={() => setConfirmOpen(false)}
                   disabled={disconnecting}
                   style={{
-                    flex: 1,
-                    padding: "0.75rem",
+                    flex: "1 1 120px",
+                    padding: "0.85rem",
                     borderRadius: "10px",
                     background: "#f3f4f6",
-                    color: "#374151",
+                    color: "#000000",
                     border: "none",
                     fontSize: "0.9rem",
                     fontWeight: 600,
@@ -610,12 +633,10 @@ export default function MiTiendaClient({
                   onClick={handleDisconnect}
                   disabled={disconnecting}
                   style={{
-                    flex: 1.4,
-                    padding: "0.75rem",
+                    flex: "1.4 1 140px",
+                    padding: "0.85rem",
                     borderRadius: "10px",
-                    background: disconnecting
-                      ? "#fca5a5"
-                      : "linear-gradient(135deg, #ef4444, #dc2626)",
+                    background: disconnecting ? "#fca5a5" : "#dc2626",
                     color: "#ffffff",
                     border: "none",
                     fontSize: "0.9rem",
@@ -628,14 +649,13 @@ export default function MiTiendaClient({
                     fontFamily: "inherit",
                     boxShadow: disconnecting
                       ? "none"
-                      : "0 4px 14px rgba(239,68,68,0.4)",
+                      : "0 4px 14px rgba(220,38,38,0.4)",
                   }}
                 >
                   {disconnecting ? (
                     <>
                       <Loader2
                         size={15}
-                        className="animate-spin"
                         style={{ animation: "spin 1s linear infinite" }}
                       />
                       Desconectando...
@@ -649,7 +669,7 @@ export default function MiTiendaClient({
                 </button>
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -661,7 +681,7 @@ export default function MiTiendaClient({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onAnimationComplete={() => {
-              setTimeout(() => setToast(null), 2500);
+              setTimeout(() => setToast(null), 3500);
             }}
             style={{
               position: "fixed",
@@ -670,10 +690,7 @@ export default function MiTiendaClient({
               transform: "translateX(-50%)",
               padding: "0.85rem 1.25rem",
               borderRadius: "12px",
-              background:
-                toast.type === "success"
-                  ? "linear-gradient(135deg, #10b981, #059669)"
-                  : "linear-gradient(135deg, #ef4444, #dc2626)",
+              background: toast.type === "success" ? "#059669" : "#dc2626",
               color: "#ffffff",
               fontSize: "0.88rem",
               fontWeight: 600,
@@ -690,7 +707,7 @@ export default function MiTiendaClient({
             ) : (
               <X size={17} />
             )}
-            {toast.msg}
+            <span>{toast.msg}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -721,7 +738,8 @@ const cardTitleStyle: React.CSSProperties = {
   margin: 0,
   fontSize: "1.05rem",
   fontWeight: 700,
-  color: "#111827",
+  color: "#000000",
+  letterSpacing: "-0.01em",
 };
 
 function Divider() {
@@ -748,8 +766,9 @@ function Field({
       <div
         style={{
           fontSize: "0.75rem",
-          fontWeight: 600,
-          color: "#9ca3af",
+          fontWeight: 700,
+          color: "#000000",
+          opacity: 0.5,
           textTransform: "uppercase",
           letterSpacing: "0.05em",
           marginBottom: "0.4rem",
@@ -779,17 +798,23 @@ function ActionButton({
   const isWarning = variant === "warning";
 
   let bg = "#ffffff";
-  let color = "#2563eb";
-  let border = "1.5px solid #bfdbfe";
+  let color = "#FF0000";
+  let border = "1.5px solid #e5e7eb";
+  let hoverBg = "#fff5f5";
+  let hoverBorder = "#FF0000";
 
   if (isPrimary) {
-    bg = "linear-gradient(135deg, #3b82f6, #2563eb)";
+    bg = "#FF0000";
     color = "#ffffff";
     border = "none";
+    hoverBg = "#FF0000";
+    hoverBorder = "transparent";
   } else if (isWarning) {
     bg = "#fffbeb";
     color = "#b45309";
     border = "1.5px solid #fcd34d";
+    hoverBg = "#fef3c7";
+    hoverBorder = "#f59e0b";
   }
 
   return (
@@ -801,7 +826,7 @@ function ActionButton({
         justifyContent: "center",
         gap: "0.5rem",
         width: "100%",
-        padding: "0.85rem",
+        padding: "0.85rem 1rem",
         borderRadius: "999px",
         background: bg,
         color: color,
@@ -810,20 +835,31 @@ function ActionButton({
         fontWeight: 700,
         cursor: "pointer",
         fontFamily: "inherit",
-        transition: "transform 0.15s, box-shadow 0.15s",
-        boxShadow: isPrimary
-          ? "0 4px 14px rgba(37, 99, 235, 0.35)"
-          : "none",
+        transition: "transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s",
+        boxShadow: isPrimary ? "0 4px 14px rgba(255, 0, 0, 0.35)" : "none",
+        boxSizing: "border-box",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-1px)";
+        if (!isPrimary) {
+          e.currentTarget.style.background = hoverBg;
+          e.currentTarget.style.borderColor = hoverBorder;
+        } else {
+          e.currentTarget.style.boxShadow = "0 6px 18px rgba(255, 0, 0, 0.45)";
+        }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
+        if (!isPrimary) {
+          e.currentTarget.style.background = bg;
+          e.currentTarget.style.borderColor = "#e5e7eb";
+        } else {
+          e.currentTarget.style.boxShadow = "0 4px 14px rgba(255, 0, 0, 0.35)";
+        }
       }}
     >
       {icon}
       {label}
     </button>
   );
-      }
+        }
