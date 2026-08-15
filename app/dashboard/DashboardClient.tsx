@@ -11,6 +11,7 @@ import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
 import PlanStatusCard from "./components/PlanStatusCard";
+import SessionRefresher from "./components/SessionRefresher";
 import TutorialProvider from "./components/tutorial/TutorialProvider";
 import type { PlanInfo, PlanStatus, RawPlanStatus } from "@/lib/plan";
 
@@ -89,6 +90,7 @@ export default function DashboardClient({
       initialCompleted={onboardingCompleted}
       userId={userId}
     >
+      <SessionRefresher />
       <div
         style={{
           minHeight: "100vh",
@@ -357,4 +359,4 @@ export default function DashboardClient({
       </div>
     </TutorialProvider>
   );
-          }
+      }
