@@ -74,22 +74,50 @@ export default function RegistroPage() {
 
     setLoading(true);
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
     });
 
-    setLoading(false);
-
     if (signUpError) {
-      setError(signUpError.message);
+      setLoading(false);
+      if (signUpError.message.includes("already registered") || signUpError.message.includes("already been registered")) {
+        setError("Este email ya está registrado. Iniciá sesión.");
+      } else {
+        setError(signUpError.message);
+      }
       return;
     }
 
-    router.push("/verificar-email");
+    // Crear perfil en tabla profiles (email/password no dispara el callback)
+    if (data.user) {
+      const fullName = email.split("@")[0] || "Usuario";
+
+      // Trial de 7 días desde ahora
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 7);
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: fullName,
+          avatar_url: null,
+          plan: "free",
+          onboarding_completed: false,
+          trial_ends_at: trialEndsAt.toISOString(),
+        });
+
+      if (profileError) {
+        console.error("Error al crear perfil:", profileError);
+        // No frenamos el flow, el usuario ya está creado
+      }
+    }
+
+    setLoading(false);
+    router.push("/dashboard");
+    router.refresh();
   }
 
   // El botón se deshabilita si:
@@ -675,4 +703,4 @@ export default function RegistroPage() {
       </motion.div>
     </div>
   );
-}
+            }
