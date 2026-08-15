@@ -161,7 +161,7 @@ export default function LoginPage() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            style={{ marginBottom: "1.5rem" }}
+            style={{ marginBottom: "0.75rem" }}
           >
             <label
               style={{
@@ -206,6 +206,30 @@ export default function LoginPage() {
                 onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
+          </motion.div>
+
+          {/* Link olvidé mi contraseña */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <Link
+              href="/recuperar"
+              style={{
+                fontSize: "0.82rem",
+                color: "#FF0000",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
           </motion.div>
 
           {/* Error */}
@@ -291,4 +315,4 @@ export default function LoginPage() {
       </motion.div>
     </div>
   );
-      }
+          }
