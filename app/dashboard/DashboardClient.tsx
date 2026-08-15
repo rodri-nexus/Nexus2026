@@ -89,7 +89,6 @@ export default function DashboardClient({
       initialCompleted={onboardingCompleted}
       userId={userId}
     >
-      <SessionRefresher />
       <div
         style={{
           minHeight: "100vh",
