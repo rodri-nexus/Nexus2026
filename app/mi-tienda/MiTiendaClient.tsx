@@ -1,7 +1,7 @@
 // app/mi-tienda/MiTiendaClient.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,6 +95,22 @@ export default function MiTiendaClient({
     msg: string;
   } | null>(null);
 
+  // ── Timer del toast con useRef para evitar memory leaks ──
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      // Limpiar timer anterior si había uno
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = setTimeout(() => {
+        setToast(null);
+      }, 3500);
+    }
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, [toast]);
+
   const hasStore = storeInfo !== null;
 
   /* ── Desconectar tienda ── */
@@ -106,7 +122,7 @@ export default function MiTiendaClient({
         headers: { "Content-Type": "application/json" },
       });
 
-      let data: any = null;
+      let data: { error?: string; details?: string } | null = null;
       try {
         data = await res.json();
       } catch {
@@ -121,22 +137,32 @@ export default function MiTiendaClient({
         throw new Error(errorMsg);
       }
 
+      // ✅ Éxito: cerrar modal primero, mostrar toast,
+      // luego redirect con window.location para evitar
+      // que Framer Motion congele la UI durante la navegación
+      setConfirmOpen(false);
       setToast({
         type: "success",
         msg: "Tienda desconectada correctamente ✓",
       });
-      setConfirmOpen(false);
 
       setTimeout(() => {
-        router.push("/dashboard");
-        router.refresh();
+        window.location.href = "/dashboard";
       }, 1200);
-    } catch (e: any) {
+
+    } catch (e: unknown) {
+      const errorMessage =
+        e instanceof Error
+          ? e.message
+          : "Error inesperado al desconectar";
       console.error("[Nevux] Error desconectando:", e);
       setToast({
         type: "error",
-        msg: e?.message || "Error inesperado al desconectar",
+        msg: errorMessage,
       });
+    } finally {
+      // ✅ Siempre resetear disconnecting,
+      // tanto en éxito como en error
       setDisconnecting(false);
     }
   };
@@ -520,7 +546,7 @@ export default function MiTiendaClient({
         )}
       </main>
 
-      {/* ═══════════ MODAL CONFIRMACIÓN (FIX CENTRADO) ═══════════ */}
+      {/* ═══════════ MODAL CONFIRMACIÓN ═══════════ */}
       <AnimatePresence>
         {confirmOpen && (
           <motion.div
@@ -680,9 +706,6 @@ export default function MiTiendaClient({
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            onAnimationComplete={() => {
-              setTimeout(() => setToast(null), 3500);
-            }}
             style={{
               position: "fixed",
               bottom: "1.5rem",
@@ -835,7 +858,8 @@ function ActionButton({
         fontWeight: 700,
         cursor: "pointer",
         fontFamily: "inherit",
-        transition: "transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s",
+        transition:
+          "transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s",
         boxShadow: isPrimary ? "0 4px 14px rgba(255, 0, 0, 0.35)" : "none",
         boxSizing: "border-box",
       }}
@@ -845,7 +869,8 @@ function ActionButton({
           e.currentTarget.style.background = hoverBg;
           e.currentTarget.style.borderColor = hoverBorder;
         } else {
-          e.currentTarget.style.boxShadow = "0 6px 18px rgba(255, 0, 0, 0.45)";
+          e.currentTarget.style.boxShadow =
+            "0 6px 18px rgba(255, 0, 0, 0.45)";
         }
       }}
       onMouseLeave={(e) => {
@@ -854,7 +879,8 @@ function ActionButton({
           e.currentTarget.style.background = bg;
           e.currentTarget.style.borderColor = "#e5e7eb";
         } else {
-          e.currentTarget.style.boxShadow = "0 4px 14px rgba(255, 0, 0, 0.35)";
+          e.currentTarget.style.boxShadow =
+            "0 4px 14px rgba(255, 0, 0, 0.35)";
         }
       }}
     >
@@ -862,4 +888,4 @@ function ActionButton({
       {label}
     </button>
   );
-        }
+  }
