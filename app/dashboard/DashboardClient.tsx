@@ -11,7 +11,6 @@ import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
 import PlanStatusCard from "./components/PlanStatusCard";
-import SessionRefresher from "./components/SessionRefresher";
 import TutorialProvider from "./components/tutorial/TutorialProvider";
 import type { PlanInfo, PlanStatus, RawPlanStatus } from "@/lib/plan";
 
