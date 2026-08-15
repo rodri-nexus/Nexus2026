@@ -1,3 +1,4 @@
+// app/dashboard/components/tutorial/TutorialProvider.tsx
 "use client";
 
 import {
@@ -35,17 +36,14 @@ export function useTutorial() {
   return ctx;
 }
 
-// ─── Helper para armar la clave por usuario ───
-// Cada usuario tiene su propia key en localStorage para que el tutorial
-// se muestre correctamente cuando cambia el usuario logueado en el mismo navegador.
-const OLD_STORAGE_KEY = "nevux_tutorial_completed"; // clave vieja (compartida entre usuarios)
+// ─── Helpers ───
+
+const OLD_STORAGE_KEY = "nevux_tutorial_completed";
 
 function getStorageKey(userId: string | null | undefined): string {
   if (userId) {
     return `nevux_tutorial_completed_${userId}`;
   }
-  // Fallback muy defensivo: si por algún motivo no viene el userId,
-  // usamos la clave vieja para no romper.
   return OLD_STORAGE_KEY;
 }
 
@@ -62,33 +60,35 @@ export default function TutorialProvider({
   initialCompleted,
   userId,
 }: TutorialProviderProps) {
-  // Cleanup: borrar la clave vieja (sin userId) para no dejar basura de la versión anterior.
-  // Se ejecuta 1 sola vez al montar el componente en el browser.
+  const STORAGE_KEY = getStorageKey(userId);
+
+  // HOTFIX:
+  // Arrancamos SIEMPRE con el tutorial desactivado.
+  // Esto evita que cualquier overlay automático bloquee clicks en dashboard.
+  const [isActive, setIsActive] = useState<boolean>(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+  // Cleanup de la clave vieja para no dejar basura en localStorage
   useEffect(() => {
-    if (typeof window === "undefined") return;
     try {
       if (localStorage.getItem(OLD_STORAGE_KEY) !== null) {
         localStorage.removeItem(OLD_STORAGE_KEY);
       }
     } catch {
-      // Ignorar errores de localStorage (modo privado, etc.)
+      // Ignorar errores de localStorage
     }
   }, []);
 
-  // Clave dinámica por usuario
-  const STORAGE_KEY = getStorageKey(userId);
-
-  // localStorage como fuente de verdad del navegador (por usuario)
-  const wasCompletedInBrowser =
-    typeof window !== "undefined"
-      ? localStorage.getItem(STORAGE_KEY) === "true"
-      : false;
-
-  const shouldShow = !initialCompleted && !wasCompletedInBrowser;
-
-  const [isActive, setIsActive] = useState<boolean>(shouldShow);
-  const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  // Si por algún motivo el onboarding ya figura como completado,
+  // nos aseguramos de mantener todo cerrado.
+  useEffect(() => {
+    if (initialCompleted && isActive) {
+      setIsActive(false);
+      setModalOpen(false);
+      setCurrentStepIndex(0);
+    }
+  }, [initialCompleted, isActive]);
 
   const currentStep: TutorialStep | null =
     isActive && currentStepIndex >= 0 && currentStepIndex < TOTAL_STEPS
@@ -98,15 +98,13 @@ export default function TutorialProvider({
   const isFirst = currentStepIndex === 0;
   const isLast = currentStepIndex === TOTAL_STEPS - 1;
 
-  // ─── Guardar en Supabase y localStorage que el tutorial fue completado ───
+  // ─── Guardar en Supabase y localStorage ───
 
   const markAsCompleted = useCallback(async () => {
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(STORAGE_KEY, "true");
-      } catch {
-        // Ignorar errores de localStorage
-      }
+    try {
+      localStorage.setItem(STORAGE_KEY, "true");
+    } catch {
+      // Ignorar errores de localStorage
     }
 
     try {
@@ -114,7 +112,9 @@ export default function TutorialProvider({
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) throw new Error("API error");
+      if (!res.ok) {
+        throw new Error("API error");
+      }
     } catch (err) {
       console.error("Error al marcar onboarding como completado:", err);
     }
@@ -175,27 +175,30 @@ export default function TutorialProvider({
     markAsCompleted();
   }, [markAsCompleted]);
 
-  // Re-lanzar el tutorial manualmente (para futuro botón "Ver tutorial")
+  // Lo dejamos para futuro botón manual "Ver tutorial"
   const startTutorial = useCallback(() => {
     setCurrentStepIndex(0);
     setModalOpen(false);
     setIsActive(true);
   }, []);
 
-  // ─── Efecto: al arrancar, si el paso actual es insideModal, abrir el modal ───
+  // Si el paso actual necesita modal fake, sincronizarlo
   useEffect(() => {
     if (!isActive || !currentStep) return;
+
     if (currentStep.insideModal && !modalOpen) {
       setModalOpen(true);
     }
+
+    if (!currentStep.insideModal && modalOpen) {
+      setModalOpen(false);
+    }
   }, [isActive, currentStep, modalOpen]);
 
-  // ─── Handler cuando se toca "Crear mi primer widget" (paso 8, CTA del modal fake) ───
   const handleCreatePrimary = useCallback(() => {
     finishTutorial();
   }, [finishTutorial]);
 
-  // ─── Valor del contexto ───
   const contextValue: TutorialContextValue = {
     isActive,
     currentStepIndex,
@@ -203,33 +206,35 @@ export default function TutorialProvider({
     skipTutorial,
   };
 
+  const showTutorial = isActive && currentStep !== null;
+
   return (
     <TutorialContext.Provider value={contextValue}>
       {children}
 
-      {/* Modal fake (aparece en pasos 5, 6, 7, 8) */}
-      <CreateWidgetModalFake
-        isOpen={isActive && modalOpen}
-        onClose={undefined}
-        onCreatePrimary={handleCreatePrimary}
-        showCTA={currentStep?.id === "listo"}
-      />
+      {showTutorial && currentStep && (
+        <>
+          <CreateWidgetModalFake
+            isOpen={modalOpen}
+            onClose={undefined}
+            onCreatePrimary={handleCreatePrimary}
+            showCTA={currentStep.id === "listo"}
+          />
 
-      {/* Overlay + spotlight + card */}
-      {isActive && currentStep && (
-        <TutorialOverlay
-          key={currentStep.id}
-          step={currentStep}
-          stepIndex={currentStepIndex}
-          totalSteps={TOTAL_STEPS}
-          isFirst={isFirst}
-          isLast={isLast}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onSkip={skipTutorial}
-          onFinish={finishTutorial}
-        />
+          <TutorialOverlay
+            key={String(currentStep.id)}
+            step={currentStep}
+            stepIndex={currentStepIndex}
+            totalSteps={TOTAL_STEPS}
+            isFirst={isFirst}
+            isLast={isLast}
+            onNext={handleNext}
+            onPrev={handlePrev}
+            onSkip={skipTutorial}
+            onFinish={finishTutorial}
+          />
+        </>
       )}
     </TutorialContext.Provider>
   );
-    }
+}
