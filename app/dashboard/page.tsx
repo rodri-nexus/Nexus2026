@@ -5,8 +5,10 @@ import { buildPlanInfo, type StorePlanData, type PlanInfo } from "@/lib/plan";
 import { supabaseAdmin } from "@/lib/supabase";
 import DashboardClient from "./DashboardClient";
 
-// Revalidar cada 5 minutos para no saturar la API de Tiendanube
-export const revalidate = 300;
+// Forzamos render dinámico para que el dashboard siempre traiga datos frescos.
+// Antes teníamos revalidate=300 (caché 5min) y eso causaba UI trabada cuando
+// se conectaba/desconectaba la tienda porque servía datos viejos.
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -153,4 +155,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-}
+      }
