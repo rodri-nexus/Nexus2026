@@ -47,6 +47,14 @@ function getStorageKey(userId: string | null | undefined): string {
   return OLD_STORAGE_KEY;
 }
 
+function isCompletedInStorage(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === "true";
+  } catch {
+    return false;
+  }
+}
+
 // ─── Provider ───
 
 interface TutorialProviderProps {
@@ -62,51 +70,60 @@ export default function TutorialProvider({
 }: TutorialProviderProps) {
   const STORAGE_KEY = getStorageKey(userId);
 
-  // HOTFIX:
-  // Arrancamos SIEMPRE con el tutorial desactivado.
-  // Esto evita que cualquier overlay automático bloquee clicks en dashboard.
-  const [isActive, setIsActive] = useState<boolean>(false);
-  const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  // Guard de hidratación — evita cualquier acción antes de que
+  // el cliente esté listo y localStorage sea accesible
+  const [hydrated, setHydrated] = useState(false);
 
-  // Cleanup de la clave vieja para no dejar basura en localStorage
+  // El tutorial arranca SIEMPRE cerrado
+  // Se abre solo en el useEffect post-hidratación si corresponde
+  const [isActive, setIsActive] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // ─── Post-hidratación: lógica de auto-show ───
+  // Se ejecuta 1 sola vez al montar el componente en el cliente.
+  // Regla: mostrar si y solo si:
+  //   1. localStorage NO tiene el flag de completado (fuente de verdad #1)
+  //   2. Supabase tampoco lo tiene (initialCompleted === false)
+  // Si cualquiera de los dos dice "completado" → nunca mostrar
   useEffect(() => {
+    // Cleanup de la clave vieja para no dejar basura
     try {
       if (localStorage.getItem(OLD_STORAGE_KEY) !== null) {
         localStorage.removeItem(OLD_STORAGE_KEY);
       }
     } catch {
-      // Ignorar errores de localStorage
+      // ignorar
     }
-  }, []);
 
-  // Si por algún motivo el onboarding ya figura como completado,
-  // nos aseguramos de mantener todo cerrado.
-  useEffect(() => {
-    if (initialCompleted && isActive) {
-      setIsActive(false);
-      setModalOpen(false);
-      setCurrentStepIndex(0);
+    const completedInStorage = isCompletedInStorage(STORAGE_KEY);
+    const completedAnywhere = completedInStorage || initialCompleted;
+
+    if (!completedAnywhere) {
+      // Usuario nuevo: mostrar tutorial automáticamente
+      setIsActive(true);
     }
-  }, [initialCompleted, isActive]);
 
-  const currentStep: TutorialStep | null =
-    isActive && currentStepIndex >= 0 && currentStepIndex < TOTAL_STEPS
-      ? tutorialSteps[currentStepIndex]
-      : null;
+    // Marcar como hidratado DESPUÉS de decidir si mostrar o no
+    // Esto evita cualquier flash
+    setHydrated(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); 
+  // Dependencias vacías a propósito:
+  // Este efecto corre 1 sola vez al montar.
+  // initialCompleted y STORAGE_KEY no deben re-dispararlo nunca.
 
-  const isFirst = currentStepIndex === 0;
-  const isLast = currentStepIndex === TOTAL_STEPS - 1;
-
-  // ─── Guardar en Supabase y localStorage ───
+  // ─── Guardar en localStorage y Supabase ───
 
   const markAsCompleted = useCallback(async () => {
+    // localStorage primero — fuente de verdad #1
     try {
       localStorage.setItem(STORAGE_KEY, "true");
     } catch {
-      // Ignorar errores de localStorage
+      // ignorar
     }
 
+    // Supabase — fuente de verdad #2
     try {
       const res = await fetch("/api/onboarding/complete", {
         method: "POST",
@@ -136,7 +153,6 @@ export default function TutorialProvider({
     if (nextStep.insideModal && !modalOpen) {
       setModalOpen(true);
     }
-
     if (!nextStep.insideModal && modalOpen) {
       setModalOpen(false);
     }
@@ -153,7 +169,6 @@ export default function TutorialProvider({
     if (!prevStep.insideModal && modalOpen) {
       setModalOpen(false);
     }
-
     if (prevStep.insideModal && !modalOpen) {
       setModalOpen(true);
     }
@@ -175,29 +190,46 @@ export default function TutorialProvider({
     markAsCompleted();
   }, [markAsCompleted]);
 
-  // Lo dejamos para futuro botón manual "Ver tutorial"
+  // Botón manual "Ver tutorial" — disponible a futuro
   const startTutorial = useCallback(() => {
+    // Solo permitir si ya está hidratado
+    if (!hydrated) return;
     setCurrentStepIndex(0);
     setModalOpen(false);
     setIsActive(true);
-  }, []);
+  }, [hydrated]);
 
-  // Si el paso actual necesita modal fake, sincronizarlo
+  // Sincronizar modal con el paso actual
   useEffect(() => {
-    if (!isActive || !currentStep) return;
+    if (!isActive) return;
+    const currentStep = tutorialSteps[currentStepIndex];
+    if (!currentStep) return;
 
     if (currentStep.insideModal && !modalOpen) {
       setModalOpen(true);
     }
-
     if (!currentStep.insideModal && modalOpen) {
       setModalOpen(false);
     }
-  }, [isActive, currentStep, modalOpen]);
+  }, [isActive, currentStepIndex, modalOpen]);
 
   const handleCreatePrimary = useCallback(() => {
     finishTutorial();
   }, [finishTutorial]);
+
+  // ─── Render ───
+
+  const currentStep: TutorialStep | null =
+    isActive && currentStepIndex >= 0 && currentStepIndex < TOTAL_STEPS
+      ? tutorialSteps[currentStepIndex]
+      : null;
+
+  const isFirst = currentStepIndex === 0;
+  const isLast = currentStepIndex === TOTAL_STEPS - 1;
+
+  // NO renderizar el overlay hasta que el cliente esté hidratado
+  // Esto evita hydration mismatch y flashes
+  const showTutorial = hydrated && isActive && currentStep !== null;
 
   const contextValue: TutorialContextValue = {
     isActive,
@@ -205,8 +237,6 @@ export default function TutorialProvider({
     startTutorial,
     skipTutorial,
   };
-
-  const showTutorial = isActive && currentStep !== null;
 
   return (
     <TutorialContext.Provider value={contextValue}>
@@ -237,4 +267,4 @@ export default function TutorialProvider({
       )}
     </TutorialContext.Provider>
   );
-}
+      }
