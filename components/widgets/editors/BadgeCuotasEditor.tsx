@@ -1,9 +1,11 @@
 // components/widgets/editors/BadgeCuotasEditor.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BadgeCuotasPreview from './BadgeCuotasPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
    TIPOS
@@ -74,7 +76,7 @@ const defaultConfig: BadgeCuotasConfig = {
   paddingInterno: 10,
   bordesRedondeados: 25,
   efecto: 'sin-efecto',
-  colorFondoBadge: '#ff0000',
+  colorFondoBadge: '#FF0000',
   colorTextoBadge: '#ffffff',
 };
 
@@ -84,7 +86,7 @@ const CUOTAS_OPCIONES = [2, 3, 4, 6, 9, 12, 18];
    ICONOS
 ═══════════════════════════════════════════ */
 const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
     <line x1="2" y1="7" x2="22" y2="7"/>
     <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
@@ -93,7 +95,7 @@ const IconStore = () => (
 );
 
 const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
@@ -106,34 +108,20 @@ const IconExternal = () => (
 );
 
 /* ═══════════════════════════════════════════
-   LOGO NEVUX
-═══════════════════════════════════════════ */
-const NevuxLogo = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-      <ellipse cx="20" cy="14" rx="10" ry="6" fill="#3b82f6"/>
-      <path d="M10 14v10c0 3.3 4.5 6 10 6s10-2.7 10-6V14" fill="#3b82f6"/>
-      <ellipse cx="20" cy="24" rx="10" ry="6" fill="#60a5fa"/>
-    </svg>
-    <span style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.02em' }}>Nevux</span>
-  </div>
-);
-
-/* ═══════════════════════════════════════════
    COMPONENTES REUTILIZABLES
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#1a1a2e', marginBottom: 8 }}>
+    <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
-      {required && <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>}
+      {required && <span style={{ color: '#FF0000', marginLeft: 4 }}>*</span>}
     </label>
   );
 }
 
 function FieldHelper({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: 13, color: '#6b7280', marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
+    <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
       {children}
     </p>
   );
@@ -154,11 +142,11 @@ function TextInput({
       style={{
         width: '100%', padding: '12px 14px', fontSize: 15,
         border: '1.5px solid #e5e7eb', borderRadius: 10,
-        background: '#ffffff', color: '#1a1a2e', outline: 'none',
+        background: '#ffffff', color: '#000000', outline: 'none',
         boxSizing: 'border-box', fontFamily: 'inherit',
         transition: 'border-color 0.2s',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
+      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -172,16 +160,16 @@ function CheckboxCard({
 }) {
   return (
     <div style={{
-      background: '#ffffff', border: '1.5px solid #e5e7eb',
-      borderRadius: 12, padding: 16, marginBottom: 12,
+      background: '#ffffff', border: checked ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+      borderRadius: 12, padding: 16, marginBottom: 12, transition: 'border-color 0.2s',
     }}>
       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
         <div
           onClick={() => onChange(!checked)}
           style={{
             width: 22, height: 22, borderRadius: 5,
-            background: checked ? '#3b82f6' : '#ffffff',
-            border: checked ? '2px solid #3b82f6' : '2px solid #d1d5db',
+            background: checked ? '#FF0000' : '#ffffff',
+            border: checked ? '2px solid #FF0000' : '2px solid #d1d5db',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, transition: 'all 0.2s',
             marginTop: 1,
@@ -194,11 +182,11 @@ function CheckboxCard({
           )}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.35 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.35 }}>
             {label}
           </div>
           {helper && (
-            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 6, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
               {helper}
             </div>
           )}
@@ -216,16 +204,16 @@ function CuotaCheckbox({
 }) {
   return (
     <div style={{
-      background: '#ffffff', border: '1.5px solid #e5e7eb',
-      borderRadius: 12, padding: '14px 16px', marginBottom: 10,
+      background: '#ffffff', border: checked ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+      borderRadius: 12, padding: '14px 16px', marginBottom: 10, transition: 'border-color 0.2s',
     }}>
       <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
         <div
           onClick={() => onChange(!checked)}
           style={{
             width: 22, height: 22, borderRadius: 5,
-            background: checked ? '#3b82f6' : '#ffffff',
-            border: checked ? '2px solid #3b82f6' : '2px solid #d1d5db',
+            background: checked ? '#FF0000' : '#ffffff',
+            border: checked ? '2px solid #FF0000' : '2px solid #d1d5db',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, transition: 'all 0.2s',
           }}
@@ -236,7 +224,7 @@ function CuotaCheckbox({
             </svg>
           )}
         </div>
-        <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e' }}>
+        <span style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
           {cuota} cuotas sin interés
         </span>
       </label>
@@ -251,25 +239,25 @@ function RadioCard({
 }) {
   return (
     <div style={{
-      background: '#ffffff', border: '1.5px solid #e5e7eb',
-      borderRadius: 12, padding: 16, marginBottom: 12,
+      background: '#ffffff', border: checked ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+      borderRadius: 12, padding: 16, marginBottom: 12, transition: 'border-color 0.2s',
     }}>
       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
         <div
           onClick={onChange}
           style={{
             width: 22, height: 22, borderRadius: '50%',
-            border: checked ? '7px solid #3b82f6' : '2px solid #d1d5db',
+            border: checked ? '7px solid #FF0000' : '2px solid #d1d5db',
             background: '#ffffff', flexShrink: 0, transition: 'all 0.2s',
             marginTop: 1,
           }}
         />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.35 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.35 }}>
             {label}
           </div>
           {helper && (
-            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 6, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
               {helper}
             </div>
           )}
@@ -279,9 +267,6 @@ function RadioCard({
   );
 }
 
-/* ═══════════════════════════════════════════
-   COLOR PICKER (nueva versión: swatch pequeño + hex debajo)
-═══════════════════════════════════════════ */
 function ColorPickerField({
   value, onChange,
 }: {
@@ -321,7 +306,7 @@ function ColorPickerField({
           flex: 1, minWidth: 0,
           padding: '10px 10px', fontSize: 13,
           border: '1.5px solid #e5e7eb', borderRadius: 8,
-          background: '#ffffff', color: '#1a1a2e', outline: 'none',
+          background: '#ffffff', color: '#000000', outline: 'none',
           fontFamily: 'monospace', boxSizing: 'border-box',
         }}
       />
@@ -342,7 +327,7 @@ function ToggleField({
         onClick={() => onChange(!checked)}
         style={{
           width: 44, height: 26, borderRadius: 13,
-          background: checked ? '#3b82f6' : '#d1d5db',
+          background: checked ? '#FF0000' : '#d1d5db',
           position: 'relative', transition: 'background 0.25s',
           flexShrink: 0,
         }}
@@ -354,7 +339,7 @@ function ToggleField({
           boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
         }} />
       </div>
-      <span style={{ fontSize: 15, color: '#1a1a2e', fontWeight: 500 }}>
+      <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>
         {label}
       </span>
     </label>
@@ -375,7 +360,7 @@ function SelectField({
         style={{
           width: '100%', padding: '12px 36px 12px 14px', fontSize: 15,
           border: '1.5px solid #e5e7eb', borderRadius: 10,
-          background: '#ffffff', color: '#1a1a2e', outline: 'none',
+          background: '#ffffff', color: '#000000', outline: 'none',
           appearance: 'none', cursor: 'pointer', boxSizing: 'border-box',
           fontFamily: 'inherit',
         }}
@@ -386,8 +371,8 @@ function SelectField({
       </select>
       <svg
         width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+        stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.5 }}
       >
         <polyline points="6 9 12 15 18 9"/>
       </svg>
@@ -409,11 +394,11 @@ function RangeSlider({
         min={min} max={max} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
-          width: '100%', accentColor: '#3b82f6', cursor: 'pointer',
+          width: '100%', accentColor: '#FF0000', cursor: 'pointer',
         }}
       />
       {ticks && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 4 }}>
           {ticks.map((t) => <span key={t}>{t}px</span>)}
         </div>
       )}
@@ -482,8 +467,6 @@ export default function BadgeCuotasEditor({
       if (!res.ok) throw new Error(data?.error || 'Error al guardar');
       setSavedOK(true);
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -511,16 +494,16 @@ export default function BadgeCuotasEditor({
         </FieldHelper>
         <div style={{
           display: 'flex', alignItems: 'flex-start', gap: 8,
-          padding: '10px 14px', background: '#fef2f2',
+          padding: '10px 14px', background: '#fff5f5',
           border: '1px solid #fecaca', borderRadius: 10,
           marginTop: 12, marginBottom: 16,
         }}>
-          <div style={{ color: '#dc2626', flexShrink: 0, marginTop: 1 }}>
+          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 1 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
           </div>
-          <span style={{ fontSize: 13, color: '#991b1b', lineHeight: 1.5 }}>
+          <span style={{ fontSize: 13, color: '#000000', opacity: 0.8, lineHeight: 1.5 }}>
             Utilizá la misma que hayas configurado en método de pago de Tiendanube
           </span>
         </div>
@@ -544,8 +527,8 @@ export default function BadgeCuotasEditor({
           onChange={(v) => update('mensaje', v)}
           placeholder="{cuotas} cuotas sin interés de {monto}"
         />
-        <p style={{ fontSize: 13, color: '#6b7280', marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
-          Usá <code style={{ background: '#fce7f3', color: '#be185d', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{cuotas}'}</code> para el número de cuotas y <code style={{ background: '#fce7f3', color: '#be185d', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{monto}'}</code> para el precio por cuota.
+        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
+          Usá <code style={{ background: '#fff5f5', color: '#FF0000', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{cuotas}'}</code> para el número de cuotas y <code style={{ background: '#fff5f5', color: '#FF0000', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{monto}'}</code> para el precio por cuota.
         </p>
       </div>
 
@@ -613,8 +596,8 @@ export default function BadgeCuotasEditor({
           rel="noopener noreferrer"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            fontSize: 13, color: '#3b82f6', textDecoration: 'none',
-            fontWeight: 500, marginTop: 4,
+            fontSize: 13, color: '#FF0000', textDecoration: 'none',
+            fontWeight: 600, marginTop: 4,
           }}
         >
           ¿Cómo ocultar el mensaje nativo de Tiendanube para evitar duplicados?
@@ -634,7 +617,6 @@ export default function BadgeCuotasEditor({
   /* ═══ TAB ESTILOS ═══ */
   const tabEstilos = (
     <div>
-      {/* Color de fondo y texto - APILADO en mobile, grid en desktop */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
         <div>
           <FieldLabel>Color de fondo</FieldLabel>
@@ -646,7 +628,6 @@ export default function BadgeCuotasEditor({
         </div>
       </div>
 
-      {/* Fondo degradado */}
       <div style={{ marginBottom: 24 }}>
         <ToggleField
           checked={config.fondoDegradado}
@@ -655,7 +636,6 @@ export default function BadgeCuotasEditor({
         />
       </div>
 
-      {/* Tamaño de fuente y Borde */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div>
           <FieldLabel>Tamaño de fuente</FieldLabel>
@@ -682,7 +662,6 @@ export default function BadgeCuotasEditor({
         </div>
       </div>
 
-      {/* Margen interno y Bordes redondeados */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
         <div>
           <FieldLabel>Margen interno</FieldLabel>
@@ -708,7 +687,6 @@ export default function BadgeCuotasEditor({
         </div>
       </div>
 
-      {/* Efecto */}
       <div style={{ marginBottom: 24 }}>
         <FieldLabel>Efecto</FieldLabel>
         <div style={{ marginTop: 12 }}>
@@ -733,18 +711,17 @@ export default function BadgeCuotasEditor({
         </div>
       </div>
 
-      {/* Estilos del badge - APILADO en mobile */}
       <div>
         <FieldLabel>Estilos del badge</FieldLabel>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 8 }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#000000', marginBottom: 8 }}>
               Color de fondo
             </div>
             <ColorPickerField value={config.colorFondoBadge} onChange={(v) => update('colorFondoBadge', v)} />
           </div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#000000', marginBottom: 8 }}>
               Color de texto
             </div>
             <ColorPickerField value={config.colorTextoBadge} onChange={(v) => update('colorTextoBadge', v)} />
@@ -762,93 +739,67 @@ export default function BadgeCuotasEditor({
 
   /* ═══ RENDER ═══ */
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f5', paddingBottom: 100 }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
 
-      {/* ── HEADER ── */}
+      {/* HEADER CON LOGO OFICIAL */}
       <div style={{
         background: '#ffffff', borderBottom: '1px solid #e5e7eb',
-        padding: '16px 20px', display: 'flex', alignItems: 'center',
+        padding: '14px 20px', display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20,
       }}>
-        <NevuxLogo />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button
-            type="button"
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-          </button>
-          <div style={{ width: 1, height: 28, background: '#e5e7eb' }} />
+        <NevuxLogo size="medium" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{
             width: 36, height: 36, borderRadius: '50%',
-            background: '#e5e7eb', display: 'flex',
+            background: '#000000', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: '#6b7280',
+            fontSize: 13, fontWeight: 700, color: '#ffffff',
           }}>
             RL
           </div>
         </div>
       </div>
 
-      {/* ── MAIN ── */}
+      {/* MAIN */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* Chip scope */}
+        {/* Scope chip */}
         {isForAll ? (
           <div style={{
-            background: '#eff6ff', border: '1px solid #dbeafe',
-            borderRadius: 12, padding: '14px 18px',
-            display: 'flex', alignItems: 'center', gap: 10,
-            marginBottom: 20,
+            background: '#FF0000', color: '#ffffff',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
           }}>
             <IconStore />
-            <span style={{ fontSize: 15, color: '#1e40af', fontWeight: 500 }}>
-              Widget general para toda la tienda
-            </span>
+            <span>Todos los productos</span>
           </div>
         ) : (
           <div style={{
             background: '#ffffff', border: '1px solid #e5e7eb',
-            borderRadius: 12, padding: '10px 14px',
+            borderRadius: 10, padding: '8px 14px',
             display: 'inline-flex', alignItems: 'center', gap: 10,
-            marginBottom: 20,
+            marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000000',
           }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 6,
-              background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16,
-            }}>
-              🛍
-            </div>
-            <span style={{ fontSize: 14, color: '#1a1a2e', fontWeight: 600 }}>
-              NEVUX Widget
-            </span>
+            <span style={{ fontSize: 18 }}>🛍</span>
+            <span>NEVUX Widget</span>
           </div>
         )}
 
         {/* Título */}
         <h1 style={{
-          fontSize: 30, fontWeight: 700, color: '#374151',
-          margin: '0 0 24px', lineHeight: 1.2, letterSpacing: '-0.01em',
+          fontSize: 26, fontWeight: 800, color: '#000000',
+          margin: '0 0 20px', lineHeight: 1.2,
         }}>
-          <span style={{ color: '#9ca3af', fontWeight: 400 }}>
-            {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
-          </span>
-          <span style={{ color: '#1a1a2e' }}>
-            {widgetDefinition.name} ({scopeLabel})
-          </span>
+          {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
+          {widgetDefinition.name} ({scopeLabel})
         </h1>
 
         {/* Contenedor principal */}
         <div style={{
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 20, marginBottom: 20,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
           {/* Preview */}
           <div style={{ marginBottom: 20 }}>
@@ -857,13 +808,13 @@ export default function BadgeCuotasEditor({
 
           {/* Info box */}
           <div style={{
-            background: '#eff6ff', border: '1px solid #dbeafe',
+            background: '#fff5f5', border: '1px solid #fecaca',
             borderRadius: 10, padding: '12px 16px',
             display: 'flex', alignItems: 'flex-start', gap: 10,
             marginBottom: 20,
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
-            <span style={{ fontSize: 14, color: '#1e40af', lineHeight: 1.5 }}>
+            <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
               El widget crea su propio mensaje debajo del precio del producto.
             </span>
           </div>
@@ -882,11 +833,12 @@ export default function BadgeCuotasEditor({
                   onClick={() => setActiveTab(tab.id as any)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
-                    border: 'none', borderBottom: act ? '3px solid #1a1a2e' : '3px solid transparent',
-                    color: act ? '#1a1a2e' : '#9ca3af',
+                    border: 'none', borderBottom: act ? '2px solid #FF0000' : '2px solid transparent',
+                    color: act ? '#FF0000' : '#000000',
+                    opacity: act ? 1 : 0.6,
                     fontSize: 15, fontWeight: act ? 700 : 500,
                     cursor: 'pointer', fontFamily: 'inherit',
-                    marginBottom: -1, transition: 'all 0.2s',
+                    transition: 'all 0.2s',
                   }}
                 >
                   {tab.label}
@@ -902,37 +854,18 @@ export default function BadgeCuotasEditor({
             {activeTab === 'estilos' && tabEstilos}
           </div>
 
-          {/* Footer */}
+          {/* Footer del Editor */}
           <div style={{
             marginTop: 32, paddingTop: 20,
             borderTop: '1px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
             flexWrap: 'wrap',
           }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-              <div
-                onClick={() => setIsActive(!isActive)}
-                style={{
-                  width: 44, height: 26, borderRadius: 13,
-                  background: isActive ? '#3b82f6' : '#d1d5db',
-                  position: 'relative', transition: 'background 0.25s',
-                  flexShrink: 0,
-                }}
-              >
-                <div style={{
-                  position: 'absolute', top: 3, left: isActive ? 21 : 3,
-                  width: 20, height: 20, borderRadius: '50%',
-                  background: '#fff', transition: 'left 0.25s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                }} />
-              </div>
-              <span style={{ fontSize: 15, fontWeight: 500, color: '#1a1a2e', whiteSpace: 'nowrap' }}>
-                Widget activo
-              </span>
-              <div style={{ color: '#3b82f6', display: 'flex', alignItems: 'center' }}>
-                <IconInfo />
-              </div>
-            </label>
+            <ToggleField
+              checked={isActive}
+              onChange={setIsActive}
+              label="Widget activo"
+            />
 
             <button
               type="button"
@@ -941,12 +874,11 @@ export default function BadgeCuotasEditor({
               style={{
                 padding: '12px 28px', borderRadius: 999,
                 border: 'none',
-                background: savedOK ? '#10b981' : '#3b82f6',
+                background: savedOK ? '#10b981' : '#FF0000',
                 color: '#fff', fontSize: 15, fontWeight: 700,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.6 : 1,
                 fontFamily: 'inherit',
-                boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
                 transition: 'all 0.2s',
                 whiteSpace: 'nowrap',
               }}
@@ -956,18 +888,12 @@ export default function BadgeCuotasEditor({
           </div>
         </div>
 
-        {/* Centro de ayuda */}
-        <div style={{
-          background: '#ffffff', border: '1px solid #e5e7eb',
-          borderRadius: 16, padding: 32, textAlign: 'center',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-            <NevuxLogo />
-          </div>
-          <div style={{ fontSize: 15, color: '#6b7280' }}>Centro de ayuda</div>
+        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
         </div>
 
-        {/* Error */}
+        {/* Error Toast */}
         {error && (
           <div style={{
             position: 'fixed', bottom: 20, left: 16, right: 16,
@@ -984,4 +910,4 @@ export default function BadgeCuotasEditor({
       </div>
     </div>
   );
-}
+   }
