@@ -5,7 +5,7 @@ const API_BASE = "https://api.tiendanube.com/v1";
 function getHeaders(accessToken: string) {
   return {
     Authorization: `Bearer ${accessToken}`,
-    "User-Agent": "Nevux (nevux.app)",
+    "User-Agent": "Nevux (37382 - soportenevux@gmail.com)",
     "Content-Type": "application/json",
   };
 }
@@ -111,4 +111,4 @@ export async function getStoreInfo(storeId: number, accessToken: string) {
   });
   if (!res.ok) return null;
   return res.json();
-        }
+  }
