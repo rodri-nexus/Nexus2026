@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BarraProgresoPreview from './BarraProgresoPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 // ═══════════════════════════════════════════════════════════
 // TIPOS
@@ -68,11 +70,11 @@ const DEFAULT_CONFIG: BarraConfig = {
   bordesRedondeados: 8,
   rellenoInterno: 14,
   colorBarraVacia: '#e0e0e0',
-  colorBarraLlena: '#22c55e',
+  colorBarraLlena: '#FF0000',
   colorFondo: '#fafafa',
-  colorTexto: '#333333',
-  colorMonto: '#0d6efd',
-  colorObjetivos: '#333333',
+  colorTexto: '#000000',
+  colorMonto: '#FF0000',
+  colorObjetivos: '#000000',
   tamanoFuenteObjetivos: 11,
   tamanoFuenteTexto: 13,
 };
@@ -185,8 +187,6 @@ export default function BarraProgresoEditor({
         throw new Error(data.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -204,53 +204,35 @@ export default function BarraProgresoEditor({
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════
-
   return (
-    <div style={{ minHeight: '100vh', background: '#f7f8fa', paddingBottom: 40 }}>
-      {/* HEADER */}
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 40 }}>
+      {/* HEADER CON LOGO OFICIAL */}
       <header
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 20,
-          background: '#fff',
-          borderBottom: '1px solid #eef0f3',
+          background: '#ffffff',
+          borderBottom: '1px solid #e5e7eb',
           padding: '14px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <NevuxLogo />
+        <NevuxLogo size="medium" />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button
-            aria-label="Menú"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              padding: 6,
-              cursor: 'pointer',
-              color: '#333',
-            }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
           <div
             style={{
               width: 36,
               height: 36,
               borderRadius: '50%',
-              background: '#e6e8ec',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 600,
-              color: '#333',
+              fontWeight: 700,
+              color: '#ffffff',
               fontSize: 13,
             }}
           >
@@ -263,39 +245,29 @@ export default function BarraProgresoEditor({
         {/* CHIP SCOPE */}
         <div
           style={{
-            background: '#fff',
-            border: '1px solid #eef0f3',
-            padding: '10px 14px',
-            borderRadius: 12,
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            padding: '8px 14px',
+            borderRadius: 10,
             display: 'inline-flex',
             alignItems: 'center',
             gap: 10,
             marginBottom: 20,
+            fontSize: 14,
+            fontWeight: 700,
+            color: '#000000',
           }}
         >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: '#f3f4f6',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 18,
-            }}
-          >
-            🛍
-          </div>
-          <span style={{ fontWeight: 600, color: '#111' }}>Widget NEVUX</span>
+          <span style={{ fontSize: 18 }}>🛍</span>
+          <span>NEVUX Widget</span>
         </div>
 
         {/* TÍTULO */}
         <h1
           style={{
             fontSize: 26,
-            fontWeight: 500,
-            color: '#111',
+            fontWeight: 800,
+            color: '#000000',
             lineHeight: 1.25,
             margin: '0 0 20px 0',
           }}
@@ -306,10 +278,11 @@ export default function BarraProgresoEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#fff',
+            background: '#ffffff',
             borderRadius: 16,
-            border: '1px solid #eef0f3',
+            border: '1px solid #e5e7eb',
             overflow: 'hidden',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -317,8 +290,10 @@ export default function BarraProgresoEditor({
             <div
               style={{
                 textAlign: 'center',
-                color: '#6b7280',
-                fontSize: 18,
+                color: '#000000',
+                opacity: 0.6,
+                fontSize: 16,
+                fontWeight: 600,
                 marginBottom: 16,
               }}
             >
@@ -330,13 +305,17 @@ export default function BarraProgresoEditor({
           {/* INFO BOX */}
           <div
             style={{
-              padding: '14px 20px 20px 20px',
-              borderTop: '1px solid #eef0f3',
+              margin: '0 20px 20px',
+              padding: '12px 16px',
+              background: '#fff5f5',
+              border: '1px solid #fecaca',
+              borderRadius: 10,
               display: 'flex',
               gap: 10,
               alignItems: 'flex-start',
-              color: '#6b7280',
-              fontSize: 15,
+              color: '#000000',
+              fontSize: 14,
+              lineHeight: 1.5,
             }}
           >
             <IconInfo />
@@ -346,8 +325,8 @@ export default function BarraProgresoEditor({
           </div>
 
           {/* TABS */}
-          <div style={{ background: '#f7f8fa', padding: '0 20px' }}>
-            <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #e6e8ec' }}>
+          <div style={{ padding: '0 20px', borderBottom: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'flex', gap: 0 }}>
               <TabButton active={activeTab === 'general'} onClick={() => setActiveTab('general')}>
                 General
               </TabButton>
@@ -361,7 +340,7 @@ export default function BarraProgresoEditor({
           </div>
 
           {/* CONTENIDO TABS */}
-          <div style={{ background: '#f7f8fa', padding: 20 }}>
+          <div style={{ padding: 20 }}>
             {activeTab === 'general' && (
               <GeneralTab
                 config={config}
@@ -384,9 +363,8 @@ export default function BarraProgresoEditor({
           {/* FOOTER */}
           <div
             style={{
-              background: '#f7f8fa',
               padding: '16px 20px 20px 20px',
-              borderTop: '1px solid #e6e8ec',
+              borderTop: '1px solid #e5e7eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -396,21 +374,21 @@ export default function BarraProgresoEditor({
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <ToggleField label="Widget activo" value={isActive} onChange={setIsActive} />
-              <IconInfoSmall />
             </div>
             <button
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: '#2563eb',
-                color: '#fff',
+                background: '#FF0000',
+                color: '#ffffff',
                 border: 'none',
-                padding: '14px 28px',
+                padding: '12px 28px',
                 borderRadius: 999,
-                fontWeight: 600,
-                fontSize: 16,
+                fontWeight: 700,
+                fontSize: 15,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.6 : 1,
+                fontFamily: 'inherit',
               }}
             >
               {saving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear widget'}
@@ -418,28 +396,9 @@ export default function BarraProgresoEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA */}
-        <div
-          style={{
-            marginTop: 40,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-            color: '#6b7280',
-          }}
-        >
-          <NevuxLogo iconOnly />
-          <a
-            href="#"
-            style={{
-              color: '#6b7280',
-              textDecoration: 'none',
-              fontSize: 15,
-            }}
-          >
-            Centro de ayuda
-          </a>
+        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
         </div>
       </main>
 
@@ -451,16 +410,19 @@ export default function BarraProgresoEditor({
             bottom: 20,
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#ef4444',
-            color: '#fff',
+            background: '#fee2e2',
+            color: '#991b1b',
+            border: '1px solid #fecaca',
             padding: '12px 20px',
-            borderRadius: 10,
-            boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+            borderRadius: 12,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
             zIndex: 100,
             maxWidth: '90%',
+            fontSize: 14,
+            fontWeight: 600,
           }}
         >
-          {error}
+          ⚠️ {error}
         </div>
       )}
     </div>
@@ -487,8 +449,8 @@ function GeneralTab({
   return (
     <div>
       {/* OBJETIVOS */}
-      <div style={{ fontWeight: 700, color: '#111', fontSize: 18, marginBottom: 4 }}>
-        Objetivos <span style={{ fontWeight: 400, color: '#6b7280', fontSize: 15 }}>(mínimo 1, máximo 5)</span>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 4 }}>
+        Objetivos <span style={{ fontWeight: 400, opacity: 0.6, fontSize: 14 }}>(mínimo 1, máximo 5)</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14 }}>
@@ -496,9 +458,9 @@ function GeneralTab({
           <div
             key={i}
             style={{
-              background: '#fff',
+              background: '#ffffff',
               borderRadius: 12,
-              border: '1px solid #eef0f3',
+              border: '1px solid #e5e7eb',
               padding: 18,
             }}
           >
@@ -510,7 +472,7 @@ function GeneralTab({
                 marginBottom: 14,
               }}
             >
-              <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>
+              <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>
                 Objetivo {i + 1}
               </div>
               {config.objetivos.length > 1 && (
@@ -518,16 +480,16 @@ function GeneralTab({
                   onClick={() => onRemoveObjetivo(i)}
                   aria-label="Eliminar objetivo"
                   style={{
-                    background: '#fff',
-                    border: '1px solid #ef4444',
+                    background: '#fee2e2',
+                    border: 'none',
                     borderRadius: 8,
-                    width: 40,
+                    width: 38,
                     height: 36,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    color: '#ef4444',
+                    color: '#991b1b',
                   }}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -545,7 +507,7 @@ function GeneralTab({
             {/* Nombre + Monto */}
             <div style={{ display: 'flex', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 200px' }}>
-                <div style={{ fontWeight: 500, color: '#111', fontSize: 15, marginBottom: 6 }}>
+                <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 6 }}>
                   Nombre del objetivo
                 </div>
                 <input
@@ -556,18 +518,21 @@ function GeneralTab({
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    border: '1px solid #e6e8ec',
+                    border: '1.5px solid #e5e7eb',
                     borderRadius: 10,
                     fontSize: 15,
-                    color: '#111',
-                    background: '#fff',
+                    color: '#000000',
+                    background: '#ffffff',
                     outline: 'none',
                     boxSizing: 'border-box',
+                    fontFamily: 'inherit',
                   }}
+                  onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
               </div>
               <div style={{ flex: '1 1 140px' }}>
-                <div style={{ fontWeight: 500, color: '#111', fontSize: 15, marginBottom: 6 }}>
+                <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 6 }}>
                   Monto ($)
                 </div>
                 <input
@@ -578,33 +543,35 @@ function GeneralTab({
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    border: '1px solid #e6e8ec',
+                    border: '1.5px solid #e5e7eb',
                     borderRadius: 10,
                     fontSize: 15,
-                    color: '#111',
-                    background: '#fff',
+                    color: '#000000',
+                    background: '#ffffff',
                     outline: 'none',
                     boxSizing: 'border-box',
+                    fontFamily: 'inherit',
                   }}
+                  onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
               </div>
             </div>
 
             {/* Icono */}
             <div>
-              <div style={{ fontWeight: 500, color: '#111', fontSize: 15, marginBottom: 8 }}>
-                Icono <span style={{ color: '#6b7280', fontWeight: 400 }}>(opcional)</span>
+              <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 8 }}>
+                Icono <span style={{ opacity: 0.6, fontWeight: 400 }}>(opcional)</span>
               </div>
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(6, 1fr)',
+                  gridTemplateColumns: 'repeat(7, 1fr)',
                   gap: 8,
                 }}
               >
                 {ICONOS_DISPONIBLES.map((ic) => {
                   const isSelected = obj.icono === ic.id;
-                  const isNone = ic.id === 'none';
                   return (
                     <button
                       key={ic.id}
@@ -612,19 +579,19 @@ function GeneralTab({
                       title={ic.label}
                       style={{
                         aspectRatio: '1 / 1',
-                        background: isSelected && isNone ? '#fef2f2' : '#fff',
-                        border: `1px solid ${
-                          isSelected ? (isNone ? '#ef4444' : '#2563eb') : '#e6e8ec'
+                        background: isSelected ? '#fff5f5' : '#ffffff',
+                        border: `1.5px solid ${
+                          isSelected ? '#FF0000' : '#e5e7eb'
                         }`,
                         borderRadius: 8,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        color: isSelected ? (isNone ? '#ef4444' : '#2563eb') : '#111',
+                        color: isSelected ? '#FF0000' : '#000000',
                       }}
                     >
-                      {renderIconoBtn(ic.id, 20)}
+                      {renderIconoBtn(ic.id, 18)}
                     </button>
                   );
                 })}
@@ -640,33 +607,34 @@ function GeneralTab({
           onClick={onAddObjetivo}
           style={{
             marginTop: 14,
-            background: '#fff',
-            border: '1px solid #2563eb',
-            color: '#2563eb',
+            background: '#ffffff',
+            border: '1.5px solid #FF0000',
+            color: '#FF0000',
             padding: '12px 24px',
             borderRadius: 999,
-            fontWeight: 600,
+            fontWeight: 700,
             fontSize: 15,
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
+            fontFamily: 'inherit',
           }}
         >
           <span style={{ fontSize: 18, lineHeight: 1 }}>+</span> Agregar objetivo
         </button>
       )}
 
-      {/* INFO AMARILLA */}
+      {/* INFO SUTIL */}
       <div
         style={{
           marginTop: 20,
-          background: '#fef9c3',
-          border: '1px solid #fde68a',
+          background: '#FFF5F5',
+          border: '1px solid #FECACA',
           borderRadius: 12,
-          padding: '16px 18px',
-          color: '#78350f',
-          fontSize: 15,
+          padding: '14px 18px',
+          color: '#000000',
+          fontSize: 14,
           lineHeight: 1.5,
         }}
       >
@@ -675,7 +643,7 @@ function GeneralTab({
 
       {/* TEXTO CUANDO FALTA MONTO */}
       <div style={{ marginTop: 22 }}>
-        <div style={{ fontWeight: 700, color: '#111', fontSize: 17, marginBottom: 8 }}>
+        <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 8 }}>
           Texto cuando falta monto
         </div>
         <input
@@ -685,17 +653,20 @@ function GeneralTab({
           placeholder="Te faltan {x} para {objetivo}"
           style={{
             width: '100%',
-            padding: '14px 16px',
-            border: '1px solid #e6e8ec',
+            padding: '12px 14px',
+            border: '1.5px solid #e5e7eb',
             borderRadius: 10,
             fontSize: 15,
-            color: '#111',
-            background: '#fff',
+            color: '#000000',
+            background: '#ffffff',
             outline: 'none',
             boxSizing: 'border-box',
+            fontFamily: 'inherit',
           }}
+          onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+          onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
         />
-        <div style={{ marginTop: 8, fontSize: 14, color: '#6b7280' }}>
+        <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
           <VarChip>{'{x}'}</VarChip>= monto faltante &nbsp;|&nbsp;{' '}
           <VarChip>{'{objetivo}'}</VarChip>= nombre del objetivo
         </div>
@@ -703,7 +674,7 @@ function GeneralTab({
 
       {/* TEXTO CUANDO SE CUMPLE */}
       <div style={{ marginTop: 22 }}>
-        <div style={{ fontWeight: 700, color: '#111', fontSize: 17, marginBottom: 8 }}>
+        <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 8 }}>
           Texto cuando se cumple un objetivo
         </div>
         <input
@@ -713,17 +684,20 @@ function GeneralTab({
           placeholder="¡{objetivo} desbloqueado! 🎉"
           style={{
             width: '100%',
-            padding: '14px 16px',
-            border: '1px solid #e6e8ec',
+            padding: '12px 14px',
+            border: '1.5px solid #e5e7eb',
             borderRadius: 10,
             fontSize: 15,
-            color: '#111',
-            background: '#fff',
+            color: '#000000',
+            background: '#ffffff',
             outline: 'none',
             boxSizing: 'border-box',
+            fontFamily: 'inherit',
           }}
+          onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+          onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
         />
-        <div style={{ marginTop: 8, fontSize: 14, color: '#6b7280' }}>
+        <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
           <VarChip>{'{objetivo}'}</VarChip>= nombre del objetivo alcanzado
         </div>
       </div>
@@ -744,16 +718,15 @@ function UbicacionTab({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontWeight: 700, color: '#111', fontSize: 17, marginBottom: 0 }}>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 0 }}>
         Posición en la ficha del producto
       </div>
 
-      {/* CARD RADIOS FICHA */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           overflow: 'hidden',
         }}
       >
@@ -781,29 +754,30 @@ function UbicacionTab({
               gap: 12,
               alignItems: 'flex-start',
               cursor: 'pointer',
-              padding: '18px',
-              borderTop: idx === 0 ? 'none' : '1px solid #eef0f3',
+              padding: '16px',
+              borderTop: idx === 0 ? 'none' : '1px solid #e5e7eb',
+              background: config.posicionFicha === opt.id ? '#fff5f5' : '#ffffff',
             }}
           >
-            <input
-              type="radio"
-              name="posicion-ficha"
-              checked={config.posicionFicha === opt.id}
-              onChange={() => onUpdate('posicionFicha', opt.id)}
+            <div
+              onClick={() => onUpdate('posicionFicha', opt.id)}
               style={{
                 width: 20,
                 height: 20,
-                accentColor: '#2563eb',
+                borderRadius: '50%',
+                border: config.posicionFicha === opt.id ? '6px solid #FF0000' : '2px solid #d1d5db',
+                background: '#ffffff',
                 cursor: 'pointer',
                 marginTop: 2,
                 flexShrink: 0,
+                transition: 'all 0.2s',
               }}
             />
             <div>
-              <div style={{ fontWeight: 700, color: '#111', fontSize: 16 }}>
+              <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>
                 {opt.title}
               </div>
-              <div style={{ color: '#6b7280', fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+              <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
                 {opt.desc}
               </div>
             </div>
@@ -811,66 +785,84 @@ function UbicacionTab({
         ))}
       </div>
 
-      {/* CARD ELEMENTO FLOTANTE */}
       <div
         style={{
-          background: '#fff',
+          background: config.elementoFlotante ? '#fff5f5' : '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
-          padding: 18,
+          border: config.elementoFlotante ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+          padding: 16,
+          transition: 'border-color 0.2s',
         }}
       >
         <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={config.elementoFlotante}
-            onChange={(e) => onUpdate('elementoFlotante', e.target.checked)}
+          <div
+            onClick={() => onUpdate('elementoFlotante', !config.elementoFlotante)}
             style={{
-              width: 20,
-              height: 20,
-              accentColor: '#2563eb',
-              cursor: 'pointer',
-              marginTop: 2,
+              width: 22,
+              height: 22,
+              borderRadius: 5,
+              background: config.elementoFlotante ? '#FF0000' : '#ffffff',
+              border: config.elementoFlotante ? '2px solid #FF0000' : '2px solid #d1d5db',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
+              marginTop: 1,
+              transition: 'all 0.2s',
             }}
-          />
+          >
+            {config.elementoFlotante && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 16 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>
               Elemento flotante
             </div>
-            <div style={{ color: '#6b7280', fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
               Se muestra como un widget flotante fijo en la esquina de la pantalla.
             </div>
           </div>
         </label>
       </div>
 
-      {/* CARD DEL CARRITO */}
       <div
         style={{
-          background: '#fff',
+          background: config.enCarrito ? '#fff5f5' : '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
-          padding: 18,
+          border: config.enCarrito ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+          padding: 16,
+          transition: 'border-color 0.2s',
         }}
       >
         <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={config.enCarrito}
-            onChange={(e) => onUpdate('enCarrito', e.target.checked)}
+          <div
+            onClick={() => onUpdate('enCarrito', !config.enCarrito)}
             style={{
-              width: 20,
-              height: 20,
-              accentColor: '#2563eb',
-              cursor: 'pointer',
-              marginTop: 2,
+              width: 22,
+              height: 22,
+              borderRadius: 5,
+              background: config.enCarrito ? '#FF0000' : '#ffffff',
+              border: config.enCarrito ? '2px solid #FF0000' : '2px solid #d1d5db',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
+              marginTop: 1,
+              transition: 'all 0.2s',
             }}
-          />
+          >
+            {config.enCarrito && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 16 }}>Del carrito</div>
-            <div style={{ color: '#6b7280', fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>Del carrito</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
               Se muestra dentro del carrito, antes del botón de iniciar compra.
             </div>
           </div>
@@ -893,17 +885,16 @@ function EstilosTab({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* CARD: DISEÑO Y ESTRUCTURA */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           padding: 18,
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#2563eb', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="3" width="7" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
               <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" strokeWidth="2" />
@@ -911,15 +902,15 @@ function EstilosTab({
             </svg>
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>Diseño y estructura</div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 4, lineHeight: 1.5 }}>
-              Defina cómo se muestran los objetivos en escritorio y móvil.
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Diseño y estructura</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+              Definí cómo se muestran los objetivos en escritorio y móvil.
             </div>
           </div>
         </div>
 
         <div style={{ marginBottom: 18 }}>
-          <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+          <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
             Formato de objetivos
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -932,8 +923,8 @@ function EstilosTab({
                 style={{
                   flex: '1 1 140px',
                   cursor: 'pointer',
-                  background: '#fff',
-                  border: `1px solid ${config.formatoObjetivos === opt.id ? '#2563eb' : '#e6e8ec'}`,
+                  background: config.formatoObjetivos === opt.id ? '#fff5f5' : '#ffffff',
+                  border: `1.5px solid ${config.formatoObjetivos === opt.id ? '#FF0000' : '#e5e7eb'}`,
                   borderRadius: 10,
                   padding: 14,
                   display: 'flex',
@@ -943,15 +934,18 @@ function EstilosTab({
                   textAlign: 'center',
                 }}
               >
-                <input
-                  type="radio"
-                  name="formato-objetivos"
-                  checked={config.formatoObjetivos === opt.id}
-                  onChange={() => onUpdate('formatoObjetivos', opt.id)}
-                  style={{ width: 18, height: 18, accentColor: '#2563eb', cursor: 'pointer' }}
+                <div
+                  onClick={() => onUpdate('formatoObjetivos', opt.id)}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    border: config.formatoObjetivos === opt.id ? '5px solid #FF0000' : '2px solid #d1d5db',
+                    background: '#ffffff',
+                  }}
                 />
-                <div style={{ fontWeight: 700, color: '#111', fontSize: 15 }}>{opt.title}</div>
-                <div style={{ color: '#6b7280', fontSize: 13, lineHeight: 1.4 }}>{opt.desc}</div>
+                <div style={{ fontWeight: 700, color: '#000000', fontSize: 14 }}>{opt.title}</div>
+                <div style={{ color: '#000000', opacity: 0.6, fontSize: 12, lineHeight: 1.4 }}>{opt.desc}</div>
               </label>
             ))}
           </div>
@@ -959,7 +953,7 @@ function EstilosTab({
 
         <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 200px' }}>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
               Bordes redondeados
             </div>
             <RangeSlider
@@ -968,11 +962,11 @@ function EstilosTab({
               step={1}
               value={config.bordesRedondeados}
               onChange={(v) => onUpdate('bordesRedondeados', v)}
-              labels={['0px', '8 píxeles', '20 píxeles']}
+              labels={['0px', '8px', '20px']}
             />
           </div>
           <div style={{ flex: '1 1 200px' }}>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
               Relleno interno
             </div>
             <RangeSlider
@@ -981,23 +975,22 @@ function EstilosTab({
               step={1}
               value={config.rellenoInterno}
               onChange={(v) => onUpdate('rellenoInterno', v)}
-              labels={['0px', '14 píxeles', '28 píxeles']}
+              labels={['0px', '14px', '28px']}
             />
           </div>
         </div>
       </div>
 
-      {/* CARD: COLORES */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           padding: 18,
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#2563eb', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" />
               <circle cx="17.5" cy="10.5" r="1.5" fill="currentColor" />
@@ -1007,9 +1000,9 @@ function EstilosTab({
             </svg>
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>Colores</div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 4, lineHeight: 1.5 }}>
-              Personaliza barra, fondo y textos.
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Colores</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+              Personalizá barra, fondo y textos.
             </div>
           </div>
         </div>
@@ -1056,31 +1049,30 @@ function EstilosTab({
         </div>
       </div>
 
-      {/* CARD: TIPOGRAFÍA */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           padding: 18,
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
           <div
             style={{
-              color: '#2563eb',
+              color: '#FF0000',
               flexShrink: 0,
               marginTop: 2,
-              fontWeight: 700,
+              fontWeight: 800,
               fontSize: 20,
             }}
           >
             Aa
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>Tipografía</div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 4, lineHeight: 1.5 }}>
-              Ajusta el tamaño de textos y etiquetas.
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Tipografía</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+              Ajustá el tamaño de textos y etiquetas.
             </div>
           </div>
         </div>
@@ -1119,12 +1111,13 @@ function VarChip({ children }: { children: React.ReactNode }) {
     <span
       style={{
         display: 'inline-block',
-        background: '#fce7f3',
-        color: '#be185d',
+        background: '#fff5f5',
+        color: '#FF0000',
         padding: '2px 6px',
         borderRadius: 4,
         fontFamily: 'monospace',
-        fontSize: 13,
+        fontSize: 12,
+        fontWeight: 600,
       }}
     >
       {children}
@@ -1145,17 +1138,18 @@ function TabButton({
     <button
       onClick={onClick}
       style={{
-        background: active ? '#fff' : 'transparent',
+        flex: 1,
+        background: 'none',
         border: 'none',
-        padding: '14px 18px',
-        fontSize: 16,
-        fontWeight: 500,
-        color: active ? '#111' : '#6b7280',
+        padding: '14px 12px',
+        fontSize: 15,
+        fontWeight: active ? 700 : 500,
+        color: active ? '#FF0000' : '#000000',
+        opacity: active ? 1 : 0.6,
         cursor: 'pointer',
-        borderBottom: active ? '2px solid #111' : '2px solid transparent',
-        borderTopLeftRadius: 6,
-        borderTopRightRadius: 6,
-        marginBottom: -1,
+        borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+        fontFamily: 'inherit',
+        transition: 'all 0.2s',
       }}
     >
       {children}
@@ -1178,7 +1172,7 @@ function ColorPickerField({
 }) {
   return (
     <div>
-      <div style={{ fontWeight: 700, color: '#111', fontSize: 15, marginBottom: 8, lineHeight: 1.3 }}>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 14, marginBottom: 8, lineHeight: 1.3 }}>
         {label}
       </div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -1187,13 +1181,13 @@ function ColorPickerField({
           value={value === 'transparent' ? '#ffffff' : value}
           onChange={(e) => onChange(e.target.value)}
           style={{
-            width: 46,
-            height: 44,
-            border: '1px solid #e6e8ec',
-            borderRadius: 10,
+            width: 44,
+            height: 40,
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 8,
             cursor: 'pointer',
-            padding: 4,
-            background: '#fff',
+            padding: 2,
+            background: '#ffffff',
             flexShrink: 0,
           }}
         />
@@ -1202,9 +1196,9 @@ function ColorPickerField({
             flex: 1,
             display: 'flex',
             alignItems: 'center',
-            border: '1px solid #e6e8ec',
-            borderRadius: 10,
-            background: '#fff',
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 8,
+            background: '#ffffff',
             paddingRight: clearable ? 8 : 0,
           }}
         >
@@ -1214,14 +1208,15 @@ function ColorPickerField({
             onChange={(e) => onChange(e.target.value)}
             style={{
               flex: 1,
-              padding: '12px 14px',
+              padding: '10px 12px',
               border: 'none',
-              borderRadius: 10,
-              fontSize: 14,
-              color: '#111',
+              borderRadius: 8,
+              fontSize: 13,
+              color: '#000000',
               background: 'transparent',
               outline: 'none',
               minWidth: 0,
+              fontFamily: 'monospace',
             }}
           />
           {clearable && onClear && (
@@ -1231,7 +1226,8 @@ function ColorPickerField({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#9ca3af',
+                color: '#000000',
+                opacity: 0.5,
                 cursor: 'pointer',
                 padding: 4,
                 display: 'flex',
@@ -1264,23 +1260,24 @@ function SelectField({
 }) {
   return (
     <div>
-      <div style={{ fontWeight: 700, color: '#111', fontSize: 15, marginBottom: 8 }}>{label}</div>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 14, marginBottom: 8 }}>{label}</div>
       <div style={{ position: 'relative' }}>
         <select
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
           style={{
             width: '100%',
-            padding: '12px 14px',
-            border: '1px solid #e6e8ec',
+            padding: '12px 36px 12px 14px',
+            border: '1.5px solid #e5e7eb',
             borderRadius: 10,
             fontSize: 15,
-            color: '#111',
-            background: '#fff',
+            color: '#000000',
+            background: '#ffffff',
             appearance: 'none',
             outline: 'none',
             cursor: 'pointer',
             boxSizing: 'border-box',
+            fontFamily: 'inherit',
           }}
         >
           {options.map((n) => (
@@ -1296,7 +1293,8 @@ function SelectField({
             top: '50%',
             transform: 'translateY(-50%)',
             pointerEvents: 'none',
-            color: '#6b7280',
+            color: '#000000',
+            opacity: 0.5,
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -1319,36 +1317,33 @@ function ToggleField({
 }) {
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-      <button
-        type="button"
+      <div
         onClick={() => onChange(!value)}
         style={{
-          width: 46,
+          width: 44,
           height: 26,
           borderRadius: 999,
-          background: value ? '#2563eb' : '#d1d5db',
-          border: 'none',
+          background: value ? '#FF0000' : '#d1d5db',
           position: 'relative',
-          cursor: 'pointer',
-          transition: 'background 0.2s',
+          transition: 'background 0.25s',
           flexShrink: 0,
         }}
       >
-        <span
+        <div
           style={{
             position: 'absolute',
             top: 3,
-            left: value ? 23 : 3,
+            left: value ? 21 : 3,
             width: 20,
             height: 20,
             borderRadius: '50%',
-            background: '#fff',
-            transition: 'left 0.2s',
+            background: '#ffffff',
+            transition: 'left 0.25s',
             boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           }}
         />
-      </button>
-      <span style={{ color: '#111', fontWeight: 600, fontSize: 15 }}>{label}</span>
+      </div>
+      <span style={{ color: '#000000', fontWeight: 600, fontSize: 15 }}>{label}</span>
     </label>
   );
 }
@@ -1379,7 +1374,7 @@ function RangeSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
           width: '100%',
-          accentColor: '#2563eb',
+          accentColor: '#FF0000',
           cursor: 'pointer',
         }}
       />
@@ -1388,8 +1383,9 @@ function RangeSlider({
           display: 'flex',
           justifyContent: 'space-between',
           marginTop: 6,
-          fontSize: 13,
-          color: '#6b7280',
+          fontSize: 12,
+          color: '#000000',
+          opacity: 0.6,
         }}
       >
         {labels.map((l, i) => (
@@ -1400,37 +1396,12 @@ function RangeSlider({
   );
 }
 
-function NevuxLogo({ iconOnly }: { iconOnly?: boolean }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <path
-          d="M16 4C16 4 6 16 6 22C6 27.5 10.5 32 16 32C21.5 32 26 27.5 26 22C26 16 16 4 16 4Z"
-          fill="#2563eb"
-        />
-      </svg>
-      {!iconOnly && <span style={{ fontSize: 22, fontWeight: 700, color: '#111' }}>Nevux</span>}
-    </div>
-  );
-}
-
 function IconInfo() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-      <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
-  );
-}
-
-function IconInfoSmall() {
-  return (
-    <span style={{ color: '#2563eb', display: 'inline-flex' }}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-        <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    </span>
   );
 }
 
@@ -1549,4 +1520,4 @@ function renderIconoBtn(icono: string, size: number): React.ReactNode {
     default:
       return null;
   }
-}
+  }
