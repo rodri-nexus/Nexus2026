@@ -3,6 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import BundleCantidadPreview from './BundleCantidadPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 interface EditorProps {
   widgetDefinition: {
@@ -68,19 +70,19 @@ const DEFAULT_CONFIG = {
   producto2: null as { id: number | null; nombre: string } | null,
   compDefault: false,
   reemplazarBoton: false,
-  colorBoton: '#000000',
+  colorBoton: '#FF0000',
   botonDegradado: false,
-  colorBoton2: '#3B82F6',
+  colorBoton2: '#FF0000',
   colorPrecio: '#000000',
   colorSubtitulos: '#059669',
   fondoSubtitulo: '',
   colorTextoRegalo: '#000000',
   colorPrecioRegalo: '#16a34a',
-  fondoRegalo: '#f5fff7',
+  fondoRegalo: '#fff5f5',
   colorBadgeEnvio: '#10B981',
   colorBadgePersonalizado: '#F59E0B',
   colorBadgeMasVendido: '#EF4444',
-  colorUnidadSeleccionada: '#170c0e',
+  colorUnidadSeleccionada: '#FF0000',
   bordeBoton: 25,
   bordeUnidad: 8,
   fuenteEtiqueta: 16,
@@ -92,22 +94,6 @@ const DEFAULT_CONFIG = {
 
 /* ================= HELPERS UI ================= */
 
-function NevuxLogo() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-        <path
-          d="M20 4 C 20 4, 8 20, 8 28 A 12 12 0 0 0 32 28 C 32 20, 20 4, 20 4 Z"
-          fill="#2563EB"
-        />
-      </svg>
-      <span style={{ fontWeight: 800, fontSize: 22, color: '#111827', letterSpacing: -0.5 }}>
-        Nevux
-      </span>
-    </div>
-  );
-}
-
 function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -118,7 +104,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -128,19 +114,9 @@ function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: str
   );
 }
 
-function IconExternal({ size = 14, color = '#6B7280' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
-
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
     </div>
   );
@@ -148,7 +124,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function FieldHelper({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6, lineHeight: 1.4 }}>{children}</div>
+    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.4 }}>{children}</div>
   );
 }
 
@@ -175,14 +151,17 @@ function TextInput({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1.5px solid #E5E7EB',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
+        fontFamily: 'inherit',
       }}
+      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onBlur={(e) => (e.target.style.borderColor = '#E5E7EB')}
     />
   );
 }
@@ -203,19 +182,20 @@ function SelectField({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1.5px solid #E5E7EB',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
         appearance: 'none',
         backgroundImage:
-          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%236B7280\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
+          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
+        fontFamily: 'inherit',
       }}
     >
       {options.map((o) => (
@@ -244,24 +224,25 @@ function CheckboxCard({
         display: 'flex',
         gap: 12,
         padding: 14,
-        border: `1px solid ${checked ? '#2563EB' : '#E5E7EB'}`,
+        border: `1.5px solid ${checked ? '#FF0000' : '#E5E7EB'}`,
         borderRadius: 10,
         cursor: 'pointer',
-        background: checked ? '#EFF6FF' : '#FFFFFF',
+        background: checked ? '#FFF5F5' : '#FFFFFF',
+        transition: 'all 0.2s',
       }}
     >
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ marginTop: 3, width: 16, height: 16, accentColor: '#2563EB', cursor: 'pointer' }}
+        style={{ marginTop: 3, width: 16, height: 16, accentColor: '#FF0000', cursor: 'pointer' }}
       />
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.3 }}>
           {label}
         </div>
         {description && (
-          <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4, lineHeight: 1.4 }}>
+          <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
             {description}
           </div>
         )}
@@ -293,9 +274,9 @@ function CheckboxSimple({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ width: 18, height: 18, accentColor: '#2563EB', cursor: 'pointer' }}
+        style={{ width: 18, height: 18, accentColor: '#FF0000', cursor: 'pointer' }}
       />
-      <span style={{ fontSize: 15, color: '#111827', lineHeight: 1.4 }}>{label}</span>
+      <span style={{ fontSize: 15, color: '#000000', fontWeight: 500, lineHeight: 1.4 }}>{label}</span>
     </label>
   );
 }
@@ -318,11 +299,12 @@ function RadioCard({
         justifyContent: 'center',
         gap: 8,
         padding: '16px 10px',
-        border: `1px solid ${checked ? '#2563EB' : '#E5E7EB'}`,
+        border: `1.5px solid ${checked ? '#FF0000' : '#E5E7EB'}`,
         borderRadius: 10,
         cursor: 'pointer',
-        background: checked ? '#EFF6FF' : '#FFFFFF',
+        background: checked ? '#FFF5F5' : '#FFFFFF',
         textAlign: 'center',
+        transition: 'all 0.2s',
       }}
     >
       <div
@@ -330,20 +312,20 @@ function RadioCard({
           width: 20,
           height: 20,
           borderRadius: '50%',
-          border: `2px solid ${checked ? '#2563EB' : '#9CA3AF'}`,
+          border: `2px solid ${checked ? '#FF0000' : '#D1D5DB'}`,
           background: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        {checked && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#2563EB' }} />}
+        {checked && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF0000' }} />}
       </div>
       <span
         style={{
           fontSize: 14,
           fontWeight: 700,
-          color: checked ? '#2563EB' : '#111827',
+          color: checked ? '#FF0000' : '#000000',
           lineHeight: 1.3,
         }}
         onClick={onChange}
@@ -380,7 +362,7 @@ function ColorPickerField({
           width: 56,
           height: 44,
           borderRadius: 10,
-          border: '1px solid #E5E7EB',
+          border: '1.5px solid #E5E7EB',
           overflow: 'hidden',
           background: isEmpty
             ? 'repeating-conic-gradient(#F3F4F6 0% 25%, #FFFFFF 0% 50%) 50% / 12px 12px'
@@ -412,12 +394,13 @@ function ColorPickerField({
         style={{
           flex: 1,
           padding: '12px 14px',
-          border: '1px solid #E5E7EB',
+          border: '1.5px solid #E5E7EB',
           borderRadius: 10,
           fontSize: 15,
-          color: '#111827',
+          color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
+          fontFamily: 'monospace',
         }}
       />
       {allowTransparent && !isEmpty && (
@@ -430,7 +413,8 @@ function ColorPickerField({
             borderRadius: 8,
             border: '1px solid #E5E7EB',
             background: '#FFFFFF',
-            color: '#6B7280',
+            color: '#000000',
+            opacity: 0.6,
             cursor: 'pointer',
             fontSize: 14,
             fontWeight: 700,
@@ -457,29 +441,30 @@ function ToggleField({
       <div
         onClick={() => onChange(!checked)}
         style={{
-          width: 40,
-          height: 22,
+          width: 44,
+          height: 26,
           borderRadius: 999,
-          background: checked ? '#2563EB' : '#D1D5DB',
+          background: checked ? '#FF0000' : '#D1D5DB',
           position: 'relative',
-          transition: 'background 0.15s',
+          transition: 'background 0.25s',
+          flexShrink: 0,
         }}
       >
         <div
           style={{
-            width: 18,
-            height: 18,
+            width: 20,
+            height: 20,
             borderRadius: '50%',
             background: '#FFFFFF',
             position: 'absolute',
-            top: 2,
-            left: checked ? 20 : 2,
-            transition: 'left 0.15s',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+            top: 3,
+            left: checked ? 21 : 3,
+            transition: 'left 0.25s',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           }}
         />
       </div>
-      <span style={{ fontSize: 15, color: '#111827' }}>{label}</span>
+      <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>
     </label>
   );
 }
@@ -508,7 +493,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#2563EB' }}
+        style={{ width: '100%', accentColor: '#FF0000' }}
       />
       {marks && (
         <div
@@ -516,7 +501,8 @@ function RangeSlider({
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 12,
-            color: '#6B7280',
+            color: '#000000',
+            opacity: 0.6,
             marginTop: 4,
           }}
         >
@@ -554,14 +540,15 @@ function SectionCard({
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
         <div style={{ flex: 1 }}>
           <div
-            style={{ fontSize: 16, fontWeight: 700, color: '#111827', textAlign: 'center' }}
+            style={{ fontSize: 16, fontWeight: 700, color: '#000000', textAlign: 'center' }}
           >
             {title}
           </div>
           <div
             style={{
               fontSize: 14,
-              color: '#6B7280',
+              color: '#000000',
+              opacity: 0.6,
               marginTop: 6,
               lineHeight: 1.5,
               textAlign: 'left',
@@ -591,7 +578,6 @@ export default function BundleCantidadEditor({
 
   const initialConfig = React.useMemo(() => {
     const cfg = { ...DEFAULT_CONFIG, ...(existingWidget?.config || {}) };
-    // asegurar array de 5 unidades
     const unidades: UnidadConfig[] = [];
     for (let i = 0; i < 5; i++) {
       unidades.push({ ...DEFAULT_UNIDAD, ...(cfg.unidades?.[i] || {}) });
@@ -612,7 +598,6 @@ export default function BundleCantidadEditor({
     setConfig((c: any) => {
       const arr = [...c.unidades];
       arr[idx] = { ...arr[idx], [k]: v };
-      // porDefecto: solo una a la vez
       if (k === 'porDefecto' && v === true) {
         arr.forEach((u, i) => {
           if (i !== idx) u.porDefecto = false;
@@ -644,8 +629,6 @@ export default function BundleCantidadEditor({
         throw new Error(data.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -666,7 +649,7 @@ export default function BundleCantidadEditor({
 
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
-      {/* HEADER */}
+      {/* HEADER CON LOGO OFICIAL */}
       <div
         style={{
           position: 'sticky',
@@ -680,35 +663,20 @@ export default function BundleCantidadEditor({
           justifyContent: 'space-between',
         }}
       >
-        <NevuxLogo />
+        <NevuxLogo size="medium" />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button
-            type="button"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 6,
-            }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
           <div
             style={{
-              width: 34,
-              height: 34,
+              width: 36,
+              height: 36,
               borderRadius: '50%',
-              background: '#E5E7EB',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 13,
               fontWeight: 700,
-              color: '#374151',
+              color: '#FFFFFF',
             }}
           >
             RL
@@ -724,7 +692,7 @@ export default function BundleCantidadEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#2563EB',
+              background: '#FF0000',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -748,7 +716,7 @@ export default function BundleCantidadEditor({
               borderRadius: 10,
               fontSize: 14,
               fontWeight: 700,
-              color: '#111827',
+              color: '#000000',
               marginBottom: 14,
             }}
           >
@@ -761,7 +729,7 @@ export default function BundleCantidadEditor({
           style={{
             fontSize: 26,
             fontWeight: 800,
-            color: '#111827',
+            color: '#000000',
             marginBottom: 20,
             lineHeight: 1.2,
           }}
@@ -773,10 +741,11 @@ export default function BundleCantidadEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#F3F4F6',
+            background: '#FFFFFF',
             border: '1px solid #E5E7EB',
             borderRadius: 16,
             padding: 16,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -803,14 +772,17 @@ export default function BundleCantidadEditor({
                   onClick={() => setTab(t)}
                   style={{
                     flex: 1,
-                    background: active ? '#FFFFFF' : 'transparent',
+                    background: 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #111827' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#111827' : '#6B7280',
+                    color: active ? '#FF0000' : '#000000',
+                    opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s',
                   }}
                 >
                   {label}
@@ -883,7 +855,7 @@ export default function BundleCantidadEditor({
                 <FieldHelper>Dejá vacío para usar "Agregar al carrito"</FieldHelper>
               </div>
 
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginTop: 4 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000', marginTop: 4 }}>
                 Configuración por unidad
               </div>
 
@@ -902,12 +874,12 @@ export default function BundleCantidadEditor({
                       gap: 14,
                     }}
                   >
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
                       Unidad {i + 1}
                     </div>
 
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 6 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#000000', marginBottom: 6 }}>
                         Subtítulo
                       </div>
                       <TextInput
@@ -918,7 +890,7 @@ export default function BundleCantidadEditor({
                     </div>
 
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 6 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#000000', marginBottom: 6 }}>
                         ¿Tiene descuento? (%)
                       </div>
                       <TextInput
@@ -930,7 +902,7 @@ export default function BundleCantidadEditor({
                     </div>
 
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
                         Badges
                       </div>
                       <CheckboxSimple
@@ -951,7 +923,7 @@ export default function BundleCantidadEditor({
                     </div>
 
                     <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 12 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 4 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
                         Configuración extra
                       </div>
                       <CheckboxSimple
@@ -990,7 +962,7 @@ export default function BundleCantidadEditor({
               </div>
 
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 6 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>
                   Producto 1
                 </div>
                 <TextInput
@@ -1003,7 +975,7 @@ export default function BundleCantidadEditor({
               </div>
 
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 6 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>
                   Producto 2
                 </div>
                 <TextInput
@@ -1040,7 +1012,7 @@ export default function BundleCantidadEditor({
             <div>
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <circle cx="13.5" cy="6.5" r="1.5" />
                     <circle cx="17.5" cy="10.5" r="1.5" />
                     <circle cx="8.5" cy="7.5" r="1.5" />
@@ -1121,7 +1093,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
                     <line x1="7" y1="7" x2="7.01" y2="7" />
                   </svg>
@@ -1161,7 +1133,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <rect x="3" y="3" width="7" height="7" />
                     <rect x="14" y="3" width="7" height="7" />
                     <rect x="14" y="14" width="7" height="7" />
@@ -1197,7 +1169,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <polyline points="4 7 4 4 20 4 20 7" />
                     <line x1="9" y1="20" x2="15" y2="20" />
                     <line x1="12" y1="4" x2="12" y2="20" />
@@ -1243,7 +1215,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
                   </svg>
                 }
@@ -1284,7 +1256,7 @@ export default function BundleCantidadEditor({
             </div>
           )}
 
-          {/* FOOTER */}
+          {/* FOOTER ACCIONES DE GUARDADO */}
           <div
             style={{
               display: 'flex',
@@ -1310,7 +1282,7 @@ export default function BundleCantidadEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#2563EB',
+                background: '#FF0000',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1326,21 +1298,9 @@ export default function BundleCantidadEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA */}
-        <div
-          style={{
-            marginTop: 40,
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <NevuxLogo />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#6B7280', fontSize: 14 }}>
-            Centro de ayuda <IconExternal />
-          </div>
+        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
         </div>
       </div>
 
@@ -1368,4 +1328,4 @@ export default function BundleCantidadEditor({
       )}
     </div>
   );
-    }
+}
