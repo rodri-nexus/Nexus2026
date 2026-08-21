@@ -3,6 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import SliderVideoPreview from './SliderVideoPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 interface EditorProps {
   widgetDefinition: {
@@ -57,7 +59,7 @@ const DEFAULT_CONFIG = {
   posicion: 'despues',
   formato: 'slider',
   colorControles: '#000000',
-  colorTitulo: '#333333',
+  colorTitulo: '#000000',
   colorFondo: '#fafafa',
   tamanoTitulo: '20px',
   tamanoSubtitulo: '16px',
@@ -68,12 +70,11 @@ const DEFAULT_CONFIG = {
   radioBordeVideos: 20,
   mostrarPrecio: true,
   mostrarBotonCarrito: true,
-  colorBotonFondo: '#000000',
+  colorBotonFondo: '#FF0000',
   colorBotonTexto: '#ffffff',
   radioBordeBoton: 8,
 };
 
-// Grid responsive común
 const GRID_RESPONSIVE_2COL: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
@@ -81,29 +82,6 @@ const GRID_RESPONSIVE_2COL: React.CSSProperties = {
 };
 
 /* ================= HELPERS UI ================= */
-
-function NevuxLogo() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-        <path
-          d="M20 4 C 20 4, 8 20, 8 28 A 12 12 0 0 0 32 28 C 32 20, 20 4, 20 4 Z"
-          fill="#2563EB"
-        />
-      </svg>
-      <span
-        style={{
-          fontWeight: 800,
-          fontSize: 22,
-          color: '#111827',
-          letterSpacing: -0.5,
-        }}
-      >
-        Nevux
-      </span>
-    </div>
-  );
-}
 
 function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
   return (
@@ -115,7 +93,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -125,17 +103,7 @@ function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: str
   );
 }
 
-function IconExternal({ size = 14, color = '#6B7280' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
-
-function IconUploadCloud({ size = 40, color = '#111827' }: { size?: number; color?: string }) {
+function IconUploadCloud({ size = 40, color = '#000000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5">
       <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
@@ -147,7 +115,7 @@ function IconUploadCloud({ size = 40, color = '#111827' }: { size?: number; colo
 
 function IconLayout() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
       <rect x="3" y="3" width="7" height="18" rx="1" />
       <rect x="14" y="3" width="7" height="9" rx="1" />
       <rect x="14" y="15" width="7" height="6" rx="1" />
@@ -157,7 +125,7 @@ function IconLayout() {
 
 function IconPalette() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
       <circle cx="13.5" cy="6.5" r="1.5" />
       <circle cx="17.5" cy="10.5" r="1.5" />
       <circle cx="8.5" cy="7.5" r="1.5" />
@@ -169,7 +137,7 @@ function IconPalette() {
 
 function IconType() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
       <polyline points="4 7 4 4 20 4 20 7" />
       <line x1="9" y1="20" x2="15" y2="20" />
       <line x1="12" y1="4" x2="12" y2="20" />
@@ -179,7 +147,7 @@ function IconType() {
 
 function IconSliders() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
       <line x1="4" y1="21" x2="4" y2="14" />
       <line x1="4" y1="10" x2="4" y2="3" />
       <line x1="12" y1="21" x2="12" y2="12" />
@@ -195,7 +163,7 @@ function IconSliders() {
 
 function IconSend() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>
@@ -204,7 +172,7 @@ function IconSend() {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
     </div>
   );
@@ -212,7 +180,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function FieldHint({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6, lineHeight: 1.4 }}>
+    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.4 }}>
       {children}
     </div>
   );
@@ -239,7 +207,7 @@ function TextInput({
         border: '1px solid #E5E7EB',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
@@ -267,13 +235,13 @@ function SelectField({
         border: '1px solid #E5E7EB',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
         appearance: 'none',
         backgroundImage:
-          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%236B7280\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
+          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
@@ -306,7 +274,7 @@ function RadioCard({
       onClick={onChange}
       style={{
         background: '#FFFFFF',
-        border: checked ? '1.5px solid #2563EB' : '1px solid #E5E7EB',
+        border: checked ? '1.5px solid #FF0000' : '1px solid #E5E7EB',
         borderRadius: 12,
         padding: 16,
         cursor: 'pointer',
@@ -319,7 +287,7 @@ function RadioCard({
             width: 20,
             height: 20,
             borderRadius: '50%',
-            border: checked ? '2px solid #2563EB' : '2px solid #D1D5DB',
+            border: checked ? '2px solid #FF0000' : '2px solid #D1D5DB',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -333,7 +301,7 @@ function RadioCard({
                 width: 10,
                 height: 10,
                 borderRadius: '50%',
-                background: '#2563EB',
+                background: '#FF0000',
               }}
             />
           )}
@@ -343,7 +311,7 @@ function RadioCard({
             style={{
               fontSize: 15,
               fontWeight: 700,
-              color: '#111827',
+              color: '#000000',
               lineHeight: 1.4,
               display: 'flex',
               alignItems: 'center',
@@ -354,7 +322,7 @@ function RadioCard({
             {label}
           </div>
           {description && (
-            <div style={{ fontSize: 14, color: '#6B7280', marginTop: 6, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
               {description}
             </div>
           )}
@@ -414,7 +382,7 @@ function ColorPickerField({
           border: '1px solid #E5E7EB',
           borderRadius: 8,
           fontSize: 13,
-          color: '#111827',
+          color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
           fontFamily: 'monospace',
@@ -442,7 +410,7 @@ function ToggleField({
           width: 40,
           height: 22,
           borderRadius: 999,
-          background: checked ? '#2563EB' : '#D1D5DB',
+          background: checked ? '#FF0000' : '#D1D5DB',
           position: 'relative',
           transition: 'background 0.15s',
           flexShrink: 0,
@@ -462,7 +430,7 @@ function ToggleField({
           }}
         />
       </div>
-      {label && <span style={{ fontSize: 15, color: '#111827' }}>{label}</span>}
+      {label && <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>}
     </label>
   );
 }
@@ -491,7 +459,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#2563EB' }}
+        style={{ width: '100%', accentColor: '#FF0000' }}
       />
       {marks && (
         <div
@@ -499,7 +467,8 @@ function RangeSlider({
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 12,
-            color: '#6B7280',
+            color: '#000000',
+            opacity: 0.6,
             marginTop: 4,
           }}
         >
@@ -536,11 +505,12 @@ function SectionCard({
       <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{title}</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>{title}</div>
           <div
             style={{
               fontSize: 14,
-              color: '#6B7280',
+              color: '#000000',
+              opacity: 0.6,
               marginTop: 6,
               lineHeight: 1.5,
             }}
@@ -601,7 +571,7 @@ function MarkdownTextarea({
     padding: '6px 10px',
     cursor: 'pointer',
     fontSize: 14,
-    color: '#374151',
+    color: '#000000',
     borderRadius: 4,
   };
 
@@ -650,7 +620,7 @@ function MarkdownTextarea({
           U
         </button>
         <div style={{ width: 1, height: 18, background: '#E5E7EB', margin: '0 4px' }} />
-        <span style={{ fontSize: 12, color: '#9CA3AF' }}>
+        <span style={{ fontSize: 12, color: '#000000', opacity: 0.5 }}>
           Usá **negrita**, *cursiva*, __subrayado__
         </span>
       </div>
@@ -665,7 +635,7 @@ function MarkdownTextarea({
           padding: '12px 14px',
           border: 'none',
           fontSize: 15,
-          color: '#111827',
+          color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
           boxSizing: 'border-box',
@@ -733,7 +703,6 @@ export default function SliderVideoEditor({
 
     const filesArr = Array.from(files).slice(0, disponibles);
 
-    // Validaciones
     for (const file of filesArr) {
       const ext = file.name.split('.').pop()?.toLowerCase() || '';
       if (!ALLOWED_EXTS.includes(ext)) {
@@ -850,8 +819,6 @@ export default function SliderVideoEditor({
         throw new Error(data.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -872,7 +839,7 @@ export default function SliderVideoEditor({
 
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
-      {/* HEADER */}
+      {/* HEADER CON LOGO OFICIAL NEVUX */}
       <div
         style={{
           position: 'sticky',
@@ -886,30 +853,20 @@ export default function SliderVideoEditor({
           justifyContent: 'space-between',
         }}
       >
-        <NevuxLogo />
+        <NevuxLogo size="medium" />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button
-            type="button"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
           <div
             style={{
-              width: 34,
-              height: 34,
+              width: 36,
+              height: 36,
               borderRadius: '50%',
-              background: '#E5E7EB',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 13,
               fontWeight: 700,
-              color: '#374151',
+              color: '#FFFFFF',
             }}
           >
             RL
@@ -918,14 +875,14 @@ export default function SliderVideoEditor({
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
-        {/* Chip scope */}
+        {/* Scope Chip en Rojo */}
         {targetType === 'all' ? (
           <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#2563EB',
+              background: '#FF0000',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -949,7 +906,7 @@ export default function SliderVideoEditor({
               borderRadius: 10,
               fontSize: 14,
               fontWeight: 700,
-              color: '#111827',
+              color: '#000000',
               marginBottom: 14,
             }}
           >
@@ -962,7 +919,7 @@ export default function SliderVideoEditor({
           style={{
             fontSize: 26,
             fontWeight: 800,
-            color: '#111827',
+            color: '#000000',
             marginBottom: 20,
             lineHeight: 1.2,
           }}
@@ -974,10 +931,11 @@ export default function SliderVideoEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#F3F4F6',
+            background: '#FFFFFF',
             border: '1px solid #E5E7EB',
             borderRadius: 16,
             padding: 16,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -987,6 +945,7 @@ export default function SliderVideoEditor({
               background: '#FFFFFF',
               borderRadius: 12,
               overflow: 'hidden',
+              border: '1px solid #F3F4F6',
             }}
           >
             <SliderVideoPreview config={config} />
@@ -1003,14 +962,14 @@ export default function SliderVideoEditor({
             }}
           >
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <IconInfo size={16} color="#6B7280" />
-              <span style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.5 }}>
+              <IconInfo size={16} color="#FF0000" />
+              <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
                 El widget aparecerá debajo del botón de &quot;Agregar al carrito&quot;.
               </span>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <IconInfo size={16} color="#6B7280" />
-              <span style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.5 }}>
+              <IconInfo size={16} color="#FF0000" />
+              <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
                 Los videos en la preview no son funcionales
               </span>
             </div>
@@ -1038,11 +997,12 @@ export default function SliderVideoEditor({
                     flex: 1,
                     background: active ? '#FFFFFF' : 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #111827' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#111827' : '#6B7280',
+                    color: active ? '#FF0000' : '#000000',
+                    opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
                   }}
                 >
@@ -1052,7 +1012,7 @@ export default function SliderVideoEditor({
             })}
           </div>
 
-          {/* ============ TAB: GENERAL ============ */}
+          {/* TAB: GENERAL */}
           {tab === 'general' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
@@ -1067,7 +1027,7 @@ export default function SliderVideoEditor({
 
               <div>
                 <FieldLabel>
-                  Subtítulo <span style={{ fontWeight: 400, color: '#6B7280' }}>(opcional)</span>
+                  Subtítulo <span style={{ fontWeight: 400, opacity: 0.6 }}>(opcional)</span>
                 </FieldLabel>
                 <MarkdownTextarea
                   value={config.subtitulo}
@@ -1078,11 +1038,11 @@ export default function SliderVideoEditor({
                 <FieldHint>Texto que aparece debajo del título. Dejar vacío para no mostrar.</FieldHint>
               </div>
 
-              {/* Tip azul */}
+              {/* Tip Rojo sutil */}
               <div
                 style={{
-                  background: '#DBF4F5',
-                  border: '1px solid #A5E3E5',
+                  background: '#FFF5F5',
+                  border: '1px solid #FECACA',
                   borderRadius: 12,
                   padding: 14,
                   display: 'flex',
@@ -1090,8 +1050,8 @@ export default function SliderVideoEditor({
                   alignItems: 'flex-start',
                 }}
               >
-                <IconInfo size={18} color="#0E7490" />
-                <span style={{ fontSize: 14, color: '#0E7490', lineHeight: 1.5 }}>
+                <IconInfo size={18} color="#FF0000" />
+                <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
                   Recordá comprimir los videos antes de subirlos para mejorar la velocidad de
                   carga y visualización.
                 </span>
@@ -1101,12 +1061,11 @@ export default function SliderVideoEditor({
               <div>
                 <FieldLabel>
                   Videos {videos.length}/{MAX_VIDEOS}{' '}
-                  <span style={{ fontWeight: 400, color: '#6B7280' }}>
+                  <span style={{ fontWeight: 400, opacity: 0.6 }}>
                     (mínimo 1, máximo {MAX_VIDEOS})
                   </span>
                 </FieldLabel>
 
-                {/* Lista de videos ya subidos */}
                 {videos.length > 0 && (
                   <div
                     style={{
@@ -1139,7 +1098,6 @@ export default function SliderVideoEditor({
                   </div>
                 )}
 
-                {/* Dropzone */}
                 {videos.length < MAX_VIDEOS && (
                   <div
                     onClick={() => !uploading && fileInputRef.current?.click()}
@@ -1163,7 +1121,7 @@ export default function SliderVideoEditor({
                     <div style={{ marginBottom: 10 }}>
                       <IconUploadCloud size={44} />
                     </div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
                       {uploading
                         ? uploadProgress
                           ? `Subiendo video ${uploadProgress.current} de ${uploadProgress.total}…`
@@ -1173,7 +1131,8 @@ export default function SliderVideoEditor({
                     <div
                       style={{
                         fontSize: 13,
-                        color: '#6B7280',
+                        color: '#000000',
+                        opacity: 0.6,
                         marginTop: 10,
                         lineHeight: 1.6,
                       }}
@@ -1190,7 +1149,7 @@ export default function SliderVideoEditor({
                         paddingTop: 14,
                         borderTop: '1px solid #E5E7EB',
                         fontSize: 14,
-                        color: '#111827',
+                        color: '#000000',
                         fontWeight: 700,
                       }}
                     >
@@ -1199,7 +1158,8 @@ export default function SliderVideoEditor({
                     <div
                       style={{
                         fontSize: 13,
-                        color: '#6B7280',
+                        color: '#000000',
+                        opacity: 0.6,
                         marginTop: 6,
                         lineHeight: 1.6,
                       }}
@@ -1245,7 +1205,7 @@ export default function SliderVideoEditor({
                     href="https://www.veed.io/tools/video-compressor"
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ color: '#FF0000', fontWeight: 600, textDecoration: 'none' }}
                   >
                     Te enseñamos cómo comprimirlo.
                   </a>
@@ -1254,10 +1214,10 @@ export default function SliderVideoEditor({
             </div>
           )}
 
-          {/* ============ TAB: UBICACION ============ */}
+          {/* TAB: UBICACION */}
           {tab === 'ubicacion' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>
                 Posición del widget
               </div>
 
@@ -1282,7 +1242,7 @@ export default function SliderVideoEditor({
             </div>
           )}
 
-          {/* ============ TAB: ESTILOS ============ */}
+          {/* TAB: ESTILOS */}
           {tab === 'estilos' && (
             <div>
               <SectionCard
@@ -1301,9 +1261,9 @@ export default function SliderVideoEditor({
                         borderRadius: 10,
                         border:
                           config.formato === 'slider'
-                            ? '1.5px solid #2563EB'
+                            ? '1.5px solid #FF0000'
                             : '1px solid #E5E7EB',
-                        background: config.formato === 'slider' ? '#EFF6FF' : '#FFFFFF',
+                        background: config.formato === 'slider' ? '#FFF5F5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1311,7 +1271,7 @@ export default function SliderVideoEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.formato === 'slider' ? '#2563EB' : '#374151',
+                        color: config.formato === 'slider' ? '#FF0000' : '#000000',
                       }}
                     >
                       <svg
@@ -1335,9 +1295,9 @@ export default function SliderVideoEditor({
                         borderRadius: 10,
                         border:
                           config.formato === 'circulos'
-                            ? '1.5px solid #2563EB'
+                            ? '1.5px solid #FF0000'
                             : '1px solid #E5E7EB',
-                        background: config.formato === 'circulos' ? '#EFF6FF' : '#FFFFFF',
+                        background: config.formato === 'circulos' ? '#FFF5F5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1345,7 +1305,7 @@ export default function SliderVideoEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.formato === 'circulos' ? '#2563EB' : '#374151',
+                        color: config.formato === 'circulos' ? '#FF0000' : '#000000',
                       }}
                     >
                       <svg
@@ -1549,7 +1509,7 @@ export default function SliderVideoEditor({
             </div>
           )}
 
-          {/* FOOTER */}
+          {/* FOOTER ACCIONES DE GUARDADO */}
           <div
             style={{
               display: 'flex',
@@ -1571,7 +1531,7 @@ export default function SliderVideoEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#2563EB',
+                background: '#FF0000',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1587,29 +1547,9 @@ export default function SliderVideoEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA */}
-        <div
-          style={{
-            marginTop: 40,
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <NevuxLogo />
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#6B7280',
-              fontSize: 14,
-            }}
-          >
-            Centro de ayuda <IconExternal />
-          </div>
+        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
         </div>
       </div>
 
@@ -1695,14 +1635,13 @@ function VideoRow({
       }}
     >
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        {/* Thumb */}
         <div
           style={{
             width: 56,
             height: 80,
             borderRadius: 8,
             overflow: 'hidden',
-            background: '#111827',
+            background: '#000000',
             flexShrink: 0,
           }}
         >
@@ -1715,13 +1654,12 @@ function VideoRow({
           />
         </div>
 
-        {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
               fontSize: 14,
               fontWeight: 700,
-              color: '#111827',
+              color: '#000000',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -1732,7 +1670,8 @@ function VideoRow({
           <div
             style={{
               fontSize: 12,
-              color: '#6B7280',
+              color: '#000000',
+              opacity: 0.6,
               marginTop: 2,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -1743,7 +1682,6 @@ function VideoRow({
           </div>
         </div>
 
-        {/* Reorder */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <button
             type="button"
@@ -1763,7 +1701,7 @@ function VideoRow({
             }}
             title="Subir"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="3">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3">
               <polyline points="18 15 12 9 6 15" />
             </svg>
           </button>
@@ -1785,13 +1723,12 @@ function VideoRow({
             }}
             title="Bajar"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="3">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3">
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
         </div>
 
-        {/* Delete */}
         <button
           type="button"
           onClick={onRemove}
@@ -1817,7 +1754,6 @@ function VideoRow({
         </button>
       </div>
 
-      {/* Producto asociado */}
       {productosBajoVideo && (
         <div
           style={{
@@ -1856,7 +1792,7 @@ function VideoRow({
                   style={{
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#111827',
+                    color: '#000000',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -1864,7 +1800,7 @@ function VideoRow({
                 >
                   {video.productoData.name}
                 </div>
-                <div style={{ fontSize: 12, color: '#6B7280' }}>
+                <div style={{ fontSize: 12, color: '#000000', opacity: 0.6 }}>
                   ${video.productoData.price}
                 </div>
               </div>
@@ -1874,7 +1810,7 @@ function VideoRow({
                 style={{
                   background: 'transparent',
                   border: '1px solid #E5E7EB',
-                  color: '#374151',
+                  color: '#000000',
                   borderRadius: 8,
                   padding: '6px 10px',
                   fontSize: 12,
@@ -1907,7 +1843,7 @@ function VideoRow({
               style={{
                 background: '#FFFFFF',
                 border: '1px dashed #D1D5DB',
-                color: '#2563EB',
+                color: '#FF0000',
                 borderRadius: 8,
                 padding: '10px 12px',
                 fontSize: 13,
@@ -1980,7 +1916,6 @@ function ProductoSelectorInline({
 
   React.useEffect(() => {
     cargar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -2001,7 +1936,7 @@ function ProductoSelectorInline({
           marginBottom: 10,
         }}
       >
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000' }}>
           Seleccionar producto
         </div>
         <button
@@ -2010,7 +1945,8 @@ function ProductoSelectorInline({
           style={{
             background: 'transparent',
             border: 'none',
-            color: '#6B7280',
+            color: '#000000',
+            opacity: 0.6,
             fontSize: 20,
             cursor: 'pointer',
             padding: 2,
@@ -2048,7 +1984,7 @@ function ProductoSelectorInline({
           type="button"
           onClick={cargar}
           style={{
-            background: '#2563EB',
+            background: '#FF0000',
             color: '#FFFFFF',
             border: 'none',
             borderRadius: 8,
@@ -2073,7 +2009,7 @@ function ProductoSelectorInline({
         }}
       >
         {loading ? (
-          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#6B7280' }}>
+          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#000000', opacity: 0.6 }}>
             Cargando productos…
           </div>
         ) : errorLoad ? (
@@ -2081,7 +2017,7 @@ function ProductoSelectorInline({
             {errorLoad}
           </div>
         ) : productos.length === 0 ? (
-          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#6B7280' }}>
+          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#000000', opacity: 0.6 }}>
             No se encontraron productos
           </div>
         ) : (
@@ -2138,7 +2074,7 @@ function ProductoSelectorInline({
                   style={{
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#111827',
+                    color: '#000000',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -2146,7 +2082,7 @@ function ProductoSelectorInline({
                 >
                   {p.name}
                 </div>
-                <div style={{ fontSize: 12, color: '#6B7280' }}>${p.price}</div>
+                <div style={{ fontSize: 12, color: '#000000', opacity: 0.6 }}>${p.price}</div>
               </div>
             </button>
           ))
@@ -2154,4 +2090,4 @@ function ProductoSelectorInline({
       </div>
     </div>
   );
-      }
+  }
