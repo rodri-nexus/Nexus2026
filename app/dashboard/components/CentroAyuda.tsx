@@ -35,7 +35,7 @@ const helpLinks: HelpLink[] = [
   {
     label: "Contactar soporte",
     description: "Escribinos, te respondemos rápido",
-    href: "mailto:soporte@nevux.app",
+    href: "mailto:soportenevux@gmail.com",
     icon: Mail,
     external: true,
   },
@@ -55,9 +55,11 @@ export default function CentroAyuda() {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
         position: "relative",
         overflow: "hidden",
+        width: "100%",
+        boxSizing: "border-box",
       }}
     >
-      {/* Blob decorativo */}
+      {/* Blob decorativo Rojo */}
       <div
         style={{
           position: "absolute",
@@ -72,7 +74,7 @@ export default function CentroAyuda() {
         }}
       />
 
-      {/* Header con logo */}
+      {/* Header con logo oficial Nevux */}
       <div
         style={{
           display: "flex",
@@ -156,7 +158,7 @@ export default function CentroAyuda() {
           zIndex: 1,
         }}
       >
-        <MessageCircle size={14} />
+        <MessageCircle size={14} color="#000000" />
         <span>Respondemos en menos de 24hs</span>
       </div>
     </motion.section>
