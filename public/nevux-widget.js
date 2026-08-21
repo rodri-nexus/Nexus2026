@@ -5,7 +5,47 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v22 loaded");
+  console.log("[Nevux] v23 loaded with NubeSDK Adapter");
+
+  /* ═══════════════════════════════════════════
+     NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
+  ═══════════════════════════════════════════ */
+  window.NubeSDK = window.NubeSDK || null;
+
+  function initNubeSDKIntegration(sdk) {
+    if (!sdk) return;
+    console.log("[Nevux] NubeSDK connected successfully");
+
+    try {
+      if (typeof sdk.subscribe === "function") {
+        sdk.subscribe("cart:updated", function (cartData) {
+          console.log("[Nevux] NubeSDK event received: cart:updated", cartData);
+          if (typeof initAllWidgets === "function") initAllWidgets();
+        });
+
+        sdk.subscribe("product:rendered", function (productData) {
+          console.log("[Nevux] NubeSDK event received: product:rendered", productData);
+          if (typeof initAllWidgets === "function") initAllWidgets();
+        });
+
+        sdk.subscribe("page:rendered", function (pageData) {
+          console.log("[Nevux] NubeSDK event received: page:rendered", pageData);
+          if (typeof initAllWidgets === "function") initAllWidgets();
+        });
+      }
+    } catch (err) {
+      console.error("[Nevux] NubeSDK subscription error:", err);
+    }
+  }
+
+  if (window.NubeSDK) {
+    initNubeSDKIntegration(window.NubeSDK);
+  } else {
+    document.addEventListener("nubeSDKReady", function (e) {
+      var sdk = (e && e.detail) ? e.detail : window.NubeSDK;
+      initNubeSDKIntegration(sdk);
+    });
+  }
 
   /* ═══════════════════════════════════════════
      HELPERS
