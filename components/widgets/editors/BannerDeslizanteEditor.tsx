@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BannerDeslizantePreview from './BannerDeslizantePreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 // ═══════════════════════════════════════════════════════════
 // TIPOS
@@ -145,8 +147,6 @@ export default function BannerDeslizanteEditor({
         throw new Error(data.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -164,53 +164,35 @@ export default function BannerDeslizanteEditor({
     }
   };
 
-  // ═══════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════
-
   return (
-    <div style={{ minHeight: '100vh', background: '#f7f8fa', paddingBottom: 40 }}>
-      {/* HEADER */}
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 40 }}>
+      {/* HEADER CON LOGO OFICIAL */}
       <header
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 20,
-          background: '#fff',
-          borderBottom: '1px solid #eef0f3',
+          background: '#ffffff',
+          borderBottom: '1px solid #e5e7eb',
           padding: '14px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <NevuxLogo />
+        <NevuxLogo size="medium" />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button
-            aria-label="Menú"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              padding: 6,
-              cursor: 'pointer',
-              color: '#333',
-            }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
           <div
             style={{
               width: 36,
               height: 36,
               borderRadius: '50%',
-              background: '#e6e8ec',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 600,
-              color: '#333',
+              fontWeight: 700,
+              color: '#ffffff',
               fontSize: 13,
             }}
           >
@@ -224,48 +206,39 @@ export default function BannerDeslizanteEditor({
         {targetType === 'all' ? (
           <div
             style={{
-              background: '#2563eb',
-              color: '#fff',
-              padding: '12px 16px',
-              borderRadius: 12,
+              background: '#FF0000',
+              color: '#ffffff',
+              padding: '8px 14px',
+              borderRadius: 999,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 10,
-              fontWeight: 600,
+              gap: 8,
+              fontWeight: 700,
+              fontSize: 14,
               marginBottom: 20,
             }}
           >
             <IconStore />
-            <span>Toda la tienda</span>
+            <span>Todos los productos</span>
           </div>
         ) : (
           <div
             style={{
-              background: '#fff',
-              border: '1px solid #eef0f3',
-              padding: '10px 14px',
-              borderRadius: 12,
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
+              padding: '8px 14px',
+              borderRadius: 10,
               display: 'inline-flex',
               alignItems: 'center',
               gap: 10,
               marginBottom: 20,
+              fontSize: 14,
+              fontWeight: 700,
+              color: '#000000',
             }}
           >
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                background: '#f3f4f6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 18,
-              }}
-            >
-              🛍
-            </div>
-            <span style={{ fontWeight: 600, color: '#111' }}>NEVUX Widget</span>
+            <span style={{ fontSize: 18 }}>🛍</span>
+            <span>NEVUX Widget</span>
           </div>
         )}
 
@@ -273,8 +246,8 @@ export default function BannerDeslizanteEditor({
         <h1
           style={{
             fontSize: 26,
-            fontWeight: 500,
-            color: '#111',
+            fontWeight: 800,
+            color: '#000000',
             lineHeight: 1.25,
             margin: '0 0 20px 0',
           }}
@@ -285,10 +258,11 @@ export default function BannerDeslizanteEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#fff',
+            background: '#ffffff',
             borderRadius: 16,
-            border: '1px solid #eef0f3',
+            border: '1px solid #e5e7eb',
             overflow: 'hidden',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -299,13 +273,17 @@ export default function BannerDeslizanteEditor({
           {/* INFO BOX */}
           <div
             style={{
-              padding: '14px 20px 20px 20px',
-              borderTop: '1px solid #eef0f3',
+              margin: '0 20px 20px',
+              padding: '12px 16px',
+              background: '#fff5f5',
+              border: '1px solid #fecaca',
+              borderRadius: 10,
               display: 'flex',
               gap: 10,
               alignItems: 'flex-start',
-              color: '#6b7280',
-              fontSize: 15,
+              color: '#000000',
+              fontSize: 14,
+              lineHeight: 1.5,
             }}
           >
             <IconInfo />
@@ -313,8 +291,8 @@ export default function BannerDeslizanteEditor({
           </div>
 
           {/* TABS */}
-          <div style={{ background: '#f7f8fa', padding: '0 20px' }}>
-            <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #e6e8ec' }}>
+          <div style={{ padding: '0 20px', borderBottom: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'flex', gap: 0 }}>
               <TabButton active={activeTab === 'general'} onClick={() => setActiveTab('general')}>
                 General
               </TabButton>
@@ -328,7 +306,7 @@ export default function BannerDeslizanteEditor({
           </div>
 
           {/* CONTENIDO TABS */}
-          <div style={{ background: '#f7f8fa', padding: 20 }}>
+          <div style={{ padding: 20 }}>
             {activeTab === 'general' && (
               <GeneralTab
                 mensajes={config.mensajes}
@@ -357,9 +335,8 @@ export default function BannerDeslizanteEditor({
           {/* FOOTER */}
           <div
             style={{
-              background: '#f7f8fa',
               padding: '16px 20px 20px 20px',
-              borderTop: '1px solid #e6e8ec',
+              borderTop: '1px solid #e5e7eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -376,15 +353,16 @@ export default function BannerDeslizanteEditor({
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: '#2563eb',
-                color: '#fff',
+                background: '#FF0000',
+                color: '#ffffff',
                 border: 'none',
-                padding: '14px 28px',
+                padding: '12px 28px',
                 borderRadius: 999,
-                fontWeight: 600,
-                fontSize: 16,
+                fontWeight: 700,
+                fontSize: 15,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.6 : 1,
+                fontFamily: 'inherit',
               }}
             >
               {saving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear widget'}
@@ -392,28 +370,9 @@ export default function BannerDeslizanteEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA */}
-        <div
-          style={{
-            marginTop: 40,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-            color: '#6b7280',
-          }}
-        >
-          <NevuxLogo iconOnly />
-          <a
-            href="#"
-            style={{
-              color: '#6b7280',
-              textDecoration: 'none',
-              fontSize: 15,
-            }}
-          >
-            Centro de ayuda
-          </a>
+        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
         </div>
       </main>
 
@@ -425,16 +384,19 @@ export default function BannerDeslizanteEditor({
             bottom: 20,
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#ef4444',
-            color: '#fff',
+            background: '#fee2e2',
+            color: '#991b1b',
+            border: '1px solid #fecaca',
             padding: '12px 20px',
-            borderRadius: 10,
-            boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+            borderRadius: 12,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
             zIndex: 100,
             maxWidth: '90%',
+            fontSize: 14,
+            fontWeight: 600,
           }}
         >
-          {error}
+          ⚠️ {error}
         </div>
       )}
     </div>
@@ -465,11 +427,11 @@ function GeneralTab({
 
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
           padding: 14,
           marginTop: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           display: 'flex',
           flexDirection: 'column',
           gap: 10,
@@ -492,21 +454,25 @@ function GeneralTab({
               style={{
                 flex: 1,
                 padding: '12px 14px',
-                border: '1px solid #e6e8ec',
+                border: '1.5px solid #e5e7eb',
                 borderRadius: 10,
                 fontSize: 15,
-                color: '#111',
-                background: '#fff',
+                color: '#000000',
+                background: '#ffffff',
                 outline: 'none',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box',
               }}
+              onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+              onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
             />
             {mensajes.length > 1 && (
               <button
                 onClick={() => onRemove(i)}
                 aria-label="Eliminar mensaje"
                 style={{
-                  background: 'transparent',
-                  border: '1px solid #e6e8ec',
+                  background: '#fee2e2',
+                  border: 'none',
                   borderRadius: 8,
                   width: 38,
                   height: 38,
@@ -514,7 +480,7 @@ function GeneralTab({
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#ef4444',
+                  color: '#991b1b',
                   flexShrink: 0,
                 }}
               >
@@ -537,17 +503,18 @@ function GeneralTab({
           onClick={onAdd}
           style={{
             marginTop: 14,
-            background: '#fff',
-            border: '1px solid #2563eb',
-            color: '#2563eb',
+            background: '#ffffff',
+            border: '1.5px solid #FF0000',
+            color: '#FF0000',
             padding: '12px 20px',
             borderRadius: 999,
-            fontWeight: 600,
+            fontWeight: 700,
             fontSize: 15,
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,
+            fontFamily: 'inherit',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -582,34 +549,43 @@ function UbicacionTab({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* CARD 1: MOSTRAR EN PRODUCTO */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: mostrarEnProducto ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
           padding: 18,
+          transition: 'border-color 0.2s',
         }}
       >
         <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={mostrarEnProducto}
-            onChange={(e) => onChangeMostrar(e.target.checked)}
+          <div
+            onClick={() => onChangeMostrar(!mostrarEnProducto)}
             style={{
               width: 22,
               height: 22,
-              accentColor: '#2563eb',
-              cursor: 'pointer',
-              marginTop: 2,
+              borderRadius: 5,
+              background: mostrarEnProducto ? '#FF0000' : '#ffffff',
+              border: mostrarEnProducto ? '2px solid #FF0000' : '2px solid #d1d5db',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
+              marginTop: 1,
+              transition: 'all 0.2s',
             }}
-          />
+          >
+            {mostrarEnProducto && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>
               Mostrar en la ficha de producto
             </div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 6, lineHeight: 1.5 }}>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 6, lineHeight: 1.5 }}>
               Cuando está desactivado, el banner no se mostrará antes de la descripción del producto.
             </div>
           </div>
@@ -617,80 +593,87 @@ function UbicacionTab({
 
         {mostrarEnProducto && (
           <div style={{ marginTop: 20 }}>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 12 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 12 }}>
               Ubicación del widget
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <label style={{ display: 'flex', gap: 12, alignItems: 'center', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="ubicacion-producto"
-                  checked={ubicacionProducto === 'despues-boton'}
-                  onChange={() => onChangeUbicacion('despues-boton')}
+                <div
+                  onClick={() => onChangeUbicacion('despues-boton')}
                   style={{
                     width: 20,
                     height: 20,
-                    accentColor: '#2563eb',
-                    cursor: 'pointer',
+                    borderRadius: '50%',
+                    border: ubicacionProducto === 'despues-boton' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                    background: '#ffffff',
                     flexShrink: 0,
+                    transition: 'all 0.2s',
                   }}
                 />
-                <span style={{ color: '#111', fontSize: 16 }}>
-                  Después del botón "Agregar al carrito"
+                <span style={{ color: '#000000', fontSize: 15 }}>
+                  Después del botón &quot;Agregar al carrito&quot;
                 </span>
               </label>
               <label style={{ display: 'flex', gap: 12, alignItems: 'center', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="ubicacion-producto"
-                  checked={ubicacionProducto === 'despues-precio'}
-                  onChange={() => onChangeUbicacion('despues-precio')}
+                <div
+                  onClick={() => onChangeUbicacion('despues-precio')}
                   style={{
                     width: 20,
                     height: 20,
-                    accentColor: '#2563eb',
-                    cursor: 'pointer',
+                    borderRadius: '50%',
+                    border: ubicacionProducto === 'despues-precio' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                    background: '#ffffff',
                     flexShrink: 0,
+                    transition: 'all 0.2s',
                   }}
                 />
-                <span style={{ color: '#111', fontSize: 16 }}>Después del precio del producto</span>
+                <span style={{ color: '#000000', fontSize: 15 }}>Después del precio del producto</span>
               </label>
             </div>
-            <div style={{ color: '#6b7280', fontSize: 14, marginTop: 12, lineHeight: 1.5 }}>
-              Selecciona dónde quieres que aparezca el banner en la ficha del producto
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 12, lineHeight: 1.5 }}>
+              Seleccioná dónde querés que aparezca el banner en la ficha del producto
             </div>
           </div>
         )}
       </div>
 
-      {/* CARD 2: MOSTRAR COMO BARRA */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: modoBarra ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
           padding: 18,
+          transition: 'border-color 0.2s',
         }}
       >
         <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={modoBarra}
-            onChange={(e) => onChangeModoBarra(e.target.checked)}
+          <div
+            onClick={() => onChangeModoBarra(!modoBarra)}
             style={{
               width: 22,
               height: 22,
-              accentColor: '#2563eb',
-              cursor: 'pointer',
-              marginTop: 2,
+              borderRadius: 5,
+              background: modoBarra ? '#FF0000' : '#ffffff',
+              border: modoBarra ? '2px solid #FF0000' : '2px solid #d1d5db',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0,
+              marginTop: 1,
+              transition: 'all 0.2s',
             }}
-          />
+          >
+            {modoBarra && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>
               Mostrar como barra en la parte superior
             </div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 6, lineHeight: 1.5 }}>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 6, lineHeight: 1.5 }}>
               Mostrará el banner antes del encabezado de la página, a ancho completo y sin bordes redondeados.
             </div>
           </div>
@@ -716,14 +699,14 @@ function EstiloTab({
       {/* CARD: FONDO DEL BANNER */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           padding: 18,
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#2563eb', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <path
                 d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
@@ -734,47 +717,45 @@ function EstiloTab({
             </svg>
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>Fondo del banner</div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 4, lineHeight: 1.5 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Fondo del banner</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
               Elegí el tipo de fondo y sus colores.
             </div>
           </div>
         </div>
 
         <div style={{ marginBottom: 18 }}>
-          <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+          <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
             Tipo de fondo
           </div>
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             <label style={{ display: 'flex', gap: 10, alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="tipo-fondo"
-                checked={config.tipoFondo === 'solido'}
-                onChange={() => onChange('tipoFondo', 'solido')}
+              <div
+                onClick={() => onChange('tipoFondo', 'solido')}
                 style={{
                   width: 20,
                   height: 20,
-                  accentColor: '#2563eb',
-                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  border: config.tipoFondo === 'solido' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                  background: '#ffffff',
+                  flexShrink: 0,
                 }}
               />
-              <span style={{ color: '#111', fontSize: 16 }}>Color sólido</span>
+              <span style={{ color: '#000000', fontSize: 15 }}>Color sólido</span>
             </label>
             <label style={{ display: 'flex', gap: 10, alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="tipo-fondo"
-                checked={config.tipoFondo === 'degradado'}
-                onChange={() => onChange('tipoFondo', 'degradado')}
+              <div
+                onClick={() => onChange('tipoFondo', 'degradado')}
                 style={{
                   width: 20,
                   height: 20,
-                  accentColor: '#2563eb',
-                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  border: config.tipoFondo === 'degradado' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                  background: '#ffffff',
+                  flexShrink: 0,
                 }}
               />
-              <span style={{ color: '#111', fontSize: 16 }}>Degradé</span>
+              <span style={{ color: '#000000', fontSize: 15 }}>Degradé</span>
             </label>
           </div>
         </div>
@@ -804,19 +785,19 @@ function EstiloTab({
       {/* CARD: TEXTO */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           padding: 18,
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#2563eb', flexShrink: 0, marginTop: 2, fontWeight: 700, fontSize: 22, fontFamily: 'serif' }}>
+          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2, fontWeight: 800, fontSize: 22 }}>
             T
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>Texto</div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 4, lineHeight: 1.5 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Texto</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
               Color y tamaño del texto del banner.
             </div>
           </div>
@@ -829,7 +810,7 @@ function EstiloTab({
         />
 
         <div style={{ marginTop: 16 }}>
-          <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+          <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
             Tamaño de fuente
           </div>
           <div style={{ position: 'relative' }}>
@@ -838,15 +819,17 @@ function EstiloTab({
               onChange={(e) => onChange('tamanoFuente', Number(e.target.value))}
               style={{
                 width: '100%',
-                padding: '14px 16px',
-                border: '1px solid #e6e8ec',
+                padding: '12px 36px 12px 14px',
+                border: '1.5px solid #e5e7eb',
                 borderRadius: 10,
-                fontSize: 16,
-                color: '#111',
-                background: '#fff',
+                fontSize: 15,
+                color: '#000000',
+                background: '#ffffff',
                 appearance: 'none',
                 outline: 'none',
                 cursor: 'pointer',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box',
               }}
             >
               {[12, 14, 16, 18, 20, 24].map((n) => (
@@ -862,7 +845,8 @@ function EstiloTab({
                 top: '50%',
                 transform: 'translateY(-50%)',
                 pointerEvents: 'none',
-                color: '#6b7280',
+                color: '#000000',
+                opacity: 0.5,
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -876,21 +860,21 @@ function EstiloTab({
       {/* CARD: ESPACIOS Y BORDES */}
       <div
         style={{
-          background: '#fff',
+          background: '#ffffff',
           borderRadius: 12,
-          border: '1px solid #eef0f3',
+          border: '1px solid #e5e7eb',
           padding: 18,
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#2563eb', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <path d="M3 8h18M3 16h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </div>
           <div>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 17 }}>Espacios y bordes</div>
-            <div style={{ color: '#6b7280', fontSize: 15, marginTop: 4, lineHeight: 1.5 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Espacios y bordes</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
               Redondeo del banner y separación entre mensajes.
             </div>
           </div>
@@ -898,7 +882,7 @@ function EstiloTab({
 
         <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 200px' }}>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
               Borde del banner:
             </div>
             <RangeSlider
@@ -911,7 +895,7 @@ function EstiloTab({
             />
           </div>
           <div style={{ flex: '1 1 200px' }}>
-            <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
               Separación entre mensajes:
             </div>
             <RangeSlider
@@ -926,7 +910,7 @@ function EstiloTab({
         </div>
 
         <div style={{ marginTop: 24 }}>
-          <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>
+          <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
             Velocidad de desplazamiento:
           </div>
           <RangeSlider
@@ -949,16 +933,16 @@ function EstiloTab({
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <div style={{ fontWeight: 700, color: '#111', fontSize: 17, marginBottom: 4 }}>
+    <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 4 }}>
       {children}
-      {required && <span style={{ color: '#ef4444', marginLeft: 4 }}>*</span>}
+      {required && <span style={{ color: '#FF0000', marginLeft: 4 }}>*</span>}
     </div>
   );
 }
 
 function FieldHelper({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ color: '#6b7280', fontSize: 15, lineHeight: 1.5 }}>{children}</div>
+    <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, lineHeight: 1.5 }}>{children}</div>
   );
 }
 
@@ -975,17 +959,18 @@ function TabButton({
     <button
       onClick={onClick}
       style={{
-        background: active ? '#fff' : 'transparent',
+        flex: 1,
+        background: 'none',
         border: 'none',
-        padding: '14px 18px',
-        fontSize: 16,
-        fontWeight: 500,
-        color: active ? '#111' : '#6b7280',
+        padding: '14px 12px',
+        fontSize: 15,
+        fontWeight: active ? 700 : 500,
+        color: active ? '#FF0000' : '#000000',
+        opacity: active ? 1 : 0.6,
         cursor: 'pointer',
-        borderBottom: active ? '2px solid #111' : '2px solid transparent',
-        borderTopLeftRadius: 6,
-        borderTopRightRadius: 6,
-        marginBottom: -1,
+        borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+        fontFamily: 'inherit',
+        transition: 'all 0.2s',
       }}
     >
       {children}
@@ -1004,7 +989,7 @@ function ColorPickerField({
 }) {
   return (
     <div>
-      <div style={{ fontWeight: 700, color: '#111', fontSize: 16, marginBottom: 10 }}>{label}</div>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>{label}</div>
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <input
@@ -1012,13 +997,13 @@ function ColorPickerField({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             style={{
-              width: 60,
-              height: 46,
-              border: '1px solid #e6e8ec',
-              borderRadius: 10,
+              width: 44,
+              height: 40,
+              border: '1.5px solid #e5e7eb',
+              borderRadius: 8,
               cursor: 'pointer',
-              padding: 4,
-              background: '#fff',
+              padding: 2,
+              background: '#ffffff',
             }}
           />
         </div>
@@ -1028,13 +1013,16 @@ function ColorPickerField({
           onChange={(e) => onChange(e.target.value)}
           style={{
             flex: 1,
-            padding: '12px 14px',
-            border: '1px solid #e6e8ec',
-            borderRadius: 10,
-            fontSize: 15,
-            color: '#111',
-            background: '#fff',
+            minWidth: 0,
+            padding: '10px 12px',
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 8,
+            fontSize: 13,
+            color: '#000000',
+            background: '#ffffff',
             outline: 'none',
+            fontFamily: 'monospace',
+            boxSizing: 'border-box',
           }}
         />
       </div>
@@ -1053,36 +1041,33 @@ function ToggleField({
 }) {
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-      <button
-        type="button"
+      <div
         onClick={() => onChange(!value)}
         style={{
-          width: 46,
+          width: 44,
           height: 26,
           borderRadius: 999,
-          background: value ? '#2563eb' : '#d1d5db',
-          border: 'none',
+          background: value ? '#FF0000' : '#d1d5db',
           position: 'relative',
-          cursor: 'pointer',
-          transition: 'background 0.2s',
+          transition: 'background 0.25s',
           flexShrink: 0,
         }}
       >
-        <span
+        <div
           style={{
             position: 'absolute',
             top: 3,
-            left: value ? 23 : 3,
+            left: value ? 21 : 3,
             width: 20,
             height: 20,
             borderRadius: '50%',
-            background: '#fff',
-            transition: 'left 0.2s',
+            background: '#ffffff',
+            transition: 'left 0.25s',
             boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           }}
         />
-      </button>
-      <span style={{ color: '#111', fontWeight: 600, fontSize: 15 }}>{label}</span>
+      </div>
+      <span style={{ color: '#000000', fontWeight: 600, fontSize: 15 }}>{label}</span>
     </label>
   );
 }
@@ -1113,7 +1098,7 @@ function RangeSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
           width: '100%',
-          accentColor: '#2563eb',
+          accentColor: '#FF0000',
           cursor: 'pointer',
         }}
       />
@@ -1122,8 +1107,9 @@ function RangeSlider({
           display: 'flex',
           justifyContent: 'space-between',
           marginTop: 6,
-          fontSize: 14,
-          color: '#6b7280',
+          fontSize: 12,
+          color: '#000000',
+          opacity: 0.6,
         }}
       >
         {labels.map((l, i) => (
@@ -1134,29 +1120,11 @@ function RangeSlider({
   );
 }
 
-function NevuxLogo({ iconOnly }: { iconOnly?: boolean }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <path
-          d="M16 4C16 4 6 16 6 22C6 27.5 10.5 32 16 32C21.5 32 26 27.5 26 22C26 16 16 4 16 4Z"
-          fill="#2563eb"
-        />
-      </svg>
-      {!iconOnly && (
-        <span style={{ fontSize: 22, fontWeight: 700, color: '#111' }}>Nevux</span>
-      )}
-    </div>
-  );
-}
-
 function IconStore() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2">
       <path
         d="M3 9l1-5h16l1 5M3 9v11a1 1 0 001 1h16a1 1 0 001-1V9M3 9h18M9 21v-6h6v6"
-        stroke="currentColor"
-        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -1166,9 +1134,9 @@ function IconStore() {
 
 function IconInfo() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-      <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
   );
 }
