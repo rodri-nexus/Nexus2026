@@ -59,7 +59,7 @@ export default function CentroAyuda() {
         boxSizing: "border-box",
       }}
     >
-      {/* Blob decorativo Rojo */}
+      {/* Blob decorativo Verde Esmeralda */}
       <div
         style={{
           position: "absolute",
@@ -69,7 +69,7 @@ export default function CentroAyuda() {
           height: "160px",
           borderRadius: "50%",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.06) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -101,7 +101,7 @@ export default function CentroAyuda() {
           style={{
             margin: "0.25rem 0 0.35rem",
             fontSize: "1.15rem",
-            fontWeight: 700,
+            fontWeight: 800,
             color: "#000000",
             letterSpacing: "-0.01em",
           }}
@@ -179,21 +179,21 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
           width: "38px",
           height: "38px",
           borderRadius: "10px",
-          background: "rgba(255, 0, 0, 0.08)",
+          background: "rgba(16, 185, 129, 0.1)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
         }}
       >
-        <Icon size={17} color="#FF0000" />
+        <Icon size={17} color="#10B981" />
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
             fontSize: "0.9rem",
-            fontWeight: 600,
+            fontWeight: 700,
             color: "#000000",
             marginBottom: "0.1rem",
           }}
@@ -237,8 +237,8 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-    e.currentTarget.style.borderColor = "#fecaca";
-    e.currentTarget.style.background = "#fff5f5";
+    e.currentTarget.style.borderColor = "#a7f3d0";
+    e.currentTarget.style.background = "#ecfdf5";
     e.currentTarget.style.transform = "translateX(2px)";
   };
 
@@ -273,4 +273,4 @@ function HelpLinkItem({ link, Icon }: HelpLinkItemProps) {
       {content}
     </Link>
   );
-      }
+        }
