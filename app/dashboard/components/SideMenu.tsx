@@ -40,14 +40,13 @@ const menuItems: MenuItem[] = [
 export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
   const pathname = usePathname();
 
-  // Cerrar con tecla ESC
+  // Cerrar con tecla ESC y bloquear scroll del body
   useEffect(() => {
     function handleEsc(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     if (isOpen) {
       document.addEventListener("keydown", handleEsc);
-      // Bloquear scroll del body cuando el menú está abierto
       document.body.style.overflow = "hidden";
     }
     return () => {
@@ -60,7 +59,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay oscuro */}
+          {/* Overlay oscuro de fondo */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -94,11 +93,12 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
               width: "280px",
               maxWidth: "85vw",
               background: "#ffffff",
-              boxShadow: "4px 0 24px rgba(0, 0, 0, 0.08)",
+              boxShadow: "4px 0 24px rgba(0, 0, 0, 0.12)",
               zIndex: 101,
               display: "flex",
               flexDirection: "column",
               overflowY: "auto",
+              boxSizing: "border-box",
             }}
           >
             {/* Header del drawer */}
@@ -131,10 +131,12 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                   transition: "background 0.15s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#f3f4f6";
+                  e.currentTarget.style.background = "#fff5f5";
+                  e.currentTarget.style.color = "#FF0000";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "#000000";
                 }}
               >
                 <X size={20} />
@@ -154,7 +156,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
               <div
                 style={{
                   fontSize: "0.7rem",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   color: "#000000",
                   opacity: 0.5,
                   textTransform: "uppercase",
@@ -179,27 +181,28 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                         gap: "0.75rem",
                         padding: "0.75rem",
                         borderRadius: "10px",
-                        color: "#9ca3af",
+                        color: "#000000",
+                        opacity: 0.4,
                         cursor: "not-allowed",
                         fontSize: "0.9rem",
                         fontWeight: 500,
                         position: "relative",
                       }}
                     >
-                      <Icon size={18} color="#9ca3af" />
+                      <Icon size={18} color="#000000" />
                       <span>{item.label}</span>
                       <span
                         style={{
                           marginLeft: "auto",
                           fontSize: "0.65rem",
-                          fontWeight: 600,
+                          fontWeight: 700,
                           background: "#f3f4f6",
                           color: "#000000",
                           padding: "0.15rem 0.5rem",
                           borderRadius: "999px",
                           textTransform: "uppercase",
                           letterSpacing: "0.03em",
-                          opacity: 0.6,
+                          opacity: 0.7,
                         }}
                       >
                         Pronto
@@ -223,18 +226,20 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                       color: isActive ? "#FF0000" : "#000000",
                       background: isActive ? "#fff5f5" : "transparent",
                       fontSize: "0.9rem",
-                      fontWeight: isActive ? 600 : 500,
+                      fontWeight: isActive ? 700 : 500,
                       transition: "background 0.15s, color 0.15s",
                       position: "relative",
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive) {
-                        e.currentTarget.style.background = "#f9fafb";
+                        e.currentTarget.style.background = "#fff5f5";
+                        e.currentTarget.style.color = "#FF0000";
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!isActive) {
                         e.currentTarget.style.background = "transparent";
+                        e.currentTarget.style.color = "#000000";
                       }
                     }}
                   >
@@ -277,7 +282,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                   color: "#000000",
                   opacity: 0.5,
                   textAlign: "center",
-                  fontWeight: 500,
+                  fontWeight: 600,
                 }}
               >
                 Nevux · v1.0
