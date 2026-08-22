@@ -24,7 +24,7 @@ export default function NevuxLogo({
         userSelect: "none",
       }}
     >
-      {/* Ícono SVG - Gemas apiladas 3D */}
+      {/* Ícono SVG - N Monograma Futurista */}
       <svg
         width={currentSize.icon}
         height={currentSize.icon}
@@ -33,79 +33,35 @@ export default function NevuxLogo({
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Gradient superior: rojo brillante → rojo puro */}
-          <linearGradient id="nevuxGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF3333" />
-            <stop offset="100%" stopColor="#FF0000" />
+          {/* Degradé para la diagonal de la N que se desvanece hacia la derecha */}
+          <linearGradient
+            id="nevuxDiagonalGrad"
+            x1="13.5"
+            y1="11.5"
+            x2="28.5"
+            y2="30.5"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+            <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
           </linearGradient>
-          {/* Gradient medio: rojo → rojo oscuro */}
-          <linearGradient id="nevuxGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FF0000" />
-            <stop offset="100%" stopColor="#CC0000" />
-          </linearGradient>
-          {/* Gradient inferior: rojo oscuro → negro */}
-          <linearGradient id="nevuxGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#CC0000" />
-            <stop offset="100%" stopColor="#000000" />
-          </linearGradient>
-          {/* Sombra suave */}
-          <filter id="nevuxShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="1" />
-            <feOffset dx="0" dy="1" result="offsetblur" />
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="0.3" />
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
-        {/* Gema inferior (más grande) — rojo oscuro tirando a negro */}
-        <g filter="url(#nevuxShadow)">
-          <path
-            d="M20 30 L6 23 L20 16 L34 23 Z"
-            fill="url(#nevuxGrad3)"
-          />
-          {/* Highlight superior gema inferior */}
-          <path
-            d="M20 16 L6 23 L20 25 L34 23 Z"
-            fill="url(#nevuxGrad2)"
-            opacity="0.7"
-          />
-        </g>
+        {/* Círculo base negro */}
+        <circle cx="20" cy="20" r="20" fill="#000000" />
 
-        {/* Gema media — rojo puro */}
-        <g filter="url(#nevuxShadow)">
-          <path
-            d="M20 22 L8 16 L20 10 L32 16 Z"
-            fill="url(#nevuxGrad2)"
-          />
-          <path
-            d="M20 10 L8 16 L20 17 L32 16 Z"
-            fill="url(#nevuxGrad1)"
-            opacity="0.8"
-          />
-        </g>
+        {/* Trazo vertical izquierdo */}
+        <rect x="13.5" y="11.5" width="3.5" height="17" fill="#FFFFFF" />
 
-        {/* Gema superior (más chica) — rojo brillante */}
-        <g filter="url(#nevuxShadow)">
-          <path
-            d="M20 14 L10 9 L20 4 L30 9 Z"
-            fill="url(#nevuxGrad1)"
-          />
-          {/* Brillo blanco en la punta */}
-          <path
-            d="M20 4 L14 7 L20 8 L26 7 Z"
-            fill="white"
-            opacity="0.5"
-          />
-        </g>
+        {/* Trazo vertical derecho superior */}
+        <rect x="23" y="11.5" width="3.5" height="9" fill="#FFFFFF" />
 
-        {/* Brillo/sparkle esquina superior derecha */}
-        <circle cx="33" cy="6" r="1.2" fill="white" opacity="0.9" />
-        <circle cx="33" cy="6" r="2.5" fill="white" opacity="0.3" />
+        {/* Trazo diagonal cortante que se desvanece al salir */}
+        <polygon
+          points="13.5,11.5 17,11.5 28.5,30.5 25,30.5"
+          fill="url(#nevuxDiagonalGrad)"
+        />
       </svg>
 
       {/* Texto Nevux */}
@@ -125,4 +81,4 @@ export default function NevuxLogo({
       )}
     </div>
   );
-          }
+        }
