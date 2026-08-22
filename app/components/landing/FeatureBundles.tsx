@@ -33,7 +33,7 @@ const packs: Pack[] = [
     price: 65500,
     badge: "MÁS VENDIDO",
     badgeColor: "#FFFFFF",
-    badgeBg: "#FF0000",
+    badgeBg: "#10B981",
     discount: 27,
   },
   {
@@ -58,7 +58,7 @@ export default function FeatureBundles() {
     <section
       style={{
         padding: "5rem 1.25rem",
-        background: "white",
+        background: "#ffffff",
       }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -80,10 +80,10 @@ export default function FeatureBundles() {
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.45rem 0.95rem",
-              background: "#fff5f5",
+              background: "#ecfdf5",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#FF0000",
+              color: "#10B981",
               fontWeight: 700,
               letterSpacing: "0.02em",
             }}
@@ -112,7 +112,7 @@ export default function FeatureBundles() {
           Incrementa tu facturación{" "}
           <span
             style={{
-              color: "#FF0000",
+              color: "#10B981",
             }}
           >
             impulsando tu ticket promedio
@@ -148,15 +148,16 @@ export default function FeatureBundles() {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
           style={{
-            background: "white",
+            background: "#ffffff",
             borderRadius: "24px",
             padding: "clamp(1.25rem, 3vw, 2rem)",
             boxShadow:
-              "0 20px 60px rgba(255, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.05)",
+              "0 20px 60px rgba(16, 185, 129, 0.12), 0 8px 24px rgba(0, 0, 0, 0.05)",
             border: "1px solid #f3f4f6",
             maxWidth: "500px",
             margin: "0 auto",
             position: "relative",
+            boxSizing: "border-box",
           }}
         >
           {/* Barra superior tipo browser */}
@@ -175,7 +176,7 @@ export default function FeatureBundles() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                background: "#FF0000",
+                background: "#10B981",
               }}
             />
             <div
@@ -202,7 +203,7 @@ export default function FeatureBundles() {
                 fontSize: "0.7rem",
                 color: "#000000",
                 opacity: 0.5,
-                fontWeight: 500,
+                fontWeight: 600,
               }}
             >
               tu-tienda.mitiendanube.com
@@ -215,11 +216,11 @@ export default function FeatureBundles() {
               style={{
                 display: "inline-block",
                 padding: "0.25rem 0.7rem",
-                background: "#FF0000",
-                color: "white",
+                background: "#10B981",
+                color: "#ffffff",
                 borderRadius: "6px",
                 fontSize: "0.7rem",
-                fontWeight: 700,
+                fontWeight: 800,
                 letterSpacing: "0.05em",
                 marginBottom: "0.5rem",
               }}
@@ -229,7 +230,7 @@ export default function FeatureBundles() {
             <h3
               style={{
                 fontSize: "1.25rem",
-                fontWeight: 700,
+                fontWeight: 800,
                 color: "#000000",
                 margin: "0.25rem 0 0.25rem 0",
                 letterSpacing: "-0.01em",
@@ -269,9 +270,9 @@ export default function FeatureBundles() {
                     alignItems: "center",
                     gap: "0.85rem",
                     padding: "0.9rem 1rem",
-                    background: isSelected ? "#fff5f5" : "white",
+                    background: isSelected ? "#ecfdf5" : "#ffffff",
                     border: isSelected
-                      ? "2px solid #FF0000"
+                      ? "2px solid #10B981"
                       : "2px solid #e5e7eb",
                     borderRadius: "12px",
                     cursor: "pointer",
@@ -280,6 +281,7 @@ export default function FeatureBundles() {
                     textAlign: "left",
                     width: "100%",
                     position: "relative",
+                    boxSizing: "border-box",
                   }}
                 >
                   {/* Radio */}
@@ -289,9 +291,9 @@ export default function FeatureBundles() {
                       height: "22px",
                       borderRadius: "50%",
                       border: isSelected
-                        ? "2px solid #FF0000"
+                        ? "2px solid #10B981"
                         : "2px solid #d1d5db",
-                      background: isSelected ? "#FF0000" : "white",
+                      background: isSelected ? "#10B981" : "#ffffff",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -307,7 +309,7 @@ export default function FeatureBundles() {
                           width: "8px",
                           height: "8px",
                           borderRadius: "50%",
-                          background: "white",
+                          background: "#ffffff",
                         }}
                       />
                     )}
@@ -337,7 +339,7 @@ export default function FeatureBundles() {
                         <span
                           style={{
                             fontSize: "0.65rem",
-                            fontWeight: 700,
+                            fontWeight: 800,
                             padding: "0.15rem 0.45rem",
                             background: pack.badgeBg,
                             color: pack.badgeColor,
@@ -398,7 +400,7 @@ export default function FeatureBundles() {
               width: "100%",
               padding: "1rem",
               background: "#000000",
-              color: "white",
+              color: "#ffffff",
               border: "none",
               borderRadius: "12px",
               fontSize: "0.95rem",
@@ -434,7 +436,7 @@ export default function FeatureBundles() {
           </div>
         </motion.div>
 
-        {/* Bullets destacados debajo del mockup */}
+        {/* Bullets destacados */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -476,8 +478,8 @@ function MiniFeature({ icon, text }: { icon: React.ReactNode; text: string }) {
         alignItems: "center",
         gap: "0.3rem",
         fontSize: "0.7rem",
-        color: "#FF0000",
-        fontWeight: 600,
+        color: "#10B981",
+        fontWeight: 700,
       }}
     >
       {icon}
@@ -500,19 +502,19 @@ function BundleFeature({
           width: "36px",
           height: "36px",
           borderRadius: "10px",
-          background: "#fff5f5",
+          background: "#ecfdf5",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           marginBottom: "0.75rem",
         }}
       >
-        <Check size={18} color="#FF0000" strokeWidth={2.5} />
+        <Check size={18} color="#10B981" strokeWidth={2.5} />
       </div>
       <h4
         style={{
           fontSize: "1rem",
-          fontWeight: 700,
+          fontWeight: 800,
           color: "#000000",
           margin: "0 0 0.35rem 0",
           letterSpacing: "-0.01em",
