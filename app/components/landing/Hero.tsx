@@ -49,7 +49,7 @@ export default function Hero() {
         overflow: "hidden",
       }}
     >
-      {/* Círculos decorativos de fondo */}
+      {/* Círculos decorativos de fondo Verde Esmeralda */}
       <div
         style={{
           position: "absolute",
@@ -58,7 +58,7 @@ export default function Hero() {
           width: "300px",
           height: "300px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -71,7 +71,7 @@ export default function Hero() {
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -96,14 +96,14 @@ export default function Hero() {
             alignItems: "center",
             gap: "0.5rem",
             padding: "0.55rem 1.1rem",
-            background: "white",
+            background: "#ffffff",
             borderRadius: "999px",
             border: "1px solid #e5e7eb",
             boxShadow: "0 2px 10px rgba(0, 0, 0, 0.04)",
             marginBottom: "1.75rem",
             fontSize: "0.9rem",
             color: "#000000",
-            fontWeight: 500,
+            fontWeight: 600,
           }}
         >
           <span>Hecho para</span>
@@ -147,7 +147,7 @@ export default function Hero() {
           Aumenta tus ventas con{" "}
           <span
             style={{
-              color: "#FF0000",
+              color: "#10B981",
               display: "inline-block",
               minWidth: "5.5ch",
               textAlign: "left",
@@ -211,13 +211,13 @@ export default function Hero() {
               justifyContent: "center",
               gap: "0.5rem",
               padding: "1.1rem 2.5rem",
-              background: "#FF0000",
-              color: "white",
+              background: "#10B981",
+              color: "#ffffff",
               borderRadius: "999px",
               fontSize: "1.1rem",
-              fontWeight: 600,
+              fontWeight: 700,
               textDecoration: "none",
-              boxShadow: "0 10px 30px rgba(255, 0, 0, 0.4)",
+              boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
               transition: "all 0.2s",
               minWidth: "260px",
             }}
@@ -227,12 +227,7 @@ export default function Hero() {
           </Link>
         </motion.div>
 
-        {/* ─────────────────────────────────────────────
-            WIDGET MOCKUP FLOTANTE — NUEVO LAYOUT
-            - Wrapper flex centrado
-            - Card blanca con margin auto (naturalmente centrada)
-            - Píldoras absolute respecto al wrapper
-        ───────────────────────────────────────────── */}
+        {/* WIDGET MOCKUP FLOTANTE */}
         <div
           style={{
             marginTop: "4rem",
@@ -245,7 +240,7 @@ export default function Hero() {
             paddingBottom: "50px",
           }}
         >
-          {/* Píldora +45% ventas — arriba, ligeramente a la izquierda */}
+          {/* Píldora +45% ventas */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{
@@ -266,17 +261,17 @@ export default function Hero() {
               top: "0",
               left: "50%",
               transform: "translateX(-140px)",
-              background: "white",
+              background: "#ffffff",
               padding: "0.55rem 0.9rem",
               borderRadius: "14px",
-              boxShadow: "0 8px 20px rgba(255, 0, 0, 0.2)",
-              border: "1px solid #fecaca",
+              boxShadow: "0 8px 20px rgba(16, 185, 129, 0.2)",
+              border: "1px solid #a7f3d0",
               display: "flex",
               alignItems: "center",
               gap: "0.4rem",
               fontSize: "0.75rem",
-              fontWeight: 600,
-              color: "#FF0000",
+              fontWeight: 700,
+              color: "#10B981",
               whiteSpace: "nowrap",
               zIndex: 3,
             }}
@@ -285,17 +280,17 @@ export default function Hero() {
             +45% ventas
           </motion.div>
 
-          {/* Card blanca central — naturalmente centrada */}
+          {/* Card blanca central */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.5 }}
             style={{
-              background: "white",
+              background: "#ffffff",
               padding: "1.5rem 1.25rem",
               borderRadius: "20px",
               boxShadow:
-                "0 20px 60px rgba(255, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.05)",
+                "0 20px 60px rgba(16, 185, 129, 0.12), 0 8px 20px rgba(0, 0, 0, 0.05)",
               border: "1px solid #f3f4f6",
               width: "100%",
               maxWidth: "280px",
@@ -303,13 +298,14 @@ export default function Hero() {
               flexDirection: "column",
               gap: "0.65rem",
               zIndex: 2,
+              boxSizing: "border-box",
             }}
           >
             <FloatingWidget
               icon={<Sparkles size={14} />}
               text="¡Oferta sorpresa!"
-              color="#FF0000"
-              bg="#fff5f5"
+              color="#10B981"
+              bg="#ecfdf5"
               delay={0}
             />
             <FloatingWidget
@@ -322,13 +318,13 @@ export default function Hero() {
             <FloatingWidget
               icon={<TrendingUp size={14} />}
               text="¡Apurate!"
-              color="#FF0000"
-              bg="#fff5f5"
+              color="#10B981"
+              bg="#ecfdf5"
               delay={0.4}
             />
           </motion.div>
 
-          {/* Píldora Ticket +2.3x — abajo, ligeramente a la derecha */}
+          {/* Píldora Ticket +2.3x */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{
@@ -349,22 +345,22 @@ export default function Hero() {
               bottom: "0",
               left: "50%",
               transform: "translateX(30px)",
-              background: "white",
+              background: "#ffffff",
               padding: "0.55rem 0.9rem",
               borderRadius: "14px",
-              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.12)",
               border: "1px solid #e5e7eb",
               display: "flex",
               alignItems: "center",
               gap: "0.4rem",
               fontSize: "0.75rem",
-              fontWeight: 600,
+              fontWeight: 700,
               color: "#000000",
               whiteSpace: "nowrap",
               zIndex: 3,
             }}
           >
-            <Sparkles size={13} />
+            <Sparkles size={13} color="#10B981" />
             Ticket +2.3x
           </motion.div>
         </div>
@@ -383,7 +379,7 @@ function BulletItem({ text }: { text: string }) {
         gap: "0.6rem",
         fontSize: "0.95rem",
         color: "#000000",
-        fontWeight: 500,
+        fontWeight: 600,
       }}
     >
       <div
@@ -391,15 +387,15 @@ function BulletItem({ text }: { text: string }) {
           width: "22px",
           height: "22px",
           borderRadius: "50%",
-          background: "#FF0000",
+          background: "#10B981",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
+          boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
         }}
       >
-        <Check size={13} color="white" strokeWidth={3} />
+        <Check size={13} color="#ffffff" strokeWidth={3} />
       </div>
       <span>{text}</span>
     </div>
@@ -434,7 +430,7 @@ function FloatingWidget({
         borderRadius: "999px",
         color: color,
         fontSize: "0.8rem",
-        fontWeight: 600,
+        fontWeight: 700,
       }}
     >
       <div
@@ -446,7 +442,7 @@ function FloatingWidget({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "white",
+          color: "#ffffff",
           flexShrink: 0,
         }}
       >
