@@ -31,28 +31,28 @@ export default function MetricsCard() {
       value: "0",
       sublabel: "Vistas de widgets",
       icon: Eye,
-      gradient: "#FF0000",
+      gradient: "#10B981",
     },
     {
       label: "Clicks",
       value: "0",
       sublabel: "Interacciones",
       icon: MousePointerClick,
-      gradient: "#FF0000",
+      gradient: "#10B981",
     },
     {
       label: "Agregados al carrito",
       value: "0",
       sublabel: "Desde widgets",
       icon: ShoppingCart,
-      gradient: "#FF0000",
+      gradient: "#10B981",
     },
     {
       label: "Facturación estimada",
       value: "$ -",
       sublabel: "Desde widgets",
       icon: DollarSign,
-      gradient: "#FF0000",
+      gradient: "#10B981",
     },
   ];
 
@@ -75,6 +75,7 @@ export default function MetricsCard() {
         borderRadius: "16px",
         padding: "1.5rem",
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -96,7 +97,7 @@ export default function MetricsCard() {
         style={{
           margin: 0,
           fontSize: "1.35rem",
-          fontWeight: 700,
+          fontWeight: 800,
           color: "#000000",
           letterSpacing: "-0.01em",
         }}
@@ -117,6 +118,7 @@ export default function MetricsCard() {
         {period === "personalizado" && "Rango personalizado"}
       </p>
 
+      {/* Botones de periodo */}
       <div
         style={{
           display: "flex",
@@ -137,19 +139,19 @@ export default function MetricsCard() {
                 border: isActive
                   ? "1px solid transparent"
                   : "1px solid #e5e7eb",
-                background: isActive ? "#FF0000" : "#ffffff",
+                background: isActive ? "#10B981" : "#ffffff",
                 color: isActive ? "#ffffff" : "#000000",
                 fontSize: "0.85rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: "pointer",
                 transition: "all 0.15s",
                 fontFamily: "inherit",
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.background = "#f9fafb";
-                  e.currentTarget.style.borderColor = "#FF0000";
-                  e.currentTarget.style.color = "#FF0000";
+                  e.currentTarget.style.background = "#ecfdf5";
+                  e.currentTarget.style.borderColor = "#10B981";
+                  e.currentTarget.style.color = "#10B981";
                 }
               }}
               onMouseLeave={(e) => {
@@ -166,6 +168,7 @@ export default function MetricsCard() {
         })}
       </div>
 
+      {/* Grid de métricas */}
       <div
         style={{
           display: "grid",
@@ -191,11 +194,12 @@ export default function MetricsCard() {
                 overflow: "hidden",
                 transition: "transform 0.15s, box-shadow 0.15s",
                 cursor: "default",
+                boxSizing: "border-box",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
                 e.currentTarget.style.boxShadow =
-                  "0 6px 16px rgba(255, 0, 0, 0.1)";
+                  "0 6px 16px rgba(16, 185, 129, 0.15)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "translateY(0)";
@@ -212,7 +216,7 @@ export default function MetricsCard() {
                   alignItems: "center",
                   justifyContent: "center",
                   marginBottom: "0.85rem",
-                  boxShadow: "0 4px 10px rgba(255, 0, 0, 0.2)",
+                  boxShadow: "0 4px 10px rgba(16, 185, 129, 0.25)",
                 }}
               >
                 <Icon size={18} color="#ffffff" />
@@ -233,7 +237,7 @@ export default function MetricsCard() {
               <div
                 style={{
                   fontSize: "1.75rem",
-                  fontWeight: 700,
+                  fontWeight: 800,
                   color: "#000000",
                   lineHeight: 1,
                   marginBottom: "0.4rem",
@@ -258,6 +262,7 @@ export default function MetricsCard() {
         })}
       </div>
 
+      {/* Evolución del período */}
       <div
         style={{
           borderTop: "1px solid #f3f4f6",
@@ -269,7 +274,7 @@ export default function MetricsCard() {
           style={{
             margin: 0,
             fontSize: "1rem",
-            fontWeight: 700,
+            fontWeight: 800,
             color: "#000000",
           }}
         >
@@ -298,7 +303,7 @@ export default function MetricsCard() {
             border: "1px dashed #e5e7eb",
           }}
         >
-          <BarChart3 size={40} color="#d1d5db" strokeWidth={1.5} />
+          <BarChart3 size={40} color="#000000" style={{ opacity: 0.2 }} strokeWidth={1.5} />
           <p
             style={{
               margin: "0.75rem 0 0",
@@ -313,6 +318,7 @@ export default function MetricsCard() {
         </div>
       </div>
 
+      {/* Rendimiento por widget */}
       <div
         style={{
           borderTop: "1px solid #f3f4f6",
@@ -323,7 +329,7 @@ export default function MetricsCard() {
           style={{
             margin: 0,
             fontSize: "1rem",
-            fontWeight: 700,
+            fontWeight: 800,
             color: "#000000",
           }}
         >
@@ -361,7 +367,7 @@ export default function MetricsCard() {
                 background: "#ffffff",
                 fontSize: "0.85rem",
                 color: "#000000",
-                fontWeight: 500,
+                fontWeight: 600,
                 cursor: "pointer",
                 fontFamily: "inherit",
               }}
@@ -398,7 +404,7 @@ export default function MetricsCard() {
                 background: "#ffffff",
                 fontSize: "0.85rem",
                 color: "#000000",
-                fontWeight: 500,
+                fontWeight: 600,
                 cursor: "pointer",
                 fontFamily: "inherit",
               }}
@@ -448,4 +454,4 @@ export default function MetricsCard() {
       </div>
     </motion.section>
   );
-                   }
+      }
