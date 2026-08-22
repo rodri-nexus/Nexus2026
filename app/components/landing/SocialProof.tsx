@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 
-// Marcas ficticias (podés cambiarlas después por reales)
+// Marcas de prueba
 const brands = [
   { name: "CANELA", style: { fontFamily: "'Playfair Display', serif", letterSpacing: "0.3em", fontWeight: 400 } },
   { name: "OPEN 25HS", style: { fontFamily: "monospace", fontWeight: 700, letterSpacing: "0.05em" } },
@@ -15,14 +15,13 @@ const brands = [
 ];
 
 export default function SocialProof() {
-  // Duplicamos los brands para hacer el loop infinito
   const duplicatedBrands = [...brands, ...brands];
 
   return (
     <section
       style={{
         padding: "4rem 0 3rem 0",
-        background: "white",
+        background: "#ffffff",
         borderTop: "1px solid #f3f4f6",
         borderBottom: "1px solid #f3f4f6",
         overflow: "hidden",
@@ -45,7 +44,7 @@ export default function SocialProof() {
             fontSize: "clamp(0.85rem, 2vw, 1rem)",
             color: "#000000",
             opacity: 0.6,
-            fontWeight: 600,
+            fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.1em",
             margin: 0,
@@ -55,10 +54,9 @@ export default function SocialProof() {
           Sumate a las{" "}
           <span
             style={{
-              color: "#FF0000",
+              color: "#10B981",
               opacity: 1,
               fontWeight: 800,
-              WebkitTextFillColor: "#FF0000",
             }}
           >
             +3.000 tiendas
@@ -105,17 +103,20 @@ export default function SocialProof() {
                 minWidth: "160px",
                 height: "60px",
                 fontSize: "1.35rem",
-                color: "rgba(0, 0, 0, 0.4)",
+                color: "#000000",
+                opacity: 0.35,
                 whiteSpace: "nowrap",
-                transition: "color 0.3s",
+                transition: "color 0.3s, opacity 0.3s",
                 cursor: "default",
                 ...brand.style,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#FF0000";
+                e.currentTarget.style.color = "#10B981";
+                e.currentTarget.style.opacity = "1";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "rgba(0, 0, 0, 0.4)";
+                e.currentTarget.style.color = "#000000";
+                e.currentTarget.style.opacity = "0.35";
               }}
             >
               {brand.name}
@@ -154,7 +155,7 @@ function MetricItem({ number, label }: { number: string; label: string }) {
         style={{
           fontSize: "clamp(1.5rem, 4vw, 2rem)",
           fontWeight: 800,
-          color: "#FF0000",
+          color: "#10B981",
           letterSpacing: "-0.02em",
           lineHeight: 1,
         }}
@@ -167,11 +168,11 @@ function MetricItem({ number, label }: { number: string; label: string }) {
           color: "#000000",
           opacity: 0.6,
           marginTop: "0.35rem",
-          fontWeight: 500,
+          fontWeight: 600,
         }}
       >
         {label}
       </div>
     </div>
   );
-          }
+                            }
