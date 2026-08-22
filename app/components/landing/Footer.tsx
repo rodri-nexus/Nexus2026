@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MessageCircle, Mail, Heart } from "lucide-react";
+import { MessageCircle, Heart } from "lucide-react";
 import NevuxLogo from "./NevuxLogo";
 
 export default function Footer() {
@@ -57,17 +57,16 @@ export default function Footer() {
                 alignItems: "center",
                 gap: "0.4rem",
                 padding: "0.4rem 0.75rem",
-                background: "white",
+                background: "#ffffff",
                 border: "1px solid #e5e7eb",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
                 color: "#000000",
                 opacity: 0.6,
-                fontWeight: 500,
+                fontWeight: 600,
               }}
             >
               <span>Hecho para</span>
-              {/* Logo Tiendanube — se mantiene en su azul original */}
               <svg
                 width="75"
                 height="14"
@@ -169,7 +168,7 @@ export default function Footer() {
               </li>
             </ul>
 
-            {/* CTA WhatsApp — SE MANTIENE VERDE (WhatsApp universal) */}
+            {/* CTA WhatsApp (verde oficial) */}
             <a
               href="https://wa.me/5493434163999"
               target="_blank"
@@ -180,13 +179,13 @@ export default function Footer() {
                 gap: "0.5rem",
                 marginTop: "1.25rem",
                 padding: "0.65rem 1rem",
-                background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                color: "white",
+                background: "#10B981",
+                color: "#ffffff",
                 borderRadius: "12px",
                 fontSize: "0.85rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 textDecoration: "none",
-                boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
+                boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
                 transition: "all 0.2s",
               }}
             >
@@ -236,15 +235,14 @@ export default function Footer() {
               display: "flex",
               alignItems: "center",
               gap: "0.35rem",
-              fontWeight: 500,
+              fontWeight: 600,
             }}
           >
             Hecho con{" "}
-            {/* Corazón rojo — semántico amor/Argentina, se mantiene */}
             <Heart
               size={13}
-              fill="#ef4444"
-              color="#ef4444"
+              fill="#10B981"
+              color="#10B981"
               strokeWidth={0}
             />{" "}
             en Argentina 🇦🇷
@@ -258,7 +256,7 @@ export default function Footer() {
 // Estilos compartidos
 const columnTitleStyle: React.CSSProperties = {
   fontSize: "0.85rem",
-  fontWeight: 700,
+  fontWeight: 800,
   color: "#000000",
   margin: "0 0 1rem 0",
   letterSpacing: "0.02em",
