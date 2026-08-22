@@ -3,6 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import InformacionDespachoPreview from './InformacionDespachoPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 interface EditorProps {
   widgetDefinition: {
@@ -59,22 +61,6 @@ const DEFAULT_CONFIG = {
 
 /* ================= HELPERS UI ================= */
 
-function NevuxLogo() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-        <path
-          d="M20 4 C 20 4, 8 20, 8 28 A 12 12 0 0 0 32 28 C 32 20, 20 4, 20 4 Z"
-          fill="#2563EB"
-        />
-      </svg>
-      <span style={{ fontWeight: 800, fontSize: 22, color: '#111827', letterSpacing: -0.5 }}>
-        Nevux
-      </span>
-    </div>
-  );
-}
-
 function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -85,7 +71,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -95,19 +81,9 @@ function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: str
   );
 }
 
-function IconExternal({ size = 14, color = '#6B7280' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
-
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
     </div>
   );
@@ -115,7 +91,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function HelpText({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 13, color: '#6B7280', marginTop: 8, lineHeight: 1.5 }}>
+    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 8, lineHeight: 1.5 }}>
       {children}
     </div>
   );
@@ -141,10 +117,10 @@ function TextInput({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
@@ -169,16 +145,16 @@ function SelectField({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
         appearance: 'none',
         backgroundImage:
-          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%236B7280\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
+          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
@@ -210,7 +186,7 @@ function ToggleField({
           width: 40,
           height: 22,
           borderRadius: 999,
-          background: checked ? '#2563EB' : '#D1D5DB',
+          background: checked ? '#FF0000' : '#e5e7eb',
           position: 'relative',
           transition: 'background 0.15s',
           flexShrink: 0,
@@ -230,7 +206,7 @@ function ToggleField({
           }}
         />
       </div>
-      {label && <span style={{ fontSize: 15, color: '#111827' }}>{label}</span>}
+      {label && <span style={{ fontSize: 15, color: '#000000' }}>{label}</span>}
     </label>
   );
 }
@@ -244,7 +220,6 @@ function ColorPickerField({
   onChange: (v: string) => void;
   supportsRgba?: boolean;
 }) {
-  // Para el input color HTML necesita hex. Si es rgba, mostramos color aproximado
   const colorForPicker = value && value.startsWith('#') ? value : '#000000';
 
   return (
@@ -255,7 +230,7 @@ function ColorPickerField({
           width: 56,
           height: 44,
           borderRadius: 10,
-          border: '1px solid #E5E7EB',
+          border: '1px solid #e5e7eb',
           overflow: 'hidden',
           background: value || '#FFFFFF',
         }}
@@ -285,10 +260,10 @@ function ColorPickerField({
         style={{
           flex: 1,
           padding: '12px 14px',
-          border: '1px solid #E5E7EB',
+          border: '1px solid #e5e7eb',
           borderRadius: 10,
           fontSize: 15,
-          color: '#111827',
+          color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
         }}
@@ -321,7 +296,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#2563EB' }}
+        style={{ width: '100%', accentColor: '#FF0000' }}
       />
       {marks && (
         <div
@@ -329,7 +304,8 @@ function RangeSlider({
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 12,
-            color: '#6B7280',
+            color: '#000000',
+            opacity: 0.5,
             marginTop: 4,
           }}
         >
@@ -342,7 +318,7 @@ function RangeSlider({
   );
 }
 
-/* ================= CHECKBOX CARD (para "Ocultar" y "Agregar badge") ================= */
+/* ================= CHECKBOX CARD ================= */
 
 function CheckboxCard({
   checked,
@@ -363,7 +339,7 @@ function CheckboxCard({
         alignItems: 'flex-start',
         padding: 16,
         background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 12,
         cursor: 'pointer',
       }}
@@ -375,17 +351,17 @@ function CheckboxCard({
         style={{
           width: 18,
           height: 18,
-          accentColor: '#2563EB',
+          accentColor: '#FF0000',
           cursor: 'pointer',
           marginTop: 2,
           flexShrink: 0,
         }}
       />
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.3 }}>
           {title}
         </div>
-        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
           {description}
         </div>
       </div>
@@ -393,7 +369,7 @@ function CheckboxCard({
   );
 }
 
-/* ================= CHECKBOX CHIP (para días de la semana) ================= */
+/* ================= CHECKBOX CHIP ================= */
 
 function DayChip({
   checked,
@@ -412,7 +388,7 @@ function DayChip({
         gap: 8,
         padding: '10px 12px',
         background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 8,
         cursor: 'pointer',
         justifyContent: 'flex-start',
@@ -425,17 +401,17 @@ function DayChip({
         style={{
           width: 18,
           height: 18,
-          accentColor: '#2563EB',
+          accentColor: '#FF0000',
           cursor: 'pointer',
           flexShrink: 0,
         }}
       />
-      <span style={{ fontSize: 14, fontWeight: 500, color: '#111827' }}>{label}</span>
+      <span style={{ fontSize: 14, fontWeight: 500, color: '#000000' }}>{label}</span>
     </label>
   );
 }
 
-/* ================= RADIO CARD (para Ubicación) ================= */
+/* ================= RADIO CARD ================= */
 
 function RadioCard({
   checked,
@@ -457,7 +433,7 @@ function RadioCard({
         alignItems: 'flex-start',
         padding: 16,
         background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 12,
         cursor: 'pointer',
       }}
@@ -467,7 +443,7 @@ function RadioCard({
           width: 20,
           height: 20,
           borderRadius: '50%',
-          border: `2px solid ${checked ? '#2563EB' : '#D1D5DB'}`,
+          border: `2px solid ${checked ? '#FF0000' : '#e5e7eb'}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -477,15 +453,15 @@ function RadioCard({
       >
         {checked && (
           <div
-            style={{ width: 10, height: 10, borderRadius: '50%', background: '#2563EB' }}
+            style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF0000' }}
           />
         )}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.3 }}>
           {title}
         </div>
-        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
           {description}
         </div>
       </div>
@@ -504,7 +480,6 @@ function RadioCardEfecto({
   title: string;
   description: string;
 }) {
-  // Mismo look que RadioCard pero más compacto para el tab Estilos
   return (
     <div
       onClick={onChange}
@@ -514,7 +489,7 @@ function RadioCardEfecto({
         alignItems: 'flex-start',
         padding: 14,
         background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 12,
         cursor: 'pointer',
       }}
@@ -524,7 +499,7 @@ function RadioCardEfecto({
           width: 18,
           height: 18,
           borderRadius: '50%',
-          border: `2px solid ${checked ? '#2563EB' : '#D1D5DB'}`,
+          border: `2px solid ${checked ? '#FF0000' : '#e5e7eb'}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -533,14 +508,14 @@ function RadioCardEfecto({
         }}
       >
         {checked && (
-          <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#2563EB' }} />
+          <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#FF0000' }} />
         )}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.3 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.3 }}>
           {title}
         </div>
-        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.5 }}>
           {description}
         </div>
       </div>
@@ -548,7 +523,7 @@ function RadioCardEfecto({
   );
 }
 
-/* ================= ICONO OPTION (grid de íconos en Estilos) ================= */
+/* ================= ICONO OPTION ================= */
 
 function IconoOption({
   selected,
@@ -572,8 +547,8 @@ function IconoOption({
         justifyContent: 'center',
         gap: 8,
         padding: '14px 8px',
-        background: selected ? '#EFF6FF' : '#FFFFFF',
-        border: `1px solid ${selected ? '#2563EB' : '#E5E7EB'}`,
+        background: selected ? '#fff5f5' : '#FFFFFF',
+        border: `1px solid ${selected ? '#FF0000' : '#e5e7eb'}`,
         borderRadius: 10,
         cursor: 'pointer',
         minHeight: 90,
@@ -593,7 +568,7 @@ function IconoOption({
         style={{
           fontSize: 13,
           fontWeight: 500,
-          color: selected ? '#2563EB' : '#111827',
+          color: selected ? '#FF0000' : '#000000',
         }}
       >
         {label}
@@ -602,7 +577,7 @@ function IconoOption({
   );
 }
 
-/* ================= TOGGLE BUTTON (para "Aplicar efecto a" y "Estilo del texto") ================= */
+/* ================= TOGGLE BUTTON ================= */
 
 function ToggleButton({
   selected,
@@ -622,12 +597,12 @@ function ToggleButton({
       style={{
         flex: 1,
         padding: '12px 10px',
-        background: selected ? '#EFF6FF' : '#FFFFFF',
-        border: `1px solid ${selected ? '#2563EB' : '#E5E7EB'}`,
+        background: selected ? '#fff5f5' : '#FFFFFF',
+        border: `1px solid ${selected ? '#FF0000' : '#e5e7eb'}`,
         borderRadius: 10,
         fontSize: 14,
         fontWeight: 500,
-        color: selected ? '#2563EB' : '#111827',
+        color: selected ? '#FF0000' : '#000000',
         cursor: 'pointer',
         lineHeight: 1.3,
         minHeight: minHeight,
@@ -697,8 +672,6 @@ export default function InformacionDespachoEditor({
         throw new Error(data.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -726,37 +699,27 @@ export default function InformacionDespachoEditor({
           top: 0,
           zIndex: 30,
           background: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid #e5e7eb',
           padding: '14px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <NevuxLogo />
+        <NevuxLogo size="medium" />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button
-            type="button"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
           <div
             style={{
               width: 34,
               height: 34,
               borderRadius: '50%',
-              background: '#E5E7EB',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 13,
               fontWeight: 700,
-              color: '#374151',
+              color: '#FFFFFF',
             }}
           >
             RL
@@ -772,7 +735,7 @@ export default function InformacionDespachoEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#2563EB',
+              background: '#FF0000',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -791,12 +754,12 @@ export default function InformacionDespachoEditor({
               alignItems: 'center',
               gap: 10,
               background: '#FFFFFF',
-              border: '1px solid #E5E7EB',
+              border: '1px solid #e5e7eb',
               padding: '8px 14px',
               borderRadius: 10,
               fontSize: 14,
               fontWeight: 700,
-              color: '#111827',
+              color: '#000000',
               marginBottom: 14,
             }}
           >
@@ -809,7 +772,7 @@ export default function InformacionDespachoEditor({
           style={{
             fontSize: 26,
             fontWeight: 800,
-            color: '#111827',
+            color: '#000000',
             marginBottom: 20,
             lineHeight: 1.2,
           }}
@@ -821,8 +784,8 @@ export default function InformacionDespachoEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#F3F4F6',
-            border: '1px solid #E5E7EB',
+            background: '#f3f4f6',
+            border: '1px solid #e5e7eb',
             borderRadius: 16,
             padding: 16,
           }}
@@ -839,12 +802,13 @@ export default function InformacionDespachoEditor({
               alignItems: 'flex-start',
               gap: 8,
               fontSize: 13,
-              color: '#6B7280',
+              color: '#000000',
+              opacity: 0.6,
               marginBottom: 16,
               lineHeight: 1.5,
             }}
           >
-            <IconInfo size={16} color="#6B7280" />
+            <IconInfo size={16} color="#000000" />
             <span>
               {config.posicion === 'encima-form'
                 ? 'El mensaje aparecerá justo encima del formulario de compra.'
@@ -857,7 +821,7 @@ export default function InformacionDespachoEditor({
             style={{
               display: 'flex',
               gap: 0,
-              borderBottom: '1px solid #E5E7EB',
+              borderBottom: '1px solid #e5e7eb',
               marginBottom: 20,
             }}
           >
@@ -873,11 +837,12 @@ export default function InformacionDespachoEditor({
                     flex: 1,
                     background: active ? '#FFFFFF' : 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #111827' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#111827' : '#6B7280',
+                    color: active ? '#000000' : '#000000',
+                    opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
                   }}
                 >
@@ -899,7 +864,7 @@ export default function InformacionDespachoEditor({
                 />
                 <HelpText>
                   Si el visitante llega antes de esta hora, el mensaje indicará que el pedido se despacha{' '}
-                  <strong style={{ color: '#111827' }}>hoy</strong>.
+                  <strong style={{ color: '#000000' }}>hoy</strong>.
                 </HelpText>
               </div>
 
@@ -1030,7 +995,7 @@ export default function InformacionDespachoEditor({
                   <IconoOption
                     selected={config.icono === 'nada'}
                     onClick={() => updateConfig('icono', 'nada')}
-                    visual={<span style={{ fontSize: 18, color: '#9CA3AF' }}>—</span>}
+                    visual={<span style={{ fontSize: 18, color: '#000000', opacity: 0.5 }}>—</span>}
                     label="Nada"
                   />
                 </div>
@@ -1114,7 +1079,7 @@ export default function InformacionDespachoEditor({
                 </div>
               </div>
 
-              <div style={{ height: 1, background: '#E5E7EB' }} />
+              <div style={{ height: 1, background: '#e5e7eb' }} />
 
               {/* COLORES */}
               <div>
@@ -1143,7 +1108,7 @@ export default function InformacionDespachoEditor({
               <div>
                 <FieldLabel>
                   Color del badge{' '}
-                  <span style={{ color: '#6B7280', fontWeight: 400 }}>(HOY / contador)</span>
+                  <span style={{ color: '#000000', opacity: 0.6, fontWeight: 400 }}>(HOY / contador)</span>
                 </FieldLabel>
                 <ColorPickerField
                   value={config.colorBadge}
@@ -1201,11 +1166,11 @@ export default function InformacionDespachoEditor({
                   style={{
                     width: 18,
                     height: 18,
-                    accentColor: '#2563EB',
+                    accentColor: '#FF0000',
                     cursor: 'pointer',
                   }}
                 />
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
                   Activar borde
                 </span>
               </label>
@@ -1220,7 +1185,7 @@ export default function InformacionDespachoEditor({
               justifyContent: 'space-between',
               marginTop: 20,
               paddingTop: 20,
-              borderTop: '1px solid #E5E7EB',
+              borderTop: '1px solid #e5e7eb',
               gap: 12,
               flexWrap: 'wrap',
             }}
@@ -1234,7 +1199,7 @@ export default function InformacionDespachoEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#2563EB',
+                background: '#FF0000',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1251,28 +1216,8 @@ export default function InformacionDespachoEditor({
         </div>
 
         {/* CENTRO DE AYUDA */}
-        <div
-          style={{
-            marginTop: 40,
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <NevuxLogo />
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#6B7280',
-              fontSize: 14,
-            }}
-          >
-            Centro de ayuda <IconExternal />
-          </div>
+        <div style={{ marginTop: 40 }}>
+          <CentroAyuda />
         </div>
       </div>
 
@@ -1300,4 +1245,4 @@ export default function InformacionDespachoEditor({
       )}
     </div>
   );
-  }
+                                }
