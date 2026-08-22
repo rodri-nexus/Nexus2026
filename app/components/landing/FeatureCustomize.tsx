@@ -4,20 +4,20 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Palette, Sparkles } from "lucide-react";
 
-// Colores disponibles para el botón
+// Colores disponibles para el botón de prueba
 const buttonColors = [
-  { name: "Rojo", value: "#FF0000", gradient: "linear-gradient(135deg, #FF0000, #cc0000)" },
+  { name: "Verde Esmeralda", value: "#10b981", gradient: "linear-gradient(135deg, #10b981, #059669)" },
   { name: "Negro", value: "#111827", gradient: "linear-gradient(135deg, #111827, #374151)" },
-  { name: "Verde", value: "#10b981", gradient: "linear-gradient(135deg, #10b981, #059669)" },
-  { name: "Rojo oscuro", value: "#ef4444", gradient: "linear-gradient(135deg, #ef4444, #dc2626)" },
+  { name: "Menta", value: "#34d399", gradient: "linear-gradient(135deg, #34d399, #059669)" },
   { name: "Azul", value: "#3b82f6", gradient: "linear-gradient(135deg, #3b82f6, #2563eb)" },
   { name: "Naranja", value: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b, #d97706)" },
+  { name: "Rojo", value: "#ef4444", gradient: "linear-gradient(135deg, #ef4444, #dc2626)" },
 ];
 
 const borderRadiusOptions = [
   { name: "Sin redondear", value: "4px" },
   { name: "Redondeado", value: "12px" },
-  { name: "Círculo", value: "999px" },
+  { name: "Píldora", value: "999px" },
 ];
 
 const buttonEffects = [
@@ -57,14 +57,13 @@ export default function FeatureCustomize() {
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.45rem 0.95rem",
-              background: "white",
+              background: "#ecfdf5",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#FF0000",
+              color: "#10B981",
               fontWeight: 700,
               letterSpacing: "0.02em",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+              border: "1px solid #a7f3d0",
             }}
           >
             <Palette size={14} />
@@ -91,7 +90,7 @@ export default function FeatureCustomize() {
           Customiza los widgets{" "}
           <span
             style={{
-              color: "#FF0000",
+              color: "#10B981",
             }}
           >
             a tu medida
@@ -121,7 +120,7 @@ export default function FeatureCustomize() {
           widget se adapte perfectamente a tu tienda y a tu marca.
         </motion.p>
 
-        {/* Tip: probalo en vivo */}
+        {/* Tip en vivo */}
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -130,8 +129,8 @@ export default function FeatureCustomize() {
           style={{
             textAlign: "center",
             fontSize: "0.85rem",
-            color: "#FF0000",
-            fontWeight: 600,
+            color: "#10B981",
+            fontWeight: 700,
             margin: "0 0 3rem 0",
           }}
         >
@@ -154,14 +153,15 @@ export default function FeatureCustomize() {
           {/* PREVIEW del bundle */}
           <div
             style={{
-              background: "white",
+              background: "#ffffff",
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(16, 185, 129, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
+              boxSizing: "border-box",
             }}
           >
             <div
@@ -180,7 +180,7 @@ export default function FeatureCustomize() {
                     fontSize: "0.7rem",
                     color: "#000000",
                     opacity: 0.5,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     letterSpacing: "0.05em",
                   }}
                 >
@@ -189,7 +189,7 @@ export default function FeatureCustomize() {
                 <div
                   style={{
                     fontSize: "0.9rem",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     color: "#000000",
                     marginTop: "0.15rem",
                   }}
@@ -225,8 +225,8 @@ export default function FeatureCustomize() {
                 subtitle="Ahorrá 15%"
                 price="15.300"
                 badge="MÁS VENDIDO"
-                badgeColor="#dc2626"
-                badgeBg="#fee2e2"
+                badgeColor="#ffffff"
+                badgeBg="#10B981"
                 selected={true}
                 buttonColor={selectedColor}
                 borderRadius={selectedRadius.value}
@@ -236,8 +236,8 @@ export default function FeatureCustomize() {
                 subtitle="Ahorrá 25%"
                 price="21.600"
                 badge="RECOMENDADO"
-                badgeColor="#059669"
-                badgeBg="#d1fae5"
+                badgeColor="#ffffff"
+                badgeBg="#000000"
                 selected={false}
                 buttonColor={selectedColor}
                 borderRadius={selectedRadius.value}
@@ -254,7 +254,7 @@ export default function FeatureCustomize() {
                 marginTop: "1rem",
                 padding: "0.9rem",
                 background: selectedColor.gradient,
-                color: "white",
+                color: "#ffffff",
                 border: "none",
                 borderRadius: selectedRadius.value,
                 fontSize: "0.95rem",
@@ -321,15 +321,16 @@ export default function FeatureCustomize() {
           {/* PANEL DE CONFIGURACIÓN */}
           <div
             style={{
-              background: "white",
+              background: "#ffffff",
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(16, 185, 129, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
               gap: "1.25rem",
+              boxSizing: "border-box",
             }}
           >
             <div
@@ -343,7 +344,7 @@ export default function FeatureCustomize() {
                   fontSize: "0.7rem",
                   color: "#000000",
                   opacity: 0.5,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   letterSpacing: "0.05em",
                 }}
               >
@@ -352,7 +353,7 @@ export default function FeatureCustomize() {
               <div
                 style={{
                   fontSize: "0.9rem",
-                  fontWeight: 700,
+                  fontWeight: 800,
                   color: "#000000",
                   marginTop: "0.15rem",
                 }}
@@ -401,7 +402,7 @@ export default function FeatureCustomize() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          color: "white",
+                          color: "#ffffff",
                           fontSize: "0.85rem",
                           fontWeight: 800,
                         }}
@@ -444,18 +445,18 @@ export default function FeatureCustomize() {
                       padding: "0.55rem 0.5rem",
                       background:
                         selectedRadius.value === option.value
-                          ? "#fff5f5"
-                          : "white",
+                          ? "#ecfdf5"
+                          : "#ffffff",
                       border:
                         selectedRadius.value === option.value
-                          ? "1.5px solid #FF0000"
+                          ? "1.5px solid #10B981"
                           : "1.5px solid #e5e7eb",
                       borderRadius: "8px",
                       fontSize: "0.7rem",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       color:
                         selectedRadius.value === option.value
-                          ? "#FF0000"
+                          ? "#10B981"
                           : "#000000",
                       opacity: selectedRadius.value === option.value ? 1 : 0.6,
                       cursor: "pointer",
@@ -488,18 +489,18 @@ export default function FeatureCustomize() {
                       padding: "0.55rem 0.5rem",
                       background:
                         selectedEffect.value === effect.value
-                          ? "#fff5f5"
-                          : "white",
+                          ? "#ecfdf5"
+                          : "#ffffff",
                       border:
                         selectedEffect.value === effect.value
-                          ? "1.5px solid #FF0000"
+                          ? "1.5px solid #10B981"
                           : "1.5px solid #e5e7eb",
                       borderRadius: "8px",
                       fontSize: "0.7rem",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       color:
                         selectedEffect.value === effect.value
-                          ? "#FF0000"
+                          ? "#10B981"
                           : "#000000",
                       opacity: selectedEffect.value === effect.value ? 1 : 0.6,
                       cursor: "pointer",
@@ -518,14 +519,14 @@ export default function FeatureCustomize() {
               style={{
                 marginTop: "auto",
                 padding: "0.75rem",
-                background: "#fff5f5",
+                background: "#ecfdf5",
                 borderRadius: "10px",
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "0.5rem",
               }}
             >
-              <Sparkles size={14} color="#FF0000" style={{ marginTop: "2px", flexShrink: 0 }} />
+              <Sparkles size={14} color="#10B981" style={{ marginTop: "2px", flexShrink: 0 }} />
               <p style={{ fontSize: "0.75rem", color: "#000000", margin: 0, lineHeight: 1.4 }}>
                 <strong>Y hay más:</strong> también podés editar textos,
                 fuentes, badges, animaciones y mucho más.
@@ -542,7 +543,7 @@ export default function FeatureCustomize() {
 const labelStyle: React.CSSProperties = {
   fontSize: "0.75rem",
   color: "#000000",
-  fontWeight: 600,
+  fontWeight: 700,
   display: "block",
 };
 
@@ -575,12 +576,13 @@ function PackOption({
         alignItems: "center",
         gap: "0.65rem",
         padding: "0.65rem 0.75rem",
-        background: selected ? `${buttonColor.value}0F` : "white",
+        background: selected ? `${buttonColor.value}15` : "#ffffff",
         border: selected
           ? `1.5px solid ${buttonColor.value}`
           : "1.5px solid #e5e7eb",
         borderRadius: borderRadius === "999px" ? "16px" : borderRadius,
         transition: "all 0.2s",
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -591,7 +593,7 @@ function PackOption({
           border: selected
             ? `2px solid ${buttonColor.value}`
             : "2px solid #d1d5db",
-          background: selected ? buttonColor.value : "white",
+          background: selected ? buttonColor.value : "#ffffff",
           flexShrink: 0,
           display: "flex",
           alignItems: "center",
@@ -604,7 +606,7 @@ function PackOption({
               width: "5px",
               height: "5px",
               borderRadius: "50%",
-              background: "white",
+              background: "#ffffff",
             }}
           />
         )}
@@ -625,7 +627,7 @@ function PackOption({
             <span
               style={{
                 fontSize: "0.55rem",
-                fontWeight: 700,
+                fontWeight: 800,
                 padding: "0.1rem 0.35rem",
                 background: badgeBg,
                 color: badgeColor,
@@ -644,4 +646,4 @@ function PackOption({
       </div>
     </div>
   );
-}
+    }
