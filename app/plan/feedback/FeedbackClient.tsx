@@ -62,8 +62,10 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
         overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
+      {/* Círculos decorativos de fondo */}
       <div
         style={{
           position: "absolute",
@@ -91,55 +93,70 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         }}
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          position: "absolute",
-          top: "2rem",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 2,
-        }}
-      >
-        <NevuxLogo size="medium" />
-      </motion.div>
-
       <div
         style={{
           maxWidth: "620px",
           width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           textAlign: "center",
           position: "relative",
           zIndex: 2,
-          marginTop: "3rem",
+          boxSizing: "border-box",
         }}
       >
+        {/* LOGO NEVUX CENTRADO */}
         <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{
-            duration: 0.7,
-            type: "spring",
-            stiffness: 150,
-            delay: 0.1,
-          }}
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           style={{
-            width: "100px",
-            height: "100px",
-            borderRadius: "50%",
-            background: "#FF0000",
-            display: "inline-flex",
-            alignItems: "center",
+            display: "flex",
             justifyContent: "center",
+            alignItems: "center",
             marginBottom: "2rem",
-            boxShadow: "0 20px 40px rgba(255, 0, 0, 0.35)",
+            width: "100%",
           }}
         >
-          <Heart size={48} color="white" fill="white" strokeWidth={0} />
+          <NevuxLogo size="medium" />
         </motion.div>
 
+        {/* ÍCONO CORAZÓN CENTRADO */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+            marginBottom: "1.75rem",
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{
+              duration: 0.7,
+              type: "spring",
+              stiffness: 150,
+              delay: 0.1,
+            }}
+            style={{
+              width: "96px",
+              height: "96px",
+              borderRadius: "50%",
+              background: "#FF0000",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 20px 40px rgba(255, 0, 0, 0.35)",
+            }}
+          >
+            <Heart size={46} color="white" fill="white" strokeWidth={0} />
+          </motion.div>
+        </div>
+
+        {/* BADGE DIAS PRUEBA */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -165,6 +182,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           Usaste Nevux por 7 días
         </motion.div>
 
+        {/* TÍTULOS */}
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -199,6 +217,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           ahora?
         </motion.p>
 
+        {/* OPCIONES / BOTONES RESPUESTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -207,6 +226,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
             gap: "1rem",
+            width: "100%",
             maxWidth: "520px",
             margin: "0 auto",
           }}
