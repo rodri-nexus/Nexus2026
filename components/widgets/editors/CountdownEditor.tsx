@@ -1,9 +1,10 @@
-// components/widgets/editors/CountdownEditor.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CountdownPreview from './CountdownPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
    TIPOS
@@ -36,47 +37,37 @@ interface CountdownEditorProps {
 interface CountdownConfig {
   title: string;
   subtitle: string;
-  // Modo del contador
   mode: 'fixed' | 'duration';
   endDate: string;
   durationMinutes: number;
-  // Comportamiento
   autoRestart: boolean;
   showDays: boolean;
-  // Ubicación
   showOnProduct: boolean;
   productPosition: 'before-button' | 'before-title';
   showAsTopBar: boolean;
   showOnCart: boolean;
-  // Estilo
   style: 'clasico' | 'retro';
   alignment: 'left' | 'center';
   showLabels: boolean;
-  // Fondo
   bgType: 'solid' | 'gradient';
   colorWidgetBg: string;
   colorWidgetBg2: string;
   gradientDirection: 'to bottom' | 'to right' | 'to bottom right';
-  // Colores
   colorSubtitleBg: string;
   colorClockBg: string;
   colorTitle: string;
   colorSubtitle: string;
   colorNumbers: string;
-  // Tipografía
   fontSizeTitle: string;
   fontSizeSubtitle: string;
   fontSizeClock: string;
-  // Espacios
   borderRadiusClock: number;
   borderRadiusWidget: number;
   paddingWidget: number;
   paddingClock: number;
-  // Modo urgencia
   urgencyEnabled: boolean;
   colorClockBgMedium: string;
   colorClockBgCritical: string;
-  // Compatibilidad legacy
   flashMinutes: number;
   showHours: boolean;
   showMinutes: boolean;
@@ -159,10 +150,10 @@ const defaultConfig: CountdownConfig = {
 };
 
 /* ═══════════════════════════════════════════
-   ICONOS (SVG inline) — PALETA NEVUX
+   ICONOS SVG
 ═══════════════════════════════════════════ */
 const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
     <line x1="2" y1="7" x2="22" y2="7"/>
     <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
@@ -266,20 +257,6 @@ const IconBolt = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
   </svg>
-);
-
-/* ═══════════════════════════════════════════
-   LOGO NEVUX (gemas rojo/negro)
-═══════════════════════════════════════════ */
-const NevuxLogo = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-      <ellipse cx="20" cy="14" rx="10" ry="6" fill="#FF0000"/>
-      <path d="M10 14v10c0 3.3 4.5 6 10 6s10-2.7 10-6V14" fill="#000000"/>
-      <ellipse cx="20" cy="24" rx="10" ry="6" fill="#FF0000"/>
-    </svg>
-    <span style={{ fontSize: 22, fontWeight: 800, color: '#000000', letterSpacing: '-0.02em' }}>Nevux</span>
-  </div>
 );
 
 /* ═══════════════════════════════════════════
@@ -654,19 +631,11 @@ export default function CountdownEditor({
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos'>('general');
-  const [isDesktop, setIsDesktop] = useState(false);
   const [customDurationOpen, setCustomDurationOpen] = useState(false);
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
   const scopeLabel = isForAll ? 'General' : 'Producto';
-
-  useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 900);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   const update = <K extends keyof CountdownConfig>(key: K, value: CountdownConfig[K]) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
@@ -710,7 +679,6 @@ export default function CountdownEditor({
     }
   };
 
-  // Duraciones predefinidas
   const durationPresets = [5, 10, 15, 30, 45, 60, 90, 120];
   const isCustomDuration = !durationPresets.includes(config.durationMinutes);
 
@@ -737,7 +705,6 @@ export default function CountdownEditor({
         <FieldHelper>Descripción o promoción</FieldHelper>
       </div>
 
-      {/* Tipo de contador */}
       <div style={{ marginBottom: 20 }}>
         <FieldLabel required>Tipo de contador</FieldLabel>
         <ChoiceButtons
@@ -754,7 +721,6 @@ export default function CountdownEditor({
         </FieldHelper>
       </div>
 
-      {/* Config específica según modo */}
       {config.mode === 'fixed' ? (
         <div style={{ marginBottom: 24 }}>
           <FieldLabel required>Fecha y hora final</FieldLabel>
@@ -914,7 +880,6 @@ export default function CountdownEditor({
         </div>
       </SectionCard>
 
-      {/* ═══ NUEVA SECCIÓN: MODO URGENCIA ═══ */}
       <SectionCard
         icon={<IconFire />}
         title="Modo urgencia 🔥"
@@ -1188,92 +1153,139 @@ export default function CountdownEditor({
 
   /* ═══ RENDER ═══ */
   return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 100 }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
 
-      {/* ── HEADER ── */}
-      <div style={{
-        background: '#ffffff', borderBottom: '1px solid #e5e7eb',
-        padding: '16px 20px', display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20,
-      }}>
-        <NevuxLogo />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button
-            type="button"
+      {/* HEADER */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 30,
+          background: '#FFFFFF',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <NevuxLogo size="medium" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              background: '#000000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#FFFFFF',
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-          </button>
-          <div style={{ width: 1, height: 28, background: '#e5e7eb' }} />
-          <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: '#000000', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: '#ffffff',
-          }}>
             RL
           </div>
         </div>
       </div>
 
-      {/* ── MAIN ── */}
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
+      {/* MAIN */}
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
 
-        {isForAll && (
-          <div style={{
-            background: '#fff5f5', border: '1px solid #fecaca',
-            borderRadius: 12, padding: '14px 18px',
-            display: 'flex', alignItems: 'center', gap: 10,
-            marginBottom: 20,
-          }}>
+        {/* Scope chip */}
+        {isForAll ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: '#FF0000',
+              color: '#FFFFFF',
+              padding: '8px 14px',
+              borderRadius: 999,
+              fontSize: 14,
+              fontWeight: 700,
+              marginBottom: 14,
+            }}
+          >
             <IconStore />
-            <span style={{ fontSize: 15, color: '#FF0000', fontWeight: 600 }}>
-              Widget general para toda la tienda
-            </span>
+            Todos los productos
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#FFFFFF',
+              border: '1px solid #e5e7eb',
+              padding: '8px 14px',
+              borderRadius: 10,
+              fontSize: 14,
+              fontWeight: 700,
+              color: '#000000',
+              marginBottom: 14,
+            }}
+          >
+            <span style={{ fontSize: 18 }}>🛍</span>
+            NEVUX Widget
           </div>
         )}
 
-        <h1 style={{
-          fontSize: 30, fontWeight: 700, color: '#000000',
-          margin: '0 0 24px', lineHeight: 1.2, letterSpacing: '-0.01em',
-        }}>
-          <span style={{ color: '#000000', opacity: 0.5, fontWeight: 400 }}>
-            {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
-          </span>
-          <span style={{ color: '#000000' }}>
-            {widgetDefinition.name} ({scopeLabel})
-          </span>
+        <h1
+          style={{
+            fontSize: 26,
+            fontWeight: 800,
+            color: '#000000',
+            marginBottom: 20,
+            lineHeight: 1.2,
+          }}
+        >
+          {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
+          {widgetDefinition.name} ({scopeLabel})
         </h1>
 
-        <div style={{
-          background: '#ffffff', border: '1px solid #e5e7eb',
-          borderRadius: 16, padding: 20, marginBottom: 20,
-        }}>
-          <div style={{ marginBottom: 20 }}>
+        {/* CARD PRINCIPAL */}
+        <div
+          style={{
+            background: '#f3f4f6',
+            border: '1px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 16,
+          }}
+        >
+          {/* PREVIEW */}
+          <div style={{ marginBottom: 14 }}>
             <CountdownPreview config={config as any} />
           </div>
 
-          <div style={{
-            background: '#fff5f5', border: '1px solid #fecaca',
-            borderRadius: 10, padding: '12px 16px',
-            display: 'flex', alignItems: 'flex-start', gap: 10,
-            marginBottom: 20,
-          }}>
-            <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
-            <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              {infoBoxText}
-            </span>
+          {/* NOTA INFO */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 8,
+              fontSize: 13,
+              color: '#000000',
+              opacity: 0.6,
+              marginBottom: 16,
+              lineHeight: 1.5,
+            }}
+          >
+            <IconInfo />
+            <span>{infoBoxText}</span>
           </div>
 
-          <div style={{
-            display: 'flex', borderBottom: '1px solid #e5e7eb',
-            marginBottom: 24,
-          }}>
+          {/* TABS */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 0,
+              borderBottom: '1px solid #e5e7eb',
+              marginBottom: 20,
+            }}
+          >
             {tabs.map((tab) => {
               const act = activeTab === tab.id;
               return (
@@ -1282,13 +1294,16 @@ export default function CountdownEditor({
                   type="button"
                   onClick={() => setActiveTab(tab.id as any)}
                   style={{
-                    flex: 1, padding: '14px 12px', background: 'none',
-                    border: 'none', borderBottom: act ? '3px solid #FF0000' : '3px solid transparent',
-                    color: act ? '#FF0000' : '#000000',
-                    opacity: act ? 1 : 0.5,
-                    fontSize: 15, fontWeight: act ? 700 : 500,
-                    cursor: 'pointer', fontFamily: 'inherit',
-                    marginBottom: -1, transition: 'all 0.2s',
+                    flex: 1,
+                    background: act ? '#FFFFFF' : 'transparent',
+                    border: 'none',
+                    borderBottom: act ? '2px solid #FF0000' : '2px solid transparent',
+                    padding: '14px 10px',
+                    fontSize: 15,
+                    fontWeight: act ? 700 : 500,
+                    color: '#000000',
+                    opacity: act ? 1 : 0.6,
+                    cursor: 'pointer',
                   }}
                 >
                   {tab.label}
@@ -1303,34 +1318,50 @@ export default function CountdownEditor({
             {activeTab === 'estilos' && tabEstilos}
           </div>
 
-          <div style={{
-            marginTop: 32, paddingTop: 20,
-            borderTop: '1px solid #e5e7eb',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-          }}>
+          {/* FOOTER CONTROLES */}
+          <div
+            style={{
+              marginTop: 32,
+              paddingTop: 20,
+              borderTop: '1px solid #e5e7eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 16,
+              flexWrap: 'wrap',
+            }}
+          >
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
               <div
                 onClick={() => setIsActive(!isActive)}
                 style={{
-                  width: 44, height: 26, borderRadius: 13,
+                  width: 40,
+                  height: 22,
+                  borderRadius: 999,
                   background: isActive ? '#FF0000' : '#e5e7eb',
-                  position: 'relative', transition: 'background 0.25s',
+                  position: 'relative',
+                  transition: 'background 0.15s',
                   flexShrink: 0,
                 }}
               >
-                <div style={{
-                  position: 'absolute', top: 3, left: isActive ? 21 : 3,
-                  width: 20, height: 20, borderRadius: '50%',
-                  background: '#fff', transition: 'left 0.25s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                }} />
+                <div
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    background: '#FFFFFF',
+                    position: 'absolute',
+                    top: 2,
+                    left: isActive ? 20 : 2,
+                    transition: 'left 0.15s',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                  }}
+                />
               </div>
-              <span style={{ fontSize: 15, fontWeight: 500, color: '#000000' }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
                 Widget activo
               </span>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <IconInfo />
-              </div>
+              <IconInfo />
             </label>
 
             <button
@@ -1338,47 +1369,59 @@ export default function CountdownEditor({
               onClick={handleSave}
               disabled={saving}
               style={{
-                padding: '12px 28px', borderRadius: 999,
+                padding: '12px 28px',
+                borderRadius: 999,
                 border: 'none',
                 background: savedOK ? '#059669' : '#FF0000',
-                color: '#fff', fontSize: 15, fontWeight: 700,
-                cursor: saving ? 'not-allowed' : 'pointer',
-                opacity: saving ? 0.6 : 1,
+                color: '#FFFFFF',
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: saving ? 'wait' : 'pointer',
+                opacity: saving ? 0.7 : 1,
                 fontFamily: 'inherit',
-                boxShadow: '0 2px 8px rgba(255,0,0,0.3)',
                 transition: 'all 0.2s',
                 whiteSpace: 'nowrap',
               }}
             >
-              {saving ? 'Guardando...' : savedOK ? '✓ Guardado' : isEditing ? 'Guardar cambios' : 'Crear widget'}
+              {saving
+                ? 'Guardando...'
+                : savedOK
+                ? '✓ Guardado'
+                : isEditing
+                ? 'Guardar cambios'
+                : 'Crear widget'}
             </button>
           </div>
         </div>
 
-        <div style={{
-          background: '#ffffff', border: '1px solid #e5e7eb',
-          borderRadius: 16, padding: 32, textAlign: 'center',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-            <NevuxLogo />
-          </div>
-          <div style={{ fontSize: 15, color: '#000000', opacity: 0.6 }}>Centro de ayuda</div>
+        {/* CENTRO DE AYUDA */}
+        <div style={{ marginTop: 40 }}>
+          <CentroAyuda />
         </div>
 
+        {/* ERROR TOAST */}
         {error && (
-          <div style={{
-            position: 'fixed', bottom: 20, left: 16, right: 16,
-            maxWidth: 600, margin: '0 auto',
-            background: '#fef2f2', color: '#dc2626',
-            padding: '12px 16px', borderRadius: 12,
-            fontSize: 14, fontWeight: 600,
-            border: '1px solid #fecaca', zIndex: 40,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-          }}>
-            ⚠️ {error}
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 20,
+              left: 20,
+              right: 20,
+              background: '#FEE2E2',
+              border: '1px solid #FCA5A5',
+              color: '#991B1B',
+              padding: 14,
+              borderRadius: 10,
+              fontSize: 14,
+              zIndex: 50,
+              maxWidth: 500,
+              margin: '0 auto',
+            }}
+          >
+            {error}
           </div>
         )}
       </div>
     </div>
   );
-                                                                                           }
+   }
