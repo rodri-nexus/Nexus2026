@@ -37,7 +37,9 @@ export default function FeatureWidgets() {
   }, []);
 
   const handleCopyCoupon = () => {
-    navigator.clipboard.writeText("EXTRA20");
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText("EXTRA20");
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -68,14 +70,13 @@ export default function FeatureWidgets() {
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.45rem 0.95rem",
-              background: "white",
+              background: "#ecfdf5",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#FF0000",
+              color: "#10B981",
               fontWeight: 700,
               letterSpacing: "0.02em",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+              border: "1px solid #a7f3d0",
             }}
           >
             <Zap size={14} />
@@ -102,7 +103,7 @@ export default function FeatureWidgets() {
           Impulsa tu{" "}
           <span
             style={{
-              color: "#FF0000",
+              color: "#10B981",
             }}
           >
             tasa de conversión
@@ -150,16 +151,17 @@ export default function FeatureWidgets() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
             style={{
-              background: "white",
+              background: "#ffffff",
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(16, 185, 129, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
               minHeight: "280px",
+              boxSizing: "border-box",
             }}
           >
             <div>
@@ -176,13 +178,13 @@ export default function FeatureWidgets() {
                     width: "32px",
                     height: "32px",
                     borderRadius: "8px",
-                    background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <Tag size={16} color="white" />
+                  <Tag size={16} color="#ffffff" />
                 </div>
                 <div>
                   <div
@@ -190,7 +192,7 @@ export default function FeatureWidgets() {
                       fontSize: "0.7rem",
                       color: "#000000",
                       opacity: 0.5,
-                      fontWeight: 600,
+                      fontWeight: 700,
                       letterSpacing: "0.05em",
                     }}
                   >
@@ -199,7 +201,7 @@ export default function FeatureWidgets() {
                   <div
                     style={{
                       fontSize: "0.85rem",
-                      fontWeight: 700,
+                      fontWeight: 800,
                       color: "#000000",
                     }}
                   >
@@ -208,16 +210,16 @@ export default function FeatureWidgets() {
                 </div>
               </div>
 
-              {/* Cupón visual — rojo semántico de descuento, se mantiene */}
+              {/* Cupón visual */}
               <div
                 style={{
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  background: "linear-gradient(135deg, #10b981, #059669)",
                   borderRadius: "14px",
                   padding: "1.25rem 1rem",
                   position: "relative",
-                  color: "white",
+                  color: "#ffffff",
                   marginBottom: "1rem",
-                  boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)",
+                  boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)",
                   overflow: "hidden",
                 }}
               >
@@ -231,7 +233,7 @@ export default function FeatureWidgets() {
                     width: "20px",
                     height: "20px",
                     borderRadius: "50%",
-                    background: "white",
+                    background: "#ffffff",
                   }}
                 />
                 <div
@@ -243,7 +245,7 @@ export default function FeatureWidgets() {
                     width: "20px",
                     height: "20px",
                     borderRadius: "50%",
-                    background: "white",
+                    background: "#ffffff",
                   }}
                 />
 
@@ -253,7 +255,7 @@ export default function FeatureWidgets() {
                       fontSize: "0.7rem",
                       opacity: 0.9,
                       marginBottom: "0.25rem",
-                      fontWeight: 600,
+                      fontWeight: 700,
                     }}
                   >
                     20% OFF EXTRA
@@ -288,13 +290,13 @@ export default function FeatureWidgets() {
                 width: "100%",
                 padding: "0.75rem",
                 background: copied
-                  ? "linear-gradient(135deg, #10b981, #059669)"
+                  ? "#059669"
                   : "#000000",
-                color: "white",
+                color: "#ffffff",
                 border: "none",
                 borderRadius: "10px",
                 fontSize: "0.85rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: "pointer",
                 fontFamily: "inherit",
                 display: "flex",
@@ -332,7 +334,7 @@ export default function FeatureWidgets() {
             </button>
           </motion.div>
 
-          {/* MOCKUP 2: Contador regresivo Black Friday — fondo oscuro, se mantiene */}
+          {/* MOCKUP 2: Contador regresivo Black Friday */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -348,9 +350,10 @@ export default function FeatureWidgets() {
               flexDirection: "column",
               justifyContent: "center",
               minHeight: "280px",
-              color: "white",
+              color: "#ffffff",
               position: "relative",
               overflow: "hidden",
+              boxSizing: "border-box",
             }}
           >
             {/* Círculos decorativos de fondo */}
@@ -363,7 +366,7 @@ export default function FeatureWidgets() {
                 height: "120px",
                 borderRadius: "50%",
                 background:
-                  "radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%)",
+                  "radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%)",
               }}
             />
 
@@ -374,12 +377,12 @@ export default function FeatureWidgets() {
                   alignItems: "center",
                   gap: "0.4rem",
                   padding: "0.3rem 0.7rem",
-                  background: "rgba(239, 68, 68, 0.2)",
-                  border: "1px solid rgba(239, 68, 68, 0.4)",
+                  background: "rgba(16, 185, 129, 0.2)",
+                  border: "1px solid rgba(16, 185, 129, 0.4)",
                   borderRadius: "999px",
                   fontSize: "0.7rem",
                   fontWeight: 700,
-                  color: "#fca5a5",
+                  color: "#a7f3d0",
                   marginBottom: "0.75rem",
                 }}
               >
@@ -404,7 +407,7 @@ export default function FeatureWidgets() {
                   margin: "0 0 1.25rem 0",
                 }}
               >
-                Hasta 25.000 OFF en toda la tienda
+                Hasta $25.000 OFF en toda la tienda
               </p>
 
               {/* Contador */}
@@ -420,7 +423,7 @@ export default function FeatureWidgets() {
                   style={{
                     fontSize: "1.5rem",
                     fontWeight: 800,
-                    color: "#ef4444",
+                    color: "#10B981",
                     display: "flex",
                     alignItems: "center",
                   }}
@@ -432,7 +435,7 @@ export default function FeatureWidgets() {
                   style={{
                     fontSize: "1.5rem",
                     fontWeight: 800,
-                    color: "#ef4444",
+                    color: "#10B981",
                     display: "flex",
                     alignItems: "center",
                   }}
@@ -451,15 +454,16 @@ export default function FeatureWidgets() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.5 }}
             style={{
-              background: "white",
+              background: "#ffffff",
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(16, 185, 129, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               minHeight: "280px",
               display: "flex",
               flexDirection: "column",
+              boxSizing: "border-box",
             }}
           >
             <div
@@ -475,13 +479,13 @@ export default function FeatureWidgets() {
                   width: "32px",
                   height: "32px",
                   borderRadius: "8px",
-                  background: "#FF0000",
+                  background: "#10B981",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Play size={14} color="white" fill="white" />
+                <Play size={14} color="#ffffff" fill="#ffffff" />
               </div>
               <div>
                 <div
@@ -489,7 +493,7 @@ export default function FeatureWidgets() {
                     fontSize: "0.7rem",
                     color: "#000000",
                     opacity: 0.5,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     letterSpacing: "0.05em",
                   }}
                 >
@@ -498,7 +502,7 @@ export default function FeatureWidgets() {
                 <div
                   style={{
                     fontSize: "0.85rem",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     color: "#000000",
                   }}
                 >
@@ -552,7 +556,7 @@ export default function FeatureWidgets() {
                   width: "20px",
                   height: "6px",
                   borderRadius: "3px",
-                  background: "#FF0000",
+                  background: "#10B981",
                 }}
               />
               <div
@@ -669,4 +673,4 @@ function VideoThumbnail({
       </motion.div>
     </motion.div>
   );
-      }
+    }
