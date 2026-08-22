@@ -3,6 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import ResenasClientesPreview from './ResenasClientesPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 interface EditorProps {
   widgetDefinition: {
@@ -52,15 +54,15 @@ const DEFAULT_CONFIG = {
   mostrarOpinionPrimero: false,
 
   // Colores
-  colorBotones: '#1a1a1a',
+  colorBotones: '#FF0000',
   colorFondo: 'transparent',
-  colorTitulo: '#1a1a1a',
-  colorSubtitulo: '#1a1a1a',
+  colorTitulo: '#000000',
+  colorSubtitulo: '#000000',
   fondoSubtitulo: 'transparent',
   colorFondoResena: '#fafafa',
-  colorNombre: '#1a1a1a',
+  colorNombre: '#000000',
   colorEstrellas: '#f5b300',
-  colorTextoResena: '#555555',
+  colorTextoResena: '#333333',
   colorFecha: '#999999',
 
   // Tipografías
@@ -73,29 +75,6 @@ const DEFAULT_CONFIG = {
 
 /* ================= HELPERS UI ================= */
 
-function NevuxLogo() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-        <path
-          d="M20 4 C 20 4, 8 20, 8 28 A 12 12 0 0 0 32 28 C 32 20, 20 4, 20 4 Z"
-          fill="#2563EB"
-        />
-      </svg>
-      <span
-        style={{
-          fontWeight: 800,
-          fontSize: 22,
-          color: '#111827',
-          letterSpacing: -0.5,
-        }}
-      >
-        Nevux
-      </span>
-    </div>
-  );
-}
-
 function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -106,7 +85,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -116,17 +95,7 @@ function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: str
   );
 }
 
-function IconExternal({ size = 14, color = '#6B7280' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
-
-function IconLink({ size = 18, color = '#2563EB' }: { size?: number; color?: string }) {
+function IconLink({ size = 18, color = '#FF0000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
@@ -135,7 +104,7 @@ function IconLink({ size = 18, color = '#2563EB' }: { size?: number; color?: str
   );
 }
 
-function IconCopy({ size = 16, color = '#2563EB' }: { size?: number; color?: string }) {
+function IconCopy({ size = 16, color = '#FF0000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <rect x="9" y="9" width="13" height="13" rx="2" />
@@ -144,7 +113,7 @@ function IconCopy({ size = 16, color = '#2563EB' }: { size?: number; color?: str
   );
 }
 
-function IconUpload({ size = 18, color = '#374151' }: { size?: number; color?: string }) {
+function IconUpload({ size = 18, color = '#000000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -156,7 +125,7 @@ function IconUpload({ size = 18, color = '#374151' }: { size?: number; color?: s
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
     </div>
   );
@@ -164,7 +133,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function FieldHint({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6, lineHeight: 1.4 }}>
+    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.4 }}>
       {children}
     </div>
   );
@@ -191,10 +160,10 @@ function TextInput({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: readOnly ? '#F9FAFB' : '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
@@ -223,10 +192,10 @@ function TextArea({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
@@ -254,16 +223,16 @@ function SelectField({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
         appearance: 'none',
         backgroundImage:
-          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%236B7280\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
+          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
@@ -293,7 +262,7 @@ function CheckboxCard({
     <div
       style={{
         background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 12,
         padding: 16,
       }}
@@ -308,8 +277,8 @@ function CheckboxCard({
             width: 22,
             height: 22,
             borderRadius: 6,
-            background: checked ? '#2563EB' : '#FFFFFF',
-            border: checked ? '1px solid #2563EB' : '1.5px solid #D1D5DB',
+            background: checked ? '#FF0000' : '#FFFFFF',
+            border: checked ? '1px solid #FF0000' : '1.5px solid #e5e7eb',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -325,11 +294,11 @@ function CheckboxCard({
           )}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', lineHeight: 1.4 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.4 }}>
             {label}
           </div>
           {description && (
-            <div style={{ fontSize: 14, color: '#6B7280', marginTop: 6, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
               {description}
             </div>
           )}
@@ -355,7 +324,7 @@ function ColorPickerField({
           width: 48,
           height: 40,
           borderRadius: 8,
-          border: '1px solid #E5E7EB',
+          border: '1px solid #e5e7eb',
           overflow: 'hidden',
           background: isTransparent
             ? 'repeating-conic-gradient(#e5e7eb 0 25%, #ffffff 0 50%) 50% / 12px 12px'
@@ -389,10 +358,10 @@ function ColorPickerField({
           style={{
             width: '100%',
             padding: '10px 30px 10px 12px',
-            border: '1px solid #E5E7EB',
+            border: '1px solid #e5e7eb',
             borderRadius: 8,
             fontSize: 13,
-            color: '#111827',
+            color: '#000000',
             background: '#FFFFFF',
             outline: 'none',
             fontFamily: 'monospace',
@@ -411,7 +380,8 @@ function ColorPickerField({
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
-              color: '#9CA3AF',
+              color: '#000000',
+              opacity: 0.5,
               fontSize: 16,
               padding: 4,
               lineHeight: 1,
@@ -443,7 +413,7 @@ function ToggleField({
           width: 40,
           height: 22,
           borderRadius: 999,
-          background: checked ? '#2563EB' : '#D1D5DB',
+          background: checked ? '#FF0000' : '#e5e7eb',
           position: 'relative',
           transition: 'background 0.15s',
           flexShrink: 0,
@@ -463,7 +433,7 @@ function ToggleField({
           }}
         />
       </div>
-      {label && <span style={{ fontSize: 15, color: '#111827' }}>{label}</span>}
+      {label && <span style={{ fontSize: 15, color: '#000000' }}>{label}</span>}
     </label>
   );
 }
@@ -483,7 +453,7 @@ function SectionCard({
     <div
       style={{
         background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 12,
         padding: 20,
         marginBottom: 16,
@@ -492,11 +462,12 @@ function SectionCard({
       <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{title}</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>{title}</div>
           <div
             style={{
               fontSize: 14,
-              color: '#6B7280',
+              color: '#000000',
+              opacity: 0.6,
               marginTop: 6,
               lineHeight: 1.5,
             }}
@@ -543,7 +514,6 @@ export default function ResenasClientesEditor({
 
   const updateConfig = (k: string, v: any) => setConfig((c: any) => ({ ...c, [k]: v }));
 
-  // URL para "?calificar"
   const linkCalificar = React.useMemo(() => {
     const base = typeof window !== 'undefined' ? window.location.origin : 'https://mitienda.com';
     if (targetType === 'product' && productId) {
@@ -615,8 +585,6 @@ export default function ResenasClientesEditor({
         throw new Error(data.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -644,37 +612,27 @@ export default function ResenasClientesEditor({
           top: 0,
           zIndex: 30,
           background: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid #e5e7eb',
           padding: '14px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <NevuxLogo />
+        <NevuxLogo size="medium" />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button
-            type="button"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
           <div
             style={{
               width: 34,
               height: 34,
               borderRadius: '50%',
-              background: '#E5E7EB',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 13,
               fontWeight: 700,
-              color: '#374151',
+              color: '#FFFFFF',
             }}
           >
             RL
@@ -690,7 +648,7 @@ export default function ResenasClientesEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#2563EB',
+              background: '#FF0000',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -706,8 +664,8 @@ export default function ResenasClientesEditor({
           <>
             <div
               style={{
-                background: '#EFF6FF',
-                border: '1px solid #DBEAFE',
+                background: '#fff5f5',
+                border: '1px solid #fecaca',
                 borderRadius: 12,
                 padding: 14,
                 marginBottom: 14,
@@ -717,14 +675,14 @@ export default function ResenasClientesEditor({
               }}
             >
               <div style={{ marginTop: 2 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563EB">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000">
                   <path d="M12 2L15 8L21 9L17 14L18 20L12 17L6 20L7 14L3 9L9 8Z" />
                 </svg>
               </div>
-              <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.5 }}>
+              <div style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
                 Te sugerimos crear este widget para toda la tienda en lugar de solo para este
                 producto.{' '}
-                <span style={{ color: '#2563EB', fontWeight: 700, cursor: 'pointer' }}>
+                <span style={{ color: '#FF0000', fontWeight: 700, cursor: 'pointer' }}>
                   Crear para toda la tienda →
                 </span>
               </div>
@@ -735,12 +693,12 @@ export default function ResenasClientesEditor({
                 alignItems: 'center',
                 gap: 10,
                 background: '#FFFFFF',
-                border: '1px solid #E5E7EB',
+                border: '1px solid #e5e7eb',
                 padding: '8px 14px',
                 borderRadius: 10,
                 fontSize: 14,
                 fontWeight: 700,
-                color: '#111827',
+                color: '#000000',
                 marginBottom: 14,
               }}
             >
@@ -754,7 +712,7 @@ export default function ResenasClientesEditor({
           style={{
             fontSize: 26,
             fontWeight: 800,
-            color: '#111827',
+            color: '#000000',
             marginBottom: 20,
             lineHeight: 1.2,
           }}
@@ -766,8 +724,8 @@ export default function ResenasClientesEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#F3F4F6',
-            border: '1px solid #E5E7EB',
+            background: '#f3f4f6',
+            border: '1px solid #e5e7eb',
             borderRadius: 16,
             padding: 16,
           }}
@@ -794,8 +752,8 @@ export default function ResenasClientesEditor({
               marginBottom: 8,
             }}
           >
-            <IconInfo size={16} color="#6B7280" />
-            <span style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.5 }}>
+            <IconInfo size={16} color="#000000" />
+            <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
               Las reseñas aparecerán debajo de la sección del producto.
             </span>
           </div>
@@ -804,9 +762,9 @@ export default function ResenasClientesEditor({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
+              gridTemplateColumns: 'repeat(4, 1fr)',
               gap: 0,
-              borderBottom: '1px solid #E5E7EB',
+              borderBottom: '1px solid #e5e7eb',
               marginBottom: 20,
             }}
           >
@@ -828,12 +786,14 @@ export default function ResenasClientesEditor({
                   style={{
                     background: active ? '#FFFFFF' : 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #111827' : '2px solid transparent',
-                    padding: '14px 10px',
-                    fontSize: 15,
+                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+                    padding: '14px 6px',
+                    fontSize: 14,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#111827' : '#6B7280',
+                    color: '#000000',
+                    opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
+                    textAlign: 'center',
                   }}
                 >
                   {label}
@@ -866,7 +826,7 @@ export default function ResenasClientesEditor({
 
               <div>
                 <FieldLabel>
-                  Subtítulo <span style={{ fontWeight: 400, color: '#6B7280' }}>(opcional)</span>
+                  Subtítulo <span style={{ fontWeight: 400, color: '#000000', opacity: 0.6 }}>(opcional)</span>
                 </FieldLabel>
                 <TextInput
                   value={config.subtitulo}
@@ -897,7 +857,7 @@ export default function ResenasClientesEditor({
                 <div
                   style={{
                     background: '#FFFFFF',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid #e5e7eb',
                     borderRadius: 12,
                     padding: 16,
                   }}
@@ -943,23 +903,23 @@ export default function ResenasClientesEditor({
               <div
                 style={{
                   background: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid #e5e7eb',
                   borderRadius: 12,
                   padding: 20,
                 }}
               >
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 10 }}>
                   <IconLink />
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>
                     Link para dejar reseña
                   </div>
                 </div>
-                <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.5, marginBottom: 14 }}>
+                <div style={{ fontSize: 14, color: '#000000', lineHeight: 1.5, marginBottom: 14 }}>
                   Compartí el link con{' '}
                   <code
                     style={{
-                      background: '#FDF2F8',
-                      color: '#BE185D',
+                      background: '#fff5f5',
+                      color: '#FF0000',
                       padding: '2px 6px',
                       borderRadius: 4,
                       fontSize: 13,
@@ -968,10 +928,7 @@ export default function ResenasClientesEditor({
                     ?calificar
                   </code>{' '}
                   al final de la URL con tus clientes. Cuando lo abran, el formulario de reseña
-                  se abrirá automáticamente.{' '}
-                  <span style={{ color: '#2563EB', fontWeight: 600 }}>
-                    Quizás te interese: ¿Cómo automatizar el pedido de reseñas?
-                  </span>
+                  se abrirá automáticamente.
                 </div>
 
                 <div
@@ -980,14 +937,14 @@ export default function ResenasClientesEditor({
                     alignItems: 'center',
                     gap: 10,
                     background: '#F9FAFB',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid #e5e7eb',
                     padding: '10px 14px',
                     borderRadius: 10,
                     marginBottom: 12,
                   }}
                 >
                   <span style={{ fontSize: 18 }}>🛍</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#000000' }}>
                     NEVUX Widget
                   </span>
                 </div>
@@ -1004,8 +961,8 @@ export default function ResenasClientesEditor({
                       alignItems: 'center',
                       gap: 6,
                       background: '#FFFFFF',
-                      border: '1px solid #2563EB',
-                      color: '#2563EB',
+                      border: '1px solid #FF0000',
+                      color: '#FF0000',
                       borderRadius: 999,
                       padding: '10px 18px',
                       fontSize: 14,
@@ -1030,8 +987,8 @@ export default function ResenasClientesEditor({
                     ingresen a través de un link de solicitud (
                     <code
                       style={{
-                        background: '#FDF2F8',
-                        color: '#BE185D',
+                        background: '#fff5f5',
+                        color: '#FF0000',
                         padding: '1px 5px',
                         borderRadius: 4,
                         fontSize: 12,
@@ -1055,8 +1012,8 @@ export default function ResenasClientesEditor({
                     del producto con{' '}
                     <code
                       style={{
-                        background: '#FDF2F8',
-                        color: '#BE185D',
+                        background: '#fff5f5',
+                        color: '#FF0000',
                         padding: '1px 5px',
                         borderRadius: 4,
                         fontSize: 12,
@@ -1097,7 +1054,7 @@ export default function ResenasClientesEditor({
               <div
                 style={{
                   background: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid #e5e7eb',
                   borderRadius: 12,
                   padding: '40px 20px',
                   textAlign: 'center',
@@ -1109,17 +1066,17 @@ export default function ResenasClientesEditor({
                     height="48"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#D1D5DB"
+                    stroke="#000000"
                     strokeWidth="1.5"
-                    style={{ display: 'inline-block' }}
+                    style={{ display: 'inline-block', opacity: 0.3 }}
                   >
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
                 </div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
                   Aún no hay reseñas
                 </div>
-                <div style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.5, maxWidth: 400, margin: '0 auto' }}>
+                <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, lineHeight: 1.5, maxWidth: 400, margin: '0 auto' }}>
                   Una vez que crees el widget y lo actives en tu tienda, los clientes podrán dejar
                   sus reseñas. Volverás aquí para gestionarlas.
                 </div>
@@ -1129,7 +1086,7 @@ export default function ResenasClientesEditor({
               <div
                 style={{
                   background: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid #e5e7eb',
                   borderRadius: 12,
                   padding: 20,
                   textAlign: 'center',
@@ -1154,8 +1111,8 @@ export default function ResenasClientesEditor({
                     alignItems: 'center',
                     gap: 8,
                     background: '#FFFFFF',
-                    border: '1.5px solid #D1D5DB',
-                    color: '#374151',
+                    border: '1.5px solid #e5e7eb',
+                    color: '#000000',
                     borderRadius: 999,
                     padding: '12px 24px',
                     fontSize: 15,
@@ -1167,10 +1124,10 @@ export default function ResenasClientesEditor({
                   <IconUpload />
                   {csvUploading ? 'Importando…' : 'Importar reseñas desde CSV'}
                 </button>
-                <div style={{ fontSize: 13, color: '#6B7280', marginTop: 12, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 12, lineHeight: 1.5 }}>
                   Importá reseñas existentes en masa desde un archivo CSV.
                 </div>
-                <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>
+                <div style={{ fontSize: 12, color: '#000000', opacity: 0.5, marginTop: 6 }}>
                   Formato:{' '}
                   <code
                     style={{
@@ -1206,7 +1163,7 @@ export default function ResenasClientesEditor({
                   >
                     Importación completada
                   </div>
-                  <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 14, color: '#000000', lineHeight: 1.6 }}>
                     ✅ Importadas: <strong>{csvResult.importadas}</strong>
                     {csvResult.salteadas > 0 && (
                       <>
@@ -1230,7 +1187,7 @@ export default function ResenasClientesEditor({
                       <ul
                         style={{
                           fontSize: 13,
-                          color: '#374151',
+                          color: '#000000',
                           marginTop: 8,
                           paddingLeft: 20,
                         }}
@@ -1241,7 +1198,7 @@ export default function ResenasClientesEditor({
                           </li>
                         ))}
                         {csvResult.errores.length > 20 && (
-                          <li style={{ fontStyle: 'italic', color: '#6B7280' }}>
+                          <li style={{ fontStyle: 'italic', color: '#000000', opacity: 0.6 }}>
                             …y {csvResult.errores.length - 20} más
                           </li>
                         )}
@@ -1263,7 +1220,7 @@ export default function ResenasClientesEditor({
                     height="22"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#2563EB"
+                    stroke="#FF0000"
                     strokeWidth="2"
                   >
                     <line x1="4" y1="6" x2="20" y2="6" />
@@ -1285,10 +1242,10 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.disenoWidget === 'cuadricula'
-                            ? '1.5px solid #2563EB'
-                            : '1px solid #E5E7EB',
+                            ? '1.5px solid #FF0000'
+                            : '1px solid #e5e7eb',
                         background:
-                          config.disenoWidget === 'cuadricula' ? '#EFF6FF' : '#FFFFFF',
+                          config.disenoWidget === 'cuadricula' ? '#fff5f5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1296,7 +1253,7 @@ export default function ResenasClientesEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.disenoWidget === 'cuadricula' ? '#2563EB' : '#374151',
+                        color: config.disenoWidget === 'cuadricula' ? '#FF0000' : '#000000',
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1315,9 +1272,9 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.disenoWidget === 'lista'
-                            ? '1.5px solid #2563EB'
-                            : '1px solid #E5E7EB',
-                        background: config.disenoWidget === 'lista' ? '#EFF6FF' : '#FFFFFF',
+                            ? '1.5px solid #FF0000'
+                            : '1px solid #e5e7eb',
+                        background: config.disenoWidget === 'lista' ? '#fff5f5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1325,7 +1282,7 @@ export default function ResenasClientesEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.disenoWidget === 'lista' ? '#2563EB' : '#374151',
+                        color: config.disenoWidget === 'lista' ? '#FF0000' : '#000000',
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1382,7 +1339,7 @@ export default function ResenasClientesEditor({
                     height="22"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#2563EB"
+                    stroke="#FF0000"
                     strokeWidth="2"
                   >
                     <circle cx="13.5" cy="6.5" r="1.5" />
@@ -1476,7 +1433,7 @@ export default function ResenasClientesEditor({
                     height="22"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#2563EB"
+                    stroke="#FF0000"
                     strokeWidth="2"
                   >
                     <polyline points="4 7 4 4 20 4 20 7" />
@@ -1545,16 +1502,16 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.estiloNombre === 'normal'
-                            ? '1.5px solid #2563EB'
-                            : '1px solid #E5E7EB',
-                        background: config.estiloNombre === 'normal' ? '#EFF6FF' : '#FFFFFF',
+                            ? '1.5px solid #FF0000'
+                            : '1px solid #e5e7eb',
+                        background: config.estiloNombre === 'normal' ? '#fff5f5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 8,
                         fontSize: 14,
-                        color: config.estiloNombre === 'normal' ? '#2563EB' : '#374151',
+                        color: config.estiloNombre === 'normal' ? '#FF0000' : '#000000',
                       }}
                     >
                       <span style={{ fontWeight: 400, fontSize: 16 }}>A</span> Normal
@@ -1567,16 +1524,16 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.estiloNombre === 'resaltado'
-                            ? '1.5px solid #2563EB'
-                            : '1px solid #E5E7EB',
-                        background: config.estiloNombre === 'resaltado' ? '#EFF6FF' : '#FFFFFF',
+                            ? '1.5px solid #FF0000'
+                            : '1px solid #e5e7eb',
+                        background: config.estiloNombre === 'resaltado' ? '#fff5f5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 8,
                         fontSize: 14,
-                        color: config.estiloNombre === 'resaltado' ? '#2563EB' : '#374151',
+                        color: config.estiloNombre === 'resaltado' ? '#FF0000' : '#000000',
                       }}
                     >
                       <span style={{ fontWeight: 800, fontSize: 16 }}>A</span> Resaltado
@@ -1595,7 +1552,7 @@ export default function ResenasClientesEditor({
               justifyContent: 'space-between',
               marginTop: 20,
               paddingTop: 20,
-              borderTop: '1px solid #E5E7EB',
+              borderTop: '1px solid #e5e7eb',
               gap: 12,
               flexWrap: 'wrap',
             }}
@@ -1609,7 +1566,7 @@ export default function ResenasClientesEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#2563EB',
+                background: '#FF0000',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1626,28 +1583,8 @@ export default function ResenasClientesEditor({
         </div>
 
         {/* CENTRO DE AYUDA */}
-        <div
-          style={{
-            marginTop: 40,
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <NevuxLogo />
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#6B7280',
-              fontSize: 14,
-            }}
-          >
-            Centro de ayuda <IconExternal />
-          </div>
+        <div style={{ marginTop: 40 }}>
+          <CentroAyuda />
         </div>
       </div>
 
