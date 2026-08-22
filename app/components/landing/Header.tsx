@@ -86,13 +86,13 @@ export default function Header() {
               href="/registro"
               style={{
                 padding: "0.65rem 1.5rem",
-                background: "#FF0000",
-                color: "white",
+                background: "#10B981",
+                color: "#ffffff",
                 borderRadius: "999px",
                 fontSize: "0.95rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 textDecoration: "none",
-                boxShadow: "0 4px 14px rgba(255, 0, 0, 0.35)",
+                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.35)",
                 transition: "all 0.2s",
                 fontFamily: "inherit",
                 display: "inline-flex",
@@ -106,7 +106,7 @@ export default function Header() {
               onClick={() => setMenuOpen(true)}
               aria-label="Abrir menú"
               style={{
-                background: "white",
+                background: "#ffffff",
                 border: "1.5px solid #e5e7eb",
                 borderRadius: "12px",
                 width: "44px",
@@ -142,7 +142,7 @@ export default function Header() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                background: "rgba(0, 0, 0, 0.5)",
+                background: "rgba(0, 0, 0, 0.55)",
                 backdropFilter: "blur(4px)",
                 WebkitBackdropFilter: "blur(4px)",
                 zIndex: 200,
@@ -161,7 +161,7 @@ export default function Header() {
                 right: 0,
                 bottom: 0,
                 width: "min(340px, 85vw)",
-                background: "white",
+                background: "#ffffff",
                 zIndex: 201,
                 display: "flex",
                 flexDirection: "column",
@@ -183,7 +183,7 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   aria-label="Cerrar menú"
                   style={{
-                    background: "#f9fafb",
+                    background: "#ecfdf5",
                     border: "none",
                     borderRadius: "10px",
                     width: "40px",
@@ -192,7 +192,7 @@ export default function Header() {
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
-                    color: "#000000",
+                    color: "#10B981",
                   }}
                 >
                   <X size={20} />
@@ -229,7 +229,7 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
-                  <LogIn size={18} color="#FF0000" />
+                  <LogIn size={18} color="#10B981" />
                   <span>Iniciar sesión</span>
                 </Link>
 
@@ -238,7 +238,7 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
-                  <UserPlus size={18} color="#FF0000" />
+                  <UserPlus size={18} color="#10B981" />
                   <span>Crear cuenta</span>
                 </Link>
 
@@ -271,7 +271,7 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
-                  <HelpCircle size={18} color="#FF0000" />
+                  <HelpCircle size={18} color="#10B981" />
                   <span>Soporte</span>
                 </a>
 
@@ -280,7 +280,7 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
-                  <FileText size={18} color="#FF0000" />
+                  <FileText size={18} color="#10B981" />
                   <span>Términos y Condiciones</span>
                 </Link>
 
@@ -289,7 +289,7 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
-                  <Shield size={18} color="#FF0000" />
+                  <Shield size={18} color="#10B981" />
                   <span>Política de Privacidad</span>
                 </Link>
               </div>
@@ -308,14 +308,14 @@ export default function Header() {
                   style={{
                     display: "block",
                     padding: "0.9rem",
-                    background: "#FF0000",
-                    color: "white",
+                    background: "#10B981",
+                    color: "#ffffff",
                     textAlign: "center",
                     borderRadius: "12px",
                     fontSize: "0.95rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     textDecoration: "none",
-                    boxShadow: "0 6px 20px rgba(255, 0, 0, 0.35)",
+                    boxShadow: "0 6px 20px rgba(16, 185, 129, 0.35)",
                   }}
                 >
                   Probar gratis →
@@ -350,6 +350,6 @@ const menuItemStyle: React.CSSProperties = {
   textDecoration: "none",
   color: "#000000",
   fontSize: "0.95rem",
-  fontWeight: 500,
+  fontWeight: 600,
   transition: "background 0.15s",
 };
