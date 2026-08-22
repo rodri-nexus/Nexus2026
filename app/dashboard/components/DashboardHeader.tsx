@@ -127,10 +127,12 @@ export default function DashboardHeader({
               transition: "background 0.15s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#f3f4f6";
+              e.currentTarget.style.background = "#ecfdf5";
+              e.currentTarget.style.color = "#10B981";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "#000000";
             }}
           >
             <Menu size={22} />
@@ -147,7 +149,7 @@ export default function DashboardHeader({
               alignItems: "center",
               gap: "0.4rem",
               padding: "0.3rem 0.5rem 0.3rem 0.3rem",
-              background: dropdownOpen ? "#f3f4f6" : "transparent",
+              background: dropdownOpen ? "#ecfdf5" : "transparent",
               border: "none",
               borderRadius: "999px",
               cursor: "pointer",
@@ -156,7 +158,7 @@ export default function DashboardHeader({
             }}
             onMouseEnter={(e) => {
               if (!dropdownOpen) {
-                e.currentTarget.style.background = "#f9fafb";
+                e.currentTarget.style.background = "#ecfdf5";
               }
             }}
             onMouseLeave={(e) => {
@@ -165,20 +167,20 @@ export default function DashboardHeader({
               }
             }}
           >
-            {/* Avatar circular */}
+            {/* Avatar circular Verde Esmeralda */}
             <div
               style={{
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                background: "#FF0000",
+                background: "#10B981",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "white",
+                color: "#ffffff",
                 fontSize: "0.85rem",
                 fontWeight: 700,
-                boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
+                boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
               }}
             >
               {initials}
@@ -207,7 +209,7 @@ export default function DashboardHeader({
                   position: "absolute",
                   top: "calc(100% + 8px)",
                   right: 0,
-                  background: "white",
+                  background: "#ffffff",
                   borderRadius: "14px",
                   boxShadow:
                     "0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05)",
@@ -237,15 +239,15 @@ export default function DashboardHeader({
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
-                        background: "#FF0000",
+                        background: "#10B981",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "white",
+                        color: "#ffffff",
                         fontSize: "0.9rem",
                         fontWeight: 700,
                         flexShrink: 0,
-                        boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
+                        boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
                       }}
                     >
                       {initials}
@@ -284,13 +286,13 @@ export default function DashboardHeader({
                     onClick={() => navigateTo("/mi-cuenta")}
                     style={dropdownItemStyle}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#f9fafb";
+                      e.currentTarget.style.background = "#ecfdf5";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "transparent";
                     }}
                   >
-                    <User size={16} color="#FF0000" />
+                    <User size={16} color="#10B981" />
                     <span>Mi cuenta</span>
                   </button>
 
@@ -298,7 +300,7 @@ export default function DashboardHeader({
                     onClick={() => navigateTo("/mi-tienda")}
                     style={dropdownItemStyle}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#f9fafb";
+                      e.currentTarget.style.background = "#ecfdf5";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "transparent";
@@ -312,7 +314,7 @@ export default function DashboardHeader({
                     onClick={() => navigateTo("/ayuda")}
                     style={dropdownItemStyle}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#f9fafb";
+                      e.currentTarget.style.background = "#ecfdf5";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "transparent";
