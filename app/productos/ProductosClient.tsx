@@ -6,6 +6,7 @@ import { Package, RefreshCw, Sparkles, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardHeader from "../dashboard/components/DashboardHeader";
 import SideMenu from "../dashboard/components/SideMenu";
+import CentroAyuda from "../dashboard/components/CentroAyuda";
 
 interface StoreData {
   store_id: number;
@@ -30,7 +31,6 @@ export default function ProductosClient({
   async function handleSync() {
     if (syncing) return;
     setSyncing(true);
-    // TODO: endpoint real de sincronización (Parte 5)
     await new Promise((r) => setTimeout(r, 1200));
     setSyncing(false);
   }
@@ -39,7 +39,7 @@ export default function ProductosClient({
     <div
       style={{
         minHeight: "100vh",
-        background: "#f9fafb",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
@@ -52,6 +52,7 @@ export default function ProductosClient({
           maxWidth: "1200px",
           margin: "0 auto",
           padding: "2rem 1.25rem 3rem",
+          boxSizing: "border-box",
         }}
       >
         {/* Volver al dashboard */}
@@ -128,12 +129,11 @@ export default function ProductosClient({
                   padding: "0.7rem 1.25rem",
                   borderRadius: "999px",
                   border: "none",
-                  background: syncing
-                    ? "rgba(255, 0, 0, 0.4)"
-                    : "#FF0000",
+                  background: "#FF0000",
+                  opacity: syncing ? 0.6 : 1,
                   color: "#ffffff",
                   fontSize: "0.85rem",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   cursor: syncing ? "not-allowed" : "pointer",
                   boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
                   fontFamily: "inherit",
@@ -170,7 +170,7 @@ export default function ProductosClient({
               width: "72px",
               height: "72px",
               borderRadius: "18px",
-              background: "rgba(255, 0, 0, 0.08)",
+              background: "#fff5f5",
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
@@ -180,31 +180,33 @@ export default function ProductosClient({
             <Package size={34} color="#FF0000" strokeWidth={1.75} />
           </div>
 
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              padding: "0.3rem 0.85rem",
-              background: "#fff5f5",
-              borderRadius: "999px",
-              fontSize: "0.75rem",
-              color: "#FF0000",
-              fontWeight: 700,
-              marginBottom: "1rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            <Sparkles size={12} />
-            Próximamente
+          <div>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                padding: "0.35rem 0.85rem",
+                background: "#fff5f5",
+                borderRadius: "999px",
+                fontSize: "0.75rem",
+                color: "#FF0000",
+                fontWeight: 700,
+                marginBottom: "1rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              <Sparkles size={12} />
+              Próximamente
+            </div>
           </div>
 
           <h2
             style={{
               margin: "0 0 0.75rem",
               fontSize: "1.35rem",
-              fontWeight: 700,
+              fontWeight: 800,
               color: "#000000",
               letterSpacing: "-0.01em",
             }}
@@ -226,9 +228,14 @@ export default function ProductosClient({
             filtrarlos y usarlos para crear bundles y widgets inteligentes.
           </p>
         </motion.div>
+
+        {/* Centro de Ayuda */}
+        <div style={{ marginTop: "2.5rem" }}>
+          <CentroAyuda />
+        </div>
       </main>
 
-      <style jsx>{`
+      <style>{`
         @keyframes spin {
           from {
             transform: rotate(0deg);
