@@ -9,7 +9,7 @@ export default function CTAFinal() {
     <section
       style={{
         padding: "5rem 1.25rem",
-        background: "white",
+        background: "#ffffff",
       }}
     >
       <motion.div
@@ -25,11 +25,12 @@ export default function CTAFinal() {
           padding: "clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 3rem)",
           position: "relative",
           overflow: "hidden",
-          border: "1.5px solid #FF0000",
-          boxShadow: "0 20px 60px rgba(255, 0, 0, 0.1)",
+          border: "1.5px solid #10B981",
+          boxShadow: "0 20px 60px rgba(16, 185, 129, 0.12)",
+          boxSizing: "border-box",
         }}
       >
-        {/* Orbes decorativos de fondo */}
+        {/* Orbes decorativos de fondo Verde Esmeralda */}
         <div
           style={{
             position: "absolute",
@@ -38,7 +39,7 @@ export default function CTAFinal() {
             width: "300px",
             height: "300px",
             background:
-              "radial-gradient(circle, rgba(255, 0, 0, 0.12) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
           }}
@@ -51,7 +52,7 @@ export default function CTAFinal() {
             width: "350px",
             height: "350px",
             background:
-              "radial-gradient(circle, rgba(255, 0, 0, 0.12) 0%, transparent 70%)",
+              "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
           }}
@@ -72,7 +73,7 @@ export default function CTAFinal() {
             position: "absolute",
             top: "15%",
             left: "8%",
-            color: "#FF0000",
+            color: "#10B981",
             opacity: 0.35,
             pointerEvents: "none",
           }}
@@ -95,7 +96,7 @@ export default function CTAFinal() {
             position: "absolute",
             top: "20%",
             right: "10%",
-            color: "#FF0000",
+            color: "#10B981",
             opacity: 0.35,
             pointerEvents: "none",
           }}
@@ -117,7 +118,7 @@ export default function CTAFinal() {
             position: "absolute",
             bottom: "20%",
             left: "12%",
-            color: "#FF0000",
+            color: "#10B981",
             opacity: 0.35,
             pointerEvents: "none",
           }}
@@ -142,14 +143,14 @@ export default function CTAFinal() {
               height: "72px",
               margin: "0 auto 1.5rem auto",
               borderRadius: "20px",
-              background: "#FF0000",
+              background: "#10B981",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 15px 40px rgba(255, 0, 0, 0.4)",
+              boxShadow: "0 15px 40px rgba(16, 185, 129, 0.35)",
             }}
           >
-            <Rocket size={32} color="white" strokeWidth={2} />
+            <Rocket size={32} color="#ffffff" strokeWidth={2} />
           </motion.div>
 
           {/* Título */}
@@ -170,7 +171,7 @@ export default function CTAFinal() {
             ¿Listo para{" "}
             <span
               style={{
-                color: "#FF0000",
+                color: "#10B981",
               }}
             >
               aumentar tus ventas
@@ -237,13 +238,13 @@ export default function CTAFinal() {
               style={{
                 width: "100%",
                 padding: "1.1rem 2rem",
-                background: "#FF0000",
-                color: "white",
+                background: "#10B981",
+                color: "#ffffff",
                 borderRadius: "999px",
                 fontSize: "1.05rem",
                 fontWeight: 700,
                 textDecoration: "none",
-                boxShadow: "0 10px 30px rgba(255, 0, 0, 0.4)",
+                boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
                 transition: "all 0.2s",
                 display: "flex",
                 alignItems: "center",
@@ -251,6 +252,7 @@ export default function CTAFinal() {
                 gap: "0.5rem",
                 position: "relative",
                 overflow: "hidden",
+                boxSizing: "border-box",
               }}
             >
               {/* Brillo animado */}
@@ -271,7 +273,7 @@ export default function CTAFinal() {
                   width: "50%",
                   height: "100%",
                   background:
-                    "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent)",
+                    "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
                   pointerEvents: "none",
                 }}
               />
@@ -287,7 +289,7 @@ export default function CTAFinal() {
               style={{
                 width: "100%",
                 padding: "1.05rem 2rem",
-                background: "white",
+                background: "#ffffff",
                 color: "#000000",
                 borderRadius: "999px",
                 fontSize: "1.05rem",
@@ -299,6 +301,7 @@ export default function CTAFinal() {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.5rem",
+                boxSizing: "border-box",
               }}
             >
               Ver todos los widgets
@@ -339,7 +342,7 @@ function BulletItem({ text }: { text: string }) {
         gap: "0.6rem",
         fontSize: "0.95rem",
         color: "#000000",
-        fontWeight: 500,
+        fontWeight: 600,
       }}
     >
       <div
@@ -347,17 +350,17 @@ function BulletItem({ text }: { text: string }) {
           width: "24px",
           height: "24px",
           borderRadius: "50%",
-          background: "#FF0000",
+          background: "#10B981",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
+          boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
         }}
       >
-        <Check size={14} color="white" strokeWidth={3} />
+        <Check size={14} color="#ffffff" strokeWidth={3} />
       </div>
       <span>{text}</span>
     </div>
   );
-            }
+          }
