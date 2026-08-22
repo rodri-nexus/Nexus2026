@@ -20,7 +20,6 @@ interface StoreData {
   is_active: boolean;
 }
 
-// Plan serializado (fechas como ISO strings, listo para pasar client-side)
 interface SerializedPlan {
   status: PlanStatus;
   rawStatus: RawPlanStatus;
@@ -62,7 +61,7 @@ export default function DashboardClient({
 
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
-  // Reconstruimos el PlanInfo con las Date objects para pasarlo al PlanStatusCard
+  // Reconstruimos el PlanInfo con Date objects para pasarlo a PlanStatusCard
   const planInfo: PlanInfo | null = plan
     ? {
         status: plan.status,
@@ -106,8 +105,10 @@ export default function DashboardClient({
             maxWidth: "1200px",
             margin: "0 auto",
             padding: "2rem 1.25rem 3rem",
+            boxSizing: "border-box",
           }}
         >
+          {/* BANNER: SIN TIENDA CONECTADA */}
           {!hasStore && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -117,11 +118,12 @@ export default function DashboardClient({
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "1rem",
-                background: "#ffffff",
-                border: "1.5px solid #000000",
+                background: "#fff5f5",
+                border: "1.5px solid #FF0000",
                 borderRadius: "14px",
                 padding: "1.25rem 1.5rem",
                 marginBottom: "1.5rem",
+                boxSizing: "border-box",
               }}
             >
               <div
@@ -129,7 +131,8 @@ export default function DashboardClient({
                   width: "40px",
                   height: "40px",
                   borderRadius: "10px",
-                  background: "#fff5f5",
+                  background: "#FFFFFF",
+                  border: "1px solid #fecaca",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -142,7 +145,7 @@ export default function DashboardClient({
                 <div
                   style={{
                     fontSize: "1rem",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     color: "#000000",
                     marginBottom: "0.35rem",
                   }}
@@ -158,8 +161,7 @@ export default function DashboardClient({
                     lineHeight: 1.5,
                   }}
                 >
-                  Vinculá tu tienda para acceder a métricas, crear widgets y
-                  empezar a aumentar tu ticket promedio.
+                  Vinculá tu tienda para acceder a métricas reales, crear widgets e incrementar el ticket promedio de tus ventas.
                 </p>
                 <a
                   href={tiendanubeInstallUrl}
@@ -168,13 +170,13 @@ export default function DashboardClient({
                     alignItems: "center",
                     gap: "0.4rem",
                     marginTop: "0.85rem",
-                    padding: "0.55rem 1.1rem",
+                    padding: "0.6rem 1.2rem",
                     borderRadius: "999px",
                     background: "#FF0000",
                     color: "#ffffff",
                     textDecoration: "none",
                     fontSize: "0.85rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
                   }}
                 >
@@ -185,6 +187,7 @@ export default function DashboardClient({
             </motion.div>
           )}
 
+          {/* TITULO Y BIENVENIDA */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -201,7 +204,7 @@ export default function DashboardClient({
                 borderRadius: "999px",
                 fontSize: "0.8rem",
                 color: "#FF0000",
-                fontWeight: 600,
+                fontWeight: 700,
                 marginBottom: "0.75rem",
               }}
             >
@@ -234,6 +237,7 @@ export default function DashboardClient({
             </p>
           </motion.div>
 
+          {/* CHIP: TIENDA CONECTADA */}
           {hasStore && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -264,18 +268,18 @@ export default function DashboardClient({
                     width: "28px",
                     height: "28px",
                     borderRadius: "8px",
-                    background: "#FF0000",
+                    background: "#059669",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <CheckCircle2 size={15} color="#ffffff" strokeWidth={2.5} />
+                  <CheckCircle2 size={16} color="#ffffff" strokeWidth={2.5} />
                 </div>
                 <span
                   style={{
                     fontSize: "0.85rem",
-                    color: "#FF0000",
+                    color: "#059669",
                     fontWeight: 700,
                   }}
                 >
@@ -330,6 +334,7 @@ export default function DashboardClient({
             </motion.div>
           )}
 
+          {/* CARDS DEL DASHBOARD */}
           <div
             style={{
               display: "flex",
@@ -337,24 +342,29 @@ export default function DashboardClient({
               gap: "1.5rem",
             }}
           >
-            {/* Card del estado del plan (solo si tiene tienda conectada) */}
+            {/* Card del estado del plan */}
             {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
 
+            {/* Métricas e interacciones */}
             <MetricsCard />
 
+            {/* Estadísticas de la tienda (Productos / Widgets activos) */}
             <StatsCards
               productsCount={productsCount}
               activeWidgetsCount={activeWidgetsCount}
             />
 
+            {/* Widgets creados recientemente */}
             <RecientesCard storeId={store?.store_id} />
 
+            {/* Accesos rápidos */}
             <AccionesRapidas />
 
+            {/* Centro de Ayuda Soporte */}
             <CentroAyuda />
           </div>
         </main>
       </div>
     </TutorialProvider>
   );
-      }
+}
