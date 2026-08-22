@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Star, ShieldCheck, Truck, MessageCircle, ThumbsUp, Award } from "lucide-react";
+import { Star, ShieldCheck, Truck, MessageCircle, Award } from "lucide-react";
 
 export default function FeatureTrust() {
   const [dispatchMinutes, setDispatchMinutes] = useState(35);
@@ -19,7 +19,7 @@ export default function FeatureTrust() {
     <section
       style={{
         padding: "5rem 1.25rem",
-        background: "white",
+        background: "#ffffff",
       }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -41,12 +41,13 @@ export default function FeatureTrust() {
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.45rem 0.95rem",
-              background: "linear-gradient(135deg, #d1fae5, #a7f3d0)",
+              background: "#ecfdf5",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#059669",
+              color: "#10B981",
               fontWeight: 700,
               letterSpacing: "0.02em",
+              border: "1px solid #a7f3d0",
             }}
           >
             <ShieldCheck size={14} />
@@ -73,10 +74,7 @@ export default function FeatureTrust() {
           Genera confianza y{" "}
           <span
             style={{
-              background: "linear-gradient(135deg, #10b981, #059669)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
+              color: "#10B981",
             }}
           >
             convierte visitantes en compradores
@@ -115,14 +113,14 @@ export default function FeatureTrust() {
             margin: "0 auto",
           }}
         >
-          {/* MOCKUP 1: Widget de reseñas (más grande) */}
+          {/* MOCKUP 1: Widget de reseñas */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
             style={{
-              background: "white",
+              background: "#ffffff",
               borderRadius: "20px",
               padding: "1.75rem",
               boxShadow:
@@ -132,6 +130,7 @@ export default function FeatureTrust() {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
               gap: "1.5rem",
+              boxSizing: "border-box",
             }}
           >
             {/* Rating principal */}
@@ -183,7 +182,7 @@ export default function FeatureTrust() {
                       fontSize: "0.8rem",
                       color: "#000000",
                       opacity: 0.6,
-                      fontWeight: 500,
+                      fontWeight: 600,
                     }}
                   >
                     Basado en 247 reseñas
@@ -205,11 +204,11 @@ export default function FeatureTrust() {
                   marginTop: "1rem",
                   padding: "0.6rem 1.1rem",
                   background: "#000000",
-                  color: "white",
+                  color: "#ffffff",
                   border: "none",
                   borderRadius: "10px",
                   fontSize: "0.85rem",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   cursor: "pointer",
                   fontFamily: "inherit",
                   display: "inline-flex",
@@ -229,19 +228,19 @@ export default function FeatureTrust() {
                 rating={5}
                 text="Excelente calidad, llegó antes de lo esperado. Súper recomendable 💕"
                 initials="SG"
-                color="#f472b6"
+                color="#10B981"
               />
               <ReviewCard
                 name="Martín T."
                 rating={4}
                 text="Muy buen producto, lo recomiendo. Volvería a comprar."
                 initials="MT"
-                color="#60a5fa"
+                color="#000000"
               />
             </div>
           </motion.div>
 
-          {/* MOCKUP 2: Alerta de despacho — SE MANTIENE VERDE (semántico) */}
+          {/* MOCKUP 2: Alerta de despacho */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -252,13 +251,14 @@ export default function FeatureTrust() {
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow: "0 10px 30px rgba(16, 185, 129, 0.25)",
-              color: "white",
+              color: "#ffffff",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
               minHeight: "180px",
               position: "relative",
               overflow: "hidden",
+              boxSizing: "border-box",
             }}
           >
             {/* Círculo decorativo */}
@@ -290,7 +290,7 @@ export default function FeatureTrust() {
                     width: "10px",
                     height: "10px",
                     borderRadius: "50%",
-                    background: "white",
+                    background: "#ffffff",
                     boxShadow: "0 0 0 4px rgba(255, 255, 255, 0.3)",
                   }}
                 />
@@ -308,7 +308,7 @@ export default function FeatureTrust() {
                 }}
               >
                 <Truck size={22} />
-                <div style={{ fontSize: "0.95rem", fontWeight: 700 }}>
+                <div style={{ fontSize: "0.95rem", fontWeight: 800 }}>
                   Comprando ahora
                 </div>
               </div>
@@ -345,20 +345,21 @@ export default function FeatureTrust() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.5 }}
             style={{
-              background: "white",
+              background: "#ffffff",
               borderRadius: "20px",
               padding: "1.5rem",
               boxShadow:
-                "0 10px 30px rgba(255, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
+                "0 10px 30px rgba(16, 185, 129, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04)",
               border: "1px solid #f3f4f6",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
               minHeight: "180px",
+              boxSizing: "border-box",
             }}
           >
             <div style={{ display: "flex", gap: "0.85rem", alignItems: "flex-start" }}>
-              {/* Badge circular dorado — semántico, se mantiene */}
+              {/* Badge circular dorado */}
               <motion.div
                 initial={{ rotate: -180, scale: 0 }}
                 whileInView={{ rotate: 0, scale: 1 }}
@@ -383,7 +384,7 @@ export default function FeatureTrust() {
                     width: "100%",
                     height: "100%",
                     borderRadius: "50%",
-                    background: "white",
+                    background: "#ffffff",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -479,7 +480,7 @@ function RatingBar({ stars, percent }: { stars: number; percent: number }) {
         style={{
           color: "#000000",
           opacity: 0.5,
-          fontWeight: 500,
+          fontWeight: 600,
           minWidth: "28px",
           textAlign: "right",
         }}
@@ -521,7 +522,7 @@ function ReviewCard({
           height: "36px",
           borderRadius: "50%",
           background: color,
-          color: "white",
+          color: "#ffffff",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -565,7 +566,7 @@ function ReviewCard({
   );
 }
 
-// Badge de trust — SE MANTIENE VERDE (semántico)
+// Badge de trust
 function TrustBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <div
@@ -574,15 +575,15 @@ function TrustBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
         alignItems: "center",
         gap: "0.3rem",
         padding: "0.3rem 0.55rem",
-        background: "#f0fdf4",
-        color: "#059669",
+        background: "#ecfdf5",
+        color: "#10B981",
         borderRadius: "6px",
         fontSize: "0.7rem",
-        fontWeight: 600,
+        fontWeight: 700,
       }}
     >
       {icon}
       {text}
     </div>
   );
-        }
+            }
