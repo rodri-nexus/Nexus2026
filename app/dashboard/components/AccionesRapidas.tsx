@@ -26,13 +26,14 @@ export default function AccionesRapidas() {
         borderRadius: "16px",
         padding: "1.5rem",
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+        boxSizing: "border-box",
       }}
     >
       <h2
         style={{
           margin: "0 0 1.25rem",
           fontSize: "1.15rem",
-          fontWeight: 700,
+          fontWeight: 800,
           color: "#000000",
           letterSpacing: "-0.01em",
         }}
@@ -76,12 +77,13 @@ export default function AccionesRapidas() {
             padding: "0.85rem 1.25rem",
             borderRadius: "999px",
             border: "none",
-            background: syncing ? "#fca5a5" : "#FF0000",
+            background: "#10B981",
+            opacity: syncing ? 0.6 : 1,
             color: "#ffffff",
             fontSize: "0.9rem",
-            fontWeight: 600,
+            fontWeight: 700,
             cursor: syncing ? "not-allowed" : "pointer",
-            boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
+            boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
             transition: "transform 0.15s, box-shadow 0.15s",
             fontFamily: "inherit",
           }}
@@ -89,14 +91,14 @@ export default function AccionesRapidas() {
             if (!syncing) {
               e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.boxShadow =
-                "0 6px 16px rgba(255, 0, 0, 0.45)";
+                "0 6px 16px rgba(16, 185, 129, 0.45)";
             }
           }}
           onMouseLeave={(e) => {
             if (!syncing) {
               e.currentTarget.style.transform = "translateY(0)";
               e.currentTarget.style.boxShadow =
-                "0 4px 12px rgba(255, 0, 0, 0.35)";
+                "0 4px 12px rgba(16, 185, 129, 0.35)";
             }
           }}
         >
@@ -112,7 +114,7 @@ export default function AccionesRapidas() {
         </button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes spin {
           from {
             transform: rotate(0deg);
@@ -146,7 +148,7 @@ function SecondaryButton({ href, icon: Icon, label }: SecondaryButtonProps) {
         borderRadius: "999px",
         border: "1.5px solid #e5e7eb",
         background: "#ffffff",
-        color: "#FF0000",
+        color: "#000000",
         fontSize: "0.9rem",
         fontWeight: 600,
         textDecoration: "none",
@@ -154,16 +156,18 @@ function SecondaryButton({ href, icon: Icon, label }: SecondaryButtonProps) {
         boxSizing: "border-box",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "#FF0000";
-        e.currentTarget.style.background = "#fff5f5";
+        e.currentTarget.style.borderColor = "#10B981";
+        e.currentTarget.style.background = "#ecfdf5";
+        e.currentTarget.style.color = "#10B981";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderColor = "#e5e7eb";
         e.currentTarget.style.background = "#ffffff";
+        e.currentTarget.style.color = "#000000";
       }}
     >
       <Icon size={16} />
       <span>{label}</span>
     </Link>
   );
-    }
+          }
