@@ -8,9 +8,6 @@ import {
   Gift,
   Sparkles,
   Zap,
-  Clock,
-  AlertCircle,
-  CheckCircle2,
   TrendingUp,
   Calendar,
 } from "lucide-react";
@@ -84,7 +81,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
   const gradientBg = isVIP
     ? "linear-gradient(135deg, #FF0000 0%, #000000 100%)"
     : isExpiringSoon
-    ? "linear-gradient(135deg, #ffffff 0%, #fff5f5 100%)"
+    ? "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)"
     : "#ffffff";
 
   const borderColor = isVIP
@@ -151,6 +148,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
           : "0 2px 8px rgba(0,0,0,0.04)",
         position: "relative",
         overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
       {/* Sparkles decorativos para VIP */}
@@ -165,6 +163,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               height: "120px",
               borderRadius: "50%",
               background: "rgba(255,255,255,0.08)",
+              pointerEvents: "none",
             }}
           />
           <div
@@ -176,13 +175,14 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               height: "160px",
               borderRadius: "50%",
               background: "rgba(255,255,255,0.05)",
+              pointerEvents: "none",
             }}
           />
         </>
       )}
 
       <div style={{ position: "relative", zIndex: 1 }}>
-        {/* ─── HEADER ─────────────────────────── */}
+        {/* HEADER */}
         <div
           style={{
             display: "flex",
@@ -288,7 +288,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
           )}
         </div>
 
-        {/* ─── FECHA DE VENCIMIENTO ─────────── */}
+        {/* FECHA DE VENCIMIENTO */}
         {(isTrial || isActive) && endDate && (
           <div
             style={{
@@ -316,7 +316,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
           </div>
         )}
 
-        {/* ─── BLOQUE MESES + RECOMPENSA ────── */}
+        {/* BLOQUE MESES + RECOMPENSA */}
         {!isTrial && (
           <div
             style={{
@@ -420,7 +420,6 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
             {/* Barra de progreso hacia próxima recompensa */}
             {nextReward && (
               <div>
-                {/* Header progreso — FIX: layout que no se rompe en angostas */}
                 <div
                   style={{
                     display: "flex",
@@ -552,7 +551,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
           </div>
         )}
 
-        {/* ─── CTA RENOVAR ───────────────────── */}
+        {/* CTA RENOVAR */}
         {showRenewCTA && (isTrial || isActive) && (
           <Link
             href="/plan/pagar"
@@ -571,7 +570,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               textDecoration: "none",
               boxShadow: "0 4px 14px rgba(255, 0, 0, 0.3)",
               boxSizing: "border-box",
-              marginTop: !isTrial ? "0" : "0",
+              marginTop: "0",
             }}
           >
             <Zap size={17} />
@@ -581,4 +580,4 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
       </div>
     </motion.div>
   );
-    }
+                               }
