@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "../dashboard/components/DashboardHeader";
 import SideMenu from "../dashboard/components/SideMenu";
+import CentroAyuda from "../dashboard/components/CentroAyuda";
 import EliminarWidgetModal from "@/components/widgets/EliminarWidgetModal";
 
 interface StoreData {
@@ -78,15 +79,12 @@ export default function WidgetsClient({
   const [busyId, setBusyId] = useState<string | null>(null);
   const [dismissBanner, setDismissBanner] = useState(false);
 
-  // Estado del modal de eliminación
   const [deleteTarget, setDeleteTarget] = useState<WidgetRow | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Detectar ?created=slug para mostrar banner de éxito
   const createdSlug = searchParams.get("created");
   const createdProductId = searchParams.get("product");
-  const showCreatedBanner =
-    !!createdSlug && !dismissBanner;
+  const showCreatedBanner = !!createdSlug && !dismissBanner;
 
   const createdWidget = useMemo(() => {
     if (!createdSlug) return null;
@@ -102,7 +100,6 @@ export default function WidgetsClient({
   const createdWidgetName =
     createdWidget?.definition?.name ?? createdSlug ?? "Widget";
 
-  // Filtro por búsqueda
   const filteredWidgets = useMemo(() => {
     if (!search.trim()) return widgets;
     const q = search.toLowerCase().trim();
@@ -123,7 +120,6 @@ export default function WidgetsClient({
     });
   }, [widgets, search, productsMap]);
 
-  // Agrupar widgets: "all" primero, luego por producto
   const groupedWidgets = useMemo(() => {
     const generales = filteredWidgets.filter((w) => w.target_type === "all");
     const porProducto = new Map<number, WidgetRow[]>();
@@ -174,18 +170,15 @@ export default function WidgetsClient({
     }
   };
 
-  // Abrir el modal de confirmación
   const handleDelete = (widget: WidgetRow) => {
     setDeleteTarget(widget);
   };
 
-  // Cerrar el modal
   const handleCloseModal = () => {
     if (isDeleting) return;
     setDeleteTarget(null);
   };
 
-  // Ejecutar la eliminación (desde el modal)
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     const widget = deleteTarget;
@@ -211,7 +204,6 @@ export default function WidgetsClient({
     }
   };
 
-  // Helper: texto del alcance del widget (para el modal)
   const getScopeLabel = (widget: WidgetRow): string => {
     if (widget.target_type === "all") {
       return "Todos los productos";
@@ -238,7 +230,6 @@ export default function WidgetsClient({
   const goToProduct = (productId: number) => {
     const p = productsMap[productId];
     if (!p) return;
-    // Abrir ficha del producto en la tienda pública
     window.open(`https://tienda.com.ar/productos/${p.slug}`, "_blank");
   };
 
@@ -261,6 +252,7 @@ export default function WidgetsClient({
           maxWidth: "1200px",
           margin: "0 auto",
           padding: "2rem 1.25rem 3rem",
+          boxSizing: "border-box",
         }}
       >
         {/* Volver al dashboard */}
@@ -456,7 +448,7 @@ export default function WidgetsClient({
                   background: "#FF0000",
                   color: "#ffffff",
                   fontSize: "0.9rem",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   cursor: "pointer",
                   boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
                   fontFamily: "inherit",
@@ -483,18 +475,19 @@ export default function WidgetsClient({
           >
             <Search
               size={18}
-              color="#9ca3af"
+              color="#000000"
               style={{
                 position: "absolute",
                 left: "1rem",
                 top: "50%",
                 transform: "translateY(-50%)",
                 pointerEvents: "none",
+                opacity: 0.45,
               }}
             />
             <input
               type="text"
-              placeholder="Busca un producto, categoría o widget..."
+              placeholder="Buscá un producto, categoría o widget..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
@@ -540,7 +533,6 @@ export default function WidgetsClient({
           />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            {/* Grupo: Todos los productos */}
             {groupedWidgets.generales.length > 0 && (
               <WidgetGroup
                 icon={
@@ -572,7 +564,6 @@ export default function WidgetsClient({
               />
             )}
 
-            {/* Grupo: por producto */}
             {Array.from(groupedWidgets.porProducto.entries()).map(
               ([productId, wgs]) => {
                 const product = productsMap[productId];
@@ -603,7 +594,8 @@ export default function WidgetsClient({
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            color: "#9ca3af",
+                            color: "#000000",
+                            opacity: 0.45,
                             flexShrink: 0,
                           }}
                         >
@@ -629,6 +621,11 @@ export default function WidgetsClient({
             )}
           </div>
         )}
+
+        {/* Centro de ayuda */}
+        <div style={{ marginTop: "2.5rem" }}>
+          <CentroAyuda />
+        </div>
       </main>
 
       {/* Toast */}
@@ -643,8 +640,7 @@ export default function WidgetsClient({
               bottom: "1.5rem",
               left: "50%",
               transform: "translateX(-50%)",
-              background:
-                toast.type === "success" ? "#059669" : "#dc2626",
+              background: toast.type === "success" ? "#059669" : "#dc2626",
               color: "#fff",
               padding: "0.85rem 1.4rem",
               borderRadius: "999px",
@@ -667,7 +663,6 @@ export default function WidgetsClient({
         )}
       </AnimatePresence>
 
-      {/* Modal de confirmación de eliminación */}
       <EliminarWidgetModal
         isOpen={!!deleteTarget}
         onClose={handleCloseModal}
@@ -716,7 +711,7 @@ function EmptyState({
           width: "72px",
           height: "72px",
           borderRadius: "18px",
-          background: "rgba(255, 0, 0, 0.08)",
+          background: "#fff5f5",
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
@@ -763,7 +758,7 @@ function EmptyState({
             background: "#FF0000",
             color: "#ffffff",
             fontSize: "0.9rem",
-            fontWeight: 600,
+            fontWeight: 700,
             textDecoration: "none",
             boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
           }}
@@ -812,7 +807,6 @@ function WidgetGroup({
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
       }}
     >
-      {/* Header del grupo */}
       <div
         style={{
           display: "flex",
@@ -829,7 +823,8 @@ function WidgetGroup({
             style={{
               fontSize: "1rem",
               fontWeight: 700,
-              color: productDisabled ? "#9ca3af" : "#000000",
+              color: "#000000",
+              opacity: productDisabled ? 0.45 : 1,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -850,7 +845,6 @@ function WidgetGroup({
         </div>
       </div>
 
-      {/* Filas de widgets */}
       <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
         {widgets.map((w) => (
           <WidgetRowItem
@@ -893,7 +887,7 @@ function WidgetRowItem({
         gap: "0.75rem",
         padding: "0.75rem",
         background: "#ffffff",
-        border: "1px solid #f0f2f5",
+        border: "1px solid #e5e7eb",
         borderRadius: "12px",
         opacity: busy ? 0.6 : 1,
         transition: "opacity 0.15s",
@@ -919,7 +913,7 @@ function WidgetRowItem({
             width: "40px",
             height: "22px",
             borderRadius: "999px",
-            background: widget.is_active ? "#FF0000" : "#d1d5db",
+            background: widget.is_active ? "#FF0000" : "#e5e7eb",
             position: "relative",
             transition: "background 0.15s",
           }}
@@ -947,13 +941,14 @@ function WidgetRowItem({
           alignItems: "center",
           gap: "0.4rem",
           padding: "0.4rem 0.85rem",
-          background: "#FF0000",
+          background: widget.is_active ? "#FF0000" : "#000000",
           color: "#ffffff",
           borderRadius: "999px",
           fontSize: "0.8rem",
           fontWeight: 600,
           maxWidth: "100%",
           minWidth: 0,
+          opacity: widget.is_active ? 1 : 0.75,
         }}
       >
         <span style={{ fontSize: "0.95rem", lineHeight: 1 }}>{icon}</span>
@@ -968,10 +963,9 @@ function WidgetRowItem({
         </span>
       </div>
 
-      {/* Spacer */}
       <div style={{ flex: 1 }} />
 
-      {/* Botón editar */}
+      {/* Editar */}
       <button
         type="button"
         onClick={() => onEdit(widget)}
@@ -994,19 +988,21 @@ function WidgetRowItem({
         }}
         onMouseEnter={(e) => {
           if (!busy) {
-            e.currentTarget.style.background = "#f9fafb";
-            e.currentTarget.style.borderColor = "#000000";
+            e.currentTarget.style.background = "#fff5f5";
+            e.currentTarget.style.borderColor = "#FF0000";
+            e.currentTarget.style.color = "#FF0000";
           }
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = "#ffffff";
           e.currentTarget.style.borderColor = "#e5e7eb";
+          e.currentTarget.style.color = "#000000";
         }}
       >
         <Pencil size={16} />
       </button>
 
-      {/* Botón eliminar */}
+      {/* Eliminar */}
       <button
         type="button"
         onClick={() => onDelete(widget)}
@@ -1040,4 +1036,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-            }
+  }
