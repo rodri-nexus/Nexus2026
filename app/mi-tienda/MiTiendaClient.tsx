@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import DashboardHeader from "../dashboard/components/DashboardHeader";
 import SideMenu from "../dashboard/components/SideMenu";
+import CentroAyuda from "../dashboard/components/CentroAyuda";
 
 interface StoreInfo {
   store_id: number;
@@ -95,12 +96,10 @@ export default function MiTiendaClient({
     msg: string;
   } | null>(null);
 
-  // ── Timer del toast con useRef para evitar memory leaks ──
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (toast) {
-      // Limpiar timer anterior si había uno
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
       toastTimerRef.current = setTimeout(() => {
         setToast(null);
@@ -113,7 +112,6 @@ export default function MiTiendaClient({
 
   const hasStore = storeInfo !== null;
 
-  /* ── Desconectar tienda ── */
   const handleDisconnect = async () => {
     setDisconnecting(true);
     try {
@@ -137,9 +135,6 @@ export default function MiTiendaClient({
         throw new Error(errorMsg);
       }
 
-      // ✅ Éxito: cerrar modal primero, mostrar toast,
-      // luego redirect con window.location para evitar
-      // que Framer Motion congele la UI durante la navegación
       setConfirmOpen(false);
       setToast({
         type: "success",
@@ -161,8 +156,6 @@ export default function MiTiendaClient({
         msg: errorMessage,
       });
     } finally {
-      // ✅ Siempre resetear disconnecting,
-      // tanto en éxito como en error
       setDisconnecting(false);
     }
   };
@@ -184,9 +177,10 @@ export default function MiTiendaClient({
           maxWidth: "900px",
           margin: "0 auto",
           padding: "1.5rem 1.25rem 4rem",
+          boxSizing: "border-box",
         }}
       >
-        {/* Back link */}
+        {/* Volver al dashboard */}
         <Link
           href="/dashboard"
           style={{
@@ -243,7 +237,7 @@ export default function MiTiendaClient({
             animate={{ opacity: 1, y: 0 }}
             style={{
               background: "#ffffff",
-              border: "1.5px solid #000000",
+              border: "1.5px solid #FF0000",
               borderRadius: "16px",
               padding: "2.5rem 1.5rem",
               textAlign: "center",
@@ -268,7 +262,7 @@ export default function MiTiendaClient({
               style={{
                 margin: 0,
                 fontSize: "1.15rem",
-                fontWeight: 700,
+                fontWeight: 800,
                 color: "#000000",
               }}
             >
@@ -298,7 +292,7 @@ export default function MiTiendaClient({
                 color: "#ffffff",
                 textDecoration: "none",
                 fontSize: "0.9rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 boxShadow: "0 4px 14px rgba(255, 0, 0, 0.35)",
               }}
             >
@@ -311,7 +305,7 @@ export default function MiTiendaClient({
         {/* ═══════════ CON TIENDA ═══════════ */}
         {hasStore && (
           <>
-            {/* ── Card: Información de la tienda ── */}
+            {/* Información de la tienda */}
             <motion.section
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -327,7 +321,7 @@ export default function MiTiendaClient({
                   style={{
                     fontSize: "0.95rem",
                     color: "#000000",
-                    fontWeight: 600,
+                    fontWeight: 700,
                   }}
                 >
                   {storeInfo.name}
@@ -346,7 +340,7 @@ export default function MiTiendaClient({
                     fontSize: "0.9rem",
                     color: "#FF0000",
                     textDecoration: "none",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     wordBreak: "break-all",
                   }}
                 >
@@ -361,7 +355,7 @@ export default function MiTiendaClient({
                     fontSize: "0.85rem",
                     fontFamily: "monospace",
                     color: "#000000",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     background: "#f9fafb",
                     display: "inline-block",
                     padding: "0.25rem 0.6rem",
@@ -380,27 +374,27 @@ export default function MiTiendaClient({
                     alignItems: "center",
                     gap: "0.4rem",
                     padding: "0.35rem 0.75rem",
-                    background: "#FF0000",
+                    background: "#d1fae5",
+                    border: "1px solid #6ee7b7",
                     borderRadius: "8px",
-                    color: "#ffffff",
+                    color: "#065f46",
                     fontSize: "0.8rem",
                     fontWeight: 700,
-                    boxShadow: "0 2px 8px rgba(255, 0, 0, 0.3)",
                   }}
                 >
-                  <CheckCircle2 size={14} strokeWidth={2.5} />
+                  <CheckCircle2 size={14} color="#059669" strokeWidth={2.5} />
                   Conectado
                 </div>
               </Field>
 
               <Field label="Conectado desde">
-                <div style={{ fontSize: "0.9rem", color: "#000000" }}>
+                <div style={{ fontSize: "0.9rem", color: "#000000", fontWeight: 500 }}>
                   {formatDate(storeInfo.installed_at)}
                 </div>
               </Field>
 
               <Field label="Última sincronización">
-                <div style={{ fontSize: "0.9rem", color: "#000000" }}>
+                <div style={{ fontSize: "0.9rem", color: "#000000", fontWeight: 500 }}>
                   {formatDate(storeInfo.updated_at)}
                   {storeInfo.updated_at && (
                     <span
@@ -418,7 +412,7 @@ export default function MiTiendaClient({
               </Field>
             </motion.section>
 
-            {/* ── Card: Acciones ── */}
+            {/* Acciones */}
             <motion.section
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -471,7 +465,7 @@ export default function MiTiendaClient({
               </div>
             </motion.section>
 
-            {/* ── Card: Zona de peligro ── */}
+            {/* Zona de peligro */}
             <motion.section
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -544,9 +538,14 @@ export default function MiTiendaClient({
             </motion.section>
           </>
         )}
+
+        {/* Centro de Ayuda */}
+        <div style={{ marginTop: "2.5rem" }}>
+          <CentroAyuda />
+        </div>
       </main>
 
-      {/* ═══════════ MODAL CONFIRMACIÓN ═══════════ */}
+      {/* MODAL CONFIRMACIÓN */}
       <AnimatePresence>
         {confirmOpen && (
           <motion.div
@@ -699,7 +698,7 @@ export default function MiTiendaClient({
         )}
       </AnimatePresence>
 
-      {/* ═══════════ TOAST ═══════════ */}
+      {/* TOAST */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -760,7 +759,7 @@ const cardStyle: React.CSSProperties = {
 const cardTitleStyle: React.CSSProperties = {
   margin: 0,
   fontSize: "1.05rem",
-  fontWeight: 700,
+  fontWeight: 800,
   color: "#000000",
   letterSpacing: "-0.01em",
 };
@@ -888,4 +887,4 @@ function ActionButton({
       {label}
     </button>
   );
-  }
+      }
