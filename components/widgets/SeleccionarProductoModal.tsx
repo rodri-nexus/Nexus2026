@@ -94,13 +94,13 @@ export default function SeleccionarProductoModal({
             style={{
               position: "fixed",
               inset: 0,
-              background: "rgba(0, 0, 0, 0.5)",
+              background: "rgba(0, 0, 0, 0.55)",
               backdropFilter: "blur(4px)",
               zIndex: 100,
             }}
           />
 
-          {/* Modal Container - Centrado con Flexbox */}
+          {/* Modal Container */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -115,6 +115,7 @@ export default function SeleccionarProductoModal({
               justifyContent: "center",
               zIndex: 101,
               padding: "1rem",
+              boxSizing: "border-box",
             }}
           >
             {/* Modal Content */}
@@ -129,11 +130,12 @@ export default function SeleccionarProductoModal({
                 maxWidth: "520px",
                 maxHeight: "calc(100vh - 2rem)",
                 background: "#ffffff",
-                borderRadius: "16px",
+                borderRadius: "18px",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
+                boxSizing: "border-box",
               }}
             >
               {/* Header */}
@@ -151,8 +153,9 @@ export default function SeleccionarProductoModal({
                   style={{
                     margin: 0,
                     fontSize: "1.15rem",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     color: "#000000",
+                    letterSpacing: "-0.01em",
                   }}
                 >
                   Seleccionar producto
@@ -170,13 +173,15 @@ export default function SeleccionarProductoModal({
                     cursor: "pointer",
                     borderRadius: "10px",
                     color: "#000000",
-                    transition: "background 0.15s",
+                    transition: "background 0.15s, color 0.15s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#f3f4f6";
+                    e.currentTarget.style.background = "#ecfdf5";
+                    e.currentTarget.style.color = "#10B981";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "#000000";
                   }}
                 >
                   <X size={20} />
@@ -194,8 +199,8 @@ export default function SeleccionarProductoModal({
                 >
                   <Search
                     size={18}
-                    color="#9ca3af"
-                    style={{ position: "absolute", left: "0.85rem" }}
+                    color="#000000"
+                    style={{ position: "absolute", left: "0.85rem", opacity: 0.4 }}
                   />
                   <input
                     type="text"
@@ -215,9 +220,10 @@ export default function SeleccionarProductoModal({
                       outline: "none",
                       fontFamily: "inherit",
                       transition: "border-color 0.15s",
+                      boxSizing: "border-box",
                     }}
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "#FF0000";
+                      e.currentTarget.style.borderColor = "#10B981";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "#e5e7eb";
@@ -275,7 +281,7 @@ export default function SeleccionarProductoModal({
                         background: "#fef2f2",
                         color: "#dc2626",
                         fontSize: "0.85rem",
-                        fontWeight: 600,
+                        fontWeight: 700,
                         cursor: "pointer",
                       }}
                     >
@@ -296,7 +302,7 @@ export default function SeleccionarProductoModal({
                       gap: "0.5rem",
                     }}
                   >
-                    <Package size={32} color="#d1d5db" />
+                    <Package size={32} color="#000000" style={{ opacity: 0.3 }} />
                     <span>No se encontraron productos</span>
                   </div>
                 ) : (
@@ -318,15 +324,16 @@ export default function SeleccionarProductoModal({
                           padding: "0.75rem",
                           background: "#ffffff",
                           border: "1.5px solid #f3f4f6",
-                          borderRadius: "10px",
+                          borderRadius: "12px",
                           cursor: "pointer",
                           textAlign: "left",
                           width: "100%",
                           transition: "border-color 0.15s, background 0.15s",
+                          boxSizing: "border-box",
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "#FF0000";
-                          e.currentTarget.style.background = "#fff5f5";
+                          e.currentTarget.style.borderColor = "#10B981";
+                          e.currentTarget.style.background = "#ecfdf5";
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.borderColor = "#f3f4f6";
@@ -359,7 +366,8 @@ export default function SeleccionarProductoModal({
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                color: "#d1d5db",
+                                color: "#000000",
+                                opacity: 0.3,
                               }}
                             >
                               <Package size={20} />
@@ -370,7 +378,7 @@ export default function SeleccionarProductoModal({
                           <div
                             style={{
                               fontSize: "0.9rem",
-                              fontWeight: 600,
+                              fontWeight: 700,
                               color: "#000000",
                               whiteSpace: "nowrap",
                               overflow: "hidden",
@@ -418,9 +426,9 @@ export default function SeleccionarProductoModal({
                     gap: "0.4rem",
                     background: "transparent",
                     border: "none",
-                    color: "#FF0000",
+                    color: "#10B981",
                     fontSize: "0.85rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     cursor: syncing ? "not-allowed" : "pointer",
                     fontFamily: "inherit",
                     padding: 0,
@@ -429,7 +437,9 @@ export default function SeleccionarProductoModal({
                 >
                   <RefreshCw
                     size={14}
-                    className={syncing ? "animate-spin" : ""}
+                    style={{
+                      animation: syncing ? "spin 1s linear infinite" : "none",
+                    }}
                   />
                   Sincronizar productos
                 </button>
@@ -440,4 +450,4 @@ export default function SeleccionarProductoModal({
       )}
     </AnimatePresence>
   );
-  }
+          }
