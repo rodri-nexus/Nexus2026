@@ -30,13 +30,13 @@ export default function CrearWidgetModal({
             style={{
               position: "fixed",
               inset: 0,
-              background: "rgba(0, 0, 0, 0.5)",
+              background: "rgba(0, 0, 0, 0.55)",
               backdropFilter: "blur(4px)",
               zIndex: 100,
             }}
           />
 
-          {/* Modal Container - Centrado con Flexbox */}
+          {/* Modal Container */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -51,6 +51,7 @@ export default function CrearWidgetModal({
               justifyContent: "center",
               zIndex: 101,
               padding: "1rem",
+              boxSizing: "border-box",
             }}
           >
             {/* Modal Content */}
@@ -64,9 +65,10 @@ export default function CrearWidgetModal({
                 width: "100%",
                 maxWidth: "480px",
                 background: "#ffffff",
-                borderRadius: "16px",
+                borderRadius: "18px",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                 padding: "1.5rem",
+                boxSizing: "border-box",
               }}
             >
               {/* Header */}
@@ -82,8 +84,9 @@ export default function CrearWidgetModal({
                   style={{
                     margin: 0,
                     fontSize: "1.25rem",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     color: "#000000",
+                    letterSpacing: "-0.01em",
                   }}
                 >
                   Crear nuevo widget
@@ -101,13 +104,15 @@ export default function CrearWidgetModal({
                     cursor: "pointer",
                     borderRadius: "10px",
                     color: "#000000",
-                    transition: "background 0.15s",
+                    transition: "background 0.15s, color 0.15s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#f3f4f6";
+                    e.currentTarget.style.background = "#ecfdf5";
+                    e.currentTarget.style.color = "#10B981";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "#000000";
                   }}
                 >
                   <X size={20} />
@@ -137,19 +142,22 @@ export default function CrearWidgetModal({
                     padding: "1rem 1.25rem",
                     background: "#ffffff",
                     border: "1.5px solid #e5e7eb",
-                    borderRadius: "12px",
+                    borderRadius: "14px",
                     cursor: "pointer",
                     textAlign: "left",
                     width: "100%",
-                    transition: "border-color 0.15s, box-shadow 0.15s",
+                    transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s",
+                    boxSizing: "border-box",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "#FF0000";
+                    e.currentTarget.style.borderColor = "#10B981";
+                    e.currentTarget.style.background = "#ecfdf5";
                     e.currentTarget.style.boxShadow =
-                      "0 0 0 3px rgba(255, 0, 0, 0.08)";
+                      "0 0 0 3px rgba(16, 185, 129, 0.15)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = "#e5e7eb";
+                    e.currentTarget.style.background = "#ffffff";
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 >
@@ -157,21 +165,21 @@ export default function CrearWidgetModal({
                     style={{
                       width: "48px",
                       height: "48px",
-                      borderRadius: "10px",
-                      background: "#fff5f5",
+                      borderRadius: "12px",
+                      background: "rgba(16, 185, 129, 0.12)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                     }}
                   >
-                    <Package size={22} color="#FF0000" />
+                    <Package size={22} color="#10B981" />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div
                       style={{
                         fontSize: "0.95rem",
-                        fontWeight: 600,
+                        fontWeight: 700,
                         color: "#000000",
                         marginBottom: "0.25rem",
                       }}
@@ -186,7 +194,7 @@ export default function CrearWidgetModal({
                         lineHeight: 1.4,
                       }}
                     >
-                      Asocia widgets a un producto en particular
+                      Asociá widgets a un producto en particular
                     </div>
                   </div>
                   <svg
@@ -214,19 +222,22 @@ export default function CrearWidgetModal({
                     padding: "1rem 1.25rem",
                     background: "#ffffff",
                     border: "1.5px solid #e5e7eb",
-                    borderRadius: "12px",
+                    borderRadius: "14px",
                     cursor: "pointer",
                     textAlign: "left",
                     width: "100%",
-                    transition: "border-color 0.15s, box-shadow 0.15s",
+                    transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s",
+                    boxSizing: "border-box",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "#FF0000";
+                    e.currentTarget.style.borderColor = "#10B981";
+                    e.currentTarget.style.background = "#ecfdf5";
                     e.currentTarget.style.boxShadow =
-                      "0 0 0 3px rgba(255, 0, 0, 0.08)";
+                      "0 0 0 3px rgba(16, 185, 129, 0.15)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = "#e5e7eb";
+                    e.currentTarget.style.background = "#ffffff";
                     e.currentTarget.style.boxShadow = "none";
                   }}
                 >
@@ -234,7 +245,7 @@ export default function CrearWidgetModal({
                     style={{
                       width: "48px",
                       height: "48px",
-                      borderRadius: "10px",
+                      borderRadius: "12px",
                       background: "#000000",
                       display: "flex",
                       alignItems: "center",
@@ -248,7 +259,7 @@ export default function CrearWidgetModal({
                     <div
                       style={{
                         fontSize: "0.95rem",
-                        fontWeight: 600,
+                        fontWeight: 700,
                         color: "#000000",
                         marginBottom: "0.25rem",
                       }}
@@ -263,7 +274,7 @@ export default function CrearWidgetModal({
                         lineHeight: 1.4,
                       }}
                     >
-                      Asocia widgets a todos los productos y en el inicio de la tienda
+                      Asociá widgets a todos los productos y en el inicio de la tienda
                     </div>
                   </div>
                   <svg
@@ -287,4 +298,4 @@ export default function CrearWidgetModal({
       )}
     </AnimatePresence>
   );
-              }
+            }
