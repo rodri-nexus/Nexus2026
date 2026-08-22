@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ColorPicker,
@@ -10,6 +10,8 @@ import {
 } from './EditorFields';
 import EditorTabs from './EditorTabs';
 import MensajeGarantiaPreview from './MensajeGarantiaPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
    TIPOS
@@ -87,7 +89,6 @@ const TAMANO_OPTIONS = [
 
 /* ═══════════════════════════════════════════
    COMPONENTE: SECTION CARD
-   Card con ícono + título + descripción
 ═══════════════════════════════════════════ */
 function SectionCard({
   icon,
@@ -111,14 +112,14 @@ function SectionCard({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
-        <div style={{ fontSize: 22, lineHeight: 1, flexShrink: 0, color: '#667eea' }}>
+        <div style={{ fontSize: 22, lineHeight: 1, flexShrink: 0, color: '#FF0000' }}>
           {icon}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a2e', marginBottom: 4 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
             {title}
           </div>
-          <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.4 }}>{description}</div>
+          <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, lineHeight: 1.4 }}>{description}</div>
         </div>
       </div>
       <div>{children}</div>
@@ -128,7 +129,6 @@ function SectionCard({
 
 /* ═══════════════════════════════════════════
    COMPONENTE: RICH TEXT AREA
-   Textarea con toolbar B / I / U / lista
 ═══════════════════════════════════════════ */
 function RichTextArea({
   label,
@@ -190,7 +190,7 @@ function RichTextArea({
     cursor: 'pointer',
     fontSize: 14,
     fontWeight: 700,
-    color: '#374151',
+    color: '#000000',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -204,7 +204,7 @@ function RichTextArea({
           display: 'block',
           fontSize: 13,
           fontWeight: 600,
-          color: '#374151',
+          color: '#000000',
           marginBottom: 8,
         }}
       >
@@ -265,7 +265,7 @@ function RichTextArea({
             padding: '12px 14px',
             border: 'none',
             fontSize: 14,
-            color: '#1a1a2e',
+            color: '#000000',
             background: '#fafafa',
             outline: 'none',
             resize: 'vertical',
@@ -276,7 +276,7 @@ function RichTextArea({
         />
       </div>
       {description && (
-        <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>{description}</div>
+        <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 6 }}>{description}</div>
       )}
     </div>
   );
@@ -284,7 +284,6 @@ function RichTextArea({
 
 /* ═══════════════════════════════════════════
    COMPONENTE: IMAGE UPLOADER
-   Drag & drop + click + preview + eliminar
 ═══════════════════════════════════════════ */
 function ImageUploader({
   label,
@@ -301,7 +300,7 @@ function ImageUploader({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const MAX_BYTES = 3 * 1024 * 1024; // 3MB
+  const MAX_BYTES = 3 * 1024 * 1024;
   const VALID_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
   const handleFile = (file: File) => {
@@ -357,7 +356,7 @@ function ImageUploader({
           display: 'block',
           fontSize: 13,
           fontWeight: 600,
-          color: '#374151',
+          color: '#000000',
           marginBottom: 8,
         }}
       >
@@ -388,7 +387,7 @@ function ImageUploader({
               flexShrink: 0,
             }}
           />
-          <div style={{ flex: 1, fontSize: 12, color: '#6b7280' }}>
+          <div style={{ flex: 1, fontSize: 12, color: '#000000', opacity: 0.6 }}>
             Imagen cargada correctamente
           </div>
           <button
@@ -415,20 +414,20 @@ function ImageUploader({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           style={{
-            border: `2px dashed ${dragOver ? '#667eea' : '#d1d5db'}`,
+            border: `2px dashed ${dragOver ? '#FF0000' : '#e5e7eb'}`,
             borderRadius: 12,
             padding: '28px 20px',
-            background: dragOver ? '#f5f3ff' : '#fafafa',
+            background: dragOver ? '#fff5f5' : '#fafafa',
             textAlign: 'center',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
           }}
         >
-          <div style={{ fontSize: 32, marginBottom: 8, color: '#9ca3af' }}>⬆️</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>
+          <div style={{ fontSize: 32, marginBottom: 8, color: '#000000', opacity: 0.4 }}>⬆️</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#000000', marginBottom: 4 }}>
             Arrastrá una imagen o hacé clic para subir
           </div>
-          <div style={{ fontSize: 12, color: '#9ca3af' }}>JPG, PNG, WEBP (máx. 3MB)</div>
+          <div style={{ fontSize: 12, color: '#000000', opacity: 0.6 }}>JPG, PNG, WEBP (máx. 3MB)</div>
         </div>
       )}
 
@@ -460,7 +459,7 @@ function ImageUploader({
       )}
 
       {description && !error && (
-        <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>{description}</div>
+        <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 6 }}>{description}</div>
       )}
     </div>
   );
@@ -517,8 +516,6 @@ export default function MensajeGarantiaEditor({
         throw new Error(data?.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -546,7 +543,7 @@ export default function MensajeGarantiaEditor({
         placeholder="🛡️ Garantía de 60 días"
         onChange={(v) => updateCfg('titulo', v)}
       />
-      <div style={{ fontSize: 12, color: '#9ca3af', marginTop: -10, marginBottom: 16 }}>
+      <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, marginTop: -10, marginBottom: 16 }}>
         Título principal del mensaje de garantía
       </div>
 
@@ -655,194 +652,251 @@ export default function MensajeGarantiaEditor({
   );
 
   return (
-    <div
-      style={{
-        maxWidth: 720,
-        margin: '0 auto',
-        padding: 16,
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}
-    >
+    <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
-      <div style={{ marginBottom: 20 }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 10,
-            background: '#f3f4f6',
-            padding: '8px 14px',
-            borderRadius: 12,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ fontSize: 20 }}>{widgetDefinition.icon}</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1a1a2e' }}>
-            NEVUX Widget
-          </div>
-        </div>
-        <h1
-          style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#1a1a2e',
-            margin: 0,
-            lineHeight: 1.25,
-          }}
-        >
-          {existingWidget ? 'Editar' : 'Nuevo'} widget: {widgetDefinition.name} (
-          {targetType === 'product' ? 'Producto' : 'Todos'})
-        </h1>
-      </div>
-
-      {/* PREVIEW */}
       <div
         style={{
-          background: '#ffffff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 14,
-          padding: 20,
-          marginBottom: 8,
+          position: 'sticky',
+          top: 0,
+          zIndex: 30,
+          background: '#FFFFFF',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        <MensajeGarantiaPreview config={config} />
-        <div
-          style={{
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: '1px solid #f1f3f5',
-            fontSize: 12,
-            color: '#6b7280',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 8,
-          }}
-        >
-          <span style={{ color: '#9ca3af' }}>ⓘ</span>
-          <span>
-            El mensaje aparecerá debajo del botón &quot;Agregar al carrito&quot;.
-          </span>
-        </div>
-      </div>
-
-      {/* TABS */}
-      <div
-        style={{
-          background: '#ffffff',
-          border: '1px solid #e5e7eb',
-          borderRadius: 14,
-          padding: 20,
-          marginTop: 16,
-        }}
-      >
-        <EditorTabs
-          tabs={[
-            { id: 'general', label: 'General', icon: '⚙️' },
-            { id: 'estilos', label: 'Estilos', icon: '🎨' },
-          ]}
-        >
-          {[tabGeneral, tabEstilos]}
-        </EditorTabs>
-
-        {/* FOOTER: Toggle + botón guardar */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginTop: 24,
-            paddingTop: 20,
-            borderTop: '1px solid #f1f3f5',
-            gap: 12,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button
-              type="button"
-              onClick={() => setIsActive(!isActive)}
-              style={{
-                width: 48,
-                height: 26,
-                borderRadius: 13,
-                border: 'none',
-                cursor: 'pointer',
-                background: isActive
-                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  : '#d1d5db',
-                position: 'relative',
-                flexShrink: 0,
-                outline: 'none',
-              }}
-            >
-              <span
-                style={{
-                  position: 'absolute',
-                  top: 3,
-                  left: isActive ? 24 : 3,
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  background: '#fff',
-                  transition: 'left 0.25s ease',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-                }}
-              />
-            </button>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>
-              Widget activo
-            </span>
-            <span
-              title="Si está inactivo, el widget no se mostrará en la tienda"
-              style={{ fontSize: 14, color: '#9ca3af', cursor: 'help' }}
-            >
-              ⓘ
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
+        <NevuxLogo size="medium" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
             style={{
-              padding: '12px 28px',
-              background: saving
-                ? '#9ca3af'
-                : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              color: '#fff',
-              border: 'none',
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              background: '#000000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#FFFFFF',
+            }}
+          >
+            RL
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
+        {/* Chip scope */}
+        {targetType === 'all' ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: '#FF0000',
+              color: '#FFFFFF',
+              padding: '8px 14px',
               borderRadius: 999,
               fontSize: 14,
               fontWeight: 700,
-              cursor: saving ? 'not-allowed' : 'pointer',
-              boxShadow: saving ? 'none' : '0 4px 14px rgba(59,130,246,0.35)',
-              transition: 'all 0.2s ease',
+              marginBottom: 14,
             }}
           >
-            {saving
-              ? 'Guardando...'
-              : existingWidget
-              ? 'Guardar cambios'
-              : 'Crear widget'}
-          </button>
-        </div>
-
-        {error && (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2">
+              <path d="M3 9l1-5h16l1 5" />
+              <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
+              <path d="M9 21V13h6v8" />
+            </svg>
+            Todos los productos
+          </div>
+        ) : (
           <div
             style={{
-              marginTop: 14,
-              padding: '10px 14px',
-              background: '#fee2e2',
-              color: '#b91c1c',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#FFFFFF',
+              border: '1px solid #e5e7eb',
+              padding: '8px 14px',
               borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 600,
+              fontSize: 14,
+              fontWeight: 700,
+              color: '#000000',
+              marginBottom: 14,
             }}
           >
-            {error}
+            <span style={{ fontSize: 18 }}>🛍</span>
+            NEVUX Widget
           </div>
         )}
+
+        <h1
+          style={{
+            fontSize: 26,
+            fontWeight: 800,
+            color: '#000000',
+            marginBottom: 20,
+            lineHeight: 1.2,
+          }}
+        >
+          {existingWidget ? 'Editar widget: ' : 'Nuevo widget: '}
+          {widgetDefinition.name} ({targetType === 'all' ? 'General' : 'Producto'})
+        </h1>
+
+        {/* PREVIEW */}
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 14,
+            padding: 20,
+            marginBottom: 8,
+          }}
+        >
+          <MensajeGarantiaPreview config={config} />
+          <div
+            style={{
+              marginTop: 16,
+              paddingTop: 16,
+              borderTop: '1px solid #f1f3f5',
+              fontSize: 12,
+              color: '#000000',
+              opacity: 0.6,
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 8,
+            }}
+          >
+            <span style={{ color: '#000000', opacity: 0.5 }}>ⓘ</span>
+            <span>
+              El mensaje aparecerá debajo del botón &quot;Agregar al carrito&quot;.
+            </span>
+          </div>
+        </div>
+
+        {/* TABS Y CONFIGURACION */}
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 14,
+            padding: 20,
+            marginTop: 16,
+          }}
+        >
+          <EditorTabs
+            tabs={[
+              { id: 'general', label: 'General', icon: '⚙️' },
+              { id: 'estilos', label: 'Estilos', icon: '🎨' },
+            ]}
+          >
+            {[tabGeneral, tabEstilos]}
+          </EditorTabs>
+
+          {/* FOOTER: Toggle + botón guardar */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginTop: 24,
+              paddingTop: 20,
+              borderTop: '1px solid #f1f3f5',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => setIsActive(!isActive)}
+                style={{
+                  width: 48,
+                  height: 26,
+                  borderRadius: 13,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: isActive ? '#FF0000' : '#e5e7eb',
+                  position: 'relative',
+                  flexShrink: 0,
+                  outline: 'none',
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: 3,
+                    left: isActive ? 24 : 3,
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: '#ffffff',
+                    transition: 'left 0.25s ease',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                  }}
+                />
+              </button>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#000000' }}>
+                Widget activo
+              </span>
+              <span
+                title="Si está inactivo, el widget no se mostrará en la tienda"
+                style={{ fontSize: 14, color: '#000000', opacity: 0.5, cursor: 'help' }}
+              >
+                ⓘ
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                padding: '12px 28px',
+                background: saving ? '#e5e7eb' : '#FF0000',
+                color: saving ? '#000000' : '#ffffff',
+                border: 'none',
+                borderRadius: 999,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.7 : 1,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {saving
+                ? 'Guardando...'
+                : existingWidget
+                ? 'Guardar cambios'
+                : 'Crear widget'}
+            </button>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                marginTop: 14,
+                padding: '10px 14px',
+                background: '#fee2e2',
+                color: '#b91c1c',
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* CENTRO DE AYUDA */}
+        <div style={{ marginTop: 40 }}>
+          <CentroAyuda />
+        </div>
       </div>
     </div>
   );
-        }
+}
