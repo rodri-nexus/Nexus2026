@@ -15,10 +15,10 @@ export default function HomePage() {
     <main
       style={{
         minHeight: "100vh",
-        background: "white",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        color: "#111827",
+        color: "#000000",
       }}
     >
       {/* Header sticky */}
@@ -41,4 +41,4 @@ export default function HomePage() {
       <ChatBubble />
     </main>
   );
-}
+      }
