@@ -16,7 +16,6 @@ type Testimonial = {
   metric?: string;
 };
 
-// Fotos reales de randomuser.me (personas reales que donaron sus fotos)
 const testimonials: Testimonial[] = [
   {
     id: 1,
@@ -105,7 +104,7 @@ export default function Testimonials() {
     <section
       style={{
         padding: "5rem 1.25rem",
-        background: "white",
+        background: "#ffffff",
         overflow: "hidden",
       }}
     >
@@ -125,7 +124,7 @@ export default function Testimonials() {
             flexWrap: "wrap",
           }}
         >
-          {/* Logo Tiendanube — se mantiene en su azul original */}
+          {/* Logo Tiendanube */}
           <svg
             width="105"
             height="20"
@@ -197,7 +196,7 @@ export default function Testimonials() {
           Lo que dicen{" "}
           <span
             style={{
-              color: "#FF0000",
+              color: "#10B981",
             }}
           >
             nuestros clientes
@@ -240,14 +239,15 @@ export default function Testimonials() {
               exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.35 }}
               style={{
-                background: "white",
+                background: "#ffffff",
                 borderRadius: "24px",
                 padding: "clamp(1.5rem, 4vw, 2.5rem)",
                 boxShadow:
-                  "0 20px 60px rgba(255, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.05)",
+                  "0 20px 60px rgba(16, 185, 129, 0.12), 0 8px 24px rgba(0, 0, 0, 0.05)",
                 border: "1px solid #f3f4f6",
                 position: "relative",
                 overflow: "hidden",
+                boxSizing: "border-box",
               }}
             >
               {/* Quote decorativo */}
@@ -259,7 +259,7 @@ export default function Testimonials() {
                   opacity: 0.08,
                 }}
               >
-                <Quote size={80} color="#FF0000" fill="#FF0000" />
+                <Quote size={80} color="#10B981" fill="#10B981" />
               </div>
 
               {/* Header con foto y datos */}
@@ -281,7 +281,7 @@ export default function Testimonials() {
                     borderRadius: "50%",
                     overflow: "hidden",
                     flexShrink: 0,
-                    border: "3px solid white",
+                    border: "3px solid #ffffff",
                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                     background: "#f3f4f6",
                     position: "relative",
@@ -312,18 +312,17 @@ export default function Testimonials() {
                     <h4
                       style={{
                         fontSize: "1rem",
-                        fontWeight: 700,
+                        fontWeight: 800,
                         color: "#000000",
                         margin: 0,
                       }}
                     >
                       {currentTestimonial.name}
                     </h4>
-                    {/* CheckCircle azul — semántico verificado, se mantiene */}
                     <CheckCircle2
                       size={16}
                       fill="#3b82f6"
-                      color="white"
+                      color="#ffffff"
                       strokeWidth={2.5}
                     />
                   </div>
@@ -357,7 +356,7 @@ export default function Testimonials() {
                   </div>
                 </div>
 
-                {/* Métrica — verde semántico, se mantiene */}
+                {/* Métrica */}
                 {currentTestimonial.metric && (
                   <div
                     style={{
@@ -366,7 +365,7 @@ export default function Testimonials() {
                       background: "linear-gradient(135deg, #d1fae5, #a7f3d0)",
                       borderRadius: "10px",
                       fontSize: "0.8rem",
-                      fontWeight: 700,
+                      fontWeight: 800,
                       color: "#059669",
                       flexShrink: 0,
                     }}
@@ -411,12 +410,11 @@ export default function Testimonials() {
                     fontSize: "0.8rem",
                     color: "#000000",
                     opacity: 0.5,
-                    fontWeight: 500,
+                    fontWeight: 600,
                   }}
                 >
                   {currentTestimonial.date}
                 </div>
-                {/* Badge verde semántico de métrica — se mantiene */}
                 {currentTestimonial.metric && (
                   <div
                     style={{
@@ -424,11 +422,12 @@ export default function Testimonials() {
                       alignItems: "center",
                       gap: "0.35rem",
                       padding: "0.4rem 0.8rem",
-                      background: "linear-gradient(135deg, #d1fae5, #a7f3d0)",
+                      background: "#ecfdf5",
+                      border: "1px solid #a7f3d0",
                       borderRadius: "999px",
                       fontSize: "0.75rem",
-                      fontWeight: 700,
-                      color: "#059669",
+                      fontWeight: 800,
+                      color: "#10B981",
                     }}
                   >
                     📈 {currentTestimonial.metric}
@@ -468,7 +467,7 @@ export default function Testimonials() {
                     height: "8px",
                     borderRadius: "999px",
                     background:
-                      i === currentIndex ? "#FF0000" : "#e5e7eb",
+                      i === currentIndex ? "#10B981" : "#e5e7eb",
                     border: "none",
                     cursor: "pointer",
                     transition: "all 0.3s",
@@ -495,7 +494,7 @@ export default function Testimonials() {
               color: "#000000",
               opacity: 0.5,
               marginTop: "0.75rem",
-              fontWeight: 500,
+              fontWeight: 600,
             }}
           >
             {currentIndex + 1} de {testimonials.length}
@@ -511,7 +510,7 @@ const navButtonStyle: React.CSSProperties = {
   width: "44px",
   height: "44px",
   borderRadius: "50%",
-  background: "white",
+  background: "#ffffff",
   border: "1.5px solid #e5e7eb",
   display: "flex",
   alignItems: "center",
