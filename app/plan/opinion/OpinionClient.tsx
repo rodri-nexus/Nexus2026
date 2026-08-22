@@ -9,7 +9,6 @@ import {
   Loader2,
   CheckCircle2,
   ArrowRight,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
@@ -91,6 +90,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
         overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
       {/* Círculos decorativos de fondo */}
@@ -121,32 +121,34 @@ export default function OpinionClient({ email }: OpinionClientProps) {
         }}
       />
 
-      {/* Logo Nevux arriba */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          position: "absolute",
-          top: "2rem",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 2,
-        }}
-      >
-        <NevuxLogo size="medium" />
-      </motion.div>
-
-      {/* Contenido */}
       <div
         style={{
           maxWidth: "620px",
           width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           position: "relative",
           zIndex: 2,
-          marginTop: "3rem",
+          boxSizing: "border-box",
         }}
       >
+        {/* LOGO NEVUX CENTRADO */}
+        <motion.div
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: "2rem",
+            width: "100%",
+          }}
+        >
+          <NevuxLogo size="medium" />
+        </motion.div>
+
         <AnimatePresence mode="wait">
           {!sent ? (
             <motion.div
@@ -155,9 +157,23 @@ export default function OpinionClient({ email }: OpinionClientProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.35 }}
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              {/* Ícono */}
-              <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+              {/* ÍCONO MENSAJE CENTRADO */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                  marginBottom: "1.75rem",
+                }}
+              >
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -185,7 +201,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                 </motion.div>
               </div>
 
-              {/* Título */}
+              {/* TÍTULO */}
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -203,7 +219,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                 ¿Qué podríamos mejorar?
               </motion.h1>
 
-              {/* Subtítulo */}
+              {/* SUBTÍTULO */}
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -222,7 +238,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                 mejor
               </motion.p>
 
-              {/* Chips de razones */}
+              {/* CHIPS DE RAZONES */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -233,6 +249,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                   gap: "0.6rem",
                   justifyContent: "center",
                   marginBottom: "1.5rem",
+                  width: "100%",
                 }}
               >
                 {REASON_TAGS.map((tag) => {
@@ -271,12 +288,12 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                 })}
               </motion.div>
 
-              {/* Textarea */}
+              {/* TEXTAREA */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                style={{ marginBottom: "1.25rem" }}
+                style={{ marginBottom: "1.25rem", width: "100%" }}
               >
                 <label
                   style={{
@@ -285,6 +302,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     fontWeight: 600,
                     color: "#000000",
                     marginBottom: "0.5rem",
+                    textAlign: "left",
                   }}
                 >
                   Contanos con más detalle{" "}
@@ -322,7 +340,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                 />
               </motion.div>
 
-              {/* Error */}
+              {/* ERROR */}
               {error && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -336,18 +354,19 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     marginBottom: "1rem",
                     border: "1px solid #fecaca",
                     textAlign: "center",
+                    width: "100%",
                   }}
                 >
                   {error}
                 </motion.div>
               )}
 
-              {/* Botón enviar */}
+              {/* BOTÓN ENVIAR */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                style={{ textAlign: "center" }}
+                style={{ textAlign: "center", width: "100%" }}
               >
                 <motion.button
                   whileHover={{ scale: loading ? 1 : 1.02 }}
@@ -394,30 +413,45 @@ export default function OpinionClient({ email }: OpinionClientProps) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              style={{ textAlign: "center" }}
+              style={{
+                textAlign: "center",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{
-                  duration: 0.7,
-                  type: "spring",
-                  stiffness: 200,
-                }}
+              <div
                 style={{
-                  width: "110px",
-                  height: "110px",
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #10b981, #059669)",
-                  display: "inline-flex",
-                  alignItems: "center",
+                  display: "flex",
                   justifyContent: "center",
-                  marginBottom: "2rem",
-                  boxShadow: "0 20px 40px rgba(16, 185, 129, 0.35)",
+                  alignItems: "center",
+                  width: "100%",
+                  marginBottom: "1.75rem",
                 }}
               >
-                <CheckCircle2 size={54} color="white" strokeWidth={2.5} />
-              </motion.div>
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    duration: 0.7,
+                    type: "spring",
+                    stiffness: 200,
+                  }}
+                  style={{
+                    width: "110px",
+                    height: "110px",
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 20px 40px rgba(16, 185, 129, 0.35)",
+                  }}
+                >
+                  <CheckCircle2 size={54} color="white" strokeWidth={2.5} />
+                </motion.div>
+              </div>
 
               <h1
                 style={{
@@ -499,7 +533,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
           )}
         </AnimatePresence>
 
-        {/* Email logueado abajo */}
+        {/* EMAIL LOGUEADO ABAJO */}
         {!sent && (
           <motion.p
             initial={{ opacity: 0 }}
@@ -520,4 +554,4 @@ export default function OpinionClient({ email }: OpinionClientProps) {
       </div>
     </div>
   );
-}
+    }
