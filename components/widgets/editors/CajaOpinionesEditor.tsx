@@ -3,6 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import CajaOpinionesPreview from './CajaOpinionesPreview';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 interface EditorProps {
   widgetDefinition: {
@@ -57,22 +59,6 @@ const DEFAULT_CONFIG = {
 
 /* ================= HELPERS UI ================= */
 
-function NevuxLogo() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-        <path
-          d="M20 4 C 20 4, 8 20, 8 28 A 12 12 0 0 0 32 28 C 32 20, 20 4, 20 4 Z"
-          fill="#2563EB"
-        />
-      </svg>
-      <span style={{ fontWeight: 800, fontSize: 22, color: '#111827', letterSpacing: -0.5 }}>
-        Nevux
-      </span>
-    </div>
-  );
-}
-
 function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -83,7 +69,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -93,19 +79,9 @@ function IconInfo({ size = 14, color = '#2563EB' }: { size?: number; color?: str
   );
 }
 
-function IconExternal({ size = 14, color = '#6B7280' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
-
 function VerifiedBadge({ size = 18 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="#3B82F6" style={{ flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#FF0000" style={{ flexShrink: 0 }}>
       <path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z" />
       <path
         d="M9 12l2 2 4-4"
@@ -121,7 +97,7 @@ function VerifiedBadge({ size = 18 }: { size?: number }) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
     </div>
   );
@@ -129,7 +105,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function FieldSubLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 6 }}>
+    <div style={{ fontSize: 14, fontWeight: 600, color: '#000000', marginBottom: 6 }}>
       {children}
     </div>
   );
@@ -158,10 +134,10 @@ function TextInput({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
@@ -190,10 +166,10 @@ function TextArea({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
@@ -221,16 +197,16 @@ function SelectField({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
-        color: '#111827',
+        color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
         appearance: 'none',
         backgroundImage:
-          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%236B7280\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
+          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
@@ -270,10 +246,10 @@ function CheckboxSimple({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ width: 18, height: 18, accentColor: '#2563EB', cursor: 'pointer' }}
+        style={{ width: 18, height: 18, accentColor: '#FF0000', cursor: 'pointer' }}
       />
       {icon}
-      <span style={{ fontSize: 15, color: '#111827', lineHeight: 1.4 }}>{label}</span>
+      <span style={{ fontSize: 15, color: '#000000', lineHeight: 1.4 }}>{label}</span>
     </label>
   );
 }
@@ -295,7 +271,7 @@ function ColorPickerField({
           width: 56,
           height: 44,
           borderRadius: 10,
-          border: '1px solid #E5E7EB',
+          border: '1px solid #e5e7eb',
           overflow: 'hidden',
           background: value || '#FFFFFF',
         }}
@@ -326,10 +302,10 @@ function ColorPickerField({
         style={{
           flex: 1,
           padding: '12px 14px',
-          border: '1px solid #E5E7EB',
+          border: '1px solid #e5e7eb',
           borderRadius: 10,
           fontSize: 15,
-          color: '#111827',
+          color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
         }}
@@ -355,7 +331,7 @@ function ToggleField({
           width: 40,
           height: 22,
           borderRadius: 999,
-          background: checked ? '#2563EB' : '#D1D5DB',
+          background: checked ? '#FF0000' : '#e5e7eb',
           position: 'relative',
           transition: 'background 0.15s',
           flexShrink: 0,
@@ -375,7 +351,7 @@ function ToggleField({
           }}
         />
       </div>
-      {label && <span style={{ fontSize: 15, color: '#111827' }}>{label}</span>}
+      {label && <span style={{ fontSize: 15, color: '#000000' }}>{label}</span>}
     </label>
   );
 }
@@ -404,7 +380,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#2563EB' }}
+        style={{ width: '100%', accentColor: '#FF0000' }}
       />
       {marks && (
         <div
@@ -412,7 +388,8 @@ function RangeSlider({
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 12,
-            color: '#6B7280',
+            color: '#000000',
+            opacity: 0.5,
             marginTop: 4,
           }}
         >
@@ -440,7 +417,7 @@ function SectionCard({
     <div
       style={{
         background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
+        border: '1px solid #e5e7eb',
         borderRadius: 12,
         padding: 20,
         marginBottom: 16,
@@ -449,13 +426,14 @@ function SectionCard({
       <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', textAlign: 'center' }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#000000', textAlign: 'left' }}>
             {title}
           </div>
           <div
             style={{
               fontSize: 14,
-              color: '#6B7280',
+              color: '#000000',
+              opacity: 0.6,
               marginTop: 6,
               lineHeight: 1.5,
               textAlign: 'left',
@@ -506,7 +484,7 @@ function PhotoDropzone({
     return (
       <div
         style={{
-          border: '2px dashed #E5E7EB',
+          border: '2px dashed #e5e7eb',
           borderRadius: 10,
           padding: 12,
           background: '#FAFAFA',
@@ -530,7 +508,7 @@ function PhotoDropzone({
           style={{
             marginTop: 10,
             background: '#FEE2E2',
-            color: '#991B1B',
+            color: '#DC2626',
             border: 'none',
             borderRadius: 8,
             padding: '8px 14px',
@@ -558,7 +536,7 @@ function PhotoDropzone({
           if (file) handleFile(file);
         }}
         style={{
-          border: '2px dashed #D1D5DB',
+          border: '2px dashed #e5e7eb',
           borderRadius: 10,
           padding: '28px 16px',
           background: '#FFFFFF',
@@ -571,7 +549,7 @@ function PhotoDropzone({
           height="40"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#374151"
+          stroke="#000000"
           strokeWidth="1.5"
           style={{ margin: '0 auto 10px', display: 'block' }}
         >
@@ -579,10 +557,10 @@ function PhotoDropzone({
           <polyline points="12 12 12 18" />
           <polyline points="9 15 12 12 15 15" />
         </svg>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
           Haz clic o arrastra una imagen aquí
         </div>
-        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 6 }}>
+        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6 }}>
           JPG, PNG, GIF - Máximo 2MB
         </div>
       </div>
@@ -683,8 +661,6 @@ export default function CajaOpinionesEditor({
         throw new Error(data.error || 'Error al guardar el widget');
       }
 
-      // Si fue una creación nueva → banner verde de éxito
-      // Si fue una actualización → redirigir sin banner
       if (data.action === 'created') {
         const params = new URLSearchParams();
         params.set('created', widgetDefinition.slug);
@@ -712,34 +688,27 @@ export default function CajaOpinionesEditor({
           top: 0,
           zIndex: 30,
           background: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid #e5e7eb',
           padding: '14px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <NevuxLogo />
+        <NevuxLogo size="medium" />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
           <div
             style={{
               width: 34,
               height: 34,
               borderRadius: '50%',
-              background: '#E5E7EB',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 13,
               fontWeight: 700,
-              color: '#374151',
+              color: '#FFFFFF',
             }}
           >
             RL
@@ -755,7 +724,7 @@ export default function CajaOpinionesEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#2563EB',
+              background: '#FF0000',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -774,12 +743,12 @@ export default function CajaOpinionesEditor({
               alignItems: 'center',
               gap: 10,
               background: '#FFFFFF',
-              border: '1px solid #E5E7EB',
+              border: '1px solid #e5e7eb',
               padding: '8px 14px',
               borderRadius: 10,
               fontSize: 14,
               fontWeight: 700,
-              color: '#111827',
+              color: '#000000',
               marginBottom: 14,
             }}
           >
@@ -792,7 +761,7 @@ export default function CajaOpinionesEditor({
           style={{
             fontSize: 26,
             fontWeight: 800,
-            color: '#111827',
+            color: '#000000',
             marginBottom: 20,
             lineHeight: 1.2,
           }}
@@ -804,8 +773,8 @@ export default function CajaOpinionesEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#F3F4F6',
-            border: '1px solid #E5E7EB',
+            background: '#f3f4f6',
+            border: '1px solid #e5e7eb',
             borderRadius: 16,
             padding: 16,
           }}
@@ -820,7 +789,7 @@ export default function CajaOpinionesEditor({
             style={{
               display: 'flex',
               gap: 0,
-              borderBottom: '1px solid #E5E7EB',
+              borderBottom: '1px solid #e5e7eb',
               marginBottom: 20,
             }}
           >
@@ -836,11 +805,12 @@ export default function CajaOpinionesEditor({
                     flex: 1,
                     background: active ? '#FFFFFF' : 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #111827' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#111827' : '#6B7280',
+                    color: active ? '#000000' : '#000000',
+                    opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
                   }}
                 >
@@ -853,7 +823,7 @@ export default function CajaOpinionesEditor({
           {/* TAB GENERAL */}
           {tab === 'general' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>
                 Opiniones (mínimo 1, máximo 5)
               </div>
 
@@ -862,7 +832,7 @@ export default function CajaOpinionesEditor({
                   key={i}
                   style={{
                     background: '#FFFFFF',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid #e5e7eb',
                     borderRadius: 12,
                     padding: 16,
                     display: 'flex',
@@ -877,7 +847,7 @@ export default function CajaOpinionesEditor({
                       justifyContent: 'space-between',
                     }}
                   >
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
                       Opinión {i + 1}
                     </div>
                     {config.opiniones.length > 1 && (
@@ -957,8 +927,8 @@ export default function CajaOpinionesEditor({
                     onClick={addOpinion}
                     style={{
                       background: '#FFFFFF',
-                      border: '1px solid #2563EB',
-                      color: '#2563EB',
+                      border: '1px solid #FF0000',
+                      color: '#FF0000',
                       borderRadius: 999,
                       padding: '12px 20px',
                       fontSize: 15,
@@ -978,7 +948,7 @@ export default function CajaOpinionesEditor({
             <div>
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <circle cx="13.5" cy="6.5" r="1.5" />
                     <circle cx="17.5" cy="10.5" r="1.5" />
                     <circle cx="8.5" cy="7.5" r="1.5" />
@@ -1030,7 +1000,7 @@ export default function CajaOpinionesEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <circle cx="12" cy="8" r="4" />
                     <path d="M4 21v-1a7 7 0 0114 0v1" />
                   </svg>
@@ -1052,7 +1022,7 @@ export default function CajaOpinionesEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <polyline points="4 7 4 4 20 4 20 7" />
                     <line x1="9" y1="20" x2="15" y2="20" />
                     <line x1="12" y1="4" x2="12" y2="20" />
@@ -1087,13 +1057,13 @@ export default function CajaOpinionesEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
                     <line x1="4" y1="6" x2="20" y2="6" />
                     <line x1="4" y1="12" x2="20" y2="12" />
                     <line x1="4" y1="18" x2="20" y2="18" />
-                    <circle cx="8" cy="6" r="2" fill="#2563EB" />
-                    <circle cx="16" cy="12" r="2" fill="#2563EB" />
-                    <circle cx="10" cy="18" r="2" fill="#2563EB" />
+                    <circle cx="8" cy="6" r="2" fill="#FF0000" />
+                    <circle cx="16" cy="12" r="2" fill="#FF0000" />
+                    <circle cx="10" cy="18" r="2" fill="#FF0000" />
                   </svg>
                 }
                 title="Diseño"
@@ -1133,7 +1103,7 @@ export default function CajaOpinionesEditor({
               justifyContent: 'space-between',
               marginTop: 20,
               paddingTop: 20,
-              borderTop: '1px solid #E5E7EB',
+              borderTop: '1px solid #e5e7eb',
               gap: 12,
               flexWrap: 'wrap',
             }}
@@ -1147,7 +1117,7 @@ export default function CajaOpinionesEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#2563EB',
+                background: '#FF0000',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1164,20 +1134,8 @@ export default function CajaOpinionesEditor({
         </div>
 
         {/* CENTRO DE AYUDA */}
-        <div
-          style={{
-            marginTop: 40,
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <NevuxLogo />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#6B7280', fontSize: 14 }}>
-            Centro de ayuda <IconExternal />
-          </div>
+        <div style={{ marginTop: 40 }}>
+          <CentroAyuda />
         </div>
       </div>
 
@@ -1205,4 +1163,4 @@ export default function CajaOpinionesEditor({
       )}
     </div>
   );
-}
+  }
