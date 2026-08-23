@@ -11,13 +11,13 @@ export default function WidgetsNuevoPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%)",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         padding: "2rem 1.25rem",
       }}
     >
-      <div style={{ maxWidth: "520px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "520px", margin: "0 auto", boxSizing: "border-box" }}>
         <button
           onClick={() => router.push("/dashboard")}
           style={{
@@ -26,13 +26,23 @@ export default function WidgetsNuevoPage() {
             gap: "0.4rem",
             background: "transparent",
             border: "none",
-            color: "#6366f1",
+            color: "#000000",
+            opacity: 0.7,
             fontSize: "0.85rem",
             fontWeight: 600,
             cursor: "pointer",
             fontFamily: "inherit",
             marginBottom: "1.5rem",
             padding: "0.25rem 0",
+            transition: "color 0.15s, opacity 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "#10B981";
+            e.currentTarget.style.opacity = "1";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "#000000";
+            e.currentTarget.style.opacity = "0.7";
           }}
         >
           <ArrowLeft size={16} />
@@ -47,9 +57,10 @@ export default function WidgetsNuevoPage() {
           <h1
             style={{
               margin: "0 0 0.5rem 0",
-              fontSize: "1.35rem",
+              fontSize: "1.5rem",
               fontWeight: 800,
-              color: "#111827",
+              color: "#000000",
+              letterSpacing: "-0.01em",
             }}
           >
             Crear nuevo widget
@@ -58,7 +69,8 @@ export default function WidgetsNuevoPage() {
             style={{
               margin: "0 0 1.5rem 0",
               fontSize: "0.95rem",
-              color: "#6b7280",
+              color: "#000000",
+              opacity: 0.6,
             }}
           >
             ¿Qué tipo de widget querés crear?
@@ -68,7 +80,7 @@ export default function WidgetsNuevoPage() {
         <div
           style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
         >
-          {/* Opción A */}
+          {/* Opción A: Producto específico */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -81,19 +93,22 @@ export default function WidgetsNuevoPage() {
               padding: "1.25rem",
               background: "#ffffff",
               border: "1.5px solid #e5e7eb",
-              borderRadius: "12px",
+              borderRadius: "14px",
               cursor: "pointer",
               textAlign: "left",
               width: "100%",
-              transition: "border-color 0.15s, box-shadow 0.15s",
+              transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s",
+              boxSizing: "border-box",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#6366f1";
+              e.currentTarget.style.borderColor = "#10B981";
+              e.currentTarget.style.background = "#ecfdf5";
               e.currentTarget.style.boxShadow =
-                "0 0 0 3px rgba(99, 102, 241, 0.08)";
+                "0 0 0 3px rgba(16, 185, 129, 0.15)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "#e5e7eb";
+              e.currentTarget.style.background = "#ffffff";
               e.currentTarget.style.boxShadow = "none";
             }}
           >
@@ -101,22 +116,22 @@ export default function WidgetsNuevoPage() {
               style={{
                 width: "48px",
                 height: "48px",
-                borderRadius: "10px",
-                background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                borderRadius: "12px",
+                background: "rgba(16, 185, 129, 0.12)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
               }}
             >
-              <Package size={22} color="#059669" />
+              <Package size={22} color="#10B981" />
             </div>
             <div style={{ flex: 1 }}>
               <div
                 style={{
                   fontSize: "0.95rem",
-                  fontWeight: 600,
-                  color: "#111827",
+                  fontWeight: 700,
+                  color: "#000000",
                   marginBottom: "0.25rem",
                 }}
               >
@@ -125,11 +140,12 @@ export default function WidgetsNuevoPage() {
               <div
                 style={{
                   fontSize: "0.85rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                   lineHeight: 1.4,
                 }}
               >
-                Asocia widgets a un producto en particular
+                Asociá widgets a un producto en particular
               </div>
             </div>
             <svg
@@ -137,16 +153,17 @@ export default function WidgetsNuevoPage() {
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#9ca3af"
+              stroke="#000000"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              style={{ opacity: 0.4 }}
             >
               <polyline points="9 18 15 12 9 6" />
             </svg>
           </motion.button>
 
-          {/* Opción B */}
+          {/* Opción B: Todos los productos */}
           <motion.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -159,19 +176,22 @@ export default function WidgetsNuevoPage() {
               padding: "1.25rem",
               background: "#ffffff",
               border: "1.5px solid #e5e7eb",
-              borderRadius: "12px",
+              borderRadius: "14px",
               cursor: "pointer",
               textAlign: "left",
               width: "100%",
-              transition: "border-color 0.15s, box-shadow 0.15s",
+              transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s",
+              boxSizing: "border-box",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#6366f1";
+              e.currentTarget.style.borderColor = "#10B981";
+              e.currentTarget.style.background = "#ecfdf5";
               e.currentTarget.style.boxShadow =
-                "0 0 0 3px rgba(99, 102, 241, 0.08)";
+                "0 0 0 3px rgba(16, 185, 129, 0.15)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "#e5e7eb";
+              e.currentTarget.style.background = "#ffffff";
               e.currentTarget.style.boxShadow = "none";
             }}
           >
@@ -179,22 +199,22 @@ export default function WidgetsNuevoPage() {
               style={{
                 width: "48px",
                 height: "48px",
-                borderRadius: "10px",
-                background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+                borderRadius: "12px",
+                background: "#000000",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
               }}
             >
-              <Store size={22} color="#2563eb" />
+              <Store size={22} color="#ffffff" />
             </div>
             <div style={{ flex: 1 }}>
               <div
                 style={{
                   fontSize: "0.95rem",
-                  fontWeight: 600,
-                  color: "#111827",
+                  fontWeight: 700,
+                  color: "#000000",
                   marginBottom: "0.25rem",
                 }}
               >
@@ -203,11 +223,12 @@ export default function WidgetsNuevoPage() {
               <div
                 style={{
                   fontSize: "0.85rem",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: 0.6,
                   lineHeight: 1.4,
                 }}
               >
-                Asocia widgets a todos los productos y en el inicio de la tienda
+                Asociá widgets a todos los productos y en el inicio de la tienda
               </div>
             </div>
             <svg
@@ -215,10 +236,11 @@ export default function WidgetsNuevoPage() {
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#9ca3af"
+              stroke="#000000"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              style={{ opacity: 0.4 }}
             >
               <polyline points="9 18 15 12 9 6" />
             </svg>
@@ -227,4 +249,4 @@ export default function WidgetsNuevoPage() {
       </div>
     </div>
   );
-            }
+          }
