@@ -151,7 +151,7 @@ export default function PagarClient({ email }: PagarClientProps) {
         minHeight: "100vh",
         width: "100%",
         maxWidth: "100vw",
-        background: "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
@@ -168,7 +168,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -233,11 +233,11 @@ export default function PagarClient({ email }: PagarClientProps) {
               alignItems: "center",
               gap: "0.4rem",
               padding: "0.4rem 0.9rem",
-              background: "white",
-              border: "1px solid #fecaca",
+              background: "#ecfdf5",
+              border: "1px solid #a7f3d0",
               borderRadius: "999px",
               fontSize: "0.75rem",
-              color: "#FF0000",
+              color: "#059669",
               fontWeight: 700,
               marginBottom: "1rem",
               textTransform: "uppercase",
@@ -258,7 +258,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             }}
           >
             Activá tu cuenta en{" "}
-            <span style={{ color: "#FF0000" }}>2 pasos</span>
+            <span style={{ color: "#10B981" }}>2 pasos</span>
           </h1>
           <p
             style={{
@@ -269,7 +269,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.5,
             }}
           >
-            Transferí <strong style={{ color: "#FF0000" }}>{NARANJA_DATA.amount}</strong>{" "}
+            Transferí <strong style={{ color: "#10B981" }}>{NARANJA_DATA.amount}</strong>{" "}
             a Naranja X y subí el comprobante
           </p>
         </motion.div>
@@ -302,7 +302,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 width: "28px",
                 height: "28px",
                 borderRadius: "50%",
-                background: "#FF0000",
+                background: "#10B981",
                 color: "white",
                 display: "flex",
                 alignItems: "center",
@@ -330,12 +330,12 @@ export default function PagarClient({ email }: PagarClientProps) {
           {/* Monto destacado */}
           <div
             style={{
-              background: "linear-gradient(135deg, #FF0000, #cc0000)",
+              background: "linear-gradient(135deg, #10B981, #059669)",
               borderRadius: "14px",
               padding: "1.25rem",
               marginBottom: "1rem",
               textAlign: "center",
-              boxShadow: "0 8px 20px rgba(255, 0, 0, 0.25)",
+              boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
             }}
           >
             <div
@@ -393,9 +393,9 @@ export default function PagarClient({ email }: PagarClientProps) {
             style={{
               marginTop: "1rem",
               padding: "0.85rem 1rem",
-              background: "#fff5f5",
+              background: "#ecfdf5",
               borderRadius: "10px",
-              border: "1px solid #fecaca",
+              border: "1px solid #a7f3d0",
               display: "flex",
               gap: "0.6rem",
               alignItems: "flex-start",
@@ -403,7 +403,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           >
             <AlertCircle
               size={16}
-              color="#FF0000"
+              color="#10B981"
               style={{ flexShrink: 0, marginTop: "2px" }}
             />
             <p
@@ -449,7 +449,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 width: "28px",
                 height: "28px",
                 borderRadius: "50%",
-                background: "#FF0000",
+                background: "#10B981",
                 color: "white",
                 display: "flex",
                 alignItems: "center",
@@ -483,12 +483,12 @@ export default function PagarClient({ email }: PagarClientProps) {
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               style={{
-                border: `2px dashed ${dragActive ? "#FF0000" : "#e5e7eb"}`,
+                border: `2px dashed ${dragActive ? "#10B981" : "#e5e7eb"}`,
                 borderRadius: "14px",
                 padding: "2rem 1rem",
                 textAlign: "center",
                 cursor: "pointer",
-                background: dragActive ? "#fff5f5" : "#f9fafb",
+                background: dragActive ? "#ecfdf5" : "#f9fafb",
                 transition: "all 0.2s",
               }}
             >
@@ -504,12 +504,12 @@ export default function PagarClient({ email }: PagarClientProps) {
                   width: "56px",
                   height: "56px",
                   borderRadius: "50%",
-                  background: "#FF0000",
+                  background: "#10B981",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   margin: "0 auto 0.85rem auto",
-                  boxShadow: "0 8px 20px rgba(255, 0, 0, 0.3)",
+                  boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
                 }}
               >
                 <Upload size={24} color="white" strokeWidth={2.5} />
@@ -541,10 +541,10 @@ export default function PagarClient({ email }: PagarClientProps) {
           ) : (
             <div
               style={{
-                border: "2px solid #FF0000",
+                border: "1.5px solid #10B981",
                 borderRadius: "14px",
                 padding: "1rem",
-                background: "#fff5f5",
+                background: "#ecfdf5",
                 display: "flex",
                 alignItems: "center",
                 gap: "0.85rem",
@@ -563,9 +563,9 @@ export default function PagarClient({ email }: PagarClientProps) {
                 }}
               >
                 {isPdf ? (
-                  <FileText size={22} color="#FF0000" />
+                  <FileText size={22} color="#10B981" />
                 ) : (
-                  <ImageIcon size={22} color="#FF0000" />
+                  <ImageIcon size={22} color="#10B981" />
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -648,8 +648,9 @@ export default function PagarClient({ email }: PagarClientProps) {
                 fontFamily: "inherit",
                 boxSizing: "border-box",
                 outline: "none",
+                transition: "border-color 0.2s",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
+              onFocus={(e) => (e.target.style.borderColor = "#10B981")}
               onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
             />
           </div>
@@ -704,7 +705,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             style={{
               width: "100%",
               padding: "1.15rem 1.5rem",
-              background: !file || uploading ? "#000000" : "#FF0000",
+              background: !file || uploading ? "rgba(16, 185, 129, 0.4)" : "#10B981",
               color: "white",
               border: "none",
               borderRadius: "999px",
@@ -719,8 +720,8 @@ export default function PagarClient({ email }: PagarClientProps) {
               boxShadow:
                 !file || uploading
                   ? "none"
-                  : "0 15px 35px rgba(255, 0, 0, 0.4)",
-              opacity: !file || uploading ? 0.5 : 1,
+                  : "0 15px 35px rgba(16, 185, 129, 0.3)",
+              opacity: !file || uploading ? 0.7 : 1,
               transition: "all 0.2s",
               boxSizing: "border-box",
             }}
@@ -858,8 +859,8 @@ function DataRow({
             height: "38px",
             borderRadius: "10px",
             border: "none",
-            background: copied ? "#FF0000" : "white",
-            color: copied ? "white" : "#FF0000",
+            background: copied ? "#10B981" : "white",
+            color: copied ? "white" : "#10B981",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -867,7 +868,7 @@ function DataRow({
             flexShrink: 0,
             transition: "all 0.2s",
             boxShadow: copied
-              ? "0 4px 12px rgba(255, 0, 0, 0.3)"
+              ? "0 4px 12px rgba(16, 185, 129, 0.25)"
               : "0 2px 6px rgba(0, 0, 0, 0.05)",
           }}
         >
