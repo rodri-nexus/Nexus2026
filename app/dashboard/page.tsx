@@ -8,7 +8,7 @@ import DashboardClient from "./DashboardClient";
 // Forzamos render dinámico para que el dashboard siempre traiga datos frescos.
 export const dynamic = "force-dynamic";
 
-const ADMIN_EMAIL = "nevux340@gmail.com";
+const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -21,7 +21,6 @@ export default async function DashboardPage() {
   }
 
   // 🔒 REDIRECCIÓN AUTOMÁTICA DE ADMINISTRADOR
-  // Si el usuario es el dueño de la app, lo enviamos directo al panel de control de pagos.
   const userEmail = (user.email || "").toLowerCase();
   if (userEmail === ADMIN_EMAIL) {
     redirect("/admin/pagos");
@@ -55,8 +54,6 @@ export default async function DashboardPage() {
 
   // ─────────────────────────────────────────────
   // 🔒 PAYWALL GUARD — Verificar estado del plan
-  // Solo aplica si YA tiene tienda conectada.
-  // Si no tiene tienda, lo dejamos entrar para que la conecte.
   // ─────────────────────────────────────────────
   let planInfo: PlanInfo | null = null;
 
@@ -77,14 +74,11 @@ export default async function DashboardPage() {
     planInfo = plan;
 
     if (!plan.canUseApp) {
-      // Necesita ver la pantalla de feedback
       if (plan.needsFeedback) {
         redirect("/plan/feedback");
       }
 
-      // Ya respondió el feedback → chequear si dijo NO y falta enviar opinión
       if (plan.needsPayment) {
-        // Traer el último feedback del usuario para saber si dijo SÍ o NO
         const { data: lastFeedback } = await supabaseAdmin
           .from("feedback")
           .select("liked_app, detailed_feedback, reason_tags")
@@ -93,7 +87,6 @@ export default async function DashboardPage() {
           .limit(1)
           .maybeSingle();
 
-        // Si dijo NO y todavía NO envió la opinión detallada → a /plan/opinion
         if (
           lastFeedback &&
           lastFeedback.liked_app === false &&
@@ -103,7 +96,6 @@ export default async function DashboardPage() {
           redirect("/plan/opinion");
         }
 
-        // Cualquier otro caso (dijo SÍ, o dijo NO pero ya envió opinión) → a la pantalla de pago
         redirect("/plan/expirado");
       }
     }
@@ -128,7 +120,6 @@ export default async function DashboardPage() {
       }
     : null;
 
-  // Serializamos el plan para pasarlo al Client Component
   const planSerialized = planInfo
     ? {
         status: planInfo.status,
@@ -161,4 +152,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-    }
+        }
