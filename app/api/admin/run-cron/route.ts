@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const ADMIN_EMAIL = "nevux340@gmail.com";
+const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
 export async function POST(request: Request) {
   console.log("🔵 [admin/run-cron] INICIO");
@@ -50,8 +50,6 @@ export async function POST(request: Request) {
     }
 
     // 3. Determinar la URL base del sitio
-    // En producción y preview usamos VERCEL_URL (que Vercel setea automático)
-    // En local usamos localhost
     const host = request.headers.get("host") || "";
     const protocol =
       host.startsWith("localhost") || host.startsWith("127.")
@@ -99,4 +97,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-  }
+}
