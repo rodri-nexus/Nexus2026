@@ -16,13 +16,14 @@ export default function ProductChip({ name, image }: ProductChipProps) {
         alignItems: "center",
         gap: "0.6rem",
         padding: "0.4rem 0.85rem 0.4rem 0.4rem",
-        background: "#ffffff",
-        border: "1.5px solid #e5e7eb",
+        background: "#ecfdf5",
+        border: "1.5px solid #a7f3d0",
         borderRadius: "10px",
         fontSize: "0.85rem",
-        fontWeight: 500,
-        color: "#000000",
+        fontWeight: 700,
+        color: "#10B981",
         maxWidth: "100%",
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -30,26 +31,19 @@ export default function ProductChip({ name, image }: ProductChipProps) {
           width: "28px",
           height: "28px",
           borderRadius: "6px",
-          background: "#f3f4f6",
+          background: "#ffffff",
           overflow: "hidden",
           position: "relative",
           flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {image ? (
           <Image src={image} alt={name} fill style={{ objectFit: "cover" }} />
         ) : (
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Package size={14} color="#9ca3af" />
-          </div>
+          <Package size={14} color="#10B981" />
         )}
       </div>
       <span
@@ -57,10 +51,11 @@ export default function ProductChip({ name, image }: ProductChipProps) {
           whiteSpace: "nowrap",
           overflow: "hidden",
           textOverflow: "ellipsis",
+          color: "#000000",
         }}
       >
         {name}
       </span>
     </div>
   );
-}
+            }
