@@ -1,4 +1,3 @@
-// components/widgets/editors/EditorTabs.tsx
 'use client';
 
 import { useState } from 'react';
@@ -57,10 +56,11 @@ export default function EditorTabs({ tabs, children }: EditorTabsProps) {
                 cursor: 'pointer',
                 fontSize: 13,
                 fontWeight: isActive ? 700 : 500,
-                color: isActive ? '#667eea' : '#6b7280',
+                color: isActive ? '#10B981' : '#000000',
+                opacity: isActive ? 1 : 0.6,
                 background: isActive ? '#ffffff' : 'transparent',
                 boxShadow: isActive
-                  ? '0 2px 8px rgba(102,126,234,0.18)'
+                  ? '0 2px 8px rgba(16, 185, 129, 0.18)'
                   : 'none',
                 transition: 'all 0.22s ease',
                 outline: 'none',
@@ -110,4 +110,4 @@ export default function EditorTabs({ tabs, children }: EditorTabsProps) {
       `}</style>
     </div>
   );
-            }
+                 }
