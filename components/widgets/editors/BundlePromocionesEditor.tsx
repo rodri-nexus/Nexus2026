@@ -53,18 +53,18 @@ const DEFAULT_CONFIG = {
   producto2: '',
   productosCheckedDefault: false,
   reemplazarBoton: false,
-  colorBoton: '#FF0000',
+  colorBoton: '#10B981',
   fondoDegrade: false,
   colorPrecio: '#000000',
   colorSubtitulos: '#059669',
   fondoSubtitulo: 'transparent',
   colorTextoRegalo: '#000000',
   colorPrecioRegalo: '#16a34a',
-  fondoRegalo: '#fff5f5',
+  fondoRegalo: '#ecfdf5',
   colorBadgeEnvio: '#10B981',
   colorBadgePersonalizado: '#F59E0B',
   colorBadgeMasVendido: '#EF4444',
-  colorUnidadSeleccionada: '#FF0000',
+  colorUnidadSeleccionada: '#10B981',
   bordeBoton: 25,
   bordeUnidad: 8,
   tamanoEtiqueta: '16px',
@@ -175,7 +175,7 @@ export default function BundlePromocionesEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#ffffff',
               padding: '8px 14px',
               borderRadius: 999,
@@ -226,8 +226,8 @@ export default function BundlePromocionesEditor({
               display: 'flex',
               alignItems: 'flex-start',
               gap: 8,
-              background: '#fff5f5',
-              border: '1px solid #fecaca',
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
               color: '#000000',
               padding: '12px 14px',
               borderRadius: 10,
@@ -460,8 +460,8 @@ export default function BundlePromocionesEditor({
             <div style={{ marginTop: 20 }}>
               <div
                 style={{
-                  background: config.reemplazarBoton ? '#fff5f5' : '#ffffff',
-                  border: config.reemplazarBoton ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+                  background: config.reemplazarBoton ? '#ecfdf5' : '#ffffff',
+                  border: config.reemplazarBoton ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                   borderRadius: 12,
                   padding: 16,
                   display: 'flex',
@@ -476,8 +476,8 @@ export default function BundlePromocionesEditor({
                     width: 22,
                     height: 22,
                     borderRadius: 5,
-                    background: config.reemplazarBoton ? '#FF0000' : '#ffffff',
-                    border: config.reemplazarBoton ? '2px solid #FF0000' : '2px solid #d1d5db',
+                    background: config.reemplazarBoton ? '#10B981' : '#ffffff',
+                    border: config.reemplazarBoton ? '2px solid #10B981' : '2px solid #d1d5db',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -704,7 +704,7 @@ export default function BundlePromocionesEditor({
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 999,
@@ -818,10 +818,10 @@ function Tabs({
             padding: '14px 8px',
             fontSize: 15,
             fontWeight: activeTab === t.key ? 700 : 500,
-            color: activeTab === t.key ? '#FF0000' : '#000000',
+            color: activeTab === t.key ? '#10B981' : '#000000',
             opacity: activeTab === t.key ? 1 : 0.6,
             borderBottom:
-              activeTab === t.key ? '2px solid #FF0000' : '2px solid transparent',
+              activeTab === t.key ? '2px solid #10B981' : '2px solid transparent',
             cursor: 'pointer',
             fontFamily: 'inherit',
             transition: 'all 0.2s',
@@ -884,7 +884,7 @@ function TextInput({
         boxSizing: 'border-box',
         fontFamily: 'inherit',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -920,8 +920,8 @@ function CheckboxSmall({
           width: 20,
           height: 20,
           borderRadius: 5,
-          border: checked ? '2px solid #FF0000' : '2px solid #d1d5db',
-          background: checked ? '#FF0000' : '#ffffff',
+          border: checked ? '2px solid #10B981' : '2px solid #d1d5db',
+          background: checked ? '#10B981' : '#ffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -976,8 +976,8 @@ function CheckboxRow({
           width: 20,
           height: 20,
           borderRadius: 5,
-          border: checked ? '2px solid #FF0000' : '2px solid #d1d5db',
-          background: checked ? '#FF0000' : '#ffffff',
+          border: checked ? '2px solid #10B981' : '2px solid #d1d5db',
+          background: checked ? '#10B981' : '#ffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1041,7 +1041,7 @@ function SectionCard({
             lineHeight: 1.5,
           }}
         >
-          <span style={{ color: '#FF0000', fontSize: 15 }}>{icon}</span>
+          <span style={{ color: '#10B981', fontSize: 15 }}>{icon}</span>
           <span>{subtitle}</span>
         </div>
       </div>
@@ -1158,7 +1158,7 @@ function Toggle({
         width: 44,
         height: 26,
         borderRadius: 999,
-        background: checked ? '#FF0000' : '#d1d5db',
+        background: checked ? '#10B981' : '#d1d5db',
         border: 'none',
         position: 'relative',
         cursor: 'pointer',
@@ -1249,7 +1249,7 @@ function RangeSlider({
         max={max}
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value, 10))}
-        style={{ width: '100%', accentColor: '#FF0000', cursor: 'pointer' }}
+        style={{ width: '100%', accentColor: '#10B981', cursor: 'pointer' }}
       />
       <div
         style={{
@@ -1283,8 +1283,8 @@ function RadioBox({
       type="button"
       onClick={onClick}
       style={{
-        border: selected ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
-        background: selected ? '#fff5f5' : '#ffffff',
+        border: selected ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
+        background: selected ? '#ecfdf5' : '#ffffff',
         borderRadius: 12,
         padding: '14px 12px',
         display: 'flex',
@@ -1303,7 +1303,7 @@ function RadioBox({
           width: 20,
           height: 20,
           borderRadius: '50%',
-          border: selected ? '6px solid #FF0000' : '2px solid #d1d5db',
+          border: selected ? '6px solid #10B981' : '2px solid #d1d5db',
           background: '#ffffff',
           flexShrink: 0,
           transition: 'all 0.2s',
@@ -1328,7 +1328,7 @@ function IconStore() {
 
 function IconInfo() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" style={{ flexShrink: 0, marginTop: 2 }}>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" style={{ flexShrink: 0, marginTop: 2 }}>
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
@@ -1337,9 +1337,9 @@ function IconInfo() {
 
 function IconInfoSmall() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
   );
-}
+  }
