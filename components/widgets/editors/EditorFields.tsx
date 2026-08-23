@@ -1,7 +1,6 @@
-// components/widgets/editors/EditorFields.tsx
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef } from 'react';
 
 /* ═══════════════════════════════════════════
    TOGGLE
@@ -26,9 +25,9 @@ export function Toggle({ label, description, checked, onChange }: ToggleProps) {
       }}
     >
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>{label}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000' }}>{label}</div>
         {description && (
-          <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{description}</div>
+          <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 2 }}>{description}</div>
         )}
       </div>
       <button
@@ -40,14 +39,12 @@ export function Toggle({ label, description, checked, onChange }: ToggleProps) {
           borderRadius: 13,
           border: 'none',
           cursor: 'pointer',
-          background: checked
-            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-            : '#d1d5db',
+          background: checked ? '#10B981' : '#e5e7eb',
           position: 'relative',
           transition: 'background 0.25s ease',
           flexShrink: 0,
           outline: 'none',
-          boxShadow: checked ? '0 0 12px rgba(102,126,234,0.4)' : 'none',
+          boxShadow: checked ? '0 0 12px rgba(16,185,129,0.4)' : 'none',
         }}
       >
         <span
@@ -58,7 +55,7 @@ export function Toggle({ label, description, checked, onChange }: ToggleProps) {
             width: 20,
             height: 20,
             borderRadius: '50%',
-            background: '#fff',
+            background: '#ffffff',
             transition: 'left 0.25s ease',
             boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
           }}
@@ -87,7 +84,7 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
         {label}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -98,7 +95,7 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
             width: 38,
             height: 38,
             borderRadius: 10,
-            background: value,
+            background: value || '#ffffff',
             border: '2px solid #e5e7eb',
             cursor: 'pointer',
             flexShrink: 0,
@@ -129,12 +126,12 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
             borderRadius: 10,
             fontSize: 13,
             fontFamily: 'monospace',
-            color: '#374151',
-            background: '#fafafa',
+            color: '#000000',
+            background: '#ffffff',
             outline: 'none',
             transition: 'border-color 0.2s',
           }}
-          onFocus={(e) => (e.target.style.borderColor = '#667eea')}
+          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
           onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
         />
       </div>
@@ -160,13 +157,14 @@ export function Slider({ label, value, min, max, unit = 'px', onChange }: Slider
   return (
     <div style={{ marginBottom: 18 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#000000' }}>{label}</span>
         <span
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: '#667eea',
-            background: '#f0f0ff',
+            color: '#10B981',
+            background: '#ecfdf5',
+            border: '1px solid #a7f3d0',
             padding: '2px 8px',
             borderRadius: 6,
             minWidth: 36,
@@ -185,7 +183,7 @@ export function Slider({ label, value, min, max, unit = 'px', onChange }: Slider
             height: '100%',
             width: `${pct}%`,
             borderRadius: 3,
-            background: 'linear-gradient(90deg, #667eea, #764ba2)',
+            background: '#10B981',
             transition: 'width 0.1s',
           }}
         />
@@ -216,9 +214,9 @@ export function Slider({ label, value, min, max, unit = 'px', onChange }: Slider
             width: 18,
             height: 18,
             borderRadius: '50%',
-            background: '#fff',
-            border: '2.5px solid #667eea',
-            boxShadow: '0 2px 8px rgba(102,126,234,0.35)',
+            background: '#ffffff',
+            border: '2.5px solid #10B981',
+            boxShadow: '0 2px 8px rgba(16,185,129,0.35)',
             pointerEvents: 'none',
             transition: 'left 0.1s',
           }}
@@ -248,7 +246,7 @@ export function RadioGroup({ label, options, value, onChange }: RadioGroupProps)
   return (
     <div style={{ marginBottom: 16 }}>
       {label && (
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#000000', marginBottom: 10 }}>
           {label}
         </div>
       )}
@@ -264,8 +262,8 @@ export function RadioGroup({ label, options, value, onChange }: RadioGroupProps)
               gap: 12,
               padding: '12px 14px',
               borderRadius: 12,
-              border: value === opt.value ? '2px solid #667eea' : '2px solid #e5e7eb',
-              background: value === opt.value ? '#f5f3ff' : '#fafafa',
+              border: value === opt.value ? '2px solid #10B981' : '2px solid #e5e7eb',
+              background: value === opt.value ? '#ecfdf5' : '#ffffff',
               cursor: 'pointer',
               textAlign: 'left',
               transition: 'all 0.2s ease',
@@ -277,15 +275,15 @@ export function RadioGroup({ label, options, value, onChange }: RadioGroupProps)
                 width: 18,
                 height: 18,
                 borderRadius: '50%',
-                border: value === opt.value ? '5px solid #667eea' : '2px solid #d1d5db',
+                border: value === opt.value ? '5px solid #10B981' : '2px solid #e5e7eb',
                 flexShrink: 0,
                 transition: 'all 0.2s ease',
               }}
             />
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e' }}>{opt.label}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#000000' }}>{opt.label}</div>
               {opt.description && (
-                <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 1 }}>{opt.description}</div>
+                <div style={{ fontSize: 11, color: '#000000', opacity: 0.6, marginTop: 1 }}>{opt.description}</div>
               )}
             </div>
           </button>
@@ -308,7 +306,7 @@ interface FieldInputProps {
 export function FieldInput({ label, value, placeholder, onChange }: FieldInputProps) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
         {label}
       </label>
       <input
@@ -322,13 +320,13 @@ export function FieldInput({ label, value, placeholder, onChange }: FieldInputPr
           border: '1.5px solid #e5e7eb',
           borderRadius: 10,
           fontSize: 14,
-          color: '#1a1a2e',
-          background: '#fafafa',
+          color: '#000000',
+          background: '#ffffff',
           outline: 'none',
           transition: 'border-color 0.2s',
           boxSizing: 'border-box',
         }}
-        onFocus={(e) => (e.target.style.borderColor = '#667eea')}
+        onFocus={(e) => (e.target.style.borderColor = '#10B981')}
         onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
       />
     </div>
@@ -349,7 +347,7 @@ interface FieldTextareaProps {
 export function FieldTextarea({ label, value, placeholder, rows = 3, onChange }: FieldTextareaProps) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
         {label}
       </label>
       <textarea
@@ -363,15 +361,15 @@ export function FieldTextarea({ label, value, placeholder, rows = 3, onChange }:
           border: '1.5px solid #e5e7eb',
           borderRadius: 10,
           fontSize: 14,
-          color: '#1a1a2e',
-          background: '#fafafa',
+          color: '#000000',
+          background: '#ffffff',
           outline: 'none',
           transition: 'border-color 0.2s',
           resize: 'vertical',
           fontFamily: 'inherit',
           boxSizing: 'border-box',
         }}
-        onFocus={(e) => (e.target.style.borderColor = '#667eea')}
+        onFocus={(e) => (e.target.style.borderColor = '#10B981')}
         onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
       />
     </div>
@@ -396,7 +394,7 @@ interface FieldSelectProps {
 export function FieldSelect({ label, value, options, onChange }: FieldSelectProps) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+      <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
         {label}
       </label>
       <div style={{ position: 'relative' }}>
@@ -409,14 +407,14 @@ export function FieldSelect({ label, value, options, onChange }: FieldSelectProp
             border: '1.5px solid #e5e7eb',
             borderRadius: 10,
             fontSize: 14,
-            color: '#1a1a2e',
-            background: '#fafafa',
+            color: '#000000',
+            background: '#ffffff',
             outline: 'none',
             appearance: 'none',
             cursor: 'pointer',
             boxSizing: 'border-box',
           }}
-          onFocus={(e) => (e.target.style.borderColor = '#667eea')}
+          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
           onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
         >
           {options.map((opt) => (
@@ -432,7 +430,8 @@ export function FieldSelect({ label, value, options, onChange }: FieldSelectProp
             top: '50%',
             transform: 'translateY(-50%)',
             pointerEvents: 'none',
-            color: '#9ca3af',
+            color: '#000000',
+            opacity: 0.5,
             fontSize: 12,
           }}
         >
@@ -455,8 +454,9 @@ export function SectionTitle({ children }: SectionTitleProps) {
     <div
       style={{
         fontSize: 11,
-        fontWeight: 700,
-        color: '#9ca3af',
+        fontWeight: 800,
+        color: '#000000',
+        opacity: 0.5,
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         marginBottom: 12,
@@ -468,4 +468,4 @@ export function SectionTitle({ children }: SectionTitleProps) {
       {children}
     </div>
   );
-        }
+           }
