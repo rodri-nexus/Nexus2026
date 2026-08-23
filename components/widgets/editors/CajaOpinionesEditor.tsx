@@ -69,7 +69,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -81,7 +81,7 @@ function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: str
 
 function VerifiedBadge({ size = 18 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="#FF0000" style={{ flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#10B981" style={{ flexShrink: 0 }}>
       <path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z" />
       <path
         d="M9 12l2 2 4-4"
@@ -134,14 +134,17 @@ function TextInput({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #e5e7eb',
+        border: '1.5px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
         color: '#000000',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
+        fontFamily: 'inherit',
       }}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
 }
@@ -166,7 +169,7 @@ function TextArea({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #e5e7eb',
+        border: '1.5px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
         color: '#000000',
@@ -177,6 +180,8 @@ function TextArea({
         fontFamily: 'inherit',
         lineHeight: 1.5,
       }}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
 }
@@ -197,7 +202,7 @@ function SelectField({
       style={{
         width: '100%',
         padding: '12px 14px',
-        border: '1px solid #e5e7eb',
+        border: '1.5px solid #e5e7eb',
         borderRadius: 10,
         fontSize: 15,
         color: '#000000',
@@ -210,6 +215,7 @@ function SelectField({
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
+        fontFamily: 'inherit',
       }}
     >
       {options.map((o) => (
@@ -246,10 +252,10 @@ function CheckboxSimple({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ width: 18, height: 18, accentColor: '#FF0000', cursor: 'pointer' }}
+        style={{ width: 18, height: 18, accentColor: '#10B981', cursor: 'pointer' }}
       />
       {icon}
-      <span style={{ fontSize: 15, color: '#000000', lineHeight: 1.4 }}>{label}</span>
+      <span style={{ fontSize: 15, color: '#000000', lineHeight: 1.4, fontWeight: 500 }}>{label}</span>
     </label>
   );
 }
@@ -271,7 +277,7 @@ function ColorPickerField({
           width: 56,
           height: 44,
           borderRadius: 10,
-          border: '1px solid #e5e7eb',
+          border: '1.5px solid #e5e7eb',
           overflow: 'hidden',
           background: value || '#FFFFFF',
         }}
@@ -302,12 +308,13 @@ function ColorPickerField({
         style={{
           flex: 1,
           padding: '12px 14px',
-          border: '1px solid #e5e7eb',
+          border: '1.5px solid #e5e7eb',
           borderRadius: 10,
           fontSize: 15,
           color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
+          fontFamily: 'monospace',
         }}
       />
     </div>
@@ -328,30 +335,30 @@ function ToggleField({
       <div
         onClick={() => onChange(!checked)}
         style={{
-          width: 40,
-          height: 22,
+          width: 44,
+          height: 26,
           borderRadius: 999,
-          background: checked ? '#FF0000' : '#e5e7eb',
+          background: checked ? '#10B981' : '#e5e7eb',
           position: 'relative',
-          transition: 'background 0.15s',
+          transition: 'background 0.25s',
           flexShrink: 0,
         }}
       >
         <div
           style={{
-            width: 18,
-            height: 18,
+            width: 20,
+            height: 20,
             borderRadius: '50%',
             background: '#FFFFFF',
             position: 'absolute',
-            top: 2,
-            left: checked ? 20 : 2,
-            transition: 'left 0.15s',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+            top: 3,
+            left: checked ? 21 : 3,
+            transition: 'left 0.25s',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           }}
         />
       </div>
-      {label && <span style={{ fontSize: 15, color: '#000000' }}>{label}</span>}
+      {label && <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>}
     </label>
   );
 }
@@ -380,7 +387,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#FF0000' }}
+        style={{ width: '100%', accentColor: '#10B981', cursor: 'pointer' }}
       />
       {marks && (
         <div
@@ -417,7 +424,7 @@ function SectionCard({
     <div
       style={{
         background: '#FFFFFF',
-        border: '1px solid #e5e7eb',
+        border: '1.5px solid #e5e7eb',
         borderRadius: 12,
         padding: 20,
         marginBottom: 16,
@@ -724,7 +731,7 @@ export default function CajaOpinionesEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -773,10 +780,11 @@ export default function CajaOpinionesEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#f3f4f6',
+            background: '#FFFFFF',
             border: '1px solid #e5e7eb',
             borderRadius: 16,
-            padding: 16,
+            padding: 20,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -803,15 +811,17 @@ export default function CajaOpinionesEditor({
                   onClick={() => setTab(t)}
                   style={{
                     flex: 1,
-                    background: active ? '#FFFFFF' : 'transparent',
+                    background: 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#000000' : '#000000',
+                    color: active ? '#10B981' : '#000000',
                     opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s',
                   }}
                 >
                   {label}
@@ -927,13 +937,15 @@ export default function CajaOpinionesEditor({
                     onClick={addOpinion}
                     style={{
                       background: '#FFFFFF',
-                      border: '1px solid #FF0000',
-                      color: '#FF0000',
+                      border: '1.5px solid #10B981',
+                      color: '#10B981',
                       borderRadius: 999,
                       padding: '12px 20px',
                       fontSize: 15,
                       fontWeight: 700,
                       cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s',
                     }}
                   >
                     + Agregar otra opinión
@@ -948,7 +960,7 @@ export default function CajaOpinionesEditor({
             <div>
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <circle cx="13.5" cy="6.5" r="1.5" />
                     <circle cx="17.5" cy="10.5" r="1.5" />
                     <circle cx="8.5" cy="7.5" r="1.5" />
@@ -1000,7 +1012,7 @@ export default function CajaOpinionesEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <circle cx="12" cy="8" r="4" />
                     <path d="M4 21v-1a7 7 0 0114 0v1" />
                   </svg>
@@ -1022,7 +1034,7 @@ export default function CajaOpinionesEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <polyline points="4 7 4 4 20 4 20 7" />
                     <line x1="9" y1="20" x2="15" y2="20" />
                     <line x1="12" y1="4" x2="12" y2="20" />
@@ -1057,13 +1069,13 @@ export default function CajaOpinionesEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <line x1="4" y1="6" x2="20" y2="6" />
                     <line x1="4" y1="12" x2="20" y2="12" />
                     <line x1="4" y1="18" x2="20" y2="18" />
-                    <circle cx="8" cy="6" r="2" fill="#FF0000" />
-                    <circle cx="16" cy="12" r="2" fill="#FF0000" />
-                    <circle cx="10" cy="18" r="2" fill="#FF0000" />
+                    <circle cx="8" cy="6" r="2" fill="#10B981" />
+                    <circle cx="16" cy="12" r="2" fill="#10B981" />
+                    <circle cx="10" cy="18" r="2" fill="#10B981" />
                   </svg>
                 }
                 title="Diseño"
@@ -1117,7 +1129,7 @@ export default function CajaOpinionesEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1126,6 +1138,8 @@ export default function CajaOpinionesEditor({
                 fontWeight: 700,
                 cursor: saving ? 'wait' : 'pointer',
                 opacity: saving ? 0.7 : 1,
+                fontFamily: 'inherit',
+                transition: 'all 0.2s',
               }}
             >
               {saving ? 'Guardando…' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
