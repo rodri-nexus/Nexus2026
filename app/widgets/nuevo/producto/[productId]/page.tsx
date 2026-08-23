@@ -62,7 +62,7 @@ export default async function WidgetsNuevoProductoPage({ params }: PageProps) {
         padding: "2rem 1.25rem",
       }}
     >
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "900px", margin: "0 auto", boxSizing: "border-box" }}>
         <WidgetCatalogClient
           definitions={definitions || []}
           title={`¿Qué widget querés agregar a "${product.name}"?`}
@@ -73,4 +73,4 @@ export default async function WidgetsNuevoProductoPage({ params }: PageProps) {
       </div>
     </div>
   );
-                   }
+        }
