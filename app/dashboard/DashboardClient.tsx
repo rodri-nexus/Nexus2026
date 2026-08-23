@@ -61,7 +61,6 @@ export default function DashboardClient({
 
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
-  // Reconstruimos el PlanInfo con Date objects para pasarlo a PlanStatusCard
   const planInfo: PlanInfo | null = plan
     ? {
         status: plan.status,
@@ -118,8 +117,8 @@ export default function DashboardClient({
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "1rem",
-                background: "#fff5f5",
-                border: "1.5px solid #FF0000",
+                background: "#ecfdf5",
+                border: "1.5px solid #10B981",
                 borderRadius: "14px",
                 padding: "1.25rem 1.5rem",
                 marginBottom: "1.5rem",
@@ -132,14 +131,14 @@ export default function DashboardClient({
                   height: "40px",
                   borderRadius: "10px",
                   background: "#FFFFFF",
-                  border: "1px solid #fecaca",
+                  border: "1px solid #a7f3d0",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
                 }}
               >
-                <AlertCircle size={22} color="#FF0000" />
+                <AlertCircle size={22} color="#10B981" />
               </div>
               <div style={{ flex: 1 }}>
                 <div
@@ -172,12 +171,12 @@ export default function DashboardClient({
                     marginTop: "0.85rem",
                     padding: "0.6rem 1.2rem",
                     borderRadius: "999px",
-                    background: "#FF0000",
+                    background: "#10B981",
                     color: "#ffffff",
                     textDecoration: "none",
                     fontSize: "0.85rem",
                     fontWeight: 700,
-                    boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
+                    boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
                   }}
                 >
                   <Store size={15} />
@@ -194,21 +193,27 @@ export default function DashboardClient({
             transition={{ duration: 0.4 }}
             style={{ marginBottom: "2rem" }}
           >
+            {/* Badge cristal Verde Esmeralda */}
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.5rem",
-                padding: "0.35rem 0.85rem",
-                background: "#fff5f5",
+                padding: "0.4rem 0.95rem",
                 borderRadius: "999px",
                 fontSize: "0.8rem",
-                color: "#FF0000",
+                color: "#059669",
                 fontWeight: 700,
                 marginBottom: "0.75rem",
+                background: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.35)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+                boxShadow:
+                  "0 4px 16px rgba(16, 185, 129, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.55)",
               }}
             >
-              <Sparkles size={13} />
+              <Sparkles size={13} color="#10B981" />
               Bienvenido a Nevux
             </div>
 
@@ -268,7 +273,7 @@ export default function DashboardClient({
                     width: "28px",
                     height: "28px",
                     borderRadius: "8px",
-                    background: "#059669",
+                    background: "#10B981",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -342,29 +347,23 @@ export default function DashboardClient({
               gap: "1.5rem",
             }}
           >
-            {/* Card del estado del plan */}
             {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
 
-            {/* Métricas e interacciones */}
             <MetricsCard />
 
-            {/* Estadísticas de la tienda (Productos / Widgets activos) */}
             <StatsCards
               productsCount={productsCount}
               activeWidgetsCount={activeWidgetsCount}
             />
 
-            {/* Widgets creados recientemente */}
             <RecientesCard storeId={store?.store_id} />
 
-            {/* Accesos rápidos */}
             <AccionesRapidas />
 
-            {/* Centro de Ayuda Soporte */}
             <CentroAyuda />
           </div>
         </main>
       </div>
     </TutorialProvider>
   );
-}
+  }
