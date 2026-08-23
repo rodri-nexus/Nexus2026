@@ -70,10 +70,10 @@ const DEFAULT_CONFIG: BarraConfig = {
   bordesRedondeados: 8,
   rellenoInterno: 14,
   colorBarraVacia: '#e0e0e0',
-  colorBarraLlena: '#FF0000',
+  colorBarraLlena: '#10B981',
   colorFondo: '#fafafa',
   colorTexto: '#000000',
-  colorMonto: '#FF0000',
+  colorMonto: '#10B981',
   colorObjetivos: '#000000',
   tamanoFuenteObjetivos: 11,
   tamanoFuenteTexto: 13,
@@ -307,8 +307,8 @@ export default function BarraProgresoEditor({
             style={{
               margin: '0 20px 20px',
               padding: '12px 16px',
-              background: '#fff5f5',
-              border: '1px solid #fecaca',
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
               borderRadius: 10,
               display: 'flex',
               gap: 10,
@@ -379,7 +379,7 @@ export default function BarraProgresoEditor({
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#ffffff',
                 border: 'none',
                 padding: '12px 28px',
@@ -527,7 +527,7 @@ function GeneralTab({
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+                  onFocus={(e) => (e.target.style.borderColor = '#10B981')}
                   onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
               </div>
@@ -552,7 +552,7 @@ function GeneralTab({
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+                  onFocus={(e) => (e.target.style.borderColor = '#10B981')}
                   onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
               </div>
@@ -579,16 +579,16 @@ function GeneralTab({
                       title={ic.label}
                       style={{
                         aspectRatio: '1 / 1',
-                        background: isSelected ? '#fff5f5' : '#ffffff',
+                        background: isSelected ? '#ecfdf5' : '#ffffff',
                         border: `1.5px solid ${
-                          isSelected ? '#FF0000' : '#e5e7eb'
+                          isSelected ? '#10B981' : '#e5e7eb'
                         }`,
                         borderRadius: 8,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        color: isSelected ? '#FF0000' : '#000000',
+                        color: isSelected ? '#10B981' : '#000000',
                       }}
                     >
                       {renderIconoBtn(ic.id, 18)}
@@ -608,8 +608,8 @@ function GeneralTab({
           style={{
             marginTop: 14,
             background: '#ffffff',
-            border: '1.5px solid #FF0000',
-            color: '#FF0000',
+            border: '1.5px solid #10B981',
+            color: '#10B981',
             padding: '12px 24px',
             borderRadius: 999,
             fontWeight: 700,
@@ -629,8 +629,8 @@ function GeneralTab({
       <div
         style={{
           marginTop: 20,
-          background: '#FFF5F5',
-          border: '1px solid #FECACA',
+          background: '#ecfdf5',
+          border: '1px solid #a7f3d0',
           borderRadius: 12,
           padding: '14px 18px',
           color: '#000000',
@@ -663,7 +663,7 @@ function GeneralTab({
             boxSizing: 'border-box',
             fontFamily: 'inherit',
           }}
-          onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
           onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
         />
         <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
@@ -694,7 +694,7 @@ function GeneralTab({
             boxSizing: 'border-box',
             fontFamily: 'inherit',
           }}
-          onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
           onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
         />
         <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
@@ -756,7 +756,7 @@ function UbicacionTab({
               cursor: 'pointer',
               padding: '16px',
               borderTop: idx === 0 ? 'none' : '1px solid #e5e7eb',
-              background: config.posicionFicha === opt.id ? '#fff5f5' : '#ffffff',
+              background: config.posicionFicha === opt.id ? '#ecfdf5' : '#ffffff',
             }}
           >
             <div
@@ -765,7 +765,7 @@ function UbicacionTab({
                 width: 20,
                 height: 20,
                 borderRadius: '50%',
-                border: config.posicionFicha === opt.id ? '6px solid #FF0000' : '2px solid #d1d5db',
+                border: config.posicionFicha === opt.id ? '6px solid #10B981' : '2px solid #d1d5db',
                 background: '#ffffff',
                 cursor: 'pointer',
                 marginTop: 2,
@@ -787,9 +787,9 @@ function UbicacionTab({
 
       <div
         style={{
-          background: config.elementoFlotante ? '#fff5f5' : '#ffffff',
+          background: config.elementoFlotante ? '#ecfdf5' : '#ffffff',
           borderRadius: 12,
-          border: config.elementoFlotante ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+          border: config.elementoFlotante ? '1.5px solid #10B981' : '1px solid #e5e7eb',
           padding: 16,
           transition: 'border-color 0.2s',
         }}
@@ -801,8 +801,8 @@ function UbicacionTab({
               width: 22,
               height: 22,
               borderRadius: 5,
-              background: config.elementoFlotante ? '#FF0000' : '#ffffff',
-              border: config.elementoFlotante ? '2px solid #FF0000' : '2px solid #d1d5db',
+              background: config.elementoFlotante ? '#10B981' : '#ffffff',
+              border: config.elementoFlotante ? '2px solid #10B981' : '2px solid #d1d5db',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -830,9 +830,9 @@ function UbicacionTab({
 
       <div
         style={{
-          background: config.enCarrito ? '#fff5f5' : '#ffffff',
+          background: config.enCarrito ? '#ecfdf5' : '#ffffff',
           borderRadius: 12,
-          border: config.enCarrito ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+          border: config.enCarrito ? '1.5px solid #10B981' : '1px solid #e5e7eb',
           padding: 16,
           transition: 'border-color 0.2s',
         }}
@@ -844,8 +844,8 @@ function UbicacionTab({
               width: 22,
               height: 22,
               borderRadius: 5,
-              background: config.enCarrito ? '#FF0000' : '#ffffff',
-              border: config.enCarrito ? '2px solid #FF0000' : '2px solid #d1d5db',
+              background: config.enCarrito ? '#10B981' : '#ffffff',
+              border: config.enCarrito ? '2px solid #10B981' : '2px solid #d1d5db',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -894,7 +894,7 @@ function EstilosTab({
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="3" width="7" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
               <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" strokeWidth="2" />
@@ -923,8 +923,8 @@ function EstilosTab({
                 style={{
                   flex: '1 1 140px',
                   cursor: 'pointer',
-                  background: config.formatoObjetivos === opt.id ? '#fff5f5' : '#ffffff',
-                  border: `1.5px solid ${config.formatoObjetivos === opt.id ? '#FF0000' : '#e5e7eb'}`,
+                  background: config.formatoObjetivos === opt.id ? '#ecfdf5' : '#ffffff',
+                  border: `1.5px solid ${config.formatoObjetivos === opt.id ? '#10B981' : '#e5e7eb'}`,
                   borderRadius: 10,
                   padding: 14,
                   display: 'flex',
@@ -940,7 +940,7 @@ function EstilosTab({
                     width: 18,
                     height: 18,
                     borderRadius: '50%',
-                    border: config.formatoObjetivos === opt.id ? '5px solid #FF0000' : '2px solid #d1d5db',
+                    border: config.formatoObjetivos === opt.id ? '5px solid #10B981' : '2px solid #d1d5db',
                     background: '#ffffff',
                   }}
                 />
@@ -990,7 +990,7 @@ function EstilosTab({
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" />
               <circle cx="17.5" cy="10.5" r="1.5" fill="currentColor" />
@@ -1060,7 +1060,7 @@ function EstilosTab({
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
           <div
             style={{
-              color: '#FF0000',
+              color: '#10B981',
               flexShrink: 0,
               marginTop: 2,
               fontWeight: 800,
@@ -1111,8 +1111,8 @@ function VarChip({ children }: { children: React.ReactNode }) {
     <span
       style={{
         display: 'inline-block',
-        background: '#fff5f5',
-        color: '#FF0000',
+        background: '#ecfdf5',
+        color: '#059669',
         padding: '2px 6px',
         borderRadius: 4,
         fontFamily: 'monospace',
@@ -1144,10 +1144,10 @@ function TabButton({
         padding: '14px 12px',
         fontSize: 15,
         fontWeight: active ? 700 : 500,
-        color: active ? '#FF0000' : '#000000',
+        color: active ? '#10B981' : '#000000',
         opacity: active ? 1 : 0.6,
         cursor: 'pointer',
-        borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+        borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
         fontFamily: 'inherit',
         transition: 'all 0.2s',
       }}
@@ -1323,7 +1323,7 @@ function ToggleField({
           width: 44,
           height: 26,
           borderRadius: 999,
-          background: value ? '#FF0000' : '#d1d5db',
+          background: value ? '#10B981' : '#d1d5db',
           position: 'relative',
           transition: 'background 0.25s',
           flexShrink: 0,
@@ -1374,7 +1374,7 @@ function RangeSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
           width: '100%',
-          accentColor: '#FF0000',
+          accentColor: '#10B981',
           cursor: 'pointer',
         }}
       />
@@ -1398,7 +1398,7 @@ function RangeSlider({
 
 function IconInfo() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
@@ -1520,4 +1520,4 @@ function renderIconoBtn(icono: string, size: number): React.ReactNode {
     default:
       return null;
   }
-  }
+}
