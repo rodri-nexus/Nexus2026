@@ -12,7 +12,7 @@ import {
   Type,
   Search,
 } from "lucide-react";
-import { WidgetDefinition, WidgetCategory, CATEGORY_LABELS } from "@/types/widgets";
+import { WidgetDefinition, WidgetCategory } from "@/types/widgets";
 import WidgetCard from "./WidgetCard";
 
 const CATEGORIES: {
@@ -104,15 +104,15 @@ export default function WidgetCatalog({
                 padding: "0.5rem 1rem",
                 borderRadius: "999px",
                 border: isActive ? "none" : "1.5px solid #e5e7eb",
-                background: isActive ? "#FF0000" : "#ffffff",
+                background: isActive ? "#10B981" : "#ffffff",
                 color: isActive ? "#ffffff" : "#000000",
                 fontSize: "0.85rem",
-                fontWeight: 500,
+                fontWeight: isActive ? 700 : 500,
                 cursor: "pointer",
                 fontFamily: "inherit",
                 transition: "all 0.15s",
                 boxShadow: isActive
-                  ? "0 2px 8px rgba(255, 0, 0, 0.25)"
+                  ? "0 2px 8px rgba(16, 185, 129, 0.25)"
                   : "none",
               }}
             >
@@ -133,17 +133,18 @@ export default function WidgetCatalog({
         <div style={{ position: "relative" }}>
           <Search
             size={18}
-            color="#9ca3af"
+            color="#000000"
             style={{
               position: "absolute",
               left: "0.9rem",
               top: "50%",
               transform: "translateY(-50%)",
+              opacity: 0.4,
             }}
           />
           <input
             type="text"
-            placeholder="Busca un widget..."
+            placeholder="Buscá un widget..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
@@ -157,9 +158,10 @@ export default function WidgetCatalog({
               fontFamily: "inherit",
               background: "#ffffff",
               transition: "border-color 0.15s",
+              boxSizing: "border-box",
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = "#FF0000";
+              e.currentTarget.style.borderColor = "#10B981";
             }}
             onBlur={(e) => {
               e.currentTarget.style.borderColor = "#e5e7eb";
@@ -194,7 +196,8 @@ export default function WidgetCatalog({
           style={{
             textAlign: "center",
             padding: "3rem 0",
-            color: "#9ca3af",
+            color: "#000000",
+            opacity: 0.5,
             fontSize: "0.9rem",
           }}
         >
@@ -203,4 +206,4 @@ export default function WidgetCatalog({
       )}
     </div>
   );
-  }
+}
