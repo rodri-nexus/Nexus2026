@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -69,33 +70,33 @@ export default function LoginPage() {
           borderRadius: "20px",
           padding: "2.5rem 2rem",
           boxShadow:
-            "0 20px 60px rgba(255, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05)",
+            "0 20px 60px rgba(16, 185, 129, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04)",
+          border: "1px solid #e5e7eb",
         }}
       >
-        {/* Logo/Título */}
+        {/* Logo oficial y bienvenida */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          style={{ textAlign: "center", marginBottom: "2rem" }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+            marginBottom: "2rem",
+          }}
         >
-          <h1
-            style={{
-              fontSize: "2.5rem",
-              margin: "0 0 0.5rem 0",
-              fontWeight: 800,
-              color: "#FF0000",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Nevux
-          </h1>
+          <div style={{ marginBottom: "0.75rem" }}>
+            <NevuxLogo size="large" />
+          </div>
           <p
             style={{
               color: "#000000",
               opacity: 0.6,
               margin: 0,
               fontSize: "0.95rem",
+              fontWeight: 500,
             }}
           >
             Bienvenido de vuelta
@@ -146,11 +147,13 @@ export default function LoginPage() {
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
-                  transition: "all 0.2s",
+                  transition: "border-color 0.2s",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
+                  color: "#000000",
+                  background: "#FFFFFF",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
+                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                 onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
@@ -198,11 +201,13 @@ export default function LoginPage() {
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
-                  transition: "all 0.2s",
+                  transition: "border-color 0.2s",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
+                  color: "#000000",
+                  background: "#FFFFFF",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
+                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                 onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
@@ -223,7 +228,7 @@ export default function LoginPage() {
               href="/recuperar"
               style={{
                 fontSize: "0.82rem",
-                color: "#FF0000",
+                color: "#10B981",
                 fontWeight: 600,
                 textDecoration: "none",
               }}
@@ -260,18 +265,18 @@ export default function LoginPage() {
             style={{
               width: "100%",
               padding: "0.95rem",
-              background: loading ? "rgba(255, 0, 0, 0.4)" : "#FF0000",
+              background: loading ? "rgba(16, 185, 129, 0.6)" : "#10B981",
               color: "white",
               border: "none",
               borderRadius: "12px",
               fontSize: "1rem",
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: loading ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: "0.5rem",
-              boxShadow: "0 4px 14px rgba(255, 0, 0, 0.3)",
+              boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
               transition: "all 0.2s",
               fontFamily: "inherit",
             }}
@@ -304,8 +309,8 @@ export default function LoginPage() {
           <Link
             href="/registro"
             style={{
-              color: "#FF0000",
-              fontWeight: 600,
+              color: "#10B981",
+              fontWeight: 700,
               textDecoration: "none",
             }}
           >
@@ -315,4 +320,4 @@ export default function LoginPage() {
       </motion.div>
     </div>
   );
-          }
+                 }
