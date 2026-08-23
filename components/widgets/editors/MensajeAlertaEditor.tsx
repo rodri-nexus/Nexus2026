@@ -188,8 +188,8 @@ export default function MensajeAlertaEditor({
                 justifyContent: 'center',
                 gap: 6,
                 padding: '14px 8px',
-                background: selected ? '#fff5f5' : '#FFFFFF',
-                border: selected ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+                background: selected ? '#ecfdf5' : '#FFFFFF',
+                border: selected ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                 borderRadius: 10,
                 cursor: 'pointer',
                 minHeight: 80,
@@ -200,7 +200,7 @@ export default function MensajeAlertaEditor({
                 style={{
                   fontSize: 13,
                   fontWeight: 500,
-                  color: selected ? '#FF0000' : '#000000',
+                  color: selected ? '#10B981' : '#000000',
                 }}
               >
                 {op.label}
@@ -300,7 +300,7 @@ export default function MensajeAlertaEditor({
                   width: 18,
                   height: 18,
                   borderRadius: '50%',
-                  border: selected ? '5px solid #FF0000' : '2px solid #e5e7eb',
+                  border: selected ? '5px solid #10B981' : '2px solid #e5e7eb',
                   background: '#FFFFFF',
                   flexShrink: 0,
                 }}
@@ -350,7 +350,7 @@ export default function MensajeAlertaEditor({
                 type="radio"
                 checked={selected}
                 onChange={() => updateConfig('color', op.id)}
-                style={{ accentColor: '#FF0000', width: 16, height: 16 }}
+                style={{ accentColor: '#10B981', width: 16, height: 16 }}
               />
               <span style={{ fontSize: 14, color: '#000000', flex: 1 }}>
                 {op.label}
@@ -450,12 +450,12 @@ export default function MensajeAlertaEditor({
                   style={{
                     flex: 1,
                     padding: '10px 8px',
-                    background: selected ? '#fff5f5' : '#FFFFFF',
-                    border: selected ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+                    background: selected ? '#ecfdf5' : '#FFFFFF',
+                    border: selected ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                     borderRadius: 8,
                     fontSize: 13,
                     fontWeight: op.id === 'resaltado' ? 700 : 500,
-                    color: selected ? '#FF0000' : '#000000',
+                    color: selected ? '#10B981' : '#000000',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                   }}
@@ -493,7 +493,7 @@ export default function MensajeAlertaEditor({
                   width: 18,
                   height: 18,
                   borderRadius: '50%',
-                  border: selected ? '5px solid #FF0000' : '2px solid #e5e7eb',
+                  border: selected ? '5px solid #10B981' : '2px solid #e5e7eb',
                   background: '#FFFFFF',
                   flexShrink: 0,
                 }}
@@ -532,12 +532,12 @@ export default function MensajeAlertaEditor({
               onClick={() => updateConfig('aplicarEfectoA', op.id)}
               style={{
                 padding: '14px 12px',
-                background: selected ? '#fff5f5' : '#FFFFFF',
-                border: selected ? '1.5px solid #FF0000' : '1px solid #e5e7eb',
+                background: selected ? '#ecfdf5' : '#FFFFFF',
+                border: selected ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                 borderRadius: 10,
                 fontSize: 14,
                 fontWeight: 500,
-                color: selected ? '#FF0000' : '#000000',
+                color: selected ? '#10B981' : '#000000',
                 cursor: 'pointer',
               }}
             >
@@ -623,7 +623,7 @@ export default function MensajeAlertaEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -675,10 +675,11 @@ export default function MensajeAlertaEditor({
 
         <div
           style={{
-            background: '#f3f4f6',
+            background: '#FFFFFF',
             border: '1px solid #e5e7eb',
             borderRadius: 16,
-            padding: 16,
+            padding: 20,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           <div style={{ marginBottom: 14 }}>
@@ -697,11 +698,11 @@ export default function MensajeAlertaEditor({
               lineHeight: 1.5,
             }}
           >
-            <span style={{ flexShrink: 0, marginTop: 2 }}>ⓘ</span>
+            <span style={{ flexShrink: 0, marginTop: 2, color: '#10B981' }}>ⓘ</span>
             <span>El mensaje aparecerá encima del título de este producto específico.</span>
           </div>
 
-          <div style={{ background: '#FFFFFF', borderRadius: 12, padding: 16 }}>
+          <div style={{ background: '#FFFFFF', borderRadius: 12, padding: 0 }}>
             <EditorTabs tabs={tabs}>
               {tabGeneral}
               {tabUbicacion}
@@ -733,7 +734,7 @@ export default function MensajeAlertaEditor({
                 onClick={handleSave}
                 disabled={isSaving}
                 style={{
-                  background: '#FF0000',
+                  background: '#10B981',
                   color: '#FFFFFF',
                   border: 'none',
                   borderRadius: 999,
@@ -742,6 +743,8 @@ export default function MensajeAlertaEditor({
                   fontWeight: 700,
                   cursor: isSaving ? 'not-allowed' : 'pointer',
                   opacity: isSaving ? 0.6 : 1,
+                  fontFamily: 'inherit',
+                  transition: 'all 0.2s',
                 }}
               >
                 {isSaving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
