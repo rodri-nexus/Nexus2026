@@ -206,7 +206,7 @@ export default function BannerDeslizanteEditor({
         {targetType === 'all' ? (
           <div
             style={{
-              background: '#FF0000',
+              background: '#10B981',
               color: '#ffffff',
               padding: '8px 14px',
               borderRadius: 999,
@@ -275,8 +275,8 @@ export default function BannerDeslizanteEditor({
             style={{
               margin: '0 20px 20px',
               padding: '12px 16px',
-              background: '#fff5f5',
-              border: '1px solid #fecaca',
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
               borderRadius: 10,
               display: 'flex',
               gap: 10,
@@ -353,7 +353,7 @@ export default function BannerDeslizanteEditor({
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#ffffff',
                 border: 'none',
                 padding: '12px 28px',
@@ -463,7 +463,7 @@ function GeneralTab({
                 fontFamily: 'inherit',
                 boxSizing: 'border-box',
               }}
-              onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+              onFocus={(e) => (e.target.style.borderColor = '#10B981')}
               onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
             />
             {mensajes.length > 1 && (
@@ -504,8 +504,8 @@ function GeneralTab({
           style={{
             marginTop: 14,
             background: '#ffffff',
-            border: '1.5px solid #FF0000',
-            color: '#FF0000',
+            border: '1.5px solid #10B981',
+            color: '#10B981',
             padding: '12px 20px',
             borderRadius: 999,
             fontWeight: 700,
@@ -553,7 +553,7 @@ function UbicacionTab({
         style={{
           background: '#ffffff',
           borderRadius: 12,
-          border: mostrarEnProducto ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+          border: mostrarEnProducto ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
           padding: 18,
           transition: 'border-color 0.2s',
         }}
@@ -565,8 +565,8 @@ function UbicacionTab({
               width: 22,
               height: 22,
               borderRadius: 5,
-              background: mostrarEnProducto ? '#FF0000' : '#ffffff',
-              border: mostrarEnProducto ? '2px solid #FF0000' : '2px solid #d1d5db',
+              background: mostrarEnProducto ? '#10B981' : '#ffffff',
+              border: mostrarEnProducto ? '2px solid #10B981' : '2px solid #d1d5db',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -604,7 +604,7 @@ function UbicacionTab({
                     width: 20,
                     height: 20,
                     borderRadius: '50%',
-                    border: ubicacionProducto === 'despues-boton' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                    border: ubicacionProducto === 'despues-boton' ? '6px solid #10B981' : '2px solid #d1d5db',
                     background: '#ffffff',
                     flexShrink: 0,
                     transition: 'all 0.2s',
@@ -621,7 +621,7 @@ function UbicacionTab({
                     width: 20,
                     height: 20,
                     borderRadius: '50%',
-                    border: ubicacionProducto === 'despues-precio' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                    border: ubicacionProducto === 'despues-precio' ? '6px solid #10B981' : '2px solid #d1d5db',
                     background: '#ffffff',
                     flexShrink: 0,
                     transition: 'all 0.2s',
@@ -641,7 +641,7 @@ function UbicacionTab({
         style={{
           background: '#ffffff',
           borderRadius: 12,
-          border: modoBarra ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+          border: modoBarra ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
           padding: 18,
           transition: 'border-color 0.2s',
         }}
@@ -653,8 +653,8 @@ function UbicacionTab({
               width: 22,
               height: 22,
               borderRadius: 5,
-              background: modoBarra ? '#FF0000' : '#ffffff',
-              border: modoBarra ? '2px solid #FF0000' : '2px solid #d1d5db',
+              background: modoBarra ? '#10B981' : '#ffffff',
+              border: modoBarra ? '2px solid #10B981' : '2px solid #d1d5db',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -706,7 +706,7 @@ function EstiloTab({
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <path
                 d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
@@ -736,7 +736,7 @@ function EstiloTab({
                   width: 20,
                   height: 20,
                   borderRadius: '50%',
-                  border: config.tipoFondo === 'solido' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                  border: config.tipoFondo === 'solido' ? '6px solid #10B981' : '2px solid #d1d5db',
                   background: '#ffffff',
                   flexShrink: 0,
                 }}
@@ -750,7 +750,7 @@ function EstiloTab({
                   width: 20,
                   height: 20,
                   borderRadius: '50%',
-                  border: config.tipoFondo === 'degradado' ? '6px solid #FF0000' : '2px solid #d1d5db',
+                  border: config.tipoFondo === 'degradado' ? '6px solid #10B981' : '2px solid #d1d5db',
                   background: '#ffffff',
                   flexShrink: 0,
                 }}
@@ -792,7 +792,7 @@ function EstiloTab({
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2, fontWeight: 800, fontSize: 22 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2, fontWeight: 800, fontSize: 22 }}>
             T
           </div>
           <div>
@@ -867,7 +867,7 @@ function EstiloTab({
         }}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 2 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <path d="M3 8h18M3 16h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
@@ -935,7 +935,7 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   return (
     <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 4 }}>
       {children}
-      {required && <span style={{ color: '#FF0000', marginLeft: 4 }}>*</span>}
+      {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
     </div>
   );
 }
@@ -965,10 +965,10 @@ function TabButton({
         padding: '14px 12px',
         fontSize: 15,
         fontWeight: active ? 700 : 500,
-        color: active ? '#FF0000' : '#000000',
+        color: active ? '#10B981' : '#000000',
         opacity: active ? 1 : 0.6,
         cursor: 'pointer',
-        borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+        borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
         fontFamily: 'inherit',
         transition: 'all 0.2s',
       }}
@@ -1047,7 +1047,7 @@ function ToggleField({
           width: 44,
           height: 26,
           borderRadius: 999,
-          background: value ? '#FF0000' : '#d1d5db',
+          background: value ? '#10B981' : '#d1d5db',
           position: 'relative',
           transition: 'background 0.25s',
           flexShrink: 0,
@@ -1098,7 +1098,7 @@ function RangeSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
           width: '100%',
-          accentColor: '#FF0000',
+          accentColor: '#10B981',
           cursor: 'pointer',
         }}
       />
@@ -1134,9 +1134,9 @@ function IconStore() {
 
 function IconInfo() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
   );
-}
+  }
