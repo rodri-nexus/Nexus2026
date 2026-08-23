@@ -48,7 +48,7 @@ const LOYALTY_MILESTONES = [
   {
     month: 3,
     icon: Gift,
-    color: "#FF0000",
+    color: "#10B981",
     title: "Mes 3 · Recompensa",
     description:
       "Desbloqueás widgets premium exclusivos + 1 widget personalizado único que solo vas a tener vos.",
@@ -64,7 +64,7 @@ const LOYALTY_MILESTONES = [
   {
     month: 12,
     icon: Gem,
-    color: "#FF0000",
+    color: "#10B981",
     title: "Mes 12+ · VIP",
     description:
       "Beneficios VIP, widgets únicos diseñados 100% para tu tienda, y acceso anticipado a features nuevas.",
@@ -144,7 +144,7 @@ export default function ExpiradoClient({
         minHeight: "100vh",
         width: "100%",
         maxWidth: "100vw",
-        background: "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
@@ -161,7 +161,7 @@ export default function ExpiradoClient({
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -174,7 +174,7 @@ export default function ExpiradoClient({
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.06) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -220,16 +220,16 @@ export default function ExpiradoClient({
               alignItems: "center",
               gap: "0.4rem",
               padding: "0.45rem 0.95rem",
-              background: "white",
-              border: "1px solid #fecaca",
+              background: "#ecfdf5",
+              border: "1px solid #a7f3d0",
               borderRadius: "999px",
               fontSize: "0.8rem",
-              color: "#FF0000",
+              color: "#059669",
               fontWeight: 700,
               marginBottom: "1.25rem",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
-              boxShadow: "0 2px 8px rgba(255, 0, 0, 0.1)",
+              boxShadow: "0 2px 8px rgba(16, 185, 129, 0.1)",
             }}
           >
             <Clock size={12} />
@@ -248,7 +248,7 @@ export default function ExpiradoClient({
             }}
           >
             Seguí vendiendo más con{" "}
-            <span style={{ color: "#FF0000" }}>Nevux</span>
+            <span style={{ color: "#10B981" }}>Nevux</span>
           </h1>
 
           <p
@@ -278,9 +278,9 @@ export default function ExpiradoClient({
             background: "white",
             borderRadius: "28px",
             padding: "clamp(1.5rem, 5vw, 2.5rem) clamp(1rem, 4vw, 2rem)",
-            border: "2px solid #FF0000",
+            border: "2px solid #10B981",
             boxShadow:
-              "0 30px 80px rgba(255, 0, 0, 0.15), 0 10px 30px rgba(0, 0, 0, 0.08)",
+              "0 30px 80px rgba(16, 185, 129, 0.12), 0 10px 30px rgba(0, 0, 0, 0.06)",
             marginBottom: "3rem",
             position: "relative",
             width: "100%",
@@ -295,7 +295,7 @@ export default function ExpiradoClient({
               top: "-14px",
               left: "50%",
               transform: "translateX(-50%)",
-              background: "#FF0000",
+              background: "#10B981",
               color: "white",
               padding: "0.4rem 1.15rem",
               borderRadius: "999px",
@@ -303,7 +303,7 @@ export default function ExpiradoClient({
               fontWeight: 800,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)",
               whiteSpace: "nowrap",
             }}
           >
@@ -338,7 +338,7 @@ export default function ExpiradoClient({
                 style={{
                   fontSize: "clamp(2.25rem, 7vw, 4rem)",
                   fontWeight: 900,
-                  color: "#FF0000",
+                  color: "#10B981",
                   letterSpacing: "-0.04em",
                   lineHeight: 1,
                 }}
@@ -397,7 +397,7 @@ export default function ExpiradoClient({
                     width: "22px",
                     height: "22px",
                     borderRadius: "50%",
-                    background: "#FF0000",
+                    background: "#10B981",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -438,13 +438,13 @@ export default function ExpiradoClient({
                   justifyContent: "center",
                   gap: "0.5rem",
                   padding: "1.05rem 2rem",
-                  background: "#FF0000",
+                  background: "#10B981",
                   color: "white",
                   borderRadius: "999px",
                   fontSize: "1.05rem",
                   fontWeight: 700,
                   textDecoration: "none",
-                  boxShadow: "0 15px 35px rgba(255, 0, 0, 0.4)",
+                  boxShadow: "0 15px 35px rgba(16, 185, 129, 0.3)",
                   transition: "all 0.2s",
                   width: "100%",
                   maxWidth: "360px",
@@ -484,11 +484,11 @@ export default function ExpiradoClient({
                 alignItems: "center",
                 gap: "0.4rem",
                 padding: "0.4rem 0.85rem",
-                background: "white",
-                border: "1px solid #e5e7eb",
+                background: "#ecfdf5",
+                border: "1px solid #a7f3d0",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
-                color: "#FF0000",
+                color: "#059669",
                 fontWeight: 700,
                 marginBottom: "1rem",
                 textTransform: "uppercase",
@@ -509,7 +509,7 @@ export default function ExpiradoClient({
               }}
             >
               Cuantos más meses usás Nevux,{" "}
-              <span style={{ color: "#FF0000" }}>más ganás</span>
+              <span style={{ color: "#10B981" }}>más ganás</span>
             </h2>
             <p
               style={{
@@ -554,8 +554,8 @@ export default function ExpiradoClient({
                       height: "48px",
                       borderRadius: "14px",
                       background:
-                        m.color === "#FF0000"
-                          ? "rgba(255, 0, 0, 0.1)"
+                        m.color === "#10B981"
+                          ? "rgba(16, 185, 129, 0.1)"
                           : "rgba(0, 0, 0, 0.08)",
                       display: "flex",
                       alignItems: "center",
@@ -630,7 +630,7 @@ export default function ExpiradoClient({
                 letterSpacing: "-0.02em",
               }}
             >
-              Lo que se viene en <span style={{ color: "#FF0000" }}>Nevux</span>
+              Lo que se viene en <span style={{ color: "#10B981" }}>Nevux</span>
             </h2>
             <p
               style={{
@@ -673,14 +673,14 @@ export default function ExpiradoClient({
                       width: "36px",
                       height: "36px",
                       borderRadius: "10px",
-                      background: "rgba(255, 0, 0, 0.08)",
+                      background: "rgba(16, 185, 129, 0.1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       marginBottom: "0.75rem",
                     }}
                   >
-                    <Icon size={18} color="#FF0000" strokeWidth={2} />
+                    <Icon size={18} color="#10B981" strokeWidth={2} />
                   </div>
                   <h4
                     style={{
