@@ -1,4 +1,3 @@
-// app/admin/pagos/AdminPagosClient.tsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -168,11 +167,6 @@ function isInDateRange(dateStr: string, range: DateFilterKey): boolean {
 // HELPER: EXPORTAR A CSV
 // ═══════════════════════════════════════════════
 
-/**
- * Escapa un valor para que sea seguro en CSV:
- * - Envuelve en comillas si contiene coma, comilla o salto de línea
- * - Escapa comillas duplicándolas
- */
 function csvEscape(value: any): string {
   if (value === null || value === undefined) return "";
   const str = String(value);
@@ -181,9 +175,6 @@ function csvEscape(value: any): string {
   return needsQuotes ? `"${escaped}"` : escaped;
 }
 
-/**
- * Formatea una fecha ISO a "DD/MM/YYYY HH:MM"
- */
 function formatDateForCSV(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -193,9 +184,6 @@ function formatDateForCSV(iso: string | null | undefined): string {
   )}:${pad(d.getMinutes())}`;
 }
 
-/**
- * Traduce el status a español
- */
 function translateStatus(status: string): string {
   const map: Record<string, string> = {
     pending: "Pendiente",
@@ -205,11 +193,7 @@ function translateStatus(status: string): string {
   return map[status] || status;
 }
 
-/**
- * Genera y descarga el CSV con los pagos dados.
- */
 function exportPaymentsToCSV(payments: PaymentWithUser[]) {
-  // Encabezados de las columnas
   const headers = [
     "ID Pago",
     "Fecha creación",
@@ -227,7 +211,6 @@ function exportPaymentsToCSV(payments: PaymentWithUser[]) {
     "Notas admin",
   ];
 
-  // Filas
   const rows = payments.map((p) => [
     p.id,
     formatDateForCSV(p.created_at),
@@ -245,19 +228,16 @@ function exportPaymentsToCSV(payments: PaymentWithUser[]) {
     p.admin_notes || "",
   ]);
 
-  // Armar el CSV
   const csvContent = [
     headers.map(csvEscape).join(","),
     ...rows.map((row) => row.map(csvEscape).join(",")),
   ].join("\n");
 
-  // BOM UTF-8 para que Excel abra los acentos bien
   const BOM = "\uFEFF";
   const blob = new Blob([BOM + csvContent], {
     type: "text/csv;charset=utf-8;",
   });
 
-  // Descargar
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   const today = new Date();
@@ -299,16 +279,13 @@ export default function AdminPagosClient({
     useState<PaymentWithUser | null>(null);
   const [showCronModal, setShowCronModal] = useState(false);
 
-  // Filtrado combinado: tab + búsqueda + fecha
   const filteredPayments = useMemo(() => {
     let result = payments;
 
-    // 1. Filtro por tab
     if (activeTab !== "all") {
       result = result.filter((p) => p.status === activeTab);
     }
 
-    // 2. Filtro por búsqueda de email
     const trimmedQuery = searchQuery.trim().toLowerCase();
     if (trimmedQuery.length > 0) {
       result = result.filter((p) =>
@@ -316,7 +293,6 @@ export default function AdminPagosClient({
       );
     }
 
-    // 3. Filtro por fecha
     if (dateFilter !== "all") {
       result = result.filter((p) => isInDateRange(p.created_at, dateFilter));
     }
@@ -324,7 +300,6 @@ export default function AdminPagosClient({
     return result;
   }, [payments, activeTab, searchQuery, dateFilter]);
 
-  // Total de pagos en el tab actual (sin otros filtros)
   const totalInTab = useMemo(() => {
     if (activeTab === "all") return payments.length;
     return payments.filter((p) => p.status === activeTab).length;
@@ -415,7 +390,7 @@ export default function AdminPagosClient({
               fontFamily: "inherit",
             }}
           >
-            <Zap size={14} color="#FF0000" />
+            <Zap size={14} color="#10B981" />
             Cron
           </button>
 
@@ -511,8 +486,8 @@ export default function AdminPagosClient({
             icon={<DollarSign size={18} />}
             label="Ingresos totales"
             value={`$${stats.totalRevenue.toLocaleString("es-AR")}`}
-            color="#FF0000"
-            bg="#fff5f5"
+            color="#10B981"
+            bg="#ecfdf5"
             isText
           />
         </div>
@@ -644,7 +619,6 @@ export default function AdminPagosClient({
     </div>
   );
 }
-
 // ═══════════════════════════════════════════════
 // FILTERS BAR (con botón CSV)
 // ═══════════════════════════════════════════════
@@ -690,13 +664,7 @@ function FiltersBar({
         boxSizing: "border-box",
       }}
     >
-      {/* Input de búsqueda */}
-      <div
-        style={{
-          position: "relative",
-          marginBottom: "0.85rem",
-        }}
-      >
+      <div style={{ position: "relative", marginBottom: "0.85rem" }}>
         <Search
           size={16}
           color="#000000"
@@ -717,7 +685,10 @@ function FiltersBar({
           style={{
             width: "100%",
             padding: "0.65rem 2.5rem 0.65rem 2.4rem",
-            border: searchQuery.length > 0 ? "1px solid #FF0000" : "1px solid #e5e7eb",
+            border:
+              searchQuery.length > 0
+                ? "1px solid #10B981"
+                : "1px solid #e5e7eb",
             borderRadius: "10px",
             fontSize: "0.88rem",
             fontFamily: "inherit",
@@ -755,7 +726,6 @@ function FiltersBar({
         )}
       </div>
 
-      {/* Filtros de fecha */}
       <div
         style={{
           display: "flex",
@@ -788,11 +758,11 @@ function FiltersBar({
             onClick={() => onDateFilterChange(f.key)}
             style={{
               padding: "0.35rem 0.75rem",
-              background: dateFilter === f.key ? "#FF0000" : "white",
+              background: dateFilter === f.key ? "#10B981" : "white",
               color: dateFilter === f.key ? "white" : "#000000",
               border:
                 dateFilter === f.key
-                  ? "1px solid #FF0000"
+                  ? "1px solid #10B981"
                   : "1px solid #e5e7eb",
               borderRadius: "999px",
               fontSize: "0.75rem",
@@ -808,7 +778,6 @@ function FiltersBar({
         ))}
       </div>
 
-      {/* Contador + acciones (limpiar / exportar) */}
       <div
         style={{
           display: "flex",
@@ -831,14 +800,17 @@ function FiltersBar({
           Mostrando{" "}
           <strong
             style={{
-              color: hasActiveFilters ? "#FF0000" : "#000000",
+              color: hasActiveFilters ? "#10B981" : "#000000",
               opacity: 1,
               fontWeight: 800,
             }}
           >
             {resultsCount}
           </strong>{" "}
-          de <strong style={{ color: "#000000", opacity: 1, fontWeight: 800 }}>{totalCount}</strong>{" "}
+          de{" "}
+          <strong style={{ color: "#000000", opacity: 1, fontWeight: 800 }}>
+            {totalCount}
+          </strong>{" "}
           {totalCount === 1 ? "pago" : "pagos"}
         </div>
 
@@ -859,8 +831,8 @@ function FiltersBar({
                 gap: "0.3rem",
                 padding: "0.35rem 0.75rem",
                 background: "transparent",
-                color: "#FF0000",
-                border: "1px solid #fecaca",
+                color: "#10B981",
+                border: "1px solid #a7f3d0",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
                 fontWeight: 700,
@@ -1032,7 +1004,7 @@ function TabButton({
             background: active
               ? "white"
               : urgent
-              ? "#FF0000"
+              ? "#10B981"
               : "#f3f4f6",
             color: active ? "#000000" : urgent ? "white" : "#000000",
             borderRadius: "999px",
@@ -1102,7 +1074,9 @@ function EmptyState({
       text: "No hay pagos pendientes por ahora",
     },
     approved: {
-      icon: <CheckCircle2 size={40} color="#000000" style={{ opacity: 0.3 }} />,
+      icon: (
+        <CheckCircle2 size={40} color="#000000" style={{ opacity: 0.3 }} />
+      ),
       text: "Todavía no aprobaste ningún pago",
     },
     rejected: {
@@ -1186,7 +1160,6 @@ function PaymentCard({
         boxSizing: "border-box",
       }}
     >
-      {/* Header: status + fecha */}
       <div
         style={{
           display: "flex",
@@ -1210,7 +1183,6 @@ function PaymentCard({
         </div>
       </div>
 
-      {/* Monto */}
       <div
         style={{
           fontSize: "1.75rem",
@@ -1224,7 +1196,6 @@ function PaymentCard({
         ${payment.amount.toLocaleString("es-AR")}
       </div>
 
-      {/* Info del usuario */}
       <div
         style={{
           background: "#f9fafb",
@@ -1269,7 +1240,6 @@ function PaymentCard({
         />
       </div>
 
-      {/* Info de aprobación/rechazo */}
       {isApproved && payment.approved_at && (
         <div
           style={{
@@ -1303,14 +1273,7 @@ function PaymentCard({
         </div>
       )}
 
-      {/* Botones */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0.5rem",
-          flexWrap: "wrap",
-        }}
-      >
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
         {payment.receipt_url && (
           <button
             onClick={onViewReceipt}
@@ -1392,31 +1355,32 @@ function PaymentCard({
 // STATUS BADGE
 // ═══════════════════════════════════════════════
 function StatusBadge({ status }: { status: string }) {
-  const config = {
-    pending: {
-      bg: "#fef3c7",
-      color: "#b45309",
-      icon: <Clock size={11} />,
-      text: "Pendiente",
-    },
-    approved: {
-      bg: "#d1fae5",
-      color: "#059669",
-      icon: <CheckCircle2 size={11} />,
-      text: "Aprobado",
-    },
-    rejected: {
-      bg: "#fee2e2",
-      color: "#dc2626",
-      icon: <XCircle size={11} />,
-      text: "Rechazado",
-    },
-  }[status] || {
-    bg: "#f3f4f6",
-    color: "#000000",
-    icon: <AlertCircle size={11} />,
-    text: status,
-  };
+  const config =
+    {
+      pending: {
+        bg: "#fef3c7",
+        color: "#b45309",
+        icon: <Clock size={11} />,
+        text: "Pendiente",
+      },
+      approved: {
+        bg: "#d1fae5",
+        color: "#059669",
+        icon: <CheckCircle2 size={11} />,
+        text: "Aprobado",
+      },
+      rejected: {
+        bg: "#fee2e2",
+        color: "#dc2626",
+        icon: <XCircle size={11} />,
+        text: "Rechazado",
+      },
+    }[status] || {
+      bg: "#f3f4f6",
+      color: "#000000",
+      icon: <AlertCircle size={11} />,
+      text: status,
+    };
 
   return (
     <span
@@ -1548,7 +1512,7 @@ function ReceiptModal({
           <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
             <Loader2
               size={32}
-              color="#FF0000"
+              color="#10B981"
               style={{ animation: "spin 1s linear infinite" }}
             />
             <p
@@ -1582,7 +1546,7 @@ function ReceiptModal({
               <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
                 <FileText
                   size={56}
-                  color="#FF0000"
+                  color="#10B981"
                   style={{ marginBottom: "1rem" }}
                 />
                 <p
@@ -1604,7 +1568,7 @@ function ReceiptModal({
                     alignItems: "center",
                     gap: "0.4rem",
                     padding: "0.7rem 1.4rem",
-                    background: "#FF0000",
+                    background: "#10B981",
                     color: "white",
                     borderRadius: "10px",
                     fontSize: "0.9rem",
@@ -1640,7 +1604,7 @@ function ReceiptModal({
                 gap: "0.4rem",
                 marginTop: "1rem",
                 fontSize: "0.8rem",
-                color: "#FF0000",
+                color: "#10B981",
                 fontWeight: 700,
                 textDecoration: "none",
               }}
@@ -1696,7 +1660,6 @@ function ApproveModal({
     }
   }
 
-  // Pantalla de éxito con botón mailto:
   if (successData) {
     const mailtoLink = buildApprovedEmailMailto(
       payment.user_email || "",
@@ -1711,7 +1674,6 @@ function ApproveModal({
     return (
       <ModalBackdrop onClose={onSuccess}>
         <ModalContent title="Pago aprobado ✓" onClose={onSuccess}>
-          {/* Ícono grande de éxito */}
           <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
             <div
               style={{
@@ -1750,7 +1712,6 @@ function ApproveModal({
             </p>
           </div>
 
-          {/* Info del cliente */}
           <div
             style={{
               padding: "0.85rem 1rem",
@@ -1769,12 +1730,11 @@ function ApproveModal({
             </div>
           </div>
 
-          {/* CTA principal: enviar email */}
           <div
             style={{
               padding: "1rem",
-              background: "#fff5f5",
-              border: "1px solid #fecaca",
+              background: "#ecfdf5",
+              border: "1px solid #a7f3d0",
               borderRadius: "12px",
               marginBottom: "1rem",
             }}
@@ -1789,7 +1749,7 @@ function ApproveModal({
               }}
             >
               📧 Enviale el email de bienvenida al cliente desde tu Gmail. Ya
-              está todo redactado, solo tenés que tocar "Enviar".
+              está todo redactado, solo tenés que tocar &quot;Enviar&quot;.
             </div>
             <a
               href={mailtoLink}
@@ -1800,7 +1760,7 @@ function ApproveModal({
                 gap: "0.5rem",
                 width: "100%",
                 padding: "0.85rem",
-                background: "#FF0000",
+                background: "#10B981",
                 color: "white",
                 borderRadius: "10px",
                 fontSize: "0.9rem",
@@ -1814,7 +1774,6 @@ function ApproveModal({
             </a>
           </div>
 
-          {/* Cerrar sin enviar */}
           <button
             onClick={onSuccess}
             style={{
@@ -1838,7 +1797,6 @@ function ApproveModal({
     );
   }
 
-  // Pantalla normal de aprobación
   return (
     <ModalBackdrop onClose={submitting ? () => {} : onClose}>
       <ModalContent title="Aprobar pago" onClose={onClose}>
@@ -2050,7 +2008,6 @@ function RejectModal({
     }
   }
 
-  // Pantalla de éxito con botón mailto:
   if (successReason) {
     const mailtoLink = buildRejectedEmailMailto(
       payment.user_email || "",
@@ -2060,7 +2017,6 @@ function RejectModal({
     return (
       <ModalBackdrop onClose={onSuccess}>
         <ModalContent title="Pago rechazado" onClose={onSuccess}>
-          {/* Ícono grande */}
           <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
             <div
               style={{
@@ -2099,7 +2055,6 @@ function RejectModal({
             </p>
           </div>
 
-          {/* Info */}
           <div
             style={{
               padding: "0.85rem 1rem",
@@ -2117,12 +2072,11 @@ function RejectModal({
             </div>
           </div>
 
-          {/* CTA email */}
           <div
             style={{
               padding: "1rem",
-              background: "#fff5f5",
-              border: "1px solid #fecaca",
+              background: "#ecfdf5",
+              border: "1px solid #a7f3d0",
               borderRadius: "12px",
               marginBottom: "1rem",
             }}
@@ -2148,7 +2102,7 @@ function RejectModal({
                 gap: "0.5rem",
                 width: "100%",
                 padding: "0.85rem",
-                background: "#FF0000",
+                background: "#10B981",
                 color: "white",
                 borderRadius: "10px",
                 fontSize: "0.9rem",
@@ -2185,7 +2139,6 @@ function RejectModal({
     );
   }
 
-  // Pantalla normal de rechazo
   return (
     <ModalBackdrop onClose={submitting ? () => {} : onClose}>
       <ModalContent title="Rechazar pago" onClose={onClose}>
@@ -2238,10 +2191,10 @@ function RejectModal({
               disabled={submitting}
               style={{
                 padding: "0.4rem 0.75rem",
-                background: reason === r ? "#FF0000" : "white",
+                background: reason === r ? "#10B981" : "white",
                 color: reason === r ? "white" : "#000000",
                 border:
-                  reason === r ? "1px solid #FF0000" : "1px solid #e5e7eb",
+                  reason === r ? "1px solid #10B981" : "1px solid #e5e7eb",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
                 fontWeight: 600,
@@ -2334,7 +2287,9 @@ function RejectModal({
               flex: 1,
               padding: "0.85rem",
               background:
-                submitting || reason.trim().length < 3 ? "#000000" : "#dc2626",
+                submitting || reason.trim().length < 3
+                  ? "#000000"
+                  : "#dc2626",
               color: "white",
               border: "none",
               borderRadius: "10px",
@@ -2407,8 +2362,8 @@ function CronModal({ onClose }: { onClose: () => void }) {
             <div
               style={{
                 padding: "1rem",
-                background: "#fff5f5",
-                border: "1px solid #fecaca",
+                background: "#ecfdf5",
+                border: "1px solid #a7f3d0",
                 borderRadius: "10px",
                 marginBottom: "1rem",
                 display: "flex",
@@ -2418,7 +2373,7 @@ function CronModal({ onClose }: { onClose: () => void }) {
             >
               <Zap
                 size={18}
-                color="#FF0000"
+                color="#10B981"
                 style={{ flexShrink: 0, marginTop: "1px" }}
               />
               <div style={{ fontSize: "0.85rem", color: "#000000" }}>
@@ -2471,7 +2426,7 @@ function CronModal({ onClose }: { onClose: () => void }) {
                 style={{
                   flex: 1,
                   padding: "0.85rem",
-                  background: "#FF0000",
+                  background: "#10B981",
                   color: "white",
                   border: "none",
                   borderRadius: "10px",
@@ -2543,7 +2498,6 @@ function CronModal({ onClose }: { onClose: () => void }) {
               </p>
             </div>
 
-            {/* Contadores */}
             <div
               style={{
                 display: "grid",
@@ -2572,7 +2526,6 @@ function CronModal({ onClose }: { onClose: () => void }) {
               />
             </div>
 
-            {/* Detalles: expirados */}
             {result.report?.details?.expiredStores?.length > 0 && (
               <div
                 style={{
@@ -2604,14 +2557,14 @@ function CronModal({ onClose }: { onClose: () => void }) {
                         marginBottom: "0.25rem",
                       }}
                     >
-                      • {s.email} <span style={{ opacity: 0.5 }}>#{s.storeId}</span>
+                      • {s.email}{" "}
+                      <span style={{ opacity: 0.5 }}>#{s.storeId}</span>
                     </div>
                   )
                 )}
               </div>
             )}
 
-            {/* Detalles: recordatorios enviados */}
             {result.report?.details?.remindersToSend?.length > 0 && (
               <div
                 style={{
@@ -2650,7 +2603,6 @@ function CronModal({ onClose }: { onClose: () => void }) {
               </div>
             )}
 
-            {/* Errores */}
             {result.report?.errors?.length > 0 && (
               <div
                 style={{
@@ -2687,7 +2639,6 @@ function CronModal({ onClose }: { onClose: () => void }) {
               </div>
             )}
 
-            {/* Estado vacío si no pasó nada */}
             {(result.report?.expired ?? 0) === 0 &&
               (result.report?.remindersSent ?? 0) === 0 &&
               (result.report?.errors?.length ?? 0) === 0 && (
@@ -2939,4 +2890,4 @@ function ModalContent({
       `}</style>
     </motion.div>
   );
-  }
+}
