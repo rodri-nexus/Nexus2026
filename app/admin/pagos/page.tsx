@@ -1,4 +1,3 @@
-// app/admin/pagos/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -6,7 +5,7 @@ import AdminPagosClient from "./AdminPagosClient";
 
 export const dynamic = "force-dynamic";
 
-const ADMIN_EMAIL = "nevux340@gmail.com";
+const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
 export interface PaymentWithUser {
   id: string;
