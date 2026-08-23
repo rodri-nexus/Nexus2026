@@ -79,7 +79,7 @@ export default function EliminarWidgetModal({
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(17, 24, 39, 0.55)",
+            background: "rgba(0, 0, 0, 0.6)",
             backdropFilter: "blur(4px)",
             WebkitBackdropFilter: "blur(4px)",
             display: "flex",
@@ -166,12 +166,12 @@ export default function EliminarWidgetModal({
                   border: "none",
                   padding: "6px",
                   cursor: isDeleting ? "not-allowed" : "pointer",
-                  color: "#6b7280",
+                  color: "#000000",
+                  opacity: isDeleting ? 0.3 : 0.6,
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  opacity: isDeleting ? 0.5 : 1,
                   transition: "background 0.15s",
                 }}
                 onMouseEnter={(e) => {
@@ -181,13 +181,13 @@ export default function EliminarWidgetModal({
                   e.currentTarget.style.background = "transparent";
                 }}
               >
-                <X size={22} />
+                <X size={20} />
               </button>
             </div>
 
             {/* Body */}
             <div style={{ padding: "1.4rem" }}>
-              {/* Alerta rosa */}
+              {/* Alerta */}
               <div
                 style={{
                   background: "#fef2f2",
@@ -244,7 +244,8 @@ export default function EliminarWidgetModal({
                   <div
                     style={{
                       fontSize: "0.85rem",
-                      color: "#6b7280",
+                      color: "#000000",
+                      opacity: 0.6,
                       minWidth: "70px",
                       flexShrink: 0,
                     }}
@@ -254,7 +255,7 @@ export default function EliminarWidgetModal({
                   <div
                     style={{
                       fontSize: "0.95rem",
-                      color: "#111827",
+                      color: "#000000",
                       fontWeight: 700,
                       flex: 1,
                       wordBreak: "break-word",
@@ -273,7 +274,8 @@ export default function EliminarWidgetModal({
                   <div
                     style={{
                       fontSize: "0.85rem",
-                      color: "#6b7280",
+                      color: "#000000",
+                      opacity: 0.6,
                       minWidth: "70px",
                       flexShrink: 0,
                     }}
@@ -283,7 +285,9 @@ export default function EliminarWidgetModal({
                   <div
                     style={{
                       fontSize: "0.9rem",
-                      color: "#374151",
+                      color: "#000000",
+                      opacity: 0.85,
+                      fontWeight: 500,
                       flex: 1,
                       wordBreak: "break-word",
                     }}
@@ -300,7 +304,7 @@ export default function EliminarWidgetModal({
                   style={{
                     display: "block",
                     fontSize: "0.9rem",
-                    color: "#374151",
+                    color: "#000000",
                     marginBottom: "0.6rem",
                     lineHeight: 1.5,
                   }}
@@ -329,7 +333,7 @@ export default function EliminarWidgetModal({
                     }`,
                     background: "#ffffff",
                     fontSize: "0.95rem",
-                    color: "#111827",
+                    color: "#000000",
                     outline: "none",
                     fontFamily: "inherit",
                     boxSizing: "border-box",
@@ -337,7 +341,7 @@ export default function EliminarWidgetModal({
                   }}
                   onFocus={(e) => {
                     if (!isConfirmValid) {
-                      e.currentTarget.style.borderColor = "#9ca3af";
+                      e.currentTarget.style.borderColor = "rgba(0, 0, 0, 0.4)";
                     }
                   }}
                   onBlur={(e) => {
@@ -366,9 +370,9 @@ export default function EliminarWidgetModal({
                   style={{
                     padding: "0.7rem 1.4rem",
                     borderRadius: "999px",
-                    border: "none",
-                    background: "#6b7280",
-                    color: "#ffffff",
+                    border: "1px solid #e5e7eb",
+                    background: "#f9fafb",
+                    color: "#000000",
                     fontSize: "0.9rem",
                     fontWeight: 600,
                     cursor: isDeleting ? "not-allowed" : "pointer",
@@ -378,10 +382,10 @@ export default function EliminarWidgetModal({
                   }}
                   onMouseEnter={(e) => {
                     if (!isDeleting)
-                      e.currentTarget.style.background = "#4b5563";
+                      e.currentTarget.style.background = "#f3f4f6";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "#6b7280";
+                    e.currentTarget.style.background = "#f9fafb";
                   }}
                 >
                   Cancelar
@@ -400,7 +404,7 @@ export default function EliminarWidgetModal({
                     background: canDelete ? "#dc2626" : "#fca5a5",
                     color: "#ffffff",
                     fontSize: "0.9rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     cursor: canDelete ? "pointer" : "not-allowed",
                     fontFamily: "inherit",
                     boxShadow: canDelete
@@ -449,4 +453,4 @@ export default function EliminarWidgetModal({
       )}
     </AnimatePresence>
   );
-    }
+      }
