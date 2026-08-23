@@ -54,7 +54,7 @@ const DEFAULT_CONFIG = {
   mostrarOpinionPrimero: false,
 
   // Colores
-  colorBotones: '#FF0000',
+  colorBotones: '#10B981',
   colorFondo: 'transparent',
   colorTitulo: '#000000',
   colorSubtitulo: '#000000',
@@ -85,7 +85,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -95,7 +95,7 @@ function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: str
   );
 }
 
-function IconLink({ size = 18, color = '#FF0000' }: { size?: number; color?: string }) {
+function IconLink({ size = 18, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
@@ -104,7 +104,7 @@ function IconLink({ size = 18, color = '#FF0000' }: { size?: number; color?: str
   );
 }
 
-function IconCopy({ size = 16, color = '#FF0000' }: { size?: number; color?: string }) {
+function IconCopy({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <rect x="9" y="9" width="13" height="13" rx="2" />
@@ -167,7 +167,10 @@ function TextInput({
         background: readOnly ? '#F9FAFB' : '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
+        transition: 'border-color 0.2s',
       }}
+      onFocus={(e) => !readOnly && (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => !readOnly && (e.target.style.borderColor = '#e5e7eb')}
     />
   );
 }
@@ -202,7 +205,10 @@ function TextArea({
         resize: 'vertical',
         fontFamily: 'inherit',
         lineHeight: 1.5,
+        transition: 'border-color 0.2s',
       }}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
 }
@@ -236,6 +242,7 @@ function SelectField({
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
+        fontFamily: 'inherit',
       }}
     >
       {options.map((o) => (
@@ -277,8 +284,8 @@ function CheckboxCard({
             width: 22,
             height: 22,
             borderRadius: 6,
-            background: checked ? '#FF0000' : '#FFFFFF',
-            border: checked ? '1px solid #FF0000' : '1.5px solid #e5e7eb',
+            background: checked ? '#10B981' : '#FFFFFF',
+            border: checked ? '1px solid #10B981' : '1.5px solid #e5e7eb',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -305,6 +312,39 @@ function CheckboxCard({
         </div>
       </label>
     </div>
+  );
+}
+
+function CheckboxSimple({
+  checked,
+  onChange,
+  label,
+  icon,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <label
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        cursor: 'pointer',
+        padding: '6px 0',
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ width: 18, height: 18, accentColor: '#10B981', cursor: 'pointer' }}
+      />
+      {icon}
+      <span style={{ fontSize: 15, color: '#000000', lineHeight: 1.4, fontWeight: 500 }}>{label}</span>
+    </label>
   );
 }
 
@@ -410,10 +450,10 @@ function ToggleField({
       <div
         onClick={() => onChange(!checked)}
         style={{
-          width: 40,
-          height: 22,
+          width: 44,
+          height: 26,
           borderRadius: 999,
-          background: checked ? '#FF0000' : '#e5e7eb',
+          background: checked ? '#10B981' : '#e5e7eb',
           position: 'relative',
           transition: 'background 0.15s',
           flexShrink: 0,
@@ -421,20 +461,66 @@ function ToggleField({
       >
         <div
           style={{
-            width: 18,
-            height: 18,
+            width: 20,
+            height: 20,
             borderRadius: '50%',
             background: '#FFFFFF',
             position: 'absolute',
-            top: 2,
-            left: checked ? 20 : 2,
-            transition: 'left 0.15s',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+            top: 3,
+            left: checked ? 21 : 3,
+            transition: 'left 0.25s',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           }}
         />
       </div>
-      {label && <span style={{ fontSize: 15, color: '#000000' }}>{label}</span>}
+      {label && <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>}
     </label>
+  );
+}
+
+function RangeSlider({
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  marks,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  marks?: number[];
+}) {
+  return (
+    <div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{ width: '100%', accentColor: '#10B981', cursor: 'pointer' }}
+      />
+      {marks && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+            color: '#000000',
+            opacity: 0.5,
+            marginTop: 4,
+          }}
+        >
+          {marks.map((m, i) => (
+            <span key={i}>{m}px</span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -648,7 +734,7 @@ export default function ResenasClientesEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -664,8 +750,8 @@ export default function ResenasClientesEditor({
           <>
             <div
               style={{
-                background: '#fff5f5',
-                border: '1px solid #fecaca',
+                background: '#ecfdf5',
+                border: '1px solid #a7f3d0',
                 borderRadius: 12,
                 padding: 14,
                 marginBottom: 14,
@@ -675,14 +761,14 @@ export default function ResenasClientesEditor({
               }}
             >
               <div style={{ marginTop: 2 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#10B981">
                   <path d="M12 2L15 8L21 9L17 14L18 20L12 17L6 20L7 14L3 9L9 8Z" />
                 </svg>
               </div>
               <div style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
                 Te sugerimos crear este widget para toda la tienda en lugar de solo para este
                 producto.{' '}
-                <span style={{ color: '#FF0000', fontWeight: 700, cursor: 'pointer' }}>
+                <span style={{ color: '#059669', fontWeight: 700, cursor: 'pointer' }}>
                   Crear para toda la tienda →
                 </span>
               </div>
@@ -724,10 +810,11 @@ export default function ResenasClientesEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#f3f4f6',
+            background: '#FFFFFF',
             border: '1px solid #e5e7eb',
             borderRadius: 16,
-            padding: 16,
+            padding: 20,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -752,7 +839,7 @@ export default function ResenasClientesEditor({
               marginBottom: 8,
             }}
           >
-            <IconInfo size={16} color="#000000" />
+            <IconInfo size={16} color="#10B981" />
             <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
               Las reseñas aparecerán debajo de la sección del producto.
             </span>
@@ -784,9 +871,9 @@ export default function ResenasClientesEditor({
                   type="button"
                   onClick={() => setTab(t)}
                   style={{
-                    background: active ? '#FFFFFF' : 'transparent',
+                    background: 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
                     padding: '14px 6px',
                     fontSize: 14,
                     fontWeight: active ? 700 : 500,
@@ -794,6 +881,8 @@ export default function ResenasClientesEditor({
                     opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
                     textAlign: 'center',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s',
                   }}
                 >
                   {label}
@@ -918,8 +1007,8 @@ export default function ResenasClientesEditor({
                   Compartí el link con{' '}
                   <code
                     style={{
-                      background: '#fff5f5',
-                      color: '#FF0000',
+                      background: '#ecfdf5',
+                      color: '#059669',
                       padding: '2px 6px',
                       borderRadius: 4,
                       fontSize: 13,
@@ -961,14 +1050,15 @@ export default function ResenasClientesEditor({
                       alignItems: 'center',
                       gap: 6,
                       background: '#FFFFFF',
-                      border: '1px solid #FF0000',
-                      color: '#FF0000',
+                      border: '1px solid #10B981',
+                      color: '#10B981',
                       borderRadius: 999,
                       padding: '10px 18px',
                       fontSize: 14,
                       fontWeight: 700,
                       cursor: 'pointer',
                       flexShrink: 0,
+                      transition: 'all 0.2s',
                     }}
                   >
                     <IconCopy />
@@ -987,8 +1077,8 @@ export default function ResenasClientesEditor({
                     ingresen a través de un link de solicitud (
                     <code
                       style={{
-                        background: '#fff5f5',
-                        color: '#FF0000',
+                        background: '#ecfdf5',
+                        color: '#059669',
                         padding: '1px 5px',
                         borderRadius: 4,
                         fontSize: 12,
@@ -1012,8 +1102,8 @@ export default function ResenasClientesEditor({
                     del producto con{' '}
                     <code
                       style={{
-                        background: '#fff5f5',
-                        color: '#FF0000',
+                        background: '#ecfdf5',
+                        color: '#059669',
                         padding: '1px 5px',
                         borderRadius: 4,
                         fontSize: 12,
@@ -1220,7 +1310,7 @@ export default function ResenasClientesEditor({
                     height="22"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#FF0000"
+                    stroke="#10B981"
                     strokeWidth="2"
                   >
                     <line x1="4" y1="6" x2="20" y2="6" />
@@ -1242,10 +1332,10 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.disenoWidget === 'cuadricula'
-                            ? '1.5px solid #FF0000'
+                            ? '1.5px solid #10B981'
                             : '1px solid #e5e7eb',
                         background:
-                          config.disenoWidget === 'cuadricula' ? '#fff5f5' : '#FFFFFF',
+                          config.disenoWidget === 'cuadricula' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1253,7 +1343,7 @@ export default function ResenasClientesEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.disenoWidget === 'cuadricula' ? '#FF0000' : '#000000',
+                        color: config.disenoWidget === 'cuadricula' ? '#10B981' : '#000000',
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1272,9 +1362,9 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.disenoWidget === 'lista'
-                            ? '1.5px solid #FF0000'
+                            ? '1.5px solid #10B981'
                             : '1px solid #e5e7eb',
-                        background: config.disenoWidget === 'lista' ? '#fff5f5' : '#FFFFFF',
+                        background: config.disenoWidget === 'lista' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1282,7 +1372,7 @@ export default function ResenasClientesEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.disenoWidget === 'lista' ? '#FF0000' : '#000000',
+                        color: config.disenoWidget === 'lista' ? '#10B981' : '#000000',
                       }}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1339,7 +1429,7 @@ export default function ResenasClientesEditor({
                     height="22"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#FF0000"
+                    stroke="#10B981"
                     strokeWidth="2"
                   >
                     <circle cx="13.5" cy="6.5" r="1.5" />
@@ -1433,7 +1523,7 @@ export default function ResenasClientesEditor({
                     height="22"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#FF0000"
+                    stroke="#10B981"
                     strokeWidth="2"
                   >
                     <polyline points="4 7 4 4 20 4 20 7" />
@@ -1502,16 +1592,16 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.estiloNombre === 'normal'
-                            ? '1.5px solid #FF0000'
+                            ? '1.5px solid #10B981'
                             : '1px solid #e5e7eb',
-                        background: config.estiloNombre === 'normal' ? '#fff5f5' : '#FFFFFF',
+                        background: config.estiloNombre === 'normal' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 8,
                         fontSize: 14,
-                        color: config.estiloNombre === 'normal' ? '#FF0000' : '#000000',
+                        color: config.estiloNombre === 'normal' ? '#10B981' : '#000000',
                       }}
                     >
                       <span style={{ fontWeight: 400, fontSize: 16 }}>A</span> Normal
@@ -1524,16 +1614,16 @@ export default function ResenasClientesEditor({
                         borderRadius: 10,
                         border:
                           config.estiloNombre === 'resaltado'
-                            ? '1.5px solid #FF0000'
+                            ? '1.5px solid #10B981'
                             : '1px solid #e5e7eb',
-                        background: config.estiloNombre === 'resaltado' ? '#fff5f5' : '#FFFFFF',
+                        background: config.estiloNombre === 'resaltado' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 8,
                         fontSize: 14,
-                        color: config.estiloNombre === 'resaltado' ? '#FF0000' : '#000000',
+                        color: config.estiloNombre === 'resaltado' ? '#10B981' : '#000000',
                       }}
                     >
                       <span style={{ fontWeight: 800, fontSize: 16 }}>A</span> Resaltado
@@ -1566,7 +1656,7 @@ export default function ResenasClientesEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1575,6 +1665,8 @@ export default function ResenasClientesEditor({
                 fontWeight: 700,
                 cursor: saving ? 'wait' : 'pointer',
                 opacity: saving ? 0.7 : 1,
+                fontFamily: 'inherit',
+                transition: 'all 0.2s',
               }}
             >
               {saving ? 'Guardando…' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
