@@ -70,7 +70,7 @@ const DEFAULT_CONFIG = {
   radioBordeVideos: 20,
   mostrarPrecio: true,
   mostrarBotonCarrito: true,
-  colorBotonFondo: '#FF0000',
+  colorBotonFondo: '#10B981',
   colorBotonTexto: '#ffffff',
   radioBordeBoton: 8,
 };
@@ -93,7 +93,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -115,7 +115,7 @@ function IconUploadCloud({ size = 40, color = '#000000' }: { size?: number; colo
 
 function IconLayout() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
       <rect x="3" y="3" width="7" height="18" rx="1" />
       <rect x="14" y="3" width="7" height="9" rx="1" />
       <rect x="14" y="15" width="7" height="6" rx="1" />
@@ -125,7 +125,7 @@ function IconLayout() {
 
 function IconPalette() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
       <circle cx="13.5" cy="6.5" r="1.5" />
       <circle cx="17.5" cy="10.5" r="1.5" />
       <circle cx="8.5" cy="7.5" r="1.5" />
@@ -137,7 +137,7 @@ function IconPalette() {
 
 function IconType() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
       <polyline points="4 7 4 4 20 4 20 7" />
       <line x1="9" y1="20" x2="15" y2="20" />
       <line x1="12" y1="4" x2="12" y2="20" />
@@ -147,7 +147,7 @@ function IconType() {
 
 function IconSliders() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
       <line x1="4" y1="21" x2="4" y2="14" />
       <line x1="4" y1="10" x2="4" y2="3" />
       <line x1="12" y1="21" x2="12" y2="12" />
@@ -163,7 +163,7 @@ function IconSliders() {
 
 function IconSend() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>
@@ -274,7 +274,7 @@ function RadioCard({
       onClick={onChange}
       style={{
         background: '#FFFFFF',
-        border: checked ? '1.5px solid #FF0000' : '1px solid #E5E7EB',
+        border: checked ? '1.5px solid #10B981' : '1px solid #E5E7EB',
         borderRadius: 12,
         padding: 16,
         cursor: 'pointer',
@@ -287,7 +287,7 @@ function RadioCard({
             width: 20,
             height: 20,
             borderRadius: '50%',
-            border: checked ? '2px solid #FF0000' : '2px solid #D1D5DB',
+            border: checked ? '2px solid #10B981' : '2px solid #D1D5DB',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -301,7 +301,7 @@ function RadioCard({
                 width: 10,
                 height: 10,
                 borderRadius: '50%',
-                background: '#FF0000',
+                background: '#10B981',
               }}
             />
           )}
@@ -410,7 +410,7 @@ function ToggleField({
           width: 40,
           height: 22,
           borderRadius: 999,
-          background: checked ? '#FF0000' : '#D1D5DB',
+          background: checked ? '#10B981' : '#D1D5DB',
           position: 'relative',
           transition: 'background 0.15s',
           flexShrink: 0,
@@ -459,7 +459,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#FF0000' }}
+        style={{ width: '100%', accentColor: '#10B981' }}
       />
       {marks && (
         <div
@@ -875,14 +875,14 @@ export default function SliderVideoEditor({
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
-        {/* Scope Chip en Rojo */}
+        {/* Scope Chip en Verde */}
         {targetType === 'all' ? (
           <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -962,13 +962,13 @@ export default function SliderVideoEditor({
             }}
           >
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <IconInfo size={16} color="#FF0000" />
+              <IconInfo size={16} color="#10B981" />
               <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
                 El widget aparecerá debajo del botón de &quot;Agregar al carrito&quot;.
               </span>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <IconInfo size={16} color="#FF0000" />
+              <IconInfo size={16} color="#10B981" />
               <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
                 Los videos en la preview no son funcionales
               </span>
@@ -997,11 +997,11 @@ export default function SliderVideoEditor({
                     flex: 1,
                     background: active ? '#FFFFFF' : 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#FF0000' : '#000000',
+                    color: active ? '#10B981' : '#000000',
                     opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
                   }}
@@ -1038,11 +1038,11 @@ export default function SliderVideoEditor({
                 <FieldHint>Texto que aparece debajo del título. Dejar vacío para no mostrar.</FieldHint>
               </div>
 
-              {/* Tip Rojo sutil */}
+              {/* Tip Verde sutil */}
               <div
                 style={{
-                  background: '#FFF5F5',
-                  border: '1px solid #FECACA',
+                  background: '#ecfdf5',
+                  border: '1px solid #a7f3d0',
                   borderRadius: 12,
                   padding: 14,
                   display: 'flex',
@@ -1050,7 +1050,7 @@ export default function SliderVideoEditor({
                   alignItems: 'flex-start',
                 }}
               >
-                <IconInfo size={18} color="#FF0000" />
+                <IconInfo size={18} color="#10B981" />
                 <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
                   Recordá comprimir los videos antes de subirlos para mejorar la velocidad de
                   carga y visualización.
@@ -1205,7 +1205,7 @@ export default function SliderVideoEditor({
                     href="https://www.veed.io/tools/video-compressor"
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ color: '#FF0000', fontWeight: 600, textDecoration: 'none' }}
+                    style={{ color: '#10B981', fontWeight: 600, textDecoration: 'none' }}
                   >
                     Te enseñamos cómo comprimirlo.
                   </a>
@@ -1261,9 +1261,9 @@ export default function SliderVideoEditor({
                         borderRadius: 10,
                         border:
                           config.formato === 'slider'
-                            ? '1.5px solid #FF0000'
+                            ? '1.5px solid #10B981'
                             : '1px solid #E5E7EB',
-                        background: config.formato === 'slider' ? '#FFF5F5' : '#FFFFFF',
+                        background: config.formato === 'slider' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1271,7 +1271,7 @@ export default function SliderVideoEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.formato === 'slider' ? '#FF0000' : '#000000',
+                        color: config.formato === 'slider' ? '#10B981' : '#000000',
                       }}
                     >
                       <svg
@@ -1295,9 +1295,9 @@ export default function SliderVideoEditor({
                         borderRadius: 10,
                         border:
                           config.formato === 'circulos'
-                            ? '1.5px solid #FF0000'
+                            ? '1.5px solid #10B981'
                             : '1px solid #E5E7EB',
-                        background: config.formato === 'circulos' ? '#FFF5F5' : '#FFFFFF',
+                        background: config.formato === 'circulos' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1305,7 +1305,7 @@ export default function SliderVideoEditor({
                         gap: 8,
                         fontSize: 14,
                         fontWeight: 600,
-                        color: config.formato === 'circulos' ? '#FF0000' : '#000000',
+                        color: config.formato === 'circulos' ? '#10B981' : '#000000',
                       }}
                     >
                       <svg
@@ -1531,7 +1531,7 @@ export default function SliderVideoEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1843,7 +1843,7 @@ function VideoRow({
               style={{
                 background: '#FFFFFF',
                 border: '1px dashed #D1D5DB',
-                color: '#FF0000',
+                color: '#10B981',
                 borderRadius: 8,
                 padding: '10px 12px',
                 fontSize: 13,
@@ -1984,7 +1984,7 @@ function ProductoSelectorInline({
           type="button"
           onClick={cargar}
           style={{
-            background: '#FF0000',
+            background: '#10B981',
             color: '#FFFFFF',
             border: 'none',
             borderRadius: 8,
@@ -2090,4 +2090,4 @@ function ProductoSelectorInline({
       </div>
     </div>
   );
-  }
+    }
