@@ -114,10 +114,10 @@ const defaultConfig: CountdownConfig = {
   showLabels: true,
   bgType: 'solid',
   colorWidgetBg: '#000000',
-  colorWidgetBg2: '#FF0000',
+  colorWidgetBg2: '#10B981',
   gradientDirection: 'to bottom right',
-  colorSubtitleBg: '#FF0000',
-  colorClockBg: '#FF0000',
+  colorSubtitleBg: '#10B981',
+  colorClockBg: '#10B981',
   colorTitle: '#ffffff',
   colorSubtitle: '#ffffff',
   colorNumbers: '#ffffff',
@@ -139,7 +139,7 @@ const defaultConfig: CountdownConfig = {
   auraEnabled: false,
   colorAuraCalm: '#8b5cf6',
   colorAuraMedium: '#f97316',
-  colorAuraUrgent: '#FF0000',
+  colorAuraUrgent: '#10B981',
   effectsIntensity: 0,
   showShimmer: false,
   showProgressRing: false,
@@ -162,44 +162,44 @@ const IconStore = () => (
 );
 
 const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 
 const IconClock = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
   </svg>
 );
 
 const IconLayers = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
   </svg>
 );
 
 const IconPalette = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/>
     <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/>
   </svg>
 );
 
 const IconType = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
   </svg>
 );
 
 const IconSpacing = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/>
   </svg>
 );
 
 const IconFire = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
   </svg>
 );
@@ -266,7 +266,7 @@ function FieldLabel({ children, required = false }: { children: React.ReactNode;
   return (
     <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
-      {required && <span style={{ color: '#FF0000', marginLeft: 4 }}>*</span>}
+      {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
     </label>
   );
 }
@@ -297,7 +297,7 @@ function TextInput({
         boxSizing: 'border-box', fontFamily: 'inherit',
         transition: 'border-color 0.2s',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -327,7 +327,7 @@ function NumberInput({
         boxSizing: 'border-box', fontFamily: 'inherit',
         transition: 'border-color 0.2s',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -348,8 +348,9 @@ function DateTimeInput({
         border: '1.5px solid #e5e7eb', borderRadius: 10,
         background: '#ffffff', color: '#000000', outline: 'none',
         boxSizing: 'border-box', fontFamily: 'inherit',
+        transition: 'border-color 0.2s',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -371,8 +372,8 @@ function CheckboxCard({
           onClick={() => onChange(!checked)}
           style={{
             width: 22, height: 22, borderRadius: 5,
-            background: checked ? '#FF0000' : '#ffffff',
-            border: checked ? '2px solid #FF0000' : '2px solid #e5e7eb',
+            background: checked ? '#10B981' : '#ffffff',
+            border: checked ? '2px solid #10B981' : '2px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, transition: 'all 0.2s',
             marginTop: 1,
@@ -414,7 +415,7 @@ function RadioOption({
         onClick={onChange}
         style={{
           width: 20, height: 20, borderRadius: '50%',
-          border: checked ? '6px solid #FF0000' : '2px solid #e5e7eb',
+          border: checked ? '6px solid #10B981' : '2px solid #e5e7eb',
           background: '#ffffff', flexShrink: 0, transition: 'all 0.2s',
         }}
       />
@@ -534,7 +535,7 @@ function RangeSlider({
         min={min} max={max} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
-          width: '100%', accentColor: '#FF0000', cursor: 'pointer',
+          width: '100%', accentColor: '#10B981', cursor: 'pointer',
         }}
       />
       {ticks && (
@@ -591,9 +592,9 @@ function ChoiceButtons({
             onClick={() => onChange(opt.value)}
             style={{
               padding: '12px 14px', borderRadius: 10,
-              border: act ? '2px solid #FF0000' : '1.5px solid #e5e7eb',
-              background: act ? '#fff5f5' : '#ffffff',
-              color: act ? '#FF0000' : '#000000',
+              border: act ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+              background: act ? '#ecfdf5' : '#ffffff',
+              color: act ? '#10B981' : '#000000',
               fontSize: 14, fontWeight: 600,
               cursor: 'pointer', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
@@ -1200,7 +1201,7 @@ export default function CountdownEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -1249,10 +1250,11 @@ export default function CountdownEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#f3f4f6',
+            background: '#FFFFFF',
             border: '1px solid #e5e7eb',
             borderRadius: 16,
             padding: 16,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -1265,11 +1267,14 @@ export default function CountdownEditor({
             style={{
               display: 'flex',
               alignItems: 'flex-start',
-              gap: 8,
-              fontSize: 13,
-              color: '#000000',
-              opacity: 0.6,
+              gap: 10,
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              borderRadius: 10,
+              padding: '12px 16px',
               marginBottom: 16,
+              fontSize: 14,
+              color: '#000000',
               lineHeight: 1.5,
             }}
           >
@@ -1297,7 +1302,7 @@ export default function CountdownEditor({
                     flex: 1,
                     background: act ? '#FFFFFF' : 'transparent',
                     border: 'none',
-                    borderBottom: act ? '2px solid #FF0000' : '2px solid transparent',
+                    borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: act ? 700 : 500,
@@ -1338,7 +1343,7 @@ export default function CountdownEditor({
                   width: 40,
                   height: 22,
                   borderRadius: 999,
-                  background: isActive ? '#FF0000' : '#e5e7eb',
+                  background: isActive ? '#10B981' : '#e5e7eb',
                   position: 'relative',
                   transition: 'background 0.15s',
                   flexShrink: 0,
@@ -1372,7 +1377,7 @@ export default function CountdownEditor({
                 padding: '12px 28px',
                 borderRadius: 999,
                 border: 'none',
-                background: savedOK ? '#059669' : '#FF0000',
+                background: savedOK ? '#059669' : '#10B981',
                 color: '#FFFFFF',
                 fontSize: 15,
                 fontWeight: 700,
@@ -1398,30 +1403,7 @@ export default function CountdownEditor({
         <div style={{ marginTop: 40 }}>
           <CentroAyuda />
         </div>
-
-        {/* ERROR TOAST */}
-        {error && (
-          <div
-            style={{
-              position: 'fixed',
-              bottom: 20,
-              left: 20,
-              right: 20,
-              background: '#FEE2E2',
-              border: '1px solid #FCA5A5',
-              color: '#991B1B',
-              padding: 14,
-              borderRadius: 10,
-              fontSize: 14,
-              zIndex: 50,
-              maxWidth: 500,
-              margin: '0 auto',
-            }}
-          >
-            {error}
-          </div>
-        )}
       </div>
     </div>
   );
-   }
+}
