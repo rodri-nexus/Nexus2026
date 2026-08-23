@@ -76,7 +76,7 @@ const defaultConfig: BadgeCuotasConfig = {
   paddingInterno: 10,
   bordesRedondeados: 25,
   efecto: 'sin-efecto',
-  colorFondoBadge: '#FF0000',
+  colorFondoBadge: '#10B981',
   colorTextoBadge: '#ffffff',
 };
 
@@ -86,7 +86,7 @@ const CUOTAS_OPCIONES = [2, 3, 4, 6, 9, 12, 18];
    ICONOS
 ═══════════════════════════════════════════ */
 const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
     <line x1="2" y1="7" x2="22" y2="7"/>
     <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
@@ -95,7 +95,7 @@ const IconStore = () => (
 );
 
 const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
@@ -114,7 +114,7 @@ function FieldLabel({ children, required = false }: { children: React.ReactNode;
   return (
     <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
-      {required && <span style={{ color: '#FF0000', marginLeft: 4 }}>*</span>}
+      {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
     </label>
   );
 }
@@ -146,7 +146,7 @@ function TextInput({
         boxSizing: 'border-box', fontFamily: 'inherit',
         transition: 'border-color 0.2s',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
@@ -160,7 +160,7 @@ function CheckboxCard({
 }) {
   return (
     <div style={{
-      background: '#ffffff', border: checked ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+      background: '#ffffff', border: checked ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
       borderRadius: 12, padding: 16, marginBottom: 12, transition: 'border-color 0.2s',
     }}>
       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
@@ -168,8 +168,8 @@ function CheckboxCard({
           onClick={() => onChange(!checked)}
           style={{
             width: 22, height: 22, borderRadius: 5,
-            background: checked ? '#FF0000' : '#ffffff',
-            border: checked ? '2px solid #FF0000' : '2px solid #d1d5db',
+            background: checked ? '#10B981' : '#ffffff',
+            border: checked ? '2px solid #10B981' : '2px solid #d1d5db',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, transition: 'all 0.2s',
             marginTop: 1,
@@ -204,7 +204,7 @@ function CuotaCheckbox({
 }) {
   return (
     <div style={{
-      background: '#ffffff', border: checked ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+      background: '#ffffff', border: checked ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
       borderRadius: 12, padding: '14px 16px', marginBottom: 10, transition: 'border-color 0.2s',
     }}>
       <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
@@ -212,8 +212,8 @@ function CuotaCheckbox({
           onClick={() => onChange(!checked)}
           style={{
             width: 22, height: 22, borderRadius: 5,
-            background: checked ? '#FF0000' : '#ffffff',
-            border: checked ? '2px solid #FF0000' : '2px solid #d1d5db',
+            background: checked ? '#10B981' : '#ffffff',
+            border: checked ? '2px solid #10B981' : '2px solid #d1d5db',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, transition: 'all 0.2s',
           }}
@@ -239,7 +239,7 @@ function RadioCard({
 }) {
   return (
     <div style={{
-      background: '#ffffff', border: checked ? '1.5px solid #FF0000' : '1.5px solid #e5e7eb',
+      background: '#ffffff', border: checked ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
       borderRadius: 12, padding: 16, marginBottom: 12, transition: 'border-color 0.2s',
     }}>
       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
@@ -247,7 +247,7 @@ function RadioCard({
           onClick={onChange}
           style={{
             width: 22, height: 22, borderRadius: '50%',
-            border: checked ? '7px solid #FF0000' : '2px solid #d1d5db',
+            border: checked ? '7px solid #10B981' : '2px solid #d1d5db',
             background: '#ffffff', flexShrink: 0, transition: 'all 0.2s',
             marginTop: 1,
           }}
@@ -327,7 +327,7 @@ function ToggleField({
         onClick={() => onChange(!checked)}
         style={{
           width: 44, height: 26, borderRadius: 13,
-          background: checked ? '#FF0000' : '#d1d5db',
+          background: checked ? '#10B981' : '#d1d5db',
           position: 'relative', transition: 'background 0.25s',
           flexShrink: 0,
         }}
@@ -394,7 +394,7 @@ function RangeSlider({
         min={min} max={max} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
-          width: '100%', accentColor: '#FF0000', cursor: 'pointer',
+          width: '100%', accentColor: '#10B981', cursor: 'pointer',
         }}
       />
       {ticks && (
@@ -494,11 +494,11 @@ export default function BadgeCuotasEditor({
         </FieldHelper>
         <div style={{
           display: 'flex', alignItems: 'flex-start', gap: 8,
-          padding: '10px 14px', background: '#fff5f5',
-          border: '1px solid #fecaca', borderRadius: 10,
+          padding: '10px 14px', background: '#ecfdf5',
+          border: '1px solid #a7f3d0', borderRadius: 10,
           marginTop: 12, marginBottom: 16,
         }}>
-          <div style={{ color: '#FF0000', flexShrink: 0, marginTop: 1 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 1 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
@@ -528,7 +528,7 @@ export default function BadgeCuotasEditor({
           placeholder="{cuotas} cuotas sin interés de {monto}"
         />
         <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
-          Usá <code style={{ background: '#fff5f5', color: '#FF0000', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{cuotas}'}</code> para el número de cuotas y <code style={{ background: '#fff5f5', color: '#FF0000', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{monto}'}</code> para el precio por cuota.
+          Usá <code style={{ background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{cuotas}'}</code> para el número de cuotas y <code style={{ background: '#ecfdf5', color: '#059669', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{monto}'}</code> para el precio por cuota.
         </p>
       </div>
 
@@ -596,7 +596,7 @@ export default function BadgeCuotasEditor({
           rel="noopener noreferrer"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            fontSize: 13, color: '#FF0000', textDecoration: 'none',
+            fontSize: 13, color: '#10B981', textDecoration: 'none',
             fontWeight: 600, marginTop: 4,
           }}
         >
@@ -766,7 +766,7 @@ export default function BadgeCuotasEditor({
         {/* Scope chip */}
         {isForAll ? (
           <div style={{
-            background: '#FF0000', color: '#ffffff',
+            background: '#10B981', color: '#ffffff',
             borderRadius: 999, padding: '8px 14px',
             display: 'inline-flex', alignItems: 'center', gap: 8,
             marginBottom: 20, fontSize: 14, fontWeight: 700,
@@ -808,7 +808,7 @@ export default function BadgeCuotasEditor({
 
           {/* Info box */}
           <div style={{
-            background: '#fff5f5', border: '1px solid #fecaca',
+            background: '#ecfdf5', border: '1px solid #a7f3d0',
             borderRadius: 10, padding: '12px 16px',
             display: 'flex', alignItems: 'flex-start', gap: 10,
             marginBottom: 20,
@@ -833,8 +833,8 @@ export default function BadgeCuotasEditor({
                   onClick={() => setActiveTab(tab.id as any)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
-                    border: 'none', borderBottom: act ? '2px solid #FF0000' : '2px solid transparent',
-                    color: act ? '#FF0000' : '#000000',
+                    border: 'none', borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
+                    color: act ? '#10B981' : '#000000',
                     opacity: act ? 1 : 0.6,
                     fontSize: 15, fontWeight: act ? 700 : 500,
                     cursor: 'pointer', fontFamily: 'inherit',
@@ -874,7 +874,7 @@ export default function BadgeCuotasEditor({
               style={{
                 padding: '12px 28px', borderRadius: 999,
                 border: 'none',
-                background: savedOK ? '#10b981' : '#FF0000',
+                background: savedOK ? '#10b981' : '#10B981',
                 color: '#fff', fontSize: 15, fontWeight: 700,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.6 : 1,
