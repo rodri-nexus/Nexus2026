@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function RecuperarPage() {
   const supabase = createClient();
@@ -68,7 +69,8 @@ export default function RecuperarPage() {
           borderRadius: "20px",
           padding: "2.5rem 2rem",
           boxShadow:
-            "0 20px 60px rgba(255, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05)",
+            "0 20px 60px rgba(16, 185, 129, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04)",
+          border: "1px solid #e5e7eb",
         }}
       >
         {/* Back link */}
@@ -83,7 +85,7 @@ export default function RecuperarPage() {
             opacity: 0.6,
             textDecoration: "none",
             marginBottom: "1.25rem",
-            fontWeight: 500,
+            fontWeight: 600,
           }}
         >
           <ArrowLeft size={15} />
@@ -95,11 +97,20 @@ export default function RecuperarPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          style={{ textAlign: "center", marginBottom: "2rem" }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+            marginBottom: "2rem",
+          }}
         >
+          <div style={{ marginBottom: "0.75rem" }}>
+            <NevuxLogo size="large" />
+          </div>
           <h1
             style={{
-              fontSize: "2rem",
+              fontSize: "1.75rem",
               margin: "0 0 0.5rem 0",
               fontWeight: 800,
               color: "#000000",
@@ -119,7 +130,7 @@ export default function RecuperarPage() {
           >
             {sent
               ? "Revisá tu bandeja de entrada"
-              : "Te enviamos un link para crear una nueva contraseña"}
+              : "Te enviaremos un link para crear una nueva contraseña"}
           </p>
         </motion.div>
 
@@ -133,8 +144,8 @@ export default function RecuperarPage() {
             <div
               style={{
                 padding: "1.5rem",
-                background: "#f0fdf4",
-                border: "1.5px solid #86efac",
+                background: "#ecfdf5",
+                border: "1.5px solid #a7f3d0",
                 borderRadius: "14px",
                 marginBottom: "1.25rem",
                 textAlign: "center",
@@ -145,12 +156,12 @@ export default function RecuperarPage() {
                   width: "56px",
                   height: "56px",
                   borderRadius: "50%",
-                  background: "#059669",
+                  background: "#10B981",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   margin: "0 auto 1rem",
-                  boxShadow: "0 6px 18px rgba(5, 150, 105, 0.35)",
+                  boxShadow: "0 6px 18px rgba(16, 185, 129, 0.25)",
                 }}
               >
                 <CheckCircle2 size={28} color="#ffffff" strokeWidth={2.5} />
@@ -170,7 +181,7 @@ export default function RecuperarPage() {
                   margin: 0,
                   fontSize: "0.88rem",
                   color: "#065f46",
-                  opacity: 0.85,
+                  opacity: 0.9,
                   lineHeight: 1.5,
                 }}
               >
@@ -196,8 +207,8 @@ export default function RecuperarPage() {
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: "#FF0000",
-                  fontWeight: 600,
+                  color: "#10B981",
+                  fontWeight: 700,
                   cursor: "pointer",
                   fontFamily: "inherit",
                   fontSize: "0.82rem",
@@ -220,9 +231,10 @@ export default function RecuperarPage() {
                 color: "#ffffff",
                 borderRadius: "12px",
                 fontSize: "0.95rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 textDecoration: "none",
                 boxSizing: "border-box",
+                transition: "background 0.2s",
               }}
             >
               Volver al login
@@ -272,11 +284,13 @@ export default function RecuperarPage() {
                     borderRadius: "12px",
                     fontSize: "0.95rem",
                     outline: "none",
-                    transition: "all 0.2s",
+                    transition: "border-color 0.2s",
                     fontFamily: "inherit",
                     boxSizing: "border-box",
+                    color: "#000000",
+                    background: "#FFFFFF",
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
+                  onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                   onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                 />
               </div>
@@ -310,18 +324,18 @@ export default function RecuperarPage() {
               style={{
                 width: "100%",
                 padding: "0.95rem",
-                background: loading ? "rgba(255, 0, 0, 0.4)" : "#FF0000",
+                background: loading ? "rgba(16, 185, 129, 0.5)" : "#10B981",
                 color: "white",
                 border: "none",
                 borderRadius: "12px",
                 fontSize: "1rem",
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: loading ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.5rem",
-                boxShadow: "0 4px 14px rgba(255, 0, 0, 0.3)",
+                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
                 transition: "all 0.2s",
                 fontFamily: "inherit",
               }}
