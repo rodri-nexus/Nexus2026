@@ -28,10 +28,11 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
         borderRadius: "16px",
         overflow: "hidden",
         transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
+        boxSizing: "border-box",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "#fecaca";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(255, 0, 0, 0.12)";
+        e.currentTarget.style.borderColor = "#a7f3d0";
+        e.currentTarget.style.boxShadow = "0 8px 24px rgba(16, 185, 129, 0.15)";
         e.currentTarget.style.transform = "translateY(-3px)";
       }}
       onMouseLeave={(e) => {
@@ -59,7 +60,7 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
           <div
             style={{
               fontSize: "1rem",
-              fontWeight: 700,
+              fontWeight: 800,
               color: "#000000",
               marginBottom: "0.35rem",
             }}
@@ -97,7 +98,7 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
             style={{
               flex: 1,
               padding: "0.7rem 1rem",
-              background: "#FF0000",
+              background: "#10B981",
               color: "#ffffff",
               border: "none",
               borderRadius: "10px",
@@ -106,7 +107,7 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
               cursor: "pointer",
               fontFamily: "inherit",
               transition: "opacity 0.15s, transform 0.15s",
-              boxShadow: "0 2px 8px rgba(255, 0, 0, 0.25)",
+              boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.opacity = "0.92";
@@ -123,8 +124,9 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
           {isPopular && (
             <div
               style={{
-                background: "#d1fae5",
-                color: "#065f46",
+                background: "#ecfdf5",
+                border: "1px solid #a7f3d0",
+                color: "#059669",
                 padding: "0.35rem 0.75rem",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
@@ -139,4 +141,4 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
       </div>
     </motion.div>
   );
-            }
+          }
