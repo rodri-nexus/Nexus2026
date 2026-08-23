@@ -6,9 +6,9 @@ import { supabaseAdmin } from "@/lib/supabase";
 import DashboardClient from "./DashboardClient";
 
 // Forzamos render dinámico para que el dashboard siempre traiga datos frescos.
-// Antes teníamos revalidate=300 (caché 5min) y eso causaba UI trabada cuando
-// se conectaba/desconectaba la tienda porque servía datos viejos.
 export const dynamic = "force-dynamic";
+
+const ADMIN_EMAIL = "nevux340@gmail.com";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -18,6 +18,13 @@ export default async function DashboardPage() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  // 🔒 REDIRECCIÓN AUTOMÁTICA DE ADMINISTRADOR
+  // Si el usuario es el dueño de la app, lo enviamos directo al panel de control de pagos.
+  const userEmail = (user.email || "").toLowerCase();
+  if (userEmail === ADMIN_EMAIL) {
+    redirect("/admin/pagos");
   }
 
   // Buscar en paralelo: tienda vinculada + perfil (onboarding) + widgets activos
@@ -122,7 +129,6 @@ export default async function DashboardPage() {
     : null;
 
   // Serializamos el plan para pasarlo al Client Component
-  // (las fechas Date no se pueden pasar directo, las convertimos a ISO string)
   const planSerialized = planInfo
     ? {
         status: planInfo.status,
@@ -155,4 +161,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-      }
+    }
