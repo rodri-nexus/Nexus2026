@@ -70,19 +70,19 @@ const DEFAULT_CONFIG = {
   producto2: null as { id: number | null; nombre: string } | null,
   compDefault: false,
   reemplazarBoton: false,
-  colorBoton: '#FF0000',
+  colorBoton: '#10B981',
   botonDegradado: false,
-  colorBoton2: '#FF0000',
+  colorBoton2: '#10B981',
   colorPrecio: '#000000',
   colorSubtitulos: '#059669',
   fondoSubtitulo: '',
   colorTextoRegalo: '#000000',
   colorPrecioRegalo: '#16a34a',
-  fondoRegalo: '#fff5f5',
+  fondoRegalo: '#ecfdf5',
   colorBadgeEnvio: '#10B981',
   colorBadgePersonalizado: '#F59E0B',
   colorBadgeMasVendido: '#EF4444',
-  colorUnidadSeleccionada: '#FF0000',
+  colorUnidadSeleccionada: '#10B981',
   bordeBoton: 25,
   bordeUnidad: 8,
   fuenteEtiqueta: 16,
@@ -94,7 +94,7 @@ const DEFAULT_CONFIG = {
 
 /* ================= HELPERS UI ================= */
 
-function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
+function IconStore({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <path d="M3 9l1-5h16l1 5" />
@@ -104,7 +104,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -160,7 +160,7 @@ function TextInput({
         boxSizing: 'border-box',
         fontFamily: 'inherit',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#FF0000')}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
       onBlur={(e) => (e.target.style.borderColor = '#E5E7EB')}
     />
   );
@@ -224,10 +224,10 @@ function CheckboxCard({
         display: 'flex',
         gap: 12,
         padding: 14,
-        border: `1.5px solid ${checked ? '#FF0000' : '#E5E7EB'}`,
+        border: `1.5px solid ${checked ? '#10B981' : '#E5E7EB'}`,
         borderRadius: 10,
         cursor: 'pointer',
-        background: checked ? '#FFF5F5' : '#FFFFFF',
+        background: checked ? '#ecfdf5' : '#FFFFFF',
         transition: 'all 0.2s',
       }}
     >
@@ -235,7 +235,7 @@ function CheckboxCard({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ marginTop: 3, width: 16, height: 16, accentColor: '#FF0000', cursor: 'pointer' }}
+        style={{ marginTop: 3, width: 16, height: 16, accentColor: '#10B981', cursor: 'pointer' }}
       />
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.3 }}>
@@ -274,7 +274,7 @@ function CheckboxSimple({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ width: 18, height: 18, accentColor: '#FF0000', cursor: 'pointer' }}
+        style={{ width: 18, height: 18, accentColor: '#10B981', cursor: 'pointer' }}
       />
       <span style={{ fontSize: 15, color: '#000000', fontWeight: 500, lineHeight: 1.4 }}>{label}</span>
     </label>
@@ -299,10 +299,10 @@ function RadioCard({
         justifyContent: 'center',
         gap: 8,
         padding: '16px 10px',
-        border: `1.5px solid ${checked ? '#FF0000' : '#E5E7EB'}`,
+        border: `1.5px solid ${checked ? '#10B981' : '#E5E7EB'}`,
         borderRadius: 10,
         cursor: 'pointer',
-        background: checked ? '#FFF5F5' : '#FFFFFF',
+        background: checked ? '#ecfdf5' : '#FFFFFF',
         textAlign: 'center',
         transition: 'all 0.2s',
       }}
@@ -312,20 +312,20 @@ function RadioCard({
           width: 20,
           height: 20,
           borderRadius: '50%',
-          border: `2px solid ${checked ? '#FF0000' : '#D1D5DB'}`,
+          border: `2px solid ${checked ? '#10B981' : '#D1D5DB'}`,
           background: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        {checked && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF0000' }} />}
+        {checked && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10B981' }} />}
       </div>
       <span
         style={{
           fontSize: 14,
           fontWeight: 700,
-          color: checked ? '#FF0000' : '#000000',
+          color: checked ? '#10B981' : '#000000',
           lineHeight: 1.3,
         }}
         onClick={onChange}
@@ -444,7 +444,7 @@ function ToggleField({
           width: 44,
           height: 26,
           borderRadius: 999,
-          background: checked ? '#FF0000' : '#D1D5DB',
+          background: checked ? '#10B981' : '#D1D5DB',
           position: 'relative',
           transition: 'background 0.25s',
           flexShrink: 0,
@@ -493,7 +493,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#FF0000' }}
+        style={{ width: '100%', accentColor: '#10B981' }}
       />
       {marks && (
         <div
@@ -692,7 +692,7 @@ export default function BundleCantidadEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -774,11 +774,11 @@ export default function BundleCantidadEditor({
                     flex: 1,
                     background: 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#FF0000' : '#000000',
+                    color: active ? '#10B981' : '#000000',
                     opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
                     fontFamily: 'inherit',
@@ -1012,7 +1012,7 @@ export default function BundleCantidadEditor({
             <div>
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <circle cx="13.5" cy="6.5" r="1.5" />
                     <circle cx="17.5" cy="10.5" r="1.5" />
                     <circle cx="8.5" cy="7.5" r="1.5" />
@@ -1093,7 +1093,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
                     <line x1="7" y1="7" x2="7.01" y2="7" />
                   </svg>
@@ -1133,7 +1133,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <rect x="3" y="3" width="7" height="7" />
                     <rect x="14" y="3" width="7" height="7" />
                     <rect x="14" y="14" width="7" height="7" />
@@ -1169,7 +1169,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <polyline points="4 7 4 4 20 4 20 7" />
                     <line x1="9" y1="20" x2="15" y2="20" />
                     <line x1="12" y1="4" x2="12" y2="20" />
@@ -1215,7 +1215,7 @@ export default function BundleCantidadEditor({
 
               <SectionCard
                 icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF0000" strokeWidth="2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
                   </svg>
                 }
@@ -1282,7 +1282,7 @@ export default function BundleCantidadEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1328,4 +1328,4 @@ export default function BundleCantidadEditor({
       )}
     </div>
   );
-}
+  }
