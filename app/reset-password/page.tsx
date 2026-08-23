@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -117,7 +118,8 @@ export default function ResetPasswordPage() {
           borderRadius: "20px",
           padding: "2.5rem 2rem",
           boxShadow:
-            "0 20px 60px rgba(255, 0, 0, 0.1), 0 8px 20px rgba(0, 0, 0, 0.05)",
+            "0 20px 60px rgba(16, 185, 129, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04)",
+          border: "1px solid #e5e7eb",
         }}
       >
         {/* Estado: Link inválido */}
@@ -169,13 +171,14 @@ export default function ResetPasswordPage() {
               style={{
                 display: "inline-block",
                 padding: "0.85rem 1.75rem",
-                background: "#FF0000",
+                background: "#10B981",
                 color: "#ffffff",
                 borderRadius: "12px",
                 fontSize: "0.95rem",
                 fontWeight: 700,
                 textDecoration: "none",
-                boxShadow: "0 4px 14px rgba(255, 0, 0, 0.35)",
+                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
+                transition: "all 0.2s",
               }}
             >
               Solicitar nuevo link
@@ -195,12 +198,12 @@ export default function ResetPasswordPage() {
                 width: "64px",
                 height: "64px",
                 borderRadius: "50%",
-                background: "#059669",
+                background: "#10B981",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 margin: "0 auto 1.25rem",
-                boxShadow: "0 8px 24px rgba(5, 150, 105, 0.4)",
+                boxShadow: "0 8px 24px rgba(16, 185, 129, 0.25)",
               }}
             >
               <CheckCircle2 size={32} color="#ffffff" strokeWidth={2.5} />
@@ -252,7 +255,7 @@ export default function ResetPasswordPage() {
           >
             <Loader2
               size={32}
-              color="#FF0000"
+              color="#10B981"
               className="animate-spin"
               style={{ marginBottom: "1rem" }}
             />
@@ -272,13 +275,22 @@ export default function ResetPasswordPage() {
         {/* Estado: Formulario listo */}
         {sessionReady && !success && !invalidLink && (
           <>
-            {/* Título */}
+            {/* Logo/Título */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              style={{ textAlign: "center", marginBottom: "2rem" }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                marginBottom: "2rem",
+              }}
             >
+              <div style={{ marginBottom: "0.75rem" }}>
+                <NevuxLogo size="large" />
+              </div>
               <h1
                 style={{
                   fontSize: "1.75rem",
@@ -346,11 +358,13 @@ export default function ResetPasswordPage() {
                       borderRadius: "12px",
                       fontSize: "0.95rem",
                       outline: "none",
-                      transition: "all 0.2s",
+                      transition: "border-color 0.2s",
                       fontFamily: "inherit",
                       boxSizing: "border-box",
+                      color: "#000000",
+                      background: "#FFFFFF",
                     }}
-                    onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
+                    onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                     onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                   />
                 </div>
@@ -398,11 +412,13 @@ export default function ResetPasswordPage() {
                       borderRadius: "12px",
                       fontSize: "0.95rem",
                       outline: "none",
-                      transition: "all 0.2s",
+                      transition: "border-color 0.2s",
                       fontFamily: "inherit",
                       boxSizing: "border-box",
+                      color: "#000000",
+                      background: "#FFFFFF",
                     }}
-                    onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
+                    onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                     onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                   />
                 </div>
@@ -419,6 +435,7 @@ export default function ResetPasswordPage() {
                     background: "#f9fafb",
                     borderRadius: "10px",
                     fontSize: "0.85rem",
+                    border: "1px solid #e5e7eb",
                   }}
                 >
                   <div
@@ -487,18 +504,18 @@ export default function ResetPasswordPage() {
                 style={{
                   width: "100%",
                   padding: "0.95rem",
-                  background: loading ? "rgba(255, 0, 0, 0.4)" : "#FF0000",
+                  background: loading ? "rgba(16, 185, 129, 0.5)" : "#10B981",
                   color: "white",
                   border: "none",
                   borderRadius: "12px",
                   fontSize: "1rem",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   cursor: loading ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "0.5rem",
-                  boxShadow: "0 4px 14px rgba(255, 0, 0, 0.3)",
+                  boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
                   transition: "all 0.2s",
                   fontFamily: "inherit",
                 }}
@@ -518,4 +535,4 @@ export default function ResetPasswordPage() {
       </motion.div>
     </div>
   );
-    }
+      }
