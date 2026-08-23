@@ -112,7 +112,7 @@ function SectionCard({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
-        <div style={{ fontSize: 22, lineHeight: 1, flexShrink: 0, color: '#FF0000' }}>
+        <div style={{ fontSize: 22, lineHeight: 1, flexShrink: 0, color: '#10B981' }}>
           {icon}
         </div>
         <div style={{ flex: 1 }}>
@@ -414,10 +414,10 @@ function ImageUploader({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           style={{
-            border: `2px dashed ${dragOver ? '#FF0000' : '#e5e7eb'}`,
+            border: `2px dashed ${dragOver ? '#10B981' : '#e5e7eb'}`,
             borderRadius: 12,
             padding: '28px 20px',
-            background: dragOver ? '#fff5f5' : '#fafafa',
+            background: dragOver ? '#ecfdf5' : '#fafafa',
             textAlign: 'center',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
@@ -696,7 +696,7 @@ export default function MensajeGarantiaEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -754,6 +754,7 @@ export default function MensajeGarantiaEditor({
             borderRadius: 14,
             padding: 20,
             marginBottom: 8,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           <MensajeGarantiaPreview config={config} />
@@ -770,7 +771,7 @@ export default function MensajeGarantiaEditor({
               gap: 8,
             }}
           >
-            <span style={{ color: '#000000', opacity: 0.5 }}>ⓘ</span>
+            <span style={{ color: '#10B981', flexShrink: 0 }}>ⓘ</span>
             <span>
               El mensaje aparecerá debajo del botón &quot;Agregar al carrito&quot;.
             </span>
@@ -785,6 +786,7 @@ export default function MensajeGarantiaEditor({
             borderRadius: 14,
             padding: 20,
             marginTop: 16,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           <EditorTabs
@@ -819,10 +821,11 @@ export default function MensajeGarantiaEditor({
                   borderRadius: 13,
                   border: 'none',
                   cursor: 'pointer',
-                  background: isActive ? '#FF0000' : '#e5e7eb',
+                  background: isActive ? '#10B981' : '#e5e7eb',
                   position: 'relative',
                   flexShrink: 0,
                   outline: 'none',
+                  transition: 'background 0.25s ease',
                 }}
               >
                 <span
@@ -856,7 +859,7 @@ export default function MensajeGarantiaEditor({
               disabled={saving}
               style={{
                 padding: '12px 28px',
-                background: saving ? '#e5e7eb' : '#FF0000',
+                background: saving ? '#e5e7eb' : '#10B981',
                 color: saving ? '#000000' : '#ffffff',
                 border: 'none',
                 borderRadius: 999,
@@ -899,4 +902,4 @@ export default function MensajeGarantiaEditor({
       </div>
     </div>
   );
-}
+  }
