@@ -49,7 +49,7 @@ const DEFAULT_CONFIG = {
   aplicarEfectoA: 'solo-icono' as 'solo-icono' | 'mensaje-completo',
   tamanoFuente: 15,
   estiloTexto: 'negrita' as 'normal' | 'negrita',
-  colorFondo: '#10b981',
+  colorFondo: '#10B981',
   fondoDegradado: false,
   colorTexto: '#ffffff',
   colorBadge: 'rgba(0,0,0,0.18)',
@@ -71,7 +71,7 @@ function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: st
   );
 }
 
-function IconInfo({ size = 14, color = '#FF0000' }: { size?: number; color?: string }) {
+function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
@@ -124,7 +124,10 @@ function TextInput({
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
+        fontFamily: 'inherit',
       }}
+      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
 }
@@ -158,6 +161,7 @@ function SelectField({
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 14px center',
         paddingRight: 40,
+        fontFamily: 'inherit',
       }}
     >
       {options.map((o) => (
@@ -183,30 +187,30 @@ function ToggleField({
       <div
         onClick={() => onChange(!checked)}
         style={{
-          width: 40,
-          height: 22,
+          width: 44,
+          height: 26,
           borderRadius: 999,
-          background: checked ? '#FF0000' : '#e5e7eb',
+          background: checked ? '#10B981' : '#e5e7eb',
           position: 'relative',
-          transition: 'background 0.15s',
+          transition: 'background 0.25s',
           flexShrink: 0,
         }}
       >
         <div
           style={{
-            width: 18,
-            height: 18,
+            width: 20,
+            height: 20,
             borderRadius: '50%',
             background: '#FFFFFF',
             position: 'absolute',
-            top: 2,
-            left: checked ? 20 : 2,
-            transition: 'left 0.15s',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+            top: 3,
+            left: checked ? 21 : 3,
+            transition: 'left 0.25s',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
           }}
         />
       </div>
-      {label && <span style={{ fontSize: 15, color: '#000000' }}>{label}</span>}
+      {label && <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>}
     </label>
   );
 }
@@ -266,6 +270,7 @@ function ColorPickerField({
           color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
+          fontFamily: 'monospace',
         }}
       />
     </div>
@@ -296,7 +301,7 @@ function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#FF0000' }}
+        style={{ width: '100%', accentColor: '#10B981', cursor: 'pointer' }}
       />
       {marks && (
         <div
@@ -351,7 +356,7 @@ function CheckboxCard({
         style={{
           width: 18,
           height: 18,
-          accentColor: '#FF0000',
+          accentColor: '#10B981',
           cursor: 'pointer',
           marginTop: 2,
           flexShrink: 0,
@@ -401,7 +406,7 @@ function DayChip({
         style={{
           width: 18,
           height: 18,
-          accentColor: '#FF0000',
+          accentColor: '#10B981',
           cursor: 'pointer',
           flexShrink: 0,
         }}
@@ -443,7 +448,7 @@ function RadioCard({
           width: 20,
           height: 20,
           borderRadius: '50%',
-          border: `2px solid ${checked ? '#FF0000' : '#e5e7eb'}`,
+          border: `2px solid ${checked ? '#10B981' : '#e5e7eb'}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -453,7 +458,7 @@ function RadioCard({
       >
         {checked && (
           <div
-            style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF0000' }}
+            style={{ width: 10, height: 10, borderRadius: '50%', background: '#10B981' }}
           />
         )}
       </div>
@@ -499,7 +504,7 @@ function RadioCardEfecto({
           width: 18,
           height: 18,
           borderRadius: '50%',
-          border: `2px solid ${checked ? '#FF0000' : '#e5e7eb'}`,
+          border: `2px solid ${checked ? '#10B981' : '#e5e7eb'}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -508,7 +513,7 @@ function RadioCardEfecto({
         }}
       >
         {checked && (
-          <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#FF0000' }} />
+          <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#10B981' }} />
         )}
       </div>
       <div style={{ flex: 1 }}>
@@ -547,8 +552,8 @@ function IconoOption({
         justifyContent: 'center',
         gap: 8,
         padding: '14px 8px',
-        background: selected ? '#fff5f5' : '#FFFFFF',
-        border: `1px solid ${selected ? '#FF0000' : '#e5e7eb'}`,
+        background: selected ? '#ecfdf5' : '#FFFFFF',
+        border: `1px solid ${selected ? '#10B981' : '#e5e7eb'}`,
         borderRadius: 10,
         cursor: 'pointer',
         minHeight: 90,
@@ -568,7 +573,7 @@ function IconoOption({
         style={{
           fontSize: 13,
           fontWeight: 500,
-          color: selected ? '#FF0000' : '#000000',
+          color: selected ? '#10B981' : '#000000',
         }}
       >
         {label}
@@ -597,12 +602,12 @@ function ToggleButton({
       style={{
         flex: 1,
         padding: '12px 10px',
-        background: selected ? '#fff5f5' : '#FFFFFF',
-        border: `1px solid ${selected ? '#FF0000' : '#e5e7eb'}`,
+        background: selected ? '#ecfdf5' : '#FFFFFF',
+        border: `1px solid ${selected ? '#10B981' : '#e5e7eb'}`,
         borderRadius: 10,
         fontSize: 14,
         fontWeight: 500,
-        color: selected ? '#FF0000' : '#000000',
+        color: selected ? '#10B981' : '#000000',
         cursor: 'pointer',
         lineHeight: 1.3,
         minHeight: minHeight,
@@ -735,7 +740,7 @@ export default function InformacionDespachoEditor({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FF0000',
+              background: '#10B981',
               color: '#FFFFFF',
               padding: '8px 14px',
               borderRadius: 999,
@@ -784,10 +789,11 @@ export default function InformacionDespachoEditor({
         {/* CARD PRINCIPAL */}
         <div
           style={{
-            background: '#f3f4f6',
+            background: '#FFFFFF',
             border: '1px solid #e5e7eb',
             borderRadius: 16,
-            padding: 16,
+            padding: 20,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
           {/* PREVIEW */}
@@ -808,7 +814,7 @@ export default function InformacionDespachoEditor({
               lineHeight: 1.5,
             }}
           >
-            <IconInfo size={16} color="#000000" />
+            <IconInfo size={16} color="#10B981" />
             <span>
               {config.posicion === 'encima-form'
                 ? 'El mensaje aparecerá justo encima del formulario de compra.'
@@ -835,15 +841,17 @@ export default function InformacionDespachoEditor({
                   onClick={() => setTab(t)}
                   style={{
                     flex: 1,
-                    background: active ? '#FFFFFF' : 'transparent',
+                    background: 'transparent',
                     border: 'none',
-                    borderBottom: active ? '2px solid #FF0000' : '2px solid transparent',
+                    borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
                     padding: '14px 10px',
                     fontSize: 15,
                     fontWeight: active ? 700 : 500,
-                    color: active ? '#000000' : '#000000',
+                    color: active ? '#10B981' : '#000000',
                     opacity: active ? 1 : 0.6,
                     cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s',
                   }}
                 >
                   {label}
@@ -1166,7 +1174,7 @@ export default function InformacionDespachoEditor({
                   style={{
                     width: 18,
                     height: 18,
-                    accentColor: '#FF0000',
+                    accentColor: '#10B981',
                     cursor: 'pointer',
                   }}
                 />
@@ -1199,7 +1207,7 @@ export default function InformacionDespachoEditor({
               disabled={saving}
               onClick={handleSave}
               style={{
-                background: '#FF0000',
+                background: '#10B981',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 999,
@@ -1208,6 +1216,8 @@ export default function InformacionDespachoEditor({
                 fontWeight: 700,
                 cursor: saving ? 'wait' : 'pointer',
                 opacity: saving ? 0.7 : 1,
+                fontFamily: 'inherit',
+                transition: 'all 0.2s',
               }}
             >
               {saving ? 'Guardando…' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
@@ -1245,4 +1255,4 @@ export default function InformacionDespachoEditor({
       )}
     </div>
   );
-                                }
+  }
