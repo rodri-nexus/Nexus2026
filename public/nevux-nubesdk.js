@@ -1,6 +1,6 @@
 /**
- * NEVUX - NubeSDK Native Worker Engine v3.0
- * 100% Compliant with Tiendanube Web Worker Architecture
+ * NEVUX - NubeSDK Native Worker Engine v3.1
+ * 100% Compliant with @tiendanube/nube-sdk-ui Schema
  */
 
 export function App(nube) {
@@ -96,16 +96,16 @@ function createDeclarativeUI(type, config, state) {
   switch (type) {
     case "badge_cuotas":
       return {
-        type: "box",
+        type: "Box",
         padding: "10px 14px",
         margin: "10px 0",
-        backgroundColor: config.bgColor || "#f0fdf4",
+        background: config.bgColor || "#f0fdf4",
         border: `1px solid ${config.borderColor || "#a7f3d0"}`,
         borderRadius: "8px",
         children: [
           {
-            type: "text",
-            content: `💳 ${config.title || "Hasta 6 cuotas sin interés"}`,
+            type: "Text",
+            children: `💳 ${config.title || "Hasta 6 cuotas sin interés"}`,
             fontWeight: "700",
             color: textColor
           }
@@ -114,16 +114,16 @@ function createDeclarativeUI(type, config, state) {
 
     case "badge_envio":
       return {
-        type: "box",
+        type: "Box",
         padding: "10px 14px",
         margin: "10px 0",
-        backgroundColor: config.bgColor || "#ecfdf5",
+        background: config.bgColor || "#ecfdf5",
         border: `1px solid ${config.borderColor || "#10b981"}`,
         borderRadius: "8px",
         children: [
           {
-            type: "text",
-            content: `🚚 ${config.title || "Envío gratis a todo el país"}`,
+            type: "Text",
+            children: `🚚 ${config.title || "Envío gratis a todo el país"}`,
             fontWeight: "700",
             color: textColor
           }
@@ -132,16 +132,16 @@ function createDeclarativeUI(type, config, state) {
 
     case "badge_transferencia":
       return {
-        type: "box",
+        type: "Box",
         padding: "8px 12px",
         margin: "8px 0",
-        backgroundColor: config.bgColor || "#f0fdf4",
+        background: config.bgColor || "#f0fdf4",
         border: `1px dashed ${config.borderColor || "#059669"}`,
         borderRadius: "6px",
         children: [
           {
-            type: "text",
-            content: `💸 ${config.discount || "10% OFF"} pagando con Transferencia bancaria`,
+            type: "Text",
+            children: `💸 ${config.discount || "10% OFF"} pagando con Transferencia bancaria`,
             color: textColor
           }
         ]
@@ -149,15 +149,15 @@ function createDeclarativeUI(type, config, state) {
 
     case "banner_deslizante":
       return {
-        type: "box",
+        type: "Box",
         padding: "8px 16px",
-        backgroundColor: config.bgColor || "#000000",
+        background: config.bgColor || "#000000",
         alignItems: "center",
         justifyContent: "center",
         children: [
           {
-            type: "text",
-            content: `🔥 ${config.text || "Envíos Gratis en compras superiores a $50.000"} 🔥`,
+            type: "Text",
+            children: `🔥 ${config.text || "Envíos Gratis en compras superiores a $50.000"} 🔥`,
             color: config.textColor || "#ffffff",
             fontWeight: "700"
           }
@@ -166,56 +166,87 @@ function createDeclarativeUI(type, config, state) {
 
     case "barra_progreso":
       return {
-        type: "box",
+        type: "Box",
         padding: "12px",
         margin: "12px 0",
-        backgroundColor: "#ffffff",
+        background: "#ffffff",
         border: "1px solid #e5e7eb",
         borderRadius: "8px",
         children: [
           {
-            type: "text",
-            content: `🎉 ${config.title || "¡Sumá más productos para Envío Gratis!"}`,
+            type: "Text",
+            children: `🎉 ${config.title || "¡Sumá más productos para Envío Gratis!"}`,
             fontWeight: "600",
             color: "#000000"
+          },
+          {
+            type: "Progress",
+            value: 60,
+            max: 100,
+            margin: "8px 0 0 0"
           }
         ]
       };
 
     case "countdown":
       return {
-        type: "box",
+        type: "Box",
         padding: "10px 14px",
         margin: "12px 0",
-        backgroundColor: "#fef2f2",
+        background: "#fef2f2",
         border: "1px solid #fecaca",
         borderRadius: "8px",
         children: [
           {
-            type: "text",
-            content: `⏰ ${config.title || "La oferta termina pronto"}`,
+            type: "Text",
+            children: `⏰ ${config.title || "La oferta termina en 02:45:12"}`,
             fontWeight: "700",
             color: "#dc2626"
           }
         ]
       };
 
+    case "bundle_promociones":
+    case "bundle_cantidad":
+      return {
+        type: "Box",
+        padding: "14px",
+        margin: "12px 0",
+        background: "#ffffff",
+        border: "2px solid #10B981",
+        borderRadius: "10px",
+        children: [
+          {
+            type: "Text",
+            children: `⚡ ${config.title || "Promoción Especial Combo"}`,
+            fontWeight: "700",
+            color: "#000000"
+          },
+          {
+            type: "Button",
+            variant: "primary",
+            children: config.buttonText || "Aprovechar Oferta",
+            margin: "10px 0 0 0"
+          }
+        ]
+      };
+
     default:
       return {
-        type: "box",
+        type: "Box",
         padding: "12px",
         margin: "10px 0",
-        backgroundColor: "#f9fafb",
-        border: "1px solid #e5e7eb",
+        background: "#ecfdf5",
+        border: "1px solid #10b981",
         borderRadius: "8px",
         children: [
           {
-            type: "text",
-            content: `✨ ${config.title || "Promoción Nevux"}`,
+            type: "Text",
+            children: `✨ ${config.title || "Promoción Nevux"}`,
             fontWeight: "600",
-            color: "#000000"
+            color: "#047857"
           }
         ]
       };
   }
-  }
+        }
