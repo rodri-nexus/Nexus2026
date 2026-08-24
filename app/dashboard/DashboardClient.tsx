@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
 import MetricsCard from "./components/MetricsCard";
@@ -46,6 +46,7 @@ interface DashboardClientProps {
 }
 
 const TIENDANUBE_CLIENT_ID = "37382";
+const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
 export default function DashboardClient({
   email,
@@ -58,6 +59,7 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const hasStore = store !== null;
+  const isAdmin = email.toLowerCase() === ADMIN_EMAIL;
 
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
@@ -107,6 +109,88 @@ export default function DashboardClient({
             boxSizing: "border-box",
           }}
         >
+          {/* BANNER ADMINISTRADOR (Sólo visible para nevuxapp@gmail.com) */}
+          {isAdmin && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "1rem",
+                background: "#000000",
+                color: "#ffffff",
+                border: "1.5px solid #10B981",
+                borderRadius: "14px",
+                padding: "1.25rem 1.5rem",
+                marginBottom: "1.5rem",
+                boxSizing: "border-box",
+                boxShadow: "0 4px 20px rgba(16, 185, 129, 0.15)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+                <div
+                  style={{
+                    width: "42px",
+                    height: "42px",
+                    borderRadius: "10px",
+                    background: "#10B981",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <ShieldCheck size={24} color="#ffffff" />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1rem",
+                      fontWeight: 800,
+                      color: "#ffffff",
+                      marginBottom: "0.2rem",
+                    }}
+                  >
+                    Cuenta Administrador
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.85rem",
+                      color: "#ffffff",
+                      opacity: 0.75,
+                    }}
+                  >
+                    Gestioná comprobantes de suscripción y aprobaciones de comercios.
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href="/admin/pagos"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.65rem 1.25rem",
+                  borderRadius: "999px",
+                  background: "#10B981",
+                  color: "#ffffff",
+                  textDecoration: "none",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
+                }}
+              >
+                Panel de Pagos Admin →
+              </a>
+            </motion.div>
+          )}
+
           {/* BANNER: SIN TIENDA CONECTADA */}
           {!hasStore && (
             <motion.div
@@ -366,4 +450,4 @@ export default function DashboardClient({
       </div>
     </TutorialProvider>
   );
-  }
+}
