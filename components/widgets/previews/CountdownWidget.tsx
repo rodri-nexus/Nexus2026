@@ -1,4 +1,3 @@
-// components/widgets/previews/CountdownWidget.tsx
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
@@ -54,12 +53,12 @@ function readConfig(config: Record<string, any>) {
     // Fondo
     bgType: (config.bgType ?? config.background_type ?? 'solid') as 'solid' | 'gradient',
     colorWidgetBg: config.colorWidgetBg ?? config.background_color ?? '#000000',
-    colorWidgetBg2: config.colorWidgetBg2 ?? '#FF0000',
+    colorWidgetBg2: config.colorWidgetBg2 ?? '#059669',
     gradientDirection: (config.gradientDirection ?? 'to bottom right') as string,
 
     // Colores
-    colorSubtitleBg: config.colorSubtitleBg ?? config.subtitle_bg_color ?? '#FF0000',
-    colorClockBg: config.colorClockBg ?? config.clock_bg_color ?? '#FF0000',
+    colorSubtitleBg: config.colorSubtitleBg ?? config.subtitle_bg_color ?? '#10B981',
+    colorClockBg: config.colorClockBg ?? config.clock_bg_color ?? '#10B981',
     colorTitle: config.colorTitle ?? config.title_font_color ?? '#ffffff',
     colorSubtitle: config.colorSubtitle ?? config.subtitle_font_color ?? '#ffffff',
     colorNumbers: config.colorNumbers ?? config.number_font_color ?? '#ffffff',
@@ -420,12 +419,12 @@ export default function CountdownWidget({ config }: CountdownWidgetProps) {
     return (
       <div style={{
         padding: 20,
-        background: '#fff5f5',
-        border: '1.5px dashed #FF0000',
+        background: '#fef2f2',
+        border: '1.5px dashed #fecaca',
         borderRadius: 12,
         textAlign: 'center',
         fontSize: 13,
-        color: '#FF0000',
+        color: '#dc2626',
         fontWeight: 700,
       }}>
         ⚠️ Activá al menos una unidad
