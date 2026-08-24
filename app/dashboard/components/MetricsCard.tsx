@@ -1,55 +1,156 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
-  Info,
   Eye,
   MousePointerClick,
   ShoppingCart,
   DollarSign,
   BarChart3,
   ChevronDown,
+  Activity,
+  Loader2,
 } from "lucide-react";
 
 type Period = "hoy" | "ayer" | "7dias" | "personalizado";
+type SortMetric = "impresiones" | "clicks" | "agregados" | "facturacion";
+type SortOrder = "desc" | "asc";
 
-interface MetricItem {
-  label: string;
-  value: string;
-  sublabel: string;
-  icon: typeof Eye;
-  gradient: string;
+interface MetricSummary {
+  impressions: number;
+  clicks: number;
+  cartAdds: number;
+  revenue: number;
+}
+
+interface WidgetPerformanceItem {
+  id: string;
+  name: string;
+  type: string;
+  impressions: number;
+  clicks: number;
+  cartAdds: number;
+  revenue: number;
 }
 
 export default function MetricsCard() {
   const [period, setPeriod] = useState<Period>("7dias");
+  const [loading, setLoading] = useState(true);
+  const [sortMetric, setSortMetric] = useState<SortMetric>("impresiones");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
-  const metrics: MetricItem[] = [
+  const [summary, setSummary] = useState<MetricSummary>({
+    impressions: 0,
+    clicks: 0,
+    cartAdds: 0,
+    revenue: 0,
+  });
+
+  const [widgetList, setWidgetList] = useState<WidgetPerformanceItem[]>([]);
+
+  // Fetch de métricas reales desde la API
+  const fetchMetrics = useCallback(async (selectedPeriod: Period) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/metrics?period=${selectedPeriod}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSummary({
+          impressions: data.summary?.impressions || 0,
+          clicks: data.summary?.clicks || 0,
+          cartAdds: data.summary?.cartAdds || 0,
+          revenue: data.summary?.revenue || 0,
+        });
+        setWidgetList(data.widgets || []);
+      } else {
+        // Fallback a ceros limpios si no hay conexión
+        setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
+        setWidgetList([]);
+      }
+    } catch (error) {
+      setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
+      setWidgetList([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMetrics(period);
+  }, [period, fetchMetrics]);
+
+  // Ordenamiento local de widgets
+  const sortedWidgets = [...widgetList].sort((a, b) => {
+    let valA = 0;
+    let valB = 0;
+
+    switch (sortMetric) {
+      case "impresiones":
+        valA = a.impressions;
+        valB = b.impressions;
+        break;
+      case "clicks":
+        valA = a.clicks;
+        valB = b.clicks;
+        break;
+      case "agregados":
+        valA = a.cartAdds;
+        valB = b.cartAdds;
+        break;
+      case "facturacion":
+        valA = a.revenue;
+        valB = b.revenue;
+        break;
+    }
+
+    return sortOrder === "desc" ? valB - valA : valA - valB;
+  });
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "k";
+    return num.toLocaleString("es-AR");
+  };
+
+  const formatCurrency = (val: number) => {
+    if (val === 0) return "$ -";
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
+  const metrics = [
     {
       label: "Impresiones",
-      value: "0",
+      value: formatNumber(summary.impressions),
       sublabel: "Vistas de widgets",
       icon: Eye,
       gradient: "#10B981",
     },
     {
       label: "Clicks",
-      value: "0",
+      value: formatNumber(summary.clicks),
       sublabel: "Interacciones",
       icon: MousePointerClick,
       gradient: "#10B981",
     },
     {
       label: "Agregados al carrito",
-      value: "0",
+      value: formatNumber(summary.cartAdds),
       sublabel: "Desde widgets",
       icon: ShoppingCart,
       gradient: "#10B981",
     },
     {
       label: "Facturación estimada",
-      value: "$ -",
+      value: formatCurrency(summary.revenue),
       sublabel: "Desde widgets",
       icon: DollarSign,
       gradient: "#10B981",
@@ -78,19 +179,41 @@ export default function MetricsCard() {
         boxSizing: "border-box",
       }}
     >
+      {/* Badge Estado En Vivo */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: "0.5rem",
           marginBottom: "0.75rem",
-          color: "#000000",
-          opacity: 0.5,
-          fontSize: "0.8rem",
         }}
       >
-        <Info size={14} />
-        <span>Métricas disponibles próximamente</span>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            padding: "0.25rem 0.65rem",
+            borderRadius: "999px",
+            background: "#ecfdf5",
+            border: "1px solid #a7f3d0",
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            color: "#059669",
+          }}
+        >
+          <span
+            style={{
+              width: "7px",
+              height: "7px",
+              borderRadius: "50%",
+              background: "#10B981",
+              boxShadow: "0 0 8px #10B981",
+            }}
+          />
+          Métricas en tiempo real
+        </div>
+        {loading && <Loader2 size={14} color="#10B981" className="animate-spin" />}
       </div>
 
       <h2
@@ -147,20 +270,6 @@ export default function MetricsCard() {
                 transition: "all 0.15s",
                 fontFamily: "inherit",
               }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = "#ecfdf5";
-                  e.currentTarget.style.borderColor = "#10B981";
-                  e.currentTarget.style.color = "#10B981";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = "#ffffff";
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.color = "#000000";
-                }
-              }}
             >
               {p.label}
             </button>
@@ -192,18 +301,7 @@ export default function MetricsCard() {
                 padding: "1.15rem",
                 position: "relative",
                 overflow: "hidden",
-                transition: "transform 0.15s, box-shadow 0.15s",
-                cursor: "default",
                 boxSizing: "border-box",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow =
-                  "0 6px 16px rgba(16, 185, 129, 0.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
               }}
             >
               <div
@@ -313,7 +411,9 @@ export default function MetricsCard() {
               textAlign: "center",
             }}
           >
-            Todavía no hay métricas para este período.
+            {summary.impressions > 0
+              ? "Generando gráfico con actividad reciente..."
+              : "Todavía no hay métricas para este período."}
           </p>
         </div>
       </div>
@@ -356,7 +456,8 @@ export default function MetricsCard() {
         >
           <div style={{ position: "relative", flex: "1 1 160px" }}>
             <select
-              defaultValue="impresiones"
+              value={sortMetric}
+              onChange={(e) => setSortMetric(e.target.value as SortMetric)}
               style={{
                 width: "100%",
                 appearance: "none",
@@ -393,7 +494,8 @@ export default function MetricsCard() {
 
           <div style={{ position: "relative", flex: "1 1 160px" }}>
             <select
-              defaultValue="desc"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as SortOrder)}
               style={{
                 width: "100%",
                 appearance: "none",
@@ -427,31 +529,67 @@ export default function MetricsCard() {
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "2rem 1rem",
-            background: "#ffffff",
-            borderRadius: "12px",
-            border: "1px dashed #e5e7eb",
-          }}
-        >
-          <p
+        {sortedWidgets.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            {sortedWidgets.map((w) => (
+              <div
+                key={w.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "0.85rem 1rem",
+                  background: "#f9fafb",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "10px",
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#000000" }}>
+                    {w.name}
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "#000000", opacity: 0.5 }}>
+                    {w.type}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#10B981" }}>
+                    {sortMetric === "impresiones" && `${formatNumber(w.impressions)} vistas`}
+                    {sortMetric === "clicks" && `${formatNumber(w.clicks)} clicks`}
+                    {sortMetric === "agregados" && `${formatNumber(w.cartAdds)} carritos`}
+                    {sortMetric === "facturacion" && formatCurrency(w.revenue)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div
             style={{
-              margin: 0,
-              fontSize: "0.9rem",
-              color: "#000000",
-              opacity: 0.5,
-              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "2rem 1rem",
+              background: "#ffffff",
+              borderRadius: "12px",
+              border: "1px dashed #e5e7eb",
             }}
           >
-            Todavía no hay widgets con métricas para este período.
-          </p>
-        </div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "0.9rem",
+                color: "#000000",
+                opacity: 0.5,
+                textAlign: "center",
+              }}
+            >
+              Todavía no hay widgets con métricas para este período.
+            </p>
+          </div>
+        )}
       </div>
     </motion.section>
   );
-      }
+    }
