@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase-server";
-import { createClient as createDirectClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+
+// Cliente Supabase con Service Role o Anon para consultas públicas de la tienda
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  "";
+const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false },
+});
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const storeIdParam = searchParams.get("storeId");
 
-  // CASO 1: Consulta pública desde el widget en la tienda de Tiendanube (tiene storeId en la URL)
+  // CASO 1: Consulta pública desde el widget en la tienda
   if (storeIdParam) {
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-      const supabasePublic = createDirectClient(supabaseUrl, supabaseAnonKey);
-
-      const { data: config, error } = await supabasePublic
+      const { data: config, error } = await supabaseAdmin
         .from("bot_config")
         .select("store_id, is_active, bot_name, personality, primary_color")
         .eq("store_id", storeIdParam)
@@ -23,14 +29,17 @@ export async function GET(req: NextRequest) {
         console.error("Error público buscando bot_config:", error);
       }
 
+      // Si no existe fila o si existe pero is_active es null, devolver fallback
+      const activeState = config ? Boolean(config.is_active) : false;
+
       return NextResponse.json({
         storeId: storeIdParam,
-        config: config || {
+        config: {
           store_id: storeIdParam,
-          is_active: false,
-          bot_name: "Sofía",
-          personality: "experta",
-          primary_color: "#10B981",
+          is_active: activeState,
+          bot_name: config?.bot_name || "Sofía",
+          personality: config?.personality || "experta",
+          primary_color: config?.primary_color || "#10B981",
         },
       });
     } catch (err) {
@@ -39,7 +48,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // CASO 2: Consulta privada desde el Dashboard del administrador (necesita sesión)
+  // CASO 2: Consulta privada desde el Dashboard (requiere auth)
   const supabase = createServerClient();
   const {
     data: { user },
@@ -49,7 +58,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // Buscar la tienda activa del usuario
   const { data: store } = await supabase
     .from("stores")
     .select("store_id")
@@ -64,8 +72,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Obtener config
-  const { data: config } = await supabase
+  const { data: config } = await supabaseAdmin
     .from("bot_config")
     .select("*")
     .eq("store_id", store.store_id)
@@ -111,11 +118,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { is_active, bot_name, personality, primary_color } = body;
 
-    const { data: updatedConfig, error } = await supabase
+    const { data: updatedConfig, error } = await supabaseAdmin
       .from("bot_config")
       .upsert(
         {
-          store_id: store.store_id,
+          store_id: String(store.store_id),
           is_active: Boolean(is_active),
           bot_name: bot_name || "Sofía",
           personality: personality || "experta",
@@ -143,4 +150,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-    }
+}
