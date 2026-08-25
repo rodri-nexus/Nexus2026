@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getProducts } from "@/lib/tiendanube";
 
-// Inicializar cliente Supabase para consultas públicas del bot
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,136 +12,81 @@ export async function POST(req: NextRequest) {
     const { storeId, message, conversationHistory = [] } = body;
 
     if (!storeId || !message) {
-      return NextResponse.json(
-        { error: "storeId y message son requeridos" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: "Gemini API key no configurada" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "IA no configurada en el servidor" }, { status: 500 });
     }
 
-    // 1. Obtener la tienda y token desde Supabase
-    const { data: store } = await supabase
+    // 1. Buscar la tienda con ID flexible (7401217)
+    const cleanId = String(storeId).trim();
+    let { data: store } = await supabase
       .from("stores")
-      .select("store_id, access_token, user_id")
-      .eq("store_id", storeId)
+      .select("store_id, access_token")
+      .or(`store_id.eq.${cleanId},store_id.eq.${Number(cleanId)}`)
       .eq("is_active", true)
       .maybeSingle();
 
     if (!store?.access_token) {
-      return NextResponse.json(
-        { error: "Tienda no encontrada o inactiva" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Tienda no vinculada" }, { status: 404 });
     }
 
-    // 2. Obtener la configuración de NevuxBot para esta tienda
+    // 2. Obtener config del bot
     const { data: botConfig } = await supabase
       .from("bot_config")
       .select("*")
-      .eq("store_id", storeId)
+      .eq("store_id", cleanId)
       .maybeSingle();
 
     const botName = botConfig?.bot_name || "Sofía";
     const personality = botConfig?.personality || "experta";
 
-    // 3. Obtener el catálogo de productos de Tiendanube
-    let catalogSummary = "No hay productos disponibles por el momento.";
+    // 3. Catálogo de productos (optimizado para evitar timeouts)
+    let catalog = "Catálogo no disponible.";
     try {
       const products = await getProducts(store.store_id, store.access_token);
       if (Array.isArray(products) && products.length > 0) {
-        catalogSummary = products
-          .slice(0, 30) // Primeros 30 productos para no saturar tokens
-          .map((p) => {
-            const variant = p.variants?.[0];
-            const price = variant?.promotional_price || variant?.price || "Sin precio";
-            return `- ${p.name} | Precio: $${price} | ID: ${p.id}`;
-          })
-          .join("\n");
+        catalog = products.slice(0, 20).map(p => `- ${p.name} | $${p.variants?.[0]?.price}`).join("\n");
       }
-    } catch (e) {
-      console.error("Error cargando productos para NevuxBot:", e);
-    }
+    } catch (e) { console.error("Error productos:", e); }
 
-    // 4. Armar el Prompt de Personalidad y Vendedor Humano
-    let personalityPrompt = "";
-    if (personality === "calida") {
-      personalityPrompt = "Tu tono es súper cálido, dulce, cercano y comprensivo. Usas emojis amigables.";
-    } else if (personality === "divertida") {
-      personalityPrompt = "Tu tono es fresco, dinámico, entusiasta y con buena onda. Usas lenguaje relajado.";
-    } else {
-      personalityPrompt = "Tu tono es profesional, experto, elegante y súper resolutivo.";
-    }
+    // 4. Prompt
+    const systemPrompt = `Sos ${botName}, asesora humana de esta tienda. Tono: ${personality}. REGLAS: 1. NUNCA digas que sos una IA. 2. Responde corto (2 frases). PRODUCTOS:\n${catalog}`;
 
-    const systemPrompt = `
-Sos ${botName}, la asesora de ventas humana de esta tienda online.
-REGLAS OBLIGATORIAS:
-1. Hablá 100% como una persona real, atenta y cercana. NUNCA digas "soy una IA", "soy un modelo de lenguaje" ni "soy un bot".
-2. ${personalityPrompt}
-3. NUNCA intentes vender basándote únicamente en el precio o descuentos. Vendé destacando beneficios, calidad, comodidad, usos reales y resolviendo las dudas del cliente.
-4. Ponete siempre en el lugar del comprador. Si duda de un talle o modelo, hacele preguntas amables sobre sus gustos o medidas.
-5. Conocés los productos de la tienda a la perfección:
-${catalogSummary}
-
-Si te preguntan por un producto que está en el catálogo, dale detalles útiles con entusiasmo. Si no sabés algo exacto, ofrecete a consultarlo con el equipo de depósito de forma humana.
-Responde de forma concisa, conversacional y fluida (máximo 2 a 3 oraciones cortas por respuesta).
-`;
-
-    // 5. Construir historial de conversación para Gemini API
+    // 5. Llamada a Gemini con estructura simplificada
     const contents = [
-      {
-        role: "user",
-        parts: [{ text: systemPrompt }],
-      },
-      ...conversationHistory.map((msg: any) => ({
-        role: msg.sender === "user" ? "user" : "model",
-        parts: [{ text: msg.text }],
+      { role: "user", parts: [{ text: systemPrompt }] },
+      ...conversationHistory.map((m: any) => ({
+        role: m.sender === "user" ? "user" : "model",
+        parts: [{ text: m.text }]
       })),
-      {
-        role: "user",
-        parts: [{ text: message }],
-      },
+      { role: "user", parts: [{ text: message }] }
     ];
 
-    // 6. Llamada a Google Gemini 1.5 Flash API (Gratuita)
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents }),
+        body: JSON.stringify({ contents })
       }
     );
 
     if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      console.error("Gemini API error:", errText);
-      return NextResponse.json(
-        { error: "Error al procesar mensaje con la IA" },
-        { status: 500 }
-      );
+      const err = await geminiRes.text();
+      console.error("Gemini Error:", err);
+      return NextResponse.json({ error: "La IA está saturada o la API Key es inválida" }, { status: 500 });
     }
 
-    const geminiData = await geminiRes.json();
-    const replyText =
-      geminiData.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "¡Hola! ¿En qué te puedo ayudar hoy? 😊";
+    const resData = await geminiRes.json();
+    const reply = resData.candidates?.[0]?.content?.parts?.[0]?.text || "¡Hola! ¿En qué te ayudo?";
 
-    return NextResponse.json({
-      reply: replyText,
-      botName,
-    });
+    return NextResponse.json({ reply, botName });
+
   } catch (error: any) {
-    console.error("Error en /api/nevuxbot/chat:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    console.error("Chat Error:", error);
+    return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
-    }
+      }
