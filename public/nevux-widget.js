@@ -7,13 +7,25 @@
 
   console.log("[Nevux] v23 loaded with NubeSDK Adapter");
 
-  // INYECTAR DINÁMICAMENTE EL SCRIPT DE NEVUXBOT EN LA TIENDA
-  (function () {
-    const s = document.createElement("script");
-    s.src = API_BASE + "/nevux-bot.js";
+  // INYECTAR DINÁMICAMENTE EL SCRIPT DE NEVUXBOT EN LA TIENDA (ROBUSTO)
+  function loadNevuxBot() {
+    if (window.__nevux_bot_loaded__) return;
+    window.__nevux_bot_loaded__ = true;
+    var s = document.createElement("script");
+    s.src = API_BASE + "/nevux-bot.js?v=" + Date.now();
     s.async = true;
-    document.head.appendChild(s);
-  })();
+    var target = document.head || document.documentElement || document.body;
+    if (target) {
+      target.appendChild(s);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadNevuxBot);
+  } else {
+    loadNevuxBot();
+  }
+  setTimeout(loadNevuxBot, 1000);
 
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
