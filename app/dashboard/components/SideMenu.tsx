@@ -8,6 +8,7 @@ import {
   Home,
   Puzzle,
   Package,
+  Bot,
   BarChart3,
   Settings,
   HelpCircle,
@@ -26,12 +27,14 @@ interface MenuItem {
   href: string;
   icon: LucideIcon;
   disabled?: boolean;
+  badge?: string;
 }
 
 const menuItems: MenuItem[] = [
   { label: "Inicio", href: "/dashboard", icon: Home },
   { label: "Widgets", href: "/widgets", icon: Puzzle },
   { label: "Productos", href: "/productos", icon: Package },
+  { label: "NevuxBot AI", href: "/dashboard/nevuxbot", icon: Bot, badge: "NUEVO" },
   { label: "Métricas", href: "/metricas", icon: BarChart3, disabled: true },
   { label: "Configuración", href: "/configuracion", icon: Settings, disabled: true },
   { label: "Ayuda", href: "/ayuda", icon: HelpCircle, disabled: true },
@@ -131,8 +134,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                   transition: "background 0.15s",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#fff5f5";
-                  e.currentTarget.style.color = "#FF0000";
+                  e.currentTarget.style.background = "#ecfdf5";
+                  e.currentTarget.style.color = "#10B981";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "transparent";
@@ -223,8 +226,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                       padding: "0.75rem",
                       borderRadius: "10px",
                       textDecoration: "none",
-                      color: isActive ? "#FF0000" : "#000000",
-                      background: isActive ? "#fff5f5" : "transparent",
+                      color: isActive ? "#059669" : "#000000",
+                      background: isActive ? "#ecfdf5" : "transparent",
                       fontSize: "0.9rem",
                       fontWeight: isActive ? 700 : 500,
                       transition: "background 0.15s, color 0.15s",
@@ -232,8 +235,8 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                     }}
                     onMouseEnter={(e) => {
                       if (!isActive) {
-                        e.currentTarget.style.background = "#fff5f5";
-                        e.currentTarget.style.color = "#FF0000";
+                        e.currentTarget.style.background = "#f9fafb";
+                        e.currentTarget.style.color = "#10B981";
                       }
                     }}
                     onMouseLeave={(e) => {
@@ -252,16 +255,34 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                           transform: "translateY(-50%)",
                           width: "3px",
                           height: "60%",
-                          background: "#FF0000",
+                          background: "#10B981",
                           borderRadius: "0 3px 3px 0",
                         }}
                       />
                     )}
                     <Icon
                       size={18}
-                      color={isActive ? "#FF0000" : "#000000"}
+                      color={isActive ? "#059669" : "#000000"}
                     />
                     <span>{item.label}</span>
+
+                    {item.badge && (
+                      <span
+                        style={{
+                          marginLeft: "auto",
+                          fontSize: "0.62rem",
+                          fontWeight: 800,
+                          background: "#10B981",
+                          color: "#ffffff",
+                          padding: "0.15rem 0.55rem",
+                          borderRadius: "999px",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.03em",
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -293,4 +314,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-    }
+                }
