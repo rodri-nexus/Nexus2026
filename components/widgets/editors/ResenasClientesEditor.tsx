@@ -348,89 +348,139 @@ function CheckboxSimple({
   );
 }
 
+/* ===== COLOR PICKER PROFESIONAL (fácil de tocar en celular) ===== */
 function ColorPickerField({
+  label,
   value,
   onChange,
 }: {
+  label: string;
   value: string;
   onChange: (v: string) => void;
 }) {
   const isTransparent = value === 'transparent' || value === '';
+
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    <div style={{ width: '100%' }}>
       <div
         style={{
-          position: 'relative',
-          width: 48,
-          height: 40,
-          borderRadius: 8,
-          border: '1px solid #e5e7eb',
-          overflow: 'hidden',
-          background: isTransparent
-            ? 'repeating-conic-gradient(#e5e7eb 0 25%, #ffffff 0 50%) 50% / 12px 12px'
-            : value,
-          flexShrink: 0,
+          fontSize: 14,
+          fontWeight: 700,
+          color: '#000000',
+          marginBottom: 10,
+          lineHeight: 1.3,
         }}
       >
-        <input
-          type="color"
-          value={isTransparent ? '#ffffff' : value}
-          onChange={(e) => onChange(e.target.value)}
+        {label}
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          width: '100%',
+          background: '#F9FAFB',
+          border: '1px solid #e5e7eb',
+          borderRadius: 14,
+          padding: 12,
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Swatch grande + área táctil ampliada */}
+        <div
           style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            padding: 0,
-            background: 'transparent',
-            opacity: 0,
+            position: 'relative',
+            width: 56,
+            height: 56,
+            borderRadius: 14,
+            border: '2px solid #e5e7eb',
+            overflow: 'hidden',
+            background: isTransparent
+              ? 'repeating-conic-gradient(#e5e7eb 0 25%, #ffffff 0 50%) 50% / 14px 14px'
+              : value,
+            flexShrink: 0,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
             cursor: 'pointer',
           }}
-        />
-      </div>
-      <div style={{ position: 'relative', flex: 1 }}>
-        <input
-          type="text"
-          value={isTransparent ? '' : value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Transparente"
-          style={{
-            width: '100%',
-            padding: '10px 30px 10px 12px',
-            border: '1px solid #e5e7eb',
-            borderRadius: 8,
-            fontSize: 13,
-            color: '#000000',
-            background: '#FFFFFF',
-            outline: 'none',
-            fontFamily: 'monospace',
-            boxSizing: 'border-box',
-          }}
-        />
-        {!isTransparent && (
-          <button
-            type="button"
-            onClick={() => onChange('transparent')}
+        >
+          <input
+            type="color"
+            value={isTransparent ? '#ffffff' : value}
+            onChange={(e) => onChange(e.target.value)}
+            title="Elegir color"
             style={{
               position: 'absolute',
-              right: 6,
               top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'transparent',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 80,
+              height: 80,
               border: 'none',
+              padding: 0,
+              background: 'transparent',
+              opacity: 0,
               cursor: 'pointer',
-              color: '#000000',
-              opacity: 0.5,
-              fontSize: 16,
-              padding: 4,
-              lineHeight: 1,
             }}
-            title="Poner transparente"
-          >
-            ×
-          </button>
-        )}
+          />
+        </div>
+
+        {/* Input HEX */}
+        <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+          <input
+            type="text"
+            value={isTransparent ? '' : value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Transparente"
+            spellCheck={false}
+            style={{
+              width: '100%',
+              padding: '14px 42px 14px 14px',
+              border: '1px solid #e5e7eb',
+              borderRadius: 12,
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#000000',
+              background: '#FFFFFF',
+              outline: 'none',
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+              boxSizing: 'border-box',
+              letterSpacing: '0.02em',
+            }}
+            onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+            onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+          />
+
+          {!isTransparent && (
+            <button
+              type="button"
+              onClick={() => onChange('transparent')}
+              title="Poner transparente"
+              style={{
+                position: 'absolute',
+                right: 8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                background: '#F3F4F6',
+                border: '1px solid #e5e7eb',
+                cursor: 'pointer',
+                color: '#000000',
+                opacity: 0.7,
+                fontSize: 18,
+                lineHeight: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+              }}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1442,77 +1492,58 @@ export default function ResenasClientesEditor({
                 title="Colores principales"
                 description="Personalizá los colores de botones, fondo, título, subtítulo y reseñas."
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div>
-                    <FieldLabel>Color de los botones</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorBotones}
-                      onChange={(v) => updateConfig('colorBotones', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color de fondo</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorFondo}
-                      onChange={(v) => updateConfig('colorFondo', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color del título y puntaje</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorTitulo}
-                      onChange={(v) => updateConfig('colorTitulo', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color del subtítulo</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorSubtitulo}
-                      onChange={(v) => updateConfig('colorSubtitulo', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Fondo del subtítulo</FieldLabel>
-                    <ColorPickerField
-                      value={config.fondoSubtitulo}
-                      onChange={(v) => updateConfig('fondoSubtitulo', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color de fondo de la reseña</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorFondoResena}
-                      onChange={(v) => updateConfig('colorFondoResena', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color del nombre</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorNombre}
-                      onChange={(v) => updateConfig('colorNombre', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color de estrellas</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorEstrellas}
-                      onChange={(v) => updateConfig('colorEstrellas', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color del texto de la reseña</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorTextoResena}
-                      onChange={(v) => updateConfig('colorTextoResena', v)}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Color de la fecha</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorFecha}
-                      onChange={(v) => updateConfig('colorFecha', v)}
-                    />
-                  </div>
+                {/* 1 color por fila = fácil de tocar y se ve profesional en celular */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <ColorPickerField
+                    label="Color de los botones"
+                    value={config.colorBotones}
+                    onChange={(v) => updateConfig('colorBotones', v)}
+                  />
+                  <ColorPickerField
+                    label="Color de fondo"
+                    value={config.colorFondo}
+                    onChange={(v) => updateConfig('colorFondo', v)}
+                  />
+                  <ColorPickerField
+                    label="Color del título y puntaje"
+                    value={config.colorTitulo}
+                    onChange={(v) => updateConfig('colorTitulo', v)}
+                  />
+                  <ColorPickerField
+                    label="Color del subtítulo"
+                    value={config.colorSubtitulo}
+                    onChange={(v) => updateConfig('colorSubtitulo', v)}
+                  />
+                  <ColorPickerField
+                    label="Fondo del subtítulo"
+                    value={config.fondoSubtitulo}
+                    onChange={(v) => updateConfig('fondoSubtitulo', v)}
+                  />
+                  <ColorPickerField
+                    label="Color de fondo de la reseña"
+                    value={config.colorFondoResena}
+                    onChange={(v) => updateConfig('colorFondoResena', v)}
+                  />
+                  <ColorPickerField
+                    label="Color del nombre"
+                    value={config.colorNombre}
+                    onChange={(v) => updateConfig('colorNombre', v)}
+                  />
+                  <ColorPickerField
+                    label="Color de estrellas"
+                    value={config.colorEstrellas}
+                    onChange={(v) => updateConfig('colorEstrellas', v)}
+                  />
+                  <ColorPickerField
+                    label="Color del texto de la reseña"
+                    value={config.colorTextoResena}
+                    onChange={(v) => updateConfig('colorTextoResena', v)}
+                  />
+                  <ColorPickerField
+                    label="Color de la fecha"
+                    value={config.colorFecha}
+                    onChange={(v) => updateConfig('colorFecha', v)}
+                  />
                 </div>
               </SectionCard>
 
@@ -1704,4 +1735,4 @@ export default function ResenasClientesEditor({
       )}
     </div>
   );
-  }
+                   }
