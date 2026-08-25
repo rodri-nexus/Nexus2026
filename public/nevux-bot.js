@@ -14,30 +14,56 @@
       return window.__NUVEMSHOP_STORE__.id;
     
     const meta = document.querySelector('meta[name="store-id"]');
-    if (meta) return meta.content;
+    if (meta && meta.content) return meta.content;
     
-    const html = document.documentElement.innerHTML;
+    const html = document.documentElement ? document.documentElement.innerHTML : "";
     let m = html.match(/"store_id":\s*(\d+)/);
     if (m) return parseInt(m[1], 10);
     m = html.match(/"storeId":\s*(\d+)/);
     if (m) return parseInt(m[1], 10);
+
+    const assetLink = document.querySelector('link[href*="/stores/"]');
+    if (assetLink) {
+      const cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
+      if (cdnMatch) return parseInt(cdnMatch[1], 10);
+    }
     return null;
   }
 
-  const storeId = detectStoreId();
-  if (!storeId) return;
+  // Esperar a que el DOM y el storeId estén listos (hasta 20 reintentos)
+  let attempts = 0;
+  function startBot() {
+    const storeId = detectStoreId();
+    const hasBody = document.body !== null && document.body !== undefined;
 
-  // Consultar configuración del Bot para esta tienda
-  fetch(`${API_BASE}/api/nevuxbot/config?storeId=${storeId}`)
-    .then((res) => res.json())
-    .then((data) => {
-      if (data && data.config && data.config.is_active) {
-        initNevuxBot(data.config, storeId);
+    if (!storeId || !hasBody) {
+      attempts++;
+      if (attempts < 25) {
+        setTimeout(startBot, 250);
       }
-    })
-    .catch((err) => console.error("[NevuxBot] Error cargando config:", err));
+      return;
+    }
+
+    // Consultar configuración del Bot para esta tienda
+    fetch(`${API_BASE}/api/nevuxbot/config?storeId=${storeId}&t=${Date.now()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.config && data.config.is_active) {
+          initNevuxBot(data.config, storeId);
+        }
+      })
+      .catch((err) => console.error("[NevuxBot] Error cargando config:", err));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startBot);
+  } else {
+    startBot();
+  }
 
   function initNevuxBot(config, storeId) {
+    if (document.getElementById("nevux-bot-bubble")) return; // Evitar duplicados
+
     const botName = config.bot_name || "Sofía";
     const primaryColor = config.primary_color || "#10B981";
 
@@ -45,25 +71,25 @@
     const style = document.createElement("style");
     style.innerHTML = `
       #nevux-bot-bubble {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        width: 60px;
-        height: 60px;
-        background-color: #000000;
-        border: 2px solid ${primaryColor};
-        border-radius: 50%;
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 999999;
-        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+        position: fixed !important;
+        bottom: 24px !important;
+        right: 24px !important;
+        width: 60px !important;
+        height: 60px !important;
+        background-color: #000000 !important;
+        border: 2px solid ${primaryColor} !important;
+        border-radius: 50% !important;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 2147483647 !important;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease !important;
       }
       #nevux-bot-bubble:hover {
-        transform: scale(1.1);
-        box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5);
+        transform: scale(1.08) !important;
+        box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5) !important;
       }
       #nevux-bot-bubble .pulse-ring {
         position: absolute;
@@ -73,82 +99,84 @@
         border-radius: 50%;
         animation: nevux-pulse 2s infinite;
         opacity: 0;
+        pointer-events: none;
       }
       @keyframes nevux-pulse {
         0% { transform: scale(1); opacity: 0.6; }
         100% { transform: scale(1.4); opacity: 0; }
       }
       #nevux-bot-window {
-        position: fixed;
-        bottom: 96px;
-        right: 24px;
-        width: 370px;
-        height: 520px;
-        max-height: calc(100vh - 140px);
-        max-width: calc(100vw - 48px);
-        background: rgba(10, 10, 10, 0.96);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(16, 185, 129, 0.25);
-        border-radius: 16px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-        display: flex;
-        flex-direction: column;
-        z-index: 999999;
-        overflow: hidden;
+        position: fixed !important;
+        bottom: 96px !important;
+        right: 24px !important;
+        width: 370px !important;
+        height: 520px !important;
+        max-height: calc(100vh - 120px) !important;
+        max-width: calc(100vw - 32px) !important;
+        background: rgba(10, 10, 10, 0.96) !important;
+        backdrop-filter: blur(14px) !important;
+        -webkit-backdrop-filter: blur(14px) !important;
+        border: 1px solid rgba(16, 185, 129, 0.25) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        z-index: 2147483647 !important;
+        overflow: hidden !important;
         opacity: 0;
         transform: translateY(20px) scale(0.95);
         pointer-events: none;
-        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
       }
       #nevux-bot-window.open {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        pointer-events: auto;
+        opacity: 1 !important;
+        transform: translateY(0) scale(1) !important;
+        pointer-events: auto !important;
       }
       .nb-header {
-        padding: 16px;
-        background: linear-gradient(135deg, #000000, #051b14);
-        border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        padding: 16px !important;
+        background: linear-gradient(135deg, #000000, #051b14) !important;
+        border-bottom: 1px solid rgba(16, 185, 129, 0.2) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
       }
       .nb-header-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
       }
       .nb-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, ${primaryColor}, #059669);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 16px;
-        box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+        width: 40px !important;
+        height: 40px !important;
+        background: linear-gradient(135deg, ${primaryColor}, #059669) !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 15px !important;
+        box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3) !important;
       }
       .nb-status-container {
-        display: flex;
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
       }
       .nb-name {
-        color: #ffffff;
-        font-weight: 600;
-        font-size: 15px;
-        line-height: 1.2;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        line-height: 1.2 !important;
       }
       .nb-status {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 11px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-top: 2px;
+        color: rgba(255, 255, 255, 0.6) !important;
+        font-size: 11px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        margin-top: 2px !important;
       }
       .nb-status::before {
         content: "";
@@ -160,75 +188,60 @@
         box-shadow: 0 0 6px ${primaryColor};
       }
       .nb-close-btn {
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        padding: 6px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: color 0.2s, background 0.2s;
+        background: none !important;
+        border: none !important;
+        color: rgba(255, 255, 255, 0.6) !important;
+        cursor: pointer !important;
+        padding: 6px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
       }
       .nb-close-btn:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
       }
       .nb-messages {
-        flex: 1;
-        padding: 16px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .nb-messages::-webkit-scrollbar {
-        width: 6px;
-      }
-      .nb-messages::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .nb-messages::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 3px;
-      }
-      .nb-messages::-webkit-scrollbar-thumb:hover {
-        background: rgba(16, 185, 129, 0.4);
+        flex: 1 !important;
+        padding: 16px !important;
+        overflow-y: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
       }
       .nb-msg {
-        max-width: 80%;
-        padding: 10px 14px;
-        border-radius: 14px;
-        font-size: 13.5px;
-        line-height: 1.4;
-        word-break: break-word;
+        max-width: 82% !important;
+        padding: 10px 14px !important;
+        border-radius: 14px !important;
+        font-size: 13.5px !important;
+        line-height: 1.4 !important;
+        word-break: break-word !important;
       }
       .nb-msg.user {
-        align-self: flex-end;
-        background: #000000;
-        color: #ffffff;
-        border: 1px solid ${primaryColor};
-        border-bottom-right-radius: 2px;
-        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+        align-self: flex-end !important;
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: 1px solid ${primaryColor} !important;
+        border-bottom-right-radius: 2px !important;
       }
       .nb-msg.bot {
-        align-self: flex-start;
-        background: rgba(255, 255, 255, 0.08);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-bottom-left-radius: 2px;
+        align-self: flex-start !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-bottom-left-radius: 2px !important;
       }
       .nb-typing {
         display: none;
-        align-self: flex-start;
-        background: rgba(255, 255, 255, 0.08);
-        padding: 12px 16px;
-        border-radius: 14px;
-        border-bottom-left-radius: 2px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        align-items: center;
-        gap: 4px;
+        align-self: flex-start !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        padding: 12px 16px !important;
+        border-radius: 14px !important;
+        border-bottom-left-radius: 2px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        align-items: center !important;
+        gap: 4px !important;
       }
       .nb-dot {
         width: 6px;
@@ -244,50 +257,41 @@
         40% { transform: scale(1.0); }
       }
       .nb-input-container {
-        padding: 12px 16px;
-        background: #000000;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        padding: 12px 16px !important;
+        background: #000000 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
       }
       .nb-input {
-        flex: 1;
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 10px 16px;
-        color: #ffffff;
-        font-size: 13.5px;
-        outline: none;
-        transition: border-color 0.2s, background 0.2s;
+        flex: 1 !important;
+        background: rgba(255, 255, 255, 0.07) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 20px !important;
+        padding: 10px 16px !important;
+        color: #ffffff !important;
+        font-size: 13.5px !important;
+        outline: none !important;
       }
       .nb-input:focus {
-        border-color: ${primaryColor};
-        background: rgba(255, 255, 255, 0.1);
+        border-color: ${primaryColor} !important;
       }
       .nb-input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
+        color: rgba(255, 255, 255, 0.4) !important;
       }
       .nb-send-btn {
-        width: 36px;
-        height: 36px;
-        background: ${primaryColor};
-        border: none;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #ffffff;
-        cursor: pointer;
-        transition: background 0.2s, transform 0.1s;
-        flex-shrink: 0;
-      }
-      .nb-send-btn:hover {
-        background: #059669;
-      }
-      .nb-send-btn:active {
-        transform: scale(0.92);
+        width: 36px !important;
+        height: 36px !important;
+        background: ${primaryColor} !important;
+        border: none !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
       }
       @media (max-width: 480px) {
         #nevux-bot-window {
@@ -301,7 +305,7 @@
           border: none !important;
         }
         .nb-header {
-          padding-top: env(safe-area-inset-top, 20px) !important;
+          padding-top: max(16px, env(safe-area-inset-top)) !important;
         }
       }
     `;
@@ -328,7 +332,7 @@
             <span class="nb-status">En línea</span>
           </div>
         </div>
-        <button class="nb-close-btn" id="nevux-bot-close">
+        <button class="nb-close-btn" id="nevux-bot-close" type="button">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -343,7 +347,7 @@
       </div>
       <div class="nb-input-container">
         <input type="text" class="nb-input" id="nevux-bot-input" placeholder="Escribí tu mensaje..." autocomplete="off">
-        <button class="nb-send-btn" id="nevux-bot-send">
+        <button class="nb-send-btn" id="nevux-bot-send" type="button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line>
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -355,7 +359,7 @@
     document.body.appendChild(bubble);
     document.body.appendChild(chatWindow);
 
-    // 3. Variables de Control y de Historial
+    // 3. Variables de Control
     const messagesContainer = document.getElementById("nevux-bot-messages");
     const inputField = document.getElementById("nevux-bot-input");
     const sendButton = document.getElementById("nevux-bot-send");
@@ -365,7 +369,6 @@
     const storageKey = `nevux_bot_history_${storeId}`;
     let history = [];
 
-    // Cargar historial de localStorage
     try {
       const savedHistory = localStorage.getItem(storageKey);
       if (savedHistory) {
@@ -375,7 +378,6 @@
       console.error("[NevuxBot] Error leyendo localStorage:", e);
     }
 
-    // Renderizar historial o Mensaje de Bienvenida si está vacío
     if (history.length === 0) {
       appendMessage("bot", `¡Hola! Soy ${botName}, tu asesora personal. ¿En qué te puedo ayudar hoy? 😊`, false);
     } else {
@@ -384,7 +386,7 @@
       });
     }
 
-    // 4. Listeners para abrir / cerrar ventana
+    // 4. Listeners para abrir / cerrar
     bubble.addEventListener("click", () => {
       chatWindow.classList.add("open");
       bubble.style.display = "none";
@@ -406,7 +408,6 @@
       inputField.value = "";
       scrollToBottom();
 
-      // Mostrar indicador "escribiendo..."
       typingIndicator.style.display = "flex";
       scrollToBottom();
 
