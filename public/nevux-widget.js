@@ -7,17 +7,40 @@
 
   console.log("[Nevux] v23 loaded with NubeSDK Adapter");
 
-  // INYECTAR DINÁMICAMENTE NEVUXBOT PASANDO EL STORE ID DIRECTO
+  // DETECTOR RECONSTRUCTOR DE STORE ID (Tiendanube /stores/007/401/217/ -> 7401217)
+  function realDetectStoreId() {
+    if (window.NEVUX_STORE_ID) return String(window.NEVUX_STORE_ID);
+    if (window.LS && window.LS.store && window.LS.store.id) return String(window.LS.store.id);
+    if (window.LS && window.LS.storeId) return String(window.LS.storeId);
+    if (window.Store && (window.Store.id || window.Store.store_id)) return String(window.Store.id || window.Store.store_id);
+
+    const links = document.querySelectorAll('link[href*="/stores/"], script[src*="/stores/"], img[src*="/stores/"]');
+    for (let i = 0; i < links.length; i++) {
+      const url = links[i].href || links[i].src || "";
+      const m = url.match(/\/stores\/(\d{3})\/(\d{3})\/(\d{3})\//);
+      if (m) {
+        return String(parseInt(m[1] + m[2] + m[3], 10));
+      }
+    }
+
+    const html = document.documentElement ? document.documentElement.innerHTML : "";
+    const cdnM = html.match(/\/stores\/(\d{3})\/(\d{3})\/(\d{3})\//);
+    if (cdnM) {
+      return String(parseInt(cdnM[1] + cdnM[2] + cdnM[3], 10));
+    }
+
+    const jsonM = html.match(/"store_id":\s*(\d+)/) || html.match(/"storeId":\s*(\d+)/) || html.match(/store_id\s*=\s*(\d+)/);
+    if (jsonM && jsonM[1]) return String(jsonM[1]);
+
+    return "7401217"; // Fallback de seguridad
+  }
+
   function loadNevuxBot() {
     if (window.__nevux_bot_loaded__) return;
-    var sid = detectStoreId();
-    if (!sid) {
-      setTimeout(loadNevuxBot, 500);
-      return;
-    }
+    var sid = realDetectStoreId();
     window.__nevux_bot_loaded__ = true;
     window.NEVUX_STORE_ID = String(sid);
-    
+
     var s = document.createElement("script");
     s.src = API_BASE + "/nevux-bot.js?storeId=" + sid + "&v=" + Date.now();
     s.async = true;
@@ -32,7 +55,7 @@
   } else {
     loadNevuxBot();
   }
-  setTimeout(loadNevuxBot, 1000);
+  setTimeout(loadNevuxBot, 800);
 
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
