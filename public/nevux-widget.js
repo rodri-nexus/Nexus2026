@@ -4,99 +4,77 @@
 
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
-  const STORE_ID = "7401217";
+  const MY_STORE_ID = "7401217";
 
-  console.log("[Nevux] v24 Active on geminisonline");
+  console.log("[Nevux] Engine v25 Running...");
 
-  /* ═══════════════════════════════════════════
-     MÓDULO NEVUXBOT - INYECCIÓN DIRECTA
-  ═══════════════════════════════════════════ */
-  function injectNevuxBot() {
-    if (document.getElementById("nevux-bot-bubble")) return;
-    
-    // Configuración base (se actualizará luego vía API)
-    var botName = "Rodri";
-    var primaryColor = "#10B981";
-    
-    // Detectar WhatsApp para no taparlo
+  function forceRenderBot() {
+    if (document.getElementById("nb-bubble-force")) return;
+    if (!document.body) return;
+
     var hasWA = !!document.querySelector('a[href*="wa.me"], a[href*="whatsapp.com"], [class*="whatsapp"]');
-    var bottom = hasWA ? "100px" : "24px";
-    var winBottom = hasWA ? "170px" : "90px";
+    var posBottom = hasWA ? "100px" : "20px";
 
-    var style = document.createElement("style");
-    style.innerHTML = `
-      #nevux-bot-bubble { position: fixed !important; bottom: ${bottom} !important; right: 20px !important; width: 60px !important; height: 60px !important; background: #000 !important; border: 2px solid ${primaryColor} !important; border-radius: 50% !important; box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important; cursor: pointer !important; z-index: 2147483647 !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: transform 0.2s; }
-      #nevux-bot-bubble:active { transform: scale(0.9); }
-      #nevux-bot-bubble .pulse { position: absolute; width: 100%; height: 100%; border: 2px solid ${primaryColor}; border-radius: 50%; animation: nbPulse 2s infinite; }
-      @keyframes nbPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
-      #nevux-bot-window { position: fixed !important; bottom: ${winBottom} !important; right: 20px !important; width: 350px !important; height: 500px !important; max-height: 80vh !important; max-width: 90vw !important; background: #0a0a0a !important; border: 1px solid ${primaryColor}44 !important; border-radius: 15px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; z-index: 2147483647 !important; display: none; flex-direction: column; overflow: hidden; font-family: sans-serif !important; }
-      #nevux-bot-window.open { display: flex !important; }
-      .nb-header { padding: 15px; background: #000; border-bottom: 1px solid ${primaryColor}33; display: flex; align-items: center; justify-content: space-between; }
-      .nb-name { color: #fff; font-weight: bold; font-size: 14px; }
-      .nb-close { color: #fff; background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.7; }
-      .nb-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0a0a0a; }
-      .nb-msg { max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 13px; color: #fff; line-height: 1.4; }
-      .nb-msg.user { align-self: flex-end; background: #000; border: 1px solid ${primaryColor}; border-bottom-right-radius: 2px; }
-      .nb-msg.bot { align-self: flex-start; background: #222; border-bottom-left-radius: 2px; }
-      .nb-input-area { padding: 10px; background: #000; border-top: 1px solid #222; display: flex; gap: 8px; }
-      .nb-input { flex: 1; background: #111; border: 1px solid #333; border-radius: 20px; padding: 8px 15px; color: #fff; outline: none; }
-      .nb-send { background: ${primaryColor}; border: none; border-radius: 50%; width: 35px; height: 35px; color: #fff; cursor: pointer; }
-    `;
-    document.head.appendChild(style);
+    var html = 
+      '<div id="nb-bubble-force" style="position:fixed; bottom:'+posBottom+'; right:20px; width:60px; height:60px; background:#000; border:2px solid #10B981; border-radius:50%; z-index:2147483647; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,0,0,0.5);">' +
+        '<div style="position:absolute; width:100%; height:100%; border:2px solid #10B981; border-radius:50%; animation:nbP 2s infinite; pointer-events:none;"></div>' +
+        '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>' +
+      '</div>' +
+      '<style>' +
+        '@keyframes nbP { 0% {transform:scale(1); opacity:1;} 100% {transform:scale(1.4); opacity:0;} }' +
+        '#nb-win-force { position:fixed; bottom:'+(hasWA?170:90)+'px; right:20px; width:350px; height:500px; background:#0a0a0a; border:1px solid #10B981; border-radius:15px; z-index:2147483647; display:none; flex-direction:column; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.8); font-family:sans-serif; }' +
+      '</style>' +
+      '<div id="nb-win-force">' +
+        '<div style="padding:15px; background:#000; border-bottom:1px solid #10B98133; color:#fff; display:flex; justify-content:space-between; align-items:center;">' +
+          '<strong>Rodri</strong><button onclick="document.getElementById(\'nb-win-force\').style.display=\'none\';document.getElementById(\'nb-bubble-force\').style.display=\'flex\';" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">×</button>' +
+        '</div>' +
+        '<div id="nb-msgs" style="flex:1; padding:15px; overflow-y:auto; background:#0a0a0a; color:#fff; font-size:13px; display:flex; flex-direction:column; gap:10px;"></div>' +
+        '<div style="padding:10px; background:#000; display:flex; gap:8px;">' +
+          '<input id="nb-in" style="flex:1; background:#111; border:1px solid #333; color:#fff; border-radius:20px; padding:8px 15px; outline:none;" placeholder="Escribe...">' +
+          '<button id="nb-btn" style="background:#10B981; border:none; border-radius:50%; width:35px; height:35px; color:#fff; cursor:pointer;">➤</button>' +
+        '</div>' +
+      '</div>';
 
-    var bubble = document.createElement("div");
-    bubble.id = "nevux-bot-bubble";
-    bubble.innerHTML = '<div class="pulse"></div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="'+primaryColor+'" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
-    
-    var win = document.createElement("div");
-    win.id = "nevux-bot-window";
-    win.innerHTML = `
-      <div class="nb-header"><span class="nb-name">${botName}</span><button class="nb-close">×</button></div>
-      <div class="nb-messages"></div>
-      <div class="nb-input-area"><input class="nb-input" placeholder="Escribe..."><button class="nb-send">➤</button></div>
-    `;
+    document.body.insertAdjacentHTML('beforeend', html);
 
-    document.body.appendChild(bubble);
-    document.body.appendChild(win);
+    var bubble = document.getElementById("nb-bubble-force");
+    var win = document.getElementById("nb-win-force");
+    var input = document.getElementById("nb-in");
+    var msgs = document.getElementById("nb-msgs");
 
-    var msgContainer = win.querySelector(".nb-messages");
-    var input = win.querySelector(".nb-input");
-    var sendBtn = win.querySelector(".nb-send");
+    bubble.onclick = function() {
+      win.style.display = "flex";
+      bubble.style.display = "none";
+      input.focus();
+    };
 
-    function addMsg(s, t) {
-      var m = document.createElement("div"); m.className = "nb-msg " + s; m.innerText = t;
-      msgContainer.appendChild(m); msgContainer.scrollTop = msgContainer.scrollHeight;
+    function addM(s, t) {
+      var m = document.createElement("div");
+      m.style.cssText = "max-width:80%; padding:8px 12px; border-radius:12px; line-height:1.4;";
+      if(s === 'u') {
+        m.style.cssText += "align-self:flex-end; background:#000; border:1px solid #10B981; border-bottom-right-radius:2px;";
+      } else {
+        m.style.cssText += "align-self:flex-start; background:#222; border-bottom-left-radius:2px;";
+      }
+      m.innerText = t;
+      msgs.appendChild(m);
+      msgs.scrollTop = msgs.scrollHeight;
     }
 
-    addMsg("bot", "¡Hola! Soy " + botName + ", ¿en qué puedo ayudarte?");
+    addM('b', "¡Hola! Soy Rodri, ¿en qué puedo ayudarte?");
 
-    bubble.onclick = function() { win.classList.add("open"); bubble.style.display = "none"; input.focus(); };
-    win.querySelector(".nb-close").onclick = function() { win.classList.remove("open"); bubble.style.display = "flex"; };
-
-    sendBtn.onclick = function() {
-      var val = input.value.trim(); if(!val) return;
-      addMsg("user", val); input.value = "";
+    document.getElementById("nb-btn").onclick = function() {
+      var v = input.value.trim(); if(!v) return;
+      addM('u', v); input.value = "";
       fetch(API_BASE + "/api/nevuxbot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeId: STORE_ID, message: val })
-      }).then(r => r.json()).then(d => addMsg("bot", d.reply)).catch(() => addMsg("bot", "Error de conexión"));
+        body: JSON.stringify({ storeId: MY_STORE_ID, message: v })
+      }).then(function(r){ return r.json(); }).then(function(d){ addM('b', d.reply); });
     };
-    
-    // Intentar actualizar config real
-    fetch(API_BASE + "/api/nevuxbot/config?storeId=" + STORE_ID)
-      .then(r => r.json())
-      .then(d => {
-        if(d && d.config && d.config.bot_name) {
-          win.querySelector(".nb-name").innerText = d.config.bot_name;
-        }
-      });
   }
 
-  // Inyectar cuando el body esté listo
-  if (document.body) injectNevuxBot();
-  else document.addEventListener("DOMContentLoaded", injectNevuxBot);
-  setTimeout(injectNevuxBot, 1000); // Doble chequeo
+  setInterval(forceRenderBot, 2000);
 
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
