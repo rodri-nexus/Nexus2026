@@ -571,11 +571,12 @@ export default function MensajeGarantiaEditor({
         title="Colores principales"
         description="Personalizá los colores de fondo, título, texto y borde."
       >
+        {/* Organización vertical para cel: 1 color por fila sin desbordes */}
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 14,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
           }}
         >
           <ColorPicker
@@ -902,4 +903,4 @@ export default function MensajeGarantiaEditor({
       </div>
     </div>
   );
-  }
+}
