@@ -82,7 +82,7 @@ export default function BannersPage() {
         </div>
 
         {/* Columna Derecha: Widgets Stack */}
-        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
           
           {/* Tarjeta Fondo: Armá tu Pack */}
           <div
@@ -136,7 +136,7 @@ export default function BannersPage() {
             }}
           >
             {/* Opción 1 */}
-            <div style={{ display: "flex", justifyBetween: "space-between", alignItems: "center", padding: "10px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
               <span style={{ fontSize: "13px", fontWeight: "bold" }}>⚪ Pack x1</span>
               <span style={{ fontSize: "13px", fontWeight: "bold" }}>$10.000</span>
             </div>
@@ -160,7 +160,7 @@ export default function BannersPage() {
             </div>
 
             {/* Opción 3 */}
-            <div style={{ display: "flex", justifyBetween: "space-between", alignItems: "center", padding: "10px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
               <div>
                 <span style={{ fontSize: "13px", fontWeight: "bold" }}>⚪ Pack x3 </span>
                 <span style={{ fontSize: "11px", fontWeight: "bold", color: "#059669" }}>Ahorrá 20%</span>
@@ -209,7 +209,7 @@ export default function BannersPage() {
           </p>
         </div>
 
-        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
           
           {/* Timer Relámpago */}
           <div
@@ -324,7 +324,7 @@ export default function BannersPage() {
           </p>
         </div>
 
-        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
           
           {/* Widget Reseñas */}
           <div
@@ -427,7 +427,7 @@ export default function BannersPage() {
           </p>
         </div>
 
-        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
           
           {/* Card Editor Mock */}
           <div
@@ -492,4 +492,4 @@ export default function BannersPage() {
       </div>
     </div>
   );
-            }
+        }
