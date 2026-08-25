@@ -4,391 +4,492 @@ import React from "react";
 
 export default function BannersPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 md:p-8 flex flex-col items-center gap-12 font-sans">
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#0f172a",
+        color: "#ffffff",
+        padding: "20px",
+        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "40px",
+        boxSizing: "border-box",
+      }}
+    >
       {/* Indicaciones para el usuario */}
-      <div className="max-w-3xl w-full text-center space-y-2 bg-slate-900 p-6 rounded-2xl border border-emerald-500/30 shadow-xl">
-        <h1 className="text-2xl font-bold text-emerald-400">
+      <div
+        style={{
+          maxWidth: "800px",
+          width: "100%",
+          textAlign: "center",
+          backgroundColor: "#1e293b",
+          padding: "20px",
+          borderRadius: "16px",
+          border: "1px solid rgba(16, 185, 129, 0.4)",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+        }}
+      >
+        <h1 style={{ fontSize: "20px", fontWeight: "bold", color: "#34d399", margin: "0 0 8px 0" }}>
           📷 Banners Promocionales Oficiales de Nevux
         </h1>
-        <p className="text-sm text-slate-300">
-          Girá tu teléfono en **modo horizontal (landscape)** o usá el zoom para abarcar el recuadro completo y sacale captura de pantalla a cada banner para subirlos a la App Store de Tiendanube.
+        <p style={{ fontSize: "13px", color: "#cbd5e1", margin: 0, lineHeight: "1.5" }}>
+          Girá tu teléfono en <b>modo horizontal (landscape)</b> para que cada tarjeta ocupe la pantalla completa y sacale captura para la App Store de Tiendanube.
         </p>
       </div>
 
       {/* ==========================================
           BANNER 1: IMPULSÁ TU TICKET PROMEDIO
          ========================================== */}
-      <div className="relative w-[960px] h-[540px] bg-gradient-to-br from-[#10B981] via-[#059669] to-[#044e3a] rounded-3xl p-12 overflow-hidden shadow-2xl border border-white/10 flex items-center justify-between shrink-0">
-        {/* Adorno visual de fondo */}
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-300/10 rounded-full blur-3xl pointer-events-none" />
-
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "900px",
+          minHeight: "480px",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
+          borderRadius: "28px",
+          padding: "36px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "24px",
+          boxSizing: "border-box",
+        }}
+      >
         {/* Columna Izquierda: Textos */}
-        <div className="w-[42%] z-10 space-y-4">
-          <h2 className="text-5xl font-extrabold text-white tracking-tight leading-[1.1]">
+        <div style={{ flex: "1 1 320px", zIndex: 2 }}>
+          <h2
+            style={{
+              fontSize: "38px",
+              fontWeight: "900",
+              color: "#ffffff",
+              margin: "0 0 16px 0",
+              lineHeight: "1.1",
+              letterSpacing: "-0.5px",
+            }}
+          >
             Impulsá tu ticket promedio
           </h2>
-          <p className="text-xl text-emerald-100 font-medium leading-relaxed">
+          <p style={{ fontSize: "16px", color: "#d1fae5", margin: 0, lineHeight: "1.5", fontWeight: "500" }}>
             Aumentá tu facturación elevando el valor de cada venta con ofertas irresistibles.
           </p>
         </div>
 
-        {/* Columna Derecha: Widgets 3D Stack */}
-        <div className="w-[54%] h-full relative z-10 flex items-center justify-center">
+        {/* Columna Derecha: Widgets Stack */}
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+          
           {/* Tarjeta Fondo: Armá tu Pack */}
-          <div className="absolute -right-2 top-8 w-[280px] bg-white rounded-2xl p-4 shadow-2xl border border-slate-100 transform rotate-6 scale-90 opacity-90 text-slate-900 space-y-3">
-            <div className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+          <div
+            style={{
+              position: "absolute",
+              right: "0px",
+              top: "10px",
+              width: "240px",
+              backgroundColor: "#ffffff",
+              borderRadius: "16px",
+              padding: "16px",
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3)",
+              border: "1px solid #e2e8f0",
+              transform: "rotate(6deg) scale(0.95)",
+              color: "#0f172a",
+            }}
+          >
+            <div style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase", color: "#475569", marginBottom: "10px" }}>
               Armá tu pack
             </div>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border">
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" checked readOnly className="accent-[#10B981]" />
-                  <span className="font-semibold text-slate-700">Tarjetero</span>
-                </div>
-                <span className="font-bold text-[#059669]">$14.000</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "12px", marginBottom: "12px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", background: "#f8fafc", padding: "8px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                <span>☑️ Tarjetero</span>
+                <span style={{ fontWeight: "bold", color: "#059669" }}>$14.000</span>
               </div>
-              <div className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border">
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" checked readOnly className="accent-[#10B981]" />
-                  <span className="font-semibold text-slate-700">Bolso</span>
-                </div>
-                <span className="font-bold text-[#059669]">$21.500</span>
-              </div>
-              <div className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border">
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" checked readOnly className="accent-[#10B981]" />
-                  <span className="font-semibold text-slate-700">Llavero</span>
-                </div>
-                <span className="font-bold text-[#059669]">$4.500</span>
+              <div style={{ display: "flex", justifyContent: "space-between", background: "#f8fafc", padding: "8px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                <span>☑️ Bolso</span>
+                <span style={{ fontWeight: "bold", color: "#059669" }}>$21.500</span>
               </div>
             </div>
-            <button className="w-full py-2 bg-[#000000] text-white text-xs font-bold rounded-xl shadow">
+            <div style={{ background: "#000000", color: "#ffffff", textAlign: "center", padding: "8px", borderRadius: "10px", fontSize: "11px", fontWeight: "bold" }}>
               Agregar selección
-            </button>
+            </div>
           </div>
 
           {/* Tarjeta Principal Frontal: Descuentos por Cantidad */}
-          <div className="absolute left-0 top-6 w-[360px] bg-white rounded-2xl p-5 shadow-2xl border border-slate-100 transform -rotate-2 text-slate-900 space-y-3">
+          <div
+            style={{
+              position: "relative",
+              width: "310px",
+              backgroundColor: "#ffffff",
+              borderRadius: "20px",
+              padding: "20px",
+              boxShadow: "0 25px 30px -5px rgba(0, 0, 0, 0.4)",
+              border: "1px solid #e2e8f0",
+              transform: "rotate(-3deg)",
+              color: "#0f172a",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}
+          >
             {/* Opción 1 */}
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full border-2 border-slate-300" />
-                <span className="font-bold text-sm">Pack x1</span>
-              </div>
-              <span className="font-bold text-slate-900">$10.000</span>
+            <div style={{ display: "flex", justifyBetween: "space-between", alignItems: "center", padding: "10px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <span style={{ fontSize: "13px", fontWeight: "bold" }}>⚪ Pack x1</span>
+              <span style={{ fontSize: "13px", fontWeight: "bold" }}>$10.000</span>
             </div>
 
-            {/* Opción 2 (Seleccionada) */}
-            <div className="p-3.5 rounded-xl border-2 border-[#10B981] bg-emerald-50/40 space-y-2 relative shadow-sm">
-              <div className="absolute -top-3 right-3 flex gap-1">
-                <span className="bg-[#10B981] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                  ENVÍO GRATIS
-                </span>
-                <span className="bg-red-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                  MÁS VENDIDO
-                </span>
+            {/* Opción 2 Seleccionada */}
+            <div style={{ background: "#ecfdf5", border: "2px solid #10B981", padding: "12px", borderRadius: "12px", position: "relative" }}>
+              <div style={{ position: "absolute", top: "-10px", right: "10px", display: "flex", gap: "4px" }}>
+                <span style={{ background: "#10B981", color: "#fff", fontSize: "9px", fontWeight: "900", padding: "2px 6px", borderRadius: "10px" }}>ENVÍO GRATIS</span>
+                <span style={{ background: "#ef4444", color: "#fff", fontSize: "9px", fontWeight: "900", padding: "2px 6px", borderRadius: "10px" }}>MÁS VENDIDO</span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full border-4 border-[#10B981] bg-white" />
-                  <div>
-                    <div className="font-extrabold text-sm text-slate-900">Pack x2</div>
-                    <div className="text-xs font-bold text-[#059669]">Ahorrá 15%</div>
-                  </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: "800" }}>🟢 Pack x2</div>
+                  <div style={{ fontSize: "11px", fontWeight: "bold", color: "#059669" }}>Ahorrá 15%</div>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs text-slate-400 line-through mr-1">$20.000</span>
-                  <span className="font-extrabold text-base text-slate-900">$17.850</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <div className="bg-white border rounded-lg p-1 text-[11px] text-slate-600 flex justify-between items-center font-medium">
-                  <span>Verde</span> ▾
-                </div>
-                <div className="bg-white border rounded-lg p-1 text-[11px] text-slate-600 flex justify-between items-center font-medium">
-                  <span>Negro</span> ▾
+                <div style={{ textAlign: "right" }}>
+                  <span style={{ fontSize: "11px", color: "#94a3b8", textDecoration: "line-through", marginRight: "4px" }}>$20.000</span>
+                  <span style={{ fontSize: "15px", fontWeight: "900", color: "#0f172a" }}>$17.850</span>
                 </div>
               </div>
             </div>
 
             {/* Opción 3 */}
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full border-2 border-slate-300" />
-                <div>
-                  <span className="font-bold text-sm">Pack x3</span>
-                  <span className="text-xs font-bold text-[#059669] ml-2">Ahorrá 20%</span>
-                </div>
+            <div style={{ display: "flex", justifyBetween: "space-between", alignItems: "center", padding: "10px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <div>
+                <span style={{ fontSize: "13px", fontWeight: "bold" }}>⚪ Pack x3 </span>
+                <span style={{ fontSize: "11px", fontWeight: "bold", color: "#059669" }}>Ahorrá 20%</span>
               </div>
-              <span className="font-bold text-slate-900">$24.000</span>
+              <span style={{ fontSize: "13px", fontWeight: "bold" }}>$24.000</span>
             </div>
 
             {/* Botón CTA */}
-            <button className="w-full py-3 bg-[#10B981] text-white text-sm font-extrabold rounded-xl shadow-lg hover:bg-[#059669] transition">
+            <div style={{ background: "#10B981", color: "#ffffff", textAlign: "center", padding: "12px", borderRadius: "12px", fontSize: "13px", fontWeight: "800", marginTop: "4px", boxShadow: "0 4px 12px rgba(16,185,129,0.3)" }}>
               Agregar al carrito
-            </button>
+            </div>
           </div>
+
         </div>
       </div>
 
       {/* ==========================================
           BANNER 2: DESTACÁ TUS OFERTAS
          ========================================== */}
-      <div className="relative w-[960px] h-[540px] bg-gradient-to-br from-[#10B981] via-[#059669] to-[#044e3a] rounded-3xl p-12 overflow-hidden shadow-2xl border border-white/10 flex items-center justify-between shrink-0">
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Columna Izquierda: Textos */}
-        <div className="w-[42%] z-10 space-y-4">
-          <h2 className="text-5xl font-extrabold text-white tracking-tight leading-[1.1]">
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "900px",
+          minHeight: "480px",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
+          borderRadius: "28px",
+          padding: "36px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "24px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ flex: "1 1 320px", zIndex: 2 }}>
+          <h2 style={{ fontSize: "38px", fontWeight: "900", color: "#ffffff", margin: "0 0 16px 0", lineHeight: "1.1" }}>
             Destacá tus ofertas
           </h2>
-          <p className="text-xl text-emerald-100 font-medium leading-relaxed">
+          <p style={{ fontSize: "16px", color: "#d1fae5", margin: 0, lineHeight: "1.5", fontWeight: "500" }}>
             Resaltá promociones, cupones y banners de urgencia para disparar tus conversiones.
           </p>
         </div>
 
-        {/* Columna Derecha: Widgets Stack */}
-        <div className="w-[54%] h-full relative z-10 flex items-center justify-center">
-          {/* Banner Oferta Relámpago Contador */}
-          <div className="absolute left-2 top-6 w-[340px] bg-slate-900 rounded-2xl p-4 text-white shadow-2xl border border-slate-700 transform -rotate-6 z-20 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                🔥 Oferta Relámpago
-              </span>
-              <span className="text-[10px] bg-red-600 font-bold px-2 py-0.5 rounded-full">
-                HASTA $25.000 OFF
-              </span>
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+          
+          {/* Timer Relámpago */}
+          <div
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "10px",
+              width: "290px",
+              backgroundColor: "#0f172a",
+              color: "#ffffff",
+              borderRadius: "18px",
+              padding: "16px",
+              boxShadow: "0 20px 30px rgba(0,0,0,0.5)",
+              border: "1px solid #334155",
+              transform: "rotate(-5deg)",
+              zIndex: 3,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <span style={{ fontSize: "11px", fontWeight: "900", color: "#fbbf24", letterSpacing: "0.5px" }}>🔥 OFERTA RELÁMPAGO</span>
+              <span style={{ background: "#dc2626", fontSize: "9px", fontWeight: "bold", padding: "2px 6px", borderRadius: "10px" }}>HASTA $25.000 OFF</span>
             </div>
-            <div className="flex justify-center gap-3 pt-1">
-              <div className="bg-slate-800 p-2 rounded-lg text-center min-w-[50px] border border-slate-700">
-                <div className="text-lg font-black text-emerald-400">06</div>
-                <div className="text-[9px] text-slate-400 uppercase">Horas</div>
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", alignItems: "center" }}>
+              <div style={{ background: "#1e293b", padding: "8px 12px", borderRadius: "10px", textAlign: "center", border: "1px solid #475569" }}>
+                <div style={{ fontSize: "18px", fontWeight: "900", color: "#34d399" }}>06</div>
+                <div style={{ fontSize: "8px", color: "#94a3b8" }}>HORAS</div>
               </div>
-              <div className="text-lg font-bold self-center text-slate-500">:</div>
-              <div className="bg-slate-800 p-2 rounded-lg text-center min-w-[50px] border border-slate-700">
-                <div className="text-lg font-black text-emerald-400">21</div>
-                <div className="text-[9px] text-slate-400 uppercase">Mins</div>
+              <span style={{ fontWeight: "bold", color: "#64748b" }}>:</span>
+              <div style={{ background: "#1e293b", padding: "8px 12px", borderRadius: "10px", textAlign: "center", border: "1px solid #475569" }}>
+                <div style={{ fontSize: "18px", fontWeight: "900", color: "#34d399" }}>21</div>
+                <div style={{ fontSize: "8px", color: "#94a3b8" }}>MINS</div>
               </div>
-              <div className="text-lg font-bold self-center text-slate-500">:</div>
-              <div className="bg-slate-800 p-2 rounded-lg text-center min-w-[50px] border border-slate-700">
-                <div className="text-lg font-black text-emerald-400">28</div>
-                <div className="text-[9px] text-slate-400 uppercase">Segs</div>
+              <span style={{ fontWeight: "bold", color: "#64748b" }}>:</span>
+              <div style={{ background: "#1e293b", padding: "8px 12px", borderRadius: "10px", textAlign: "center", border: "1px solid #475569" }}>
+                <div style={{ fontSize: "18px", fontWeight: "900", color: "#34d399" }}>28</div>
+                <div style={{ fontSize: "8px", color: "#94a3b8" }}>SEGS</div>
               </div>
             </div>
           </div>
 
           {/* Stickers Promocionales */}
-          <div className="absolute right-4 top-10 space-y-2 z-30 transform rotate-3 scale-95">
-            <div className="bg-[#10B981] text-white px-4 py-2 rounded-full font-extrabold text-xs shadow-xl flex items-center gap-1.5 border border-emerald-300">
+          <div style={{ position: "absolute", right: "10px", top: "20px", display: "flex", flexDirection: "column", gap: "8px", transform: "rotate(4deg)", zIndex: 4 }}>
+            <div style={{ background: "#10B981", color: "#fff", padding: "8px 14px", borderRadius: "20px", fontSize: "11px", fontWeight: "800", boxShadow: "0 10px 15px rgba(0,0,0,0.2)" }}>
               ✨ ¡Oferta sorpresa!
             </div>
-            <div className="bg-red-600 text-white px-4 py-2 rounded-full font-extrabold text-xs shadow-xl flex items-center gap-1.5 border border-red-400">
+            <div style={{ background: "#dc2626", color: "#fff", padding: "8px 14px", borderRadius: "20px", fontSize: "11px", fontWeight: "800", boxShadow: "0 10px 15px rgba(0,0,0,0.2)" }}>
               🔥 ¡Últimas en stock!
-            </div>
-            <div className="bg-amber-500 text-slate-900 px-4 py-2 rounded-full font-extrabold text-xs shadow-xl flex items-center gap-1.5 border border-amber-300">
-              ⏳ ¡Apurate, quedan pocas!
             </div>
           </div>
 
-          {/* Banner Cupón Descuento */}
-          <div className="absolute left-6 bottom-8 w-[350px] bg-red-600 rounded-2xl p-4 text-white shadow-2xl border-2 border-dashed border-red-300 transform -rotate-2 z-10 flex items-center justify-between">
+          {/* Cupón Banner */}
+          <div
+            style={{
+              position: "absolute",
+              left: "20px",
+              bottom: "10px",
+              width: "300px",
+              backgroundColor: "#dc2626",
+              color: "#ffffff",
+              borderRadius: "16px",
+              padding: "14px 18px",
+              boxShadow: "0 20px 25px rgba(0,0,0,0.3)",
+              border: "2px dashed #fca5a5",
+              transform: "rotate(2deg)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              zIndex: 2,
+            }}
+          >
             <div>
-              <div className="text-base font-black">20% OFF extra 🎄</div>
-              <div className="text-[11px] text-red-100">Aplicá el cupón en el checkout</div>
+              <div style={{ fontSize: "15px", fontWeight: "900" }}>20% OFF extra 🎄</div>
+              <div style={{ fontSize: "10px", color: "#fecaca" }}>Aplicá el cupón en checkout</div>
             </div>
-            <div className="bg-white text-slate-900 rounded-xl px-3 py-1.5 font-mono font-black text-sm flex items-center gap-2 shadow">
+            <div style={{ background: "#ffffff", color: "#0f172a", padding: "6px 12px", borderRadius: "10px", fontFamily: "monospace", fontWeight: "900", fontSize: "13px" }}>
               EXTRA20
             </div>
           </div>
 
-          {/* FAQ Accordion */}
-          <div className="absolute right-0 bottom-4 w-[280px] bg-white rounded-2xl p-4 text-slate-900 shadow-xl border border-slate-100 transform rotate-4 space-y-2">
-            <div className="text-xs font-extrabold text-slate-800">Preguntas frecuentes</div>
-            <div className="text-[11px] bg-slate-50 p-2 rounded-lg font-medium flex justify-between border">
-              <span>¿Cuánto demora el envío?</span> <span>▾</span>
-            </div>
-            <div className="text-[11px] bg-slate-50 p-2 rounded-lg font-medium flex justify-between border">
-              <span>¿De qué material es?</span> <span>▾</span>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* ==========================================
           BANNER 3: GENERÁ CONFIANZA
          ========================================== */}
-      <div className="relative w-[960px] h-[540px] bg-gradient-to-br from-[#10B981] via-[#059669] to-[#044e3a] rounded-3xl p-12 overflow-hidden shadow-2xl border border-white/10 flex items-center justify-between shrink-0">
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-emerald-300/10 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Columna Izquierda: Textos */}
-        <div className="w-[42%] z-10 space-y-4">
-          <h2 className="text-5xl font-extrabold text-white tracking-tight leading-[1.1]">
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "900px",
+          minHeight: "480px",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
+          borderRadius: "28px",
+          padding: "36px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "24px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ flex: "1 1 320px", zIndex: 2 }}>
+          <h2 style={{ fontSize: "38px", fontWeight: "900", color: "#ffffff", margin: "0 0 16px 0", lineHeight: "1.1" }}>
             Generá confianza
           </h2>
-          <p className="text-xl text-emerald-100 font-medium leading-relaxed">
+          <p style={{ fontSize: "16px", color: "#d1fae5", margin: 0, lineHeight: "1.5", fontWeight: "500" }}>
             Transmití seguridad total a tus clientes con testimonios reales y sellos de garantía.
           </p>
         </div>
 
-        {/* Columna Derecha: Widgets Stack */}
-        <div className="w-[54%] h-full relative z-10 flex items-center justify-center">
-          {/* Reseñas Principales */}
-          <div className="absolute left-0 top-6 w-[360px] bg-white rounded-2xl p-5 shadow-2xl border border-slate-100 transform -rotate-3 text-slate-900 space-y-4 z-20">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-slate-900">4,8</span>
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+          
+          {/* Widget Reseñas */}
+          <div
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "10px",
+              width: "310px",
+              backgroundColor: "#ffffff",
+              color: "#0f172a",
+              borderRadius: "20px",
+              padding: "18px",
+              boxShadow: "0 25px 30px rgba(0,0,0,0.3)",
+              border: "1px solid #e2e8f0",
+              transform: "rotate(-3deg)",
+              zIndex: 3,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f1f5f9", paddingBottom: "10px", marginBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "22px", fontWeight: "900" }}>4,8</span>
                 <div>
-                  <div className="text-amber-400 text-sm">★★★★★</div>
-                  <div className="text-[10px] text-slate-400 font-bold">24 reseñas</div>
+                  <div style={{ color: "#fbbf24", fontSize: "12px" }}>★★★★★</div>
+                  <div style={{ fontSize: "9px", color: "#94a3b8", fontWeight: "bold" }}>24 reseñas</div>
                 </div>
               </div>
-              <button className="bg-[#000000] text-white px-3 py-1.5 rounded-xl text-xs font-extrabold shadow">
+              <div style={{ background: "#000", color: "#fff", fontSize: "10px", fontWeight: "bold", padding: "6px 10px", borderRadius: "8px" }}>
                 Escribir reseña
-              </button>
+              </div>
             </div>
 
-            {/* Testimonio 1 */}
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/80 space-y-1">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-xs text-slate-800">Mariana P.</span>
-                <span className="text-amber-400 text-xs">★★★★★</span>
+            <div style={{ background: "#f8fafc", padding: "10px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span style={{ fontSize: "11px", fontWeight: "bold" }}>Mariana P.</span>
+                <span style={{ color: "#fbbf24", fontSize: "10px" }}>★★★★★</span>
               </div>
-              <p className="text-[11px] text-slate-600 leading-snug">
-                "Excelente experiencia de compra. El producto llegó súper rápido y la calidad es increíble. ¡100% recomendado!"
-              </p>
-            </div>
-
-            {/* Testimonio 2 */}
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/80 space-y-1">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-xs text-slate-800">Lucas G.</span>
-                <span className="text-amber-400 text-xs">★★★★★</span>
-              </div>
-              <p className="text-[11px] text-slate-600 leading-snug">
-                "Atención impecable. Tenía dudas sobre las medidas y me respondieron al instante."
+              <p style={{ fontSize: "10px", color: "#475569", margin: 0, lineHeight: "1.4" }}>
+                "Excelente atención y calidad del producto. Llegó antes de lo esperado a mi domicilio!"
               </p>
             </div>
           </div>
 
-          {/* Tarjeta de Garantía */}
-          <div className="absolute right-2 top-10 w-[250px] bg-white rounded-2xl p-4 shadow-xl border border-slate-100 transform rotate-6 z-10 text-slate-900 space-y-2">
-            <div className="flex items-center gap-2 text-[#059669]">
-              <span className="text-xl">🛡️</span>
-              <span className="font-extrabold text-xs">Garantía de 60 días</span>
+          {/* Tarjeta Garantía */}
+          <div
+            style={{
+              position: "absolute",
+              right: "10px",
+              bottom: "20px",
+              width: "230px",
+              backgroundColor: "#ffffff",
+              color: "#0f172a",
+              borderRadius: "18px",
+              padding: "14px",
+              boxShadow: "0 20px 25px rgba(0,0,0,0.2)",
+              border: "1px solid #e2e8f0",
+              transform: "rotate(4deg)",
+              zIndex: 4,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#059669", fontWeight: "800", fontSize: "12px", marginBottom: "6px" }}>
+              🛡️ Garantía de 60 días
             </div>
-            <p className="text-[10px] text-slate-500 leading-snug">
-              Confiamos 100% en la calidad de nuestros productos. Si no estás satisfecho te devolvemos el dinero.
+            <p style={{ fontSize: "10px", color: "#64748b", margin: 0, lineHeight: "1.3" }}>
+              Si el producto no te gusta te reintegramos el 100% de tu dinero sin vueltas.
             </p>
           </div>
 
-          {/* Tarjeta de Contacto / Soporte */}
-          <div className="absolute right-6 bottom-8 w-[260px] bg-white rounded-2xl p-4 shadow-2xl border border-slate-100 transform -rotate-2 z-30 text-slate-900 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center font-bold text-sm">
-                💬
-              </div>
-              <div>
-                <div className="text-xs font-bold">¿Tenés alguna duda?</div>
-                <div className="text-[10px] text-slate-500">Escribinos por WhatsApp</div>
-              </div>
-            </div>
-            <button className="w-full py-2 bg-[#22c55e] text-white rounded-xl text-xs font-extrabold shadow flex items-center justify-center gap-1.5">
-              Contactar asesor
-            </button>
-          </div>
         </div>
       </div>
 
       {/* ==========================================
           BANNER 4: TUS ESTILOS, TUS COLORES
          ========================================== */}
-      <div className="relative w-[960px] h-[540px] bg-gradient-to-br from-[#10B981] via-[#059669] to-[#044e3a] rounded-3xl p-12 overflow-hidden shadow-2xl border border-white/10 flex items-center justify-between shrink-0">
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Columna Izquierda: Textos */}
-        <div className="w-[42%] z-10 space-y-4">
-          <h2 className="text-5xl font-extrabold text-white tracking-tight leading-[1.1]">
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "900px",
+          minHeight: "480px",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
+          borderRadius: "28px",
+          padding: "36px",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "24px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ flex: "1 1 320px", zIndex: 2 }}>
+          <h2 style={{ fontSize: "38px", fontWeight: "900", color: "#ffffff", margin: "0 0 16px 0", lineHeight: "1.1" }}>
             Tus estilos, tus colores
           </h2>
-          <p className="text-xl text-emerald-100 font-medium leading-relaxed">
+          <p style={{ fontSize: "16px", color: "#d1fae5", margin: 0, lineHeight: "1.5", fontWeight: "500" }}>
             Customizá cada widget con la tipografía, colores e identidad de tu marca.
           </p>
         </div>
 
-        {/* Columna Derecha: UI Editor Mock */}
-        <div className="w-[54%] h-full relative z-10 flex items-center justify-center">
-          {/* Card Trasera: Buscador de productos */}
-          <div className="absolute left-2 top-8 w-[320px] bg-white rounded-2xl p-4 shadow-xl border border-slate-100 transform -rotate-6 z-10 text-slate-900 space-y-3">
-            <div className="text-xs font-bold text-slate-700">Productos seleccionados</div>
-            <div className="bg-slate-100 p-2 rounded-xl text-xs text-slate-400">
-              Buscar un producto...
-            </div>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-lg border">
-                <div className="w-7 h-7 bg-slate-200 rounded-md" />
-                <div className="font-semibold text-slate-800">Bolso Premium</div>
-              </div>
-              <div className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-lg border">
-                <div className="w-7 h-7 bg-slate-200 rounded-md" />
-                <div className="font-semibold text-slate-800">Funda Computadora</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card Principal Frontal: Color Picker Editor */}
-          <div className="absolute right-0 top-6 w-[340px] bg-white rounded-2xl p-5 shadow-2xl border border-slate-100 transform rotate-2 z-20 text-slate-900 space-y-4">
+        <div style={{ flex: "1 1 360px", minHeight: "320px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyCenter: "center" }}>
+          
+          {/* Card Editor Mock */}
+          <div
+            style={{
+              position: "relative",
+              width: "300px",
+              backgroundColor: "#ffffff",
+              color: "#0f172a",
+              borderRadius: "20px",
+              padding: "18px",
+              boxShadow: "0 25px 30px rgba(0,0,0,0.4)",
+              border: "1px solid #e2e8f0",
+              transform: "rotate(2deg)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+            }}
+          >
             {/* Tabs */}
-            <div className="flex border-b border-slate-200 text-xs font-bold">
-              <div className="pb-2 px-3 text-slate-400">General</div>
-              <div className="pb-2 px-3 border-b-2 border-[#10B981] text-[#059669]">Estilo</div>
+            <div style={{ display: "flex", borderBottom: "1px solid #e2e8f0", fontSize: "12px", fontWeight: "bold" }}>
+              <div style={{ paddingBottom: "8px", paddingRight: "12px", color: "#94a3b8" }}>General</div>
+              <div style={{ paddingBottom: "8px", paddingLeft: "12px", borderBottom: "2px solid #10B981", color: "#059669" }}>Estilo</div>
             </div>
 
-            {/* Listado de Selectores de Color */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700">Color del botón "Agregar":</span>
-                <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border">
-                  <div className="w-4 h-4 rounded bg-[#10B981]" />
-                  <span className="font-mono text-[11px] font-bold text-slate-600">#10B981</span>
+            {/* Selectores */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "11px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: "600", color: "#475569" }}>Boton "Agregar":</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f8fafc", padding: "4px 8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}>
+                  <div style={{ width: "14px", height: "14px", borderRadius: "3px", background: "#10B981" }} />
+                  <span style={{ fontFamily: "monospace", fontWeight: "bold" }}>#10B981</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700">Color del precio:</span>
-                <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border">
-                  <div className="w-4 h-4 rounded bg-[#000000]" />
-                  <span className="font-mono text-[11px] font-bold text-slate-600">#000000</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: "600", color: "#475569" }}>Color de precio:</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f8fafc", padding: "4px 8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}>
+                  <div style={{ width: "14px", height: "14px", borderRadius: "3px", background: "#000000" }} />
+                  <span style={{ fontFamily: "monospace", fontWeight: "bold" }}>#000000</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700">Color de subtítulos:</span>
-                <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border">
-                  <div className="w-4 h-4 rounded bg-[#059669]" />
-                  <span className="font-mono text-[11px] font-bold text-slate-600">#059669</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: "600", color: "#475569" }}>Badge envío gratis:</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f8fafc", padding: "4px 8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}>
+                  <div style={{ width: "14px", height: "14px", borderRadius: "3px", background: "#10B981" }} />
+                  <span style={{ fontFamily: "monospace", fontWeight: "bold" }}>#10B981</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700">Color badge envío gratis:</span>
-                <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border">
-                  <div className="w-4 h-4 rounded bg-[#10B981]" />
-                  <span className="font-mono text-[11px] font-bold text-slate-600">#10B981</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700">Color badge recomendado:</span>
-                <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border">
-                  <div className="w-4 h-4 rounded bg-[#F59E0B]" />
-                  <span className="font-mono text-[11px] font-bold text-slate-600">#F59E0B</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: "600", color: "#475569" }}>Badge recomendado:</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f8fafc", padding: "4px 8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}>
+                  <div style={{ width: "14px", height: "14px", borderRadius: "3px", background: "#F59E0B" }} />
+                  <span style={{ fontFamily: "monospace", fontWeight: "bold" }}>#F59E0B</span>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
   );
-      }
+            }
