@@ -12,44 +12,42 @@
       banner = document.createElement("div");
       banner.id = "nevux-debug-banner";
       banner.style.cssText =
-        "position:fixed;top:0;left:0;right:0;background:#000000;color:#10B981;font-size:12px;font-family:sans-serif;padding:8px 12px;z-index:2147483647;border-bottom:1px solid #10B981;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.8);";
+        "position:fixed;top:0;left:0;right:0;background:#000000;color:#10B981;font-size:12px;font-family:sans-serif;padding:10px 12px;z-index:2147483647;border-bottom:1px solid #10B981;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.9);";
       document.body ? document.body.appendChild(banner) : document.documentElement.appendChild(banner);
     }
-    banner.style.color = isError ? "#dc2626" : "#10B981";
-    banner.innerText = "🔍 [NevuxBot Debug]: " + text;
+    banner.style.color = isError ? "#f87171" : "#10B981";
+    banner.innerText = "🔍 [NevuxBot]: " + text;
   }
 
   function detectStoreId() {
     if (window.NEVUX_STORE_ID) return String(window.NEVUX_STORE_ID);
+    if (window.LS && window.LS.store && window.LS.store.id) return String(window.LS.store.id);
+    if (window.LS && window.LS.storeId) return String(window.LS.storeId);
     if (window.Store && (window.Store.id || window.Store.store_id))
       return String(window.Store.id || window.Store.store_id);
-    if (window.LS && window.LS.store && window.LS.store.id)
-      return String(window.LS.store.id);
-    if (window.LS && window.LS.storeId) return String(window.LS.storeId);
     if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id)
       return String(window.__NUVEMSHOP_STORE__.id);
 
-    const meta = document.querySelector('meta[name="store-id"]');
-    if (meta && meta.content) return String(meta.content);
-
-    // Buscar en scripts del DOM de Tiendanube
-    const scripts = document.querySelectorAll("script");
-    for (let i = 0; i < scripts.length; i++) {
-      const src = scripts[i].src || "";
-      const text = scripts[i].textContent || "";
-
-      let m = src.match(/\/stores\/(\d+)\//);
-      if (m) return String(m[1]);
-
-      m = text.match(/"store_id":\s*(\d+)/) || text.match(/"storeId":\s*(\d+)/) || text.match(/store_id\s*=\s*(\d+)/);
-      if (m) return String(m[1]);
-    }
+    const meta =
+      document.querySelector('meta[name="store-id"]') ||
+      document.querySelector('meta[property="store:id"]');
+    if (meta && meta.content) return String(meta.content).trim();
 
     const html = document.documentElement ? document.documentElement.innerHTML : "";
-    let m = html.match(/"store_id":\s*(\d+)/);
-    if (m) return String(m[1]);
-    m = html.match(/"storeId":\s*(\d+)/);
-    if (m) return String(m[1]);
+
+    // 1. Buscar en JSON del HTML ("store_id":2941012)
+    let m =
+      html.match(/"store_id":\s*(\d+)/) ||
+      html.match(/"storeId":\s*(\d+)/) ||
+      html.match(/store_id\s*=\s*(\d+)/);
+    if (m && m[1]) return String(m[1]);
+
+    // 2. Decodificar formato CDN Tiendanube /stores/002/941/012/ -> 2941012
+    const cdnMatch = html.match(/\/stores\/(\d{3})\/(\d{3})\/(\d{3})\//);
+    if (cdnMatch) {
+      const fullId = cdnMatch[1] + cdnMatch[2] + cdnMatch[3];
+      return String(parseInt(fullId, 10));
+    }
 
     return null;
   }
@@ -70,14 +68,14 @@
     if (!storeId || !hasBody) {
       attempts++;
       if (attempts < 30) {
-        setTimeout(startBot, 250);
+        setTimeout(startBot, 200);
       } else {
-        showDebugBanner("No se pudo detectar el storeId de Tiendanube", true);
+        showDebugBanner("No se pudo detectar el ID de Tiendanube", true);
       }
       return;
     }
 
-    showDebugBanner(`Store ID detectado: ${storeId} | Consultando servidor...`, false);
+    showDebugBanner(`ID Tienda: ${storeId} | Consultando servidor...`, false);
 
     fetch(`${API_BASE}/api/nevuxbot/config?storeId=${storeId}&t=${Date.now()}`)
       .then((res) => res.json())
@@ -87,15 +85,15 @@
             showDebugBanner(`Bot ACTIVO para tienda ${storeId} (${data.config.bot_name})`, false);
             initNevuxBot(data.config, storeId);
           } else {
-            showDebugBanner(`Bot INACTIVO en panel para tienda ${storeId}. Activá el switch en /dashboard/nevuxbot`, true);
+            showDebugBanner(`Bot INACTIVO en panel para tienda ID ${storeId}. Activá el switch en /dashboard/nevuxbot`, true);
           }
         } else {
-          showDebugBanner(`Error leyendo respuesta del servidor para tienda ${storeId}`, true);
+          showDebugBanner(`Sin respuesta de config para tienda ${storeId}`, true);
         }
       })
       .catch((err) => {
         console.error("[NevuxBot] Error cargando config:", err);
-        showDebugBanner("Error de conexión con la API de NevuxBot", true);
+        showDebugBanner("Error de conexión con la API de Nevux", true);
       });
   }
 
