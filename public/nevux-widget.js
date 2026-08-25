@@ -7,12 +7,19 @@
 
   console.log("[Nevux] v23 loaded with NubeSDK Adapter");
 
-  // INYECTAR DINÁMICAMENTE EL SCRIPT DE NEVUXBOT EN LA TIENDA (ROBUSTO)
+  // INYECTAR DINÁMICAMENTE NEVUXBOT PASANDO EL STORE ID DIRECTO
   function loadNevuxBot() {
     if (window.__nevux_bot_loaded__) return;
+    var sid = detectStoreId();
+    if (!sid) {
+      setTimeout(loadNevuxBot, 500);
+      return;
+    }
     window.__nevux_bot_loaded__ = true;
+    window.NEVUX_STORE_ID = String(sid);
+    
     var s = document.createElement("script");
-    s.src = API_BASE + "/nevux-bot.js?v=" + Date.now();
+    s.src = API_BASE + "/nevux-bot.js?storeId=" + sid + "&v=" + Date.now();
     s.async = true;
     var target = document.head || document.documentElement || document.body;
     if (target) {
