@@ -7,6 +7,14 @@
 
   console.log("[Nevux] v23 loaded with NubeSDK Adapter");
 
+  // INYECTAR DINÁMICAMENTE EL SCRIPT DE NEVUXBOT EN LA TIENDA
+  (function () {
+    const s = document.createElement("script");
+    s.src = API_BASE + "/nevux-bot.js";
+    s.async = true;
+    document.head.appendChild(s);
+  })();
+
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
   ═══════════════════════════════════════════ */
