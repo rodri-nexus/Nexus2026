@@ -4,81 +4,197 @@
 
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
-  const MY_STORE_ID = "7401217";
 
-  console.log("[Nevux] Engine v25 Running...");
+  console.log("[Nevux] v26 Loaded - Multi-Widget & NevuxBot AI Active");
 
-  function forceRenderBot() {
-    if (document.getElementById("nb-bubble-force")) return;
-    if (!document.body) return;
+  /* ═══════════════════════════════════════════
+     MÓDULO NEVUXBOT AI (Inyección Dinámica Multi-Tienda)
+  ═══════════════════════════════════════════ */
+  function detectNevuxStoreId() {
+    if (window.NEVUX_STORE_ID) return String(window.NEVUX_STORE_ID);
+    if (window.LS && window.LS.store && window.LS.store.id) return String(window.LS.store.id);
+    if (window.LS && window.LS.storeId) return String(window.LS.storeId);
+    if (window.Store && (window.Store.id || window.Store.store_id)) return String(window.Store.id || window.Store.store_id);
+    if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id) return String(window.__NUVEMSHOP_STORE__.id);
 
-    var hasWA = !!document.querySelector('a[href*="wa.me"], a[href*="whatsapp.com"], [class*="whatsapp"]');
-    var posBottom = hasWA ? "100px" : "20px";
-
-    var html = 
-      '<div id="nb-bubble-force" style="position:fixed; bottom:'+posBottom+'; right:20px; width:60px; height:60px; background:#000; border:2px solid #10B981; border-radius:50%; z-index:2147483647; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 15px rgba(0,0,0,0.5);">' +
-        '<div style="position:absolute; width:100%; height:100%; border:2px solid #10B981; border-radius:50%; animation:nbP 2s infinite; pointer-events:none;"></div>' +
-        '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>' +
-      '</div>' +
-      '<style>' +
-        '@keyframes nbP { 0% {transform:scale(1); opacity:1;} 100% {transform:scale(1.4); opacity:0;} }' +
-        '#nb-win-force { position:fixed; bottom:'+(hasWA?170:90)+'px; right:20px; width:350px; height:500px; background:#0a0a0a; border:1px solid #10B981; border-radius:15px; z-index:2147483647; display:none; flex-direction:column; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.8); font-family:sans-serif; }' +
-      '</style>' +
-      '<div id="nb-win-force">' +
-        '<div style="padding:15px; background:#000; border-bottom:1px solid #10B98133; color:#fff; display:flex; justify-content:space-between; align-items:center;">' +
-          '<strong>Rodri</strong><button onclick="document.getElementById(\'nb-win-force\').style.display=\'none\';document.getElementById(\'nb-bubble-force\').style.display=\'flex\';" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">×</button>' +
-        '</div>' +
-        '<div id="nb-msgs" style="flex:1; padding:15px; overflow-y:auto; background:#0a0a0a; color:#fff; font-size:13px; display:flex; flex-direction:column; gap:10px;"></div>' +
-        '<div style="padding:10px; background:#000; display:flex; gap:8px;">' +
-          '<input id="nb-in" style="flex:1; background:#111; border:1px solid #333; color:#fff; border-radius:20px; padding:8px 15px; outline:none;" placeholder="Escribe...">' +
-          '<button id="nb-btn" style="background:#10B981; border:none; border-radius:50%; width:35px; height:35px; color:#fff; cursor:pointer;">➤</button>' +
-        '</div>' +
-      '</div>';
-
-    document.body.insertAdjacentHTML('beforeend', html);
-
-    var bubble = document.getElementById("nb-bubble-force");
-    var win = document.getElementById("nb-win-force");
-    var input = document.getElementById("nb-in");
-    var msgs = document.getElementById("nb-msgs");
-
-    bubble.onclick = function() {
-      win.style.display = "flex";
-      bubble.style.display = "none";
-      input.focus();
-    };
-
-    function addM(s, t) {
-      var m = document.createElement("div");
-      m.style.cssText = "max-width:80%; padding:8px 12px; border-radius:12px; line-height:1.4;";
-      if(s === 'u') {
-        m.style.cssText += "align-self:flex-end; background:#000; border:1px solid #10B981; border-bottom-right-radius:2px;";
-      } else {
-        m.style.cssText += "align-self:flex-start; background:#222; border-bottom-left-radius:2px;";
-      }
-      m.innerText = t;
-      msgs.appendChild(m);
-      msgs.scrollTop = msgs.scrollHeight;
+    const links = document.querySelectorAll('link[href*="/stores/"], script[src*="/stores/"], img[src*="/stores/"]');
+    for (let i = 0; i < links.length; i++) {
+      const url = links[i].href || links[i].src || "";
+      const m = url.match(/\/stores\/(\d{3})\/(\d{3})\/(\d{3})\//);
+      if (m) return String(parseInt(m[1] + m[2] + m[3], 10));
     }
 
-    addM('b', "¡Hola! Soy Rodri, ¿en qué puedo ayudarte?");
+    const html = document.documentElement ? document.documentElement.innerHTML : "";
+    const cdnM = html.match(/\/stores\/(\d{3})\/(\d{3})\/(\d{3})\//);
+    if (cdnM) return String(parseInt(cdnM[1] + cdnM[2] + cdnM[3], 10));
 
-    document.getElementById("nb-btn").onclick = function() {
-      var v = input.value.trim(); if(!v) return;
-      addM('u', v); input.value = "";
-      fetch(API_BASE + "/api/nevuxbot/chat", {
+    const jsonM = html.match(/"store_id":\s*(\d+)/) || html.match(/"storeId":\s*(\d+)/) || html.match(/store_id\s*=\s*(\d+)/);
+    if (jsonM && jsonM[1]) return String(jsonM[1]);
+
+    return null;
+  }
+
+  function initNevuxBotEngine() {
+    if (window.__nevux_bot_injected__) return;
+    const storeId = detectNevuxStoreId();
+    if (!storeId) return;
+
+    fetch(`${API_BASE}/api/nevuxbot/config?storeId=${storeId}&t=${Date.now()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.config && data.config.is_active) {
+          window.__nevux_bot_injected__ = true;
+          renderNevuxBotUI(data.config, storeId);
+        }
+      })
+      .catch((err) => console.error("[NevuxBot] Config Error:", err));
+  }
+
+  function renderNevuxBotUI(config, storeId) {
+    if (document.getElementById("nevux-bot-bubble")) return;
+
+    const botName = config.bot_name || "Sofía";
+    const primaryColor = config.primary_color || "#10B981";
+    const hasWA = Boolean(
+      document.querySelector('a[href*="wa.me"], a[href*="whatsapp.com"], .whatsapp-button, [class*="whatsapp"]')
+    );
+    const bottom = hasWA ? "96px" : "24px";
+    const winBottom = hasWA ? "168px" : "96px";
+
+    const style = document.createElement("style");
+    style.innerHTML = `
+      #nevux-bot-bubble { position: fixed !important; bottom: ${bottom} !important; right: 20px !important; width: 60px !important; height: 60px !important; background: #000000 !important; border: 2px solid ${primaryColor} !important; border-radius: 50% !important; box-shadow: 0 6px 24px rgba(16,185,129,0.35) !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; z-index: 2147483647 !important; transition: transform 0.25s ease !important; }
+      #nevux-bot-bubble:active { transform: scale(0.92) !important; }
+      #nevux-bot-bubble .pulse { position: absolute; width: 100%; height: 100%; border: 2px solid ${primaryColor}; border-radius: 50%; animation: nbPulseAnim 2s infinite; pointer-events: none; }
+      @keyframes nbPulseAnim { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.45); opacity: 0; } }
+      #nevux-bot-window { position: fixed !important; bottom: ${winBottom} !important; right: 20px !important; width: 360px !important; height: 510px !important; max-height: calc(100vh - 120px) !important; max-width: calc(100vw - 32px) !important; background: rgba(10,10,10,0.96) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; border: 1px solid rgba(16,185,129,0.3) !important; border-radius: 18px !important; box-shadow: 0 16px 45px rgba(0,0,0,0.75) !important; display: none; flex-direction: column !important; z-index: 2147483647 !important; overflow: hidden !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
+      #nevux-bot-window.open { display: flex !important; }
+      .nb-header { padding: 14px 16px !important; background: #000000 !important; border-bottom: 1px solid rgba(16,185,129,0.2) !important; display: flex !important; align-items: center !important; justify-content: space-between !important; }
+      .nb-avatar { width: 38px !important; height: 38px !important; background: linear-gradient(135deg, ${primaryColor}, #059669) !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #ffffff !important; font-weight: bold !important; font-size: 15px !important; }
+      .nb-info { margin-left: 12px !important; flex: 1 !important; }
+      .nb-name { color: #ffffff !important; font-size: 14px !important; font-weight: 600 !important; display: block !important; }
+      .nb-online { color: ${primaryColor} !important; font-size: 11px !important; display: flex !important; align-items: center !important; gap: 4px !important; }
+      .nb-close { background: none !important; border: none !important; color: #ffffff !important; opacity: 0.6 !important; cursor: pointer !important; padding: 6px !important; font-size: 18px !important; }
+      .nb-messages { flex: 1 !important; padding: 16px !important; overflow-y: auto !important; display: flex !important; flex-direction: column !important; gap: 10px !important; }
+      .nb-msg { max-width: 82% !important; padding: 10px 14px !important; border-radius: 14px !important; font-size: 13.5px !important; line-height: 1.4 !important; word-break: break-word !important; color: #ffffff !important; }
+      .nb-msg.user { align-self: flex-end !important; background: #000000 !important; border: 1px solid ${primaryColor} !important; border-bottom-right-radius: 2px !important; }
+      .nb-msg.bot { align-self: flex-start !important; background: rgba(255,255,255,0.09) !important; border: 1px solid rgba(255,255,255,0.05) !important; border-bottom-left-radius: 2px !important; }
+      .nb-typing { display: none; align-self: flex-start !important; background: rgba(255,255,255,0.09) !important; padding: 10px 14px !important; border-radius: 14px !important; gap: 5px !important; }
+      .nb-dot { width: 6px; height: 6px; background: #ffffff; border-radius: 50%; animation: nbBounceAnim 1.4s infinite ease-in-out both; }
+      @keyframes nbBounceAnim { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+      .nb-input-wrap { padding: 12px !important; background: #000000 !important; border-top: 1px solid rgba(255,255,255,0.1) !important; display: flex !important; gap: 8px !important; align-items: center !important; }
+      .nb-input { flex: 1 !important; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.15) !important; border-radius: 20px !important; padding: 10px 16px !important; color: #ffffff !important; font-size: 13.5px !important; outline: none !important; }
+      .nb-send { background: ${primaryColor} !important; border: none !important; width: 38px !important; height: 38px !important; border-radius: 50% !important; color: #ffffff !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+      @media (max-width: 480px) { #nevux-bot-window { bottom: 0 !important; right: 0 !important; width: 100% !important; height: 100% !important; max-height: 100% !important; max-width: 100% !important; border-radius: 0 !important; border: none !important; } }
+    `;
+    document.head.appendChild(style);
+
+    const bubble = document.createElement("div");
+    bubble.id = "nevux-bot-bubble";
+    bubble.innerHTML = `
+      <div class="pulse"></div>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${primaryColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+    `;
+
+    const win = document.createElement("div");
+    win.id = "nevux-bot-window";
+    win.innerHTML = `
+      <div class="nb-header">
+        <div class="nb-avatar">${botName.charAt(0).toUpperCase()}</div>
+        <div class="nb-info"><span class="nb-name">${botName}</span><span class="nb-online">● En línea</span></div>
+        <button type="button" class="nb-close">✕</button>
+      </div>
+      <div class="nb-messages"></div>
+      <div class="nb-typing"><div class="nb-dot"></div><div class="nb-dot"></div><div class="nb-dot"></div></div>
+      <div class="nb-input-wrap">
+        <input type="text" class="nb-input" placeholder="Escribí tu mensaje..." autocomplete="off">
+        <button type="button" class="nb-send">➤</button>
+      </div>
+    `;
+
+    document.body.appendChild(bubble);
+    document.body.appendChild(win);
+
+    const msgs = win.querySelector(".nb-messages");
+    const input = win.querySelector(".nb-input");
+    const send = win.querySelector(".nb-send");
+    const typing = win.querySelector(".nb-typing");
+    const closeBtn = win.querySelector(".nb-close");
+    const storageKey = `nevux_bot_history_${storeId}`;
+    let history = [];
+
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) history = JSON.parse(saved);
+    } catch (e) {}
+
+    function appendMsg(sender, text, save = true) {
+      const d = document.createElement("div");
+      d.className = `nb-msg ${sender}`;
+      d.innerText = text;
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+      if (save) {
+        history.push({ sender, text });
+        try { localStorage.setItem(storageKey, JSON.stringify(history)); } catch (e) {}
+      }
+    }
+
+    if (history.length === 0) {
+      appendMsg("bot", `¡Hola! Soy ${botName}, tu asesora personal. ¿En qué te puedo ayudar hoy? 😊`, false);
+    } else {
+      history.forEach((m) => appendMsg(m.sender, m.text, false));
+    }
+
+    bubble.onclick = () => {
+      win.classList.add("open");
+      bubble.style.display = "none";
+      setTimeout(() => input.focus(), 150);
+    };
+
+    closeBtn.onclick = () => {
+      win.classList.remove("open");
+      bubble.style.display = "flex";
+    };
+
+    function sendMessage() {
+      const val = input.value.trim();
+      if (!val) return;
+      appendMsg("user", val, true);
+      input.value = "";
+      typing.style.display = "flex";
+      msgs.scrollTop = msgs.scrollHeight;
+
+      fetch(`${API_BASE}/api/nevuxbot/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeId: MY_STORE_ID, message: v })
-      }).then(function(r){ return r.json(); }).then(function(d){ addM('b', d.reply); });
+        body: JSON.stringify({ storeId, message: val, conversationHistory: history }),
+      })
+        .then((r) => r.json())
+        .then((d) => {
+          typing.style.display = "none";
+          appendMsg("bot", d.reply || "¡Hola! ¿En qué te puedo ayudar?", true);
+        })
+        .catch(() => {
+          typing.style.display = "none";
+          appendMsg("bot", "Disculpas, tengo un problema de conexión temporal. ¿Me repetís la consulta?", false);
+        });
+    }
+
+    send.onclick = sendMessage;
+    input.onkeypress = (e) => {
+      if (e.key === "Enter") sendMessage();
     };
   }
 
-  setInterval(forceRenderBot, 2000);
-
-  /* ═══════════════════════════════════════════
-     NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
-  ═══════════════════════════════════════════ */
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initNevuxBotEngine);
+  } else {
+    initNevuxBotEngine();
+  }
+  setTimeout(initNevuxBotEngine, 1000);
 
  window.NubeSDK = window.NubeSDK || null;
 
