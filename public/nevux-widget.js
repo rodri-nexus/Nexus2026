@@ -13,8 +13,8 @@
   function renderNevuxBotUI(config, storeId) {
     if (document.getElementById("nevux-bot-bubble")) return;
 
-    var botName = config.bot_name || "Sofía";
-    var primaryColor = config.primary_color || "#10B981";
+    var botName = (config && config.bot_name) ? config.bot_name : "Rodri";
+    var primaryColor = (config && config.primary_color) ? config.primary_color : "#10B981";
     var hasWA = Boolean(
       document.querySelector(
         'a[href*="wa.me"], a[href*="whatsapp.com"], .whatsapp-button, [class*="whatsapp"]'
@@ -189,19 +189,17 @@
 
   function initNevuxBotInStore() {
     if (window.__nevux_bot_injected__) return;
-    var sid = detectStoreId() || "7401217";
-    if (!sid) return;
+    window.__nevux_bot_injected__ = true;
+    var sid = "7401217";
 
     fetch(API_BASE + "/api/nevuxbot/config?storeId=" + sid + "&t=" + Date.now())
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        if (data && data.config && data.config.is_active) {
-          window.__nevux_bot_injected__ = true;
-          renderNevuxBotUI(data.config, String(sid));
-        }
+        var cfg = (data && data.config) ? data.config : { is_active: true, bot_name: "Rodri", primary_color: "#10B981" };
+        renderNevuxBotUI(cfg, sid);
       })
-      .catch(function (err) {
-        console.error("[NevuxBot] Error:", err);
+      .catch(function () {
+        renderNevuxBotUI({ is_active: true, bot_name: "Rodri", primary_color: "#10B981" }, sid);
       });
   }
 
@@ -210,7 +208,7 @@
   } else {
     initNevuxBotInStore();
   }
-  setTimeout(initNevuxBotInStore, 1000);
+  setTimeout(initNevuxBotInStore, 500);
 
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
