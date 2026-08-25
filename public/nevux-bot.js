@@ -3,6 +3,21 @@
   "use strict";
 
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
+  const isDebug = window.location.search.includes("nevux");
+
+  function showDebugBanner(text, isError) {
+    if (!isDebug) return;
+    let banner = document.getElementById("nevux-debug-banner");
+    if (!banner) {
+      banner = document.createElement("div");
+      banner.id = "nevux-debug-banner";
+      banner.style.cssText =
+        "position:fixed;top:0;left:0;right:0;background:#000000;color:#10B981;font-size:12px;font-family:sans-serif;padding:8px 12px;z-index:2147483647;border-bottom:1px solid #10B981;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.8);";
+      document.body ? document.body.appendChild(banner) : document.documentElement.appendChild(banner);
+    }
+    banner.style.color = isError ? "#dc2626" : "#10B981";
+    banner.innerText = "🔍 [NevuxBot Debug]: " + text;
+  }
 
   function detectStoreId() {
     if (window.NEVUX_STORE_ID) return String(window.NEVUX_STORE_ID);
@@ -17,17 +32,25 @@
     const meta = document.querySelector('meta[name="store-id"]');
     if (meta && meta.content) return String(meta.content);
 
+    // Buscar en scripts del DOM de Tiendanube
+    const scripts = document.querySelectorAll("script");
+    for (let i = 0; i < scripts.length; i++) {
+      const src = scripts[i].src || "";
+      const text = scripts[i].textContent || "";
+
+      let m = src.match(/\/stores\/(\d+)\//);
+      if (m) return String(m[1]);
+
+      m = text.match(/"store_id":\s*(\d+)/) || text.match(/"storeId":\s*(\d+)/) || text.match(/store_id\s*=\s*(\d+)/);
+      if (m) return String(m[1]);
+    }
+
     const html = document.documentElement ? document.documentElement.innerHTML : "";
     let m = html.match(/"store_id":\s*(\d+)/);
     if (m) return String(m[1]);
     m = html.match(/"storeId":\s*(\d+)/);
     if (m) return String(m[1]);
 
-    const assetLink = document.querySelector('link[href*="/stores/"]');
-    if (assetLink) {
-      const cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
-      if (cdnMatch) return String(cdnMatch[1]);
-    }
     return null;
   }
 
@@ -47,19 +70,33 @@
     if (!storeId || !hasBody) {
       attempts++;
       if (attempts < 30) {
-        setTimeout(startBot, 200);
+        setTimeout(startBot, 250);
+      } else {
+        showDebugBanner("No se pudo detectar el storeId de Tiendanube", true);
       }
       return;
     }
 
+    showDebugBanner(`Store ID detectado: ${storeId} | Consultando servidor...`, false);
+
     fetch(`${API_BASE}/api/nevuxbot/config?storeId=${storeId}&t=${Date.now()}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data && data.config && data.config.is_active) {
-          initNevuxBot(data.config, storeId);
+        if (data && data.config) {
+          if (data.config.is_active) {
+            showDebugBanner(`Bot ACTIVO para tienda ${storeId} (${data.config.bot_name})`, false);
+            initNevuxBot(data.config, storeId);
+          } else {
+            showDebugBanner(`Bot INACTIVO en panel para tienda ${storeId}. Activá el switch en /dashboard/nevuxbot`, true);
+          }
+        } else {
+          showDebugBanner(`Error leyendo respuesta del servidor para tienda ${storeId}`, true);
         }
       })
-      .catch((err) => console.error("[NevuxBot] Error cargando config:", err));
+      .catch((err) => {
+        console.error("[NevuxBot] Error cargando config:", err);
+        showDebugBanner("Error de conexión con la API de NevuxBot", true);
+      });
   }
 
   if (document.readyState === "loading") {
@@ -77,7 +114,7 @@
     const bottomPos = withWhatsApp ? "96px" : "24px";
     const windowBottomPos = withWhatsApp ? "168px" : "96px";
 
-    // 1. Estilos Premium Glassmorphic + Dark Mode
+    // 1. Estilos Glassmorphic Dark
     const style = document.createElement("style");
     style.innerHTML = `
       #nevux-bot-bubble {
@@ -89,7 +126,7 @@
         background-color: #000000 !important;
         border: 2px solid ${primaryColor} !important;
         border-radius: 50% !important;
-        box-shadow: 0 6px 22px rgba(16, 185, 129, 0.35) !important;
+        box-shadow: 0 6px 22px rgba(16, 185, 129, 0.4) !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
@@ -99,7 +136,7 @@
       }
       #nevux-bot-bubble:hover {
         transform: scale(1.08) !important;
-        box-shadow: 0 8px 28px rgba(16, 185, 129, 0.5) !important;
+        box-shadow: 0 8px 28px rgba(16, 185, 129, 0.55) !important;
       }
       #nevux-bot-bubble .pulse-ring {
         position: absolute;
@@ -126,9 +163,9 @@
         background: rgba(10, 10, 10, 0.96) !important;
         backdrop-filter: blur(16px) !important;
         -webkit-backdrop-filter: blur(16px) !important;
-        border: 1px solid rgba(16, 185, 129, 0.25) !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
         border-radius: 18px !important;
-        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.7) !important;
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75) !important;
         display: flex !important;
         flex-direction: column !important;
         z-index: 2147483647 !important;
@@ -369,7 +406,7 @@
     document.body.appendChild(bubble);
     document.body.appendChild(chatWindow);
 
-    // 3. Control de Mensajes y Persistencia
+    // 3. Control de Mensajes
     const messagesContainer = document.getElementById("nevux-bot-messages");
     const inputField = document.getElementById("nevux-bot-input");
     const sendButton = document.getElementById("nevux-bot-send");
