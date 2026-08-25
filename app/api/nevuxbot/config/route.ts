@@ -1,8 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { createClient as createServerClient } from "@/lib/supabase-server";
+import { createClient as createDirectClient } from "@supabase/supabase-js";
 
 export async function GET(req: NextRequest) {
-  const supabase = createClient();
+  const { searchParams } = new URL(req.url);
+  const storeIdParam = searchParams.get("storeId");
+
+  // CASO 1: Consulta pública desde el widget en la tienda de Tiendanube (tiene storeId en la URL)
+  if (storeIdParam) {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+      const supabasePublic = createDirectClient(supabaseUrl, supabaseAnonKey);
+
+      const { data: config, error } = await supabasePublic
+        .from("bot_config")
+        .select("store_id, is_active, bot_name, personality, primary_color")
+        .eq("store_id", storeIdParam)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error público buscando bot_config:", error);
+      }
+
+      return NextResponse.json({
+        storeId: storeIdParam,
+        config: config || {
+          store_id: storeIdParam,
+          is_active: false,
+          bot_name: "Sofía",
+          personality: "experta",
+          primary_color: "#10B981",
+        },
+      });
+    } catch (err) {
+      console.error("Error en GET público de bot_config:", err);
+      return NextResponse.json({ error: "Error de servidor" }, { status: 500 });
+    }
+  }
+
+  // CASO 2: Consulta privada desde el Dashboard del administrador (necesita sesión)
+  const supabase = createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -46,7 +84,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient();
+  const supabase = createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -105,4 +143,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-      }
+    }
