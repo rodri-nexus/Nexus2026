@@ -90,11 +90,10 @@ export async function GET(request: Request) {
     const todayISO = now.toISOString();
 
     // ═══════════════════════════════════════════════════════════
-    // PARTE 1: Marcar como "expired" los trials y planes vencidos
+    // PARTE 1: Marcar como "expired" los trials y planes vencidos + ENVIAR EMAIL DE EXPIRACIÓN
     // ═══════════════════════════════════════════════════════════
     console.log("🔵 [cron] Buscando tiendas que no estén expiradas...");
 
-    // Traemos las tiendas que aún NO están marcadas como expired
     const { data: candidateStores, error: fetchError } = await supabaseAdmin
       .from("stores")
       .select("store_id, user_id, installed_at, plan_status, plan_active_until, trial_ends_at, months_active")
@@ -114,12 +113,10 @@ export async function GET(request: Request) {
         // Si la fecha de vencimiento ya pasó
         if (expDate && expDate.getTime() < now.getTime()) {
           try {
-            // Traer email del usuario
             const { data: userData } = await supabaseAdmin.auth.admin.getUserById(
               store.user_id
             );
             const email = userData?.user?.email || "sin-email";
-
             const reason = store.plan_status === "active" ? "Plan mensual vencido" : "Trial 7 días vencido";
 
             // Marcar como expirado en Supabase
@@ -146,6 +143,27 @@ export async function GET(request: Request) {
                 email,
                 reason,
               });
+
+              // ENVIAR EMAIL ALERTA DE EXPIRACIÓN (daysLeft = 0)
+              try {
+                const sentAlert = await sendPlanExpiringAlert({
+                  customerEmail: email,
+                  storeId: store.store_id,
+                  daysLeft: 0, // 0 significa VENCIDO / HOY
+                  planEndDate: expDate.toISOString(),
+                  monthsActive: store.months_active || 0,
+                });
+
+                if (sentAlert) {
+                  report.remindersSent++;
+                  console.log(`✉️ [cron] Email de expiración enviado a ${email}`);
+                } else {
+                  report.remindersFailed++;
+                }
+              } catch (mailErr: any) {
+                console.error("❌ [cron] Error enviando email de expiración:", mailErr);
+              }
+
               console.log(`✅ [cron] Store ${store.store_id} (${email}) vencida -> marcada como EXPIRED (${reason})`);
             }
           } catch (err: any) {
@@ -157,14 +175,13 @@ export async function GET(request: Request) {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // PARTE 2: Enviar recordatorios (3 días y 1 día antes del vencimiento)
+    // PARTE 2: Enviar recordatorios previos (3 días y 1 día antes)
     // ═══════════════════════════════════════════════════════════
     if (candidateStores && candidateStores.length > 0) {
       for (const store of candidateStores) {
         const expDate = getExpirationDate(store);
         if (!expDate || expDate.getTime() <= now.getTime()) continue;
 
-        // Calcular días restantes
         const diffTime = expDate.getTime() - now.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -225,4 +242,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-      }
+    }
