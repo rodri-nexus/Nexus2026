@@ -174,7 +174,7 @@ export default function BannersPage() {
               border: "1px solid rgba(255,255,255,0.4)",
               overflow: "hidden",
               display: "flex",
-              transform: "perspective(1000px) rotateY(-5deg) rotateX(2deg)",
+              position: "relative",
             }}
           >
             {/* Sidebar (Menú Izquierdo) */}
@@ -189,24 +189,24 @@ export default function BannersPage() {
             </div>
 
             {/* Main Content (Dashboard CRM) */}
-            <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px", paddingBottom: "36px" }}>
               
               {/* Header Title */}
               <div style={{ fontSize: "12px", fontWeight: "900", color: "#000" }}>NevuxBot AI</div>
               
               {/* Metrics Row */}
-              <div style={{ display: "flex", gap: "8px" }}>
-                <div style={{ flex: 1, background: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "8px" }}>
-                  <div style={{ fontSize: "7px", color: "#64748b", fontWeight: "bold", textTransform: "uppercase" }}>
+              <div style={{ display: "flex", gap: "6px" }}>
+                <div style={{ flex: 1, background: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "6px 8px" }}>
+                  <div style={{ fontSize: "6.5px", color: "#64748b", fontWeight: "bold", textTransform: "uppercase" }}>
                     {isPt ? "Carrinhos Abandonados" : "Carritos Abandonados"}
                   </div>
-                  <div style={{ fontSize: "14px", fontWeight: "900", color: "#000" }}>14</div>
+                  <div style={{ fontSize: "13px", fontWeight: "900", color: "#000" }}>14</div>
                 </div>
-                <div style={{ flex: 1, background: "#ecfdf5", border: "1.5px solid #10B981", borderRadius: "8px", padding: "8px" }}>
-                  <div style={{ fontSize: "7px", color: "#059669", fontWeight: "bold", textTransform: "uppercase" }}>
+                <div style={{ flex: 1, background: "#ecfdf5", border: "1.5px solid #10B981", borderRadius: "8px", padding: "6px 8px" }}>
+                  <div style={{ fontSize: "6.5px", color: "#059669", fontWeight: "bold", textTransform: "uppercase" }}>
                     {isPt ? "Vendas Recuperadas" : "Ventas Recuperadas"}
                   </div>
-                  <div style={{ fontSize: "14px", fontWeight: "900", color: "#10B981" }}>
+                  <div style={{ fontSize: "13px", fontWeight: "900", color: "#10B981" }}>
                     {isPt ? "R$ 4.250" : "$425.000"}
                   </div>
                 </div>
@@ -219,40 +219,41 @@ export default function BannersPage() {
                     <div style={{ fontSize: "10px", fontWeight: "900", color: "#000" }}>👤 Martin P.</div>
                     <div style={{ fontSize: "7px", color: "#64748b" }}>{isPt ? "Camiseta • Calça" : "Remera • Pantalón"}</div>
                   </div>
-                  <div style={{ background: "#fef3c7", color: "#b45309", fontSize: "7px", fontWeight: "800", padding: "3px 6px", borderRadius: "6px" }}>
+                  <div style={{ background: "#fef3c7", color: "#b45309", fontSize: "7px", fontWeight: "800", padding: "2px 5px", borderRadius: "5px" }}>
                     🟡 {isPt ? "Pendente" : "Pendiente"}
                   </div>
                 </div>
                 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px dashed #e5e7eb", paddingTop: "6px" }}>
-                  <div style={{ fontSize: "11px", fontWeight: "900", color: "#10B981" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px dashed #e5e7eb", paddingTop: "5px" }}>
+                  <div style={{ fontSize: "10.5px", fontWeight: "900", color: "#10B981" }}>
                     {isPt ? "R$ 450,00" : "$45.000"}
                   </div>
-                  <div style={{ background: "#10B981", color: "#fff", fontSize: "8px", fontWeight: "800", padding: "4px 8px", borderRadius: "6px", display: "flex", alignItems: "center", gap: "4px", boxShadow: "0 2px 4px rgba(16,185,129,0.3)" }}>
+                  <div style={{ background: "#10B981", color: "#fff", fontSize: "7.5px", fontWeight: "800", padding: "3px 7px", borderRadius: "5px", display: "flex", alignItems: "center", gap: "3px", boxShadow: "0 2px 4px rgba(16,185,129,0.3)" }}>
                     ✨ {isPt ? "Recuperar com IA" : "Recuperar con IA"}
                   </div>
                 </div>
               </div>
 
-              {/* Floating WhatsApp Action Overlay */}
+              {/* Floating WhatsApp Action Overlay - TOTALMENTE DENTRO DE LA TARJETA */}
               <div style={{ 
                 position: "absolute", 
-                bottom: "-15px", 
-                right: "10px", 
+                bottom: "6px", 
+                right: "8px", 
                 background: "#22c55e", 
                 color: "#fff", 
-                padding: "8px 12px", 
-                borderRadius: "8px", 
-                fontSize: "9px", 
+                padding: "5px 10px", 
+                borderRadius: "6px", 
+                fontSize: "8.5px", 
                 fontWeight: "900", 
-                boxShadow: "0 10px 15px rgba(34, 197, 94, 0.4)",
+                boxShadow: "0 4px 10px rgba(34, 197, 94, 0.4)",
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
+                gap: "4px",
                 border: "1px solid #16a34a",
-                zIndex: 10
+                zIndex: 10,
+                whiteSpace: "nowrap",
               }}>
-                💬 {isPt ? "Enviar Copys via WhatsApp" : "Enviar Copys vía WhatsApp"}
+                💬 {isPt ? "Enviar via WhatsApp" : "Enviar por WhatsApp"}
               </div>
 
             </div>
