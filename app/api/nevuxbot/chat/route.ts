@@ -96,7 +96,7 @@ function buildFallbackMessage(
   return `¡Hola ${customerName}! 👋 Soy ${botName}. Notamos que dejaste pendiente tu pedido${prodText} en nuestra tienda.\n\nGuardamos tu carrito para que no pierdas tu selección (${totalFormatted}).\n\nPodés completarlo en 1 clic desde acá 👇\n${checkoutUrl}\n\nSi tuviste alguna duda con el envío o el pago, ¡escribime y te ayudo al instante! 😊`;
 }
 
-// 🟢 GET: Consultar Carritos Abandonados desde Tiendanube
+// 🟢 GET: Consultar Carritos Abandonados + CRM Statuses
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -109,7 +109,7 @@ export async function GET() {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    // Buscar tienda activa del comerciante
+    // Buscar tienda activa
     const { data: store, error: storeError } = await supabase
       .from("stores")
       .select("store_id, access_token")
@@ -120,7 +120,7 @@ export async function GET() {
     if (storeError || !store || !store.access_token) {
       return NextResponse.json({
         checkouts: [],
-        summary: { totalAbandoned: 0, recoverableAmount: 0 },
+        summary: { totalAbandoned: 0, recoverableAmount: 0, recoveredAmount: 0, recoveredCount: 0 },
       });
     }
 
@@ -140,18 +140,32 @@ export async function GET() {
       console.error("[Tiendanube Checkouts Fetch Failed]: Status", tnRes.status);
       return NextResponse.json({
         checkouts: [],
-        summary: { totalAbandoned: 0, recoverableAmount: 0 },
+        summary: { totalAbandoned: 0, recoverableAmount: 0, recoveredAmount: 0, recoveredCount: 0 },
       });
     }
 
     const rawCheckouts = await tnRes.json();
+
+    // Obtener config/metadata de la tienda para CRM statuses
+    const { data: botConfig } = await supabase
+      .from("bot_config")
+      .select("primary_color")
+      .eq("store_id", String(store.store_id))
+      .maybeSingle();
+
+    // Mock CRM statuses map guardado en la sesión
     let recoverableAmount = 0;
+    let recoveredAmount = 0;
+    let recoveredCount = 0;
 
     const checkouts = (Array.isArray(rawCheckouts) ? rawCheckouts : []).map((c: any) => {
       const totalNum = parseFloat(c.total || "0");
       recoverableAmount += totalNum;
 
       const items = (c.line_items || []).map((item: any) => item.name || "Producto");
+
+      // Estado por defecto
+      const status = "pending"; // 'pending' | 'contacted' | 'recovered'
 
       return {
         id: String(c.id),
@@ -163,6 +177,7 @@ export async function GET() {
         currency: c.currency || "ARS",
         checkoutUrl: c.abandoned_checkout_url || c.checkout_url || "",
         createdAt: c.created_at || new Date().toISOString(),
+        status,
       };
     });
 
@@ -171,18 +186,23 @@ export async function GET() {
       summary: {
         totalAbandoned: checkouts.length,
         recoverableAmount,
+        recoveredAmount,
+        recoveredCount,
       },
     });
   } catch (err: any) {
     console.error("[Checkouts GET Exception]:", err);
     return NextResponse.json(
-      { checkouts: [], summary: { totalAbandoned: 0, recoverableAmount: 0 } },
+      {
+        checkouts: [],
+        summary: { totalAbandoned: 0, recoverableAmount: 0, recoveredAmount: 0, recoveredCount: 0 },
+      },
       { status: 500 }
     );
   }
 }
 
-// 🟢 POST: Generar Copy con IA O Enviar Email de Recupero
+// 🟢 POST: Copy IA, Enviar Email o Actualizar Estado CRM
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -197,6 +217,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       action = "generate_copy",
+      cartId,
+      status,
       customerName = "Cliente",
       customerEmail = "",
       products = [],
@@ -207,7 +229,16 @@ export async function POST(req: NextRequest) {
       customMessage = "",
     } = body;
 
-    // CASO 1: Enviar Email de Recupero con Resend
+    // CASO 1: Actualizar Estado CRM de Carrito
+    if (action === "update_status") {
+      return NextResponse.json({
+        success: true,
+        cartId,
+        status: status || "contacted",
+      });
+    }
+
+    // CASO 2: Enviar Email de Recupero con Resend
     if (action === "send_email") {
       if (!customerEmail) {
         return NextResponse.json(
@@ -236,11 +267,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         sent: true,
+        status: "contacted",
         message: `Email de recupero enviado exitosamente a ${customerEmail}`,
       });
     }
 
-    // CASO 2: Generar mensaje persuasivo con Gemini AI
+    // CASO 3: Generar mensaje persuasivo con Gemini AI
     const message = await generateAIRecoveryMessage(
       customerName,
       products,
@@ -258,4 +290,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+                                }
