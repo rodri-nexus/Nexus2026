@@ -400,4 +400,123 @@ Gracias por confiar en Nevux 🚀`;
     }`,
     html,
   });
+}
+
+// ═══════════════════════════════════════════════════════════
+// EMAIL: RECUPERO DE CARRITO ABANDONADO CON IA (NEVUXBOT)
+// ═══════════════════════════════════════════════════════════
+
+type CartRecoveryEmailParams = {
+  to: string;
+  customerName: string;
+  products: string[];
+  totalFormatted: string;
+  checkoutUrl: string;
+  customMessage?: string;
+  botName?: string;
+};
+
+/**
+ * Envía un correo HTML de recupero de carrito abandonado al comprador desde el NevuxBot AI.
+ * Se dispara en 1-clic desde el Dashboard (/dashboard/nevuxbot).
+ */
+export async function sendCartRecoveryEmail(
+  params: CartRecoveryEmailParams
+): Promise<boolean> {
+  const {
+    to,
+    customerName,
+    products,
+    totalFormatted,
+    checkoutUrl,
+    customMessage,
+    botName = "Sofía",
+  } = params;
+
+  if (!to) {
+    console.error("❌ [email] No hay destinatario para el email de recupero.");
+    return false;
   }
+
+  const nameStr = customerName ? customerName : "Cliente";
+  const productListHtml = products.length > 0
+    ? products
+        .map(
+          (p) => `<li style="padding:6px 0;border-bottom:1px solid #e5e7eb;">${p}</li>`
+        )
+        .join("")
+    : "<li style="padding:6px 0;">Tu selección de productos</li>";
+
+  const defaultBody = `Notamos que dejaste productos en tu carrito. Te los guardamos para que no pierdas tu selección y puedas completarla en 1 clic.`;
+  const bodyText = customMessage || defaultBody;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>¡Te guardamos tu carrito!</title>
+</head>
+<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#000000;">
+  <div style="max-width:580px;margin:30px auto;padding:32px 24px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+
+    <!-- Header Badge -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:inline-block;background:#ecfdf5;border:1px solid #a7f3d0;color:#059669;padding:6px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.5px;">
+        🛒 Guardamos tu selección
+      </div>
+    </div>
+
+    <!-- Título -->
+    <h1 style="margin:0 0 12px;font-size:24px;font-weight:800;color:#000000;line-height:1.2;text-align:center;">
+      ¡Hola ${nameStr}! 👋
+    </h1>
+    
+    <p style="margin:0 0 24px;font-size:15px;color:#000000;opacity:0.75;line-height:1.6;text-align:center;white-space:pre-line;">
+      ${bodyText}
+    </p>
+
+    <!-- Resumen de Productos -->
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:28px;">
+      <div style="font-size:12px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+        Productos en tu carrito:
+      </div>
+
+      <ul style="margin:0 0 16px;padding:0;list-style:none;font-size:14px;font-weight:600;color:#000000;">
+        ${productListHtml}
+      </ul>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:2px solid #e5e7eb;">
+        <span style="font-size:13px;font-weight:700;color:#000000;opacity:0.6;">Total del pedido:</span>
+        <span style="font-size:20px;font-weight:800;color:#10B981;">${totalFormatted}</span>
+      </div>
+    </div>
+
+    <!-- CTA Principal Button -->
+    <div style="text-align:center;margin-bottom:28px;">
+      <a href="${checkoutUrl}" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;padding:16px 36px;border-radius:12px;font-size:16px;font-weight:800;box-shadow:0 4px 14px rgba(16, 185, 129, 0.35);">
+        Finalizar mi compra en 1 clic →
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding-top:20px;border-top:1px solid #f3f4f6;">
+      <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#000000;">
+        Te saluda ${botName}
+      </p>
+      <p style="margin:0;font-size:12px;color:#000000;opacity:0.4;">
+        Si tuviste alguna duda con tu pago o envío, podés responder directamente a este correo.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+  `.trim();
+
+  return sendEmail({
+    to,
+    subject: `🛒 ¡${nameStr}, no te olvides de tu pedido!`,
+    html,
+  });
+      }
