@@ -17,6 +17,10 @@ import {
   Mail,
   User,
   Loader2,
+  CheckCircle2,
+  Clock,
+  TrendingUp,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import DashboardHeader from "../components/DashboardHeader";
@@ -34,6 +38,8 @@ interface NevuxBotClientProps {
   store: StoreData | null;
 }
 
+type CartStatus = "pending" | "contacted" | "recovered";
+
 interface AbandonedCheckout {
   id: string;
   customerName: string;
@@ -44,6 +50,7 @@ interface AbandonedCheckout {
   currency: string;
   checkoutUrl: string;
   createdAt: string;
+  status?: CartStatus;
 }
 
 export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
@@ -57,9 +64,10 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
   const [savingConfig, setSavingConfig] = useState(false);
   const [configSaved, setConfigSaved] = useState(false);
 
-  // Lista de checkouts
+  // Lista de checkouts y CRM statuses locales
   const [checkouts, setCheckouts] = useState<AbandonedCheckout[]>([]);
-  const [summary, setSummary] = useState({ totalAbandoned: 0, recoverableAmount: 0 });
+  const [cartStatuses, setCartStatuses] = useState<Record<string, CartStatus>>({});
+  const [activeTab, setActiveTab] = useState<"todos" | CartStatus>("todos");
 
   // Estado para la modal / generador de copy
   const [selectedCheckout, setSelectedCheckout] = useState<AbandonedCheckout | null>(null);
@@ -90,10 +98,19 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
       const checkRes = await fetch("/api/nevuxbot/chat");
       if (checkRes.ok) {
         const checkData = await checkRes.json();
-        setCheckouts(checkData.checkouts || []);
-        setSummary(
-          checkData.summary || { totalAbandoned: 0, recoverableAmount: 0 }
-        );
+        const loadedCheckouts: AbandonedCheckout[] = checkData.checkouts || [];
+        setCheckouts(loadedCheckouts);
+
+        // Inicializar statuses si no están en local state
+        setCartStatuses((prev) => {
+          const next = { ...prev };
+          loadedCheckouts.forEach((c) => {
+            if (!next[c.id]) {
+              next[c.id] = c.status || "pending";
+            }
+          });
+          return next;
+        });
       }
     } catch (err) {
       console.error("Error cargando datos de carritos:", err);
@@ -105,6 +122,25 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Cambiar estado CRM de un carrito
+  const updateCartStatus = async (cartId: string, newStatus: CartStatus) => {
+    setCartStatuses((prev) => ({ ...prev, [cartId]: newStatus }));
+
+    try {
+      await fetch("/api/nevuxbot/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update_status",
+          cartId,
+          status: newStatus,
+        }),
+      });
+    } catch (err) {
+      console.error("Error actualizando status CRM:", err);
+    }
+  };
 
   // Guardar configuración de Tono/Bot Name
   async function handleSaveConfig() {
@@ -201,6 +237,8 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
 
       if (res.ok && data.success) {
         setEmailSentSuccess(true);
+        // Marcar automáticamente como contactado
+        updateCartStatus(selectedCheckout.id, "contacted");
       } else {
         setEmailError(data.error || "No se pudo enviar el correo de recupero.");
       }
@@ -238,6 +276,9 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
   const handleOpenWhatsApp = () => {
     if (!selectedCheckout || !generatedMessage) return;
 
+    // Marcar automáticamente como contactado
+    updateCartStatus(selectedCheckout.id, "contacted");
+
     let phone = selectedCheckout.customerPhone.replace(/[^0-9]/g, "");
     if (!phone) {
       navigator.clipboard.writeText(generatedMessage);
@@ -257,6 +298,30 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Cálculos dinámicos CRM
+  const totalAbandoned = checkouts.length;
+  const recoverableAmount = checkouts.reduce((acc, c) => acc + c.total, 0);
+
+  const recoveredCheckouts = checkouts.filter(
+    (c) => cartStatuses[c.id] === "recovered"
+  );
+  const recoveredCount = recoveredCheckouts.length;
+  const recoveredAmount = recoveredCheckouts.reduce((acc, c) => acc + c.total, 0);
+
+  const pendingCount = checkouts.filter(
+    (c) => (cartStatuses[c.id] || "pending") === "pending"
+  ).length;
+  const contactedCount = checkouts.filter(
+    (c) => cartStatuses[c.id] === "contacted"
+  ).length;
+
+  // Filtrado por pestañas
+  const filteredCheckouts = checkouts.filter((c) => {
+    const st = cartStatuses[c.id] || "pending";
+    if (activeTab === "todos") return true;
+    return st === activeTab;
+  });
 
   return (
     <div
@@ -330,7 +395,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                 }}
               >
                 <Sparkles size={13} color="#10B981" />
-                Motor Inteligente de Recuperación
+                Motor CRM de Recuperación
               </div>
               <h1
                 style={{
@@ -351,7 +416,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                   opacity: 0.6,
                 }}
               >
-                Recuperá carritos abandonados de Tiendanube por WhatsApp y Email con IA.
+                Gestioná y recuperá carritos abandonados de Tiendanube con seguimiento inteligente.
               </p>
             </div>
 
@@ -522,11 +587,11 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
           )}
         </AnimatePresence>
 
-        {/* GRID DE MÉTRICAS */}
+        {/* GRID DE MÉTRICAS FASE 3 */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
             gap: "1rem",
             marginBottom: "2rem",
           }}
@@ -559,7 +624,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
               Carritos Abandonados
             </div>
             <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
-              {summary.totalAbandoned}
+              {totalAbandoned}
             </div>
             <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem" }}>
               En Tiendanube
@@ -591,17 +656,52 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
               <DollarSign size={18} color="#ffffff" />
             </div>
             <div style={{ fontSize: "0.8rem", color: "#000", opacity: 0.6, fontWeight: 600 }}>
-              Dinero Recuperable
+              Dinero en Riesgo
             </div>
             <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
-              {formatCurrency(summary.recoverableAmount)}
+              {formatCurrency(recoverableAmount)}
             </div>
             <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem" }}>
-              Ventas no concluidas
+              Oportunidades de venta
             </div>
           </div>
 
-          {/* Card 3 */}
+          {/* Card 3 - NUEVA MÉTRICA FASE 3 */}
+          <div
+            style={{
+              background: "#ecfdf5",
+              border: "1.5px solid #10B981",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.15)",
+            }}
+          >
+            <div
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
+                background: "#10B981",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: "0.75rem",
+              }}
+            >
+              <TrendingUp size={18} color="#ffffff" />
+            </div>
+            <div style={{ fontSize: "0.8rem", color: "#059669", fontWeight: 700 }}>
+              Ventas Recuperadas
+            </div>
+            <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
+              {formatCurrency(recoveredAmount)}
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 700, marginTop: "0.25rem" }}>
+              {recoveredCount} {recoveredCount === 1 ? "pedido cerrado" : "pedidos cerrados"} ✅
+            </div>
+          </div>
+
+          {/* Card 4 */}
           <div
             style={{
               background: "#ffffff",
@@ -637,7 +737,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
           </div>
         </div>
 
-        {/* SECCIÓN LISTADO DE CARRITOS */}
+        {/* SECCIÓN LISTADO CRM CON FILTROS */}
         <div
           style={{
             background: "#ffffff",
@@ -653,16 +753,59 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              flexWrap: "wrap",
+              gap: "1rem",
               marginBottom: "1.25rem",
             }}
           >
             <div>
               <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#000" }}>
-                Carritos Inconclusos
+                Gestión de Carritos CRM
               </h2>
               <p style={{ margin: "0.2rem 0 0", fontSize: "0.85rem", color: "#000", opacity: 0.6 }}>
-                Hacé clic en "Recuperar con IA" para redactar el mensaje y enviarlo por WhatsApp o Email.
+                Filtrá y marcá los carritos recuperados para medir tu ganancia real.
               </p>
+            </div>
+
+            {/* Pestañas de filtrado */}
+            <div
+              style={{
+                display: "inline-flex",
+                background: "#f3f4f6",
+                padding: "3px",
+                borderRadius: "10px",
+                gap: "2px",
+                flexWrap: "wrap",
+              }}
+            >
+              {(
+                [
+                  { key: "todos", label: `Todos (${totalAbandoned})` },
+                  { key: "pending", label: `Pendientes (${pendingCount})` },
+                  { key: "contacted", label: `Contactados (${contactedCount})` },
+                  { key: "recovered", label: `Recuperados (${recoveredCount})` },
+                ] as { key: "todos" | CartStatus; label: string }[]
+              ).map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  style={{
+                    padding: "0.45rem 0.85rem",
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    borderRadius: "8px",
+                    border: "none",
+                    background: activeTab === tab.key ? "#ffffff" : "transparent",
+                    color: activeTab === tab.key ? "#10B981" : "#000000",
+                    boxShadow:
+                      activeTab === tab.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -671,140 +814,234 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
               <RefreshCw size={32} className="animate-spin" style={{ margin: "0 auto 1rem" }} />
               <div style={{ fontWeight: 700, color: "#000" }}>Obteniendo carritos de Tiendanube...</div>
             </div>
-          ) : checkouts.length > 0 ? (
+          ) : filteredCheckouts.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-              {checkouts.map((c) => (
-                <div
-                  key={c.id}
-                  style={{
-                    background: "#f9fafb",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: "14px",
-                    padding: "1.15rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.85rem",
-                  }}
-                >
+              {filteredCheckouts.map((c) => {
+                const currentStatus = cartStatuses[c.id] || "pending";
+
+                return (
                   <div
+                    key={c.id}
                     style={{
+                      background: currentStatus === "recovered" ? "#ecfdf5" : "#f9fafb",
+                      border:
+                        currentStatus === "recovered"
+                          ? "1.5px solid #10B981"
+                          : "1px solid #e5e7eb",
+                      borderRadius: "14px",
+                      padding: "1.15rem",
                       display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      flexWrap: "wrap",
-                      gap: "0.5rem",
+                      flexDirection: "column",
+                      gap: "0.85rem",
+                      transition: "all 0.2s ease",
                     }}
                   >
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "1rem",
-                          fontWeight: 800,
-                          color: "#000",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.4rem",
-                        }}
-                      >
-                        <User size={16} color="#10B981" />
-                        {c.customerName}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "0.8rem",
-                          color: "#000",
-                          opacity: 0.6,
-                          marginTop: "0.2rem",
-                          display: "flex",
-                          gap: "0.8rem",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {c.customerEmail && <span>✉️ {c.customerEmail}</span>}
-                        {c.customerPhone && <span>📱 {c.customerPhone}</span>}
-                        <span>🕒 {formatDate(c.createdAt)}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#10B981" }}>
-                        {formatCurrency(c.total)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Productos */}
-                  <div
-                    style={{
-                      background: "#ffffff",
-                      border: "1px solid #f3f4f6",
-                      borderRadius: "10px",
-                      padding: "0.65rem 0.85rem",
-                      fontSize: "0.82rem",
-                      color: "#000",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <span style={{ color: "#10B981", fontWeight: 800 }}>Productos:</span>{" "}
-                    {c.products.length > 0 ? c.products.join(" • ") : "Carrito sin especificar"}
-                  </div>
-
-                  {/* Acciones */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: "0.6rem",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    {c.checkoutUrl && (
-                      <a
-                        href={c.checkoutUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          padding: "0.55rem 0.85rem",
-                          borderRadius: "10px",
-                          border: "1px solid #e5e7eb",
-                          background: "#ffffff",
-                          fontSize: "0.8rem",
-                          fontWeight: 700,
-                          color: "#000",
-                          textDecoration: "none",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "0.35rem",
-                        }}
-                      >
-                        <ExternalLink size={13} />
-                        Ver Checkout
-                      </a>
-                    )}
-
-                    <button
-                      onClick={() => handleGenerateCopy(c)}
+                    <div
                       style={{
-                        padding: "0.55rem 1.1rem",
-                        borderRadius: "10px",
-                        border: "none",
-                        background: "#10B981",
-                        color: "#ffffff",
-                        fontSize: "0.82rem",
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.4rem",
-                        boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        flexWrap: "wrap",
+                        gap: "0.5rem",
                       }}
                     >
-                      <Sparkles size={14} />
-                      Recuperar con IA
-                    </button>
+                      <div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.6rem",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: "1rem",
+                              fontWeight: 800,
+                              color: "#000",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.4rem",
+                            }}
+                          >
+                            <User size={16} color="#10B981" />
+                            {c.customerName}
+                          </div>
+
+                          {/* Badge CRM Status */}
+                          {currentStatus === "pending" && (
+                            <span
+                              style={{
+                                padding: "2px 8px",
+                                borderRadius: "999px",
+                                background: "#fef3c7",
+                                color: "#b45309",
+                                fontSize: "0.72rem",
+                                fontWeight: 700,
+                              }}
+                            >
+                              🟡 Pendiente
+                            </span>
+                          )}
+
+                          {currentStatus === "contacted" && (
+                            <span
+                              style={{
+                                padding: "2px 8px",
+                                borderRadius: "999px",
+                                background: "#e0f2fe",
+                                color: "#0369a1",
+                                fontSize: "0.72rem",
+                                fontWeight: 700,
+                              }}
+                            >
+                              🔵 Contactado
+                            </span>
+                          )}
+
+                          {currentStatus === "recovered" && (
+                            <span
+                              style={{
+                                padding: "2px 8px",
+                                borderRadius: "999px",
+                                background: "#10B981",
+                                color: "#ffffff",
+                                fontSize: "0.72rem",
+                                fontWeight: 800,
+                              }}
+                            >
+                              🟢 Venta Recuperada ✅
+                            </span>
+                          )}
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "#000",
+                            opacity: 0.6,
+                            marginTop: "0.2rem",
+                            display: "flex",
+                            gap: "0.8rem",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {c.customerEmail && <span>✉️ {c.customerEmail}</span>}
+                          {c.customerPhone && <span>📱 {c.customerPhone}</span>}
+                          <span>🕒 {formatDate(c.createdAt)}</span>
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#10B981" }}>
+                          {formatCurrency(c.total)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Productos */}
+                    <div
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #f3f4f6",
+                        borderRadius: "10px",
+                        padding: "0.65rem 0.85rem",
+                        fontSize: "0.82rem",
+                        color: "#000",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <span style={{ color: "#10B981", fontWeight: 800 }}>Productos:</span>{" "}
+                      {c.products.length > 0 ? c.products.join(" • ") : "Carrito sin especificar"}
+                    </div>
+
+                    {/* Acciones */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "0.6rem",
+                      }}
+                    >
+                      {/* Selector directo de estado CRM */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 700, opacity: 0.5 }}>
+                          Estado:
+                        </span>
+                        <select
+                          value={currentStatus}
+                          onChange={(e) =>
+                            updateCartStatus(c.id, e.target.value as CartStatus)
+                          }
+                          style={{
+                            padding: "0.35rem 0.65rem",
+                            borderRadius: "8px",
+                            border: "1px solid #e5e7eb",
+                            background: "#ffffff",
+                            fontSize: "0.78rem",
+                            fontWeight: 700,
+                            color: "#000",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <option value="pending">Pendiente</option>
+                          <option value="contacted">Contactado</option>
+                          <option value="recovered">Venta Recuperada ✅</option>
+                        </select>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                        {c.checkoutUrl && (
+                          <a
+                            href={c.checkoutUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              padding: "0.55rem 0.85rem",
+                              borderRadius: "10px",
+                              border: "1px solid #e5e7eb",
+                              background: "#ffffff",
+                              fontSize: "0.8rem",
+                              fontWeight: 700,
+                              color: "#000",
+                              textDecoration: "none",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.35rem",
+                            }}
+                          >
+                            <ExternalLink size={13} />
+                            Ver Checkout
+                          </a>
+                        )}
+
+                        <button
+                          onClick={() => handleGenerateCopy(c)}
+                          style={{
+                            padding: "0.55rem 1.1rem",
+                            borderRadius: "10px",
+                            border: "none",
+                            background: "#10B981",
+                            color: "#ffffff",
+                            fontSize: "0.82rem",
+                            fontWeight: 800,
+                            cursor: "pointer",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                            boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)",
+                          }}
+                        >
+                          <Sparkles size={14} />
+                          Recuperar con IA
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div
@@ -818,10 +1055,10 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
             >
               <ShoppingBag size={36} color="#000" style={{ opacity: 0.2, margin: "0 auto 0.75rem" }} />
               <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#000" }}>
-                No hay carritos abandonados actualmente
+                No hay carritos en la categoría "{activeTab}"
               </div>
               <p style={{ fontSize: "0.85rem", color: "#000", opacity: 0.5, margin: "0.25rem 0 0" }}>
-                Cuando un cliente deje productos en su carrito, va a aparecer acá automáticamente.
+                Cambiá de pestaña para ver el resto de los carritos.
               </p>
             </div>
           )}
@@ -946,7 +1183,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                         }}
                       >
                         <Check size={16} />
-                        ¡Email de recupero enviado exitosamente!
+                        ¡Email enviado! Carrito marcado como Contactado.
                       </div>
                     )}
 
@@ -1054,4 +1291,4 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
       </main>
     </div>
   );
-  }
+                                         }
