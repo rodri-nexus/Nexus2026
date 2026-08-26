@@ -1,21 +1,25 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bot,
+  ShoppingBag,
+  DollarSign,
   Sparkles,
-  Send,
+  MessageCircle,
   RefreshCw,
   Check,
   ArrowLeft,
+  Bot,
+  Copy,
+  ExternalLink,
+  Settings,
+  Clock,
+  Send,
   User,
-  MessageSquare,
-  Power,
-  ShieldCheck,
-  Heart,
-  Smile,
-  Briefcase,
+  Zap,
+  ChevronDown,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import DashboardHeader from "../components/DashboardHeader";
@@ -33,143 +37,177 @@ interface NevuxBotClientProps {
   store: StoreData | null;
 }
 
-interface Message {
+interface AbandonedCheckout {
   id: string;
-  sender: "user" | "bot";
-  text: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  products: string[];
+  total: number;
+  currency: string;
+  checkoutUrl: string;
+  createdAt: string;
 }
 
 export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loadingConfig, setLoadingConfig] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showConfig, setShowConfig] = useState(false);
 
   // Configuración del Bot
-  const [isActive, setIsActive] = useState(false);
   const [botName, setBotName] = useState("Sofía");
-  const [personality, setPersonality] = useState<"experta" | "calida" | "divertida">("experta");
+  const [personality, setPersonality] = useState<"persuasivo" | "calida" | "urgente">("persuasivo");
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [configSaved, setConfigSaved] = useState(false);
 
-  // Chat de prueba
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      sender: "bot",
-      text: "¡Hola! 👋 Soy Sofía, la asesora de la tienda. ¿Buscás algún producto en especial o tenés dudas con tu compra?",
-    },
-  ]);
-  const [inputMsg, setInputMsg] = useState("");
-  const [sendingMsg, setSendingMsg] = useState(false);
+  // Lista de checkouts
+  const [checkouts, setCheckouts] = useState<AbandonedCheckout[]>([]);
+  const [summary, setSummary] = useState({ totalAbandoned: 0, recoverableAmount: 0 });
 
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  // Estado para la modal / generador de copy
+  const [selectedCheckout, setSelectedCheckout] = useState<AbandonedCheckout | null>(null);
+  const [generatedMessage, setGeneratedMessage] = useState("");
+  const [generatingCopy, setGeneratingCopy] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  // Auto-scroll en el chat de prueba
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sendingMsg]);
-
-  // Cargar configuración de la tienda
-  useEffect(() => {
-    async function loadConfig() {
-      try {
-        const res = await fetch("/api/nevuxbot/config");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.config) {
-            setIsActive(data.config.is_active ?? false);
-            setBotName(data.config.bot_name || "Sofía");
-            setPersonality(data.config.personality || "experta");
-          }
+  // Cargar configuración e información de carritos
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      // 1. Cargar Configuración
+      const confRes = await fetch("/api/nevuxbot/config");
+      if (confRes.ok) {
+        const confData = await confRes.json();
+        if (confData.config) {
+          setBotName(confData.config.bot_name || "Sofía");
+          setPersonality(confData.config.personality || "persuasivo");
         }
-      } catch (err) {
-        console.error("Error cargando config de NevuxBot:", err);
-      } finally {
-        setLoadingConfig(false);
       }
+
+      // 2. Cargar Carritos Abandonados desde Tiendanube
+      const checkRes = await fetch("/api/nevuxbot/chat");
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        setCheckouts(checkData.checkouts || []);
+        setSummary(
+          checkData.summary || { totalAbandoned: 0, recoverableAmount: 0 }
+        );
+      }
+    } catch (err) {
+      console.error("Error cargando datos de carritos:", err);
+    } finally {
+      setLoading(false);
     }
-    loadConfig();
   }, []);
 
-  // Guardar Cambios
-  async function handleSaveConfig() {
-    if (saving) return;
-    setSaving(true);
-    setSavedSuccess(false);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
+  // Guardar configuración de Tono/Bot Name
+  async function handleSaveConfig() {
+    setSavingConfig(true);
+    setConfigSaved(false);
     try {
       const res = await fetch("/api/nevuxbot/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          is_active: isActive,
+          is_active: true,
           bot_name: botName,
           personality,
         }),
       });
-
       if (res.ok) {
-        setSavedSuccess(true);
-        setTimeout(() => setSavedSuccess(false), 3000);
+        setConfigSaved(true);
+        setTimeout(() => setConfigSaved(false), 2500);
       }
     } catch (err) {
-      console.error("Error al guardar config:", err);
+      console.error("Error guardando config:", err);
     } finally {
-      setSaving(false);
+      setSavingConfig(false);
     }
   }
 
-  // Enviar mensaje en el chat de prueba
-  async function handleSendTestMessage(e: React.FormEvent) {
-    e.preventDefault();
-    if (!inputMsg.trim() || sendingMsg) return;
-
-    const userText = inputMsg.trim();
-    setInputMsg("");
-
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: userText,
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setSendingMsg(true);
+  // Generar Copy con Gemini API para un carrito específico
+  async function handleGenerateCopy(c: AbandonedCheckout) {
+    setSelectedCheckout(c);
+    setGeneratingCopy(true);
+    setGeneratedMessage("");
+    setCopied(false);
 
     try {
+      const totalFormatted = formatCurrency(c.total);
       const res = await fetch("/api/nevuxbot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          storeId: store?.store_id,
-          message: userText,
-          conversationHistory: messages,
+          customerName: c.customerName,
+          products: c.products,
+          totalFormatted,
+          checkoutUrl: c.checkoutUrl,
+          tone: personality,
+          botName,
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        const botReplyMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          sender: "bot",
-          text: data.reply || "¡Hola! ¿Cómo estás?",
-        };
-        setMessages((prev) => [...prev, botReplyMsg]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            sender: "bot",
-            text: "Ocurrió un error temporal al comunicarme. Verificá que la API key esté activa.",
-          },
-        ]);
+        setGeneratedMessage(data.message || "");
       }
     } catch (err) {
-      console.error("Error en chat de prueba:", err);
+      console.error("Error generando mensaje de recupero:", err);
     } finally {
-      setSendingMsg(false);
+      setGeneratingCopy(false);
     }
   }
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
+  const formatDate = (isoStr: string) => {
+    try {
+      const d = new Date(isoStr);
+      return d.toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return isoStr;
+    }
+  };
+
+  // Abrir WhatsApp con mensaje pre-cargado
+  const handleOpenWhatsApp = () => {
+    if (!selectedCheckout || !generatedMessage) return;
+
+    let phone = selectedCheckout.customerPhone.replace(/[^0-9]/g, "");
+    if (!phone) {
+      // Si no hay teléfono formateado, abrir WhatsApp Web directo para pegar
+      navigator.clipboard.writeText(generatedMessage);
+      setCopied(true);
+      window.open("https://web.whatsapp.com/", "_blank");
+      return;
+    }
+
+    const encodedText = encodeURIComponent(generatedMessage);
+    const waUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+    window.open(waUrl, "_blank");
+  };
+
+  const handleCopyMessage = () => {
+    if (!generatedMessage) return;
+    navigator.clipboard.writeText(generatedMessage);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div
@@ -215,15 +253,15 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          style={{ marginBottom: "2rem" }}
+          style={{ marginBottom: "1.75rem" }}
         >
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "1rem",
-              flexWrap: "wrap",
               justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "1rem",
             }}
           >
             <div>
@@ -234,6 +272,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                   gap: "0.4rem",
                   padding: "0.35rem 0.85rem",
                   background: "#ecfdf5",
+                  border: "1px solid #a7f3d0",
                   borderRadius: "999px",
                   fontSize: "0.75rem",
                   color: "#059669",
@@ -241,8 +280,8 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                   marginBottom: "0.5rem",
                 }}
               >
-                <Sparkles size={13} />
-                Inteligencia Artificial Vendedora
+                <Sparkles size={13} color="#10B981" />
+                Motor Inteligente de Recuperación
               </div>
               <h1
                 style={{
@@ -263,453 +302,639 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                   opacity: 0.6,
                 }}
               >
-                Tu asesora de ventas humana en la tienda. Conoce tus productos de memoria y responde las 24 horas.
+                Recuperá carritos abandonados de Tiendanube en 1-clic con copys redactados por IA.
               </p>
             </div>
 
-            {/* Switch Estado On/Off */}
-            <div
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e5e7eb",
-                borderRadius: "16px",
-                padding: "0.75rem 1.25rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.85rem",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
-              }}
-            >
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  background: isActive ? "#10B981" : "#9ca3af",
-                  boxShadow: isActive ? "0 0 8px #10B981" : "none",
-                }}
-              />
-              <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#000000" }}>
-                {isActive ? "Bot Activado" : "Bot Desactivado"}
-              </span>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
               <button
-                onClick={() => setIsActive(!isActive)}
+                onClick={loadData}
+                disabled={loading}
                 style={{
-                  width: "48px",
-                  height: "26px",
-                  borderRadius: "999px",
-                  background: isActive ? "#10B981" : "#e5e7eb",
-                  border: "none",
-                  position: "relative",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.65rem 1.15rem",
+                  borderRadius: "12px",
+                  border: "1px solid #e5e7eb",
+                  background: "#ffffff",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  color: "#000000",
                   cursor: "pointer",
-                  transition: "background 0.2s ease",
-                  outline: "none",
                 }}
               >
-                <div
-                  style={{
-                    width: "20px",
-                    height: "20px",
-                    borderRadius: "50%",
-                    background: "#ffffff",
-                    position: "absolute",
-                    top: "3px",
-                    left: isActive ? "25px" : "3px",
-                    transition: "left 0.2s ease",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                  }}
-                />
+                <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+                Actualizar
+              </button>
+
+              <button
+                onClick={() => setShowConfig(!showConfig)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.65rem 1.15rem",
+                  borderRadius: "12px",
+                  border: "1px solid #10B981",
+                  background: "#10B981",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  cursor: "pointer",
+                }}
+              >
+                <Settings size={15} />
+                Ajustes IA
               </button>
             </div>
           </div>
         </motion.div>
 
-        {/* Layout en 2 Columnas (Ajustes + Simulador de Chat) */}
+        {/* PANEL DESPLEGABLE DE CONFIGURACIÓN DE IA */}
+        <AnimatePresence>
+          {showConfig && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{
+                background: "#ffffff",
+                border: "1.5px solid #10B981",
+                borderRadius: "16px",
+                padding: "1.5rem",
+                marginBottom: "1.75rem",
+                boxShadow: "0 4px 16px rgba(16, 185, 129, 0.12)",
+              }}
+            >
+              <h3 style={{ margin: "0 0 1rem", fontSize: "1.1rem", fontWeight: 800, color: "#000" }}>
+                ⚙️ Configuración del Asistente de Recupero
+              </h3>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                  gap: "1.25rem",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      color: "#000",
+                      marginBottom: "0.4rem",
+                    }}
+                  >
+                    Nombre del Asesor/a:
+                  </label>
+                  <input
+                    type="text"
+                    value={botName}
+                    onChange={(e) => setBotName(e.target.value)}
+                    placeholder="Ej: Sofía, Lucas..."
+                    style={{
+                      width: "100%",
+                      padding: "0.7rem 0.85rem",
+                      borderRadius: "10px",
+                      border: "1px solid #e5e7eb",
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      boxSizing: "border-box",
+                      color: "#000",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      color: "#000",
+                      marginBottom: "0.4rem",
+                    }}
+                  >
+                    Tono de Conversación:
+                  </label>
+                  <select
+                    value={personality}
+                    onChange={(e) => setPersonality(e.target.value as any)}
+                    style={{
+                      width: "100%",
+                      padding: "0.7rem 0.85rem",
+                      borderRadius: "10px",
+                      border: "1px solid #e5e7eb",
+                      background: "#ffffff",
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      boxSizing: "border-box",
+                      color: "#000",
+                    }}
+                  >
+                    <option value="persuasivo">Persuasivo y Profesional</option>
+                    <option value="calida">Cálido y Cercano</option>
+                    <option value="urgente">Urgencia / Stock Limitado</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  onClick={handleSaveConfig}
+                  disabled={savingConfig}
+                  style={{
+                    padding: "0.65rem 1.5rem",
+                    borderRadius: "10px",
+                    border: "none",
+                    background: "#10B981",
+                    color: "#ffffff",
+                    fontWeight: 800,
+                    fontSize: "0.85rem",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  {savingConfig ? (
+                    <RefreshCw size={14} className="animate-spin" />
+                  ) : configSaved ? (
+                    <Check size={14} />
+                  ) : null}
+                  {configSaved ? "¡Guardado!" : "Guardar Cambios"}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* GRID DE MÉTRICAS */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "1.5rem",
-            alignItems: "start",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "1rem",
+            marginBottom: "2rem",
           }}
         >
-          {/* COLUMNA 1: CONFIGURACIÓN DEL BOT */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+          {/* Card 1 */}
+          <div
             style={{
               background: "#ffffff",
               border: "1px solid #e5e7eb",
-              borderRadius: "20px",
-              padding: "1.75rem",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
             }}
           >
-            <div style={{ borderBottom: "1px solid #f3f4f6", paddingBottom: "1rem" }}>
-              <h2 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0, color: "#000" }}>
-                Personalidad y Nombre
-              </h2>
-              <p style={{ fontSize: "0.85rem", color: "#000", opacity: 0.5, margin: "0.25rem 0 0" }}>
-                Elegí cómo querés que se presente tu asesora ante los compradores.
-              </p>
-            </div>
-
-            {/* Campo: Nombre del Asesor */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  color: "#000000",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Nombre del asesor / asesora:
-              </label>
-              <div style={{ position: "relative" }}>
-                <User
-                  size={16}
-                  style={{
-                    position: "absolute",
-                    left: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    opacity: 0.4,
-                  }}
-                />
-                <input
-                  type="text"
-                  value={botName}
-                  onChange={(e) => setBotName(e.target.value)}
-                  placeholder="Ej: Sofía, Lucas, Ana..."
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 0.75rem 0.75rem 2.5rem",
-                    borderRadius: "12px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "0.9rem",
-                    fontWeight: 600,
-                    outline: "none",
-                    boxSizing: "border-box",
-                    color: "#000000",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Selector de Tono / Personalidad */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  color: "#000000",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                Tono de conversación:
-              </label>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {/* Opción 1: Experta */}
-                <div
-                  onClick={() => setPersonality("experta")}
-                  style={{
-                    padding: "0.85rem 1rem",
-                    borderRadius: "14px",
-                    border: `2px solid ${personality === "experta" ? "#10B981" : "#e5e7eb"}`,
-                    background: personality === "experta" ? "#ecfdf5" : "#ffffff",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.85rem",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  <Briefcase size={20} color={personality === "experta" ? "#059669" : "#6b7280"} />
-                  <div>
-                    <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#000" }}>
-                      Experta y Profesional
-                    </div>
-                    <div style={{ fontSize: "0.78rem", color: "#000", opacity: 0.5 }}>
-                      Respuestas elegantes, claras, resolutivas y respetuosas.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Opción 2: Cálida */}
-                <div
-                  onClick={() => setPersonality("calida")}
-                  style={{
-                    padding: "0.85rem 1rem",
-                    borderRadius: "14px",
-                    border: `2px solid ${personality === "calida" ? "#10B981" : "#e5e7eb"}`,
-                    background: personality === "calida" ? "#ecfdf5" : "#ffffff",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.85rem",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  <Heart size={20} color={personality === "calida" ? "#059669" : "#6b7280"} />
-                  <div>
-                    <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#000" }}>
-                      Cálida y Cercana
-                    </div>
-                    <div style={{ fontSize: "0.78rem", color: "#000", opacity: 0.5 }}>
-                      Trato súper dulce, amigable, empático y lleno de buena onda.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Opción 3: Divertida */}
-                <div
-                  onClick={() => setPersonality("divertida")}
-                  style={{
-                    padding: "0.85rem 1rem",
-                    borderRadius: "14px",
-                    border: `2px solid ${personality === "divertida" ? "#10B981" : "#e5e7eb"}`,
-                    background: personality === "divertida" ? "#ecfdf5" : "#ffffff",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.85rem",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  <Smile size={20} color={personality === "divertida" ? "#059669" : "#6b7280"} />
-                  <div>
-                    <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#000" }}>
-                      Divertida y Fresca
-                    </div>
-                    <div style={{ fontSize: "0.78rem", color: "#000", opacity: 0.5 }}>
-                      Lenguaje relajado, entusiasta y con un toque jovial.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Botón Guardar */}
-            <button
-              onClick={handleSaveConfig}
-              disabled={saving || loadingConfig}
+            <div
               style={{
-                width: "100%",
-                padding: "0.85rem",
-                borderRadius: "14px",
-                border: "none",
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
                 background: "#10B981",
-                color: "#ffffff",
-                fontSize: "0.95rem",
-                fontWeight: 800,
-                cursor: saving || loadingConfig ? "not-allowed" : "pointer",
-                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.3)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "0.5rem",
-                transition: "all 0.2s ease",
+                marginBottom: "0.75rem",
               }}
             >
-              {saving ? (
-                <>
-                  <RefreshCw size={16} style={{ animation: "spin 1s linear infinite" }} />
-                  Guardando cambios...
-                </>
-              ) : savedSuccess ? (
-                <>
-                  <Check size={16} />
-                  ¡Configuración guardada!
-                </>
-              ) : (
-                "Guardar configuración"
-              )}
-            </button>
-          </motion.div>
+              <ShoppingBag size={18} color="#ffffff" />
+            </div>
+            <div style={{ fontSize: "0.8rem", color: "#000", opacity: 0.6, fontWeight: 600 }}>
+              Carritos Abandonados
+            </div>
+            <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
+              {summary.totalAbandoned}
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem" }}>
+              En Tiendanube
+            </div>
+          </div>
 
-          {/* COLUMNA 2: SIMULADOR DE CHAT EN VIVO */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
+          {/* Card 2 */}
+          <div
             style={{
               background: "#ffffff",
               border: "1px solid #e5e7eb",
-              borderRadius: "20px",
-              overflow: "hidden",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.04)",
-              display: "flex",
-              flexDirection: "column",
-              height: "520px",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
             }}
           >
-            {/* Header del Chat */}
             <div
               style={{
-                background: "#000000",
-                color: "#ffffff",
-                padding: "1rem 1.25rem",
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
+                background: "#10B981",
                 display: "flex",
                 alignItems: "center",
-                gap: "0.75rem",
+                justifyContent: "center",
+                marginBottom: "0.75rem",
               }}
             >
-              <div
-                style={{
-                  width: "38px",
-                  height: "38px",
-                  borderRadius: "50%",
-                  background: "#10B981",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: "bold",
-                }}
-              >
-                <Bot size={20} color="#ffffff" />
-              </div>
-              <div>
-                <div style={{ fontSize: "0.95rem", fontWeight: "bold" }}>
-                  {botName} (Asesora NevuxBot)
-                </div>
-                <div style={{ fontSize: "0.75rem", color: "#34d399", display: "flex", alignItems: "center", gap: "4px" }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399" }} />
-                  En línea • Conoce tu tienda
-                </div>
-              </div>
+              <DollarSign size={18} color="#ffffff" />
             </div>
+            <div style={{ fontSize: "0.8rem", color: "#000", opacity: 0.6, fontWeight: 600 }}>
+              Dinero Recuperable
+            </div>
+            <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
+              {formatCurrency(summary.recoverableAmount)}
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem" }}>
+              Ventas no concluidas
+            </div>
+          </div>
 
-            {/* Cuerpo de Mensajes */}
+          {/* Card 3 */}
+          <div
+            style={{
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            }}
+          >
             <div
               style={{
-                flex: 1,
-                padding: "1.25rem",
-                overflowY: "auto",
-                background: "#f9fafb",
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
+                background: "#10B981",
                 display: "flex",
-                flexDirection: "column",
-                gap: "0.85rem",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: "0.75rem",
               }}
             >
-              {messages.map((m) => (
+              <Bot size={18} color="#ffffff" />
+            </div>
+            <div style={{ fontSize: "0.8rem", color: "#000", opacity: 0.6, fontWeight: 600 }}>
+              Asesor Activo
+            </div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
+              {botName}
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem" }}>
+              Tono: {personality}
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN LISTADO DE CARRITOS */}
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "16px",
+            padding: "1.5rem",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            marginBottom: "2rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <div>
+              <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#000" }}>
+                Carritos Inconclusos
+              </h2>
+              <p style={{ margin: "0.2rem 0 0", fontSize: "0.85rem", color: "#000", opacity: 0.6 }}>
+                Hacé clic en "Recuperar con IA" para redactar el mensaje de venta.
+              </p>
+            </div>
+          </div>
+
+          {loading ? (
+            <div style={{ padding: "3rem 1rem", textAlign: "center", color: "#10B981" }}>
+              <RefreshCw size={32} className="animate-spin" style={{ margin: "0 auto 1rem" }} />
+              <div style={{ fontWeight: 700, color: "#000" }}>Obteniendo carritos de Tiendanube...</div>
+            </div>
+          ) : checkouts.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+              {checkouts.map((c) => (
                 <div
-                  key={m.id}
+                  key={c.id}
                   style={{
-                    alignSelf: m.sender === "user" ? "flex-end" : "flex-start",
-                    maxWidth: "80%",
+                    background: "#f9fafb",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "14px",
+                    padding: "1.15rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.85rem",
                   }}
                 >
                   <div
                     style={{
-                      padding: "0.75rem 1rem",
-                      borderRadius: m.sender === "user" ? "18px 18px 2px 18px" : "18px 18px 18px 2px",
-                      background: m.sender === "user" ? "#000000" : "#ffffff",
-                      color: m.sender === "user" ? "#ffffff" : "#000000",
-                      border: m.sender === "user" ? "none" : "1px solid #e5e7eb",
-                      fontSize: "0.88rem",
-                      lineHeight: "1.4",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                      gap: "0.5rem",
                     }}
                   >
-                    {m.text}
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "1rem",
+                          fontWeight: 800,
+                          color: "#000",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.4rem",
+                        }}
+                      >
+                        <User size={16} color="#10B981" />
+                        {c.customerName}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "#000",
+                          opacity: 0.6,
+                          marginTop: "0.2rem",
+                          display: "flex",
+                          gap: "0.8rem",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {c.customerEmail && <span>✉️ {c.customerEmail}</span>}
+                        {c.customerPhone && <span>📱 {c.customerPhone}</span>}
+                        <span>🕒 {formatDate(c.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#10B981" }}>
+                        {formatCurrency(c.total)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Productos */}
+                  <div
+                    style={{
+                      background: "#ffffff",
+                      border: "1px solid #f3f4f6",
+                      borderRadius: "10px",
+                      padding: "0.65rem 0.85rem",
+                      fontSize: "0.82rem",
+                      color: "#000",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <span style={{ color: "#10B981", fontWeight: 800 }}>Productos:</span>{" "}
+                    {c.products.length > 0 ? c.products.join(" • ") : "Carrito sin especificar"}
+                  </div>
+
+                  {/* Acciones */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      gap: "0.6rem",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {c.checkoutUrl && (
+                      <a
+                        href={c.checkoutUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          padding: "0.55rem 0.85rem",
+                          borderRadius: "10px",
+                          border: "1px solid #e5e7eb",
+                          background: "#ffffff",
+                          fontSize: "0.8rem",
+                          fontWeight: 700,
+                          color: "#000",
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                        }}
+                      >
+                        <ExternalLink size={13} />
+                        Ver Checkout
+                      </a>
+                    )}
+
+                    <button
+                      onClick={() => handleGenerateCopy(c)}
+                      style={{
+                        padding: "0.55rem 1.1rem",
+                        borderRadius: "10px",
+                        border: "none",
+                        background: "#10B981",
+                        color: "#ffffff",
+                        fontSize: "0.82rem",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)",
+                      }}
+                    >
+                      <Sparkles size={14} />
+                      Recuperar con IA
+                    </button>
                   </div>
                 </div>
               ))}
-
-              {sendingMsg && (
-                <div style={{ alignSelf: "flex-start", maxWidth: "80%" }}>
-                  <div
-                    style={{
-                      padding: "0.6rem 1rem",
-                      borderRadius: "18px 18px 18px 2px",
-                      background: "#ffffff",
-                      border: "1px solid #e5e7eb",
-                      fontSize: "0.82rem",
-                      color: "#059669",
-                      fontWeight: 600,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <RefreshCw size={12} style={{ animation: "spin 1s linear infinite" }} />
-                    {botName} está escribiendo...
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
             </div>
-
-            {/* Input del Chat de Prueba */}
-            <form
-              onSubmit={handleSendTestMessage}
+          ) : (
+            <div
               style={{
-                padding: "0.85rem",
-                background: "#ffffff",
-                borderTop: "1px solid #e5e7eb",
-                display: "flex",
-                gap: "0.5rem",
+                padding: "3rem 1rem",
+                textAlign: "center",
+                background: "#fafafa",
+                border: "1px dashed #e5e7eb",
+                borderRadius: "12px",
               }}
             >
-              <input
-                type="text"
-                placeholder={`Hacerle una pregunta a ${botName}...`}
-                value={inputMsg}
-                onChange={(e) => setInputMsg(e.target.value)}
+              <ShoppingBag size={36} color="#000" style={{ opacity: 0.2, margin: "0 auto 0.75rem" }} />
+              <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#000" }}>
+                No hay carritos abandonados actualmente
+              </div>
+              <p style={{ fontSize: "0.85rem", color: "#000", opacity: 0.5, margin: "0.25rem 0 0" }}>
+                Cuando un cliente deje productos en su carrito, va a aparecer acá automáticamente.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* MODAL GENERADOR DE COPY CON IA */}
+        <AnimatePresence>
+          {selectedCheckout && (
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0,0,0,0.6)",
+                backdropFilter: "blur(4px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 9999,
+                padding: "1rem",
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 style={{
-                  flex: 1,
-                  padding: "0.75rem 1rem",
-                  borderRadius: "12px",
-                  border: "1px solid #e5e7eb",
-                  fontSize: "0.88rem",
-                  outline: "none",
+                  background: "#ffffff",
+                  borderRadius: "20px",
+                  padding: "1.75rem",
+                  maxWidth: "540px",
+                  width: "100%",
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
                   boxSizing: "border-box",
-                  color: "#000000",
-                }}
-              />
-              <button
-                type="submit"
-                disabled={!inputMsg.trim() || sendingMsg}
-                style={{
-                  background: "#10B981",
-                  border: "none",
-                  borderRadius: "12px",
-                  width: "44px",
-                  height: "44px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#ffffff",
-                  cursor: !inputMsg.trim() || sendingMsg ? "not-allowed" : "pointer",
-                  opacity: !inputMsg.trim() || sendingMsg ? 0.5 : 1,
                 }}
               >
-                <Send size={18} />
-              </button>
-            </form>
-          </motion.div>
-        </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <div
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "8px",
+                        background: "#10B981",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Sparkles size={16} color="#ffffff" />
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#000" }}>
+                        Copy Persuasivo Generado
+                      </h3>
+                      <div style={{ fontSize: "0.78rem", color: "#000", opacity: 0.5 }}>
+                        Para {selectedCheckout.customerName}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setSelectedCheckout(null)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      fontSize: "1.25rem",
+                      cursor: "pointer",
+                      color: "#000",
+                      opacity: 0.5,
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {generatingCopy ? (
+                  <div style={{ padding: "3rem 1rem", textAlign: "center" }}>
+                    <RefreshCw size={32} color="#10B981" className="animate-spin" style={{ margin: "0 auto 1rem" }} />
+                    <div style={{ fontWeight: 700, color: "#000" }}>Gemini IA está redactando el mensaje...</div>
+                    <div style={{ fontSize: "0.8rem", color: "#000", opacity: 0.5, marginTop: "0.25rem" }}>
+                      Personalizando según productos y precio
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <textarea
+                      value={generatedMessage}
+                      onChange={(e) => setGeneratedMessage(e.target.value)}
+                      rows={7}
+                      style={{
+                        width: "100%",
+                        padding: "1rem",
+                        borderRadius: "12px",
+                        border: "1px solid #a7f3d0",
+                        background: "#ecfdf5",
+                        fontSize: "0.9rem",
+                        fontWeight: 600,
+                        color: "#000",
+                        lineHeight: 1.5,
+                        fontFamily: "inherit",
+                        boxSizing: "border-box",
+                        marginBottom: "1.25rem",
+                        outline: "none",
+                      }}
+                    />
+
+                    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                      <button
+                        onClick={handleCopyMessage}
+                        style={{
+                          flex: "1 1 140px",
+                          padding: "0.75rem",
+                          borderRadius: "12px",
+                          border: "1px solid #e5e7eb",
+                          background: "#ffffff",
+                          fontSize: "0.85rem",
+                          fontWeight: 700,
+                          color: "#000",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.4rem",
+                        }}
+                      >
+                        {copied ? <Check size={16} color="#10B981" /> : <Copy size={16} />}
+                        {copied ? "¡Copiado!" : "Copiar Texto"}
+                      </button>
+
+                      <button
+                        onClick={handleOpenWhatsApp}
+                        style={{
+                          flex: "1 1 180px",
+                          padding: "0.75rem",
+                          borderRadius: "12px",
+                          border: "none",
+                          background: "#22c55e",
+                          fontSize: "0.85rem",
+                          fontWeight: 800,
+                          color: "#ffffff",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.4rem",
+                          boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
+                        }}
+                      >
+                        <MessageCircle size={18} />
+                        Enviar por WhatsApp
+                      </button>
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* Centro de Ayuda */}
-        <div style={{ marginTop: "2.5rem" }}>
-          <CentroAyuda />
-        </div>
+        <CentroAyuda />
       </main>
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
-}
+                               }
