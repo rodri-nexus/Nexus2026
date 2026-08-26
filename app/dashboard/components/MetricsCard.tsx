@@ -9,15 +9,23 @@ import {
   DollarSign,
   BarChart3,
   ChevronDown,
-  Activity,
   Loader2,
 } from "lucide-react";
 
-type Period = "hoy" | "ayer" | "7dias" | "personalizado";
+type Period = "hoy" | "ayer" | "7dias" | "30dias";
 type SortMetric = "impresiones" | "clicks" | "agregados" | "facturacion";
 type SortOrder = "desc" | "asc";
+type ChartMetric = "impressions" | "clicks" | "cartAdds" | "revenue";
 
 interface MetricSummary {
+  impressions: number;
+  clicks: number;
+  cartAdds: number;
+  revenue: number;
+}
+
+interface TimelineItem {
+  date: string;
   impressions: number;
   clicks: number;
   cartAdds: number;
@@ -39,6 +47,8 @@ export default function MetricsCard() {
   const [loading, setLoading] = useState(true);
   const [sortMetric, setSortMetric] = useState<SortMetric>("impresiones");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [chartMetric, setChartMetric] = useState<ChartMetric>("impressions");
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const [summary, setSummary] = useState<MetricSummary>({
     impressions: 0,
@@ -47,6 +57,7 @@ export default function MetricsCard() {
     revenue: 0,
   });
 
+  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const [widgetList, setWidgetList] = useState<WidgetPerformanceItem[]>([]);
 
   // Fetch de métricas reales desde la API
@@ -66,14 +77,16 @@ export default function MetricsCard() {
           cartAdds: data.summary?.cartAdds || 0,
           revenue: data.summary?.revenue || 0,
         });
+        setTimeline(data.timeline || []);
         setWidgetList(data.widgets || []);
       } else {
-        // Fallback a ceros limpios si no hay conexión
         setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
+        setTimeline([]);
         setWidgetList([]);
       }
     } catch (error) {
       setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
+      setTimeline([]);
       setWidgetList([]);
     } finally {
       setLoading(false);
@@ -126,34 +139,49 @@ export default function MetricsCard() {
     }).format(val);
   };
 
+  const formatDateLabel = (dateStr: string) => {
+    if (!dateStr) return "";
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}`;
+    }
+    return dateStr;
+  };
+
+  // Cálculo para el gráfico
+  const maxChartValue = Math.max(
+    ...timeline.map((t) => t[chartMetric]),
+    1
+  );
+
   const metrics = [
     {
+      key: "impressions" as ChartMetric,
       label: "Impresiones",
       value: formatNumber(summary.impressions),
       sublabel: "Vistas de widgets",
       icon: Eye,
-      gradient: "#10B981",
     },
     {
+      key: "clicks" as ChartMetric,
       label: "Clicks",
       value: formatNumber(summary.clicks),
       sublabel: "Interacciones",
       icon: MousePointerClick,
-      gradient: "#10B981",
     },
     {
+      key: "cartAdds" as ChartMetric,
       label: "Agregados al carrito",
       value: formatNumber(summary.cartAdds),
       sublabel: "Desde widgets",
       icon: ShoppingCart,
-      gradient: "#10B981",
     },
     {
+      key: "revenue" as ChartMetric,
       label: "Facturación estimada",
       value: formatCurrency(summary.revenue),
       sublabel: "Desde widgets",
       icon: DollarSign,
-      gradient: "#10B981",
     },
   ];
 
@@ -161,7 +189,7 @@ export default function MetricsCard() {
     { key: "hoy", label: "Hoy" },
     { key: "ayer", label: "Ayer" },
     { key: "7dias", label: "7 días" },
-    { key: "personalizado", label: "Personalizado" },
+    { key: "30dias", label: "30 días" },
   ];
 
   return (
@@ -235,10 +263,10 @@ export default function MetricsCard() {
           opacity: 0.6,
         }}
       >
-        {period === "hoy" && "Hoy"}
-        {period === "ayer" && "Ayer"}
+        {period === "hoy" && "Actividad de hoy"}
+        {period === "ayer" && "Actividad de ayer"}
         {period === "7dias" && "Últimos 7 días"}
-        {period === "personalizado" && "Rango personalizado"}
+        {period === "30dias" && "Últimos 30 días"}
       </p>
 
       {/* Botones de periodo */}
@@ -259,9 +287,7 @@ export default function MetricsCard() {
               style={{
                 padding: "0.5rem 1rem",
                 borderRadius: "999px",
-                border: isActive
-                  ? "1px solid transparent"
-                  : "1px solid #e5e7eb",
+                border: isActive ? "1px solid #10B981" : "1px solid #e5e7eb",
                 background: isActive ? "#10B981" : "#ffffff",
                 color: isActive ? "#ffffff" : "#000000",
                 fontSize: "0.85rem",
@@ -288,20 +314,24 @@ export default function MetricsCard() {
       >
         {metrics.map((metric, idx) => {
           const Icon = metric.icon;
+          const isSelectedForChart = chartMetric === metric.key;
+
           return (
             <motion.div
               key={metric.label}
+              onClick={() => setChartMetric(metric.key)}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               style={{
-                background: "#ffffff",
-                border: "1px solid #f3f4f6",
+                background: isSelectedForChart ? "#ecfdf5" : "#ffffff",
+                border: isSelectedForChart ? "1.5px solid #10B981" : "1px solid #f3f4f6",
                 borderRadius: "12px",
                 padding: "1.15rem",
                 position: "relative",
-                overflow: "hidden",
+                cursor: "pointer",
                 boxSizing: "border-box",
+                transition: "all 0.15s ease",
               }}
             >
               <div
@@ -309,7 +339,7 @@ export default function MetricsCard() {
                   width: "36px",
                   height: "36px",
                   borderRadius: "10px",
-                  background: metric.gradient,
+                  background: "#10B981",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -348,19 +378,19 @@ export default function MetricsCard() {
               <div
                 style={{
                   fontSize: "0.75rem",
-                  color: "#000000",
-                  opacity: 0.5,
-                  fontWeight: 500,
+                  color: isSelectedForChart ? "#059669" : "#000000",
+                  opacity: isSelectedForChart ? 1 : 0.5,
+                  fontWeight: isSelectedForChart ? 700 : 500,
                 }}
               >
-                {metric.sublabel}
+                {isSelectedForChart ? "● Viendo en gráfico" : metric.sublabel}
               </div>
             </motion.div>
           );
         })}
       </div>
 
-      {/* Evolución del período */}
+      {/* Evolución del período (Gráfico Diario) */}
       <div
         style={{
           borderTop: "1px solid #f3f4f6",
@@ -368,54 +398,221 @@ export default function MetricsCard() {
           marginBottom: "1.5rem",
         }}
       >
-        <h3
-          style={{
-            margin: 0,
-            fontSize: "1rem",
-            fontWeight: 800,
-            color: "#000000",
-          }}
-        >
-          Evolución del período
-        </h3>
-        <p
-          style={{
-            margin: "0.25rem 0 1.25rem",
-            fontSize: "0.85rem",
-            color: "#000000",
-            opacity: 0.6,
-          }}
-        >
-          Agrupado por día
-        </p>
-
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "2.5rem 1rem",
-            background: "#ffffff",
-            borderRadius: "12px",
-            border: "1px dashed #e5e7eb",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+            gap: "0.75rem",
+            marginBottom: "1.25rem",
           }}
         >
-          <BarChart3 size={40} color="#000000" style={{ opacity: 0.2 }} strokeWidth={1.5} />
-          <p
+          <div>
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "1rem",
+                fontWeight: 800,
+                color: "#000000",
+              }}
+            >
+              Evolución diaria
+            </h3>
+            <p
+              style={{
+                margin: "0.25rem 0 0",
+                fontSize: "0.85rem",
+                color: "#000000",
+                opacity: 0.6,
+              }}
+            >
+              Mostrando{" "}
+              <strong>
+                {chartMetric === "impressions" && "Impresiones"}
+                {chartMetric === "clicks" && "Clicks"}
+                {chartMetric === "cartAdds" && "Agregados al carrito"}
+                {chartMetric === "revenue" && "Facturación"}
+              </strong>{" "}
+              por día
+            </p>
+          </div>
+
+          {/* Selector de métrica para el gráfico */}
+          <div
             style={{
-              margin: "0.75rem 0 0",
-              fontSize: "0.9rem",
-              color: "#000000",
-              opacity: 0.5,
-              textAlign: "center",
+              display: "inline-flex",
+              background: "#f3f4f6",
+              padding: "3px",
+              borderRadius: "8px",
+              gap: "2px",
             }}
           >
-            {summary.impressions > 0
-              ? "Generando gráfico con actividad reciente..."
-              : "Todavía no hay métricas para este período."}
-          </p>
+            {(
+              [
+                { key: "impressions", label: "Vistas" },
+                { key: "clicks", label: "Clicks" },
+                { key: "cartAdds", label: "Carritos" },
+                { key: "revenue", label: "$" },
+              ] as { key: ChartMetric; label: string }[]
+            ).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setChartMetric(tab.key)}
+                style={{
+                  padding: "0.35rem 0.65rem",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  borderRadius: "6px",
+                  border: "none",
+                  background: chartMetric === tab.key ? "#ffffff" : "transparent",
+                  color: chartMetric === tab.key ? "#10B981" : "#000000",
+                  boxShadow:
+                    chartMetric === tab.key
+                      ? "0 1px 2px rgba(0,0,0,0.06)"
+                      : "none",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Contenedor del Gráfico de Barras */}
+        {timeline.length > 0 ? (
+          <div
+            style={{
+              background: "#fafafa",
+              border: "1px solid #f3f4f6",
+              borderRadius: "12px",
+              padding: "1.25rem 1rem 0.75rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-end",
+                gap: timeline.length > 15 ? "4px" : "8px",
+                height: "160px",
+                width: "100%",
+                paddingBottom: "1.5rem",
+                position: "relative",
+              }}
+            >
+              {timeline.map((item, idx) => {
+                const val = item[chartMetric];
+                const heightPercent = maxChartValue > 0 ? Math.max((val / maxChartValue) * 100, 4) : 4;
+                const isHovered = hoveredIndex === idx;
+
+                return (
+                  <div
+                    key={item.date}
+                    onMouseEnter={() => setHoveredIndex(idx)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    onClick={() => setHoveredIndex(idx)}
+                    style={{
+                      flex: 1,
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      position: "relative",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {/* Tooltip flotante */}
+                    {isHovered && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: `calc(${heightPercent}% + 10px)`,
+                          background: "#000000",
+                          color: "#ffffff",
+                          padding: "0.3rem 0.55rem",
+                          borderRadius: "6px",
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          whiteSpace: "nowrap",
+                          zIndex: 10,
+                          pointerEvents: "none",
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
+                        }}
+                      >
+                        <div>{formatDateLabel(item.date)}</div>
+                        <div style={{ color: "#10B981", fontSize: "0.78rem" }}>
+                          {chartMetric === "revenue" ? formatCurrency(val) : formatNumber(val)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Barra */}
+                    <div
+                      style={{
+                        width: "100%",
+                        maxWidth: "28px",
+                        height: `${heightPercent}%`,
+                        background: isHovered
+                          ? "#059669"
+                          : val > 0
+                          ? "#10B981"
+                          : "#e5e7eb",
+                        borderRadius: "4px 4px 0 0",
+                        transition: "all 0.2s ease",
+                      }}
+                    />
+
+                    {/* Label Fecha */}
+                    {(timeline.length <= 10 || idx % Math.ceil(timeline.length / 8) === 0) && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: "-1.25rem",
+                          fontSize: "0.68rem",
+                          color: "#000000",
+                          opacity: 0.5,
+                          fontWeight: 600,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {formatDateLabel(item.date)}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "2.5rem 1rem",
+              background: "#ffffff",
+              borderRadius: "12px",
+              border: "1px dashed #e5e7eb",
+            }}
+          >
+            <BarChart3 size={40} color="#000000" style={{ opacity: 0.2 }} strokeWidth={1.5} />
+            <p
+              style={{
+                margin: "0.75rem 0 0",
+                fontSize: "0.9rem",
+                color: "#000000",
+                opacity: 0.5,
+                textAlign: "center",
+              }}
+            >
+              Todavía no hay métricas para este período.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Rendimiento por widget */}
@@ -592,4 +789,4 @@ export default function MetricsCard() {
       </div>
     </motion.section>
   );
-    }
+}
