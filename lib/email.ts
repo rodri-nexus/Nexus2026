@@ -445,7 +445,7 @@ export async function sendCartRecoveryEmail(
           (p) => `<li style="padding:6px 0;border-bottom:1px solid #e5e7eb;">${p}</li>`
         )
         .join("")
-    : "<li style="padding:6px 0;">Tu selección de productos</li>";
+    : `<li style="padding:6px 0;">Tu selección de productos</li>`;
 
   const defaultBody = `Notamos que dejaste productos en tu carrito. Te los guardamos para que no pierdas tu selección y puedas completarla en 1 clic.`;
   const bodyText = customMessage || defaultBody;
@@ -519,4 +519,4 @@ export async function sendCartRecoveryEmail(
     subject: `🛒 ¡${nameStr}, no te olvides de tu pedido!`,
     html,
   });
-      }
+}
