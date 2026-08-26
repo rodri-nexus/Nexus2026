@@ -5,7 +5,7 @@
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v26 loaded with NubeSDK Adapter & NevuxBot AI");
+  console.log("[Nevux] v27 Loaded - Multi-Page NevuxBot & Store Engine");
 
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
@@ -14,27 +14,22 @@
 
   function initNubeSDKIntegration(sdk) {
     if (!sdk) return;
-    console.log("[Nevux] NubeSDK connected successfully");
-
     try {
       if (typeof sdk.subscribe === "function") {
         sdk.subscribe("cart:updated", function (cartData) {
-          console.log("[Nevux] NubeSDK event received: cart:updated", cartData);
           if (typeof initAllWidgets === "function") initAllWidgets();
         });
-
         sdk.subscribe("product:rendered", function (productData) {
-          console.log("[Nevux] NubeSDK event received: product:rendered", productData);
           if (typeof initAllWidgets === "function") initAllWidgets();
+          if (typeof initNevuxBotEngine === "function") initNevuxBotEngine();
         });
-
         sdk.subscribe("page:rendered", function (pageData) {
-          console.log("[Nevux] NubeSDK event received: page:rendered", pageData);
           if (typeof initAllWidgets === "function") initAllWidgets();
+          if (typeof initNevuxBotEngine === "function") initNevuxBotEngine();
         });
       }
     } catch (err) {
-      console.error("[Nevux] NubeSDK subscription error:", err);
+      console.error("[Nevux] NubeSDK error:", err);
     }
   }
 
@@ -48,40 +43,87 @@
   }
 
   /* ═══════════════════════════════════════════
-     MÓDULO NEVUXBOT AI EMBEBIDO
+     MÓDULO NEVUXBOT AI (Historial por Producto + Contexto Inteligente)
   ═══════════════════════════════════════════ */
-  function initNevuxBotEngine() {
-    if (window.__nevux_bot_injected__) return;
-    var sid = (function() {
-      if (window.NEVUX_STORE_ID) return String(window.NEVUX_STORE_ID);
-      if (window.LS && window.LS.store && window.LS.store.id) return String(window.LS.store.id);
-      if (window.LS && window.LS.storeId) return String(window.LS.storeId);
-      if (window.Store && (window.Store.id || window.Store.store_id)) return String(window.Store.id || window.Store.store_id);
-      var meta = document.querySelector('meta[name="store-id"]');
-      if (meta && meta.content) return String(meta.content);
-      var html = document.documentElement ? document.documentElement.innerHTML : "";
-      var m = html.match(/"store_id":\s*(\d+)/) || html.match(/"storeId":\s*(\d+)/);
-      if (m && m[1]) return String(m[1]);
-      return "7401217";
-    })();
+  function detectNevuxStoreId() {
+    if (window.NEVUX_STORE_ID) return String(window.NEVUX_STORE_ID);
+    if (window.LS && window.LS.store && window.LS.store.id) return String(window.LS.store.id);
+    if (window.LS && window.LS.storeId) return String(window.LS.storeId);
+    if (window.Store && (window.Store.id || window.Store.store_id)) return String(window.Store.id || window.Store.store_id);
+    if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id) return String(window.__NUVEMSHOP_STORE__.id);
 
-    fetch(API_BASE + "/api/nevuxbot/config?storeId=" + sid + "&t=" + Date.now())
+    const links = document.querySelectorAll('link[href*="/stores/"], script[src*="/stores/"], img[src*="/stores/"]');
+    for (let i = 0; i < links.length; i++) {
+      const url = links[i].href || links[i].src || "";
+      const m = url.match(/\/stores\/(\d{3})\/(\d{3})\/(\d{3})\//);
+      if (m) return String(parseInt(m[1] + m[2] + m[3], 10));
+    }
+
+    const html = document.documentElement ? document.documentElement.innerHTML : "";
+    const cdnM = html.match(/\/stores\/(\d{3})\/(\d{3})\/(\d{3})\//);
+    if (cdnM) return String(parseInt(cdnM[1] + cdnM[2] + cdnM[3], 10));
+
+    const jsonM = html.match(/"store_id":\s*(\d+)/) || html.match(/"storeId":\s*(\d+)/) || html.match(/store_id\s*=\s*(\d+)/);
+    if (jsonM && jsonM[1]) return String(jsonM[1]);
+
+    return "7401217"; // Fallback para tu tienda
+  }
+
+  function detectCurrentProductContext() {
+    var pId = null;
+    var pName = null;
+    var pPrice = null;
+
+    if (window.NEVUX_PRODUCT_ID) pId = String(window.NEVUX_PRODUCT_ID);
+    else if (window.Product && window.Product.id) pId = String(window.Product.id);
+    else if (window.LS && window.LS.product && window.LS.product.id) pId = String(window.LS.product.id);
+    else {
+      var metaP = document.querySelector('meta[property="og:product:id"]');
+      if (metaP && metaP.content) pId = String(metaP.content);
+      else {
+        var urlM = location.pathname.match(/\/productos\/[^\/]+-(\d+)/);
+        if (urlM) pId = String(urlM[1]);
+      }
+    }
+
+    if (window.Product && window.Product.name) pName = window.Product.name;
+    else if (window.LS && window.LS.product && window.LS.product.name) pName = window.LS.product.name;
+    else {
+      var h1 = document.querySelector("h1.product-title, h1.js-product-name, h1");
+      if (h1 && location.pathname.includes("/productos/")) pName = h1.innerText.trim();
+    }
+
+    if (window.Product && window.Product.price) pPrice = window.Product.price;
+    else if (window.LS && window.LS.product && window.LS.product.price) pPrice = window.LS.product.price;
+
+    return { productId: pId, productName: pName, productPrice: pPrice };
+  }
+
+  function initNevuxBotEngine() {
+    var storeId = detectNevuxStoreId();
+    if (!storeId) return;
+
+    fetch(API_BASE + "/api/nevuxbot/config?storeId=" + storeId + "&t=" + Date.now())
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var cfg = (data && data.config) ? data.config : { is_active: true, bot_name: "Rodri", primary_color: "#10B981" };
-        renderNevuxBotUI(cfg, sid);
+        if (cfg.is_active !== false) {
+          renderNevuxBotUI(cfg, storeId);
+        }
       })
       .catch(function () {
-        renderNevuxBotUI({ is_active: true, bot_name: "Rodri", primary_color: "#10B981" }, sid);
+        renderNevuxBotUI({ is_active: true, bot_name: "Rodri", primary_color: "#10B981" }, storeId);
       });
   }
 
   function renderNevuxBotUI(config, storeId) {
     if (document.getElementById("nevux-bot-bubble")) return;
 
-    var botName = (config && config.bot_name) ? config.bot_name : "Rodri";
-    var primaryColor = (config && config.primary_color) ? config.primary_color : "#10B981";
-    var hasWA = Boolean(document.querySelector('a[href*="wa.me"], a[href*="whatsapp.com"], [class*="whatsapp"]'));
+    var botName = config.bot_name || "Rodri";
+    var primaryColor = config.primary_color || "#10B981";
+    var hasWA = Boolean(
+      document.querySelector('a[href*="wa.me"], a[href*="whatsapp.com"], .whatsapp-button, [class*="whatsapp"]')
+    );
     var bottom = hasWA ? "96px" : "24px";
     var winBottom = hasWA ? "168px" : "96px";
 
@@ -143,13 +185,17 @@
     var send = win.querySelector(".nb-send");
     var typing = win.querySelector(".nb-typing");
     var closeBtn = win.querySelector(".nb-close");
-    var storageKey = 'nevux_bot_history_' + storeId;
-    var history = [];
 
-    try {
-      var saved = localStorage.getItem(storageKey);
-      if (saved) history = JSON.parse(saved);
-    } catch (e) {}
+    function getStorageKey() {
+      var ctx = detectCurrentProductContext();
+      if (ctx.productId) {
+        return 'nevux_bot_history_' + storeId + '_p' + ctx.productId;
+      }
+      return 'nevux_bot_history_' + storeId + '_general';
+    }
+
+    var storageKey = getStorageKey();
+    var history = [];
 
     function appendMsg(sender, text, save) {
       if (save === undefined) save = true;
@@ -164,13 +210,31 @@
       }
     }
 
-    if (history.length === 0) {
-      appendMsg("bot", '¡Hola! Soy ' + botName + ', tu asesora personal. ¿En qué te puedo ayudar hoy? 😊', false);
-    } else {
-      history.forEach(function (m) { appendMsg(m.sender, m.text, false); });
+    function loadHistoryForCurrentPage() {
+      msgs.innerHTML = "";
+      storageKey = getStorageKey();
+      history = [];
+      try {
+        var saved = localStorage.getItem(storageKey);
+        if (saved) history = JSON.parse(saved);
+      } catch (e) {}
+
+      var ctx = detectCurrentProductContext();
+      if (history.length === 0) {
+        if (ctx.productName) {
+          appendMsg("bot", '¡Hola! Soy ' + botName + '. ¿Tenés alguna duda sobre "' + ctx.productName + '"? 😊', false);
+        } else {
+          appendMsg("bot", '¡Hola! Soy ' + botName + ', tu asesora personal. ¿En qué te puedo ayudar hoy? 😊', false);
+        }
+      } else {
+        history.forEach(function (m) { appendMsg(m.sender, m.text, false); });
+      }
     }
 
+    loadHistoryForCurrentPage();
+
     bubble.onclick = function () {
+      loadHistoryForCurrentPage();
       win.classList.add("open");
       bubble.style.display = "none";
       setTimeout(function () { input.focus(); }, 150);
@@ -184,15 +248,25 @@
     function sendMessage() {
       var val = input.value.trim();
       if (!val) return;
+
       appendMsg("user", val, true);
       input.value = "";
       typing.style.display = "flex";
       msgs.scrollTop = msgs.scrollHeight;
 
+      var ctx = detectCurrentProductContext();
+
       fetch(API_BASE + "/api/nevuxbot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storeId: storeId, message: val, conversationHistory: history }),
+        body: JSON.stringify({
+          storeId: storeId,
+          message: val,
+          conversationHistory: history,
+          productId: ctx.productId,
+          productName: ctx.productName,
+          productPrice: ctx.productPrice
+        }),
       })
         .then(function (r) { return r.json(); })
         .then(function (d) {
@@ -201,7 +275,7 @@
         })
         .catch(function () {
           typing.style.display = "none";
-          appendMsg("bot", "Disculpas, tengo un problema de conexión temporal. ¿Me repetís la consulta?", false);
+          appendMsg("bot", "Disculpas, tuve una demora de conexión. ¿Me repetís la consulta?", false);
         });
     }
 
@@ -221,6 +295,7 @@
   /* ═══════════════════════════════════════════
      HELPERS
   ═══════════════════════════════════════════ */
+  
   const qs = (s, ctx = document) => ctx.querySelector(s);
   const qsa = (s, ctx = document) => Array.from(ctx.querySelectorAll(s));
 
