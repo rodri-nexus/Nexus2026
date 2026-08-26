@@ -21,17 +21,29 @@ export async function GET(req: Request) {
     const period = searchParams.get("period") || "7dias";
 
     // 2. Calcular rango de fechas
+    const now = new Date();
     const startDate = new Date();
+    let endDate: Date | null = null;
+    let daysToInclude = 7;
 
     if (period === "hoy") {
       startDate.setHours(0, 0, 0, 0);
+      daysToInclude = 1;
     } else if (period === "ayer") {
       startDate.setDate(startDate.getDate() - 1);
       startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(startDate);
+      endDate.setHours(23, 59, 59, 999);
+      daysToInclude = 1;
     } else if (period === "7dias") {
-      startDate.setDate(startDate.getDate() - 7);
+      startDate.setDate(startDate.getDate() - 6);
+      startDate.setHours(0, 0, 0, 0);
+      daysToInclude = 7;
     } else {
-      startDate.setDate(startDate.getDate() - 30);
+      // "30dias" o "personalizado"
+      startDate.setDate(startDate.getDate() - 29);
+      startDate.setHours(0, 0, 0, 0);
+      daysToInclude = 30;
     }
 
     const formattedStartDate = startDate.toISOString().split("T")[0];
@@ -45,22 +57,21 @@ export async function GET(req: Request) {
     if (widgetsError || !userWidgets || userWidgets.length === 0) {
       return NextResponse.json({
         summary: { impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 },
+        timeline: [],
         widgets: [],
       });
     }
 
     const widgetIds = userWidgets.map((w) => w.id);
 
-    // 4. Consultar widget_stats para los widgets del usuario desde startDate
+    // 4. Consultar widget_stats para los widgets del usuario
     let query = supabase
       .from("widget_stats")
       .select("widget_id, date, impressions, clicks, cart_adds, revenue")
       .in("widget_id", widgetIds)
       .gte("date", formattedStartDate);
 
-    if (period === "ayer") {
-      const endDate = new Date(startDate);
-      endDate.setHours(23, 59, 59, 999);
+    if (endDate) {
       query = query.lte("date", endDate.toISOString().split("T")[0]);
     }
 
@@ -70,11 +81,33 @@ export async function GET(req: Request) {
       console.error("[Metrics API Error]:", statsError);
       return NextResponse.json({
         summary: { impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 },
+        timeline: [],
         widgets: [],
       });
     }
 
-    // 5. Acumular métricas totales y por widget
+    // 5. Inicializar el mapa de timeline diario con todas las fechas del rango
+    const dailyMap: Record<
+      string,
+      { date: string; impressions: number; clicks: number; cartAdds: number; revenue: number }
+    > = {};
+
+    if (period === "hoy") {
+      const dStr = now.toISOString().split("T")[0];
+      dailyMap[dStr] = { date: dStr, impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 };
+    } else if (period === "ayer") {
+      const dStr = startDate.toISOString().split("T")[0];
+      dailyMap[dStr] = { date: dStr, impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 };
+    } else {
+      for (let i = 0; i < daysToInclude; i++) {
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        const dStr = d.toISOString().split("T")[0];
+        dailyMap[dStr] = { date: dStr, impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 };
+      }
+    }
+
+    // 6. Acumular métricas totales, por widget y por fecha
     let totalImpressions = 0;
     let totalClicks = 0;
     let totalCartAdds = 0;
@@ -87,6 +120,7 @@ export async function GET(req: Request) {
 
     (stats || []).forEach((row) => {
       const wId = row.widget_id;
+      const dStr = row.date;
       const imp = Number(row.impressions || 0);
       const clk = Number(row.clicks || 0);
       const cart = Number(row.cart_adds || 0);
@@ -97,6 +131,7 @@ export async function GET(req: Request) {
       totalCartAdds += cart;
       totalRevenue += rev;
 
+      // Por widget
       if (!widgetStatsMap[wId]) {
         widgetStatsMap[wId] = {
           impressions: 0,
@@ -105,14 +140,23 @@ export async function GET(req: Request) {
           revenue: 0,
         };
       }
-
       widgetStatsMap[wId].impressions += imp;
       widgetStatsMap[wId].clicks += clk;
       widgetStatsMap[wId].cartAdds += cart;
       widgetStatsMap[wId].revenue += rev;
+
+      // Por timeline diario
+      if (dailyMap[dStr]) {
+        dailyMap[dStr].impressions += imp;
+        dailyMap[dStr].clicks += clk;
+        dailyMap[dStr].cartAdds += cart;
+        dailyMap[dStr].revenue += rev;
+      }
     });
 
-    // 6. Formatear lista de widgets con métricas para la UI
+    const timeline = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+
+    // 7. Formatear lista de widgets con métricas para la UI
     const widgetsPerformance = userWidgets.map((w) => {
       const st = widgetStatsMap[w.id] || {
         impressions: 0,
@@ -146,6 +190,7 @@ export async function GET(req: Request) {
         cartAdds: totalCartAdds,
         revenue: totalRevenue,
       },
+      timeline,
       widgets: widgetsPerformance,
     });
   } catch (err: any) {
@@ -153,9 +198,10 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         summary: { impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 },
+        timeline: [],
         widgets: [],
       },
       { status: 500 }
     );
   }
-        }
+          }
