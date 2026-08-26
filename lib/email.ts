@@ -1,11 +1,9 @@
 // lib/email.ts
 // Capa central de envío de emails usando Resend.
-// Actualmente solo se envían emails al ADMIN (sin dominio verificado, Resend
-// no permite mandar a terceros). Los emails al cliente se manejan con mailto:
-// desde el panel admin.
+// Todos los correos de alertas administrativas se envían a nevuxapp@gmail.com
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const ADMIN_EMAIL = "rodrigospehgt04@gmail.com";
+const ADMIN_EMAIL = "nevuxapp@gmail.com";
 const FROM_EMAIL = "Nevux <onboarding@resend.dev>";
 
 type SendEmailParams = {
@@ -58,7 +56,7 @@ async function sendEmail({ to, subject, html }: SendEmailParams): Promise<boolea
 }
 
 // ═══════════════════════════════════════════════════════════
-// EMAILS AL ADMIN
+// EMAILS AL ADMIN (nevuxapp@gmail.com)
 // ═══════════════════════════════════════════════════════════
 
 type NewPaymentAlertParams = {
@@ -70,7 +68,7 @@ type NewPaymentAlertParams = {
 };
 
 /**
- * Notifica al admin (Rodrigo) cuando un cliente sube un comprobante nuevo.
+ * Notifica al admin (nevuxapp@gmail.com) cuando un cliente sube un comprobante nuevo.
  * Se dispara desde /api/plan/upload-receipt.
  */
 export async function sendNewPaymentAlert(
@@ -105,7 +103,7 @@ export async function sendNewPaymentAlert(
 
     <!-- Header -->
     <div style="text-align:center;margin-bottom:32px;">
-      <div style="display:inline-block;background:#FF0000;color:#ffffff;padding:6px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+      <div style="display:inline-block;background:#10B981;color:#ffffff;padding:6px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
         Nevux Admin
       </div>
     </div>
@@ -134,7 +132,7 @@ export async function sendNewPaymentAlert(
         <div style="font-size:11px;font-weight:700;color:#000000;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">
           Monto
         </div>
-        <div style="font-size:24px;font-weight:800;color:#FF0000;">
+        <div style="font-size:24px;font-weight:800;color:#059669;">
           ${formattedAmount}
         </div>
       </div>
@@ -177,26 +175,26 @@ export async function sendNewPaymentAlert(
 
     <!-- CTA -->
     <div style="text-align:center;margin-bottom:32px;">
-      <a href="${adminPanelUrl}" style="display:inline-block;background:#FF0000;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;">
+      <a href="${adminPanelUrl}" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;">
         Revisar en el panel →
       </a>
     </div>
 
     <!-- Info extra -->
-    <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:10px;padding:16px;margin-bottom:24px;">
+    <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:16px;margin-bottom:24px;">
       <div style="font-size:13px;color:#000000;line-height:1.5;">
-        <strong style="color:#FF0000;">Próximos pasos:</strong><br>
+        <strong style="color:#059669;">Próximos pasos:</strong><br>
         1. Entrá al panel admin<br>
         2. Verificá el comprobante contra tu cuenta Naranja X<br>
         3. Aprobá o rechazá el pago<br>
-        4. Enviá el email al cliente desde tu Gmail
+        4. Enviá el email al cliente desde tu Gmail (nevuxapp@gmail.com)
       </div>
     </div>
 
     <!-- Footer -->
     <div style="text-align:center;padding-top:24px;border-top:1px solid #e5e7eb;">
       <p style="margin:0;font-size:12px;color:#000000;opacity:0.5;">
-        Notificación automática · Nevux
+        Notificación automática · Nevux Admin
       </p>
     </div>
 
@@ -213,7 +211,7 @@ export async function sendNewPaymentAlert(
 }
 
 // ═══════════════════════════════════════════════════════════
-// EMAIL: PLAN POR VENCER
+// EMAIL: PLAN POR VENCER O VENCIDO
 // ═══════════════════════════════════════════════════════════
 
 type PlanExpiringAlertParams = {
@@ -225,7 +223,7 @@ type PlanExpiringAlertParams = {
 };
 
 /**
- * Notifica al admin cuando el plan de un cliente está por vencer.
+ * Notifica al admin (nevuxapp@gmail.com) cuando el plan de un cliente está por vencer o venció hoy.
  * Se dispara desde el cron /api/cron/check-plans.
  * Incluye un enlace mailto: pre-armado para avisarle al cliente desde Gmail.
  */
@@ -243,7 +241,7 @@ export async function sendPlanExpiringAlert(
 
   const urgencyColor = daysLeft <= 1 ? "#dc2626" : "#f59e0b";
   const urgencyBg = daysLeft <= 1 ? "#fee2e2" : "#fef3c7";
-  const urgencyText = daysLeft <= 1 ? "🚨 ÚLTIMO DÍA" : "⏰ VENCE PRONTO";
+  const urgencyText = daysLeft <= 1 ? "🚨 ÚLTIMO DÍA / EXPIRADO" : "⏰ VENCE PRONTO";
 
   // Mailto: pre-armado para avisar al cliente
   const clientEmailSubject =
@@ -292,7 +290,7 @@ Gracias por confiar en Nevux 🚀`;
 
     <!-- Header -->
     <div style="text-align:center;margin-bottom:32px;">
-      <div style="display:inline-block;background:#FF0000;color:#ffffff;padding:6px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+      <div style="display:inline-block;background:#10B981;color:#ffffff;padding:6px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
         Nevux Admin
       </div>
     </div>
@@ -306,13 +304,13 @@ Gracias por confiar en Nevux 🚀`;
 
     <!-- Título -->
     <h1 style="margin:0 0 8px;font-size:26px;font-weight:800;color:#000000;line-height:1.2;text-align:center;">
-      Plan de cliente por vencer
+      Plan de cliente ${daysLeft <= 1 ? "vencido" : "por vencer"}
     </h1>
     <p style="margin:0 0 32px;font-size:15px;color:#000000;opacity:0.6;text-align:center;">
       ${
         daysLeft <= 1
-          ? "El plan de este cliente vence HOY. Avisale ya."
-          : `Falta ${daysLeft} días para el vencimiento. Avisale por email.`
+          ? "El plan de este cliente vence HOY o ya expiró. Avisale por email."
+          : `Faltan ${daysLeft} días para el vencimiento. Avisale por email.`
       }
     </p>
 
@@ -368,25 +366,25 @@ Gracias por confiar en Nevux 🚀`;
 
     <!-- CTA principal: mailto -->
     <div style="text-align:center;margin-bottom:24px;">
-      <a href="${mailtoLink}" style="display:inline-block;background:#FF0000;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;">
+      <a href="${mailtoLink}" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;">
         📧 Avisarle al cliente
       </a>
       <p style="margin:12px 0 0;font-size:12px;color:#000000;opacity:0.5;">
-        Se abre Gmail con el mensaje redactado
+        Se abre tu casilla (nevuxapp@gmail.com) con el mensaje redactado
       </p>
     </div>
 
     <!-- Info extra -->
     <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:10px;padding:16px;">
       <div style="font-size:13px;color:#000000;line-height:1.5;">
-        <strong style="color:#FF0000;">Recordatorio:</strong> Si el cliente no renueva antes del ${endDateFormatted}, su plan pasará automáticamente a "expirado" y verá el paywall en el próximo login.
+        <strong style="color:#dc2626;">Recordatorio:</strong> Si el cliente no renueva antes del ${endDateFormatted}, su plan pasará automáticamente a "expirado" y verá el paywall en su próximo login.
       </div>
     </div>
 
     <!-- Footer -->
     <div style="text-align:center;padding-top:24px;margin-top:24px;border-top:1px solid #e5e7eb;">
       <p style="margin:0;font-size:12px;color:#000000;opacity:0.5;">
-        Notificación automática · Nevux
+        Notificación automática · Nevux Admin
       </p>
     </div>
 
@@ -397,9 +395,9 @@ Gracias por confiar en Nevux 🚀`;
 
   return sendEmail({
     to: ADMIN_EMAIL,
-    subject: `${daysLeft <= 1 ? "🚨" : "⏰"} Plan de ${customerEmail} vence en ${daysLeft} ${
-      daysLeft === 1 ? "día" : "días"
+    subject: `${daysLeft <= 1 ? "🚨" : "⏰"} Plan de ${customerEmail} ${
+      daysLeft <= 1 ? "venció hoy" : `vence en ${daysLeft} días`
     }`,
     html,
   });
-}
+  }
