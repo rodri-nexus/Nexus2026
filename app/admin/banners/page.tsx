@@ -14,7 +14,8 @@ export default function BannersPage() {
         backgroundColor: "#0f172a",
         color: "#ffffff",
         padding: "16px",
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontFamily:
+          "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -43,7 +44,7 @@ export default function BannersPage() {
           📷 Banners Promocionales Oficiales de Nevux
         </h1>
         <p style={{ fontSize: "12px", color: "#cbd5e1", margin: 0, lineHeight: "1.4" }}>
-          Elegí el idioma y sacale captura a cada tarjeta en modo horizontal.
+          Elegí el idioma y sacale captura a cada tarjeta en modo horizontal para Tiendanube / Nuvemshop Partners.
         </p>
 
         {/* Botones de Idioma */}
@@ -82,6 +83,168 @@ export default function BannersPage() {
       </div>
 
       {/* ==========================================
+          BANNER NUEVO: NEVUXBOT AI - RECUPERO DE CARRITOS
+         ========================================== */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "650px",
+          minHeight: "350px",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
+          borderRadius: "20px",
+          padding: "24px",
+          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "16px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ flex: "1 1 220px", zIndex: 2 }}>
+          <div
+            style={{
+              display: "inline-block",
+              background: "rgba(255, 255, 255, 0.2)",
+              color: "#ffffff",
+              fontSize: "10px",
+              fontWeight: "800",
+              padding: "3px 8px",
+              borderRadius: "999px",
+              marginBottom: "8px",
+              letterSpacing: "0.5px",
+            }}
+          >
+            🤖 NEVUXBOT AI
+          </div>
+          <h2
+            style={{
+              fontSize: "25px",
+              fontWeight: "900",
+              color: "#ffffff",
+              margin: "0 0 10px 0",
+              lineHeight: "1.1",
+              letterSpacing: "-0.5px",
+            }}
+          >
+            {isPt ? "Recupere carrinhos com IA" : "Recuperá carritos con IA"}
+          </h2>
+          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
+            {isPt
+              ? "Mensagens persuasivas criadas por IA e enviadas em 1 clique por WhatsApp e E-mail."
+              : "Mensajes persuasivos redactados por IA y enviados en 1-clic por WhatsApp y Email."}
+          </p>
+        </div>
+
+        {/* Mockup CRM NevuxBot AI */}
+        <div
+          style={{
+            flex: "1 1 260px",
+            minHeight: "240px",
+            position: "relative",
+            zIndex: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "240px",
+              backgroundColor: "#ffffff",
+              borderRadius: "16px",
+              padding: "12px",
+              boxShadow: "0 20px 30px rgba(0, 0, 0, 0.4)",
+              border: "1px solid #e2e8f0",
+              transform: "rotate(-2deg)",
+              color: "#0f172a",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            {/* Header del Mockup */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontSize: "10px", fontWeight: "800", color: "#059669" }}>
+                🛒 {isPt ? "Carrinho Recuperado" : "Carrito Recuperado"}
+              </div>
+              <span
+                style={{
+                  background: "#10B981",
+                  color: "#fff",
+                  fontSize: "7px",
+                  fontWeight: "900",
+                  padding: "2px 6px",
+                  borderRadius: "999px",
+                }}
+              >
+                {isPt ? "VENDA CONCLUÍDA" : "VENTA CERRADA"}
+              </span>
+            </div>
+
+            {/* Card del comprador */}
+            <div
+              style={{
+                background: "#ecfdf5",
+                border: "1px solid #a7f3d0",
+                padding: "8px",
+                borderRadius: "10px",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px" }}>
+                <span style={{ fontWeight: "800" }}>👤 Lucas M.</span>
+                <span style={{ fontWeight: "900", color: "#059669" }}>
+                  {isPt ? "R$ 280,00" : "$28.000"}
+                </span>
+              </div>
+              <div style={{ fontSize: "8px", color: "#475569", marginTop: "2px" }}>
+                📦 {isPt ? "Camiseta Oversize • Tênis" : "Remera Oversize • Zapatillas"}
+              </div>
+            </div>
+
+            {/* Mensaje de Gemini IA */}
+            <div
+              style={{
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                padding: "8px",
+                borderRadius: "8px",
+                fontSize: "8.5px",
+                color: "#334155",
+                lineHeight: "1.3",
+              }}
+            >
+              "Olá Lucas! 👋 Guardamos o seu carrinho. Finalize agora em 1 clique 👇"
+            </div>
+
+            {/* Botón WhatsApp */}
+            <div
+              style={{
+                background: "#22c55e",
+                color: "#ffffff",
+                textAlign: "center",
+                padding: "7px",
+                borderRadius: "8px",
+                fontSize: "10px",
+                fontWeight: "800",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+              }}
+            >
+              💬 {isPt ? "Enviar por WhatsApp" : "Enviar por WhatsApp"}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ==========================================
           BANNER 1: IMPULSÁ TU TICKET PROMEDIO
          ========================================== */}
       <div
@@ -104,7 +267,6 @@ export default function BannersPage() {
           boxSizing: "border-box",
         }}
       >
-        {/* Columna Izquierda: Textos */}
         <div style={{ flex: "1 1 220px", zIndex: 2 }}>
           <h2
             style={{
@@ -125,10 +287,7 @@ export default function BannersPage() {
           </p>
         </div>
 
-        {/* Columna Derecha: Widgets Stack */}
         <div style={{ flex: "1 1 260px", minHeight: "240px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          
-          {/* Tarjeta Fondo: Armá tu Pack */}
           <div
             style={{
               position: "absolute",
@@ -162,7 +321,6 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* Tarjeta Principal Frontal: Descuentos por Cantidad */}
           <div
             style={{
               position: "relative",
@@ -179,13 +337,11 @@ export default function BannersPage() {
               gap: "8px",
             }}
           >
-            {/* Opción 1 */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 8px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
               <span style={{ fontSize: "11px", fontWeight: "bold" }}>⚪ {isPt ? "Kit x1" : "Pack x1"}</span>
               <span style={{ fontSize: "11px", fontWeight: "bold" }}>{isPt ? "R$ 100" : "$10.000"}</span>
             </div>
 
-            {/* Opción 2 Seleccionada */}
             <div style={{ background: "#ecfdf5", border: "2px solid #10B981", padding: "8px", borderRadius: "10px", position: "relative" }}>
               <div style={{ position: "absolute", top: "-8px", right: "6px", display: "flex", gap: "3px" }}>
                 <span style={{ background: "#10B981", color: "#fff", fontSize: "7px", fontWeight: "900", padding: "1px 4px", borderRadius: "6px" }}>
@@ -213,7 +369,6 @@ export default function BannersPage() {
               </div>
             </div>
 
-            {/* Opción 3 */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 8px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
               <div>
                 <span style={{ fontSize: "11px", fontWeight: "bold" }}>⚪ {isPt ? "Kit x3 " : "Pack x3 "}</span>
@@ -222,12 +377,10 @@ export default function BannersPage() {
               <span style={{ fontSize: "11px", fontWeight: "bold" }}>{isPt ? "R$ 240" : "$24.000"}</span>
             </div>
 
-            {/* Botón CTA */}
             <div style={{ background: "#10B981", color: "#ffffff", textAlign: "center", padding: "8px", borderRadius: "10px", fontSize: "11px", fontWeight: "800", marginTop: "2px" }}>
               {isPt ? "Adicionar ao carrinho" : "Agregar al carrito"}
             </div>
           </div>
-
         </div>
       </div>
 
@@ -266,8 +419,6 @@ export default function BannersPage() {
         </div>
 
         <div style={{ flex: "1 1 260px", minHeight: "240px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          
-          {/* Timer Relámpago */}
           <div
             style={{
               position: "absolute",
@@ -310,7 +461,6 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* Stickers Promocionales */}
           <div style={{ position: "absolute", right: "0px", top: "15px", display: "flex", flexDirection: "column", gap: "6px", transform: "rotate(4deg)", zIndex: 4 }}>
             <div style={{ background: "#10B981", color: "#fff", padding: "6px 10px", borderRadius: "16px", fontSize: "9px", fontWeight: "800", boxShadow: "0 8px 12px rgba(0,0,0,0.2)" }}>
               ✨ {isPt ? "Oferta surpresa!" : "¡Oferta sorpresa!"}
@@ -320,7 +470,6 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* Cupón Banner */}
           <div
             style={{
               position: "absolute",
@@ -348,7 +497,6 @@ export default function BannersPage() {
               EXTRA20
             </div>
           </div>
-
         </div>
       </div>
 
@@ -387,8 +535,6 @@ export default function BannersPage() {
         </div>
 
         <div style={{ flex: "1 1 260px", minHeight: "240px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          
-          {/* Widget Reseñas */}
           <div
             style={{
               position: "absolute",
@@ -433,7 +579,6 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* Tarjeta Garantía */}
           <div
             style={{
               position: "absolute",
@@ -459,7 +604,6 @@ export default function BannersPage() {
                 : "Si no estás conforme te devolvemos el 100% de tu dinero."}
             </p>
           </div>
-
         </div>
       </div>
 
@@ -498,8 +642,6 @@ export default function BannersPage() {
         </div>
 
         <div style={{ flex: "1 1 260px", minHeight: "240px", position: "relative", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          
-          {/* Card Editor Mock */}
           <div
             style={{
               position: "relative",
@@ -516,7 +658,6 @@ export default function BannersPage() {
               gap: "8px",
             }}
           >
-            {/* Tabs */}
             <div style={{ display: "flex", borderBottom: "1px solid #e2e8f0", fontSize: "10px", fontWeight: "bold" }}>
               <div style={{ paddingBottom: "6px", paddingRight: "8px", color: "#94a3b8" }}>
                 {isPt ? "Geral" : "General"}
@@ -526,7 +667,6 @@ export default function BannersPage() {
               </div>
             </div>
 
-            {/* Selectores */}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "9px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontWeight: "600", color: "#475569" }}>
@@ -569,7 +709,6 @@ export default function BannersPage() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
