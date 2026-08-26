@@ -1,4 +1,3 @@
-// app/plan/feedback/FeedbackClient.tsx
 "use client";
 
 import { useState } from "react";
@@ -57,7 +56,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         alignItems: "center",
         justifyContent: "center",
         padding: "2rem 1.25rem",
-        background: "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #ecfdf5 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
@@ -65,7 +64,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         boxSizing: "border-box",
       }}
     >
-      {/* Círculos decorativos de fondo */}
+      {/* Círculos decorativos de fondo en verde esmeralda sutil */}
       <div
         style={{
           position: "absolute",
@@ -74,7 +73,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           width: "300px",
           height: "300px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -87,7 +86,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -122,7 +121,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           <NevuxLogo size="medium" />
         </motion.div>
 
-        {/* ÍCONO CORAZÓN CENTRADO */}
+        {/* ÍCONO CORAZÓN CENTRADO EN VERDE ESMERALDA */}
         <div
           style={{
             display: "flex",
@@ -145,11 +144,11 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
               width: "96px",
               height: "96px",
               borderRadius: "50%",
-              background: "#FF0000",
+              background: "#10B981",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 20px 40px rgba(255, 0, 0, 0.35)",
+              boxShadow: "0 20px 40px rgba(16, 185, 129, 0.35)",
             }}
           >
             <Heart size={46} color="white" fill="white" strokeWidth={0} />
@@ -166,19 +165,19 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             alignItems: "center",
             gap: "0.4rem",
             padding: "0.4rem 0.95rem",
-            background: "white",
-            border: "1px solid #fecaca",
+            background: "#ecfdf5",
+            border: "1px solid #a7f3d0",
             borderRadius: "999px",
             fontSize: "0.8rem",
-            color: "#FF0000",
+            color: "#059669",
             fontWeight: 700,
             marginBottom: "1.25rem",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
-            boxShadow: "0 2px 8px rgba(255, 0, 0, 0.1)",
+            boxShadow: "0 2px 8px rgba(16, 185, 129, 0.1)",
           }}
         >
-          <Sparkles size={12} />
+          <Sparkles size={12} color="#10B981" />
           Usaste Nevux por 7 días
         </motion.div>
 
@@ -213,7 +212,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           }}
         >
           ¿Te gustó{" "}
-          <strong style={{ color: "#FF0000", opacity: 1 }}>Nevux</strong> hasta
+          <strong style={{ color: "#10B981", opacity: 1 }}>Nevux</strong> hasta
           ahora?
         </motion.p>
 
@@ -238,13 +237,13 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             disabled={loading !== null}
             style={{
               padding: "1.5rem 1.25rem",
-              background: "#FF0000",
+              background: "#10B981",
               color: "white",
               border: "none",
               borderRadius: "18px",
               cursor: loading ? "not-allowed" : "pointer",
               fontFamily: "inherit",
-              boxShadow: "0 10px 30px rgba(255, 0, 0, 0.35)",
+              boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
               transition: "all 0.2s",
               display: "flex",
               flexDirection: "column",
@@ -304,7 +303,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             }}
             onMouseEnter={(e) => {
               if (!loading) {
-                e.currentTarget.style.borderColor = "#000000";
+                e.currentTarget.style.borderColor = "#10B981";
               }
             }}
             onMouseLeave={(e) => {
@@ -382,4 +381,4 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
       </div>
     </div>
   );
-        }
+            }convert feedback screen to official emerald green
