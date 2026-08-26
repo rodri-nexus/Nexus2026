@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { sendCartRecoveryEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ async function generateAIRecoveryMessage(
     }
 
     const prompt = `Sos ${botName}, asesora de ventas experta en E-commerce.
-Escribí un mensaje corto, natural y altamente persuasivo para recuperar un carrito abandonado y enviar por WhatsApp.
+Escribí un mensaje corto, natural y altamente persuasivo para recuperar un carrito abandonado.
 
 DATOS DE LA COMPRA:
 - Comprador: ${nameStr}
@@ -42,7 +43,7 @@ INSTRUCCIONES DE TONO:
 ${tonePrompt}
 
 REGLAS CRÍTICAS:
-1. Escribí ÚNICAMENTE el texto listo para enviar por WhatsApp.
+1. Escribí ÚNICAMENTE el texto listo para enviar al cliente.
 2. Usá pocos emojis amigables y bien ubicados.
 3. Incluí de forma super clara el link directo al checkout (${checkoutUrl}).
 4. Mencioná los productos que dejó pendientes para despertar su interés.
@@ -181,7 +182,7 @@ export async function GET() {
   }
 }
 
-// 🟢 POST: Generar Mensaje Persuasivo con IA para un Carrito
+// 🟢 POST: Generar Copy con IA O Enviar Email de Recupero
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -195,14 +196,51 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
+      action = "generate_copy",
       customerName = "Cliente",
+      customerEmail = "",
       products = [],
       totalFormatted = "$ -",
       checkoutUrl = "",
       tone = "persuasivo",
       botName = "Sofía",
+      customMessage = "",
     } = body;
 
+    // CASO 1: Enviar Email de Recupero con Resend
+    if (action === "send_email") {
+      if (!customerEmail) {
+        return NextResponse.json(
+          { error: "Este cliente no dejó registrada una dirección de email." },
+          { status: 400 }
+        );
+      }
+
+      const emailSent = await sendCartRecoveryEmail({
+        to: customerEmail,
+        customerName,
+        products,
+        totalFormatted,
+        checkoutUrl,
+        customMessage,
+        botName,
+      });
+
+      if (!emailSent) {
+        return NextResponse.json(
+          { error: "No se pudo entregar el correo por un problema temporal de servicio." },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        sent: true,
+        message: `Email de recupero enviado exitosamente a ${customerEmail}`,
+      });
+    }
+
+    // CASO 2: Generar mensaje persuasivo con Gemini AI
     const message = await generateAIRecoveryMessage(
       customerName,
       products,
@@ -215,8 +253,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message });
   } catch (error: any) {
     console.error("Error en POST /api/nevuxbot/chat:", error);
-    return NextResponse.json({
-      message: "¡Hola! Notamos que dejaste productos en tu carrito. ¡Escribinos para finalizar tu compra!",
-    });
+    return NextResponse.json(
+      { error: "Ocurrió un error al procesar la solicitud." },
+      { status: 500 }
+    );
   }
-                }
+}
