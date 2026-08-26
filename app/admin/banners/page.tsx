@@ -44,7 +44,7 @@ export default function BannersPage() {
           📷 Banners Promocionales Oficiales de Nevux
         </h1>
         <p style={{ fontSize: "12px", color: "#cbd5e1", margin: 0, lineHeight: "1.4" }}>
-          Elegí el idioma y sacale captura a cada tarjeta en modo horizontal para Tiendanube / Nuvemshop Partners.
+          Elegí el idioma y sacale captura a cada tarjeta en modo horizontal.
         </p>
 
         {/* Botones de Idioma */}
@@ -83,7 +83,7 @@ export default function BannersPage() {
       </div>
 
       {/* ==========================================
-          BANNER NUEVO: NEVUXBOT AI - RECUPERO DE CARRITOS
+          BANNER NUEVO: NEVUXBOT AI CRM (ULTRA PROFESIONAL)
          ========================================== */}
       <div
         style={{
@@ -105,17 +105,17 @@ export default function BannersPage() {
           boxSizing: "border-box",
         }}
       >
-        <div style={{ flex: "1 1 220px", zIndex: 2 }}>
+        <div style={{ flex: "1 1 200px", zIndex: 2 }}>
           <div
             style={{
               display: "inline-block",
               background: "rgba(255, 255, 255, 0.2)",
               color: "#ffffff",
-              fontSize: "10px",
-              fontWeight: "800",
-              padding: "3px 8px",
+              fontSize: "9px",
+              fontWeight: "900",
+              padding: "4px 10px",
               borderRadius: "999px",
-              marginBottom: "8px",
+              marginBottom: "10px",
               letterSpacing: "0.5px",
             }}
           >
@@ -123,7 +123,7 @@ export default function BannersPage() {
           </div>
           <h2
             style={{
-              fontSize: "25px",
+              fontSize: "24px",
               fontWeight: "900",
               color: "#ffffff",
               margin: "0 0 10px 0",
@@ -131,114 +131,130 @@ export default function BannersPage() {
               letterSpacing: "-0.5px",
             }}
           >
-            {isPt ? "Recupere carrinhos com IA" : "Recuperá carritos con IA"}
+            {isPt ? "O primeiro CRM de Carrinhos com IA" : "El primer CRM de Carritos con IA"}
           </h2>
-          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
+          <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
             {isPt
-              ? "Mensagens persuasivas criadas por IA e enviadas em 1 clique por WhatsApp e E-mail."
-              : "Mensajes persuasivos redactados por IA y enviados en 1-clic por WhatsApp y Email."}
+              ? "Detecte vendas perdidas, crie mensagens persuasivas com Gemini AI e recupere via WhatsApp ou E-mail."
+              : "Detectá ventas perdidas, creá copys persuasivos con Gemini AI y recuperá por WhatsApp o Email."}
           </p>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px" }}>
+            <div style={{ fontSize: "10px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "#34d399" }}>✓</span> {isPt ? "Dashboard completo" : "Panel CRM completo"}
+            </div>
+            <div style={{ fontSize: "10px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "#34d399" }}>✓</span> {isPt ? "Copys com Inteligência Artificial" : "Copys con Inteligencia Artificial"}
+            </div>
+            <div style={{ fontSize: "10px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "#34d399" }}>✓</span> {isPt ? "Envio 1-Clique" : "Disparo en 1-Clic"}
+            </div>
+          </div>
         </div>
 
-        {/* Mockup CRM NevuxBot AI */}
+        {/* Mockup CRM NevuxBot AI Mini-App */}
         <div
           style={{
-            flex: "1 1 260px",
-            minHeight: "240px",
+            flex: "1 1 300px",
             position: "relative",
             zIndex: 2,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-end",
           }}
         >
+          {/* Contenedor tipo Ventana de Navegador/App */}
           <div
             style={{
-              position: "relative",
-              width: "240px",
-              backgroundColor: "#ffffff",
-              borderRadius: "16px",
-              padding: "12px",
-              boxShadow: "0 20px 30px rgba(0, 0, 0, 0.4)",
-              border: "1px solid #e2e8f0",
-              transform: "rotate(-2deg)",
-              color: "#0f172a",
+              width: "100%",
+              maxWidth: "320px",
+              backgroundColor: "#f9fafb",
+              borderRadius: "12px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+              border: "1px solid rgba(255,255,255,0.4)",
+              overflow: "hidden",
               display: "flex",
-              flexDirection: "column",
-              gap: "8px",
+              transform: "perspective(1000px) rotateY(-5deg) rotateX(2deg)",
             }}
           >
-            {/* Header del Mockup */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ fontSize: "10px", fontWeight: "800", color: "#059669" }}>
-                🛒 {isPt ? "Carrinho Recuperado" : "Carrito Recuperado"}
-              </div>
-              <span
-                style={{
-                  background: "#10B981",
-                  color: "#fff",
-                  fontSize: "7px",
-                  fontWeight: "900",
-                  padding: "2px 6px",
-                  borderRadius: "999px",
-                }}
-              >
-                {isPt ? "VENDA CONCLUÍDA" : "VENTA CERRADA"}
-              </span>
-            </div>
-
-            {/* Card del comprador */}
-            <div
-              style={{
-                background: "#ecfdf5",
-                border: "1px solid #a7f3d0",
-                padding: "8px",
-                borderRadius: "10px",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px" }}>
-                <span style={{ fontWeight: "800" }}>👤 Lucas M.</span>
-                <span style={{ fontWeight: "900", color: "#059669" }}>
-                  {isPt ? "R$ 280,00" : "$28.000"}
-                </span>
-              </div>
-              <div style={{ fontSize: "8px", color: "#475569", marginTop: "2px" }}>
-                📦 {isPt ? "Camiseta Oversize • Tênis" : "Remera Oversize • Zapatillas"}
+            {/* Sidebar (Menú Izquierdo) */}
+            <div style={{ width: "45px", backgroundColor: "#ffffff", borderRight: "1px solid #e5e7eb", display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 0", gap: "10px" }}>
+              <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#000" }}></div>
+              <div style={{ width: "20px", height: "20px", borderRadius: "6px", background: "#f3f4f6", marginTop: "10px" }}></div>
+              <div style={{ width: "20px", height: "20px", borderRadius: "6px", background: "#f3f4f6" }}></div>
+              {/* Item Activo NevuxBot */}
+              <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#ecfdf5", color: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #a7f3d0" }}>
+                🤖
               </div>
             </div>
 
-            {/* Mensaje de Gemini IA */}
-            <div
-              style={{
-                background: "#f8fafc",
-                border: "1px solid #e2e8f0",
-                padding: "8px",
-                borderRadius: "8px",
-                fontSize: "8.5px",
-                color: "#334155",
-                lineHeight: "1.3",
-              }}
-            >
-              "Olá Lucas! 👋 Guardamos o seu carrinho. Finalize agora em 1 clique 👇"
-            </div>
+            {/* Main Content (Dashboard CRM) */}
+            <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+              
+              {/* Header Title */}
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#000" }}>NevuxBot AI</div>
+              
+              {/* Metrics Row */}
+              <div style={{ display: "flex", gap: "8px" }}>
+                <div style={{ flex: 1, background: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "8px" }}>
+                  <div style={{ fontSize: "7px", color: "#64748b", fontWeight: "bold", textTransform: "uppercase" }}>
+                    {isPt ? "Carrinhos Abandonados" : "Carritos Abandonados"}
+                  </div>
+                  <div style={{ fontSize: "14px", fontWeight: "900", color: "#000" }}>14</div>
+                </div>
+                <div style={{ flex: 1, background: "#ecfdf5", border: "1.5px solid #10B981", borderRadius: "8px", padding: "8px" }}>
+                  <div style={{ fontSize: "7px", color: "#059669", fontWeight: "bold", textTransform: "uppercase" }}>
+                    {isPt ? "Vendas Recuperadas" : "Ventas Recuperadas"}
+                  </div>
+                  <div style={{ fontSize: "14px", fontWeight: "900", color: "#10B981" }}>
+                    {isPt ? "R$ 4.250" : "$425.000"}
+                  </div>
+                </div>
+              </div>
 
-            {/* Botón WhatsApp */}
-            <div
-              style={{
-                background: "#22c55e",
-                color: "#ffffff",
-                textAlign: "center",
-                padding: "7px",
-                borderRadius: "8px",
-                fontSize: "10px",
-                fontWeight: "800",
+              {/* Cart List Item */}
+              <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <div style={{ fontSize: "10px", fontWeight: "900", color: "#000" }}>👤 Martin P.</div>
+                    <div style={{ fontSize: "7px", color: "#64748b" }}>{isPt ? "Camiseta • Calça" : "Remera • Pantalón"}</div>
+                  </div>
+                  <div style={{ background: "#fef3c7", color: "#b45309", fontSize: "7px", fontWeight: "800", padding: "3px 6px", borderRadius: "6px" }}>
+                    🟡 {isPt ? "Pendente" : "Pendiente"}
+                  </div>
+                </div>
+                
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px dashed #e5e7eb", paddingTop: "6px" }}>
+                  <div style={{ fontSize: "11px", fontWeight: "900", color: "#10B981" }}>
+                    {isPt ? "R$ 450,00" : "$45.000"}
+                  </div>
+                  <div style={{ background: "#10B981", color: "#fff", fontSize: "8px", fontWeight: "800", padding: "4px 8px", borderRadius: "6px", display: "flex", alignItems: "center", gap: "4px", boxShadow: "0 2px 4px rgba(16,185,129,0.3)" }}>
+                    ✨ {isPt ? "Recuperar com IA" : "Recuperar con IA"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating WhatsApp Action Overlay */}
+              <div style={{ 
+                position: "absolute", 
+                bottom: "-15px", 
+                right: "10px", 
+                background: "#22c55e", 
+                color: "#fff", 
+                padding: "8px 12px", 
+                borderRadius: "8px", 
+                fontSize: "9px", 
+                fontWeight: "900", 
+                boxShadow: "0 10px 15px rgba(34, 197, 94, 0.4)",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                gap: "4px",
-              }}
-            >
-              💬 {isPt ? "Enviar por WhatsApp" : "Enviar por WhatsApp"}
+                gap: "6px",
+                border: "1px solid #16a34a",
+                zIndex: 10
+              }}>
+                💬 {isPt ? "Enviar Copys via WhatsApp" : "Enviar Copys vía WhatsApp"}
+              </div>
+
             </div>
           </div>
         </div>
@@ -713,4 +729,4 @@ export default function BannersPage() {
       </div>
     </div>
   );
-        }
+              }
