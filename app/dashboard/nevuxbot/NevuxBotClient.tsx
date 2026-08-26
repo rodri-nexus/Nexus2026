@@ -14,12 +14,9 @@ import {
   Copy,
   ExternalLink,
   Settings,
-  Clock,
-  Send,
+  Mail,
   User,
-  Zap,
-  ChevronDown,
-  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import DashboardHeader from "../components/DashboardHeader";
@@ -69,6 +66,11 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
   const [generatedMessage, setGeneratedMessage] = useState("");
   const [generatingCopy, setGeneratingCopy] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Estado de envío de email
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSentSuccess, setEmailSentSuccess] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   // Cargar configuración e información de carritos
   const loadData = useCallback(async () => {
@@ -135,6 +137,8 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     setGeneratingCopy(true);
     setGeneratedMessage("");
     setCopied(false);
+    setEmailSentSuccess(false);
+    setEmailError(null);
 
     try {
       const totalFormatted = formatCurrency(c.total);
@@ -142,6 +146,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "generate_copy",
           customerName: c.customerName,
           products: c.products,
           totalFormatted,
@@ -159,6 +164,51 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
       console.error("Error generando mensaje de recupero:", err);
     } finally {
       setGeneratingCopy(false);
+    }
+  }
+
+  // Enviar Email con Resend
+  async function handleSendEmail() {
+    if (!selectedCheckout || sendingEmail) return;
+
+    if (!selectedCheckout.customerEmail) {
+      setEmailError("Este comprador no ingresó su dirección de email.");
+      return;
+    }
+
+    setSendingEmail(true);
+    setEmailError(null);
+    setEmailSentSuccess(false);
+
+    try {
+      const totalFormatted = formatCurrency(selectedCheckout.total);
+      const res = await fetch("/api/nevuxbot/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send_email",
+          customerName: selectedCheckout.customerName,
+          customerEmail: selectedCheckout.customerEmail,
+          products: selectedCheckout.products,
+          totalFormatted,
+          checkoutUrl: selectedCheckout.checkoutUrl,
+          customMessage: generatedMessage,
+          botName,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setEmailSentSuccess(true);
+      } else {
+        setEmailError(data.error || "No se pudo enviar el correo de recupero.");
+      }
+    } catch (err) {
+      console.error("Error enviando email de recupero:", err);
+      setEmailError("Error de conexión al enviar el correo.");
+    } finally {
+      setSendingEmail(false);
     }
   }
 
@@ -190,7 +240,6 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
 
     let phone = selectedCheckout.customerPhone.replace(/[^0-9]/g, "");
     if (!phone) {
-      // Si no hay teléfono formateado, abrir WhatsApp Web directo para pegar
       navigator.clipboard.writeText(generatedMessage);
       setCopied(true);
       window.open("https://web.whatsapp.com/", "_blank");
@@ -302,7 +351,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                   opacity: 0.6,
                 }}
               >
-                Recuperá carritos abandonados de Tiendanube en 1-clic con copys redactados por IA.
+                Recuperá carritos abandonados de Tiendanube por WhatsApp y Email con IA.
               </p>
             </div>
 
@@ -612,7 +661,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                 Carritos Inconclusos
               </h2>
               <p style={{ margin: "0.2rem 0 0", fontSize: "0.85rem", color: "#000", opacity: 0.6 }}>
-                Hacé clic en "Recuperar con IA" para redactar el mensaje de venta.
+                Hacé clic en "Recuperar con IA" para redactar el mensaje y enviarlo por WhatsApp o Email.
               </p>
             </div>
           </div>
@@ -825,7 +874,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                     </div>
                     <div>
                       <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#000" }}>
-                        Copy Persuasivo Generado
+                        Mensaje de Recupero IA
                       </h3>
                       <div style={{ fontSize: "0.78rem", color: "#000", opacity: 0.5 }}>
                         Para {selectedCheckout.customerName}
@@ -861,7 +910,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                     <textarea
                       value={generatedMessage}
                       onChange={(e) => setGeneratedMessage(e.target.value)}
-                      rows={7}
+                      rows={6}
                       style={{
                         width: "100%",
                         padding: "1rem",
@@ -874,55 +923,123 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                         lineHeight: 1.5,
                         fontFamily: "inherit",
                         boxSizing: "border-box",
-                        marginBottom: "1.25rem",
+                        marginBottom: "1rem",
                         outline: "none",
                       }}
                     />
 
-                    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                    {/* Feedback de error o éxito de Email */}
+                    {emailSentSuccess && (
+                      <div
+                        style={{
+                          padding: "0.65rem 0.85rem",
+                          borderRadius: "10px",
+                          background: "#ecfdf5",
+                          border: "1px solid #a7f3d0",
+                          color: "#059669",
+                          fontSize: "0.82rem",
+                          fontWeight: 700,
+                          marginBottom: "1rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.4rem",
+                        }}
+                      >
+                        <Check size={16} />
+                        ¡Email de recupero enviado exitosamente!
+                      </div>
+                    )}
+
+                    {emailError && (
+                      <div
+                        style={{
+                          padding: "0.65rem 0.85rem",
+                          borderRadius: "10px",
+                          background: "#fef2f2",
+                          border: "1px solid #fecaca",
+                          color: "#dc2626",
+                          fontSize: "0.82rem",
+                          fontWeight: 700,
+                          marginBottom: "1rem",
+                        }}
+                      >
+                        {emailError}
+                      </div>
+                    )}
+
+                    {/* Botones de acción */}
+                    <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
                       <button
                         onClick={handleCopyMessage}
                         style={{
-                          flex: "1 1 140px",
-                          padding: "0.75rem",
+                          flex: "1 1 110px",
+                          padding: "0.7rem",
                           borderRadius: "12px",
                           border: "1px solid #e5e7eb",
                           background: "#ffffff",
-                          fontSize: "0.85rem",
+                          fontSize: "0.82rem",
                           fontWeight: 700,
                           color: "#000",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          gap: "0.4rem",
+                          gap: "0.35rem",
                         }}
                       >
-                        {copied ? <Check size={16} color="#10B981" /> : <Copy size={16} />}
-                        {copied ? "¡Copiado!" : "Copiar Texto"}
+                        {copied ? <Check size={15} color="#10B981" /> : <Copy size={15} />}
+                        {copied ? "¡Copiado!" : "Copiar"}
+                      </button>
+
+                      <button
+                        onClick={handleSendEmail}
+                        disabled={sendingEmail || !selectedCheckout.customerEmail}
+                        style={{
+                          flex: "1 1 130px",
+                          padding: "0.7rem",
+                          borderRadius: "12px",
+                          border: "1px solid #10B981",
+                          background: "#ffffff",
+                          fontSize: "0.82rem",
+                          fontWeight: 800,
+                          color: "#10B981",
+                          cursor: sendingEmail || !selectedCheckout.customerEmail ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "0.35rem",
+                          opacity: sendingEmail || !selectedCheckout.customerEmail ? 0.6 : 1,
+                        }}
+                      >
+                        {sendingEmail ? (
+                          <Loader2 size={15} className="animate-spin" color="#10B981" />
+                        ) : (
+                          <Mail size={15} />
+                        )}
+                        Enviar por Email
                       </button>
 
                       <button
                         onClick={handleOpenWhatsApp}
                         style={{
-                          flex: "1 1 180px",
-                          padding: "0.75rem",
+                          flex: "1 1 150px",
+                          padding: "0.7rem",
                           borderRadius: "12px",
                           border: "none",
                           background: "#22c55e",
-                          fontSize: "0.85rem",
+                          fontSize: "0.82rem",
                           fontWeight: 800,
                           color: "#ffffff",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          gap: "0.4rem",
+                          gap: "0.35rem",
                           boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
                         }}
                       >
-                        <MessageCircle size={18} />
-                        Enviar por WhatsApp
+                        <MessageCircle size={16} />
+                        WhatsApp
                       </button>
                     </div>
                   </>
@@ -937,4 +1054,4 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
       </main>
     </div>
   );
-                               }
+  }
