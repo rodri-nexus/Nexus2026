@@ -26,22 +26,25 @@ export default async function DashboardPage() {
     redirect("/admin/pagos");
   }
 
-  // Buscar en paralelo: tienda vinculada + perfil (onboarding) + widgets activos
+  // Buscar en paralelo con supabaseAdmin para evitar fallos de RLS o duplicados:
+  // tienda vinculada (ordenada por instalación más reciente) + perfil + widgets
   const [storeRes, profileRes, widgetsCountRes] = await Promise.all([
-    supabase
+    supabaseAdmin
       .from("stores")
       .select(
         "store_id, access_token, installed_at, is_active, user_id, trial_started_at, trial_ends_at, plan_status, plan_active_until, last_payment_at, months_active, feedback_shown"
       )
       .eq("user_id", user.id)
       .eq("is_active", true)
+      .order("installed_at", { ascending: false })
+      .limit(1)
       .maybeSingle(),
-    supabase
+    supabaseAdmin
       .from("profiles")
       .select("onboarding_completed")
       .eq("id", user.id)
       .maybeSingle(),
-    supabase
+    supabaseAdmin
       .from("widgets")
       .select("*", { count: "exact", head: true })
       .eq("user_id", user.id)
@@ -152,4 +155,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-        }
+    }
