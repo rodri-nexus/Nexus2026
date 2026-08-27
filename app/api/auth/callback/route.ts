@@ -1,6 +1,7 @@
 // app/api/auth/callback/route.ts
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 
 async function installStoreScript(
   storeId: number,
@@ -10,8 +11,8 @@ async function installStoreScript(
   const res = await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "User-Agent": "Nevux (nevux.app)",
+      Authentication: `bearer ${accessToken}`,
+      "User-Agent": "Nevux (nevuxapp@gmail.com)",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -33,10 +34,36 @@ async function installStoreScript(
   return true;
 }
 
+/**
+ * Consulta los datos de la tienda en Tiendanube para obtener el email oficial del comerciante.
+ */
+async function getTiendanubeStoreEmail(
+  storeId: number,
+  accessToken: string
+): Promise<string | null> {
+  try {
+    const res = await fetch(`https://api.tiendanube.com/v1/${storeId}`, {
+      headers: {
+        Authentication: `bearer ${accessToken}`,
+        "User-Agent": "Nevux (nevuxapp@gmail.com)",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return data.email || data.customer_email || null;
+    }
+  } catch (err) {
+    console.error("Error obteniendo datos de la tienda desde Tiendanube API:", err);
+  }
+  return null;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const state = searchParams.get("state"); // opcional ahora
+  const state = searchParams.get("state");
 
   if (!code) {
     return NextResponse.json(
@@ -85,27 +112,67 @@ export async function GET(request: Request) {
     const accessToken = data.access_token;
     const scope = data.scope || null;
 
-    // 2. Buscar si la tienda ya existía y traer trial_started_at
-    //    Esto es CLAVE para no resetear el trial si es una reinstalación
+    // 2. Intentar determinar el user_id de Nevux a vincular
+    let userIdToLink: string | null = state || null;
+
+    // A) Verificar si hay una sesión activa de usuario en la solicitud
+    if (!userIdToLink) {
+      try {
+        const supabaseServer = createClient();
+        const {
+          data: { user: currentUser },
+        } = await supabaseServer.auth.getUser();
+
+        if (currentUser) {
+          userIdToLink = currentUser.id;
+          console.log("✅ Usuario logueado detectado en sesión:", currentUser.email);
+        }
+      } catch (e) {
+        console.error("Error verificando usuario en sesión:", e);
+      }
+    }
+
+    // B) Si no hay sesión activa, consultar tienda existente en DB
     const { data: existingStore } = await supabaseAdmin
       .from("stores")
       .select("user_id, trial_started_at, trial_ends_at, plan_status")
       .eq("store_id", storeId)
       .maybeSingle();
 
-    let userIdToLink: string | null = state || null;
-
     if (!userIdToLink && existingStore?.user_id) {
       userIdToLink = existingStore.user_id;
-      console.log("Reinstalación: recupero user_id existente", userIdToLink);
+      console.log("🔄 Reinstalación: recupero user_id existente:", userIdToLink);
     }
 
-    // 3. Determinar el trial: solo setear si es PRIMERA instalación
+    // C) Si aún no hay user_id, pedir el email a Tiendanube API y buscar coincidencia en auth.users
+    let storeEmail: string | null = null;
+    if (!userIdToLink) {
+      storeEmail = await getTiendanubeStoreEmail(storeId, accessToken);
+      if (storeEmail) {
+        console.log("📧 Email de tienda obtenido de Tiendanube:", storeEmail);
+        
+        const { data: usersData, error: usersError } =
+          await supabaseAdmin.auth.admin.listUsers();
+
+        if (!usersError && usersData?.users) {
+          const matchedUser = usersData.users.find(
+            (u) => (u.email || "").toLowerCase() === storeEmail!.toLowerCase()
+          );
+
+          if (matchedUser) {
+            userIdToLink = matchedUser.id;
+            console.log("🎯 COINCIDENCIA AUTOMÁTICA DE EMAIL! Tienda vinculada a:", matchedUser.email);
+          }
+        }
+      }
+    }
+
+    // 3. Determinar el trial
     const isFirstInstall = !existingStore?.trial_started_at;
     const now = new Date();
     const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 días
 
-    // 4. Upsert de la tienda
+    // 4. Payload para upsert
     const upsertPayload: any = {
       store_id: storeId,
       access_token: accessToken,
@@ -119,7 +186,6 @@ export async function GET(request: Request) {
       upsertPayload.user_id = userIdToLink;
     }
 
-    // Solo setear campos de trial si es PRIMERA instalación
     if (isFirstInstall) {
       upsertPayload.trial_started_at = now.toISOString();
       upsertPayload.trial_ends_at = trialEndsAt.toISOString();
@@ -128,7 +194,7 @@ export async function GET(request: Request) {
       upsertPayload.months_active = 0;
       console.log("🎁 Primera instalación: trial de 7 días iniciado hasta", trialEndsAt.toISOString());
     } else {
-      console.log("🔄 Reinstalación: mantengo trial existente. Estado actual:", existingStore.plan_status);
+      console.log("🔄 Reinstalación: mantengo trial/plan existente");
     }
 
     const { error: dbError } = await supabaseAdmin
@@ -143,7 +209,7 @@ export async function GET(request: Request) {
       );
     }
 
-    // 5. Instalar el script de widgets en la tienda del cliente
+    // 5. Instalar el script de widgets en la tienda
     const appUrl = new URL(request.url).origin;
     const scriptUrl = `${appUrl}/nevux-widget.js`;
 
@@ -154,20 +220,22 @@ export async function GET(request: Request) {
       console.error("Error instalando script (no critico):", scriptErr);
     }
 
-    console.log("Tienda conectada:", {
+    console.log("Tienda procesada:", {
       store_id: storeId,
       user_id: userIdToLink || "PENDIENTE_VINCULACION",
+      email: storeEmail,
       trial_active: isFirstInstall,
     });
 
     // 6. Redirección final
     if (userIdToLink) {
-      // Todo OK, tienda vinculada al user
       return NextResponse.redirect(new URL("/dashboard", request.url));
     } else {
-      // Tienda guardada pero sin user_id: pedir login para vincular
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("pending_store", String(storeId));
+      if (storeEmail) {
+        loginUrl.searchParams.set("email", storeEmail);
+      }
       return NextResponse.redirect(loginUrl);
     }
   } catch (error) {
@@ -177,4 +245,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-  }
+                            }
