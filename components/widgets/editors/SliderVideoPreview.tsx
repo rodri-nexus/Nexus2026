@@ -2,6 +2,9 @@
 
 import React from 'react';
 
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
 interface VideoItem {
   url?: string;
   path?: string;
@@ -20,9 +23,9 @@ interface SliderVideoPreviewProps {
   config: any;
 }
 
-// ═══════════════════════════════════════════════════════════
-// Parser markdown ligero (bold, italic, underline)
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   HELPERS & PARSER
+═══════════════════════════════════════════ */
 function parseMarkdownLigero(texto: string): string {
   if (!texto) return '';
   let html = texto
@@ -30,21 +33,14 @@ function parseMarkdownLigero(texto: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // **bold**
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // *italic*
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  // __underline__
   html = html.replace(/__(.+?)__/g, '<u>$1</u>');
-  // saltos de línea
   html = html.replace(/\n/g, '<br />');
 
   return html;
 }
 
-// ═══════════════════════════════════════════════════════════
-// Formato de precio
-// ═══════════════════════════════════════════════════════════
 function formatPrecio(precio: number): string {
   try {
     return new Intl.NumberFormat('es-AR', {
@@ -57,10 +53,10 @@ function formatPrecio(precio: number): string {
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// Ícono Play
-// ═══════════════════════════════════════════════════════════
-function IconPlay({ size = 48, color = '#9ca3af' }: { size?: number; color?: string }) {
+/* ═══════════════════════════════════════════
+   ÍCONOS SVG
+═══════════════════════════════════════════ */
+function IconPlay({ size = 48, color = '#ffffff' }: { size?: number; color?: string }) {
   return (
     <svg
       width={size}
@@ -69,15 +65,12 @@ function IconPlay({ size = 48, color = '#9ca3af' }: { size?: number; color?: str
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
       <path d="M10 8L16 12L10 16V8Z" fill={color} />
     </svg>
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Ícono Flecha
-// ═══════════════════════════════════════════════════════════
 function IconArrow({
   direction,
   color,
@@ -87,8 +80,8 @@ function IconArrow({
 }) {
   return (
     <svg
-      width="20"
-      height="20"
+      width="18"
+      height="18"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +92,7 @@ function IconArrow({
       <path
         d="M9 6L15 12L9 18"
         stroke={color}
-        strokeWidth="2.5"
+        strokeWidth="2.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -107,14 +100,11 @@ function IconArrow({
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Ícono Carrito
-// ═══════════════════════════════════════════════════════════
 function IconCart({ color = '#ffffff' }: { color?: string }) {
   return (
     <svg
-      width="16"
-      height="16"
+      width="15"
+      height="15"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +112,7 @@ function IconCart({ color = '#ffffff' }: { color?: string }) {
       <path
         d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.07 15.93 4.52 17 5.4 17H17M17 17C15.9 17 15 17.9 15 19C15 20.1 15.9 21 17 21C18.1 21 19 20.1 19 19C19 17.9 18.1 17 17 17ZM9 19C9 20.1 8.1 21 7 21C5.9 21 5 20.1 5 19C5 17.9 5.9 17 7 17C8.1 17 9 17.9 9 19Z"
         stroke={color}
-        strokeWidth="2"
+        strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -130,9 +120,9 @@ function IconCart({ color = '#ffffff' }: { color?: string }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Card de producto asociado (bajo el video)
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   CARD DE PRODUCTO VINCULADO
+═══════════════════════════════════════════ */
 function ProductoCard({
   producto,
   config,
@@ -143,9 +133,9 @@ function ProductoCard({
   const {
     mostrarPrecio = true,
     mostrarBotonCarrito = true,
-    colorBotonFondo = '#000000',
+    colorBotonFondo = '#10B981',
     colorBotonTexto = '#ffffff',
-    radioBordeBoton = 8,
+    radioBordeBoton = 10,
   } = config;
 
   return (
@@ -154,11 +144,12 @@ function ProductoCard({
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        padding: '10px',
+        padding: '8px 10px',
         background: '#ffffff',
-        borderRadius: 10,
-        border: '1px solid #eeeeee',
+        borderRadius: 12,
+        border: '1px solid rgba(0,0,0,0.08)',
         marginTop: 10,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
       }}
     >
       {producto.image ? (
@@ -166,8 +157,8 @@ function ProductoCard({
           src={producto.image}
           alt={producto.name}
           style={{
-            width: 44,
-            height: 44,
+            width: 42,
+            height: 42,
             borderRadius: 8,
             objectFit: 'cover',
             flexShrink: 0,
@@ -176,8 +167,8 @@ function ProductoCard({
       ) : (
         <div
           style={{
-            width: 44,
-            height: 44,
+            width: 42,
+            height: 42,
             borderRadius: 8,
             background: '#f3f4f6',
             flexShrink: 0,
@@ -188,9 +179,9 @@ function ProductoCard({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#111827',
+            fontSize: 12,
+            fontWeight: 800,
+            color: '#000000',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -201,9 +192,10 @@ function ProductoCard({
         {mostrarPrecio && (
           <div
             style={{
-              fontSize: 13,
-              color: '#6b7280',
-              marginTop: 2,
+              fontSize: 12,
+              color: '#059669',
+              fontWeight: 800,
+              marginTop: 1,
             }}
           >
             {formatPrecio(producto.price)}
@@ -215,18 +207,19 @@ function ProductoCard({
         <button
           type="button"
           style={{
-            background: colorBotonFondo,
+            background: colorBotonFondo || '#10B981',
             color: colorBotonTexto,
             border: 'none',
-            padding: '8px 12px',
+            padding: '7px 11px',
             borderRadius: radioBordeBoton,
-            fontSize: 12,
-            fontWeight: 600,
+            fontSize: 11,
+            fontWeight: 800,
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
+            gap: 5,
             cursor: 'pointer',
             flexShrink: 0,
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
           }}
         >
           <IconCart color={colorBotonTexto} />
@@ -237,9 +230,9 @@ function ProductoCard({
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Card de video (formato Slider)
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   CARD DE VIDEO (SLIDER CINEMÁTICO)
+═══════════════════════════════════════════ */
 function VideoCardSlider({
   video,
   config,
@@ -248,7 +241,7 @@ function VideoCardSlider({
   config: any;
 }) {
   const {
-    radioBordeVideos = 20,
+    radioBordeVideos = 18,
     productosBajoVideo = false,
   } = config;
 
@@ -256,7 +249,7 @@ function VideoCardSlider({
     <div
       style={{
         flex: '0 0 auto',
-        width: 160,
+        width: 165,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -268,7 +261,9 @@ function VideoCardSlider({
           aspectRatio: '9 / 16',
           borderRadius: radioBordeVideos,
           overflow: 'hidden',
-          background: '#111827',
+          background: '#05070B',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          border: '1px solid rgba(255,255,255,0.15)',
         }}
       >
         {video.url ? (
@@ -290,38 +285,38 @@ function VideoCardSlider({
               width: '100%',
               height: '100%',
               background:
-                'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+                'linear-gradient(135deg, #05070B 0%, #10B981 100%)',
             }}
           />
         )}
 
-        {/* Overlay Play */}
+        {/* Overlay Play Glassmorphism */}
         <div
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(0,0,0,0.15)',
+            background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%)',
             pointerEvents: 'none',
           }}
         >
           <div
             style={{
-              background: 'rgba(255,255,255,0.9)',
+              background: 'rgba(255, 255, 255, 0.25)',
+              backdropFilter: 'blur(8px)',
               borderRadius: '50%',
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              border: '1px solid rgba(255,255,255,0.4)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            <IconPlay size={22} color="#111827" />
+            <IconPlay size={22} color="#ffffff" />
           </div>
         </div>
       </div>
@@ -333,9 +328,9 @@ function VideoCardSlider({
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Card de video (formato Círculos)
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   CARD DE VIDEO (CÍRCULOS STORIES)
+═══════════════════════════════════════════ */
 function VideoCardCirculo({
   video,
   colorControles,
@@ -343,6 +338,8 @@ function VideoCardCirculo({
   video: VideoItem;
   colorControles: string;
 }) {
+  const activeColor = colorControles || '#10B981';
+
   return (
     <div
       style={{
@@ -357,17 +354,18 @@ function VideoCardCirculo({
         style={{
           padding: 3,
           borderRadius: '50%',
-          background: `linear-gradient(135deg, ${colorControles} 0%, ${colorControles}80 100%)`,
+          background: `linear-gradient(135deg, ${activeColor} 0%, #059669 100%)`,
+          boxShadow: `0 4px 12px ${activeColor}44`,
         }}
       >
         <div
           style={{
-            width: 70,
-            height: 70,
+            width: 72,
+            height: 72,
             borderRadius: '50%',
             overflow: 'hidden',
-            background: '#111827',
-            border: '3px solid #ffffff',
+            background: '#05070B',
+            border: '2.5px solid #ffffff',
             position: 'relative',
           }}
         >
@@ -390,7 +388,7 @@ function VideoCardCirculo({
                 width: '100%',
                 height: '100%',
                 background:
-                  'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+                  'linear-gradient(135deg, #05070B 0%, #10B981 100%)',
               }}
             />
           )}
@@ -401,7 +399,7 @@ function VideoCardCirculo({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(0,0,0,0.15)',
+              background: 'rgba(0,0,0,0.25)',
             }}
           >
             <IconPlay size={20} color="#ffffff" />
@@ -412,9 +410,9 @@ function VideoCardCirculo({
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Componente principal
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) {
   const {
     titulo = '',
@@ -422,18 +420,17 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
     videos = [],
     posicion = 'despues',
     formato = 'slider',
-    colorControles = '#000000',
-    colorTitulo = '#333333',
-    colorFondo = '#fafafa',
+    colorControles = '#10B981',
+    colorTitulo = '#000000',
+    colorFondo = '#ffffff',
     tamanoTitulo = '20px',
-    tamanoSubtitulo = '16px',
+    tamanoSubtitulo = '15px',
     alineacion = 'centrado',
   } = config || {};
 
   const videosArr: VideoItem[] = Array.isArray(videos) ? videos : [];
   const hayVideos = videosArr.length > 0;
 
-  // Alineación
   const textAlign =
     alineacion === 'izquierda'
       ? 'left'
@@ -441,17 +438,15 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
       ? 'right'
       : 'center';
 
-  // Fondo solo si "después de la descripción"
   const fondoAplicado = posicion === 'despues' ? colorFondo : 'transparent';
 
-  // ─── Estado vacío ───
   if (!hayVideos) {
     return (
       <div
         style={{
           background: '#ffffff',
-          border: '1px dashed #d1d5db',
-          borderRadius: 12,
+          border: '1px dashed #e5e7eb',
+          borderRadius: 16,
           padding: '48px 20px',
           textAlign: 'center',
           minHeight: 260,
@@ -462,27 +457,39 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
           gap: 14,
         }}
       >
-        <IconPlay size={56} color="#9ca3af" />
         <div
           style={{
-            fontSize: 15,
-            color: '#6b7280',
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            background: '#ecfdf5',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          Sube videos para ver la vista previa
+          <IconPlay size={32} color="#10B981" />
+        </div>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: '#000000',
+          }}
+        >
+          Subí videos para ver la vista previa en vivo
         </div>
       </div>
     );
   }
 
-  // ─── Con videos ───
   return (
     <div
       style={{
         background: fondoAplicado,
         padding: posicion === 'despues' ? '20px 16px' : '12px 0',
-        borderRadius: posicion === 'despues' ? 12 : 0,
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        borderRadius: posicion === 'despues' ? 16 : 0,
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
       {/* Título */}
@@ -490,11 +497,12 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
         <div
           style={{
             fontSize: tamanoTitulo,
-            fontWeight: 700,
+            fontWeight: 800,
             color: colorTitulo,
             textAlign,
             marginBottom: subtitulo ? 4 : 14,
             lineHeight: 1.2,
+            letterSpacing: '-0.01em',
           }}
         >
           {titulo}
@@ -511,6 +519,7 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
             textAlign,
             marginBottom: 16,
             lineHeight: 1.4,
+            fontWeight: 500,
           }}
           dangerouslySetInnerHTML={{ __html: parseMarkdownLigero(subtitulo) }}
         />
@@ -518,17 +527,13 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
 
       {/* Formato Slider */}
       {formato === 'slider' && (
-        <div
-          style={{
-            position: 'relative',
-          }}
-        >
+        <div style={{ position: 'relative' }}>
           <div
             style={{
               display: 'flex',
-              gap: 12,
+              gap: 14,
               overflowX: 'auto',
-              paddingBottom: 4,
+              paddingBottom: 8,
               scrollbarWidth: 'none',
             }}
           >
@@ -537,46 +542,50 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
             ))}
           </div>
 
-          {/* Flechas decorativas (si hay más de 1 video) */}
+          {/* Flechas decorativas de navegación */}
           {videosArr.length > 1 && (
             <>
               <div
                 style={{
                   position: 'absolute',
-                  left: -6,
-                  top: '40%',
+                  left: -8,
+                  top: '50%',
                   transform: 'translateY(-50%)',
-                  width: 32,
-                  height: 32,
+                  width: 36,
+                  height: 36,
                   borderRadius: '50%',
                   background: '#ffffff',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   pointerEvents: 'none',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  zIndex: 10,
                 }}
               >
-                <IconArrow direction="left" color={colorControles} />
+                <IconArrow direction="left" color={colorControles || '#10B981'} />
               </div>
               <div
                 style={{
                   position: 'absolute',
-                  right: -6,
-                  top: '40%',
+                  right: -8,
+                  top: '50%',
                   transform: 'translateY(-50%)',
-                  width: 32,
-                  height: 32,
+                  width: 36,
+                  height: 36,
                   borderRadius: '50%',
                   background: '#ffffff',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   pointerEvents: 'none',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  zIndex: 10,
                 }}
               >
-                <IconArrow direction="right" color={colorControles} />
+                <IconArrow direction="right" color={colorControles || '#10B981'} />
               </div>
             </>
           )}
@@ -588,9 +597,9 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
         <div
           style={{
             display: 'flex',
-            gap: 14,
+            gap: 16,
             overflowX: 'auto',
-            paddingBottom: 4,
+            paddingBottom: 6,
             justifyContent: videosArr.length <= 3 ? 'center' : 'flex-start',
             scrollbarWidth: 'none',
           }}
@@ -606,4 +615,4 @@ export default function SliderVideoPreview({ config }: SliderVideoPreviewProps) 
       )}
     </div>
   );
-}
+      }
