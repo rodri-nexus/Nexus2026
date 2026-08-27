@@ -2,6 +2,9 @@
 
 import React from 'react';
 
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
 interface Opinion {
   nombre: string;
   estrellas: number;
@@ -26,8 +29,9 @@ interface PreviewProps {
   };
 }
 
-/* ============ HELPERS ============ */
-
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
 function getInitial(nombre: string): string {
   const n = (nombre || '').trim();
   if (!n) return '?';
@@ -35,19 +39,15 @@ function getInitial(nombre: string): string {
 }
 
 function getAvatarBg(nombre: string): string {
-  // Genera un color suave estable en base al nombre
   const palette = [
-    '#DBEAFE', // azul
-    '#FCE7F3', // rosa
-    '#DCFCE7', // verde
-    '#FEF3C7', // amarillo
-    '#EDE9FE', // violeta
-    '#FFE4E6', // rojo suave
-    '#CFFAFE', // celeste
-    '#FEE2E2', // rojo claro
+    '#ecfdf5', // verde esmeralda suave
+    '#f0fdf4', // verde claro
+    '#eff6ff', // azul suave
+    '#fef3c7', // ámbar suave
+    '#f3f4f6', // gris suave
   ];
   const n = (nombre || '').trim();
-  if (!n) return '#E5E7EB';
+  if (!n) return '#f3f4f6';
   let sum = 0;
   for (let i = 0; i < n.length; i++) sum += n.charCodeAt(i);
   return palette[sum % palette.length];
@@ -55,14 +55,11 @@ function getAvatarBg(nombre: string): string {
 
 function getAvatarTextColor(nombre: string): string {
   const palette = [
-    '#1E40AF', // azul oscuro
-    '#9D174D', // rosa oscuro
-    '#166534', // verde oscuro
-    '#92400E', // amarillo oscuro
-    '#5B21B6', // violeta oscuro
-    '#9F1239', // rojo oscuro
-    '#155E75', // celeste oscuro
-    '#991B1B', // rojo oscuro 2
+    '#059669', // verde oscuro
+    '#166534', // verde bosque
+    '#1d4ed8', // azul
+    '#b45309', // ámbar
+    '#374151', // gris
   ];
   const n = (nombre || '').trim();
   if (!n) return '#374151';
@@ -77,14 +74,14 @@ function VerifiedBadge({ size = 16 }: { size?: number }) {
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="#3B82F6"
+      fill="#10B981"
       style={{ flexShrink: 0 }}
     >
       <path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z" />
       <path
         d="M9 12l2 2 4-4"
         stroke="#FFFFFF"
-        strokeWidth="2"
+        strokeWidth="2.2"
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -93,8 +90,9 @@ function VerifiedBadge({ size = 16 }: { size?: number }) {
   );
 }
 
-/* ============ AVATAR ============ */
-
+/* ═══════════════════════════════════════════
+   AVATAR
+═══════════════════════════════════════════ */
 function Avatar({
   nombre,
   foto,
@@ -116,6 +114,7 @@ function Avatar({
           objectFit: 'cover',
           flexShrink: 0,
           display: 'block',
+          border: '1px solid rgba(0,0,0,0.08)',
         }}
       />
     );
@@ -138,9 +137,10 @@ function Avatar({
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: fontSize,
-        fontWeight: 700,
+        fontWeight: 800,
         flexShrink: 0,
         userSelect: 'none',
+        border: '1px solid rgba(0,0,0,0.05)',
       }}
     >
       {initial}
@@ -148,8 +148,9 @@ function Avatar({
   );
 }
 
-/* ============ STARS ============ */
-
+/* ═══════════════════════════════════════════
+   STARS
+═══════════════════════════════════════════ */
 function Stars({
   count,
   color,
@@ -160,12 +161,14 @@ function Stars({
   size?: number;
 }) {
   const stars = [];
+  const starColor = color || '#F59E0B'; // dorado/ámbar por defecto
+
   for (let i = 1; i <= 5; i++) {
     stars.push(
       <span
         key={i}
         style={{
-          color: i <= count ? color : '#E5E7EB',
+          color: i <= count ? starColor : '#E5E7EB',
           fontSize: size,
           lineHeight: 1,
         }}
@@ -175,14 +178,15 @@ function Stars({
     );
   }
   return (
-    <span style={{ display: 'inline-flex', gap: 1, alignItems: 'center' }}>
+    <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
       {stars}
     </span>
   );
 }
 
-/* ============ OPINION CARD ============ */
-
+/* ═══════════════════════════════════════════
+   OPINIONS CARD
+═══════════════════════════════════════════ */
 function OpinionCard({
   opinion,
   config,
@@ -197,13 +201,15 @@ function OpinionCard({
   return (
     <div
       style={{
-        background: config.colorFondo,
-        color: config.colorTexto,
-        borderRadius: config.bordeRedondeado,
-        padding: config.padding,
-        border: config.mostrarBorde ? `1px solid ${config.colorBorde}` : 'none',
+        background: config.colorFondo || '#FFFFFF',
+        color: config.colorTexto || '#000000',
+        borderRadius: config.bordeRedondeado || 14,
+        padding: config.padding || 16,
+        border: config.mostrarBorde ? `1px solid ${config.colorBorde}` : '1px solid rgba(0,0,0,0.06)',
         boxSizing: 'border-box',
         width: '100%',
+        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.03)',
+        transition: 'transform 0.2s ease',
       }}
     >
       {/* FILA SUPERIOR: avatar + nombre + estrellas */}
@@ -215,7 +221,7 @@ function OpinionCard({
           marginBottom: texto ? 10 : 0,
         }}
       >
-        <Avatar nombre={nombre} foto={opinion.foto} size={config.tamanoAvatar} />
+        <Avatar nombre={nombre} foto={opinion.foto} size={config.tamanoAvatar || 40} />
 
         <div
           style={{
@@ -229,10 +235,11 @@ function OpinionCard({
         >
           <span
             style={{
-              fontSize: config.fuenteNombre,
-              fontWeight: 700,
-              color: config.colorTexto,
+              fontSize: config.fuenteNombre || 14,
+              fontWeight: 800,
+              color: config.colorTexto || '#000000',
               lineHeight: 1.2,
+              letterSpacing: '-0.01em',
             }}
           >
             {nombre}
@@ -252,22 +259,25 @@ function OpinionCard({
       {texto && (
         <div
           style={{
-            fontSize: config.fuenteOpinion,
-            color: config.colorTexto,
+            fontSize: config.fuenteOpinion || 13,
+            color: config.colorTexto || '#000000',
             lineHeight: 1.5,
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
+            fontWeight: 500,
+            opacity: 0.9,
           }}
         >
-          {texto}
+          "{texto}"
         </div>
       )}
     </div>
   );
 }
 
-/* ============ PREVIEW ============ */
-
+/* ═══════════════════════════════════════════
+   PREVIEW
+═══════════════════════════════════════════ */
 export default function CajaOpinionesPreview({ config }: PreviewProps) {
   const opiniones = Array.isArray(config.opiniones) ? config.opiniones : [];
 
@@ -276,12 +286,13 @@ export default function CajaOpinionesPreview({ config }: PreviewProps) {
       <div
         style={{
           background: '#FFFFFF',
-          border: '1px dashed #D1D5DB',
-          borderRadius: 12,
+          border: '1px dashed #E5E7EB',
+          borderRadius: 14,
           padding: 24,
           textAlign: 'center',
           color: '#6B7280',
           fontSize: 14,
+          fontWeight: 500,
         }}
       >
         Agregá al menos una opinión para ver la vista previa.
@@ -294,7 +305,7 @@ export default function CajaOpinionesPreview({ config }: PreviewProps) {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 10,
+        gap: 12,
         width: '100%',
       }}
     >
