@@ -197,14 +197,14 @@ export default function Hero() {
           <BulletItem text="Asistencia personalizada 24/7" />
         </motion.div>
 
-        {/* Botón CTA */}
+        {/* Botón CTA - CORREGIDO A /login */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <Link
-            href="/registro"
+            href="/login"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -220,6 +220,7 @@ export default function Hero() {
               boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
               transition: "all 0.2s",
               minWidth: "260px",
+              cursor: "pointer",
             }}
           >
             Probar gratis
@@ -369,7 +370,6 @@ export default function Hero() {
   );
 }
 
-// Componente para cada bullet
 function BulletItem({ text }: { text: string }) {
   return (
     <div
@@ -402,7 +402,6 @@ function BulletItem({ text }: { text: string }) {
   );
 }
 
-// Componente para los widgets animados dentro de la card
 function FloatingWidget({
   icon,
   text,
@@ -451,4 +450,4 @@ function FloatingWidget({
       <span>{text}</span>
     </motion.div>
   );
-        }
+          }
