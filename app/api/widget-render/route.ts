@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { isStorePlanActive } from '@/lib/plan'
 
 // ═══════════════════════════════════════════════════════════
 // GET /api/widget-render?store_id=X&product_id=Y (opcional)
@@ -8,7 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 // ═══════════════════════════════════════════════════════════
 
 // Headers CORS: permiten que el script en la tienda del cliente
-// (ej: mitienda.com.ar) pueda consumir esta API desde nevux.app
+// pueda consumir esta API desde nevux.app
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -45,8 +46,17 @@ export async function GET(req: NextRequest) {
 
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
 
-    // 2. Crear cliente Supabase con service_role_key (sin sesión de usuario)
-    // Fallback al anon_key si no está la service key
+    // 🔒 2. VERIFICACIÓN ESTRICTA DEL PLAN / TRIAL DE 7 DÍAS
+    // Si la prueba de 7 días o el plan pago vencieron, se devuelven 0 widgets al instante
+    const isActivePlan = await isStorePlanActive(storeId)
+    if (!isActivePlan) {
+      return NextResponse.json(
+        { widgets: [], message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { status: 200, headers: corsHeaders }
+      )
+    }
+
+    // 3. Crear cliente Supabase con service_role_key (sin sesión de usuario)
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -55,21 +65,6 @@ export async function GET(req: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
-
-    // 3. Verificar que la tienda existe y está activa
-    const { data: store, error: storeError } = await supabase
-      .from('stores')
-      .select('store_id, is_active')
-      .eq('store_id', storeId)
-      .eq('is_active', true)
-      .single()
-
-    if (storeError || !store) {
-      return NextResponse.json(
-        { widgets: [], message: 'Tienda no encontrada o inactiva' },
-        { status: 200, headers: corsHeaders }
-      )
-    }
 
     // 4. Buscar widgets activos de la tienda
     let query = supabase
@@ -122,13 +117,8 @@ export async function GET(req: NextRequest) {
     )
 
     if (widgetsResenas.length > 0) {
-      // Procesamos cada widget de reseñas por separado
-      // (puede haber más de uno si el comerciante los asignó a distintos productos)
       const enriquecidos = await Promise.all(
         widgetsResenas.map(async (w) => {
-          // Determinar filtro de product_id
-          // Si el widget es para un producto específico, filtramos por ese producto
-          // Si es para toda la tienda, traemos todas las reseñas aprobadas del widget
           let reviewsQuery = supabase
             .from('reviews')
             .select(
