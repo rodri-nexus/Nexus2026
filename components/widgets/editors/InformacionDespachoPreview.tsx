@@ -2,9 +2,11 @@
 
 import React from 'react';
 
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
 interface PreviewProps {
   config: {
-    // General
     horaCorte: string;
     diasDespacho: {
       lun: boolean;
@@ -17,9 +19,7 @@ interface PreviewProps {
     };
     ocultarSiPasoCorte: boolean;
     agregarBadge: boolean;
-    // Ubicación
     posicion: 'encima-form' | 'antes-descripcion';
-    // Estilos
     icono: 'circulo' | 'corazon' | 'alerta' | 'emoji' | 'nada';
     efecto: 'aureola' | 'zoom' | 'sin-efecto';
     aplicarEfectoA: 'solo-icono' | 'mensaje-completo';
@@ -36,8 +36,9 @@ interface PreviewProps {
   };
 }
 
-/* ============ ICONOS ============ */
-
+/* ═══════════════════════════════════════════
+   ICONOS
+═══════════════════════════════════════════ */
 function IconoCirculo({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="#10B981">
@@ -71,37 +72,38 @@ function renderIcono(tipo: string, size: number) {
     case 'alerta':
       return <IconoAlerta size={size + 2} />;
     case 'emoji':
-      return <span style={{ fontSize: size + 4, lineHeight: 1 }}>✏️</span>;
+      return <span style={{ fontSize: size + 4, lineHeight: 1 }}>📦</span>;
     case 'nada':
     default:
       return null;
   }
 }
 
-/* ============ PREVIEW ============ */
-
+/* ═══════════════════════════════════════════
+   PREVIEW
+═══════════════════════════════════════════ */
 export default function InformacionDespachoPreview({ config }: PreviewProps) {
-  const fontWeight = config.estiloTexto === 'negrita' ? 700 : 400;
-  const fontSize = config.tamanoFuente || 15;
+  const fontWeight = config.estiloTexto === 'negrita' ? 800 : 600;
+  const fontSize = config.tamanoFuente || 14;
 
   const background = config.fondoDegradado
-    ? `linear-gradient(135deg, ${config.colorFondo} 0%, ${config.colorFondo}dd 100%)`
-    : config.colorFondo;
+    ? `linear-gradient(135deg, ${config.colorFondo || '#ffffff'} 0%, ${config.colorFondo || '#ffffff'}dd 100%)`
+    : config.colorFondo || '#ffffff';
 
-  const border = config.activarBorde ? `1px solid ${config.colorTexto}33` : 'none';
+  const border = config.activarBorde
+    ? `1px solid ${config.colorTexto || '#000000'}22`
+    : '1px solid rgba(0,0,0,0.06)';
 
-  // Color del badge (soporta rgba o hex)
   const badgeBg =
     config.colorBadge && config.colorBadge.trim() !== ''
       ? config.colorBadge
-      : 'rgba(0,0,0,0.18)';
+      : '#10B981';
 
-  // Efectos
   const efectoIcono =
     config.efecto === 'aureola'
-      ? 'nevux-despacho-aureola 2s ease-in-out infinite'
+      ? 'nvx-despacho-aureola 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       : config.efecto === 'zoom'
-      ? 'nevux-despacho-zoom 2s ease-in-out infinite'
+      ? 'nvx-despacho-zoom 2.5s ease-in-out infinite'
       : 'none';
 
   const aplicarASoloIcono = config.aplicarEfectoA === 'solo-icono';
@@ -113,15 +115,14 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
 
   return (
     <>
-      {/* Keyframes locales para el preview */}
       <style>{`
-        @keyframes nevux-despacho-aureola {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
-          50% { box-shadow: 0 0 0 10px rgba(59,130,246,0); }
+        @keyframes nvx-despacho-aureola {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+          50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
         }
-        @keyframes nevux-despacho-zoom {
+        @keyframes nvx-despacho-zoom {
           0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.04); }
+          50% { transform: scale(1.03); }
         }
       `}</style>
 
@@ -132,13 +133,14 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
           justifyContent: 'space-between',
           gap: 12,
           background: background,
-          color: config.colorTexto,
-          borderRadius: config.bordesRedondeados,
-          padding: `${config.paddingInterno + 4}px ${config.paddingInterno + 8}px`,
+          color: config.colorTexto || '#000000',
+          borderRadius: config.bordesRedondeados || 14,
+          padding: `${(config.paddingInterno || 10) + 4}px ${(config.paddingInterno || 10) + 8}px`,
           border: border,
           animation: animacionCard,
           boxSizing: 'border-box',
           width: '100%',
+          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.04)',
         }}
       >
         {/* IZQUIERDA: ícono + texto + badge HOY */}
@@ -168,7 +170,7 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 6,
+              gap: 4,
               minWidth: 0,
               flex: 1,
             }}
@@ -178,7 +180,8 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
                 fontSize: fontSize,
                 fontWeight: fontWeight,
                 lineHeight: 1.25,
-                color: config.colorTexto,
+                color: config.colorTexto || '#000000',
+                letterSpacing: '-0.01em',
               }}
             >
               Comprando ahora tu pedido se despacha
@@ -189,12 +192,13 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
                 display: 'inline-block',
                 alignSelf: 'flex-start',
                 background: badgeBg,
-                color: config.colorTextoBadge,
-                fontSize: Math.max(11, fontSize - 3),
+                color: config.colorTextoBadge || '#ffffff',
+                fontSize: Math.max(10, fontSize - 4),
                 fontWeight: 800,
-                padding: '3px 10px',
+                padding: '3px 9px',
                 borderRadius: 6,
                 letterSpacing: '0.04em',
+                boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
               }}
             >
               HOY
@@ -210,27 +214,28 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
             alignItems: 'center',
             justifyContent: 'center',
             background: badgeBg,
-            color: config.colorTextoBadge,
+            color: config.colorTextoBadge || '#ffffff',
             padding: '8px 12px',
-            borderRadius: 8,
+            borderRadius: 10,
             flexShrink: 0,
-            minWidth: 78,
+            minWidth: 80,
             lineHeight: 1.15,
+            boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
           }}
         >
           <span
             style={{
-              fontSize: Math.max(10, fontSize - 5),
+              fontSize: Math.max(9, fontSize - 5),
               opacity: 0.9,
-              fontWeight: 500,
+              fontWeight: 600,
             }}
           >
             Te quedan
           </span>
           <span
             style={{
-              fontSize: Math.max(14, fontSize),
-              fontWeight: 800,
+              fontSize: Math.max(13, fontSize),
+              fontWeight: 900,
             }}
           >
             2h 30m
@@ -239,4 +244,4 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
       </div>
     </>
   );
-  }
+    }
