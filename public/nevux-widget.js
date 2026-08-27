@@ -139,7 +139,72 @@
       return "$" + n.toFixed(2);
     }
   }
-
+  /* ═══════════════════════════════════════════
+     INYECTOR GLOBAL DE ESTILOS Y ANIMACIONES NEVUX
+  ═══════════════════════════════════════════ */
+  function injectNevuxGlobalStyles() {
+    if (document.getElementById("nevux-global-styles")) return;
+    var styleEl = document.createElement("style");
+    styleEl.id = "nevux-global-styles";
+    styleEl.innerHTML = `
+      @keyframes nvxLightSweep {
+        0% { transform: translateX(-150%) skewX(-20deg); }
+        25%, 100% { transform: translateX(250%) skewX(-20deg); }
+      }
+      @keyframes nvxAureolaPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4), 0 4px 12px rgba(0, 0, 0, 0.04); }
+        50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0), 0 6px 20px rgba(16, 185, 129, 0.18); }
+      }
+      @keyframes nvxZoom {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+      }
+      @keyframes nvxBounceBadge {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.12); }
+      }
+      @keyframes nvxTruckDrive {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(2px); }
+      }
+      @keyframes nvxSpeedTrail {
+        0% { transform: translateX(-100%); opacity: 0; }
+        50% { opacity: 0.6; }
+        100% { transform: translateX(100%); opacity: 0; }
+      }
+      @keyframes nvxBorderSnake {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes nvxProgressBarFlow {
+        0% { background-position: 0 0; }
+        100% { background-position: 30px 0; }
+      }
+      @keyframes nvxPulseHit {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.12); }
+      }
+      @keyframes nvxRetroFlip {
+        0% { transform: scaleY(1); opacity: 1; }
+        40%,60% { transform: scaleY(0); opacity: 0.5; }
+        100% { transform: scaleY(1); opacity: 1; }
+      }
+      @keyframes nvxCriticalPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); }
+        50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+      }
+      @keyframes nvxShieldGlow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+        50% { box-shadow: 0 0 10px 2px rgba(16, 185, 129, 0.15); }
+      }
+      @keyframes nvxTrailPulse {
+        0% { left: -50%; }
+        100% { left: 100%; }
+      }
+    `;
+    (document.head || document.documentElement).appendChild(styleEl);
+  }
+  injectNevuxGlobalStyles();
   function formatMoneyInt(n) {
     if (n === null || n === undefined || isNaN(n)) return "$0";
     try {
