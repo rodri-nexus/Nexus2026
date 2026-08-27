@@ -1,9 +1,14 @@
 'use client';
 
+import React from 'react';
+
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
 interface Objetivo {
   nombre: string;
   monto: number;
-  icono: string; // 'none' | 'truck' | 'gift' | 'tag' | 'star' | 'percent' | 'check' | 'shield' | 'bolt' | 'heart' | 'coffee' | 'hexagon' | 'card' | 'smile'
+  icono: string;
 }
 
 interface BarraProgresoPreviewProps {
@@ -23,26 +28,28 @@ interface BarraProgresoPreviewProps {
     tamanoFuenteObjetivos?: number;
     tamanoFuenteTexto?: number;
   };
-  // subtotal simulado para el preview (por defecto 0)
   subtotalDemo?: number;
 }
 
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: BarraProgresoPreviewProps) {
   const objetivos: Objetivo[] =
     config.objetivos && config.objetivos.length > 0
       ? config.objetivos
-      : [{ nombre: 'Envío gratis', monto: 50000, icono: 'none' }];
+      : [{ nombre: 'Envío gratis', monto: 50000, icono: 'truck' }];
 
   const textoFaltante = config.textoFaltante || 'Te faltan {x} para {objetivo}';
   const textoCumplido = config.textoCumplido || '¡{objetivo} desbloqueado! 🎉';
-  const bordesRedondeados = config.bordesRedondeados ?? 8;
+  const bordesRedondeados = config.bordesRedondeados ?? 12;
   const rellenoInterno = config.rellenoInterno ?? 14;
-  const colorBarraVacia = config.colorBarraVacia || '#e0e0e0';
-  const colorBarraLlena = config.colorBarraLlena || '#22c55e';
-  const colorFondo = config.colorFondo || '#fafafa';
-  const colorTexto = config.colorTexto || '#333333';
-  const colorMonto = config.colorMonto || '#0d6efd';
-  const colorObjetivos = config.colorObjetivos || '#333333';
+  const colorBarraVacia = config.colorBarraVacia || '#e5e7eb';
+  const colorBarraLlena = config.colorBarraLlena || '#10B981';
+  const colorFondo = config.colorFondo || '#ffffff';
+  const colorTexto = config.colorTexto || '#000000';
+  const colorMonto = config.colorMonto || '#059669';
+  const colorObjetivos = config.colorObjetivos || '#000000';
   const tamanoFuenteObjetivos = config.tamanoFuenteObjetivos ?? 11;
   const tamanoFuenteTexto = config.tamanoFuenteTexto ?? 13;
 
@@ -64,14 +71,14 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
     textoPrincipal = parts.map((p, i) => {
       if (p === '{x}') {
         return (
-          <strong key={i} style={{ color: colorMonto, fontWeight: 700 }}>
+          <strong key={i} style={{ color: colorMonto, fontWeight: 800 }}>
             {formatMoney(faltante)}
           </strong>
         );
       }
       if (p === '{objetivo}') {
         return (
-          <strong key={i} style={{ color: colorObjetivos, fontWeight: 700 }}>
+          <strong key={i} style={{ color: colorObjetivos, fontWeight: 800 }}>
             {proximoObj.nombre}
           </strong>
         );
@@ -83,7 +90,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
     textoPrincipal = parts.map((p, i) => {
       if (p === '{objetivo}') {
         return (
-          <strong key={i} style={{ color: colorObjetivos, fontWeight: 700 }}>
+          <strong key={i} style={{ color: colorObjetivos, fontWeight: 800 }}>
             {ultimoCumplido.nombre}
           </strong>
         );
@@ -100,43 +107,79 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
         borderRadius: `${bordesRedondeados}px`,
         padding: `${rellenoInterno}px ${rellenoInterno + 4}px`,
         boxSizing: 'border-box',
+        border: '1px solid rgba(0, 0, 0, 0.06)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
       }}
     >
+      <style>{`
+        @keyframes nvxProgressBarFlow {
+          0% { background-position: 0 0; }
+          100% { background-position: 30px 0; }
+        }
+        @keyframes nvxPulseHit {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.12); }
+        }
+      `}</style>
+
       {/* Texto principal */}
       <div
         style={{
           color: colorTexto,
           fontSize: `${tamanoFuenteTexto}px`,
           lineHeight: 1.4,
-          marginBottom: 10,
+          marginBottom: 12,
+          fontWeight: 600,
+          letterSpacing: '-0.01em',
         }}
       >
         {textoPrincipal}
       </div>
 
       {/* Barra + hits */}
-      <div style={{ position: 'relative', width: '100%', paddingRight: 22 }}>
+      <div style={{ position: 'relative', width: '100%', paddingRight: 22, boxSizing: 'border-box' }}>
         {/* Barra vacía (fondo) */}
         <div
           style={{
             position: 'relative',
             width: '100%',
-            height: 8,
+            height: 10,
             background: colorBarraVacia,
             borderRadius: 999,
             overflow: 'visible',
           }}
         >
-          {/* Barra llena */}
+          {/* Barra llena con patrón fluido dinámico */}
           <div
             style={{
               width: `${porcentaje}%`,
               height: '100%',
-              background: colorBarraLlena,
+              background: `linear-gradient(90deg, ${colorBarraLlena} 0%, ${colorBarraLlena}dd 100%)`,
+              backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent)`,
+              backgroundSize: '16px 16px',
+              animation: 'nvxProgressBarFlow 2s linear infinite',
               borderRadius: 999,
-              transition: 'width 0.3s ease',
+              transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              position: 'relative',
+              boxShadow: `0 0 10px ${colorBarraLlena}66`,
             }}
-          />
+          >
+            {/* Cabeza luminosa de avance */}
+            {porcentaje > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  height: '100%',
+                  width: '8px',
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  boxShadow: '0 0 8px #ffffff',
+                }}
+              />
+            )}
+          </div>
 
           {/* Hits (marcas de cada objetivo) */}
           {objetivosOrdenados.map((o, i) => {
@@ -151,15 +194,20 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
                   top: '50%',
                   left: `${posPct}%`,
                   transform: 'translate(-50%, -50%)',
-                  width: 22,
-                  height: 22,
+                  width: 24,
+                  height: 24,
                   borderRadius: '50%',
-                  background: cumplido ? colorBarraLlena : '#c9c9c9',
+                  background: cumplido ? colorBarraLlena : '#d1d5db',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#fff',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                  boxShadow: cumplido
+                    ? `0 0 10px ${colorBarraLlena}88`
+                    : '0 2px 4px rgba(0,0,0,0.1)',
+                  transition: 'all 0.3s ease',
+                  animation: cumplido ? 'nvxPulseHit 3s ease-in-out infinite' : 'none',
+                  zIndex: 2,
                 }}
                 title={o.nombre}
               >
@@ -171,7 +219,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
 
         {/* Labels de objetivos (solo en formato lista) */}
         {config.formatoObjetivos === 'lista' && (
-          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
             {objetivosOrdenados.map((o, i) => {
               const cumplido = subtotalDemo >= o.monto;
               return (
@@ -180,10 +228,10 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 6,
+                    gap: 8,
                     fontSize: `${tamanoFuenteObjetivos}px`,
                     color: colorObjetivos,
-                    opacity: cumplido ? 1 : 0.6,
+                    opacity: cumplido ? 1 : 0.65,
                   }}
                 >
                   <span
@@ -191,8 +239,9 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
                       width: 12,
                       height: 12,
                       borderRadius: '50%',
-                      background: cumplido ? colorBarraLlena : '#c9c9c9',
+                      background: cumplido ? colorBarraLlena : '#d1d5db',
                       display: 'inline-block',
+                      boxShadow: cumplido ? `0 0 6px ${colorBarraLlena}aa` : 'none',
                     }}
                   />
                   <span style={{ fontWeight: cumplido ? 700 : 500 }}>
@@ -327,7 +376,6 @@ function renderIcono(icono: string, size: number, color: string): React.ReactNod
       );
     case 'none':
     default:
-      // sin ícono: solo el círculo vacío (no dibuja nada)
       return null;
   }
-    }
+}
