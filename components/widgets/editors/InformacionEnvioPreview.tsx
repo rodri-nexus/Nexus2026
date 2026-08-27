@@ -2,9 +2,11 @@
 
 import React from 'react';
 
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
 interface PreviewProps {
   config: {
-    // General
     diasHastaEnvio: number;
     diasParaEntrega: number;
     horaCorte: string;
@@ -13,7 +15,6 @@ interface PreviewProps {
     mostrarFechasAprox: boolean;
     noDespacharSabados: boolean;
     tipoIconos: 'emojis' | 'svg';
-    // Estilos
     colorFondo: string;
     colorTexto: string;
     colorBadgeFondo: string;
@@ -26,9 +27,10 @@ interface PreviewProps {
   };
 }
 
-/* ============ ICONOS SVG ============ */
-
-function IconBoxSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?: string }) {
+/* ═══════════════════════════════════════════
+   ICONOS SVG
+═══════════════════════════════════════════ */
+function IconBoxSvg({ size = 20, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg
       width={size}
@@ -36,7 +38,7 @@ function IconBoxSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?: s
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth="1.8"
+      strokeWidth="2.2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -47,7 +49,7 @@ function IconBoxSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?: s
   );
 }
 
-function IconTruckSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?: string }) {
+function IconTruckSvg({ size = 20, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg
       width={size}
@@ -55,7 +57,7 @@ function IconTruckSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?:
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth="1.8"
+      strokeWidth="2.2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -67,7 +69,7 @@ function IconTruckSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?:
   );
 }
 
-function IconCheckSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?: string }) {
+function IconCheckSvg({ size = 20, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg
       width={size}
@@ -75,7 +77,7 @@ function IconCheckSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?:
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth="1.8"
+      strokeWidth="2.2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -84,8 +86,9 @@ function IconCheckSvg({ size = 20, color = '#1f6b4e' }: { size?: number; color?:
   );
 }
 
-/* ============ COLUMN ============ */
-
+/* ═══════════════════════════════════════════
+   COLUMN
+═══════════════════════════════════════════ */
 function Column({
   icon,
   label,
@@ -114,11 +117,12 @@ function Column({
         flex: 1,
         minWidth: 0,
         textAlign: 'center',
+        zIndex: 2,
       }}
     >
       <div
         style={{
-          height: 26,
+          height: 28,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -129,9 +133,10 @@ function Column({
       <div
         style={{
           fontSize: labelSize,
-          fontWeight: 700,
+          fontWeight: 800,
           color: color,
           lineHeight: 1.2,
+          letterSpacing: '-0.01em',
         }}
       >
         {label}
@@ -141,6 +146,7 @@ function Column({
           fontSize: dayarSize,
           color: color,
           opacity: 0.85,
+          fontWeight: 600,
           lineHeight: 1.2,
         }}
       >
@@ -151,83 +157,107 @@ function Column({
   );
 }
 
-/* ============ SEPARATOR ============ */
-
+/* ═══════════════════════════════════════════
+   SEPARATOR CON ANIMACIÓN
+═══════════════════════════════════════════ */
 function Separator({ color }: { color: string }) {
   return (
     <div
       style={{
-        width: 22,
+        width: 28,
         height: 2,
         background: color,
-        opacity: 0.6,
+        opacity: 0.3,
         borderRadius: 2,
         flexShrink: 0,
         alignSelf: 'center',
+        position: 'relative',
+        overflow: 'hidden',
       }}
-    />
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '50%',
+          height: '100%',
+          background: color,
+          opacity: 0.9,
+          animation: 'nvxTrailPulse 2s ease-in-out infinite',
+        }}
+      />
+    </div>
   );
 }
 
-/* ============ PREVIEW ============ */
-
+/* ═══════════════════════════════════════════
+   PREVIEW
+═══════════════════════════════════════════ */
 export default function InformacionEnvioPreview({ config }: PreviewProps) {
   const useEmojis = config.tipoIconos !== 'svg';
 
-  // Valores DUMMY fijos (siempre igual mientras editás)
   const valueCompra = 'Hoy';
   const valueEnvio = 'Mañana';
   const valueEntrega = config.mostrarRangoEntrega ? '12 y 13 ago' : '12 ago';
 
-  const border = config.activarBorde ? `1px solid ${config.colorTexto}33` : 'none';
+  const border = config.activarBorde
+    ? `1px solid ${config.colorTexto || '#000000'}22`
+    : '1px solid rgba(0,0,0,0.06)';
 
-  // Badge dummy "ANTES DE LAS 18:00"
   const horaCorteTexto = (config.horaCorte || '18:00').replace(/\s/g, '');
   const badgeCompra = config.mostrarHoraLimite ? (
     <div
       style={{
         marginTop: 4,
         display: 'inline-block',
-        background: config.colorBadgeFondo,
-        color: config.colorBadgeTexto,
-        fontSize: Math.max(9, config.tamanoDia - 3),
-        fontWeight: 700,
-        padding: '2px 6px',
-        borderRadius: 4,
-        letterSpacing: '0.03em',
+        background: config.colorBadgeFondo || '#10B981',
+        color: config.colorBadgeTexto || '#ffffff',
+        fontSize: Math.max(9, (config.tamanoDia || 13) - 3),
+        fontWeight: 800,
+        padding: '3px 8px',
+        borderRadius: 6,
+        letterSpacing: '0.04em',
         lineHeight: 1.2,
         whiteSpace: 'nowrap',
+        boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
       }}
     >
       ANTES DE LAS {horaCorteTexto}
     </div>
   ) : null;
 
-  // Íconos
   const iconoCompra = useEmojis ? (
-    <span style={{ fontSize: 24, lineHeight: 1 }}>📦</span>
+    <span style={{ fontSize: 22, lineHeight: 1 }}>📦</span>
   ) : (
-    <IconBoxSvg size={24} color={config.colorTexto} />
+    <IconBoxSvg size={22} color={config.colorTexto || '#000000'} />
   );
   const iconoEnvio = useEmojis ? (
-    <span style={{ fontSize: 24, lineHeight: 1 }}>🚚</span>
+    <span style={{ fontSize: 22, lineHeight: 1 }}>🚚</span>
   ) : (
-    <IconTruckSvg size={24} color={config.colorTexto} />
+    <IconTruckSvg size={22} color={config.colorTexto || '#000000'} />
   );
   const iconoEntrega = useEmojis ? (
-    <span style={{ fontSize: 24, lineHeight: 1 }}>📍</span>
+    <span style={{ fontSize: 22, lineHeight: 1 }}>📍</span>
   ) : (
-    <IconCheckSvg size={24} color={config.colorTexto} />
+    <IconCheckSvg size={22} color={config.colorTexto || '#000000'} />
   );
 
   return (
     <div style={{ width: '100%' }}>
+      <style>{`
+        @keyframes nvxTrailPulse {
+          0% { left: -50%; }
+          100% { left: 100%; }
+        }
+      `}</style>
+
       <div
         style={{
-          background: config.colorFondo,
-          color: config.colorTexto,
-          borderRadius: config.bordesRedondeados,
-          padding: config.paddingInterno,
+          background: config.colorFondo || '#ffffff',
+          color: config.colorTexto || '#000000',
+          borderRadius: config.bordesRedondeados || 16,
+          padding: config.paddingInterno || 16,
           border: border,
           boxSizing: 'border-box',
           display: 'flex',
@@ -235,6 +265,8 @@ export default function InformacionEnvioPreview({ config }: PreviewProps) {
           justifyContent: 'space-between',
           gap: 6,
           width: '100%',
+          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.04)',
+          position: 'relative',
         }}
       >
         <Column
@@ -242,44 +274,43 @@ export default function InformacionEnvioPreview({ config }: PreviewProps) {
           label="Compra"
           value={valueCompra}
           badge={badgeCompra}
-          labelSize={config.tamanoLabel}
-          dayarSize={config.tamanoDia}
-          color={config.colorTexto}
+          labelSize={config.tamanoLabel || 14}
+          dayarSize={config.tamanoDia || 13}
+          color={config.colorTexto || '#000000'}
         />
-        <Separator color={config.colorTexto} />
+        <Separator color={config.colorTexto || '#10B981'} />
         <Column
           icon={iconoEnvio}
           label="Envío"
           value={valueEnvio}
-          labelSize={config.tamanoLabel}
-          dayarSize={config.tamanoDia}
-          color={config.colorTexto}
+          labelSize={config.tamanoLabel || 14}
+          dayarSize={config.tamanoDia || 13}
+          color={config.colorTexto || '#000000'}
         />
-        <Separator color={config.colorTexto} />
+        <Separator color={config.colorTexto || '#10B981'} />
         <Column
           icon={iconoEntrega}
           label="Entrega"
           value={valueEntrega}
-          labelSize={config.tamanoLabel}
-          dayarSize={config.tamanoDia}
-          color={config.colorTexto}
+          labelSize={config.tamanoLabel || 14}
+          dayarSize={config.tamanoDia || 13}
+          color={config.colorTexto || '#000000'}
         />
       </div>
 
-      {/* Nota "Fechas aproximadas" */}
       {config.mostrarFechasAprox && (
         <div
           style={{
             marginTop: 8,
-            fontSize: 12,
+            fontSize: 11,
             color: '#6b7280',
             textAlign: 'center',
-            fontStyle: 'italic',
+            fontWeight: 500,
           }}
         >
-          * Fechas aproximadas
+          * Fechas aproximadas estimadas por el sistema
         </div>
       )}
     </div>
   );
-  }
+}
