@@ -1,4 +1,3 @@
-// components/widgets/editors/CountdownPreview.tsx
 'use client';
 
 import { useEffect, useState, useRef, useMemo } from 'react';
@@ -36,11 +35,9 @@ interface CountdownConfig {
   borderRadiusWidget: number;
   paddingWidget: number;
   paddingClock: number;
-  // Modo urgencia
   urgencyEnabled?: boolean;
   colorClockBgMedium?: string;
   colorClockBgCritical?: string;
-  // Legacy
   flashMinutes?: number;
 }
 
@@ -55,31 +52,26 @@ interface TimeLeft {
   seconds: number;
   totalSeconds: number;
   isFinished: boolean;
-  percentConsumed: number; // 0-100 (para modo urgencia)
+  percentConsumed: number;
 }
 
 type UrgencyState = 'normal' | 'medium' | 'critical';
 
 /* ═══════════════════════════════════════════
    HOOK: tiempo restante
-   - Modo 'fixed': usa endDate específica
-   - Modo 'duration': usa durationMinutes (reinicia por sesión)
 ═══════════════════════════════════════════ */
 function useTimeLeft(config: CountdownConfig): TimeLeft {
-  // Referencia al momento de arranque (para modo duration)
   const startTime = useRef<number>(Date.now());
   const totalDuration = useRef<number>(
     (config.durationMinutes || 15) * 60 * 1000
   );
 
-  // Reset cuando cambia el modo o la duración
   useEffect(() => {
     startTime.current = Date.now();
     totalDuration.current = (config.durationMinutes || 15) * 60 * 1000;
   }, [config.mode, config.durationMinutes]);
 
   const getEndTime = (): { end: number; total: number } => {
-    // Modo duración corta
     if (config.mode === 'duration') {
       return {
         end: startTime.current + totalDuration.current,
@@ -87,17 +79,14 @@ function useTimeLeft(config: CountdownConfig): TimeLeft {
       };
     }
 
-    // Modo fecha fija
     if (config.endDate) {
       const t = new Date(config.endDate).getTime();
       if (!isNaN(t) && t > Date.now()) {
-        // Total: desde hace 7 días hasta el fin (para calcular % urgencia)
         const total = t - (Date.now() - 7 * 24 * 60 * 60 * 1000);
         return { end: t, total };
       }
     }
 
-    // Fallback: +15 min desde ahora
     return {
       end: startTime.current + 15 * 60 * 1000,
       total: 15 * 60 * 1000,
@@ -139,7 +128,6 @@ function useTimeLeft(config: CountdownConfig): TimeLeft {
       const next = calc();
 
       if (next.isFinished && config.autoRestart) {
-        // Reiniciar: nuevo startTime y recalcular
         startTime.current = Date.now();
         totalDuration.current = (config.durationMinutes || 15) * 60 * 1000;
         setTime(calc());
@@ -149,15 +137,11 @@ function useTimeLeft(config: CountdownConfig): TimeLeft {
     }, 1000);
 
     return () => clearInterval(int);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.endDate, config.autoRestart, config.durationMinutes, config.mode]);
 
   return time;
 }
 
-/* ═══════════════════════════════════════════
-   HELPER: calcular estado de urgencia
-═══════════════════════════════════════════ */
 function getUrgencyState(percentConsumed: number, enabled: boolean): UrgencyState {
   if (!enabled) return 'normal';
   if (percentConsumed >= 67) return 'critical';
@@ -167,8 +151,8 @@ function getUrgencyState(percentConsumed: number, enabled: boolean): UrgencyStat
 
 function getClockBgColor(config: CountdownConfig, state: UrgencyState): string {
   if (state === 'critical') return config.colorClockBgCritical || '#dc2626';
-  if (state === 'medium') return config.colorClockBgMedium || '#f97316';
-  return config.colorClockBg || '#FF0000';
+  if (state === 'medium') return config.colorClockBgMedium || '#f59e0b';
+  return config.colorClockBg || '#10B981';
 }
 
 /* ═══════════════════════════════════════════
@@ -183,20 +167,21 @@ function DigitClasico({
   return (
     <div
       style={{
-        minWidth: size * 2.5,
-        minHeight: size * 2.5,
+        minWidth: size * 2.4,
+        minHeight: size * 2.4,
         background: bgColor,
-        color: config.colorNumbers,
-        borderRadius: config.borderRadiusClock,
+        color: config.colorNumbers || '#ffffff',
+        borderRadius: config.borderRadiusClock || 10,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: config.fontSizeClock,
         fontWeight: 800,
         fontVariantNumeric: 'tabular-nums',
-        padding: `${config.paddingClock}px ${config.paddingClock + 2}px`,
+        padding: `${config.paddingClock || 8}px ${config.paddingClock + 4}px`,
         lineHeight: 1,
         transition: 'background-color 0.4s ease',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
         animation: isCritical ? 'nvxCriticalPulse 1s ease-in-out infinite' : 'none',
       }}
     >
@@ -228,7 +213,7 @@ function DigitRetro({
   const size = parseInt(config.fontSizeClock, 10) || 16;
 
   return (
-    <div style={{ display: 'inline-flex', gap: 2 }}>
+    <div style={{ display: 'inline-flex', gap: 3 }}>
       {value.split('').map((d, i) => (
         <div
           key={i}
@@ -236,15 +221,15 @@ function DigitRetro({
             width: size * 1.4,
             height: size * 2.4,
             background: `linear-gradient(180deg, ${bgColor} 0%, ${bgColor} 49%, rgba(0,0,0,0.35) 50%, ${bgColor} 51%, ${bgColor} 100%)`,
-            borderRadius: config.borderRadiusClock,
+            borderRadius: config.borderRadiusClock || 8,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: config.fontSizeClock,
             fontWeight: 900,
-            color: config.colorNumbers,
-            fontFamily: "'Courier New', monospace",
-            boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+            color: config.colorNumbers || '#ffffff',
+            fontFamily: "monospace",
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
             position: 'relative',
             overflow: 'hidden',
             transition: 'background 0.4s ease',
@@ -262,9 +247,6 @@ function DigitRetro({
   );
 }
 
-/* ═══════════════════════════════════════════
-   UNIDAD DEL RELOJ (dígito + label)
-═══════════════════════════════════════════ */
 function ClockUnit({
   value, label, config, bgColor, isCritical,
 }: {
@@ -276,14 +258,14 @@ function ClockUnit({
   const labelSize = Math.max(9, Math.round((parseInt(config.fontSizeClock, 10) || 16) * 0.55));
 
   return (
-    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
       <Digit value={s} config={config} bgColor={bgColor} isCritical={isCritical} />
       {config.showLabels && (
         <span style={{
           fontSize: labelSize,
-          fontWeight: 700,
-          color: config.colorTitle,
-          opacity: 0.8,
+          fontWeight: 800,
+          color: config.colorTitle || '#000000',
+          opacity: 0.75,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
         }}>
@@ -294,18 +276,15 @@ function ClockUnit({
   );
 }
 
-/* ═══════════════════════════════════════════
-   SEPARADOR (dos puntos parpadeantes)
-═══════════════════════════════════════════ */
 function Separator({ config }: { config: CountdownConfig }) {
   const [on, setOn] = useState(true);
   useEffect(() => {
-    const i = setInterval(() => setOn((v) => !v), 500);
+    const i = setInterval(() => setOn((v) => !v), 600);
     return () => clearInterval(i);
   }, []);
 
   const size = parseInt(config.fontSizeClock, 10) || 16;
-  const dotSize = Math.max(3, Math.round(size * 0.18));
+  const dotSize = Math.max(4, Math.round(size * 0.2));
 
   return (
     <div style={{
@@ -314,10 +293,10 @@ function Separator({ config }: { config: CountdownConfig }) {
       gap: dotSize,
       paddingBottom: config.showLabels ? Math.round(size * 0.85) : 0,
       opacity: on ? 1 : 0.25,
-      transition: 'opacity 0.25s',
+      transition: 'opacity 0.2s ease',
     }}>
-      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: config.colorTitle, opacity: 0.85 }} />
-      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: config.colorTitle, opacity: 0.85 }} />
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: config.colorTitle || '#000000', opacity: 0.85 }} />
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: config.colorTitle || '#000000', opacity: 0.85 }} />
     </div>
   );
 }
@@ -328,12 +307,10 @@ function Separator({ config }: { config: CountdownConfig }) {
 export default function CountdownPreview({ config }: Props) {
   const time = useTimeLeft(config);
 
-  // Estado de urgencia
   const urgencyState = getUrgencyState(time.percentConsumed, !!config.urgencyEnabled);
   const currentClockBg = getClockBgColor(config, urgencyState);
   const isCritical = urgencyState === 'critical';
 
-  // Construir unidades a mostrar
   const units: { v: number; l: string }[] = useMemo(() => {
     const arr: { v: number; l: string }[] = [];
     const showDaysActive = config.showDays && time.days > 0;
@@ -352,25 +329,24 @@ export default function CountdownPreview({ config }: Props) {
   if (units.length === 0) {
     return (
       <div style={{
-        padding: 20, background: '#fff5f5',
-        border: '1.5px dashed #FF0000',
+        padding: 20, background: '#fef2f2',
+        border: '1.5px dashed #dc2626',
         borderRadius: 12, textAlign: 'center',
-        fontSize: 13, color: '#FF0000', fontWeight: 700,
+        fontSize: 13, color: '#dc2626', fontWeight: 700,
       }}>
-        ⚠️ Activá al menos una unidad
+        ⚠️ Activá al menos una unidad de tiempo
       </div>
     );
   }
 
-  // Fondo del widget
   const bg = (() => {
     if (config.bgType === 'gradient') {
-      const c1 = config.colorWidgetBg || '#000000';
-      const c2 = config.colorWidgetBg2 || '#FF0000';
+      const c1 = config.colorWidgetBg || '#05070B';
+      const c2 = config.colorWidgetBg2 || '#10B981';
       const dir = config.gradientDirection || 'to bottom right';
       return `linear-gradient(${dir}, ${c1}, ${c2})`;
     }
-    return config.colorWidgetBg;
+    return config.colorWidgetBg || '#ffffff';
   })();
 
   return (
@@ -395,25 +371,26 @@ export default function CountdownPreview({ config }: Props) {
 
       <div style={{
         background: bg,
-        borderRadius: config.borderRadiusWidget,
-        padding: config.paddingWidget,
-        textAlign: config.alignment,
+        borderRadius: config.borderRadiusWidget || 16,
+        padding: config.paddingWidget || 18,
+        textAlign: config.alignment || 'center',
+        border: '1px solid rgba(0,0,0,0.06)',
+        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.04)',
       }}>
-        {/* Título */}
         {config.title && (
           <div style={{
-            fontSize: config.fontSizeTitle,
-            fontWeight: 700,
-            color: config.colorTitle,
-            marginBottom: 14,
+            fontSize: config.fontSizeTitle || '18px',
+            fontWeight: 800,
+            color: config.colorTitle || '#000000',
+            marginBottom: 12,
             lineHeight: 1.2,
             textAlign: config.alignment === 'center' ? 'center' : 'left',
+            letterSpacing: '-0.01em',
           }}>
             {config.title}
           </div>
         )}
 
-        {/* Subtítulo (chip con fondo personalizable) */}
         {config.subtitle && (
           <div style={{
             marginBottom: 14,
@@ -421,25 +398,25 @@ export default function CountdownPreview({ config }: Props) {
           }}>
             <span style={{
               display: 'inline-block',
-              background: config.colorSubtitleBg,
-              color: config.colorSubtitle,
-              fontSize: config.fontSizeSubtitle,
-              fontWeight: 700,
-              padding: '4px 10px',
-              borderRadius: 6,
+              background: config.colorSubtitleBg || '#ecfdf5',
+              color: config.colorSubtitle || '#059669',
+              fontSize: config.fontSizeSubtitle || '12px',
+              fontWeight: 800,
+              padding: '4px 12px',
+              borderRadius: 8,
+              border: '1px solid #a7f3d0',
             }}>
               {config.subtitle}
             </span>
           </div>
         )}
 
-        {/* Reloj */}
         {time.isFinished ? (
           <div style={{
             padding: 12,
-            color: config.colorTitle,
+            color: config.colorTitle || '#000000',
             opacity: 0.8,
-            fontWeight: 700,
+            fontWeight: 800,
             textAlign: 'center',
           }}>
             ⏰ ¡La oferta terminó!
@@ -469,4 +446,4 @@ export default function CountdownPreview({ config }: Props) {
       </div>
     </>
   );
-  }
+   }
