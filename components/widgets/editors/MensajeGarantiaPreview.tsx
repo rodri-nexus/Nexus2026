@@ -1,5 +1,10 @@
 "use client";
 
+import React from "react";
+
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
 interface MensajeGarantiaConfig {
   titulo: string;
   texto: string;
@@ -18,14 +23,9 @@ interface Props {
   config: MensajeGarantiaConfig;
 }
 
-/**
- * Convierte texto con marcadores markdown-style a HTML seguro.
- * - **texto**  → <strong>
- * - *texto*    → <em>
- * - __texto__  → <u>
- * - "- item"   → <ul><li>
- * También escapa HTML para prevenir XSS.
- */
+/* ═══════════════════════════════════════════
+   HELPER PARSER MARKDOWN
+═══════════════════════════════════════════ */
 function parseTextoConMarkdown(texto: string): string {
   if (!texto) return "";
 
@@ -40,25 +40,23 @@ function parseTextoConMarkdown(texto: string): string {
   // 2) Detectar listas (líneas que empiezan con "- ")
   const lineas = out.split("\n");
   const bloques: string[] = [];
-  let listaAbierta = false;
+
   let bufferLista: string[] = [];
 
   const flushLista = () => {
     if (bufferLista.length > 0) {
       bloques.push(
-        '<ul style="margin:6px 0;padding-left:20px;">' +
-          bufferLista.map((it) => `<li>${it}</li>`).join("") +
+        '<ul style="margin:6px 0;padding-left:18px;">' +
+          bufferLista.map((it) => `<li style="margin-bottom:3px;">${it}</li>`).join("") +
           "</ul>"
       );
       bufferLista = [];
     }
-    listaAbierta = false;
   };
 
   for (const linea of lineas) {
     const trimmed = linea.trim();
     if (trimmed.startsWith("- ")) {
-      listaAbierta = true;
       bufferLista.push(trimmed.substring(2));
     } else {
       flushLista();
@@ -69,21 +67,22 @@ function parseTextoConMarkdown(texto: string): string {
 
   out = bloques.join("\n");
 
-  // 3) Aplicar formatos (orden importa: __ antes que _, ** antes que *)
+  // 3) Formatos
   out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   out = out.replace(/__(.+?)__/g, "<u>$1</u>");
   out = out.replace(/\*(.+?)\*/g, "<em>$1</em>");
 
-  // 4) Saltos de línea → <br> (pero no dentro de <ul>)
+  // 4) Saltos de línea
   out = out.replace(/\n/g, "<br/>");
-
-  // 5) Limpiar <br> pegados a <ul>/</ul>
   out = out.replace(/<br\/>\s*<ul/g, "<ul");
   out = out.replace(/<\/ul>\s*<br\/>/g, "</ul>");
 
   return out;
 }
 
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function MensajeGarantiaPreview({ config }: Props) {
   const {
     titulo,
@@ -108,10 +107,10 @@ export default function MensajeGarantiaPreview({ config }: Props) {
   return (
     <div
       style={{
-        background: colorFondo,
-        border: `1px solid ${colorBorde}`,
-        borderRadius: `${bordesRedondeados}px`,
-        padding: `${paddingInterno}px`,
+        background: colorFondo || "#FFFFFF",
+        border: `1.5px solid ${colorBorde || "rgba(16, 185, 129, 0.2)"}`,
+        borderRadius: `${bordesRedondeados || 14}px`,
+        padding: `${paddingInterno || 16}px`,
         width: "100%",
         boxSizing: "border-box",
         display: "flex",
@@ -120,22 +119,36 @@ export default function MensajeGarantiaPreview({ config }: Props) {
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         lineHeight: 1.5,
+        boxShadow:
+          "0 4px 16px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      {tieneImagen && (
-        <div
-          style={{
-            flexShrink: 0,
-            width: "56px",
-            height: "56px",
-            borderRadius: "8px",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#ffffff",
-          }}
-        >
+      <style>{`
+        @keyframes nvxShieldGlow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+          50% { box-shadow: 0 0 10px 2px rgba(16, 185, 129, 0.15); }
+        }
+      `}</style>
+
+      {/* ICONO ESCUDO O IMAGEN CLIENTE */}
+      <div
+        style={{
+          flexShrink: 0,
+          width: "52px",
+          height: "52px",
+          borderRadius: "12px",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#ecfdf5",
+          border: "1px solid #a7f3d0",
+          animation: "nvxShieldGlow 3s ease-in-out infinite",
+        }}
+      >
+        {tieneImagen ? (
           <img
             src={imagenBase64}
             alt=""
@@ -146,19 +159,34 @@ export default function MensajeGarantiaPreview({ config }: Props) {
               display: "block",
             }}
           />
-        </div>
-      )}
+        ) : (
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#10B981"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+        )}
+      </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
         {tieneTitulo && (
           <div
             style={{
-              fontSize: tamanoTitulo,
-              fontWeight: 700,
-              color: colorTitulo,
+              fontSize: tamanoTitulo || "15px",
+              fontWeight: 800,
+              color: colorTitulo || "#000000",
               lineHeight: 1.3,
               marginBottom: tieneTexto ? "6px" : 0,
               wordBreak: "break-word",
+              letterSpacing: "-0.01em",
             }}
           >
             {titulo}
@@ -168,10 +196,12 @@ export default function MensajeGarantiaPreview({ config }: Props) {
         {tieneTexto && (
           <div
             style={{
-              fontSize: tamanoTexto,
-              color: colorTexto,
+              fontSize: tamanoTexto || "13px",
+              color: colorTexto || "#000000",
               lineHeight: 1.5,
               wordBreak: "break-word",
+              fontWeight: 500,
+              opacity: 0.9,
             }}
             dangerouslySetInnerHTML={{ __html: textoHtml }}
           />
