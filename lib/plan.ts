@@ -264,16 +264,43 @@ export async function getPlanForUser(
 }
 
 /**
- * Sincroniza el `plan_status` de la BD con el estado real calculado.
- * Se llama cuando el usuario entra al dashboard y el estado cambió.
- * Ejemplo: estaba en 'trial' pero venció → actualizamos a 'feedback_pending'.
+ * Verifica de forma estricta si una tienda (por store_id) tiene el plan/trial vigente.
+ * Retorna FALSE si el trial de 7 días o el plan pago expiró.
+ */
+export async function isStorePlanActive(
+  storeId: number | string
+): Promise<boolean> {
+  try {
+    const cleanStoreId = String(storeId).trim();
+    const { data: store, error } = await supabaseAdmin
+      .from("stores")
+      .select(
+        "store_id, user_id, trial_started_at, trial_ends_at, plan_status, plan_active_until, last_payment_at, months_active, feedback_shown, is_active"
+      )
+      .eq("store_id", cleanStoreId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (error || !store) {
+      return false;
+    }
+
+    const plan = buildPlanInfo(store as StorePlanData);
+    return plan.canUseApp;
+  } catch (err) {
+    console.error("Error verificando vencimiento de tienda:", err);
+    return false;
+  }
+}
+
+/**
+ * Sincroniza el `plan_status` de la BD con el estado real calculated.
  */
 export async function syncPlanStatusIfNeeded(
   store: StorePlanData
 ): Promise<void> {
   const realStatus = calculatePlanStatus(store);
 
-  // Mapeo del estado calculado al estado guardable en BD
   let dbStatus: RawPlanStatus;
 
   if (realStatus === "trial" || realStatus === "trial_ending_soon") {
@@ -288,7 +315,6 @@ export async function syncPlanStatusIfNeeded(
     dbStatus = "expired";
   }
 
-  // Solo actualiza si el estado cambió
   if (store.plan_status !== dbStatus) {
     console.log(
       `🔄 Sincronizando plan: ${store.plan_status} → ${dbStatus} (store ${store.store_id})`
@@ -314,4 +340,4 @@ export async function syncPlanStatusIfNeeded(
  */
 export function formatPrice(amount: number = PLAN_PRICE_ARS): string {
   return `$${amount.toLocaleString("es-AR")}`;
-  }
+}
