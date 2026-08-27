@@ -6,7 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ADMIN_EMAIL = "nevux340@gmail.com";
+const ADMIN_EMAIL = "nevuxapp@gmail.com";
 const PLAN_DURATION_DAYS = 30;
 
 export async function POST(request: Request) {
@@ -188,4 +188,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-  }
+      }
