@@ -83,7 +83,7 @@ export default function Header() {
             }}
           >
             <Link
-              href="/registro"
+              href="/login"
               style={{
                 padding: "0.65rem 1.5rem",
                 background: "#10B981",
@@ -97,6 +97,7 @@ export default function Header() {
                 fontFamily: "inherit",
                 display: "inline-flex",
                 alignItems: "center",
+                cursor: "pointer",
               }}
             >
               Probar
@@ -234,7 +235,7 @@ export default function Header() {
                 </Link>
 
                 <Link
-                  href="/registro"
+                  href="/login"
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
@@ -303,7 +304,7 @@ export default function Header() {
                 }}
               >
                 <Link
-                  href="/registro"
+                  href="/login"
                   onClick={() => setMenuOpen(false)}
                   style={{
                     display: "block",
