@@ -1,7 +1,6 @@
-// app/plan/pendiente/PendienteClient.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -43,18 +42,18 @@ export default function PendienteClient({
     return () => clearInterval(interval);
   }, [router]);
 
-  async function handleLogout() {
+  const handleLogout = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();
-  }
+  }, [router]);
 
-  async function handleManualRefresh() {
+  const handleManualRefresh = useCallback(() => {
     setRefreshing(true);
     router.refresh();
     setTimeout(() => setRefreshing(false), 1000);
-  }
+  }, [router]);
 
   const createdDate = new Date(createdAt);
   const diffMs = now.getTime() - createdDate.getTime();
@@ -79,7 +78,7 @@ export default function PendienteClient({
         minHeight: "100vh",
         width: "100%",
         maxWidth: "100vw",
-        background: "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
@@ -87,7 +86,7 @@ export default function PendienteClient({
         boxSizing: "border-box",
       }}
     >
-      {/* Círculos decorativos */}
+      {/* Círculos decorativos sutiles */}
       <div
         style={{
           position: "absolute",
@@ -96,7 +95,7 @@ export default function PendienteClient({
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.08) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -109,7 +108,7 @@ export default function PendienteClient({
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.06) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -140,14 +139,13 @@ export default function PendienteClient({
           boxSizing: "border-box",
         }}
       >
-        {/* Hero — Check grande */}
+        {/* Hero — Check animado */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.45 }}
           style={{ textAlign: "center", marginBottom: "2rem" }}
         >
-          {/* Círculo con check animado */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -158,8 +156,8 @@ export default function PendienteClient({
               delay: 0.1,
             }}
             style={{
-              width: "110px",
-              height: "110px",
+              width: "100px",
+              height: "100px",
               borderRadius: "50%",
               background: "linear-gradient(135deg, #10b981, #059669)",
               display: "flex",
@@ -167,7 +165,7 @@ export default function PendienteClient({
               justifyContent: "center",
               margin: "0 auto 1.5rem auto",
               boxShadow:
-                "0 20px 50px rgba(16, 185, 129, 0.35), 0 0 0 8px rgba(16, 185, 129, 0.08)",
+                "0 20px 40px rgba(16, 185, 129, 0.25), 0 0 0 8px rgba(16, 185, 129, 0.08)",
               position: "relative",
             }}
           >
@@ -178,10 +176,10 @@ export default function PendienteClient({
                 type: "spring",
                 stiffness: 200,
                 damping: 15,
-                delay: 0.3,
+                delay: 0.25,
               }}
             >
-              <CheckCircle2 size={56} color="white" strokeWidth={2.5} />
+              <CheckCircle2 size={50} color="white" strokeWidth={2.5} />
             </motion.div>
 
             {/* Pulso animado */}
@@ -191,7 +189,7 @@ export default function PendienteClient({
                 opacity: [0.5, 0, 0.5],
               }}
               transition={{
-                duration: 2,
+                duration: 2.2,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
@@ -209,13 +207,14 @@ export default function PendienteClient({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "0.4rem",
-              padding: "0.4rem 0.95rem",
-              background: "#d1fae5",
+              padding: "0.35rem 0.9rem",
+              background: "#ecfdf5",
+              border: "1px solid #a7f3d0",
               borderRadius: "999px",
               fontSize: "0.75rem",
               color: "#059669",
@@ -232,14 +231,14 @@ export default function PendienteClient({
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.4 }}
             style={{
-              fontSize: "clamp(1.75rem, 5.5vw, 2.5rem)",
+              fontSize: "clamp(1.75rem, 5.5vw, 2.35rem)",
               fontWeight: 800,
               color: "#000000",
               margin: "0 0 0.75rem 0",
               letterSpacing: "-0.03em",
-              lineHeight: 1.1,
+              lineHeight: 1.15,
             }}
           >
             ¡Ya casi está listo! 🎉
@@ -248,9 +247,9 @@ export default function PendienteClient({
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.5 }}
             style={{
-              fontSize: "1rem",
+              fontSize: "0.95rem",
               color: "#000000",
               opacity: 0.7,
               margin: 0,
@@ -261,7 +260,7 @@ export default function PendienteClient({
             }}
           >
             Estamos revisando tu pago. En menos de{" "}
-            <strong style={{ color: "#FF0000" }}>24hs</strong> vas a poder usar
+            <strong style={{ color: "#10b981" }}>24hs</strong> vas a poder usar
             todos los widgets sin límite.
           </motion.p>
         </motion.div>
@@ -270,7 +269,7 @@ export default function PendienteClient({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.6 }}
           style={{
             background: "white",
             borderRadius: "20px",
@@ -291,7 +290,7 @@ export default function PendienteClient({
               borderBottom: "1px solid #f3f4f6",
             }}
           >
-            <Shield size={16} color="#FF0000" />
+            <Shield size={16} color="#10B981" />
             <h2
               style={{
                 fontSize: "0.9rem",
@@ -310,18 +309,14 @@ export default function PendienteClient({
           <SummaryRow label="Método" value="Naranja X" />
           <SummaryRow label="Referencia" value={`#${shortId}`} mono />
           <SummaryRow label="Enviado" value={timeAgo} />
-          <SummaryRow
-            label="Estado"
-            value="En revisión"
-            statusPending
-          />
+          <SummaryRow label="Estado" value="En revisión" statusPending />
         </motion.div>
 
         {/* Timeline de próximos pasos */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.7 }}
           style={{
             background: "white",
             borderRadius: "20px",
@@ -370,18 +365,19 @@ export default function PendienteClient({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
+          transition={{ delay: 0.8 }}
           style={{ marginBottom: "1.25rem" }}
         >
           <button
+            type="button"
             onClick={handleManualRefresh}
             disabled={refreshing}
             style={{
               width: "100%",
               padding: "0.95rem 1.5rem",
               background: "white",
-              color: "#FF0000",
-              border: "2px solid #FF0000",
+              color: "#10B981",
+              border: "1.5px solid #10B981",
               borderRadius: "999px",
               fontSize: "0.95rem",
               fontWeight: 700,
@@ -398,9 +394,7 @@ export default function PendienteClient({
           >
             <RefreshCw
               size={16}
-              style={{
-                animation: refreshing ? "spin 1s linear infinite" : "none",
-              }}
+              className={refreshing ? "animate-spin" : ""}
             />
             {refreshing ? "Actualizando..." : "Verificar estado"}
           </button>
@@ -423,7 +417,7 @@ export default function PendienteClient({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 0.9 }}
           style={{
             background: "white",
             borderRadius: "20px",
@@ -465,13 +459,13 @@ export default function PendienteClient({
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.85rem 1.75rem",
-              background: "linear-gradient(135deg, #22c55e, #16a34a)",
+              background: "linear-gradient(135deg, #10b981, #059669)",
               color: "white",
               borderRadius: "999px",
               fontSize: "0.95rem",
               fontWeight: 700,
               textDecoration: "none",
-              boxShadow: "0 8px 20px rgba(34, 197, 94, 0.3)",
+              boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
             }}
           >
             <MessageCircle size={17} />
@@ -494,6 +488,7 @@ export default function PendienteClient({
         >
           <span>Conectado como {email}</span>
           <button
+            type="button"
             onClick={handleLogout}
             style={{
               display: "inline-flex",
@@ -516,17 +511,6 @@ export default function PendienteClient({
           </button>
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 }
@@ -587,7 +571,6 @@ function SummaryRow({
               height: "6px",
               borderRadius: "50%",
               background: "#f59e0b",
-              animation: "spin 2s linear infinite",
             }}
           />
           {value}
@@ -596,7 +579,7 @@ function SummaryRow({
         <span
           style={{
             fontSize: highlight ? "1.05rem" : "0.9rem",
-            color: highlight ? "#FF0000" : "#000000",
+            color: highlight ? "#10B981" : "#000000",
             fontWeight: highlight ? 800 : 700,
             fontFamily: mono
               ? "'SF Mono', Monaco, Consolas, monospace"
@@ -655,7 +638,7 @@ function TimelineStep({
           width: "32px",
           height: "32px",
           borderRadius: "50%",
-          background: active ? "#FF0000" : "#f3f4f6",
+          background: active ? "#10B981" : "#f3f4f6",
           color: active ? "white" : "#000000",
           display: "flex",
           alignItems: "center",
@@ -666,7 +649,7 @@ function TimelineStep({
           position: "relative",
           zIndex: 1,
           boxShadow: active
-            ? "0 4px 12px rgba(255, 0, 0, 0.35)"
+            ? "0 4px 12px rgba(16, 185, 129, 0.25)"
             : "none",
         }}
       >
@@ -708,4 +691,4 @@ function TimelineStep({
       </div>
     </div>
   );
-      }
+    }
