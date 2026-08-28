@@ -439,7 +439,7 @@ export default function WidgetsClient({
 
             {store && (
               <Link
-                href="/widgets/nuevo/todos"
+                href="/widgets/nuevo"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -527,7 +527,7 @@ export default function WidgetsClient({
             title="Aún no tenés widgets"
             description="Empezá creando tu primer widget para aumentar tus ventas."
             ctaLabel="Crear widget"
-            ctaHref="/widgets/nuevo/todos"
+            ctaHref="/widgets/nuevo"
           />
         ) : filteredWidgets.length === 0 ? (
           <EmptyState
@@ -1039,4 +1039,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-    }
+}
