@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { getProduct } from "@/lib/tiendanube";
 import WidgetsClient from "./WidgetsClient";
+
+export const dynamic = "force-dynamic";
 
 interface WidgetDefinition {
   name: string;
@@ -39,19 +42,22 @@ export default async function WidgetsPage() {
     redirect("/login");
   }
 
-  // Tienda activa del usuario
-  const { data: store } = await supabase
+  // 1. Tienda activa del usuario usando supabaseAdmin (evita bloqueos de RLS)
+  const { data: storesList } = await supabaseAdmin
     .from("stores")
     .select("store_id, access_token, installed_at, is_active")
     .eq("user_id", user.id)
     .eq("is_active", true)
-    .maybeSingle();
+    .order("installed_at", { ascending: false })
+    .limit(1);
+
+  const store = storesList && storesList.length > 0 ? storesList[0] : null;
 
   let widgets: WidgetRow[] = [];
 
   if (store?.store_id) {
-    // 1) Traer widgets del usuario (sin JOIN)
-    const { data: widgetsData, error: widgetsError } = await supabase
+    // 2. Traer widgets de la tienda activa usando supabaseAdmin
+    const { data: widgetsData, error: widgetsError } = await supabaseAdmin
       .from("widgets")
       .select(
         "id, widget_slug, widget_type, target_type, target_product_id, is_active, created_at, updated_at"
@@ -64,8 +70,8 @@ export default async function WidgetsPage() {
       console.error("[widgets/page] Error trayendo widgets:", widgetsError);
     }
 
-    // 2) Traer todas las widget_definitions (15 filas, súper barato)
-    const { data: defsData, error: defsError } = await supabase
+    // 3. Traer definiciones de widgets usando supabaseAdmin
+    const { data: defsData, error: defsError } = await supabaseAdmin
       .from("widget_definitions")
       .select("slug, name, icon, category, description");
 
@@ -73,7 +79,7 @@ export default async function WidgetsPage() {
       console.error("[widgets/page] Error trayendo definitions:", defsError);
     }
 
-    // 3) Armar map de definitions por slug
+    // 4. Armar map de definiciones por slug
     const defsMap = new Map<string, WidgetDefinition>();
     (defsData || []).forEach((d: any) => {
       defsMap.set(d.slug, {
@@ -84,7 +90,7 @@ export default async function WidgetsPage() {
       });
     });
 
-    // 4) Combinar
+    // 5. Combinar
     widgets = (widgetsData || []).map((w: any) => ({
       id: w.id,
       widget_slug: w.widget_slug,
@@ -98,7 +104,7 @@ export default async function WidgetsPage() {
     }));
   }
 
-  // Productos únicos a traer desde Tiendanube
+  // 6. Productos únicos a traer desde la API de Tiendanube
   const productIds = Array.from(
     new Set(
       widgets
@@ -149,4 +155,4 @@ export default async function WidgetsPage() {
       productsMap={productsMap}
     />
   );
-              }
+      }
