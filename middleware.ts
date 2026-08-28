@@ -3,7 +3,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -19,43 +19,46 @@ export async function middleware(request: NextRequest) {
         },
         set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: "", ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({ name, value: "", ...options });
         },
       },
     }
   );
 
+  // Obtener usuario autenticado de forma segura
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
 
+  // Rutas protegidas que requieren sesión
   const isProtectedRoute =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/widgets");
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/widgets") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/productos") ||
+    pathname.startsWith("/plan");
 
+  // Rutas de autenticación
   const isAuthRoute = pathname === "/login" || pathname === "/registro";
 
+  // 1. Si intenta entrar a ruta protegida sin sesión -> redirigir a /login
   if (isProtectedRoute && !user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/login";
+    return NextResponse.redirect(redirectUrl);
   }
 
+  // 2. Si ya está autenticado e intenta entrar a /login o /registro -> redirigir a /dashboard
   if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/dashboard";
+    return NextResponse.redirect(redirectUrl);
   }
 
   return response;
