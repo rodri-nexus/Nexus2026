@@ -60,10 +60,10 @@ export const PLAN_PRICE_ARS = 30000;
 export const TRIAL_WARNING_DAYS = 2;
 export const PLAN_WARNING_DAYS = 3;
 
-// ─── FUNCIONES PURAS (SIN SUPABASE) ──────────
+// ─── FUNCIONES PURAS ──────────────────────────
 
 /**
- * Calcula el estado REAL del plan basándose en las fechas.
+ * Calcula el estado REAL del plan basándose prioritariamente en la fecha activa.
  */
 export function calculatePlanStatus(store: StorePlanData): PlanStatus {
   const now = new Date();
@@ -73,8 +73,8 @@ export function calculatePlanStatus(store: StorePlanData): PlanStatus {
     return "cancelled";
   }
 
-  // 2. Si tiene plan pago activo y NO expiró (EVALUACIÓN PRIORITARIA)
-  if (store.plan_status === "active" && store.plan_active_until) {
+  // 2. REGLA SUPREMA: Si la fecha de plan activo está en el futuro -> ACTIVO O PRÓXIMO A VENCER
+  if (store.plan_active_until) {
     const planEnd = new Date(store.plan_active_until);
     if (!isNaN(planEnd.getTime()) && planEnd > now) {
       const daysLeft = getDaysBetween(now, planEnd);
@@ -83,8 +83,6 @@ export function calculatePlanStatus(store: StorePlanData): PlanStatus {
       }
       return "active";
     }
-    // Plan pago expirado
-    return "expired";
   }
 
   // 3. Si el estado de la BD dice que ya está en feedback
@@ -104,29 +102,26 @@ export function calculatePlanStatus(store: StorePlanData): PlanStatus {
     }
   }
 
-  // Si no se cumple ninguna de las anteriores → expirado
+  // Si venció todo -> expirado
   return "expired";
 }
 
 /**
- * Cantidad de días restantes (redondeado hacia arriba).
- * Devuelve 0 si ya expiró.
+ * Cantidad de días restantes.
  */
 export function getRemainingDays(store: StorePlanData): number {
   const now = new Date();
 
-  // Si tiene plan pago activo
-  if (store.plan_status === "active" && store.plan_active_until) {
+  if (store.plan_active_until) {
     const planEnd = new Date(store.plan_active_until);
-    if (!isNaN(planEnd.getTime())) {
+    if (!isNaN(planEnd.getTime()) && planEnd > now) {
       return Math.max(0, getDaysBetween(now, planEnd));
     }
   }
 
-  // Sino, contamos días de trial
   if (store.trial_ends_at) {
     const trialEnd = new Date(store.trial_ends_at);
-    if (!isNaN(trialEnd.getTime())) {
+    if (!isNaN(trialEnd.getTime()) && trialEnd > now) {
       return Math.max(0, getDaysBetween(now, trialEnd));
     }
   }
@@ -136,14 +131,13 @@ export function getRemainingDays(store: StorePlanData): number {
 
 /**
  * Cantidad de HORAS restantes.
- * Devuelve 0 si ya expiró.
  */
 export function getRemainingHours(store: StorePlanData): number {
   const now = new Date();
 
-  if (store.plan_status === "active" && store.plan_active_until) {
+  if (store.plan_active_until) {
     const planEnd = new Date(store.plan_active_until);
-    if (!isNaN(planEnd.getTime())) {
+    if (!isNaN(planEnd.getTime()) && planEnd > now) {
       const diffMs = planEnd.getTime() - now.getTime();
       return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60)));
     }
@@ -151,7 +145,7 @@ export function getRemainingHours(store: StorePlanData): number {
 
   if (store.trial_ends_at) {
     const trialEnd = new Date(store.trial_ends_at);
-    if (!isNaN(trialEnd.getTime())) {
+    if (!isNaN(trialEnd.getTime()) && trialEnd > now) {
       const diffMs = trialEnd.getTime() - now.getTime();
       return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60)));
     }
@@ -160,9 +154,6 @@ export function getRemainingHours(store: StorePlanData): number {
   return 0;
 }
 
-/**
- * ¿Puede usar la app? (crear/editar widgets)
- */
 export function canUseApp(status: PlanStatus): boolean {
   return (
     status === "trial" ||
@@ -172,9 +163,6 @@ export function canUseApp(status: PlanStatus): boolean {
   );
 }
 
-/**
- * ¿La app está bloqueada por paywall?
- */
 export function isAppBlocked(status: PlanStatus): boolean {
   return (
     status === "feedback_pending" ||
@@ -183,17 +171,11 @@ export function isAppBlocked(status: PlanStatus): boolean {
   );
 }
 
-/**
- * ¿Necesita mostrar la pregunta "¿te gustó?"?
- */
 export function needsFeedback(store: StorePlanData): boolean {
   const status = calculatePlanStatus(store);
   return status === "feedback_pending" && !store.feedback_shown;
 }
 
-/**
- * ¿Necesita pagar? (feedback ya respondido O plan expirado)
- */
 export function needsPayment(store: StorePlanData): boolean {
   const status = calculatePlanStatus(store);
   return (
@@ -203,13 +185,10 @@ export function needsPayment(store: StorePlanData): boolean {
   );
 }
 
-/**
- * Construye el objeto completo con toda la info del plan.
- */
 export function buildPlanInfo(store: StorePlanData): PlanInfo {
   const status = calculatePlanStatus(store);
   const rawStatus: RawPlanStatus =
-    store.plan_status || (status === "expired" ? "expired" : "trial");
+    store.plan_status || (status === "expired" ? "expired" : "active");
 
   return {
     status,
@@ -221,7 +200,7 @@ export function buildPlanInfo(store: StorePlanData): PlanInfo {
     planActiveUntil: store.plan_active_until
       ? new Date(store.plan_active_until)
       : null,
-    monthsActive: store.months_active || 1,
+    monthsActive: Math.max(1, Number(store.months_active || 1)),
     needsFeedback: needsFeedback(store),
     needsPayment: needsPayment(store),
     canUseApp: canUseApp(status),
@@ -229,18 +208,13 @@ export function buildPlanInfo(store: StorePlanData): PlanInfo {
   };
 }
 
-// ─── HELPER INTERNO ──────────────────────────
-
 function getDaysBetween(from: Date, to: Date): number {
   const diffMs = to.getTime() - from.getTime();
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 }
 
-// ─── FUNCIONES SERVER-SIDE (CON SUPABASE) ────
+// ─── FUNCIONES SERVER-SIDE ───────────────────
 
-/**
- * Trae el estado completo del plan del usuario logueado.
- */
 export async function getPlanForUser(
   userId: string
 ): Promise<{ store: StorePlanData; plan: PlanInfo } | null> {
@@ -261,9 +235,6 @@ export async function getPlanForUser(
   return { store: store as StorePlanData, plan };
 }
 
-/**
- * Verifica si una tienda tiene el plan/trial vigente.
- */
 export async function isStorePlanActive(
   storeId: number | string
 ): Promise<boolean> {
@@ -290,15 +261,12 @@ export async function isStorePlanActive(
   }
 }
 
-/**
- * Sincroniza el `plan_status` de la BD con el estado real calculado.
- */
 export async function syncPlanStatusIfNeeded(
   store: StorePlanData
 ): Promise<void> {
   const realStatus = calculatePlanStatus(store);
 
-  let dbStatus: RawPlanStatus;
+  let dbStatus: RawPlanStatus = "expired";
 
   if (realStatus === "trial" || realStatus === "trial_ending_soon") {
     dbStatus = "trial";
@@ -308,28 +276,19 @@ export async function syncPlanStatusIfNeeded(
     dbStatus = "feedback_pending";
   } else if (realStatus === "cancelled") {
     dbStatus = "cancelled";
-  } else {
-    dbStatus = "expired";
   }
 
   if (store.plan_status !== dbStatus) {
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from("stores")
       .update({
         plan_status: dbStatus,
         updated_at: new Date().toISOString(),
       })
       .eq("store_id", store.store_id);
-
-    if (error) {
-      console.error("Error sincronizando plan_status:", error);
-    }
   }
 }
 
-/**
- * Formatea el precio en pesos argentinos con separadores.
- */
 export function formatPrice(amount: number = PLAN_PRICE_ARS): string {
   return `$${amount.toLocaleString("es-AR")}`;
-}
+    }
