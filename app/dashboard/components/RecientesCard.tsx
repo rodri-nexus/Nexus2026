@@ -1,182 +1,243 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase-server";
-import { getProductsCount } from "@/lib/tiendanube";
-import { buildPlanInfo, type StorePlanData, type PlanInfo } from "@/lib/plan";
-import { supabaseAdmin } from "@/lib/supabase";
-import DashboardClient from "./DashboardClient";
+// app/dashboard/components/RecientesCard.tsx
+"use client";
 
-// Forzamos render dinámico para que el dashboard siempre traiga datos frescos.
-export const dynamic = "force-dynamic";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { LayoutGrid, Plus, ArrowRight } from "lucide-react";
 
-const ADMIN_EMAIL = "nevuxapp@gmail.com";
-
-// Helper para detectar redirecciones de Next.js sin capturarlas en el catch
-function isRedirectError(err: any): boolean {
-  if (!err) return false;
-  if (err?.message === "NEXT_REDIRECT") return true;
-  if (typeof err?.digest === "string" && err.digest.includes("NEXT_REDIRECT")) return true;
-  return false;
+interface Widget {
+  id: string;
+  name: string;
+  type: string;
+  createdAt: string;
 }
 
-export default async function DashboardPage() {
-  // 1. AUTENTICACIÓN (Fuera del try/catch para redirección limpia)
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+interface RecientesCardProps {
+  widgets?: Widget[];
+  storeId?: number;
+}
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  // 🔒 REDIRECCIÓN DE ADMINISTRADOR
-  const userEmail = (user.email || "").toLowerCase();
-  if (userEmail === ADMIN_EMAIL) {
-    redirect("/admin/pagos");
-  }
-
-  // Variables de estado del dashboard
-  let store: any = null;
-  let onboardingCompleted = false;
-  let activeWidgetsCount = 0;
-  let planInfo: PlanInfo | null = null;
-  let productsCount = 0;
-
-  try {
-    // 2. Buscar la tienda activa más reciente
-    const { data: storesList } = await supabaseAdmin
-      .from("stores")
-      .select(
-        "store_id, access_token, installed_at, is_active, user_id, trial_started_at, trial_ends_at, plan_status, plan_active_until, last_payment_at, months_active, feedback_shown"
-      )
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .order("installed_at", { ascending: false })
-      .limit(1);
-
-    store = storesList && storesList.length > 0 ? storesList[0] : null;
-
-    // 3. Buscar perfil de onboarding
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("onboarding_completed")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    onboardingCompleted = profile?.onboarding_completed ?? false;
-
-    // 4. Contar widgets activos
-    const { count: widgetsCount } = await supabaseAdmin
-      .from("widgets")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("is_active", true);
-
-    activeWidgetsCount = widgetsCount ?? 0;
-
-    // 5. Verificar estado del plan
-    if (store) {
-      const planData: StorePlanData = {
-        store_id: store.store_id,
-        user_id: store.user_id,
-        trial_started_at: store.trial_started_at,
-        trial_ends_at: store.trial_ends_at,
-        plan_status: store.plan_status,
-        plan_active_until: store.plan_active_until,
-        last_payment_at: store.last_payment_at,
-        months_active: store.months_active,
-        feedback_shown: store.feedback_shown,
-      };
-
-      planInfo = buildPlanInfo(planData);
-    }
-
-    // 6. Obtener cantidad de productos de Tiendanube
-    if (store?.store_id && store?.access_token) {
-      try {
-        productsCount = await getProductsCount(
-          store.store_id,
-          store.access_token
-        );
-      } catch (e) {
-        console.error("Error obteniendo cantidad de productos:", e);
-      }
-    }
-  } catch (err: any) {
-    if (isRedirectError(err)) {
-      throw err;
-    }
-    console.error("[Dashboard Query Exception]:", err);
-  }
-
-  // 🔒 CONTROL DE ACCESO SEGÚN PLAN (Fuera del try/catch)
-  if (planInfo && !planInfo.canUseApp) {
-    if (planInfo.needsFeedback) {
-      redirect("/plan/feedback");
-    }
-
-    if (planInfo.needsPayment) {
-      const { data: feedbackList } = await supabaseAdmin
-        .from("feedback")
-        .select("liked_app, detailed_feedback, reason_tags")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      const lastFeedback =
-        feedbackList && feedbackList.length > 0 ? feedbackList[0] : null;
-
-      if (
-        lastFeedback &&
-        lastFeedback.liked_app === false &&
-        !lastFeedback.detailed_feedback &&
-        (!lastFeedback.reason_tags || lastFeedback.reason_tags.length === 0)
-      ) {
-        redirect("/plan/opinion");
-      }
-
-      redirect("/plan/expirado");
-    }
-  }
-
-  const storeData = store
-    ? {
-        store_id: store.store_id,
-        installed_at: store.installed_at,
-        is_active: store.is_active,
-      }
-    : null;
-
-  const planSerialized = planInfo
-    ? {
-        status: planInfo.status,
-        rawStatus: planInfo.rawStatus,
-        isBlocked: planInfo.isBlocked,
-        daysRemaining: planInfo.daysRemaining,
-        hoursRemaining: planInfo.hoursRemaining,
-        trialEndsAtISO: planInfo.trialEndsAt
-          ? planInfo.trialEndsAt.toISOString()
-          : null,
-        planActiveUntilISO: planInfo.planActiveUntil
-          ? planInfo.planActiveUntil.toISOString()
-          : null,
-        monthsActive: planInfo.monthsActive,
-        needsFeedback: planInfo.needsFeedback,
-        needsPayment: planInfo.needsPayment,
-        canUseApp: planInfo.canUseApp,
-        canCreateWidgets: planInfo.canCreateWidgets,
-      }
-    : null;
+export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
+  const hasWidgets = widgets.length > 0;
 
   return (
-    <DashboardClient
-      email={user.email ?? ""}
-      userId={user.id}
-      store={storeData}
-      productsCount={productsCount}
-      activeWidgetsCount={activeWidgetsCount}
-      onboardingCompleted={onboardingCompleted}
-      plan={planSerialized}
-    />
+    <motion.section
+      data-tutorial="recientes-card"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      style={{
+        background: "#ffffff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "16px",
+        padding: "1.5rem",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "1.25rem",
+          gap: "1rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "1.15rem",
+            fontWeight: 800,
+            color: "#000000",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Widgets recientes
+        </h2>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <Link
+            href="/widgets"
+            style={{
+              padding: "0.5rem 1rem",
+              borderRadius: "999px",
+              border: "1.5px solid #e5e7eb",
+              background: "#ffffff",
+              color: "#000000",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              transition: "all 0.15s",
+            }}
+          >
+            Ver todos
+            <ArrowRight size={14} />
+          </Link>
+
+          <Link
+            href="/widgets"
+            data-tutorial="crear-widget-btn"
+            aria-label="Crear widget"
+            style={{
+              width: "38px",
+              height: "38px",
+              borderRadius: "50%",
+              background: "#10B981",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#ffffff",
+              textDecoration: "none",
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
+              transition: "transform 0.15s, box-shadow 0.15s",
+            }}
+          >
+            <Plus size={20} />
+          </Link>
+        </div>
+      </div>
+
+      {/* Lista o estado vacío */}
+      {hasWidgets ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
+          {widgets.slice(0, 5).map((widget) => (
+            <Link
+              key={widget.id}
+              href={`/widgets/${widget.id}`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                padding: "0.85rem",
+                borderRadius: "10px",
+                border: "1px solid #f3f4f6",
+                textDecoration: "none",
+                background: "#f9fafb",
+                transition: "all 0.15s",
+              }}
+            >
+              <div
+                style={{
+                  width: "38px",
+                  height: "38px",
+                  borderRadius: "10px",
+                  background: "rgba(16, 185, 129, 0.12)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <LayoutGrid size={18} color="#10B981" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: "0.9rem",
+                    fontWeight: 700,
+                    color: "#000000",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {widget.name}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "#000000",
+                    opacity: 0.5,
+                    marginTop: "0.1rem",
+                  }}
+                >
+                  {widget.type}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2.5rem 1rem",
+            background: "#ffffff",
+            borderRadius: "12px",
+            border: "1px dashed #e5e7eb",
+          }}
+        >
+          <div
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "14px",
+              background: "rgba(16, 185, 129, 0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <LayoutGrid size={26} color="#10B981" strokeWidth={1.75} />
+          </div>
+
+          <p
+            style={{
+              margin: "0 0 1.25rem",
+              fontSize: "0.95rem",
+              color: "#000000",
+              opacity: 0.6,
+              textAlign: "center",
+              fontWeight: 500,
+            }}
+          >
+            No hay widgets creados todavía
+          </p>
+
+          <Link
+            href="/widgets"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.7rem 1.5rem",
+              borderRadius: "999px",
+              background: "#10B981",
+              color: "#ffffff",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              textDecoration: "none",
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
+              transition: "transform 0.15s, box-shadow 0.15s",
+            }}
+          >
+            <Plus size={16} />
+            <span>Crear widget</span>
+          </Link>
+        </div>
+      )}
+    </motion.section>
   );
           }
