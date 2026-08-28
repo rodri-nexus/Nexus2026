@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
@@ -10,7 +9,6 @@ import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,28 +20,34 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-    setLoading(false);
-
-    if (signInError) {
-      if (signInError.message.includes("Invalid login credentials")) {
-        setError("Email o contraseña incorrectos");
-      } else if (signInError.message.includes("Email not confirmed")) {
-        setError(
-          "Todavía no verificaste tu email. Revisá tu bandeja de entrada."
-        );
-      } else {
-        setError(signInError.message);
+      if (signInError) {
+        setLoading(false);
+        if (signInError.message.includes("Invalid login credentials")) {
+          setError("Email o contraseña incorrectos");
+        } else if (signInError.message.includes("Email not confirmed")) {
+          setError(
+            "Todavía no verificaste tu email. Revisá tu bandeja de entrada."
+          );
+        } else {
+          setError(signInError.message || "Error al iniciar sesión");
+        }
+        return;
       }
-      return;
-    }
 
-    router.push("/dashboard");
-    router.refresh();
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: any) {
+      console.error("Error en login:", err);
+      setError("Ocurrió un error inesperado. Por favor reintentá.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -57,28 +61,27 @@ export default function LoginPage() {
         background: "#f9fafb",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        boxSizing: "border-box",
       }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
         style={{
           width: "100%",
           maxWidth: "440px",
-          background: "white",
+          background: "#ffffff",
           borderRadius: "20px",
           padding: "2.5rem 2rem",
           boxShadow:
             "0 20px 60px rgba(16, 185, 129, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04)",
           border: "1px solid #e5e7eb",
+          boxSizing: "border-box",
         }}
       >
         {/* Logo oficial y bienvenida */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+        <div
           style={{
             display: "flex",
             flexDirection: "column",
@@ -101,17 +104,12 @@ export default function LoginPage() {
           >
             Bienvenido de vuelta
           </p>
-        </motion.div>
+        </div>
 
         {/* Formulario */}
         <form onSubmit={handleSubmit}>
           {/* Email */}
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            style={{ marginBottom: "1rem" }}
-          >
+          <div style={{ marginBottom: "1rem" }}>
             <label
               style={{
                 display: "block",
@@ -132,6 +130,7 @@ export default function LoginPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   color: "rgba(0, 0, 0, 0.4)",
+                  pointerEvents: "none",
                 }}
               />
               <input
@@ -147,25 +146,17 @@ export default function LoginPage() {
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
-                  transition: "border-color 0.2s",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                   color: "#000000",
                   background: "#FFFFFF",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
-          </motion.div>
+          </div>
 
           {/* Contraseña */}
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            style={{ marginBottom: "0.75rem" }}
-          >
+          <div style={{ marginBottom: "0.75rem" }}>
             <label
               style={{
                 display: "block",
@@ -186,6 +177,7 @@ export default function LoginPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   color: "rgba(0, 0, 0, 0.4)",
+                  pointerEvents: "none",
                 }}
               />
               <input
@@ -201,31 +193,27 @@ export default function LoginPage() {
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
-                  transition: "border-color 0.2s",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                   color: "#000000",
                   background: "#FFFFFF",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
-          </motion.div>
+          </div>
 
-          {/* Link olvidé mi contraseña */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.35 }}
+          {/* Link olvidé mi contraseña (Soporte directo por WhatsApp) */}
+          <div
             style={{
               display: "flex",
               justifyContent: "flex-end",
               marginBottom: "1.25rem",
             }}
           >
-            <Link
-              href="/recuperar"
+            <a
+              href="https://wa.me/5493434163999?text=Hola,%20necesito%20recuperar%20mi%20contrase%C3%B1a%20de%20Nevux"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 fontSize: "0.82rem",
                 color: "#10B981",
@@ -234,14 +222,12 @@ export default function LoginPage() {
               }}
             >
               ¿Olvidaste tu contraseña?
-            </Link>
-          </motion.div>
+            </a>
+          </div>
 
           {/* Error */}
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               style={{
                 padding: "0.75rem 1rem",
                 background: "#fef2f2",
@@ -253,20 +239,18 @@ export default function LoginPage() {
               }}
             >
               {error}
-            </motion.div>
+            </div>
           )}
 
           {/* Botón submit */}
-          <motion.button
+          <button
             type="submit"
             disabled={loading}
-            whileHover={{ scale: loading ? 1 : 1.02 }}
-            whileTap={{ scale: loading ? 1 : 0.98 }}
             style={{
               width: "100%",
               padding: "0.95rem",
               background: loading ? "rgba(16, 185, 129, 0.6)" : "#10B981",
-              color: "white",
+              color: "#ffffff",
               border: "none",
               borderRadius: "12px",
               fontSize: "1rem",
@@ -289,35 +273,35 @@ export default function LoginPage() {
             ) : (
               "Iniciar sesión"
             )}
-          </motion.button>
+          </button>
         </form>
 
-        {/* Link a registro */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+        {/* Soporte / Instalación */}
+        <p
           style={{
             textAlign: "center",
             marginTop: "1.5rem",
-            fontSize: "0.9rem",
+            fontSize: "0.85rem",
             color: "#000000",
             opacity: 0.6,
+            lineHeight: 1.4,
           }}
         >
-          ¿No tenés cuenta?{" "}
-          <Link
-            href="/registro"
+          ¿Aún no instalaste Nevux en tu tienda?{" "}
+          <a
+            href="https://wa.me/5493434163999?text=Hola,%20quiero%20instalar%20Nevux%20en%20mi%20Tiendanube"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               color: "#10B981",
               fontWeight: 700,
               textDecoration: "none",
             }}
           >
-            Crear cuenta gratis
-          </Link>
-        </motion.p>
+            Probar 7 días gratis
+          </a>
+        </p>
       </motion.div>
     </div>
   );
-                 }
+          }
