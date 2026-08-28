@@ -147,7 +147,7 @@ export default function MiCuentaPage() {
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : "Ocurrió un error inesperado";
       setError(errMsg);
-    } else {
+    } finally {
       setSaving(false);
     }
   };
@@ -638,4 +638,4 @@ export default function MiCuentaPage() {
       </div>
     </div>
   );
-            }
+    }
