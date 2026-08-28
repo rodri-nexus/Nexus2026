@@ -60,18 +60,18 @@ export default async function DashboardPage() {
 
     activeWidgetsCount = widgetsCount ?? 0;
 
-    // 4. Construir plan con fechas parseadas correctamente
+    // 4. Construir plan con tipos de fecha compatibles
     if (store) {
       const planData: StorePlanData = {
         store_id: store.store_id,
         user_id: store.user_id,
-        trial_started_at: store.trial_started_at ? new Date(store.trial_started_at) : null,
-        trial_ends_at: store.trial_ends_at ? new Date(store.trial_ends_at) : null,
+        trial_started_at: store.trial_started_at ?? null,
+        trial_ends_at: store.trial_ends_at ?? null,
         plan_status: (store.plan_status as RawPlanStatus | null) ?? null,
-        plan_active_until: store.plan_active_until ? new Date(store.plan_active_until) : null,
-        last_payment_at: store.last_payment_at ? new Date(store.last_payment_at) : null,
+        plan_active_until: store.plan_active_until ?? null,
+        last_payment_at: store.last_payment_at ?? null,
         months_active: Number(store.months_active || 1),
-        feedback_shown: store.feedback_shown,
+        feedback_shown: store.feedback_shown ?? false,
       };
 
       planInfo = buildPlanInfo(planData);
@@ -120,4 +120,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-      }
+        }
