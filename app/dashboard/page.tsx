@@ -29,9 +29,10 @@ export default async function DashboardPage() {
   let activeWidgetsCount = 0;
   let planInfo: PlanInfo | null = null;
   let productsCount = 0;
+  let isTokenValid = false;
 
   try {
-    // 1. Buscar la tienda activa del usuario
+    // 1. Buscar la tienda activa del usuario en Supabase
     const { data: storesList } = await supabaseAdmin
       .from("stores")
       .select(
@@ -79,26 +80,27 @@ export default async function DashboardPage() {
       planInfo = buildPlanInfo(planData);
     }
 
-    // 5. Consultar productos reales de Tiendanube SOLO si hay access_token REAL
+    // 5. PRUEBA DE VIDA REAL CON TIENDANUBE
     if (store?.store_id && store?.access_token) {
       try {
         productsCount = await getProductsCount(
           store.store_id,
           store.access_token
         );
+        // Si Tiendanube respondió correctamente, la conexión es REAL
+        isTokenValid = true;
       } catch (e) {
-        console.error("Error obteniendo cantidad de productos reales:", e);
+        console.error("Token de Tiendanube rechazado o app desinstalada:", e);
         productsCount = 0;
+        isTokenValid = false;
       }
     }
   } catch (err: unknown) {
     console.error("[Dashboard Query Exception]:", err);
   }
 
-  // REGLA CLAVE: Solo consideramos conectada la tienda si TIENE access_token de Tiendanube.
-  const isRealConnection = Boolean(store?.store_id && store?.access_token);
-
-  const storeData = isRealConnection
+  // REGLA ABSOLUTA: Solo se considera conectada si Tiendanube validó el token en tiempo real
+  const storeData = (store && isTokenValid)
     ? {
         store_id: store.store_id,
         installed_at: store.installed_at,
@@ -138,4 +140,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-        }
+      }
