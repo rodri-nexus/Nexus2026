@@ -32,6 +32,25 @@ interface ProductInfo {
   slug: string;
 }
 
+interface DbWidgetRow {
+  id: string;
+  widget_slug: string;
+  widget_type: string;
+  target_type: string;
+  target_product_id: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DbWidgetDefinition {
+  slug: string;
+  name: string;
+  icon: string;
+  category: string;
+  description: string;
+}
+
 export default async function WidgetsPage() {
   const supabase = createClient();
   const {
@@ -81,23 +100,23 @@ export default async function WidgetsPage() {
 
     // 4. Armar map de definiciones por slug
     const defsMap = new Map<string, WidgetDefinition>();
-    (defsData || []).forEach((d: any) => {
+    ((defsData as DbWidgetDefinition[]) || []).forEach((d) => {
       defsMap.set(d.slug, {
-        name: d.name,
-        icon: d.icon,
-        category: d.category,
-        description: d.description,
+        name: d.name || "",
+        icon: d.icon || "",
+        category: d.category || "General",
+        description: d.description || "",
       });
     });
 
     // 5. Combinar
-    widgets = (widgetsData || []).map((w: any) => ({
+    widgets = ((widgetsData as DbWidgetRow[]) || []).map((w) => ({
       id: w.id,
       widget_slug: w.widget_slug,
       widget_type: w.widget_type,
       target_type: w.target_type,
       target_product_id: w.target_product_id,
-      is_active: w.is_active,
+      is_active: Boolean(w.is_active),
       created_at: w.created_at,
       updated_at: w.updated_at,
       definition: defsMap.get(w.widget_slug) ?? null,
@@ -124,9 +143,9 @@ export default async function WidgetsPage() {
             id: pid,
             product: {
               id: p.id,
-              name: p.name,
+              name: p.name || `Producto #${p.id}`,
               image: p.images?.[0]?.src ?? null,
-              slug: p.slug,
+              slug: p.slug || "",
             } as ProductInfo,
           };
         } catch {
@@ -155,4 +174,4 @@ export default async function WidgetsPage() {
       productsMap={productsMap}
     />
   );
-      }
+    }
