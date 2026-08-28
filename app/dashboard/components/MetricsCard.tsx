@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Eye,
@@ -44,7 +44,7 @@ interface WidgetPerformanceItem {
 
 export default function MetricsCard() {
   const [period, setPeriod] = useState<Period>("7dias");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [sortMetric, setSortMetric] = useState<SortMetric>("impresiones");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [chartMetric, setChartMetric] = useState<ChartMetric>("impressions");
@@ -60,78 +60,71 @@ export default function MetricsCard() {
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const [widgetList, setWidgetList] = useState<WidgetPerformanceItem[]>([]);
 
-  // Fetch de métricas reales desde la API
-  const fetchMetrics = useCallback(async (selectedPeriod: Period) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/metrics?period=${selectedPeriod}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setSummary({
-          impressions: data.summary?.impressions || 0,
-          clicks: data.summary?.clicks || 0,
-          cartAdds: data.summary?.cartAdds || 0,
-          revenue: data.summary?.revenue || 0,
-        });
-        setTimeline(data.timeline || []);
-        setWidgetList(data.widgets || []);
-      } else {
-        setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
-        setTimeline([]);
-        setWidgetList([]);
-      }
-    } catch (error) {
-      setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
-      setTimeline([]);
-      setWidgetList([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  // Fetch de métricas blindado con AbortController contra condiciones de carrera
   useEffect(() => {
-    fetchMetrics(period);
-  }, [period, fetchMetrics]);
+    const controller = new AbortController();
+    let isMounted = true;
 
-  // Ordenamiento local de widgets
-  const sortedWidgets = [...widgetList].sort((a, b) => {
-    let valA = 0;
-    let valB = 0;
+    async function fetchMetricsData() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/metrics?period=${period}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        });
 
-    switch (sortMetric) {
-      case "impresiones":
-        valA = a.impressions;
-        valB = b.impressions;
-        break;
-      case "clicks":
-        valA = a.clicks;
-        valB = b.clicks;
-        break;
-      case "agregados":
-        valA = a.cartAdds;
-        valB = b.cartAdds;
-        break;
-      case "facturacion":
-        valA = a.revenue;
-        valB = b.revenue;
-        break;
+        if (!isMounted) return;
+
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setSummary({
+              impressions: Number(data.summary?.impressions) || 0,
+              clicks: Number(data.summary?.clicks) || 0,
+              cartAdds: Number(data.summary?.cartAdds) || 0,
+              revenue: Number(data.summary?.revenue) || 0,
+            });
+            setTimeline(Array.isArray(data.timeline) ? data.timeline : []);
+            setWidgetList(Array.isArray(data.widgets) ? data.widgets : []);
+          }
+        } else {
+          if (isMounted) {
+            setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
+            setTimeline([]);
+            setWidgetList([]);
+          }
+        }
+      } catch (err: unknown) {
+        if ((err as Error)?.name !== "AbortError" && isMounted) {
+          setSummary({ impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 });
+          setTimeline([]);
+          setWidgetList([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
 
-    return sortOrder === "desc" ? valB - valA : valA - valB;
-  });
+    fetchMetricsData();
 
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [period]);
+
+  // Formateadores seguros
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
     if (num >= 1000) return (num / 1000).toFixed(1) + "k";
-    return num.toLocaleString("es-AR");
+    return (num || 0).toLocaleString("es-AR");
   };
 
   const formatCurrency = (val: number) => {
-    if (val === 0) return "$ -";
+    if (!val || val === 0) return "$ 0";
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
       currency: "ARS",
@@ -148,13 +141,43 @@ export default function MetricsCard() {
     return dateStr;
   };
 
-  // Cálculo para el gráfico
-  const maxChartValue = Math.max(
-    ...timeline.map((t) => t[chartMetric]),
-    1
-  );
+  // Cálculo memoizado para el gráfico
+  const maxChartValue = useMemo(() => {
+    if (!timeline.length) return 1;
+    const values = timeline.map((t) => Number(t[chartMetric]) || 0);
+    return Math.max(...values, 1);
+  }, [timeline, chartMetric]);
 
-  const metrics = [
+  // Lista de widgets ordenados de forma memoizada
+  const sortedWidgets = useMemo(() => {
+    return [...widgetList].sort((a, b) => {
+      let valA = 0;
+      let valB = 0;
+
+      switch (sortMetric) {
+        case "impresiones":
+          valA = a.impressions || 0;
+          valB = b.impressions || 0;
+          break;
+        case "clicks":
+          valA = a.clicks || 0;
+          valB = b.clicks || 0;
+          break;
+        case "agregados":
+          valA = a.cartAdds || 0;
+          valB = b.cartAdds || 0;
+          break;
+        case "facturacion":
+          valA = a.revenue || 0;
+          valB = b.revenue || 0;
+          break;
+      }
+
+      return sortOrder === "desc" ? valB - valA : valA - valB;
+    });
+  }, [widgetList, sortMetric, sortOrder]);
+
+  const metrics = useMemo(() => [
     {
       key: "impressions" as ChartMetric,
       label: "Impresiones",
@@ -183,7 +206,7 @@ export default function MetricsCard() {
       sublabel: "Desde widgets",
       icon: DollarSign,
     },
-  ];
+  ], [summary]);
 
   const periods: { key: Period; label: string }[] = [
     { key: "hoy", label: "Hoy" },
@@ -195,9 +218,9 @@ export default function MetricsCard() {
   return (
     <motion.section
       data-tutorial="metrics-card"
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.35 }}
       style={{
         background: "#ffffff",
         border: "1px solid #e5e7eb",
@@ -283,6 +306,7 @@ export default function MetricsCard() {
           return (
             <button
               key={p.key}
+              type="button"
               onClick={() => setPeriod(p.key)}
               style={{
                 padding: "0.5rem 1rem",
@@ -293,7 +317,7 @@ export default function MetricsCard() {
                 fontSize: "0.85rem",
                 fontWeight: 700,
                 cursor: "pointer",
-                transition: "all 0.15s",
+                transition: "all 0.15s ease",
                 fontFamily: "inherit",
               }}
             >
@@ -322,7 +346,7 @@ export default function MetricsCard() {
               onClick={() => setChartMetric(metric.key)}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              transition={{ duration: 0.25, delay: idx * 0.04 }}
               style={{
                 background: isSelectedForChart ? "#ecfdf5" : "#ffffff",
                 border: isSelectedForChart ? "1.5px solid #10B981" : "1px solid #f3f4f6",
@@ -458,6 +482,7 @@ export default function MetricsCard() {
             ).map((tab) => (
               <button
                 key={tab.key}
+                type="button"
                 onClick={() => setChartMetric(tab.key)}
                 style={{
                   padding: "0.35rem 0.65rem",
@@ -503,13 +528,13 @@ export default function MetricsCard() {
               }}
             >
               {timeline.map((item, idx) => {
-                const val = item[chartMetric];
+                const val = Number(item[chartMetric]) || 0;
                 const heightPercent = maxChartValue > 0 ? Math.max((val / maxChartValue) * 100, 4) : 4;
                 const isHovered = hoveredIndex === idx;
 
                 return (
                   <div
-                    key={item.date}
+                    key={item.date || idx}
                     onMouseEnter={() => setHoveredIndex(idx)}
                     onMouseLeave={() => setHoveredIndex(null)}
                     onClick={() => setHoveredIndex(idx)}
@@ -789,4 +814,4 @@ export default function MetricsCard() {
       </div>
     </motion.section>
   );
-}
+                        }
