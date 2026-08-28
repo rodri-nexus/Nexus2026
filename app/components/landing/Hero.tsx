@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Check, ArrowRight, Sparkles, Zap, TrendingUp, Package } from "lucide-react";
 
 export default function Hero() {
-  // ─── Contador animado de widgets (+1 → +15, loop infinito) ───
   const [widgetCount, setWidgetCount] = useState(1);
 
   useEffect(() => {
@@ -49,7 +48,6 @@ export default function Hero() {
         overflow: "hidden",
       }}
     >
-      {/* Círculos decorativos de fondo Verde Esmeralda */}
       <div
         style={{
           position: "absolute",
@@ -86,7 +84,6 @@ export default function Hero() {
           zIndex: 2,
         }}
       >
-        {/* Badge Tiendanube */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -130,7 +127,6 @@ export default function Hero() {
           </svg>
         </motion.div>
 
-        {/* Título principal */}
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -158,7 +154,6 @@ export default function Hero() {
           interactivos en tu Tiendanube
         </motion.h1>
 
-        {/* Descripción */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -179,7 +174,6 @@ export default function Hero() {
           interactivo y en minutos.
         </motion.p>
 
-        {/* Bullets */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,14 +191,14 @@ export default function Hero() {
           <BulletItem text="Asistencia personalizada 24/7" />
         </motion.div>
 
-        {/* Botón CTA - CORREGIDO A /login */}
+        {/* Cliente nuevo → Registro */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <Link
-            href="/login"
+            href="/registro"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -228,7 +222,6 @@ export default function Hero() {
           </Link>
         </motion.div>
 
-        {/* WIDGET MOCKUP FLOTANTE */}
         <div
           style={{
             marginTop: "4rem",
@@ -241,7 +234,6 @@ export default function Hero() {
             paddingBottom: "50px",
           }}
         >
-          {/* Píldora +45% ventas */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{
@@ -281,7 +273,6 @@ export default function Hero() {
             +45% ventas
           </motion.div>
 
-          {/* Card blanca central */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -325,7 +316,6 @@ export default function Hero() {
             />
           </motion.div>
 
-          {/* Píldora Ticket +2.3x */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{
@@ -450,4 +440,4 @@ function FloatingWidget({
       <span>{text}</span>
     </motion.div>
   );
-          }
+                    }
