@@ -3,7 +3,14 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
+import {
+  Store,
+  Calendar,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  ShieldCheck,
+} from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
 import StatsCards from "./components/StatsCards";
@@ -103,7 +110,6 @@ export default function DashboardClient({
           boxSizing: "border-box",
         }}
       >
-        {/* BANNER ADMINISTRADOR */}
         {isAdmin && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -121,7 +127,6 @@ export default function DashboardClient({
               borderRadius: "14px",
               padding: "1.25rem 1.5rem",
               marginBottom: "1.5rem",
-              boxSizing: "border-box",
               boxShadow: "0 4px 20px rgba(16, 185, 129, 0.15)",
             }}
           >
@@ -141,35 +146,17 @@ export default function DashboardClient({
                 <ShieldCheck size={24} color="#ffffff" />
               </div>
               <div>
-                <div
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: 800,
-                    color: "#ffffff",
-                    marginBottom: "0.2rem",
-                  }}
-                >
+                <div style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.2rem" }}>
                   Cuenta Administrador
                 </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "0.85rem",
-                    color: "#ffffff",
-                    opacity: 0.75,
-                  }}
-                >
-                  Gestioná comprobantes de suscripción y aprobaciones de comercios.
+                <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.75 }}>
+                  Gestioná comprobantes y aprobaciones de comercios.
                 </p>
               </div>
             </div>
-
             <a
               href="/admin/pagos"
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
                 padding: "0.65rem 1.25rem",
                 borderRadius: "999px",
                 background: "#10B981",
@@ -177,7 +164,6 @@ export default function DashboardClient({
                 textDecoration: "none",
                 fontSize: "0.85rem",
                 fontWeight: 700,
-                boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
               }}
             >
               Panel de Pagos Admin →
@@ -185,7 +171,7 @@ export default function DashboardClient({
           </motion.div>
         )}
 
-        {/* BANNER: SIN TIENDA CONECTADA */}
+        {/* Solo si NO hay tienda propia vinculada a ESTE usuario */}
         {!hasStore && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -200,7 +186,6 @@ export default function DashboardClient({
               borderRadius: "14px",
               padding: "1.25rem 1.5rem",
               marginBottom: "1.5rem",
-              boxSizing: "border-box",
             }}
           >
             <div
@@ -219,26 +204,11 @@ export default function DashboardClient({
               <AlertCircle size={22} color="#10B981" />
             </div>
             <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: "1rem",
-                  fontWeight: 800,
-                  color: "#000000",
-                  marginBottom: "0.35rem",
-                }}
-              >
+              <div style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.35rem" }}>
                 Conectá tu Tiendanube para empezar
               </div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "0.9rem",
-                  color: "#000000",
-                  opacity: 0.7,
-                  lineHeight: 1.5,
-                }}
-              >
-                Vinculá tu tienda para acceder a métricas reales, crear widgets e incrementar el ticket promedio de tus ventas.
+              <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.7, lineHeight: 1.5 }}>
+                Vinculá <strong>tu</strong> tienda para métricas, widgets y productos reales de tu cuenta.
               </p>
               <a
                 href={tiendanubeInstallUrl}
@@ -264,7 +234,6 @@ export default function DashboardClient({
           </motion.div>
         )}
 
-        {/* TITULO Y BIENVENIDA */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -289,33 +258,23 @@ export default function DashboardClient({
             <Sparkles size={13} color="#10B981" />
             Bienvenido a Nevux
           </div>
-
           <h1
             style={{
               margin: 0,
               fontSize: "2rem",
               fontWeight: 800,
-              color: "#000000",
               letterSpacing: "-0.02em",
               lineHeight: 1.1,
             }}
           >
             Dashboard
           </h1>
-
-          <p
-            style={{
-              margin: "0.5rem 0 0",
-              fontSize: "0.95rem",
-              color: "#000000",
-              opacity: 0.6,
-            }}
-          >
-            Hola, <strong style={{ color: "#000000", opacity: 1 }}>{email}</strong> 👋
+          <p style={{ margin: "0.5rem 0 0", fontSize: "0.95rem", opacity: 0.6 }}>
+            Hola, <strong style={{ opacity: 1 }}>{email}</strong> 👋
           </p>
         </motion.div>
 
-        {/* CHIP: TIENDA CONECTADA + BOTÓN "CONECTAR TIENDANUBE" */}
+        {/* Tienda propia: SOLO chip (sin botón Conectar) */}
         {hasStore && store && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -325,7 +284,6 @@ export default function DashboardClient({
               display: "flex",
               flexWrap: "wrap",
               alignItems: "center",
-              justifyContent: "space-between",
               gap: "0.75rem 1.5rem",
               padding: "0.9rem 1.25rem",
               background: "#ffffff",
@@ -335,132 +293,74 @@ export default function DashboardClient({
               boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
             }}
           >
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem 1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <div
                 style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "8px",
+                  background: "#10B981",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.5rem",
+                  justifyContent: "center",
                 }}
               >
-                <div
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    borderRadius: "8px",
-                    background: "#10B981",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <CheckCircle2 size={16} color="#ffffff" strokeWidth={2.5} />
-                </div>
-                <span
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "#059669",
-                    fontWeight: 700,
-                  }}
-                >
-                  Tienda conectada
-                </span>
+                <CheckCircle2 size={16} color="#ffffff" strokeWidth={2.5} />
               </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  fontSize: "0.8rem",
-                  color: "#000000",
-                  opacity: 0.6,
-                }}
-              >
-                <Store size={14} />
-                <span>ID:</span>
-                <strong
-                  style={{
-                    color: "#000000",
-                    opacity: 1,
-                    fontFamily: "monospace",
-                    fontWeight: 600,
-                  }}
-                >
-                  {store.store_id}
-                </strong>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  fontSize: "0.8rem",
-                  color: "#000000",
-                  opacity: 0.6,
-                }}
-              >
-                <Calendar size={14} />
-                <span>Desde:</span>
-                <strong style={{ color: "#000000", opacity: 1, fontWeight: 600 }}>
-                  {store.installed_at
-                    ? new Date(store.installed_at).toLocaleDateString("es-AR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : "—"}
-                </strong>
-              </div>
+              <span style={{ fontSize: "0.85rem", color: "#059669", fontWeight: 700 }}>
+                Tienda conectada
+              </span>
             </div>
-
-            {/* BOTÓN CONECTAR TIENDANUBE */}
-            <a
-              href={tiendanubeInstallUrl}
+            <div
               style={{
-                display: "inline-flex",
+                display: "flex",
                 alignItems: "center",
                 gap: "0.4rem",
-                padding: "0.5rem 0.95rem",
-                borderRadius: "999px",
-                background: "#10B981",
-                color: "#ffffff",
                 fontSize: "0.8rem",
-                fontWeight: 700,
-                textDecoration: "none",
-                boxShadow: "0 3px 10px rgba(16, 185, 129, 0.25)",
-                transition: "all 0.15s",
+                opacity: 0.6,
               }}
             >
               <Store size={14} />
-              <span>Conectar Tiendanube</span>
-            </a>
+              <span>ID:</span>
+              <strong style={{ opacity: 1, fontFamily: "monospace", fontWeight: 600 }}>
+                {store.store_id}
+              </strong>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                fontSize: "0.8rem",
+                opacity: 0.6,
+              }}
+            >
+              <Calendar size={14} />
+              <span>Desde:</span>
+              <strong style={{ opacity: 1, fontWeight: 600 }}>
+                {store.installed_at
+                  ? new Date(store.installed_at).toLocaleDateString("es-AR", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "—"}
+              </strong>
+            </div>
           </motion.div>
         )}
 
-        {/* CARDS Y CONTENIDO DEL DASHBOARD */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1.5rem",
-          }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
-
           <StatsCards
             productsCount={productsCount}
             activeWidgetsCount={activeWidgetsCount}
           />
-
           <RecientesCard storeId={store?.store_id} />
-
           <AccionesRapidas />
-
           <CentroAyuda />
         </div>
       </main>
     </div>
   );
-      }
+                }
