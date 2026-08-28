@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutGrid,
@@ -138,12 +138,12 @@ export default function WidgetsClient({
   const totalWidgets = widgets.length;
   const activeWidgets = widgets.filter((w) => w.is_active).length;
 
-  const showToast = (type: "success" | "error", text: string) => {
+  const showToast = useCallback((type: "success" | "error", text: string) => {
     setToast({ type, text });
     setTimeout(() => setToast(null), 3500);
-  };
+  }, []);
 
-  const handleToggle = async (widget: WidgetRow) => {
+  const handleToggle = useCallback(async (widget: WidgetRow) => {
     setBusyId(widget.id);
     try {
       const res = await fetch("/api/widgets", {
@@ -163,23 +163,24 @@ export default function WidgetsClient({
         !widget.is_active ? "Widget activado" : "Widget desactivado"
       );
       router.refresh();
-    } catch (e: any) {
-      showToast("error", e.message || "Error al actualizar");
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : "Error al actualizar";
+      showToast("error", errMsg);
     } finally {
       setBusyId(null);
     }
-  };
+  }, [router, showToast]);
 
-  const handleDelete = (widget: WidgetRow) => {
+  const handleDelete = useCallback((widget: WidgetRow) => {
     setDeleteTarget(widget);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     if (isDeleting) return;
     setDeleteTarget(null);
-  };
+  }, [isDeleting]);
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
     const widget = deleteTarget;
 
@@ -196,15 +197,16 @@ export default function WidgetsClient({
       showToast("success", "Widget eliminado");
       setDeleteTarget(null);
       router.refresh();
-    } catch (e: any) {
-      showToast("error", e.message || "Error al eliminar");
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : "Error al eliminar";
+      showToast("error", errMsg);
     } finally {
       setIsDeleting(false);
       setBusyId(null);
     }
-  };
+  }, [deleteTarget, router, showToast]);
 
-  const getScopeLabel = (widget: WidgetRow): string => {
+  const getScopeLabel = useCallback((widget: WidgetRow): string => {
     if (widget.target_type === "all") {
       return "Todos los productos";
     }
@@ -216,22 +218,22 @@ export default function WidgetsClient({
       return `Producto #${widget.target_product_id}`;
     }
     return "—";
-  };
+  }, [productsMap]);
 
-  const goToEditor = (widget: WidgetRow) => {
+  const goToEditor = useCallback((widget: WidgetRow) => {
     const base = `/widgets/editar/${widget.widget_slug}`;
     const url =
       widget.target_type === "product" && widget.target_product_id
         ? `${base}?product=${widget.target_product_id}`
         : base;
     router.push(url);
-  };
+  }, [router]);
 
-  const goToProduct = (productId: number) => {
+  const goToProduct = useCallback((productId: number) => {
     const p = productsMap[productId];
     if (!p) return;
     window.open(`https://tienda.com.ar/productos/${p.slug}`, "_blank");
-  };
+  }, [productsMap]);
 
   const hasWidgets = totalWidgets > 0;
 
@@ -445,12 +447,12 @@ export default function WidgetsClient({
                   padding: "0.7rem 1.25rem",
                   borderRadius: "999px",
                   border: "none",
-                  background: "#FF0000",
+                  background: "#10B981",
                   color: "#ffffff",
                   fontSize: "0.9rem",
                   fontWeight: 700,
                   cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
+                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
                   fontFamily: "inherit",
                   textDecoration: "none",
                 }}
@@ -502,9 +504,10 @@ export default function WidgetsClient({
                 fontFamily: "inherit",
                 boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
                 boxSizing: "border-box",
+                transition: "border-color 0.15s ease",
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#FF0000";
+                e.currentTarget.style.borderColor = "#10B981";
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = "#e5e7eb";
@@ -541,7 +544,7 @@ export default function WidgetsClient({
                       width: "44px",
                       height: "44px",
                       borderRadius: "12px",
-                      background: "#FF0000",
+                      background: "#10B981",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -711,14 +714,14 @@ function EmptyState({
           width: "72px",
           height: "72px",
           borderRadius: "18px",
-          background: "#fff5f5",
+          background: "#ecfdf5",
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
           marginBottom: "1.25rem",
         }}
       >
-        <LayoutGrid size={34} color="#FF0000" strokeWidth={1.75} />
+        <LayoutGrid size={34} color="#10B981" strokeWidth={1.75} />
       </div>
 
       <h2
@@ -755,12 +758,12 @@ function EmptyState({
             gap: "0.5rem",
             padding: "0.7rem 1.4rem",
             borderRadius: "999px",
-            background: "#FF0000",
+            background: "#10B981",
             color: "#ffffff",
             fontSize: "0.9rem",
             fontWeight: 700,
             textDecoration: "none",
-            boxShadow: "0 4px 12px rgba(255, 0, 0, 0.35)",
+            boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
           }}
         >
           <Plus size={16} />
@@ -913,7 +916,7 @@ function WidgetRowItem({
             width: "40px",
             height: "22px",
             borderRadius: "999px",
-            background: widget.is_active ? "#FF0000" : "#e5e7eb",
+            background: widget.is_active ? "#10B981" : "#e5e7eb",
             position: "relative",
             transition: "background 0.15s",
           }}
@@ -941,7 +944,7 @@ function WidgetRowItem({
           alignItems: "center",
           gap: "0.4rem",
           padding: "0.4rem 0.85rem",
-          background: widget.is_active ? "#FF0000" : "#000000",
+          background: widget.is_active ? "#10B981" : "#000000",
           color: "#ffffff",
           borderRadius: "999px",
           fontSize: "0.8rem",
@@ -988,9 +991,9 @@ function WidgetRowItem({
         }}
         onMouseEnter={(e) => {
           if (!busy) {
-            e.currentTarget.style.background = "#fff5f5";
-            e.currentTarget.style.borderColor = "#FF0000";
-            e.currentTarget.style.color = "#FF0000";
+            e.currentTarget.style.background = "#ecfdf5";
+            e.currentTarget.style.borderColor = "#10B981";
+            e.currentTarget.style.color = "#10B981";
           }
         }}
         onMouseLeave={(e) => {
@@ -1002,7 +1005,7 @@ function WidgetRowItem({
         <Pencil size={16} />
       </button>
 
-      {/* Eliminar */}
+      {/* Eliminar (Rojo es permitido por ser acción destructiva de advertencia) */}
       <button
         type="button"
         onClick={() => onDelete(widget)}
@@ -1036,4 +1039,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-  }
+    }
