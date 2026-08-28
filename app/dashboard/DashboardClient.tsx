@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
+import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, ShieldCheck, RefreshCw } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
 import StatsCards from "./components/StatsCards";
@@ -315,7 +315,7 @@ export default function DashboardClient({
           </p>
         </motion.div>
 
-        {/* CHIP: TIENDA CONECTADA */}
+        {/* CHIP: TIENDA CONECTADA + BOTÓN DE RECONEXIÓN OFICIAL TIENDANUBE */}
         {hasStore && store && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -325,6 +325,7 @@ export default function DashboardClient({
               display: "flex",
               flexWrap: "wrap",
               alignItems: "center",
+              justifyContent: "space-between",
               gap: "0.75rem 1.5rem",
               padding: "0.9rem 1.25rem",
               background: "#ffffff",
@@ -334,83 +335,108 @@ export default function DashboardClient({
               boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem 1.5rem" }}>
               <div
                 style={{
-                  width: "28px",
-                  height: "28px",
-                  borderRadius: "8px",
-                  background: "#10B981",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
+                  gap: "0.5rem",
                 }}
               >
-                <CheckCircle2 size={16} color="#ffffff" strokeWidth={2.5} />
+                <div
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "8px",
+                    background: "#10B981",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CheckCircle2 size={16} color="#ffffff" strokeWidth={2.5} />
+                </div>
+                <span
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "#059669",
+                    fontWeight: 700,
+                  }}
+                >
+                  Tienda conectada
+                </span>
               </div>
-              <span
-                style={{
-                  fontSize: "0.85rem",
-                  color: "#059669",
-                  fontWeight: 700,
-                }}
-              >
-                Tienda conectada
-              </span>
-            </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                fontSize: "0.8rem",
-                color: "#000000",
-                opacity: 0.6,
-              }}
-            >
-              <Store size={14} />
-              <span>ID:</span>
-              <strong
+              <div
                 style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  fontSize: "0.8rem",
                   color: "#000000",
-                  opacity: 1,
-                  fontFamily: "monospace",
-                  fontWeight: 600,
+                  opacity: 0.6,
                 }}
               >
-                {store.store_id}
-              </strong>
+                <Store size={14} />
+                <span>ID:</span>
+                <strong
+                  style={{
+                    color: "#000000",
+                    opacity: 1,
+                    fontFamily: "monospace",
+                    fontWeight: 600,
+                  }}
+                >
+                  {store.store_id}
+                </strong>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  fontSize: "0.8rem",
+                  color: "#000000",
+                  opacity: 0.6,
+                }}
+              >
+                <Calendar size={14} />
+                <span>Desde:</span>
+                <strong style={{ color: "#000000", opacity: 1, fontWeight: 600 }}>
+                  {store.installed_at
+                    ? new Date(store.installed_at).toLocaleDateString("es-AR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "—"}
+                </strong>
+              </div>
             </div>
 
-            <div
+            {/* BOTÓN DE SINCRONIZACIÓN REAL OAUTH CON TIENDANUBE */}
+            <a
+              href={tiendanubeInstallUrl}
+              title="Vincular oficialmente en Tiendanube para activar permisos de API"
               style={{
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
-                gap: "0.4rem",
-                fontSize: "0.8rem",
-                color: "#000000",
-                opacity: 0.6,
+                gap: "0.35rem",
+                padding: "0.45rem 0.85rem",
+                borderRadius: "999px",
+                background: "#ecfdf5",
+                border: "1px solid #10B981",
+                color: "#059669",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                textDecoration: "none",
+                transition: "all 0.15s",
               }}
             >
-              <Calendar size={14} />
-              <span>Desde:</span>
-              <strong style={{ color: "#000000", opacity: 1, fontWeight: 600 }}>
-                {store.installed_at
-                  ? new Date(store.installed_at).toLocaleDateString("es-AR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : "—"}
-              </strong>
-            </div>
+              <RefreshCw size={13} />
+              <span>Sincronizar con Tiendanube</span>
+            </a>
           </motion.div>
         )}
 
@@ -438,4 +464,4 @@ export default function DashboardClient({
       </main>
     </div>
   );
-      }
+  }
