@@ -6,6 +6,12 @@ import { createClient } from "@/lib/supabase-browser";
 import { Loader2, Check, AlertCircle, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import CentroAyuda from "@/app/dashboard/components/CentroAyuda";
+import type { User } from "@supabase/supabase-js";
+
+interface UserProfile {
+  id: string;
+  full_name?: string | null;
+}
 
 function timeAgo(dateString: string | null | undefined) {
   if (!dateString) return "Desconocido";
@@ -29,8 +35,8 @@ export default function MiCuentaPage() {
   const supabase = createClient();
 
   const [loadingData, setLoadingData] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -62,12 +68,12 @@ export default function MiCuentaPage() {
 
       const { data: prof } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name")
         .eq("id", session.user.id)
         .single();
 
       if (prof) {
-        setProfile(prof);
+        setProfile(prof as UserProfile);
         setNombre(prof.full_name || "");
       }
 
@@ -94,7 +100,11 @@ export default function MiCuentaPage() {
 
         if (profileError) throw new Error("Error al actualizar el nombre");
 
-        setProfile((prev: any) => ({ ...(prev || {}), full_name: nombre.trim() }));
+        setProfile((prev) => ({
+          id: userData.id,
+          full_name: nombre.trim(),
+          ...prev,
+        }));
       }
 
       // 2) Cambio de contraseña (solo si completó algún campo)
@@ -109,9 +119,9 @@ export default function MiCuentaPage() {
           throw new Error("Las contraseñas nuevas no coinciden");
         }
 
-        // Verificar contraseña actual
+        // Verificar contraseña actual volviendo a loguear de forma segura
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: userData.email,
+          email: userData.email || "",
           password: currentPassword,
         });
 
@@ -134,9 +144,10 @@ export default function MiCuentaPage() {
 
       setSuccess("¡Cambios guardados correctamente!");
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.message || "Ocurrió un error inesperado");
-    } finally {
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Ocurrió un error inesperado";
+      setError(errMsg);
+    } else {
       setSaving(false);
     }
   };
@@ -168,7 +179,7 @@ export default function MiCuentaPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#F9FAFB",
+          background: "#ffffff",
         }}
       >
         <Loader2 size={32} color="#10B981" className="animate-spin" />
@@ -177,7 +188,7 @@ export default function MiCuentaPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
+    <div style={{ minHeight: "100vh", background: "#ffffff", color: "#000000" }}>
       {/* HEADER SIMPLE NEVUX */}
       <div
         style={{
@@ -229,7 +240,7 @@ export default function MiCuentaPage() {
           <div
             style={{
               background: "#FEE2E2",
-              border: "1px solid #FCA5A5",
+              border: "1px solid #dc2626",
               borderRadius: 10,
               padding: "12px 16px",
               marginBottom: 20,
@@ -239,7 +250,7 @@ export default function MiCuentaPage() {
               color: "#991B1B",
             }}
           >
-            <AlertCircle size={18} />
+            <AlertCircle size={18} color="#dc2626" />
             <span style={{ fontSize: 14, fontWeight: 600 }}>{error}</span>
           </div>
         )}
@@ -248,7 +259,7 @@ export default function MiCuentaPage() {
           <div
             style={{
               background: "#ecfdf5",
-              border: "1px solid #a7f3d0",
+              border: "1px solid #10B981",
               borderRadius: 10,
               padding: "12px 16px",
               marginBottom: 20,
@@ -258,7 +269,7 @@ export default function MiCuentaPage() {
               color: "#059669",
             }}
           >
-            <Check size={18} />
+            <Check size={18} color="#059669" />
             <span style={{ fontSize: 14, fontWeight: 600 }}>{success}</span>
           </div>
         )}
@@ -271,7 +282,7 @@ export default function MiCuentaPage() {
             borderRadius: 12,
             marginBottom: 24,
             overflow: "hidden",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
           }}
         >
           <div style={{ padding: "20px 24px", borderBottom: "1px solid #E5E7EB" }}>
@@ -309,6 +320,7 @@ export default function MiCuentaPage() {
                     color: "#000000",
                     background: "#FFFFFF",
                     fontFamily: "inherit",
+                    transition: "border-color 0.15s ease",
                   }}
                   onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                   onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
@@ -390,6 +402,7 @@ export default function MiCuentaPage() {
                       color: "#000000",
                       background: "#FFFFFF",
                       fontFamily: "inherit",
+                      transition: "border-color 0.15s ease",
                     }}
                     onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                     onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
@@ -445,6 +458,7 @@ export default function MiCuentaPage() {
                       color: "#000000",
                       background: "#FFFFFF",
                       fontFamily: "inherit",
+                      transition: "border-color 0.15s ease",
                     }}
                     onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                     onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
@@ -500,6 +514,7 @@ export default function MiCuentaPage() {
                       color: "#000000",
                       background: "#FFFFFF",
                       fontFamily: "inherit",
+                      transition: "border-color 0.15s ease",
                     }}
                     onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                     onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
@@ -592,7 +607,7 @@ export default function MiCuentaPage() {
             borderRadius: 12,
             marginBottom: 40,
             overflow: "hidden",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
           }}
         >
           <div style={{ padding: "20px 24px", borderBottom: "1px solid #E5E7EB" }}>
@@ -621,20 +636,6 @@ export default function MiCuentaPage() {
         {/* CENTRO DE AYUDA */}
         <CentroAyuda />
       </div>
-
-      <style jsx global>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        .animate-spin {
-          animation: spin 1s linear infinite;
-        }
-      `}</style>
     </div>
   );
-}
+            }
