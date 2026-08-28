@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Heart, ThumbsUp, ThumbsDown, Loader2, Sparkles } from "lucide-react";
@@ -15,7 +15,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
   const [loading, setLoading] = useState<"yes" | "no" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleAnswer(liked: boolean) {
+  const handleAnswer = useCallback(async (liked: boolean) => {
     if (loading) return;
 
     setError(null);
@@ -39,12 +39,13 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
       } else {
         router.push("/plan/opinion");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error enviando feedback:", err);
-      setError(err?.message || "Ocurrió un error. Intentá de nuevo.");
+      const errMsg = err instanceof Error ? err.message : "Ocurrió un error. Intentá de nuevo.";
+      setError(errMsg);
       setLoading(null);
     }
-  }
+  }, [loading, router]);
 
   return (
     <div
@@ -231,6 +232,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           }}
         >
           <motion.button
+            type="button"
             whileHover={{ scale: loading ? 1 : 1.03 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
             onClick={() => handleAnswer(true)}
@@ -281,6 +283,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
           </motion.button>
 
           <motion.button
+            type="button"
             whileHover={{ scale: loading ? 1 : 1.03 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
             onClick={() => handleAnswer(false)}
@@ -381,4 +384,4 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
       </div>
     </div>
   );
-      }
+                        }
