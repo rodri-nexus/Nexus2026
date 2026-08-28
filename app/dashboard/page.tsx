@@ -1,28 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
-import { getProductsCount } from "@/lib/tiendanube";
-import {
-  buildPlanInfo,
-  type StorePlanData,
-  type PlanInfo,
-  type RawPlanStatus,
-} from "@/lib/plan";
+import { buildPlanInfo, type StorePlanData, type PlanInfo, type RawPlanStatus } from "@/lib/plan";
 import { supabaseAdmin } from "@/lib/supabase";
 import DashboardClient from "./DashboardClient";
 
 export const dynamic = "force-dynamic";
 
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
-
-function isRedirectError(err: unknown): boolean {
-  if (!err || typeof err !== "object") return false;
-  const e = err as { message?: string; digest?: string };
-  if (e.message === "NEXT_REDIRECT") return true;
-  if (typeof e.digest === "string" && e.digest.includes("NEXT_REDIRECT")) {
-    return true;
-  }
-  return false;
-}
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -57,9 +41,9 @@ export default async function DashboardPage() {
   let onboardingCompleted = false;
   let activeWidgetsCount = 0;
   let planInfo: PlanInfo | null = null;
-  let productsCount = 0;
 
   try {
+    // 1. Obtener tienda activa de Supabase
     const { data: storesList } = await supabaseAdmin
       .from("stores")
       .select(
@@ -72,6 +56,7 @@ export default async function DashboardPage() {
 
     store = storesList && storesList.length > 0 ? storesList[0] : null;
 
+    // 2. Obtener onboarding
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("onboarding_completed")
@@ -80,6 +65,7 @@ export default async function DashboardPage() {
 
     onboardingCompleted = profile?.onboarding_completed ?? false;
 
+    // 3. Obtener widgets activos
     const { count: widgetsCount } = await supabaseAdmin
       .from("widgets")
       .select("*", { count: "exact", head: true })
@@ -88,6 +74,7 @@ export default async function DashboardPage() {
 
     activeWidgetsCount = widgetsCount ?? 0;
 
+    // 4. Calcular estado del plan
     if (store) {
       const planData: StorePlanData = {
         store_id: store.store_id,
@@ -103,58 +90,8 @@ export default async function DashboardPage() {
 
       planInfo = buildPlanInfo(planData);
     }
-
-    if (store?.store_id && store?.access_token) {
-      try {
-        productsCount = await getProductsCount(
-          store.store_id,
-          store.access_token
-        );
-      } catch (e) {
-        console.error("Error obteniendo cantidad de productos:", e);
-      }
-    }
   } catch (err: unknown) {
-    if (isRedirectError(err)) {
-      throw err;
-    }
     console.error("[Dashboard Query Exception]:", err);
-  }
-
-  // Paywall: redirecciones FUERA del try/catch
-  if (planInfo && !planInfo.canUseApp) {
-    if (planInfo.needsFeedback) {
-      redirect("/plan/feedback");
-    }
-
-    if (planInfo.needsPayment) {
-      try {
-        const { data: feedbackList } = await supabaseAdmin
-          .from("feedback")
-          .select("liked_app, detailed_feedback, reason_tags")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(1);
-
-        const lastFeedback =
-          feedbackList && feedbackList.length > 0 ? feedbackList[0] : null;
-
-        if (
-          lastFeedback &&
-          lastFeedback.liked_app === false &&
-          !lastFeedback.detailed_feedback &&
-          (!lastFeedback.reason_tags || lastFeedback.reason_tags.length === 0)
-        ) {
-          redirect("/plan/opinion");
-        }
-      } catch (err: unknown) {
-        if (isRedirectError(err)) {
-          throw err;
-        }
-      }
-
-      redirect("/plan/expirado");
-    }
   }
 
   const storeData = store
@@ -191,10 +128,10 @@ export default async function DashboardPage() {
       email={user.email ?? ""}
       userId={user.id}
       store={storeData}
-      productsCount={productsCount}
+      productsCount={0}
       activeWidgetsCount={activeWidgetsCount}
       onboardingCompleted={onboardingCompleted}
       plan={planSerialized}
     />
   );
-}
+      }
