@@ -1,8 +1,6 @@
-// app/plan/opinion/OpinionClient.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
@@ -27,22 +25,21 @@ const REASON_TAGS = [
 ];
 
 export default function OpinionClient({ email }: OpinionClientProps) {
-  const router = useRouter();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function toggleTag(tagId: string) {
+  const toggleTag = useCallback((tagId: string) => {
     setSelectedTags((prev) =>
       prev.includes(tagId)
         ? prev.filter((t) => t !== tagId)
         : [...prev, tagId]
     );
-  }
+  }, []);
 
-  async function handleSubmit() {
+  const handleSubmit = async () => {
     if (loading || sent) return;
 
     if (selectedTags.length === 0 && comment.trim().length === 0) {
@@ -68,12 +65,13 @@ export default function OpinionClient({ email }: OpinionClientProps) {
       }
 
       setSent(true);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      setError("Ocurrió un error. Intentá de nuevo.");
+      const errMsg = err instanceof Error ? err.message : "Ocurrió un error. Intentá de nuevo.";
+      setError(errMsg);
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div
@@ -85,7 +83,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
         alignItems: "center",
         justifyContent: "center",
         padding: "2rem 1.25rem",
-        background: "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #ecfdf5 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
@@ -102,7 +100,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
           width: "300px",
           height: "300px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.06) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -115,7 +113,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
           width: "400px",
           height: "400px",
           background:
-            "radial-gradient(circle, rgba(255, 0, 0, 0.06) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -257,6 +255,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                   return (
                     <motion.button
                       key={tag.id}
+                      type="button"
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => toggleTag(tag.id)}
@@ -265,10 +264,10 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                         alignItems: "center",
                         gap: "0.4rem",
                         padding: "0.65rem 1rem",
-                        background: isSelected ? "#FF0000" : "white",
+                        background: isSelected ? "#10B981" : "white",
                         color: isSelected ? "white" : "#000000",
                         border: isSelected
-                          ? "2px solid #FF0000"
+                          ? "2px solid #10B981"
                           : "2px solid #e5e7eb",
                         borderRadius: "999px",
                         fontSize: "0.85rem",
@@ -277,7 +276,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                         fontFamily: "inherit",
                         transition: "all 0.15s",
                         boxShadow: isSelected
-                          ? "0 4px 12px rgba(255, 0, 0, 0.25)"
+                          ? "0 4px 12px rgba(16, 185, 129, 0.25)"
                           : "0 1px 3px rgba(0, 0, 0, 0.05)",
                       }}
                     >
@@ -335,7 +334,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     boxSizing: "border-box",
                     background: "white",
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = "#FF0000")}
+                  onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                   onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                 />
               </motion.div>
@@ -369,6 +368,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                 style={{ textAlign: "center", width: "100%" }}
               >
                 <motion.button
+                  type="button"
                   whileHover={{ scale: loading ? 1 : 1.02 }}
                   whileTap={{ scale: loading ? 1 : 0.98 }}
                   onClick={handleSubmit}
@@ -379,14 +379,14 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     justifyContent: "center",
                     gap: "0.5rem",
                     padding: "1rem 2.5rem",
-                    background: "#FF0000",
+                    background: "#10B981",
                     color: "white",
                     border: "none",
                     borderRadius: "999px",
                     fontSize: "1rem",
                     fontWeight: 700,
                     cursor: loading ? "not-allowed" : "pointer",
-                    boxShadow: "0 10px 25px rgba(255, 0, 0, 0.35)",
+                    boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)",
                     fontFamily: "inherit",
                     minWidth: "220px",
                     transition: "all 0.2s",
@@ -495,13 +495,13 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     alignItems: "center",
                     gap: "0.5rem",
                     padding: "0.95rem 1.75rem",
-                    background: "#FF0000",
+                    background: "#10B981",
                     color: "white",
                     borderRadius: "999px",
                     fontSize: "0.95rem",
                     fontWeight: 700,
                     textDecoration: "none",
-                    boxShadow: "0 8px 20px rgba(255, 0, 0, 0.35)",
+                    boxShadow: "0 8px 20px rgba(16, 185, 129, 0.3)",
                   }}
                 >
                   Ver el plan
