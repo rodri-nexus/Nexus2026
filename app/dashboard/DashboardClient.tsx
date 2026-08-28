@@ -1,7 +1,7 @@
+// app/dashboard/DashboardClient.tsx
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
@@ -11,7 +11,6 @@ import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
 import PlanStatusCard from "./components/PlanStatusCard";
-import TutorialProvider from "./components/tutorial/TutorialProvider";
 import type { PlanInfo, PlanStatus, RawPlanStatus } from "@/lib/plan";
 
 interface StoreData {
@@ -54,12 +53,11 @@ export default function DashboardClient({
   store,
   productsCount,
   activeWidgetsCount,
-  onboardingCompleted,
   plan,
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const hasStore = store !== null;
-  const isAdmin = email.toLowerCase() === ADMIN_EMAIL;
+  const isAdmin = (email || "").toLowerCase() === ADMIN_EMAIL;
 
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
@@ -70,12 +68,8 @@ export default function DashboardClient({
         isBlocked: plan.isBlocked,
         daysRemaining: plan.daysRemaining,
         hoursRemaining: plan.hoursRemaining,
-        trialEndsAt: plan.trialEndsAtISO
-          ? new Date(plan.trialEndsAtISO)
-          : null,
-        planActiveUntil: plan.planActiveUntilISO
-          ? new Date(plan.planActiveUntilISO)
-          : null,
+        trialEndsAt: plan.trialEndsAtISO ? new Date(plan.trialEndsAtISO) : null,
+        planActiveUntil: plan.planActiveUntilISO ? new Date(plan.planActiveUntilISO) : null,
         monthsActive: plan.monthsActive,
         needsFeedback: plan.needsFeedback,
         needsPayment: plan.needsPayment,
@@ -85,98 +79,137 @@ export default function DashboardClient({
     : null;
 
   return (
-    <TutorialProvider
-      initialCompleted={onboardingCompleted}
-      userId={userId}
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f9fafb",
+        color: "#000000",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        boxSizing: "border-box",
+      }}
     >
-      <div
+      {/* Header y Menú lateral */}
+      <DashboardHeader email={email || ""} onMenuClick={() => setMenuOpen(true)} />
+      <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+
+      <main
         style={{
-          minHeight: "100vh",
-          background: "#ffffff",
-          fontFamily:
-            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "1.5rem 1rem 3rem",
+          boxSizing: "border-box",
         }}
       >
-        <DashboardHeader email={email} onMenuClick={() => setMenuOpen(true)} />
+        {/* BANNER ADMINISTRADOR (sólo visible para nevuxapp@gmail.com) */}
+        {isAdmin && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1rem",
+              background: "#000000",
+              color: "#ffffff",
+              border: "1.5px solid #10B981",
+              borderRadius: "14px",
+              padding: "1.25rem 1.5rem",
+              marginBottom: "1.5rem",
+              boxSizing: "border-box",
+              boxShadow: "0 4px 20px rgba(16, 185, 129, 0.15)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+              <div
+                style={{
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "10px",
+                  background: "#10B981",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <ShieldCheck size={24} color="#ffffff" />
+              </div>
+              <div>
+                <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: "0.2rem" }}>
+                  Cuenta Administrador
+                </div>
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "#ffffff", opacity: 0.75 }}>
+                  Gestioná comprobantes de suscripción y aprobaciones de comercios.
+                </p>
+              </div>
+            </div>
 
-        <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-
-        <main
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            padding: "2rem 1.25rem 3rem",
-            boxSizing: "border-box",
-          }}
-        >
-          {/* BANNER ADMINISTRADOR (Sólo visible para nevuxapp@gmail.com) */}
-          {isAdmin && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
+            <a
+              href="/admin/pagos"
               style={{
-                display: "flex",
-                flexWrap: "wrap",
+                display: "inline-flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                gap: "1rem",
-                background: "#000000",
+                gap: "0.5rem",
+                padding: "0.65rem 1.25rem",
+                borderRadius: "999px",
+                background: "#10B981",
                 color: "#ffffff",
-                border: "1.5px solid #10B981",
-                borderRadius: "14px",
-                padding: "1.25rem 1.5rem",
-                marginBottom: "1.5rem",
-                boxSizing: "border-box",
-                boxShadow: "0 4px 20px rgba(16, 185, 129, 0.15)",
+                textDecoration: "none",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-                <div
-                  style={{
-                    width: "42px",
-                    height: "42px",
-                    borderRadius: "10px",
-                    background: "#10B981",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <ShieldCheck size={24} color="#ffffff" />
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: 800,
-                      color: "#ffffff",
-                      marginBottom: "0.2rem",
-                    }}
-                  >
-                    Cuenta Administrador
-                  </div>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: "0.85rem",
-                      color: "#ffffff",
-                      opacity: 0.75,
-                    }}
-                  >
-                    Gestioná comprobantes de suscripción y aprobaciones de comercios.
-                  </p>
-                </div>
-              </div>
+              Panel de Pagos Admin →
+            </a>
+          </div>
+        )}
 
+        {/* BANNER: SIN TIENDA CONECTADA */}
+        {!hasStore && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "1rem",
+              background: "#ecfdf5",
+              border: "1.5px solid #10B981",
+              borderRadius: "14px",
+              padding: "1.25rem 1.5rem",
+              marginBottom: "1.5rem",
+              boxSizing: "border-box",
+            }}
+          >
+            <div
+              style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "10px",
+                background: "#FFFFFF",
+                border: "1px solid #a7f3d0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <AlertCircle size={22} color="#10B981" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "1rem", fontWeight: 800, color: "#000000", marginBottom: "0.35rem" }}>
+                Conectá tu Tiendanube para empezar
+              </div>
+              <p style={{ margin: 0, fontSize: "0.9rem", color: "#000000", opacity: 0.7, lineHeight: 1.5 }}>
+                Vinculá tu tienda para acceder a métricas reales, crear widgets e incrementar el ticket promedio de tus ventas.
+              </p>
               <a
-                href="/admin/pagos"
+                href={tiendanubeInstallUrl}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.65rem 1.25rem",
+                  gap: "0.4rem",
+                  marginTop: "0.85rem",
+                  padding: "0.6rem 1.2rem",
                   borderRadius: "999px",
                   background: "#10B981",
                   color: "#ffffff",
@@ -186,268 +219,115 @@ export default function DashboardClient({
                   boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
                 }}
               >
-                Panel de Pagos Admin →
+                <Store size={15} />
+                Conectar Tiendanube
               </a>
-            </motion.div>
-          )}
-
-          {/* BANNER: SIN TIENDA CONECTADA */}
-          {!hasStore && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "1rem",
-                background: "#ecfdf5",
-                border: "1.5px solid #10B981",
-                borderRadius: "14px",
-                padding: "1.25rem 1.5rem",
-                marginBottom: "1.5rem",
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "10px",
-                  background: "#FFFFFF",
-                  border: "1px solid #a7f3d0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <AlertCircle size={22} color="#10B981" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: 800,
-                    color: "#000000",
-                    marginBottom: "0.35rem",
-                  }}
-                >
-                  Conectá tu Tiendanube para empezar
-                </div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "0.9rem",
-                    color: "#000000",
-                    opacity: 0.7,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  Vinculá tu tienda para acceder a métricas reales, crear widgets e incrementar el ticket promedio de tus ventas.
-                </p>
-                <a
-                  href={tiendanubeInstallUrl}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.4rem",
-                    marginTop: "0.85rem",
-                    padding: "0.6rem 1.2rem",
-                    borderRadius: "999px",
-                    background: "#10B981",
-                    color: "#ffffff",
-                    textDecoration: "none",
-                    fontSize: "0.85rem",
-                    fontWeight: 700,
-                    boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
-                  }}
-                >
-                  <Store size={15} />
-                  Conectar Tiendanube
-                </a>
-              </div>
-            </motion.div>
-          )}
-
-          {/* TITULO Y BIENVENIDA */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            style={{ marginBottom: "2rem" }}
-          >
-            {/* Badge cristal Verde Esmeralda */}
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.4rem 0.95rem",
-                borderRadius: "999px",
-                fontSize: "0.8rem",
-                color: "#059669",
-                fontWeight: 700,
-                marginBottom: "0.75rem",
-                background: "rgba(16, 185, 129, 0.12)",
-                border: "1px solid rgba(16, 185, 129, 0.35)",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                boxShadow:
-                  "0 4px 16px rgba(16, 185, 129, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.55)",
-              }}
-            >
-              <Sparkles size={13} color="#10B981" />
-              Bienvenido a Nevux
             </div>
+          </div>
+        )}
 
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "2rem",
-                fontWeight: 800,
-                color: "#000000",
-                letterSpacing: "-0.02em",
-                lineHeight: 1.1,
-              }}
-            >
-              Dashboard
-            </h1>
+        {/* TITULO Y BIENVENIDA */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.4rem 0.95rem",
+              borderRadius: "999px",
+              fontSize: "0.8rem",
+              color: "#059669",
+              fontWeight: 700,
+              marginBottom: "0.75rem",
+              background: "#ecfdf5",
+              border: "1px solid #a7f3d0",
+            }}
+          >
+            <Sparkles size={13} color="#10B981" />
+            Bienvenido a Nevux
+          </div>
 
-            <p
-              style={{
-                margin: "0.5rem 0 0",
-                fontSize: "0.95rem",
-                color: "#000000",
-                opacity: 0.6,
-              }}
-            >
-              Hola, <strong style={{ color: "#000000", opacity: 1 }}>{email}</strong> 👋
-            </p>
-          </motion.div>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "1.85rem",
+              fontWeight: 800,
+              color: "#000000",
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+            }}
+          >
+            Dashboard
+          </h1>
 
-          {/* CHIP: TIENDA CONECTADA */}
-          {hasStore && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.05 }}
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "center",
-                gap: "0.75rem 1.5rem",
-                padding: "0.9rem 1.25rem",
-                background: "#ffffff",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                marginBottom: "1.5rem",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                }}
-              >
-                <div
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    borderRadius: "8px",
-                    background: "#10B981",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <CheckCircle2 size={16} color="#ffffff" strokeWidth={2.5} />
-                </div>
-                <span
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "#059669",
-                    fontWeight: 700,
-                  }}
-                >
-                  Tienda conectada
-                </span>
-              </div>
+          <p style={{ margin: "0.4rem 0 0", fontSize: "0.92rem", color: "#000000", opacity: 0.6 }}>
+            Hola, <strong style={{ color: "#000000", opacity: 1 }}>{email}</strong> 👋
+          </p>
+        </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  fontSize: "0.8rem",
-                  color: "#000000",
-                  opacity: 0.6,
-                }}
-              >
-                <Store size={14} />
-                <span>ID:</span>
-                <strong
-                  style={{
-                    color: "#000000",
-                    opacity: 1,
-                    fontFamily: "monospace",
-                    fontWeight: 600,
-                  }}
-                >
-                  {store.store_id}
-                </strong>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  fontSize: "0.8rem",
-                  color: "#000000",
-                  opacity: 0.6,
-                }}
-              >
-                <Calendar size={14} />
-                <span>Desde:</span>
-                <strong style={{ color: "#000000", opacity: 1, fontWeight: 600 }}>
-                  {new Date(store.installed_at).toLocaleDateString("es-AR", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </strong>
-              </div>
-            </motion.div>
-          )}
-
-          {/* CARDS DEL DASHBOARD */}
+        {/* CHIP: TIENDA CONECTADA */}
+        {hasStore && store && (
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "0.75rem 1.5rem",
+              padding: "0.9rem 1.25rem",
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: "12px",
+              marginBottom: "1.5rem",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
             }}
           >
-            {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "8px",
+                  background: "#10B981",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CheckCircle2 size={16} color="#ffffff" strokeWidth={2.5} />
+              </div>
+              <span style={{ fontSize: "0.85rem", color: "#059669", fontWeight: 700 }}>
+                Tienda conectada
+              </span>
+            </div>
 
-            <MetricsCard />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "#000000", opacity: 0.6 }}>
+              <Store size={14} />
+              <span>ID:</span>
+              <strong style={{ color: "#000000", opacity: 1, fontFamily: "monospace", fontWeight: 600 }}>
+                {store.store_id}
+              </strong>
+            </div>
 
-            <StatsCards
-              productsCount={productsCount}
-              activeWidgetsCount={activeWidgetsCount}
-            />
-
-            <RecientesCard storeId={store?.store_id} />
-
-            <AccionesRapidas />
-
-            <CentroAyuda />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "#000000", opacity: 0.6 }}>
+              <Calendar size={14} />
+              <span>Desde:</span>
+              <strong style={{ color: "#000000", opacity: 1, fontWeight: 600 }}>
+                {store.installed_at ? new Date(store.installed_at).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" }) : "—"}
+              </strong>
+            </div>
           </div>
-        </main>
-      </div>
-    </TutorialProvider>
+        )}
+
+        {/* CONTENIDO DEL PANEL */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
+          <MetricsCard />
+          <StatsCards productsCount={productsCount} activeWidgetsCount={activeWidgetsCount} />
+          <RecientesCard storeId={store?.store_id} />
+          <AccionesRapidas />
+          <CentroAyuda />
+        </div>
+      </main>
+    </div>
   );
-}
+    }
