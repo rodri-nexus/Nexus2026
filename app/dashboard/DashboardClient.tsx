@@ -1,4 +1,3 @@
-// app/dashboard/DashboardClient.tsx
 "use client";
 
 import { useState } from "react";
@@ -14,6 +13,7 @@ import {
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
 import StatsCards from "./components/StatsCards";
+import MetricsCard from "./components/MetricsCard";
 import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
@@ -274,7 +274,7 @@ export default function DashboardClient({
           </p>
         </motion.div>
 
-        {/* Tienda propia: SOLO chip (sin botón Conectar) */}
+        {/* Tienda propia: chip de estado */}
         {hasStore && store && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -356,6 +356,7 @@ export default function DashboardClient({
             productsCount={productsCount}
             activeWidgetsCount={activeWidgetsCount}
           />
+          <MetricsCard />
           <RecientesCard storeId={store?.store_id} />
           <AccionesRapidas />
           <CentroAyuda />
@@ -363,4 +364,4 @@ export default function DashboardClient({
       </main>
     </div>
   );
-                }
+      }
