@@ -3,14 +3,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogIn, UserPlus, HelpCircle, FileText, Shield } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogIn,
+  UserPlus,
+  HelpCircle,
+  FileText,
+  Shield,
+} from "lucide-react";
 import NevuxLogo from "./NevuxLogo";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Detectar scroll para cambiar el estilo del header
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -19,7 +26,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Bloquear scroll del body cuando el menú está abierto
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden";
@@ -62,7 +68,6 @@ export default function Header() {
             gap: "1rem",
           }}
         >
-          {/* Logo */}
           <Link
             href="/"
             style={{
@@ -74,7 +79,6 @@ export default function Header() {
             <NevuxLogo size="medium" />
           </Link>
 
-          {/* Botones derecha */}
           <div
             style={{
               display: "flex",
@@ -82,8 +86,9 @@ export default function Header() {
               gap: "0.75rem",
             }}
           >
+            {/* Cliente nuevo → Registro */}
             <Link
-              href="/login"
+              href="/registro"
               style={{
                 padding: "0.65rem 1.5rem",
                 background: "#10B981",
@@ -126,11 +131,9 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Menú lateral (drawer) */}
       <AnimatePresence>
         {menuOpen && (
           <>
-            {/* Backdrop oscuro */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -150,7 +153,6 @@ export default function Header() {
               }}
             />
 
-            {/* Panel lateral */}
             <motion.aside
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
@@ -169,7 +171,6 @@ export default function Header() {
                 boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.15)",
               }}
             >
-              {/* Header del menú */}
               <div
                 style={{
                   padding: "1.25rem",
@@ -200,7 +201,6 @@ export default function Header() {
                 </button>
               </div>
 
-              {/* Contenido del menú */}
               <div
                 style={{
                   flex: 1,
@@ -235,7 +235,7 @@ export default function Header() {
                 </Link>
 
                 <Link
-                  href="/login"
+                  href="/registro"
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
@@ -295,7 +295,6 @@ export default function Header() {
                 </Link>
               </div>
 
-              {/* CTA en el footer del menú */}
               <div
                 style={{
                   padding: "1.25rem",
@@ -304,7 +303,7 @@ export default function Header() {
                 }}
               >
                 <Link
-                  href="/login"
+                  href="/registro"
                   onClick={() => setMenuOpen(false)}
                   style={{
                     display: "block",
@@ -341,7 +340,6 @@ export default function Header() {
   );
 }
 
-// Estilo compartido para los items del menú
 const menuItemStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
