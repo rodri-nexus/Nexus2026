@@ -39,15 +39,31 @@ const REWARDS = [
   },
 ];
 
+// Formateador seguro de fechas (previene crash por strings ISO)
+function formatSafeDate(dateVal: Date | string | null | undefined): string {
+  if (!dateVal) return "—";
+  try {
+    const d = dateVal instanceof Date ? dateVal : new Date(dateVal);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("es-AR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return "—";
+  }
+}
+
 export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
   const {
     status,
-    daysRemaining,
-    hoursRemaining,
-    monthsActive,
+    daysRemaining = 0,
+    hoursRemaining = 0,
+    monthsActive = 0,
     trialEndsAt,
     planActiveUntil,
-  } = plan;
+  } = plan || {};
 
   const isTrial = status === "trial" || status === "trial_ending_soon";
   const isActive = status === "active" || status === "expiring_soon";
@@ -71,36 +87,29 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
     progressPercent = Math.min(100, Math.max(0, (current / total) * 100));
   }
 
-  // Cuántos meses faltan hasta la próxima recompensa
   const monthsToNext = nextReward ? nextReward.month - monthsActive : 0;
   const monthsToNextLabel = `${monthsToNext} ${
     monthsToNext === 1 ? "mes restante" : "meses restantes"
   }`;
 
-  // ─── ESTILOS SEGÚN ESTADO ─────────────────
+  // ─── ESTILOS SEGÚN ESTADO (PALETA OFICIAL VERDE ESMERALDA) ─────
   const gradientBg = isVIP
-    ? "linear-gradient(135deg, #FF0000 0%, #000000 100%)"
+    ? "linear-gradient(135deg, #059669 0%, #000000 100%)"
     : isExpiringSoon
-    ? "linear-gradient(180deg, #ffffff 0%, #fff5f5 100%)"
+    ? "linear-gradient(180deg, #ffffff 0%, #ecfdf5 100%)"
     : "#ffffff";
 
   const borderColor = isVIP
     ? "transparent"
     : isExpiringSoon
-    ? "#FF0000"
+    ? "#10B981"
     : "#e5e7eb";
 
   const textColor = isVIP ? "#ffffff" : "#000000";
 
-  // ─── FECHA DE VENCIMIENTO A MOSTRAR ───────
-  const endDate = isTrial ? trialEndsAt : planActiveUntil;
-  const endDateFormatted = endDate
-    ? endDate.toLocaleDateString("es-AR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : "—";
+  // ─── FECHA DE VENCIMIENTO A MOSTRAR (SEGURO) ───────
+  const rawEndDate = isTrial ? trialEndsAt : planActiveUntil;
+  const endDateFormatted = formatSafeDate(rawEndDate);
 
   // ─── TEXTO DE ESTADO ──────────────────────
   const statusConfig = isVIP
@@ -111,7 +120,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
       }
     : isTrial
     ? {
-        badge: isExpiringSoon ? "⏰ TRIAL POR VENCER" : "✨ TRIAL GRATUITO",
+        badge: isExpiringSoon ? "⏰ TRIAL POR FINALIZAR" : "✨ TRIAL GRATUITO",
         title: `Estás probando Nevux`,
         subtitle: `Tenés ${daysRemaining} ${
           daysRemaining === 1 ? "día" : "días"
@@ -119,7 +128,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
       }
     : isActive
     ? {
-        badge: isExpiringSoon ? "⚠️ PLAN POR VENCER" : "✓ PLAN ACTIVO",
+        badge: isExpiringSoon ? "⚡ RENOVACIÓN PRÓXIMA" : "✓ PLAN ACTIVO",
         title: "Tu plan está activo",
         subtitle: `Renovación mensual · ${monthsActive} ${
           monthsActive === 1 ? "mes" : "meses"
@@ -142,9 +151,9 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
         borderRadius: "16px",
         padding: "1.5rem",
         boxShadow: isVIP
-          ? "0 10px 40px rgba(255, 0, 0, 0.25)"
+          ? "0 10px 40px rgba(16, 185, 129, 0.25)"
           : isExpiringSoon
-          ? "0 6px 24px rgba(255, 0, 0, 0.12)"
+          ? "0 6px 24px rgba(16, 185, 129, 0.12)"
           : "0 2px 8px rgba(0,0,0,0.04)",
         position: "relative",
         overflow: "hidden",
@@ -203,7 +212,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                 background: isVIP
                   ? "rgba(255,255,255,0.2)"
                   : isExpiringSoon
-                  ? "#FF0000"
+                  ? "#10B981"
                   : "#000000",
                 color: "#ffffff",
                 borderRadius: "999px",
@@ -257,7 +266,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                 style={{
                   fontSize: "2.5rem",
                   fontWeight: 900,
-                  color: isExpiringSoon ? "#FF0000" : textColor,
+                  color: isExpiringSoon ? "#10B981" : textColor,
                   lineHeight: 1,
                   letterSpacing: "-0.03em",
                 }}
@@ -289,7 +298,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
         </div>
 
         {/* FECHA DE VENCIMIENTO */}
-        {(isTrial || isActive) && endDate && (
+        {(isTrial || isActive) && rawEndDate && (
           <div
             style={{
               display: "flex",
@@ -328,7 +337,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               marginBottom: showRenewCTA ? "1rem" : "0",
             }}
           >
-            {/* Meses acumulados grande */}
+            {/* Meses acumulados */}
             <div
               style={{
                 display: "flex",
@@ -401,7 +410,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                         padding: "0.3rem 0.65rem",
                         background: isVIP
                           ? "rgba(255,255,255,0.2)"
-                          : "#FF0000",
+                          : "#10B981",
                         color: "#ffffff",
                         borderRadius: "999px",
                         fontSize: "0.7rem",
@@ -417,7 +426,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               )}
             </div>
 
-            {/* Barra de progreso hacia próxima recompensa */}
+            {/* Barra de progreso */}
             {nextReward && (
               <div>
                 <div
@@ -445,7 +454,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                     style={{
                       fontWeight: 700,
                       whiteSpace: "nowrap",
-                      color: isVIP ? "#ffffff" : "#FF0000",
+                      color: isVIP ? "#ffffff" : "#10B981",
                     }}
                   >
                     {monthsToNextLabel}
@@ -472,13 +481,13 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                       height: "100%",
                       background: isVIP
                         ? "#ffffff"
-                        : "linear-gradient(90deg, #FF0000 0%, #000000 100%)",
+                        : "linear-gradient(90deg, #10B981 0%, #059669 100%)",
                       borderRadius: "999px",
                     }}
                   />
                 </div>
 
-                {/* Descripción de la recompensa */}
+                {/* Descripción recompensa */}
                 <div
                   style={{
                     display: "flex",
@@ -490,7 +499,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                       : "#ffffff",
                     border: isVIP
                       ? "1px solid rgba(255,255,255,0.2)"
-                      : "1px dashed #FF0000",
+                      : "1px dashed #10B981",
                     borderRadius: "10px",
                     fontSize: "0.8rem",
                     color: textColor,
@@ -499,7 +508,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
                 >
                   <span
                     style={{
-                      color: isVIP ? "#ffffff" : "#FF0000",
+                      color: isVIP ? "#ffffff" : "#10B981",
                       display: "inline-flex",
                       alignItems: "center",
                       flexShrink: 0,
@@ -525,7 +534,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               </div>
             )}
 
-            {/* Mensaje cliente VIP (12+ meses) */}
+            {/* Mensaje cliente VIP */}
             {isVIP && (
               <div
                 style={{
@@ -551,7 +560,7 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
           </div>
         )}
 
-        {/* CTA RENOVAR */}
+        {/* CTA RENOVAR / ACTIVAR (100% VERDE ESMERALDA) */}
         {showRenewCTA && (isTrial || isActive) && (
           <Link
             href="/plan/pagar"
@@ -562,13 +571,13 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
               gap: "0.5rem",
               width: "100%",
               padding: "0.95rem",
-              background: isVIP ? "#ffffff" : "#FF0000",
-              color: isVIP ? "#FF0000" : "#ffffff",
+              background: isVIP ? "#ffffff" : "#10B981",
+              color: isVIP ? "#10B981" : "#ffffff",
               borderRadius: "12px",
               fontSize: "0.95rem",
               fontWeight: 800,
               textDecoration: "none",
-              boxShadow: "0 4px 14px rgba(255, 0, 0, 0.3)",
+              boxShadow: "0 4px 14px rgba(16, 185, 129, 0.3)",
               boxSizing: "border-box",
               marginTop: "0",
             }}
@@ -580,4 +589,4 @@ export default function PlanStatusCard({ plan }: PlanStatusCardProps) {
       </div>
     </motion.div>
   );
-                               }
+  }
