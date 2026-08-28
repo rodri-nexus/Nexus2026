@@ -23,27 +23,13 @@ export default async function DashboardPage() {
     redirect("/admin/pagos");
   }
 
-  let store: {
-    store_id: number;
-    access_token?: string | null;
-    installed_at: string;
-    is_active: boolean;
-    user_id: string | null;
-    trial_started_at: string | null;
-    trial_ends_at: string | null;
-    plan_status: string | null;
-    plan_active_until: string | null;
-    last_payment_at: string | null;
-    months_active: number | null;
-    feedback_shown: boolean | null;
-  } | null = null;
-
+  let store: any = null;
   let onboardingCompleted = false;
   let activeWidgetsCount = 0;
   let planInfo: PlanInfo | null = null;
 
   try {
-    // 1. Obtener tienda activa de Supabase
+    // 1. Buscar tienda activa
     const { data: storesList } = await supabaseAdmin
       .from("stores")
       .select(
@@ -56,7 +42,7 @@ export default async function DashboardPage() {
 
     store = storesList && storesList.length > 0 ? storesList[0] : null;
 
-    // 2. Obtener onboarding
+    // 2. Perfil onboarding
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("onboarding_completed")
@@ -65,7 +51,7 @@ export default async function DashboardPage() {
 
     onboardingCompleted = profile?.onboarding_completed ?? false;
 
-    // 3. Obtener widgets activos
+    // 3. Cantidad de widgets activos
     const { count: widgetsCount } = await supabaseAdmin
       .from("widgets")
       .select("*", { count: "exact", head: true })
@@ -74,17 +60,17 @@ export default async function DashboardPage() {
 
     activeWidgetsCount = widgetsCount ?? 0;
 
-    // 4. Calcular estado del plan
+    // 4. Construir plan con fechas parseadas correctamente
     if (store) {
       const planData: StorePlanData = {
         store_id: store.store_id,
         user_id: store.user_id,
-        trial_started_at: store.trial_started_at,
-        trial_ends_at: store.trial_ends_at,
+        trial_started_at: store.trial_started_at ? new Date(store.trial_started_at) : null,
+        trial_ends_at: store.trial_ends_at ? new Date(store.trial_ends_at) : null,
         plan_status: (store.plan_status as RawPlanStatus | null) ?? null,
-        plan_active_until: store.plan_active_until,
-        last_payment_at: store.last_payment_at,
-        months_active: store.months_active,
+        plan_active_until: store.plan_active_until ? new Date(store.plan_active_until) : null,
+        last_payment_at: store.last_payment_at ? new Date(store.last_payment_at) : null,
+        months_active: Number(store.months_active || 1),
         feedback_shown: store.feedback_shown,
       };
 
