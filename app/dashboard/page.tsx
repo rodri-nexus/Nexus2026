@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { getProductsCount } from "@/lib/tiendanube";
-import { buildPlanInfo, type StorePlanData, type PlanInfo } from "@/lib/plan";
+import {
+  buildPlanInfo,
+  type StorePlanData,
+  type PlanInfo,
+  type RawPlanStatus,
+} from "@/lib/plan";
 import { supabaseAdmin } from "@/lib/supabase";
 import DashboardClient from "./DashboardClient";
 
@@ -89,7 +94,7 @@ export default async function DashboardPage() {
         user_id: store.user_id,
         trial_started_at: store.trial_started_at,
         trial_ends_at: store.trial_ends_at,
-        plan_status: store.plan_status,
+        plan_status: (store.plan_status as RawPlanStatus | null) ?? null,
         plan_active_until: store.plan_active_until,
         last_payment_at: store.last_payment_at,
         months_active: store.months_active,
@@ -192,4 +197,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-  }
+}
