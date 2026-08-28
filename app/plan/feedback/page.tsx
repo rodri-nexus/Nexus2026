@@ -1,4 +1,3 @@
-// app/plan/feedback/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { getPlanForUser } from "@/lib/plan";
@@ -16,28 +15,35 @@ export default async function FeedbackPage() {
     redirect("/login");
   }
 
-  const planData = await getPlanForUser(user.id);
+  let planData = null;
 
-  // Si no tiene tienda conectada, mandarlo a conectar
-  if (!planData) {
-    redirect("/dashboard");
-  }
+  try {
+    planData = await getPlanForUser(user.id);
 
-  const { plan } = planData;
-
-  // Si NO está en feedback_pending, no debería estar acá
-  if (!plan.needsFeedback) {
-    // Si está en trial activo, al dashboard
-    if (plan.canUseApp) {
+    // Si no tiene tienda conectada, mandarlo al dashboard
+    if (!planData) {
       redirect("/dashboard");
     }
-    // Si necesita pagar, a la pantalla de pago
-    if (plan.needsPayment) {
-      redirect("/plan/expirado");
+
+    const { plan } = planData;
+
+    // Si NO está en feedback_pending, no debería estar acá
+    if (!plan.needsFeedback) {
+      // Si está en trial o plan activo, al dashboard
+      if (plan.canUseApp) {
+        redirect("/dashboard");
+      }
+      // Si necesita pagar, a la pantalla de expirado
+      if (plan.needsPayment) {
+        redirect("/plan/expirado");
+      }
+      // Fallback
+      redirect("/dashboard");
     }
-    // Fallback
+  } catch (err) {
+    console.error("[FeedbackPage Server Error]:", err);
     redirect("/dashboard");
   }
 
   return <FeedbackClient email={user.email ?? ""} />;
-               }
+}
