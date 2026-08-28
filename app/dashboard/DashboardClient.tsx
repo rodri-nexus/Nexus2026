@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, ShieldCheck, RefreshCw } from "lucide-react";
+import { Store, Calendar, CheckCircle2, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
 import StatsCards from "./components/StatsCards";
@@ -315,7 +315,7 @@ export default function DashboardClient({
           </p>
         </motion.div>
 
-        {/* CHIP: TIENDA CONECTADA + BOTÓN DE RECONEXIÓN OFICIAL TIENDANUBE */}
+        {/* CHIP: TIENDA CONECTADA + BOTÓN "CONECTAR TIENDANUBE" */}
         {hasStore && store && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -415,27 +415,26 @@ export default function DashboardClient({
               </div>
             </div>
 
-            {/* BOTÓN DE SINCRONIZACIÓN REAL OAUTH CON TIENDANUBE */}
+            {/* BOTÓN CONECTAR TIENDANUBE */}
             <a
               href={tiendanubeInstallUrl}
-              title="Vincular oficialmente en Tiendanube para activar permisos de API"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "0.35rem",
-                padding: "0.45rem 0.85rem",
+                gap: "0.4rem",
+                padding: "0.5rem 0.95rem",
                 borderRadius: "999px",
-                background: "#ecfdf5",
-                border: "1px solid #10B981",
-                color: "#059669",
-                fontSize: "0.78rem",
+                background: "#10B981",
+                color: "#ffffff",
+                fontSize: "0.8rem",
                 fontWeight: 700,
                 textDecoration: "none",
+                boxShadow: "0 3px 10px rgba(16, 185, 129, 0.25)",
                 transition: "all 0.15s",
               }}
             >
-              <RefreshCw size={13} />
-              <span>Sincronizar con Tiendanube</span>
+              <Store size={14} />
+              <span>Conectar Tiendanube</span>
             </a>
           </motion.div>
         )}
@@ -464,4 +463,4 @@ export default function DashboardClient({
       </main>
     </div>
   );
-  }
+      }
