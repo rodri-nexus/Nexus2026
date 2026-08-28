@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
@@ -43,7 +44,7 @@ export default function LoginPage() {
 
       router.push("/dashboard");
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error en login:", err);
       setError("Ocurrió un error inesperado. Por favor reintentá.");
       setLoading(false);
@@ -80,7 +81,6 @@ export default function LoginPage() {
           boxSizing: "border-box",
         }}
       >
-        {/* Logo oficial y bienvenida */}
         <div
           style={{
             display: "flex",
@@ -106,9 +106,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit}>
-          {/* Email */}
           <div style={{ marginBottom: "1rem" }}>
             <label
               style={{
@@ -139,6 +137,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
+                autoComplete="email"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
@@ -155,7 +154,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Contraseña */}
           <div style={{ marginBottom: "0.75rem" }}>
             <label
               style={{
@@ -186,6 +184,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Tu contraseña"
+                autoComplete="current-password"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
@@ -202,7 +201,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Link olvidé mi contraseña (Soporte directo por WhatsApp) */}
           <div
             style={{
               display: "flex",
@@ -225,7 +223,6 @@ export default function LoginPage() {
             </a>
           </div>
 
-          {/* Error */}
           {error && (
             <div
               style={{
@@ -242,7 +239,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Botón submit */}
           <button
             type="submit"
             disabled={loading}
@@ -276,32 +272,55 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Soporte / Instalación */}
+        {/* Cliente nuevo → Registro */}
         <p
           style={{
             textAlign: "center",
             marginTop: "1.5rem",
-            fontSize: "0.85rem",
+            fontSize: "0.9rem",
             color: "#000000",
-            opacity: 0.6,
-            lineHeight: 1.4,
+            opacity: 0.7,
+            lineHeight: 1.5,
           }}
         >
-          ¿Aún no instalaste Nevux en tu tienda?{" "}
-          <a
-            href="https://wa.me/5493434163999?text=Hola,%20quiero%20instalar%20Nevux%20en%20mi%20Tiendanube"
-            target="_blank"
-            rel="noopener noreferrer"
+          ¿Primera vez en Nevux?{" "}
+          <Link
+            href="/registro"
             style={{
               color: "#10B981",
               fontWeight: 700,
               textDecoration: "none",
             }}
           >
-            Probar 7 días gratis
+            Crear cuenta gratis
+          </Link>
+        </p>
+
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "0.75rem",
+            fontSize: "0.82rem",
+            color: "#000000",
+            opacity: 0.5,
+            lineHeight: 1.4,
+          }}
+        >
+          ¿Ya tenés tienda y necesitás ayuda?{" "}
+          <a
+            href="https://wa.me/5493434163999?text=Hola,%20necesito%20ayuda%20con%20Nevux"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "#10B981",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            WhatsApp soporte
           </a>
         </p>
       </motion.div>
     </div>
   );
-          }
+              }
