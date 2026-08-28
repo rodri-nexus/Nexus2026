@@ -1,7 +1,6 @@
-// app/plan/expirado/ExpiradoClient.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -125,18 +124,18 @@ const FAQS = [
 
 export default function ExpiradoClient({
   email,
-  trialEndedAt,
-  monthsActive,
+  trialEndedAt: _trialEndedAt,
+  monthsActive: _monthsActive,
 }: ExpiradoClientProps) {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  async function handleLogout() {
+  const handleLogout = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();
-  }
+  }, [router]);
 
   return (
     <div
@@ -206,7 +205,7 @@ export default function ExpiradoClient({
           boxSizing: "border-box",
         }}
       >
-        {/* ─────────────── HERO ─────────────── */}
+        {/* HERO */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -269,7 +268,7 @@ export default function ExpiradoClient({
           </p>
         </motion.div>
 
-        {/* ─────────────── CARD DEL PLAN ─────────────── */}
+        {/* CARD DEL PLAN */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -426,7 +425,7 @@ export default function ExpiradoClient({
           {/* CTA */}
           <div style={{ textAlign: "center", width: "100%" }}>
             <motion.div
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               style={{ display: "block", width: "100%" }}
             >
@@ -469,7 +468,7 @@ export default function ExpiradoClient({
           </div>
         </motion.div>
 
-        {/* ─────────────── RECOMPENSAS POR FIDELIDAD ─────────────── */}
+        {/* RECOMPENSAS POR FIDELIDAD */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -593,7 +592,7 @@ export default function ExpiradoClient({
           </div>
         </motion.div>
 
-        {/* ─────────────── PRÓXIMAMENTE ─────────────── */}
+        {/* PRÓXIMAMENTE */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -709,7 +708,7 @@ export default function ExpiradoClient({
           </div>
         </motion.div>
 
-        {/* ─────────────── FAQS ─────────────── */}
+        {/* FAQS */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -749,6 +748,7 @@ export default function ExpiradoClient({
                 }}
               >
                 <button
+                  type="button"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   style={{
                     width: "100%",
@@ -814,7 +814,7 @@ export default function ExpiradoClient({
           </div>
         </motion.div>
 
-        {/* ─────────────── BOTÓN WHATSAPP ─────────────── */}
+        {/* BOTÓN WHATSAPP */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -874,7 +874,7 @@ export default function ExpiradoClient({
           </a>
         </motion.div>
 
-        {/* ─────────────── FOOTER MICRO ─────────────── */}
+        {/* FOOTER MICRO */}
         <div
           style={{
             display: "flex",
@@ -889,6 +889,7 @@ export default function ExpiradoClient({
         >
           <span>Conectado como {email}</span>
           <button
+            type="button"
             onClick={handleLogout}
             style={{
               display: "inline-flex",
