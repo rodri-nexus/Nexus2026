@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { buildPlanInfo, type StorePlanData, type PlanInfo, type RawPlanStatus } from "@/lib/plan";
+import { getProductsCount } from "@/lib/tiendanube";
 import { supabaseAdmin } from "@/lib/supabase";
 import DashboardClient from "./DashboardClient";
 
@@ -27,9 +28,10 @@ export default async function DashboardPage() {
   let onboardingCompleted = false;
   let activeWidgetsCount = 0;
   let planInfo: PlanInfo | null = null;
+  let productsCount = 0;
 
   try {
-    // 1. Buscar tienda activa
+    // 1. Buscar la tienda activa del usuario
     const { data: storesList } = await supabaseAdmin
       .from("stores")
       .select(
@@ -60,7 +62,7 @@ export default async function DashboardPage() {
 
     activeWidgetsCount = widgetsCount ?? 0;
 
-    // 4. Construir plan con tipos de fecha compatibles
+    // 4. Construir plan si existe tienda
     if (store) {
       const planData: StorePlanData = {
         store_id: store.store_id,
@@ -76,11 +78,27 @@ export default async function DashboardPage() {
 
       planInfo = buildPlanInfo(planData);
     }
+
+    // 5. Consultar productos reales de Tiendanube SOLO si hay access_token REAL
+    if (store?.store_id && store?.access_token) {
+      try {
+        productsCount = await getProductsCount(
+          store.store_id,
+          store.access_token
+        );
+      } catch (e) {
+        console.error("Error obteniendo cantidad de productos reales:", e);
+        productsCount = 0;
+      }
+    }
   } catch (err: unknown) {
     console.error("[Dashboard Query Exception]:", err);
   }
 
-  const storeData = store
+  // REGLA CLAVE: Solo consideramos conectada la tienda si TIENE access_token de Tiendanube.
+  const isRealConnection = Boolean(store?.store_id && store?.access_token);
+
+  const storeData = isRealConnection
     ? {
         store_id: store.store_id,
         installed_at: store.installed_at,
@@ -114,7 +132,7 @@ export default async function DashboardPage() {
       email={user.email ?? ""}
       userId={user.id}
       store={storeData}
-      productsCount={0}
+      productsCount={productsCount}
       activeWidgetsCount={activeWidgetsCount}
       onboardingCompleted={onboardingCompleted}
       plan={planSerialized}
