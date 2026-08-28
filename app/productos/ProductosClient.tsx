@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Package,
@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Sparkles,
   X,
-  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import DashboardHeader from "../dashboard/components/DashboardHeader";
@@ -36,11 +35,16 @@ interface ProductVariant {
   stock?: number | null;
 }
 
+interface ProductCategory {
+  id?: number;
+  name?: string;
+}
+
 interface ProductItem {
   id: number;
   name: string;
   slug?: string;
-  categories?: any[];
+  categories?: ProductCategory[];
   variants?: ProductVariant[];
   images?: ProductImage[];
 }
@@ -49,6 +53,18 @@ interface ProductosClientProps {
   email: string;
   store: StoreData | null;
   productsCount: number;
+}
+
+// Helper para formatear dinero en ARS fuera del ciclo de render
+function formatMoney(val: string | number | null | undefined): string {
+  if (!val) return "$ 0";
+  const num = typeof val === "number" ? val : parseFloat(val);
+  if (isNaN(num)) return String(val);
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(num);
 }
 
 export default function ProductosClient({
@@ -61,75 +77,67 @@ export default function ProductosClient({
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [lastSyncTime, setLastSyncTime] = useState<string>("Recientemente");
 
-  // Helper para formatear dinero en ARS
-  const formatMoney = (val: string | number | null | undefined): string => {
-    if (!val) return "$ 0";
-    const num = typeof val === "number" ? val : parseFloat(val);
-    if (isNaN(num)) return String(val);
-    return new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      maximumFractionDigits: 0,
-    }).format(num);
-  };
-
-  // Carga de productos desde la API
-  const fetchProducts = useCallback(async () => {
+  // Carga de productos desde la API blindada
+  const fetchProducts = useCallback(async (signal?: AbortSignal) => {
     if (!store?.store_id) {
       setLoading(false);
       return;
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/products?storeId=${store.store_id}`);
+      const res = await fetch(`/api/products?storeId=${store.store_id}`, {
+        signal,
+      });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
           setProducts(data);
-          const now = new Date();
-          setLastSyncTime(
-            `Hoy ${now.getHours().toString().padStart(2, "0")}:${now
-              .getMinutes()
-              .toString()
-              .padStart(2, "0")} hs`
-          );
         }
       }
-    } catch (err) {
-      console.error("Error al obtener productos:", err);
+    } catch (err: unknown) {
+      if ((err as Error)?.name !== "AbortError") {
+        console.error("Error al obtener productos:", err);
+      }
     } finally {
       setLoading(false);
     }
   }, [store?.store_id]);
 
   useEffect(() => {
-    fetchProducts();
+    const controller = new AbortController();
+    fetchProducts(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, [fetchProducts]);
 
   // Manejo de sincronización manual
-  async function handleSync() {
+  const handleSync = async () => {
     if (syncing) return;
     setSyncing(true);
     await fetchProducts();
     setSyncing(false);
-  }
+  };
 
-  // Filtrado de productos por búsqueda
-  const filteredProducts = products.filter((p) => {
+  // Filtrado de productos memoizado
+  const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return true;
-    const nameMatch = p.name.toLowerCase().includes(q);
-    const idMatch = p.id.toString().includes(q);
-    return nameMatch || idMatch;
-  });
+    if (!q) return products;
+    return products.filter((p) => {
+      const nameMatch = (p.name || "").toLowerCase().includes(q);
+      const idMatch = p.id.toString().includes(q);
+      return nameMatch || idMatch;
+    });
+  }, [products, searchQuery]);
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "#f9fafb",
+        background: "#ffffff",
+        color: "#000000",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
@@ -230,6 +238,7 @@ export default function ProductosClient({
 
             {store && (
               <button
+                type="button"
                 onClick={handleSync}
                 disabled={syncing || loading}
                 style={{
@@ -252,10 +261,7 @@ export default function ProductosClient({
               >
                 <RefreshCw
                   size={15}
-                  style={{
-                    animation:
-                      syncing || loading ? "spin 1s linear infinite" : "none",
-                  }}
+                  className={syncing || loading ? "animate-spin" : ""}
                 />
                 {syncing
                   ? "Sincronizando..."
@@ -308,6 +314,7 @@ export default function ProductosClient({
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery("")}
                   style={{
                     position: "absolute",
@@ -387,11 +394,11 @@ export default function ProductosClient({
             {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
+                className="animate-pulse"
                 style={{
                   height: "56px",
                   background: "#f3f4f6",
                   borderRadius: "12px",
-                  animation: "pulse 1.5s infinite ease-in-out",
                 }}
               />
             ))}
@@ -650,25 +657,6 @@ export default function ProductosClient({
           <CentroAyuda />
         </div>
       </main>
-
-      <style>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.4;
-          }
-        }
-      `}</style>
     </div>
   );
-    }
+      }
