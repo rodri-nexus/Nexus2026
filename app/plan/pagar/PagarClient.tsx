@@ -1,7 +1,6 @@
-// app/plan/pagar/PagarClient.tsx
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,13 +42,13 @@ export default function PagarClient({ email }: PagarClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
-  async function handleCopy(text: string, field: string) {
+  const handleCopy = useCallback(async (text: string, field: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
     } catch (e) {
-      // Fallback para navegadores viejos
+      // Fallback para navegadores viejos o webviews sin API clipboard
       const textarea = document.createElement("textarea");
       textarea.value = text;
       document.body.appendChild(textarea);
@@ -58,12 +57,14 @@ export default function PagarClient({ email }: PagarClientProps) {
         document.execCommand("copy");
         setCopiedField(field);
         setTimeout(() => setCopiedField(null), 2000);
-      } catch {}
+      } catch (err) {
+        console.error("Error al copiar texto:", err);
+      }
       document.body.removeChild(textarea);
     }
-  }
+  }, []);
 
-  function handleFileSelect(selectedFile: File | null) {
+  const handleFileSelect = useCallback((selectedFile: File | null) => {
     setError(null);
     if (!selectedFile) return;
 
@@ -86,9 +87,9 @@ export default function PagarClient({ email }: PagarClientProps) {
     }
 
     setFile(selectedFile);
-  }
+  }, []);
 
-  function handleDrag(e: React.DragEvent) {
+  const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
@@ -96,18 +97,18 @@ export default function PagarClient({ email }: PagarClientProps) {
     } else if (e.type === "dragleave") {
       setDragActive(false);
     }
-  }
+  }, []);
 
-  function handleDrop(e: React.DragEvent) {
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
-  }
+  }, [handleFileSelect]);
 
-  async function handleSubmit() {
+  const handleSubmit = async () => {
     if (!file) {
       setError("Subí una foto o PDF del comprobante para continuar.");
       return;
@@ -134,14 +135,15 @@ export default function PagarClient({ email }: PagarClientProps) {
         throw new Error(data.error || "Error al subir el comprobante");
       }
 
-      // Redirigir a pendiente
+      // Redirigir a pendiente de aprobación
       router.push(data.redirect || "/plan/pendiente");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Error inesperado. Probá de nuevo.");
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Error inesperado. Probá de nuevo.";
+      setError(errMsg);
       setUploading(false);
     }
-  }
+  };
 
   const isPdf = file?.type === "application/pdf";
 
@@ -594,6 +596,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setFile(null)}
                 disabled={uploading}
                 style={{
@@ -700,6 +703,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           transition={{ duration: 0.4, delay: 0.3 }}
         >
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={!file || uploading}
             style={{
@@ -730,7 +734,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               <>
                 <Loader2
                   size={18}
-                  style={{ animation: "spin 1s linear infinite" }}
+                  className="animate-spin"
                 />
                 Enviando...
               </>
@@ -773,17 +777,6 @@ export default function PagarClient({ email }: PagarClientProps) {
           Conectado como {email}
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 }
@@ -853,6 +846,7 @@ function DataRow({
       </div>
       {!noCopy && (
         <button
+          type="button"
           onClick={() => onCopy(value, fieldKey)}
           style={{
             width: "38px",
