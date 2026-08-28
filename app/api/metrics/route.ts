@@ -1,11 +1,34 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
+interface WidgetConfig {
+  title?: string;
+  banner_text?: string;
+  [key: string]: unknown;
+}
+
+interface UserWidget {
+  id: string;
+  widget_slug: string;
+  widget_type: string;
+  config: WidgetConfig | null;
+}
+
+interface WidgetStatRow {
+  widget_id: string;
+  date: string;
+  impressions?: number | null;
+  clicks?: number | null;
+  cart_adds?: number | null;
+  revenue?: number | null;
+}
+
 export async function GET(req: Request) {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     // 1. Verificar autenticación del usuario
     const {
@@ -40,7 +63,7 @@ export async function GET(req: Request) {
       startDate.setHours(0, 0, 0, 0);
       daysToInclude = 7;
     } else {
-      // "30dias" o "personalizado"
+      // "30dias" o por defecto
       startDate.setDate(startDate.getDate() - 29);
       startDate.setHours(0, 0, 0, 0);
       daysToInclude = 30;
@@ -48,13 +71,15 @@ export async function GET(req: Request) {
 
     const formattedStartDate = startDate.toISOString().split("T")[0];
 
-    // 3. Obtener la lista de widgets del usuario
-    const { data: userWidgets, error: widgetsError } = await supabase
+    // 3. Obtener la lista de widgets del usuario usando supabaseAdmin
+    const { data: userWidgetsData, error: widgetsError } = await supabaseAdmin
       .from("widgets")
       .select("id, widget_slug, widget_type, config")
       .eq("user_id", user.id);
 
-    if (widgetsError || !userWidgets || userWidgets.length === 0) {
+    const userWidgets = (userWidgetsData as UserWidget[]) || [];
+
+    if (widgetsError || userWidgets.length === 0) {
       return NextResponse.json({
         summary: { impressions: 0, clicks: 0, cartAdds: 0, revenue: 0 },
         timeline: [],
@@ -65,7 +90,7 @@ export async function GET(req: Request) {
     const widgetIds = userWidgets.map((w) => w.id);
 
     // 4. Consultar widget_stats para los widgets del usuario
-    let query = supabase
+    let query = supabaseAdmin
       .from("widget_stats")
       .select("widget_id, date, impressions, clicks, cart_adds, revenue")
       .in("widget_id", widgetIds)
@@ -75,7 +100,8 @@ export async function GET(req: Request) {
       query = query.lte("date", endDate.toISOString().split("T")[0]);
     }
 
-    const { data: stats, error: statsError } = await query;
+    const { data: statsData, error: statsError } = await query;
+    const stats = (statsData as WidgetStatRow[]) || [];
 
     if (statsError) {
       console.error("[Metrics API Error]:", statsError);
@@ -86,7 +112,7 @@ export async function GET(req: Request) {
       });
     }
 
-    // 5. Inicializar el mapa de timeline diario con todas las fechas del rango
+    // 5. Inicializar el mapa de timeline diario
     const dailyMap: Record<
       string,
       { date: string; impressions: number; clicks: number; cartAdds: number; revenue: number }
@@ -118,13 +144,13 @@ export async function GET(req: Request) {
       { impressions: number; clicks: number; cartAdds: number; revenue: number }
     > = {};
 
-    (stats || []).forEach((row) => {
+    stats.forEach((row) => {
       const wId = row.widget_id;
       const dStr = row.date;
-      const imp = Number(row.impressions || 0);
-      const clk = Number(row.clicks || 0);
-      const cart = Number(row.cart_adds || 0);
-      const rev = Number(row.revenue || 0);
+      const imp = Number(row.impressions) || 0;
+      const clk = Number(row.clicks) || 0;
+      const cart = Number(row.cart_adds) || 0;
+      const rev = Number(row.revenue) || 0;
 
       totalImpressions += imp;
       totalClicks += clk;
@@ -193,7 +219,7 @@ export async function GET(req: Request) {
       timeline,
       widgets: widgetsPerformance,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[Metrics API Exception]:", err);
     return NextResponse.json(
       {
@@ -204,4 +230,4 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
-          }
+    }
