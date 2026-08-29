@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-// Helper para responder con cabeceras CORS (Permite que Tiendanube lea los datos)
 function corsResponse(data: any, status = 200) {
   return NextResponse.json(data, {
     status,
@@ -10,11 +9,11 @@ function corsResponse(data: any, status = 200) {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
     },
   })
 }
 
-// Handler para la petición pre-flight OPTIONS de los navegadores (Evita bloqueos de CORS)
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
@@ -26,327 +25,106 @@ export async function OPTIONS() {
   })
 }
 
-// ═══════════════════════════════════════════════════════════
-// POST /api/widgets
-// Crea o actualiza un widget (Privado del Dashboard)
-// ═══════════════════════════════════════════════════════════
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-
-    // 1. Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return corsResponse({ error: 'No autorizado' }, 401)
-    }
+    if (authError || !user) return corsResponse({ error: 'No autorizado' }, 401)
 
-    // 2. Parsear body
     const body = await req.json()
-    const {
-      id,
-      store_id,
-      widget_slug,
-      widget_type,
-      target_type,
-      target_product_id,
-      config,
-      is_active,
-    } = body
+    const { id, store_id, widget_slug, widget_type, target_type, target_product_id, config, is_active } = body
 
-    // 3. Validaciones básicas
-    if (!widget_slug) {
-      return corsResponse({ error: 'widget_slug es requerido' }, 400)
-    }
-    if (!store_id) {
-      return corsResponse({ error: 'store_id es requerido' }, 400)
-    }
-    if (!target_type || !['product', 'all'].includes(target_type)) {
-      return corsResponse({ error: 'target_type inválido (debe ser "product" o "all")' }, 400)
-    }
-    if (target_type === 'product' && !target_product_id) {
-      return corsResponse({ error: 'target_product_id es requerido cuando target_type es "product"' }, 400)
-    }
-
-    // 4. Verificar que la tienda pertenezca al usuario
-    const { data: store, error: storeError } = await supabase
-      .from('stores')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('store_id', store_id)
-      .eq('is_active', true)
-      .single()
-
-    if (storeError || !store) {
-      return corsResponse({ error: 'Tienda no encontrada o no autorizada' }, 403)
-    }
+    const { data: store } = await supabase.from('stores').select('id').eq('user_id', user.id).eq('store_id', store_id).eq('is_active', true).single()
+    if (!store) return corsResponse({ error: 'Tienda no autorizada' }, 403)
 
     const now = new Date().toISOString()
-
-    // 5. CASO A: viene con id → UPDATE directo
-    if (id) {
-      const { data, error } = await supabase
-        .from('widgets')
-        .update({
-          widget_type: widget_type || widget_slug,
-          target_type,
-          target_product_id: target_type === 'product' ? target_product_id : null,
-          config: config || {},
-          is_active: is_active !== undefined ? is_active : true,
-          updated_at: now,
-        })
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Error actualizando widget:', error)
-        return corsResponse({ error: error.message }, 500)
-      }
-
-      return corsResponse({ data, widget: data, action: 'updated' })
+    const payload = {
+      user_id: user.id,
+      store_id,
+      widget_slug,
+      widget_type: widget_type || widget_slug,
+      target_type,
+      target_product_id: target_type === 'product' ? target_product_id : null,
+      config: config || {},
+      is_active: is_active !== undefined ? is_active : true,
+      updated_at: now
     }
 
-    // 6. CASO B: sin id → buscar si ya existe uno con misma combinación
-    let existingQuery = supabase
-      .from('widgets')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('store_id', store_id)
-      .eq('widget_slug', widget_slug)
-      .eq('target_type', target_type)
+    const { data, error } = await supabase.from('widgets').upsert({
+      ...(id ? { id } : {}),
+      ...payload,
+      ...(id ? {} : { created_at: now })
+    }, { onConflict: 'id' }).select().single()
 
-    if (target_type === 'product') {
-      existingQuery = existingQuery.eq('target_product_id', target_product_id)
-    } else {
-      existingQuery = existingQuery.is('target_product_id', null)
-    }
-
-    const { data: existingList, error: findError } = await existingQuery.limit(1)
-
-    if (findError) {
-      console.error('Error buscando widget existente:', findError)
-      return corsResponse({ error: findError.message }, 500)
-    }
-
-    // 6a. Si ya existe → UPDATE
-    if (existingList && existingList.length > 0) {
-      const existingId = existingList[0].id
-      const { data, error } = await supabase
-        .from('widgets')
-        .update({
-          widget_type: widget_type || widget_slug,
-          config: config || {},
-          is_active: is_active !== undefined ? is_active : true,
-          updated_at: now,
-        })
-        .eq('id', existingId)
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Error actualizando widget existente:', error)
-        return corsResponse({ error: error.message }, 500)
-      }
-
-      return corsResponse({ data, widget: data, action: 'updated' })
-    }
-
-    // 6b. Si no existe → INSERT
-    const { data, error } = await supabase
-      .from('widgets')
-      .insert({
-        user_id: user.id,
-        store_id,
-        widget_slug,
-        widget_type: widget_type || widget_slug,
-        target_type,
-        target_product_id: target_type === 'product' ? target_product_id : null,
-        config: config || {},
-        is_active: is_active !== undefined ? is_active : true,
-        created_at: now,
-        updated_at: now,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Error creando widget:', error)
-      return corsResponse({ error: error.message }, 500)
-    }
-
-    return corsResponse({ data, widget: data, action: 'created' })
+    if (error) throw error
+    return corsResponse({ data, widget: data })
   } catch (error: any) {
-    console.error('Error en POST /api/widgets:', error)
-    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
+    return corsResponse({ error: error.message }, 500)
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// GET /api/widgets?store_id=X (Doble función: Storefront público y Dashboard privado)
-// ═══════════════════════════════════════════════════════════
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const storeIdParam = searchParams.get('store_id')
-
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    // 1. Intentar verificar autenticación de usuario
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    // CASO PUBLICO: No hay usuario logueado pero viene store_id (Script inyectado en Tiendanube)
-    if (authError || !user) {
-      if (!storeIdParam) {
-        return corsResponse({ error: 'No autorizado' }, 401)
-      }
-
-      const storeIdNum = parseInt(storeIdParam, 10)
-      if (isNaN(storeIdNum)) {
-        return corsResponse({ error: 'store_id inválido' }, 400)
-      }
-
-      // Usamos supabaseAdmin para traer de forma segura SOLO los widgets ACTIVOS de esta tienda
-      const { data: widgets, error: fetchError } = await supabaseAdmin
+    // Caso Público (Tienda Real)
+    if (!user) {
+      if (!storeIdParam) return corsResponse({ error: 'No autorizado' }, 401)
+      const { data: widgets } = await supabaseAdmin
         .from('widgets')
         .select('*')
-        .eq('store_id', storeIdNum)
+        .eq('store_id', parseInt(storeIdParam, 10))
         .eq('is_active', true)
 
-      if (fetchError) {
-        console.error('Error público listando widgets:', fetchError)
-        return corsResponse({ error: fetchError.message }, 500)
-      }
-
-      return corsResponse({ widgets: widgets || [] })
+      return corsResponse({ 
+        widgets: widgets || [], 
+        ts: Date.now() // Cache buster
+      })
     }
 
-    // CASO PRIVADO: Usuario logueado en el Dashboard
-    let query = supabase
-      .from('widgets')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false })
-
-    if (storeIdParam) {
-      const storeIdNum = parseInt(storeIdParam, 10)
-      if (isNaN(storeIdNum)) {
-        return corsResponse({ error: 'store_id inválido' }, 400)
-      }
-      query = query.eq('store_id', storeIdNum)
-    }
-
-    const { data: widgets, error: fetchError } = await query
-
-    if (fetchError) {
-      console.error('Error listando widgets privado:', fetchError)
-      return corsResponse({ error: fetchError.message }, 500)
-    }
-
+    // Caso Privado (Dashboard)
+    let query = supabase.from('widgets').select('*').eq('user_id', user.id).order('updated_at', { ascending: false })
+    if (storeIdParam) query = query.eq('store_id', parseInt(storeIdParam, 10))
+    const { data: widgets } = await query
     return corsResponse({ widgets: widgets || [] })
   } catch (error: any) {
-    console.error('Error en GET /api/widgets:', error)
-    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
+    return corsResponse({ error: error.message }, 500)
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// PATCH /api/widgets
-// Activa/desactiva un widget (Privado del Dashboard)
-// ═══════════════════════════════════════════════════════════
 export async function PATCH(req: NextRequest) {
   try {
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return corsResponse({ error: 'No autorizado' }, 401)
 
-    // 1. Verificar autenticación
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return corsResponse({ error: 'No autorizado' }, 401)
-    }
-
-    // 2. Parsear body
     const body = await req.json()
     const { id, is_active } = body
-
-    // 3. Validaciones
-    if (!id || typeof id !== 'string') {
-      return corsResponse({ error: 'id es requerido y debe ser un string' }, 400)
-    }
-    if (typeof is_active !== 'boolean') {
-      return corsResponse({ error: 'is_active es requerido y debe ser un boolean' }, 400)
-    }
-
-    // 4. Update con ownership check (id + user_id)
-    const { data, error } = await supabase
-      .from('widgets')
-      .update({
-        is_active,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Error actualizando is_active del widget:', error)
-      return corsResponse({ error: error.message }, 500)
-    }
-
-    if (!data) {
-      return corsResponse({ error: 'Widget no encontrado o no autorizado' }, 404)
-    }
-
-    return corsResponse({ data, widget: data, action: 'toggled' })
+    const { data, error } = await supabase.from('widgets').update({ is_active, updated_at: new Date().toISOString() }).eq('id', id).eq('user_id', user.id).select().single()
+    
+    if (error) throw error
+    return corsResponse({ data })
   } catch (error: any) {
-    console.error('Error en PATCH /api/widgets:', error)
-    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
+    return corsResponse({ error: error.message }, 500)
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// DELETE /api/widgets?id=xxx
-// Elimina un widget permanentemente (Privado del Dashboard)
-// ═══════════════════════════════════════════════════════════
 export async function DELETE(req: NextRequest) {
   try {
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return corsResponse({ error: 'No autorizado' }, 401)
 
-    // 1. Verificar autenticación
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return corsResponse({ error: 'No autorizado' }, 401)
-    }
-
-    // 2. Leer query param id
     const { searchParams } = new URL(req.url)
     const id = searchParams.get('id')
-
-    if (!id) {
-      return corsResponse({ error: 'id es requerido en query params' }, 400)
-    }
-
-    // 3. Delete con ownership check (id + user_id)
-    const { data, error } = await supabase
-      .from('widgets')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Error eliminando widget:', error)
-      return corsResponse({ error: error.message }, 500)
-    }
-
-    if (!data) {
-      return corsResponse({ error: 'Widget no encontrado o no autorizado' }, 404)
-    }
-
-    return corsResponse({ success: true, deleted: data, action: 'deleted' })
+    const { data, error } = await supabase.from('widgets').delete().eq('id', id).eq('user_id', user.id).select().single()
+    
+    if (error) throw error
+    return corsResponse({ success: true })
   } catch (error: any) {
-    console.error('Error en DELETE /api/widgets:', error)
-    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
+    return corsResponse({ error: error.message }, 500)
   }
-                           }
+  }
