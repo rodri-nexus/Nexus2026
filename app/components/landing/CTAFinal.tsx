@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Rocket, Sparkles } from "lucide-react";
 
@@ -217,7 +216,7 @@ export default function CTAFinal() {
             <BulletItem text="Asistencia personalizada 24/7" />
           </motion.div>
 
-          {/* Botones */}
+          {/* Botones Nativo Blindados */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -233,7 +232,7 @@ export default function CTAFinal() {
             }}
           >
             {/* Botón principal */}
-            <Link
+            <a
               href="/registro"
               style={{
                 width: "100%",
@@ -253,6 +252,7 @@ export default function CTAFinal() {
                 position: "relative",
                 overflow: "hidden",
                 boxSizing: "border-box",
+                cursor: "pointer",
               }}
             >
               {/* Brillo animado */}
@@ -281,10 +281,10 @@ export default function CTAFinal() {
                 Probar gratis
               </span>
               <ArrowRight size={20} style={{ position: "relative", zIndex: 2 }} />
-            </Link>
+            </a>
 
             {/* Botón secundario */}
-            <Link
+            <a
               href="/registro"
               style={{
                 width: "100%",
@@ -302,11 +302,12 @@ export default function CTAFinal() {
                 justifyContent: "center",
                 gap: "0.5rem",
                 boxSizing: "border-box",
+                cursor: "pointer",
               }}
             >
               Ver todos los widgets
               <ArrowRight size={18} />
-            </Link>
+            </a>
           </motion.div>
 
           {/* Nota inferior */}
@@ -363,4 +364,4 @@ function BulletItem({ text }: { text: string }) {
       <span>{text}</span>
     </div>
   );
-          }
+              }
