@@ -17,6 +17,7 @@ export default function RegistroPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   // Validaciones de contraseña
   const passwordChecks = {
@@ -89,7 +90,6 @@ export default function RegistroPage() {
 
         if (profileError) {
           console.error("Error al crear perfil:", profileError);
-          // No frenamos el flujo, el usuario ya está creado en Auth
         }
       }
 
@@ -201,23 +201,23 @@ export default function RegistroPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setFocusedField("email")}
+                onBlur={() => setFocusedField(null)}
                 placeholder="tu@email.com"
                 autoComplete="email"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
-                  border: "1.5px solid #e5e7eb",
+                  border: focusedField === "email" ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
-                  transition: "border-color 0.2s",
+                  transition: "all 0.2s",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                   color: "#000000",
                   background: "#FFFFFF",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
           </motion.div>
@@ -257,23 +257,23 @@ export default function RegistroPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setFocusedField("password")}
+                onBlur={() => setFocusedField(null)}
                 placeholder="Mínimo 8 caracteres"
                 autoComplete="new-password"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
-                  border: "1.5px solid #e5e7eb",
+                  border: focusedField === "password" ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
-                  transition: "border-color 0.2s",
+                  transition: "all 0.2s",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                   color: "#000000",
                   background: "#FFFFFF",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
           </motion.div>
@@ -313,23 +313,23 @@ export default function RegistroPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                onFocus={() => setFocusedField("confirmPassword")}
+                onBlur={() => setFocusedField(null)}
                 placeholder="Repetí tu contraseña"
                 autoComplete="new-password"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
-                  border: "1.5px solid #e5e7eb",
+                  border: focusedField === "confirmPassword" ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
-                  transition: "border-color 0.2s",
+                  transition: "all 0.2s",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                   color: "#000000",
                   background: "#FFFFFF",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
               />
             </div>
           </motion.div>
