@@ -12,7 +12,7 @@ interface StoreRecord {
   is_active: boolean;
 }
 
-// Función para registrar el script en una tienda específica de Tiendanube
+// Función para registrar el script con el formato oficial de Tiendanube
 async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: string) {
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -27,11 +27,13 @@ async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: 
       cache: "no-store",
     });
 
+    let existingScripts: any[] = [];
     if (listRes.ok) {
-      const scripts = await listRes.json();
-      if (Array.isArray(scripts)) {
+      const data = await listRes.json();
+      if (Array.isArray(data)) {
+        existingScripts = data;
         // Eliminar scripts viejos o duplicados de Nevux para no acumular basura
-        for (const s of scripts) {
+        for (const s of data) {
           if (s.src && s.src.includes("nevux-widget.js")) {
             await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts/${s.id}`, {
               method: "DELETE",
@@ -42,25 +44,33 @@ async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: 
       }
     }
 
-    // 2. Instalar el ScriptTag limpio y oficial en el head de la tienda
+    // 2. Instalar el Script con el estándar oficial de Tiendanube
     const createRes = await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts`, {
       method: "POST",
       headers,
       body: JSON.stringify({
-        name: "Nevux Widgets",
         src: scriptUrl,
-        where: "head",
-        position: "bottom",
+        event: "onload",
+        where: "store",
       }),
     });
 
     if (!createRes.ok) {
       const errText = await createRes.text();
-      return { success: false, error: errText, status: createRes.status };
+      return {
+        success: false,
+        error: errText,
+        status: createRes.status,
+        existing_before_sync: existingScripts,
+      };
     }
 
     const scriptData = await createRes.json();
-    return { success: true, script: scriptData };
+    return {
+      success: true,
+      script: scriptData,
+      existing_before_sync: existingScripts,
+    };
   } catch (err: any) {
     return { success: false, error: err?.message || "Error de red" };
   }
@@ -140,4 +150,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-        }
+                }
