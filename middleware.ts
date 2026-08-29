@@ -5,10 +5,11 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // 1. BYPASS ULTRA RÁPIDO (0ms): No interceptar APIs, scripts, estáticos ni landing
+  // 1. PASO DIRECTO (0ms): No interceptar APIs, scripts públicos, assets estáticos ni la landing
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/auth/callback") ||
     pathname === "/nevux-widget.js" ||
     pathname === "/" ||
     pathname === "/terminos" ||
@@ -31,7 +32,7 @@ export async function middleware(request: NextRequest) {
 
   const isAuthRoute = pathname === "/login" || pathname === "/registro";
 
-  // Si es una ruta pública no listada, dejar pasar de inmediato
+  // Si es una ruta pública no protegida, dejar pasar inmediatamente
   if (!isProtectedRoute && !isAuthRoute) {
     return NextResponse.next();
   }
@@ -68,33 +69,25 @@ export async function middleware(request: NextRequest) {
       }
     );
 
-    // 3. BLINDAJE ANTI-504: Límite estricto de 2.5 segundos para la respuesta de Supabase
-    const authPromise = supabase.auth.getUser();
-    const timeoutPromise = new Promise<{ data: { user: null }; error: Error }>((resolve) =>
-      setTimeout(() => resolve({ data: { user: null }, error: new Error("Auth Timeout") }), 2500)
-    );
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    const { data: { user } } = await Promise.race([authPromise, timeoutPromise]);
-
-    // Si intenta entrar a ruta privada sin sesión -> redirigir a /login
+    // Redirección si intenta ingresar a zona privada sin usuario
     if (isProtectedRoute && !user) {
-      // Verificar si hay cookies de Supabase guardadas para no expulsar al usuario si hubo timeout
-      const hasAuthCookie = request.cookies.getAll().some((c) => c.name.includes("auth-token") || c.name.includes("sb-"));
-      if (!hasAuthCookie) {
-        const redirectUrl = request.nextUrl.clone();
-        redirectUrl.pathname = "/login";
-        return NextResponse.redirect(redirectUrl);
-      }
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/login";
+      return NextResponse.redirect(redirectUrl);
     }
 
-    // Si ya está autenticado e intenta entrar a /login o /registro -> redirigir a /dashboard
+    // Redirección si ya está logueado e intenta ir a /login o /registro
     if (isAuthRoute && user) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/dashboard";
       return NextResponse.redirect(redirectUrl);
     }
   } catch (err) {
-    console.warn("Middleware auth check omitido por seguridad:", err);
+    console.error("Error en middleware auth:", err);
   }
 
   return response;
