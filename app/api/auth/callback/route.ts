@@ -11,8 +11,8 @@ async function installStoreScript(
   const res = await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts`, {
     method: "POST",
     headers: {
-      Authentication: `bearer ${accessToken}`,
-      "User-Agent": "Nevux (nevuxapp@gmail.com)",
+      Authorization: `Bearer ${accessToken}`,
+      "User-Agent": "Nevux (37382 - soportenevux@gmail.com)",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -41,8 +41,8 @@ async function getTiendanubeStoreEmail(
   try {
     const res = await fetch(`https://api.tiendanube.com/v1/${storeId}`, {
       headers: {
-        Authentication: `bearer ${accessToken}`,
-        "User-Agent": "Nevux (nevuxapp@gmail.com)",
+        Authorization: `Bearer ${accessToken}`,
+        "User-Agent": "Nevux (37382 - soportenevux@gmail.com)",
         "Content-Type": "application/json",
       },
     });
@@ -296,11 +296,6 @@ export async function GET(request: Request) {
       console.log("🔄 Reinstall anónimo: mantengo dueño y plan");
     }
 
-    // NUNCA en este payload:
-    // - cambiar user_id de un dueño a otro
-    // - resetear plan_status active → trial
-    // - copiar plan de otra cuenta
-
     const { error: dbError } = await supabaseAdmin
       .from("stores")
       .upsert(upsertPayload, { onConflict: "store_id" });
@@ -354,4 +349,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-}
+      }
