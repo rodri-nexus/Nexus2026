@@ -10,7 +10,6 @@ import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function RegistroPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,53 +47,60 @@ export default function RegistroPage() {
 
     setLoading(true);
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+      });
 
-    if (signUpError) {
+      if (signUpError) {
+        setLoading(false);
+        if (
+          signUpError.message.includes("already registered") ||
+          signUpError.message.includes("already been registered")
+        ) {
+          setError("Este email ya está registrado. Iniciá sesión.");
+        } else {
+          setError(signUpError.message);
+        }
+        return;
+      }
+
+      // Crear perfil en tabla profiles
+      if (data?.user) {
+        const fullName = email.split("@")[0] || "Usuario";
+
+        // Trial de 7 días desde ahora
+        const trialEndsAt = new Date();
+        trialEndsAt.setDate(trialEndsAt.getDate() + 7);
+
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({
+            id: data.user.id,
+            email: data.user.email,
+            full_name: fullName,
+            avatar_url: null,
+            plan: "free",
+            onboarding_completed: false,
+            trial_ends_at: trialEndsAt.toISOString(),
+          });
+
+        if (profileError) {
+          console.error("Error al crear perfil:", profileError);
+          // No frenamos el flujo, el usuario ya está creado en Auth
+        }
+      }
+
       setLoading(false);
-      if (
-        signUpError.message.includes("already registered") ||
-        signUpError.message.includes("already been registered")
-      ) {
-        setError("Este email ya está registrado. Iniciá sesión.");
-      } else {
-        setError(signUpError.message);
-      }
-      return;
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: unknown) {
+      console.error("Error en registro:", err);
+      setError("Ocurrió un error inesperado. Por favor reintentá.");
+      setLoading(false);
     }
-
-    // Crear perfil en tabla profiles
-    if (data.user) {
-      const fullName = email.split("@")[0] || "Usuario";
-
-      // Trial de 7 días desde ahora
-      const trialEndsAt = new Date();
-      trialEndsAt.setDate(trialEndsAt.getDate() + 7);
-
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert({
-          id: data.user.id,
-          email: data.user.email,
-          full_name: fullName,
-          avatar_url: null,
-          plan: "free",
-          onboarding_completed: false,
-          trial_ends_at: trialEndsAt.toISOString(),
-        });
-
-      if (profileError) {
-        console.error("Error al crear perfil:", profileError);
-        // No frenamos el flow, el usuario ya está creado
-      }
-    }
-
-    setLoading(false);
-    router.push("/dashboard");
-    router.refresh();
   }
 
   const isButtonDisabled = loading || !acceptedTerms;
@@ -110,6 +116,7 @@ export default function RegistroPage() {
         background: "#f9fafb",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        boxSizing: "border-box",
       }}
     >
       <motion.div
@@ -125,6 +132,7 @@ export default function RegistroPage() {
           boxShadow:
             "0 20px 60px rgba(16, 185, 129, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04)",
           border: "1px solid #e5e7eb",
+          boxSizing: "border-box",
         }}
       >
         {/* Logo/Título */}
@@ -185,6 +193,7 @@ export default function RegistroPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   color: "rgba(0, 0, 0, 0.4)",
+                  pointerEvents: "none",
                 }}
               />
               <input
@@ -193,6 +202,7 @@ export default function RegistroPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
+                autoComplete="email"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
@@ -239,6 +249,7 @@ export default function RegistroPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   color: "rgba(0, 0, 0, 0.4)",
+                  pointerEvents: "none",
                 }}
               />
               <input
@@ -247,6 +258,7 @@ export default function RegistroPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 8 caracteres"
+                autoComplete="new-password"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
@@ -293,6 +305,7 @@ export default function RegistroPage() {
                   top: "50%",
                   transform: "translateY(-50%)",
                   color: "rgba(0, 0, 0, 0.4)",
+                  pointerEvents: "none",
                 }}
               />
               <input
@@ -301,6 +314,7 @@ export default function RegistroPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repetí tu contraseña"
+                autoComplete="new-password"
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
@@ -569,4 +583,4 @@ export default function RegistroPage() {
       </motion.div>
     </div>
   );
-               }
+            }
