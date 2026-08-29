@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Sparkles, Zap, TrendingUp, Package } from "lucide-react";
 
@@ -191,13 +190,13 @@ export default function Hero() {
           <BulletItem text="Asistencia personalizada 24/7" />
         </motion.div>
 
-        {/* Cliente nuevo → Registro */}
+        {/* Botón Probar gratis Nativo - Inmune a congelamientos */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <Link
+          <a
             href="/registro"
             style={{
               display: "inline-flex",
@@ -219,7 +218,7 @@ export default function Hero() {
           >
             Probar gratis
             <ArrowRight size={20} />
-          </Link>
+          </a>
         </motion.div>
 
         <div
@@ -440,4 +439,4 @@ function FloatingWidget({
       <span>{text}</span>
     </motion.div>
   );
-                    }
+          }
