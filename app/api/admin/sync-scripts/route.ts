@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
+const ADMIN_SECRET_KEY = "nevux_admin_sync_2026";
 
 interface StoreRecord {
   store_id: number;
@@ -67,15 +68,30 @@ async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: 
 
 export async function GET(req: NextRequest) {
   try {
-    // 1. Validar permisos de Administrador
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { searchParams } = new URL(req.url);
+    const secretParam = searchParams.get("secret");
 
-    if (!user || user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    let isAuthorized = secretParam === ADMIN_SECRET_KEY;
+
+    // Si no viene con la clave secreta, verificar si hay sesión de admin
+    if (!isAuthorized) {
+      try {
+        const supabase = await createClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+          isAuthorized = true;
+        }
+      } catch (authErr) {
+        console.warn("Error leyendo sesión en sync-scripts:", authErr);
+      }
+    }
+
+    if (!isAuthorized) {
       return NextResponse.json(
-        { error: "No autorizado. Solo el administrador puede sincronizar tiendas." },
+        { error: "No autorizado. Clave de administrador incorrecta o sesión no iniciada." },
         { status: 403 }
       );
     }
@@ -124,4 +140,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-                        }
+        }
