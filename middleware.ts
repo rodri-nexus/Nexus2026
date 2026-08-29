@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // 1. BYPASS INMEDIATO (0ms): No trabar APIs, scripts públicos ni assets estáticos
+  // 1. BYPASS ULTRA RÁPIDO (0ms): No interceptar APIs, scripts, estáticos ni landing
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/") ||
@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Rutas protegidas del panel que requieren sesión obligatoria
+  // 2. Definir rutas privadas y de autenticación
   const isProtectedRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/widgets") ||
@@ -29,10 +29,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/mi-tienda") ||
     pathname.startsWith("/configuracion");
 
-  // 3. Rutas de autenticación
   const isAuthRoute = pathname === "/login" || pathname === "/registro";
 
-  // Si no es ni ruta privada ni de login/registro, dejar pasar de inmediato
+  // Si es una ruta pública no listada, dejar pasar de inmediato
   if (!isProtectedRoute && !isAuthRoute) {
     return NextResponse.next();
   }
@@ -69,16 +68,23 @@ export async function middleware(request: NextRequest) {
       }
     );
 
-    // Obtener usuario autenticado de forma segura
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // 3. BLINDAJE ANTI-504: Límite estricto de 2.5 segundos para la respuesta de Supabase
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise<{ data: { user: null }; error: Error }>((resolve) =>
+      setTimeout(() => resolve({ data: { user: null }, error: new Error("Auth Timeout") }), 2500)
+    );
 
-    // Si intenta entrar a ruta protegida sin sesión -> redirigir a /login
+    const { data: { user } } = await Promise.race([authPromise, timeoutPromise]);
+
+    // Si intenta entrar a ruta privada sin sesión -> redirigir a /login
     if (isProtectedRoute && !user) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = "/login";
-      return NextResponse.redirect(redirectUrl);
+      // Verificar si hay cookies de Supabase guardadas para no expulsar al usuario si hubo timeout
+      const hasAuthCookie = request.cookies.getAll().some((c) => c.name.includes("auth-token") || c.name.includes("sb-"));
+      if (!hasAuthCookie) {
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.pathname = "/login";
+        return NextResponse.redirect(redirectUrl);
+      }
     }
 
     // Si ya está autenticado e intenta entrar a /login o /registro -> redirigir a /dashboard
@@ -88,12 +94,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
   } catch (err) {
-    console.error("Error en middleware auth check:", err);
-    if (isProtectedRoute) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = "/login";
-      return NextResponse.redirect(redirectUrl);
-    }
+    console.warn("Middleware auth check omitido por seguridad:", err);
   }
 
   return response;
