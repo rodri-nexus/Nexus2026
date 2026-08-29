@@ -1,9 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase'
+
+// Helper para responder con cabeceras CORS (Permite que Tiendanube lea los datos)
+function corsResponse(data: any, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}
+
+// Handler para la petición pre-flight OPTIONS de los navegadores (Evita bloqueos de CORS)
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}
 
 // ═══════════════════════════════════════════════════════════
 // POST /api/widgets
-// Crea o actualiza un widget
+// Crea o actualiza un widget (Privado del Dashboard)
 // ═══════════════════════════════════════════════════════════
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +37,7 @@ export async function POST(req: NextRequest) {
     // 1. Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+      return corsResponse({ error: 'No autorizado' }, 401)
     }
 
     // 2. Parsear body
@@ -30,28 +55,16 @@ export async function POST(req: NextRequest) {
 
     // 3. Validaciones básicas
     if (!widget_slug) {
-      return NextResponse.json(
-        { error: 'widget_slug es requerido' },
-        { status: 400 }
-      )
+      return corsResponse({ error: 'widget_slug es requerido' }, 400)
     }
     if (!store_id) {
-      return NextResponse.json(
-        { error: 'store_id es requerido' },
-        { status: 400 }
-      )
+      return corsResponse({ error: 'store_id es requerido' }, 400)
     }
     if (!target_type || !['product', 'all'].includes(target_type)) {
-      return NextResponse.json(
-        { error: 'target_type inválido (debe ser "product" o "all")' },
-        { status: 400 }
-      )
+      return corsResponse({ error: 'target_type inválido (debe ser "product" o "all")' }, 400)
     }
     if (target_type === 'product' && !target_product_id) {
-      return NextResponse.json(
-        { error: 'target_product_id es requerido cuando target_type es "product"' },
-        { status: 400 }
-      )
+      return corsResponse({ error: 'target_product_id es requerido cuando target_type es "product"' }, 400)
     }
 
     // 4. Verificar que la tienda pertenezca al usuario
@@ -64,10 +77,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (storeError || !store) {
-      return NextResponse.json(
-        { error: 'Tienda no encontrada o no autorizada' },
-        { status: 403 }
-      )
+      return corsResponse({ error: 'Tienda no encontrada o no autorizada' }, 403)
     }
 
     const now = new Date().toISOString()
@@ -91,13 +101,10 @@ export async function POST(req: NextRequest) {
 
       if (error) {
         console.error('Error actualizando widget:', error)
-        return NextResponse.json(
-          { error: error.message },
-          { status: 500 }
-        )
+        return corsResponse({ error: error.message }, 500)
       }
 
-      return NextResponse.json({ data, widget: data, action: 'updated' })
+      return corsResponse({ data, widget: data, action: 'updated' })
     }
 
     // 6. CASO B: sin id → buscar si ya existe uno con misma combinación
@@ -119,10 +126,7 @@ export async function POST(req: NextRequest) {
 
     if (findError) {
       console.error('Error buscando widget existente:', findError)
-      return NextResponse.json(
-        { error: findError.message },
-        { status: 500 }
-      )
+      return corsResponse({ error: findError.message }, 500)
     }
 
     // 6a. Si ya existe → UPDATE
@@ -142,13 +146,10 @@ export async function POST(req: NextRequest) {
 
       if (error) {
         console.error('Error actualizando widget existente:', error)
-        return NextResponse.json(
-          { error: error.message },
-          { status: 500 }
-        )
+        return corsResponse({ error: error.message }, 500)
       }
 
-      return NextResponse.json({ data, widget: data, action: 'updated' })
+      return corsResponse({ data, widget: data, action: 'updated' })
     }
 
     // 6b. Si no existe → INSERT
@@ -171,41 +172,56 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error('Error creando widget:', error)
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
+      return corsResponse({ error: error.message }, 500)
     }
 
-    return NextResponse.json({ data, widget: data, action: 'created' })
+    return corsResponse({ data, widget: data, action: 'created' })
   } catch (error: any) {
     console.error('Error en POST /api/widgets:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message },
-      { status: 500 }
-    )
+    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
   }
 }
 
 // ═══════════════════════════════════════════════════════════
-// GET /api/widgets?store_id=X (opcional)
-// Lista los widgets del usuario autenticado
+// GET /api/widgets?store_id=X (Doble función: Storefront público y Dashboard privado)
 // ═══════════════════════════════════════════════════════════
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // 1. Verificar autenticación
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    // 2. Leer query params
     const { searchParams } = new URL(req.url)
     const storeIdParam = searchParams.get('store_id')
 
-    // 3. Construir query
+    const supabase = await createClient()
+
+    // 1. Intentar verificar autenticación de usuario
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    // CASO PUBLICO: No hay usuario logueado pero viene store_id (Script inyectado en Tiendanube)
+    if (authError || !user) {
+      if (!storeIdParam) {
+        return corsResponse({ error: 'No autorizado' }, 401)
+      }
+
+      const storeIdNum = parseInt(storeIdParam, 10)
+      if (isNaN(storeIdNum)) {
+        return corsResponse({ error: 'store_id inválido' }, 400)
+      }
+
+      // Usamos supabaseAdmin para traer de forma segura SOLO los widgets ACTIVOS de esta tienda
+      const { data: widgets, error: fetchError } = await supabaseAdmin
+        .from('widgets')
+        .select('*')
+        .eq('store_id', storeIdNum)
+        .eq('is_active', true)
+
+      if (fetchError) {
+        console.error('Error público listando widgets:', fetchError)
+        return corsResponse({ error: fetchError.message }, 500)
+      }
+
+      return corsResponse({ widgets: widgets || [] })
+    }
+
+    // CASO PRIVADO: Usuario logueado en el Dashboard
     let query = supabase
       .from('widgets')
       .select('*')
@@ -215,10 +231,7 @@ export async function GET(req: NextRequest) {
     if (storeIdParam) {
       const storeIdNum = parseInt(storeIdParam, 10)
       if (isNaN(storeIdNum)) {
-        return NextResponse.json(
-          { error: 'store_id inválido' },
-          { status: 400 }
-        )
+        return corsResponse({ error: 'store_id inválido' }, 400)
       }
       query = query.eq('store_id', storeIdNum)
     }
@@ -226,27 +239,20 @@ export async function GET(req: NextRequest) {
     const { data: widgets, error: fetchError } = await query
 
     if (fetchError) {
-      console.error('Error listando widgets:', fetchError)
-      return NextResponse.json(
-        { error: fetchError.message },
-        { status: 500 }
-      )
+      console.error('Error listando widgets privado:', fetchError)
+      return corsResponse({ error: fetchError.message }, 500)
     }
 
-    return NextResponse.json({ widgets: widgets || [] })
+    return corsResponse({ widgets: widgets || [] })
   } catch (error: any) {
     console.error('Error en GET /api/widgets:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message },
-      { status: 500 }
-    )
+    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
   }
 }
 
 // ═══════════════════════════════════════════════════════════
 // PATCH /api/widgets
-// Activa/desactiva un widget (toggle is_active)
-// Body: { id: string, is_active: boolean }
+// Activa/desactiva un widget (Privado del Dashboard)
 // ═══════════════════════════════════════════════════════════
 export async function PATCH(req: NextRequest) {
   try {
@@ -255,7 +261,7 @@ export async function PATCH(req: NextRequest) {
     // 1. Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+      return corsResponse({ error: 'No autorizado' }, 401)
     }
 
     // 2. Parsear body
@@ -264,16 +270,10 @@ export async function PATCH(req: NextRequest) {
 
     // 3. Validaciones
     if (!id || typeof id !== 'string') {
-      return NextResponse.json(
-        { error: 'id es requerido y debe ser un string' },
-        { status: 400 }
-      )
+      return corsResponse({ error: 'id es requerido y debe ser un string' }, 400)
     }
     if (typeof is_active !== 'boolean') {
-      return NextResponse.json(
-        { error: 'is_active es requerido y debe ser un boolean' },
-        { status: 400 }
-      )
+      return corsResponse({ error: 'is_active es requerido y debe ser un boolean' }, 400)
     }
 
     // 4. Update con ownership check (id + user_id)
@@ -290,32 +290,23 @@ export async function PATCH(req: NextRequest) {
 
     if (error) {
       console.error('Error actualizando is_active del widget:', error)
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
+      return corsResponse({ error: error.message }, 500)
     }
 
     if (!data) {
-      return NextResponse.json(
-        { error: 'Widget no encontrado o no autorizado' },
-        { status: 404 }
-      )
+      return corsResponse({ error: 'Widget no encontrado o no autorizado' }, 404)
     }
 
-    return NextResponse.json({ data, widget: data, action: 'toggled' })
+    return corsResponse({ data, widget: data, action: 'toggled' })
   } catch (error: any) {
     console.error('Error en PATCH /api/widgets:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message },
-      { status: 500 }
-    )
+    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
   }
 }
 
 // ═══════════════════════════════════════════════════════════
 // DELETE /api/widgets?id=xxx
-// Elimina un widget permanentemente
+// Elimina un widget permanentemente (Privado del Dashboard)
 // ═══════════════════════════════════════════════════════════
 export async function DELETE(req: NextRequest) {
   try {
@@ -324,7 +315,7 @@ export async function DELETE(req: NextRequest) {
     // 1. Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+      return corsResponse({ error: 'No autorizado' }, 401)
     }
 
     // 2. Leer query param id
@@ -332,10 +323,7 @@ export async function DELETE(req: NextRequest) {
     const id = searchParams.get('id')
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'id es requerido en query params' },
-        { status: 400 }
-      )
+      return corsResponse({ error: 'id es requerido en query params' }, 400)
     }
 
     // 3. Delete con ownership check (id + user_id)
@@ -349,25 +337,16 @@ export async function DELETE(req: NextRequest) {
 
     if (error) {
       console.error('Error eliminando widget:', error)
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
+      return corsResponse({ error: error.message }, 500)
     }
 
     if (!data) {
-      return NextResponse.json(
-        { error: 'Widget no encontrado o no autorizado' },
-        { status: 404 }
-      )
+      return corsResponse({ error: 'Widget no encontrado o no autorizado' }, 404)
     }
 
-    return NextResponse.json({ success: true, deleted: data, action: 'deleted' })
+    return corsResponse({ success: true, deleted: data, action: 'deleted' })
   } catch (error: any) {
     console.error('Error en DELETE /api/widgets:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message },
-      { status: 500 }
-    )
+    return corsResponse({ error: 'Error interno del servidor', details: error?.message }, 500)
   }
-    }
+                           }
