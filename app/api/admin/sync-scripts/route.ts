@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 const ADMIN_SECRET_KEY = "nevux_admin_sync_2026";
+const TIENDANUBE_SCRIPT_ID = 9486; // Script registrado en Tiendanube Partners
 
 interface StoreRecord {
   store_id: number;
@@ -12,8 +13,8 @@ interface StoreRecord {
   is_active: boolean;
 }
 
-// Función para registrar el script con el formato oficial de Tiendanube
-async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: string) {
+// Función para registrar el script oficial en la tienda del comerciante
+async function syncStoreScript(storeId: number, accessToken: string) {
   const headers = {
     Authorization: `Bearer ${accessToken}`,
     "User-Agent": "Nevux (37382 - soportenevux@gmail.com)",
@@ -32,9 +33,9 @@ async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: 
       const data = await listRes.json();
       if (Array.isArray(data)) {
         existingScripts = data;
-        // Eliminar scripts viejos o duplicados de Nevux para no acumular basura
+        // Eliminar scripts duplicados o viejos si existen
         for (const s of data) {
-          if (s.src && s.src.includes("nevux-widget.js")) {
+          if (s.script_id === TIENDANUBE_SCRIPT_ID || (s.src && s.src.includes("nevux-widget.js"))) {
             await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts/${s.id}`, {
               method: "DELETE",
               headers,
@@ -44,14 +45,12 @@ async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: 
       }
     }
 
-    // 2. Instalar el Script con el estándar oficial de Tiendanube
+    // 2. Instalar el Script oficial usando el ID de Partners #9486
     const createRes = await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts`, {
       method: "POST",
       headers,
       body: JSON.stringify({
-        src: scriptUrl,
-        event: "onload",
-        where: "store",
+        script_id: TIENDANUBE_SCRIPT_ID,
       }),
     });
 
@@ -61,7 +60,7 @@ async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: 
         success: false,
         error: errText,
         status: createRes.status,
-        existing_before_sync: existingScripts,
+        existing_before: existingScripts,
       };
     }
 
@@ -69,7 +68,7 @@ async function syncStoreScript(storeId: number, accessToken: string, scriptUrl: 
     return {
       success: true,
       script: scriptData,
-      existing_before_sync: existingScripts,
+      existing_before: existingScripts,
     };
   } catch (err: any) {
     return { success: false, error: err?.message || "Error de red" };
@@ -120,16 +119,13 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const appOrigin = new URL(req.url).origin;
-    const scriptUrl = `${appOrigin}/nevux-widget.js`;
-
     const results = [];
 
     // 3. Sincronizar tienda por tienda
     for (const store of stores as StoreRecord[]) {
       if (!store.store_id || !store.access_token) continue;
 
-      const syncResult = await syncStoreScript(store.store_id, store.access_token, scriptUrl);
+      const syncResult = await syncStoreScript(store.store_id, store.access_token);
       results.push({
         store_id: store.store_id,
         user_id: store.user_id,
@@ -139,8 +135,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      script_id: TIENDANUBE_SCRIPT_ID,
       total_stores_processed: results.length,
-      script_url_injected: scriptUrl,
       results,
     });
   } catch (error: any) {
@@ -150,4 +146,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-                }
+}
