@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -68,7 +67,7 @@ export default function Header() {
             gap: "1rem",
           }}
         >
-          <Link
+          <a
             href="/"
             style={{
               textDecoration: "none",
@@ -77,7 +76,7 @@ export default function Header() {
             }}
           >
             <NevuxLogo size="medium" />
-          </Link>
+          </a>
 
           <div
             style={{
@@ -86,8 +85,8 @@ export default function Header() {
               gap: "0.75rem",
             }}
           >
-            {/* Cliente nuevo → Registro */}
-            <Link
+            {/* Botón Probar Nativo - Imposible de congelar */}
+            <a
               href="/registro"
               style={{
                 padding: "0.65rem 1.5rem",
@@ -106,7 +105,7 @@ export default function Header() {
               }}
             >
               Probar
-            </Link>
+            </a>
 
             <button
               onClick={() => setMenuOpen(true)}
@@ -225,23 +224,23 @@ export default function Header() {
                   Cuenta
                 </p>
 
-                <Link
+                <a
                   href="/login"
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
                   <LogIn size={18} color="#10B981" />
                   <span>Iniciar sesión</span>
-                </Link>
+                </a>
 
-                <Link
+                <a
                   href="/registro"
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
                   <UserPlus size={18} color="#10B981" />
                   <span>Crear cuenta</span>
-                </Link>
+                </a>
 
                 <div
                   style={{
@@ -276,23 +275,23 @@ export default function Header() {
                   <span>Soporte</span>
                 </a>
 
-                <Link
+                <a
                   href="/terminos"
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
                   <FileText size={18} color="#10B981" />
                   <span>Términos y Condiciones</span>
-                </Link>
+                </a>
 
-                <Link
+                <a
                   href="/privacidad"
                   onClick={() => setMenuOpen(false)}
                   style={menuItemStyle}
                 >
                   <Shield size={18} color="#10B981" />
                   <span>Política de Privacidad</span>
-                </Link>
+                </a>
               </div>
 
               <div
@@ -302,7 +301,7 @@ export default function Header() {
                   background: "#ffffff",
                 }}
               >
-                <Link
+                <a
                   href="/registro"
                   onClick={() => setMenuOpen(false)}
                   style={{
@@ -319,7 +318,7 @@ export default function Header() {
                   }}
                 >
                   Probar gratis →
-                </Link>
+                </a>
                 <p
                   style={{
                     fontSize: "0.8rem",
