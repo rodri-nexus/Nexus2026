@@ -143,33 +143,36 @@ export default function WidgetsClient({
     setTimeout(() => setToast(null), 3500);
   }, []);
 
-  const handleToggle = useCallback(async (widget: WidgetRow) => {
-    setBusyId(widget.id);
-    try {
-      const res = await fetch("/api/widgets", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: widget.id,
-          is_active: !widget.is_active,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "No se pudo actualizar el widget");
+  const handleToggle = useCallback(
+    async (widget: WidgetRow) => {
+      setBusyId(widget.id);
+      try {
+        const res = await fetch("/api/widgets", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: widget.id,
+            is_active: !widget.is_active,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "No se pudo actualizar el widget");
+        }
+        showToast(
+          "success",
+          !widget.is_active ? "Widget activado" : "Widget desactivado"
+        );
+        router.refresh();
+      } catch (e: unknown) {
+        const errMsg = e instanceof Error ? e.message : "Error al actualizar";
+        showToast("error", errMsg);
+      } finally {
+        setBusyId(null);
       }
-      showToast(
-        "success",
-        !widget.is_active ? "Widget activado" : "Widget desactivado"
-      );
-      router.refresh();
-    } catch (e: unknown) {
-      const errMsg = e instanceof Error ? e.message : "Error al actualizar";
-      showToast("error", errMsg);
-    } finally {
-      setBusyId(null);
-    }
-  }, [router, showToast]);
+    },
+    [router, showToast]
+  );
 
   const handleDelete = useCallback((widget: WidgetRow) => {
     setDeleteTarget(widget);
@@ -194,7 +197,7 @@ export default function WidgetsClient({
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "No se pudo eliminar el widget");
       }
-      showToast("success", "Widget eliminado");
+      showToast("success", "Widget eliminado correctamente");
       setDeleteTarget(null);
       router.refresh();
     } catch (e: unknown) {
@@ -206,34 +209,43 @@ export default function WidgetsClient({
     }
   }, [deleteTarget, router, showToast]);
 
-  const getScopeLabel = useCallback((widget: WidgetRow): string => {
-    if (widget.target_type === "all") {
-      return "Todos los productos";
-    }
-    if (widget.target_product_id) {
-      const product = productsMap[widget.target_product_id];
-      if (product) {
-        return `Producto: ${product.name}`;
+  const getScopeLabel = useCallback(
+    (widget: WidgetRow): string => {
+      if (widget.target_type === "all") {
+        return "Todos los productos";
       }
-      return `Producto #${widget.target_product_id}`;
-    }
-    return "—";
-  }, [productsMap]);
+      if (widget.target_product_id) {
+        const product = productsMap[widget.target_product_id];
+        if (product) {
+          return `Producto: ${product.name}`;
+        }
+        return `Producto #${widget.target_product_id}`;
+      }
+      return "—";
+    },
+    [productsMap]
+  );
 
-  const goToEditor = useCallback((widget: WidgetRow) => {
-    const base = `/widgets/editar/${widget.widget_slug}`;
-    const url =
-      widget.target_type === "product" && widget.target_product_id
-        ? `${base}?product=${widget.target_product_id}`
-        : base;
-    router.push(url);
-  }, [router]);
+  const goToEditor = useCallback(
+    (widget: WidgetRow) => {
+      const base = `/widgets/editar/${widget.widget_slug}`;
+      const url =
+        widget.target_type === "product" && widget.target_product_id
+          ? `${base}?product=${widget.target_product_id}`
+          : base;
+      router.push(url);
+    },
+    [router]
+  );
 
-  const goToProduct = useCallback((productId: number) => {
-    const p = productsMap[productId];
-    if (!p) return;
-    window.open(`https://tienda.com.ar/productos/${p.slug}`, "_blank");
-  }, [productsMap]);
+  const goToProduct = useCallback(
+    (productId: number) => {
+      const p = productsMap[productId];
+      if (!p) return;
+      window.open(`https://tienda.com.ar/productos/${p.slug}`, "_blank");
+    },
+    [productsMap]
+  );
 
   const hasWidgets = totalWidgets > 0;
 
@@ -268,9 +280,12 @@ export default function WidgetsClient({
             color: "#000000",
             textDecoration: "none",
             marginBottom: "1rem",
-            fontWeight: 500,
+            fontWeight: 600,
             opacity: 0.6,
+            transition: "opacity 0.15s ease",
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
         >
           <ArrowLeft size={14} />
           Volver al dashboard
@@ -286,7 +301,7 @@ export default function WidgetsClient({
               transition={{ duration: 0.3 }}
               style={{
                 background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
-                border: "1px solid #6ee7b7",
+                border: "1.5px solid #10B981",
                 borderRadius: "16px",
                 padding: "1.25rem",
                 marginBottom: "1.5rem",
@@ -294,6 +309,7 @@ export default function WidgetsClient({
                 alignItems: "flex-start",
                 gap: "0.9rem",
                 flexWrap: "wrap",
+                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.12)",
               }}
             >
               <div
@@ -301,7 +317,7 @@ export default function WidgetsClient({
                   width: "36px",
                   height: "36px",
                   borderRadius: "50%",
-                  background: "#059669",
+                  background: "#10B981",
                   color: "#fff",
                   display: "flex",
                   alignItems: "center",
@@ -315,7 +331,7 @@ export default function WidgetsClient({
                 <div
                   style={{
                     fontSize: "1rem",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     color: "#065f46",
                     marginBottom: "0.75rem",
                   }}
@@ -330,13 +346,13 @@ export default function WidgetsClient({
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "0.4rem",
-                      background: "transparent",
-                      border: "1.5px solid #059669",
-                      color: "#065f46",
+                      background: "#ffffff",
+                      border: "1.5px solid #10B981",
+                      color: "#059669",
                       padding: "0.55rem 1.1rem",
                       borderRadius: "999px",
                       fontSize: "0.85rem",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       cursor: "pointer",
                       fontFamily: "inherit",
                     }}
@@ -355,13 +371,13 @@ export default function WidgetsClient({
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "0.4rem",
-                          background: "transparent",
-                          border: "1.5px solid #059669",
-                          color: "#065f46",
+                          background: "#ffffff",
+                          border: "1.5px solid #10B981",
+                          color: "#059669",
                           padding: "0.55rem 1.1rem",
                           borderRadius: "999px",
                           fontSize: "0.85rem",
-                          fontWeight: 600,
+                          fontWeight: 700,
                           cursor: "pointer",
                           fontFamily: "inherit",
                         }}
@@ -444,7 +460,7 @@ export default function WidgetsClient({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.5rem",
-                  padding: "0.7rem 1.25rem",
+                  padding: "0.7rem 1.35rem",
                   borderRadius: "999px",
                   border: "none",
                   background: "#10B981",
@@ -452,10 +468,17 @@ export default function WidgetsClient({
                   fontSize: "0.9rem",
                   fontWeight: 700,
                   cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
+                  boxShadow: "0 4px 14px rgba(16, 185, 129, 0.3)",
                   fontFamily: "inherit",
                   textDecoration: "none",
+                  transition: "background 0.15s ease",
                 }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#059669")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#10B981")
+                }
               >
                 <Plus size={16} />
                 Crear widget
@@ -477,14 +500,13 @@ export default function WidgetsClient({
           >
             <Search
               size={18}
-              color="#000000"
+              color="#10B981"
               style={{
                 position: "absolute",
-                left: "1rem",
+                left: "1.1rem",
                 top: "50%",
                 transform: "translateY(-50%)",
                 pointerEvents: "none",
-                opacity: 0.45,
               }}
             />
             <input
@@ -494,15 +516,15 @@ export default function WidgetsClient({
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 width: "100%",
-                padding: "0.85rem 1rem 0.85rem 2.75rem",
+                padding: "0.85rem 1rem 0.85rem 2.85rem",
                 borderRadius: "999px",
-                border: "1px solid #e5e7eb",
+                border: "1.5px solid #e5e7eb",
                 background: "#ffffff",
                 fontSize: "0.9rem",
                 color: "#000000",
                 outline: "none",
                 fontFamily: "inherit",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
                 boxSizing: "border-box",
                 transition: "border-color 0.15s ease",
               }}
@@ -578,6 +600,9 @@ export default function WidgetsClient({
                         <img
                           src={product.image}
                           alt={product.name}
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                           style={{
                             width: "44px",
                             height: "44px",
@@ -648,7 +673,7 @@ export default function WidgetsClient({
               padding: "0.85rem 1.4rem",
               borderRadius: "999px",
               fontSize: "0.9rem",
-              fontWeight: 600,
+              fontWeight: 700,
               boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
               zIndex: 100,
               display: "flex",
@@ -702,7 +727,7 @@ function EmptyState({
       transition={{ duration: 0.4, delay: 0.1 }}
       style={{
         background: "#ffffff",
-        border: "1px solid #e5e7eb",
+        border: "1.5px solid #e5e7eb",
         borderRadius: "16px",
         padding: "3rem 2rem",
         textAlign: "center",
@@ -728,7 +753,7 @@ function EmptyState({
         style={{
           margin: "0 0 0.75rem",
           fontSize: "1.35rem",
-          fontWeight: 700,
+          fontWeight: 800,
           color: "#000000",
           letterSpacing: "-0.01em",
         }}
@@ -764,7 +789,10 @@ function EmptyState({
             fontWeight: 700,
             textDecoration: "none",
             boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
+            transition: "background 0.15s ease",
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#059669")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#10B981")}
         >
           <Plus size={16} />
           {ctaLabel}
@@ -804,7 +832,7 @@ function WidgetGroup({
       transition={{ duration: 0.3 }}
       style={{
         background: "#ffffff",
-        border: "1px solid #e5e7eb",
+        border: "1.5px solid #e5e7eb",
         borderRadius: "16px",
         padding: "1.25rem",
         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
@@ -825,7 +853,7 @@ function WidgetGroup({
           <div
             style={{
               fontSize: "1rem",
-              fontWeight: 700,
+              fontWeight: 800,
               color: "#000000",
               opacity: productDisabled ? 0.45 : 1,
               whiteSpace: "nowrap",
@@ -948,7 +976,7 @@ function WidgetRowItem({
           color: "#ffffff",
           borderRadius: "999px",
           fontSize: "0.8rem",
-          fontWeight: 600,
+          fontWeight: 700,
           maxWidth: "100%",
           minWidth: 0,
           opacity: widget.is_active ? 1 : 0.75,
@@ -986,7 +1014,7 @@ function WidgetRowItem({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          transition: "all 0.15s",
+          transition: "all 0.15s ease",
           flexShrink: 0,
         }}
         onMouseEnter={(e) => {
@@ -1005,7 +1033,7 @@ function WidgetRowItem({
         <Pencil size={16} />
       </button>
 
-      {/* Eliminar (Rojo es permitido por ser acción destructiva de advertencia) */}
+      {/* Eliminar */}
       <button
         type="button"
         onClick={() => onDelete(widget)}
@@ -1023,20 +1051,22 @@ function WidgetRowItem({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          transition: "all 0.15s",
+          transition: "all 0.15s ease",
           flexShrink: 0,
         }}
         onMouseEnter={(e) => {
           if (!busy) {
             e.currentTarget.style.background = "#fef2f2";
+            e.currentTarget.style.borderColor = "#dc2626";
           }
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = "#ffffff";
+          e.currentTarget.style.borderColor = "#fecaca";
         }}
       >
         <Trash2 size={16} />
       </button>
     </div>
   );
-}
+  }
