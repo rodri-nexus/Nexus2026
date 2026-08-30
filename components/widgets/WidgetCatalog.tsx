@@ -11,6 +11,7 @@ import {
   Mail,
   Type,
   Search,
+  Sparkles,
 } from "lucide-react";
 import { WidgetDefinition, WidgetCategory } from "@/types/widgets";
 import WidgetCard from "./WidgetCard";
@@ -73,22 +74,26 @@ export default function WidgetCatalog({
             fontWeight: 800,
             color: "#000000",
             lineHeight: 1.25,
+            letterSpacing: "-0.01em",
           }}
         >
           {title}
         </h1>
       </motion.div>
 
-      {/* Filtros */}
+      {/* Filtros con scroll horizontal táctil */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.05 }}
         style={{
           display: "flex",
-          flexWrap: "wrap",
-          gap: "0.6rem",
-          marginBottom: "1.25rem",
+          gap: "0.5rem",
+          overflowX: "auto",
+          paddingBottom: "0.5rem",
+          marginBottom: "1rem",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
         }}
       >
         {CATEGORIES.map((cat) => {
@@ -101,19 +106,33 @@ export default function WidgetCatalog({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.4rem",
-                padding: "0.5rem 1rem",
+                padding: "0.5rem 0.9rem",
                 borderRadius: "999px",
-                border: isActive ? "none" : "1.5px solid #e5e7eb",
+                border: isActive ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
                 background: isActive ? "#10B981" : "#ffffff",
                 color: isActive ? "#ffffff" : "#000000",
                 fontSize: "0.85rem",
                 fontWeight: isActive ? 700 : 500,
                 cursor: "pointer",
                 fontFamily: "inherit",
-                transition: "all 0.15s",
+                whiteSpace: "nowrap",
+                transition: "all 0.15s ease",
                 boxShadow: isActive
                   ? "0 2px 8px rgba(16, 185, 129, 0.25)"
                   : "none",
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.borderColor = "#10B981";
+                  e.currentTarget.style.background = "#f0fdf4";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.borderColor = "#e5e7eb";
+                  e.currentTarget.style.background = "#ffffff";
+                }
               }}
             >
               {cat.icon}
@@ -133,31 +152,30 @@ export default function WidgetCatalog({
         <div style={{ position: "relative" }}>
           <Search
             size={18}
-            color="#000000"
+            color="#10B981"
             style={{
               position: "absolute",
-              left: "0.9rem",
+              left: "1rem",
               top: "50%",
               transform: "translateY(-50%)",
-              opacity: 0.4,
             }}
           />
           <input
             type="text"
-            placeholder="Buscá un widget..."
+            placeholder="Buscar widget por nombre o función..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
               width: "100%",
-              padding: "0.75rem 1rem 0.75rem 2.5rem",
+              padding: "0.75rem 1rem 0.75rem 2.6rem",
               border: "1.5px solid #e5e7eb",
-              borderRadius: "10px",
+              borderRadius: "12px",
               fontSize: "0.9rem",
               color: "#000000",
               outline: "none",
               fontFamily: "inherit",
               background: "#ffffff",
-              transition: "border-color 0.15s",
+              transition: "border-color 0.15s ease",
               boxSizing: "border-box",
             }}
             onFocus={(e) => {
@@ -191,19 +209,53 @@ export default function WidgetCatalog({
         ))}
       </motion.div>
 
+      {/* Empty State */}
       {filtered.length === 0 && (
         <div
           style={{
             textAlign: "center",
-            padding: "3rem 0",
-            color: "#000000",
-            opacity: 0.5,
-            fontSize: "0.9rem",
+            padding: "3.5rem 1rem",
+            background: "#fafafa",
+            borderRadius: "16px",
+            border: "1px dashed #e5e7eb",
           }}
         >
-          No se encontraron widgets para esta categoría.
+          <Sparkles size={32} color="#10B981" style={{ margin: "0 auto 0.75rem auto" }} />
+          <h4 style={{ margin: "0 0 0.35rem 0", fontSize: "1rem", fontWeight: 700 }}>
+            No se encontraron widgets
+          </h4>
+          <p
+            style={{
+              margin: "0 0 1rem 0",
+              color: "#000000",
+              opacity: 0.6,
+              fontSize: "0.85rem",
+            }}
+          >
+            Probá buscando con otras palabras o cambiando de categoría.
+          </p>
+          {(search || activeCategory !== "all") && (
+            <button
+              onClick={() => {
+                setSearch("");
+                setActiveCategory("all");
+              }}
+              style={{
+                padding: "0.5rem 1rem",
+                background: "#10B981",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "999px",
+                fontSize: "0.8rem",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Ver todos los widgets
+            </button>
+          )}
         </div>
       )}
     </div>
   );
-}
+  }
