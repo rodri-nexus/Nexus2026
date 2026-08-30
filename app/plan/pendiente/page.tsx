@@ -1,3 +1,4 @@
+// app/plan/pendiente/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { getPlanForUser } from "@/lib/plan";
@@ -25,36 +26,42 @@ export default async function PendientePage() {
     redirect("/login");
   }
 
-  let planData = null;
+  let redirectTo: string | null = null;
   let lastPayment: DbPaymentRow | null = null;
 
   try {
-    planData = await getPlanForUser(user.id);
+    const planData = await getPlanForUser(user.id);
 
     if (!planData) {
-      redirect("/dashboard");
+      redirectTo = "/dashboard";
+    } else {
+      const { plan } = planData;
+
+      // Si el plan ya está activo → al dashboard
+      if (plan.canUseApp) {
+        redirectTo = "/dashboard";
+      } else {
+        // Traer el último pago del usuario usando supabaseAdmin
+        const { data: paymentData } = await supabaseAdmin
+          .from("payments")
+          .select("id, status, amount, payment_method, created_at, rejected_reason")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        lastPayment = paymentData as DbPaymentRow | null;
+      }
     }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error desconocido";
+    console.error("[PendientePage Server Error]:", msg);
+    redirectTo = "/dashboard";
+  }
 
-    const { plan } = planData;
-
-    // Si el plan ya está activo → al dashboard
-    if (plan.canUseApp) {
-      redirect("/dashboard");
-    }
-
-    // Traer el último pago del usuario usando supabaseAdmin
-    const { data: paymentData } = await supabaseAdmin
-      .from("payments")
-      .select("id, status, amount, payment_method, created_at, rejected_reason")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    lastPayment = paymentData as DbPaymentRow | null;
-  } catch (err) {
-    console.error("[PendientePage Server Error]:", err);
-    redirect("/dashboard");
+  // Redirecciones seguras fuera del try/catch
+  if (redirectTo) {
+    redirect(redirectTo);
   }
 
   // Si no hay ningún pago → mandar a pagar
@@ -81,4 +88,4 @@ export default async function PendientePage() {
       amount={Number(lastPayment.amount) || 30000}
     />
   );
-}
+        }
