@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { WidgetDefinition } from "@/types/widgets";
 import WidgetCatalog from "./WidgetCatalog";
@@ -11,6 +12,7 @@ interface WidgetCatalogClientProps {
   baseUrl: string;
   productId?: number;
   target?: "all";
+  selectedType?: string;
 }
 
 export default function WidgetCatalogClient({
@@ -20,8 +22,28 @@ export default function WidgetCatalogClient({
   baseUrl,
   productId,
   target,
+  selectedType,
 }: WidgetCatalogClientProps) {
   const router = useRouter();
+
+  // Si se pasó un selectedType (desde el modal), redirigir directamente al editor
+  useEffect(() => {
+    if (selectedType && definitions.length > 0) {
+      const match = definitions.find(
+        (d) =>
+          d.slug === selectedType ||
+          d.id?.toString() === selectedType ||
+          d.slug?.includes(selectedType)
+      );
+
+      if (match) {
+        const params = new URLSearchParams();
+        if (productId) params.set("product", String(productId));
+        if (target) params.set("target", target);
+        router.push(`${baseUrl}/${match.slug}?${params.toString()}`);
+      }
+    }
+  }, [selectedType, definitions, baseUrl, productId, target, router]);
 
   function handleSelect(widget: WidgetDefinition) {
     const params = new URLSearchParams();
@@ -38,4 +60,4 @@ export default function WidgetCatalogClient({
       chip={chip}
     />
   );
-}
+    }
