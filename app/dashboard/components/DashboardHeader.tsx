@@ -1,3 +1,4 @@
+// app/dashboard/components/DashboardHeader.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -45,9 +46,12 @@ export default function DashboardHeader({
 
   async function handleLogout() {
     setLoggingOut(true);
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
+    try {
+      await supabase.auth.signOut();
+      window.location.href = "/login";
+    } catch {
+      window.location.href = "/login";
+    }
   }
 
   function navigateTo(path: string) {
@@ -55,8 +59,18 @@ export default function DashboardHeader({
     router.push(path);
   }
 
-  // Obtener iniciales del email (ej: "juan@gmail.com" → "JU")
-  const initials = email.substring(0, 2).toUpperCase();
+  function openSupport() {
+    setDropdownOpen(false);
+    window.open(
+      "https://wa.me/5493434163999?text=" +
+        encodeURIComponent("Hola Nevux, necesito soporte con mi cuenta."),
+      "_blank"
+    );
+  }
+
+  // Obtener iniciales seguras del email
+  const displayEmail = email || "usuario@nevux.app";
+  const initials = (email ? email.substring(0, 2) : "NX").toUpperCase();
 
   return (
     <header
@@ -64,7 +78,7 @@ export default function DashboardHeader({
         position: "sticky",
         top: 0,
         zIndex: 50,
-        background: "rgba(255, 255, 255, 0.85)",
+        background: "rgba(255, 255, 255, 0.9)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         borderBottom: "1px solid #e5e7eb",
@@ -124,7 +138,7 @@ export default function DashboardHeader({
               cursor: "pointer",
               color: "#000000",
               borderRadius: "10px",
-              transition: "background 0.15s",
+              transition: "background 0.15s, color 0.15s",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "#ecfdf5";
@@ -213,7 +227,7 @@ export default function DashboardHeader({
                   borderRadius: "14px",
                   boxShadow:
                     "0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05)",
-                  border: "1px solid #f3f4f6",
+                  border: "1px solid #e5e7eb",
                   minWidth: "260px",
                   overflow: "hidden",
                   zIndex: 100,
@@ -274,7 +288,7 @@ export default function DashboardHeader({
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {email}
+                        {displayEmail}
                       </div>
                     </div>
                   </div>
@@ -311,7 +325,7 @@ export default function DashboardHeader({
                   </button>
 
                   <button
-                    onClick={() => navigateTo("/ayuda")}
+                    onClick={openSupport}
                     style={dropdownItemStyle}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = "#ecfdf5";
@@ -321,7 +335,7 @@ export default function DashboardHeader({
                     }}
                   >
                     <HelpCircle size={16} color="#000000" />
-                    <span>Centro de ayuda</span>
+                    <span>Centro de ayuda (WhatsApp)</span>
                   </button>
 
                   {/* Separador */}
