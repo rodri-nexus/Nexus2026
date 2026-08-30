@@ -3,6 +3,14 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 
+interface TiendanubeScript {
+  id: number;
+  name?: string;
+  src?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 /* ═══════════════════════════════════════════════════
    POST /api/tienda/desconectar
    Desconecta la tienda del usuario logueado:
@@ -11,7 +19,10 @@ import { supabaseAdmin } from "@/lib/supabase";
    3. Marca la tienda como inactiva en Supabase
 ═══════════════════════════════════════════════════ */
 
-async function removeStoreScripts(storeId: number, accessToken: string) {
+async function removeStoreScripts(
+  storeId: number,
+  accessToken: string
+): Promise<{ removed: number; error: string | null }> {
   try {
     // 1. Listar scripts existentes
     const listRes = await fetch(
@@ -31,10 +42,10 @@ async function removeStoreScripts(storeId: number, accessToken: string) {
       return { removed: 0, error: "list_failed" };
     }
 
-    const scripts = await listRes.json();
+    const scripts: TiendanubeScript[] = await listRes.json();
     const nevuxScripts = Array.isArray(scripts)
       ? scripts.filter(
-          (s: any) =>
+          (s) =>
             (s.src && s.src.includes("nevux-widget.js")) ||
             (s.name && s.name.toLowerCase().includes("nevux"))
         )
@@ -53,20 +64,24 @@ async function removeStoreScripts(storeId: number, accessToken: string) {
           },
         }
       );
-      if (delRes.ok) removed++;
-      else console.error("No se pudo borrar script:", script.id, delRes.status);
+      if (delRes.ok) {
+        removed++;
+      } else {
+        console.error("No se pudo borrar script:", script.id, delRes.status);
+      }
     }
 
     return { removed, error: null };
-  } catch (e: any) {
-    console.error("Error removiendo scripts:", e);
-    return { removed: 0, error: e.message };
+  } catch (e: unknown) {
+    const errorMsg = e instanceof Error ? e.message : "Error desconocido";
+    console.error("Error removiendo scripts:", errorMsg);
+    return { removed: 0, error: errorMsg };
   }
 }
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
-    // 1. Verificar sesión
+    // 1. Verificar sesión del usuario
     const supabase = createClient();
     const {
       data: { user },
@@ -79,7 +94,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Buscar la tienda vinculada al usuario
+    // 2. Buscar la tienda activa vinculada al usuario
     const { data: store, error: storeErr } = await supabaseAdmin
       .from("stores")
       .select("store_id, access_token, is_active")
@@ -102,7 +117,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Intentar eliminar el script de Tiendanube (no crítico)
+    // 3. Intentar eliminar los scripts de Tiendanube (resiliente)
     let scriptResult = { removed: 0, error: null as string | null };
     if (store.access_token) {
       scriptResult = await removeStoreScripts(store.store_id, store.access_token);
@@ -121,9 +136,7 @@ export async function POST(request: Request) {
     }
 
     // 5. Marcar la tienda como inactiva (soft delete)
-    // ⚠️ NO seteamos access_token a null porque la columna es NOT NULL.
-    // El token viejo queda guardado (no importa, porque is_active = false).
-    // Cuando el usuario reconecte, se sobreescribe con uno nuevo.
+    // Se preserva el access_token para cumplir la restricción NOT NULL de la DB
     const { error: updateErr } = await supabaseAdmin
       .from("stores")
       .update({
@@ -155,11 +168,13 @@ export async function POST(request: Request) {
       message: "Tienda desconectada correctamente",
       scripts_removed: scriptResult.removed,
     });
-  } catch (error: any) {
-    console.error("Error en POST /api/tienda/desconectar:", error);
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Error interno del servidor";
+    console.error("Error en POST /api/tienda/desconectar:", errorMsg);
     return NextResponse.json(
-      { error: "Error interno del servidor", details: error?.message },
+      { error: "Error interno del servidor", details: errorMsg },
       { status: 500 }
     );
   }
-         }
+}
