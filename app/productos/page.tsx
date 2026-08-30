@@ -1,3 +1,4 @@
+// app/productos/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -5,6 +6,12 @@ import { getProductsCount } from "@/lib/tiendanube";
 import ProductosClient from "./ProductosClient";
 
 export const dynamic = "force-dynamic";
+
+export interface StoreData {
+  store_id: number;
+  installed_at: string;
+  is_active: boolean;
+}
 
 export default async function ProductosPage() {
   const supabase = createClient();
@@ -34,13 +41,13 @@ export default async function ProductosPage() {
         store.store_id,
         store.access_token
       );
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("[productos/page] Error obteniendo total de productos:", err);
       productsCount = 0;
     }
   }
 
-  const storeData = store
+  const storeData: StoreData | null = store
     ? {
         store_id: store.store_id,
         installed_at: store.installed_at,
