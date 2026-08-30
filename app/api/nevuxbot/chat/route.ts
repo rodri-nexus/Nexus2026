@@ -1,3 +1,4 @@
+// app/api/nevuxbot/chat/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { sendCartRecoveryEmail } from "@/lib/email";
@@ -5,6 +6,43 @@ import { sendCartRecoveryEmail } from "@/lib/email";
 export const dynamic = "force-dynamic";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+interface TiendanubeLineItem {
+  id?: number;
+  name?: string;
+  price?: string;
+  quantity?: number;
+}
+
+interface TiendanubeRawCheckout {
+  id: string | number;
+  contact_name?: string;
+  billing_name?: string;
+  contact_email?: string;
+  billing_email?: string;
+  contact_phone?: string;
+  billing_phone?: string;
+  line_items?: TiendanubeLineItem[];
+  total?: string | number;
+  currency?: string;
+  abandoned_checkout_url?: string;
+  checkout_url?: string;
+  created_at?: string;
+}
+
+interface ChatRequestBody {
+  action?: "generate_copy" | "send_email" | "update_status";
+  cartId?: string;
+  status?: string;
+  customerName?: string;
+  customerEmail?: string;
+  products?: string[];
+  totalFormatted?: string;
+  checkoutUrl?: string;
+  tone?: "persuasivo" | "calida" | "urgente" | string;
+  botName?: string;
+  customMessage?: string;
+}
 
 // Generador de Copy Persuasivo de Recupero con IA (Gemini)
 async function generateAIRecoveryMessage(
@@ -14,7 +52,7 @@ async function generateAIRecoveryMessage(
   checkoutUrl: string,
   tone: string = "persuasivo",
   botName: string = "Sofía"
-) {
+): Promise<string> {
   const nameStr = customerName ? customerName : "hola";
   const productsStr = products.length > 0 ? products.join(", ") : "tus productos";
 
@@ -27,7 +65,7 @@ async function generateAIRecoveryMessage(
     if (tone === "calida") {
       tonePrompt = "Tu tono es súper dulce, cercano, empático, cálido y agradecido.";
     } else if (tone === "urgente") {
-      tonePrompt = "Tu tono crea sentido de oportunidad/urgencia amable, destacando que el stock de sus productos es limitado.";
+      tonePrompt = "Tu tono crea sentido de oportunidad y urgencia amable, destacando que el stock de sus productos es limitado.";
     }
 
     const prompt = `Sos ${botName}, asesora de ventas experta en E-commerce.
@@ -73,13 +111,14 @@ REGLAS CRÍTICAS:
           const copy = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
           if (copy) return copy;
         }
-      } catch (err) {
-        console.error(`Error con modelo ${model}:`, err);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Error";
+        console.error(`Error con modelo ${model}:`, msg);
       }
     }
 
     return buildFallbackMessage(nameStr, products, totalFormatted, checkoutUrl, botName);
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("[Gemini Recovery Copy Exception]:", err);
     return buildFallbackMessage(nameStr, products, totalFormatted, checkoutUrl, botName);
   }
@@ -91,7 +130,7 @@ function buildFallbackMessage(
   totalFormatted: string,
   checkoutUrl: string,
   botName: string
-) {
+): string {
   const prodText = products.length > 0 ? ` (${products.slice(0, 2).join(", ")})` : "";
   return `¡Hola ${customerName}! 👋 Soy ${botName}. Notamos que dejaste pendiente tu pedido${prodText} en nuestra tienda.\n\nGuardamos tu carrito para que no pierdas tu selección (${totalFormatted}).\n\nPodés completarlo en 1 clic desde acá 👇\n${checkoutUrl}\n\nSi tuviste alguna duda con el envío o el pago, ¡escribime y te ayudo al instante! 😊`;
 }
@@ -99,7 +138,7 @@ function buildFallbackMessage(
 // 🟢 GET: Consultar Carritos Abandonados + CRM Statuses
 export async function GET() {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
     const {
       data: { user },
       error: authError,
@@ -120,17 +159,22 @@ export async function GET() {
     if (storeError || !store || !store.access_token) {
       return NextResponse.json({
         checkouts: [],
-        summary: { totalAbandoned: 0, recoverableAmount: 0, recoveredAmount: 0, recoveredCount: 0 },
+        summary: {
+          totalAbandoned: 0,
+          recoverableAmount: 0,
+          recoveredAmount: 0,
+          recoveredCount: 0,
+        },
       });
     }
 
-    // Petición a Tiendanube Checkouts
+    // Petición a Tiendanube Checkouts con Authorization Bearer oficial
     const tnRes = await fetch(
       `https://api.tiendanube.com/v1/${store.store_id}/checkouts?status=uncompleted&per_page=50`,
       {
         headers: {
-          Authentication: `bearer ${store.access_token}`,
-          "User-Agent": "Nevux (nevuxapp@gmail.com)",
+          Authorization: `Bearer ${store.access_token}`,
+          "User-Agent": "Nevux (nevux.app)",
           "Content-Type": "application/json",
         },
       }
@@ -140,46 +184,44 @@ export async function GET() {
       console.error("[Tiendanube Checkouts Fetch Failed]: Status", tnRes.status);
       return NextResponse.json({
         checkouts: [],
-        summary: { totalAbandoned: 0, recoverableAmount: 0, recoveredAmount: 0, recoveredCount: 0 },
+        summary: {
+          totalAbandoned: 0,
+          recoverableAmount: 0,
+          recoveredAmount: 0,
+          recoveredCount: 0,
+        },
       });
     }
 
-    const rawCheckouts = await tnRes.json();
+    const rawCheckouts: TiendanubeRawCheckout[] = await tnRes.json();
 
-    // Obtener config/metadata de la tienda para CRM statuses
-    const { data: botConfig } = await supabase
-      .from("bot_config")
-      .select("primary_color")
-      .eq("store_id", String(store.store_id))
-      .maybeSingle();
-
-    // Mock CRM statuses map guardado en la sesión
     let recoverableAmount = 0;
-    let recoveredAmount = 0;
-    let recoveredCount = 0;
+    const recoveredAmount = 0;
+    const recoveredCount = 0;
 
-    const checkouts = (Array.isArray(rawCheckouts) ? rawCheckouts : []).map((c: any) => {
-      const totalNum = parseFloat(c.total || "0");
-      recoverableAmount += totalNum;
+    const checkouts = (Array.isArray(rawCheckouts) ? rawCheckouts : []).map(
+      (c) => {
+        const totalNum = typeof c.total === "number" ? c.total : parseFloat(c.total || "0");
+        recoverableAmount += totalNum;
 
-      const items = (c.line_items || []).map((item: any) => item.name || "Producto");
+        const items = (c.line_items || []).map(
+          (item) => item.name || "Producto"
+        );
 
-      // Estado por defecto
-      const status = "pending"; // 'pending' | 'contacted' | 'recovered'
-
-      return {
-        id: String(c.id),
-        customerName: c.contact_name || c.billing_name || "Cliente",
-        customerEmail: c.contact_email || c.billing_email || "",
-        customerPhone: c.contact_phone || c.billing_phone || "",
-        products: items,
-        total: totalNum,
-        currency: c.currency || "ARS",
-        checkoutUrl: c.abandoned_checkout_url || c.checkout_url || "",
-        createdAt: c.created_at || new Date().toISOString(),
-        status,
-      };
-    });
+        return {
+          id: String(c.id),
+          customerName: c.contact_name || c.billing_name || "Cliente",
+          customerEmail: c.contact_email || c.billing_email || "",
+          customerPhone: c.contact_phone || c.billing_phone || "",
+          products: items,
+          total: totalNum,
+          currency: c.currency || "ARS",
+          checkoutUrl: c.abandoned_checkout_url || c.checkout_url || "",
+          createdAt: c.created_at || new Date().toISOString(),
+          status: "pending" as const,
+        };
+      }
+    );
 
     return NextResponse.json({
       checkouts,
@@ -190,12 +232,18 @@ export async function GET() {
         recoveredCount,
       },
     });
-  } catch (err: any) {
-    console.error("[Checkouts GET Exception]:", err);
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Error interno";
+    console.error("[Checkouts GET Exception]:", errorMsg);
     return NextResponse.json(
       {
         checkouts: [],
-        summary: { totalAbandoned: 0, recoverableAmount: 0, recoveredAmount: 0, recoveredCount: 0 },
+        summary: {
+          totalAbandoned: 0,
+          recoverableAmount: 0,
+          recoveredAmount: 0,
+          recoveredCount: 0,
+        },
       },
       { status: 500 }
     );
@@ -205,7 +253,7 @@ export async function GET() {
 // 🟢 POST: Copy IA, Enviar Email o Actualizar Estado CRM
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -214,7 +262,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const body = await req.json();
+    const body: ChatRequestBody = await req.json();
     const {
       action = "generate_copy",
       cartId,
@@ -259,7 +307,10 @@ export async function POST(req: NextRequest) {
 
       if (!emailSent) {
         return NextResponse.json(
-          { error: "No se pudo entregar el correo por un problema temporal de servicio." },
+          {
+            error:
+              "No se pudo entregar el correo por un problema temporal de servicio.",
+          },
           { status: 500 }
         );
       }
@@ -283,11 +334,13 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json({ message });
-  } catch (error: any) {
-    console.error("Error en POST /api/nevuxbot/chat:", error);
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Error interno";
+    console.error("Error en POST /api/nevuxbot/chat:", errorMsg);
     return NextResponse.json(
       { error: "Ocurrió un error al procesar la solicitud." },
       { status: 500 }
     );
   }
-                                }
+  }
