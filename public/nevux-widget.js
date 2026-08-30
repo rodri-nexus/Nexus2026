@@ -5336,12 +5336,21 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       });
     });
   }
-  /* ═══════════════════════════════════════════
+
+   /* ═══════════════════════════════════════════
      RENDER EXTRAS CON INTERRUPTOR
   ═══════════════════════════════════════════ */
   function renderExtrasInterruptor(w) {
-    if (pageType !== "product") return;
-    
+    var path = document.location.pathname.toLowerCase();
+    var isProdPage = (pageType === "product") || 
+                     (path.indexOf("/productos/") >= 0) || 
+                     (path.indexOf("/products/") >= 0) || 
+                     (path.indexOf("/producto/") >= 0) || 
+                     (path.indexOf("/p/") >= 0) ||
+                     !!document.querySelector("form[action*='/cart/add']");
+
+    if (!isProdPage) return;
+
     var exist = document.getElementById("nvx-extras-" + w.id);
     if (exist) return;
 
@@ -5352,7 +5361,16 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var img = cfg.imagenUrl || "";
     var txtVerMas = cfg.textoVerMas || "VER DETALLES";
     var variantId = cfg.variantId || "";
-    var primaryColor = "#10B981";
+    
+    var colors = cfg.colores || {};
+    var colorTitulo = colors.titulo || "#111827";
+    var colorPrecio = colors.precio || "#111827";
+    var colorBadgeFondo = colors.badgeFondo || "#dc2626";
+    var colorBadgeTexto = colors.badgeTexto || "#ffffff";
+    var colorSwitchActivo = colors.switchActivo || "#10B981";
+    var colorCardFondo = colors.cardFondo || "#ffffff";
+    var colorCardBorde = colors.cardBorde || "#e5e7eb";
+
     var border = cfg.bordes !== undefined ? cfg.bordes : "12px";
     var padding = cfg.padding || "12px";
 
@@ -5360,7 +5378,10 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
                  document.querySelector(".js-product-buy-container") ||
                  document.querySelector(".product-buy-panel") ||
                  document.querySelector(".js-product-form") ||
-                 document.querySelector(".product-form");
+                 document.querySelector(".product-form") ||
+                 document.querySelector(".js-product-container") ||
+                 document.querySelector(".product-detail") ||
+                 document.querySelector("main");
                  
     if (!target) return;
 
@@ -5369,85 +5390,88 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       var styleEl = document.createElement("style");
       styleEl.id = styleId;
       styleEl.innerHTML = `
-        .nvx-extra-card {
+        .nvx-extra-card-${w.id} {
           display: flex;
           align-items: center;
           gap: 12px;
-          border: 1px solid #e5e7eb;
-          background: #ffffff;
+          border: 1px solid ${colorCardBorde};
+          background: ${colorCardFondo};
           box-shadow: 0 4px 12px rgba(0,0,0,0.04);
           margin: 15px 0;
           font-family: system-ui, -apple-system, sans-serif;
           transition: all 0.3s ease;
+          width: 100%;
+          box-sizing: border-box;
         }
-        .nvx-extra-card:hover {
-          border-color: ${primaryColor};
+        .nvx-extra-card-${w.id}:hover {
+          border-color: ${colorSwitchActivo};
         }
-        .nvx-extra-img {
-          width: 64px;
-          height: 64px;
+        .nvx-extra-img-${w.id} {
+          width: 60px;
+          height: 60px;
           object-fit: cover;
           border-radius: 6px;
           background: #f3f4f6;
+          flex-shrink: 0;
         }
-        .nvx-extra-info {
+        .nvx-extra-info-${w.id} {
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 2px;
           min-width: 0;
         }
-        .nvx-extra-badge {
+        .nvx-extra-badge-${w.id} {
           align-self: flex-start;
           font-size: 9px;
           font-weight: 700;
-          color: #ffffff;
-          background: #dc2626;
+          color: ${colorBadgeTexto};
+          background: ${colorBadgeFondo};
           padding: 2px 6px;
           border-radius: 4px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
           margin-bottom: 2px;
         }
-        .nvx-extra-title {
+        .nvx-extra-title-${w.id} {
           font-size: 13px;
           font-weight: 600;
-          color: #111827;
+          color: ${colorTitulo};
           line-height: 1.2;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .nvx-extra-row {
+        .nvx-extra-row-${w.id} {
           display: flex;
           align-items: center;
           gap: 6px;
         }
-        .nvx-extra-price {
+        .nvx-extra-price-${w.id} {
           font-size: 13px;
           font-weight: 700;
-          color: #111827;
+          color: ${colorPrecio};
         }
-        .nvx-extra-link {
+        .nvx-extra-link-${w.id} {
           font-size: 10px;
           font-weight: 600;
-          color: ${primaryColor};
+          color: ${colorSwitchActivo};
           text-decoration: underline;
           cursor: pointer;
         }
-        .nvx-switch {
+        .nvx-switch-${w.id} {
           position: relative;
           display: inline-block;
           width: 44px;
           height: 24px;
           flex-shrink: 0;
         }
-        .nvx-switch input {
+        .nvx-switch-${w.id} input {
           opacity: 0;
           width: 0;
           height: 0;
         }
-        .nvx-slider {
+        .nvx-slider-${w.id} {
           position: absolute;
           cursor: pointer;
           top: 0; left: 0; right: 0; bottom: 0;
@@ -5455,7 +5479,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           transition: .3s;
           border-radius: 34px;
         }
-        .nvx-slider:before {
+        .nvx-slider-${w.id}:before {
           position: absolute;
           content: "";
           height: 18px;
@@ -5467,24 +5491,20 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           border-radius: 50%;
           box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        input:checked + .nvx-slider {
-          background-color: ${primaryColor};
+        input:checked + .nvx-slider-${w.id} {
+          background-color: ${colorSwitchActivo};
         }
-        input:checked + .nvx-slider:before {
+        input:checked + .nvx-slider-${w.id}:before {
           transform: translateX(20px);
         }
-        .nvx-loader-spin {
+        .nvx-loader-spin-${w.id} {
           border: 2px solid #f3f4f6;
-          border-top: 2px solid ${primaryColor};
+          border-top: 2px solid ${colorSwitchActivo};
           border-radius: 50%;
           width: 14px;
           height: 14px;
           animation: nvxSpin 0.8s linear infinite;
           display: inline-block;
-        }
-        @keyframes nvxSpin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
         }
       `;
       document.head.appendChild(styleEl);
@@ -5492,29 +5512,29 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     var div = document.createElement("div");
     div.id = "nvx-extras-" + w.id;
-    div.className = "nvx-extra-card";
+    div.className = "nvx-extra-card-" + w.id;
     div.style.borderRadius = border;
     div.style.padding = padding;
 
-    var badgeHtml = badge ? '<span class="nvx-extra-badge">' + escapeHtml(badge) + '</span>' : '';
-    var imgHtml = img ? '<img class="nvx-extra-img" src="' + escapeHtml(img) + '" alt="" />' : '';
-    var linkHtml = txtVerMas ? '<span class="nvx-extra-link">' + escapeHtml(txtVerMas) + '</span>' : '';
+    var badgeHtml = badge ? '<span class="nvx-extra-badge-' + w.id + '">' + escapeHtml(badge) + '</span>' : '';
+    var imgHtml = img ? '<img class="nvx-extra-img-' + w.id + '" src="' + escapeHtml(img) + '" alt="" />' : '';
+    var linkHtml = txtVerMas ? '<span class="nvx-extra-link-' + w.id + '">' + escapeHtml(txtVerMas) + '</span>' : '';
 
     div.innerHTML = `
       ${imgHtml}
-      <div class="nvx-extra-info">
+      <div class="nvx-extra-info-${w.id}">
         ${badgeHtml}
-        <div class="nvx-extra-title">${escapeHtml(titulo)}</div>
-        <div class="nvx-extra-row">
-          <span class="nvx-extra-price">${escapeHtml(precio)}</span>
+        <div class="nvx-extra-title-${w.id}">${escapeHtml(titulo)}</div>
+        <div class="nvx-extra-row-${w.id}">
+          <span class="nvx-extra-price-${w.id}">${escapeHtml(precio)}</span>
           ${linkHtml}
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
-        <span id="nvx-loader-${w.id}" style="display:none;"><span class="nvx-loader-spin"></span></span>
-        <label class="nvx-switch">
+        <span id="nvx-loader-${w.id}" style="display:none;"><span class="nvx-loader-spin-${w.id}"></span></span>
+        <label class="nvx-switch-${w.id}">
           <input type="checkbox" id="nvx-chk-${w.id}">
-          <span class="nvx-slider"></span>
+          <span class="nvx-slider-${w.id}"></span>
         </label>
       </div>
     `;
@@ -5560,7 +5580,15 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
      RENDER CONTADOR DE VISITAS
   ═══════════════════════════════════════════ */
   function renderContadorVisitas(w) {
-    if (pageType !== "product") return;
+    var path = document.location.pathname.toLowerCase();
+    var isProdPage = (pageType === "product") || 
+                     (path.indexOf("/productos/") >= 0) || 
+                     (path.indexOf("/products/") >= 0) || 
+                     (path.indexOf("/producto/") >= 0) || 
+                     (path.indexOf("/p/") >= 0) ||
+                     !!document.querySelector("form[action*='/cart/add']");
+
+    if (!isProdPage) return;
 
     var exist = document.getElementById("nvx-contador-" + w.id);
     if (exist) return;
@@ -5569,62 +5597,102 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var textoAntes = cfg.textoAntes || "personas mirando este producto ahora";
     var min = parseInt(cfg.minVisitas) || 8;
     var max = parseInt(cfg.maxVisitas) || 35;
+    var posicion = cfg.posicion || "arriba_comprar";
     var border = cfg.bordes !== undefined ? cfg.bordes : "999px";
     var padding = cfg.padding || "8px 12px";
 
-    var targetPrice = document.querySelector(".js-price-display") || 
-                      document.querySelector("#price_display") || 
-                      document.querySelector(".product-price-container") ||
-                      document.querySelector(".product-price") ||
-                      document.querySelector(".js-product-price") ||
-                      document.querySelector("form[action*='/cart/add']");
+    var colors = cfg.colores || {};
+    var colorTexto = colors.texto || "#4b5563";
+    var colorFondo = colors.fondo || "#ffffff";
+    var colorPunto = colors.punto || "#dc2626";
+    var colorBorde = colors.borde || "#f3f4f6";
 
-    if (!targetPrice) return;
+    var priceElem = document.querySelector(".js-price-display") || 
+                    document.querySelector("#price_display") || 
+                    document.querySelector(".product-price-container") ||
+                    document.querySelector(".product-price") ||
+                    document.querySelector(".js-product-price") ||
+                    document.querySelector("[data-product-price]");
 
-    var styleId = "nvx-contador-styles";
+    var buyElem = document.querySelector("form[action*='/cart/add']") || 
+                  document.querySelector(".js-product-buy-container") ||
+                  document.querySelector(".product-buy-panel") ||
+                  document.querySelector(".js-product-form") ||
+                  document.querySelector(".product-form") ||
+                  document.querySelector(".js-add-to-cart");
+
+    var descElem = document.querySelector(".product-description") ||
+                   document.querySelector(".js-product-description") ||
+                   document.querySelector("#product-description");
+
+    var targetNode = null;
+    var insertAfter = false;
+
+    if (posicion === "arriba_precio" && priceElem) {
+      targetNode = priceElem;
+      insertAfter = false;
+    } else if (posicion === "abajo_precio" && priceElem) {
+      targetNode = priceElem;
+      insertAfter = true;
+    } else if (posicion === "abajo_comprar" && buyElem) {
+      targetNode = buyElem;
+      insertAfter = true;
+    } else if (posicion === "abajo_descripcion" && descElem) {
+      targetNode = descElem;
+      insertAfter = true;
+    } else {
+      targetNode = buyElem || priceElem || document.querySelector("main") || document.body;
+      insertAfter = false;
+    }
+
+    if (!targetNode) return;
+
+    var styleId = "nvx-contador-styles-" + w.id;
     if (!document.getElementById(styleId)) {
       var styleEl = document.createElement("style");
       styleEl.id = styleId;
       styleEl.innerHTML = `
-        .nvx-contador-container {
+        .nvx-contador-container-${w.id} {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: #ffffff;
-          border: 1px solid #f3f4f6;
+          background: ${colorFondo};
+          border: 1px solid ${colorBorde};
           box-shadow: 0 2px 8px rgba(0,0,0,0.03);
           font-family: system-ui, -apple-system, sans-serif;
           margin: 10px 0;
           width: fit-content;
+          max-width: 100%;
+          box-sizing: border-box;
         }
-        .nvx-dot-pulse {
+        .nvx-dot-pulse-${w.id} {
           width: 8px;
           height: 8px;
-          background-color: #dc2626;
+          background-color: ${colorPunto};
           border-radius: 50%;
           position: relative;
           flex-shrink: 0;
         }
-        .nvx-dot-pulse::after {
+        .nvx-dot-pulse-${w.id}::after {
           content: '';
           position: absolute;
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background-color: #dc2626;
-          animation: nvxDotPulse 1.5s infinite ease-out;
+          background-color: ${colorPunto};
+          animation: nvxDotPulse-${w.id} 1.5s infinite ease-out;
           top: 0; left: 0;
         }
-        .nvx-contador-text {
+        .nvx-contador-text-${w.id} {
           font-size: 12px;
-          color: #4b5563;
+          color: ${colorTexto};
           font-weight: 500;
         }
-        .nvx-contador-num {
+        .nvx-contador-num-${w.id} {
           font-weight: 700;
-          color: #dc2626;
+          color: ${colorPunto};
         }
-        @keyframes nvxDotPulse {
+        @keyframes nvxDotPulse-${w.id} {
           0% { transform: scale(1); opacity: 0.8; }
           100% { transform: scale(2.8); opacity: 0; }
         }
@@ -5641,17 +5709,23 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     var div = document.createElement("div");
     div.id = "nvx-contador-" + w.id;
-    div.className = "nvx-contador-container";
-    div.style.borderRadius = border === "999" ? "999px" : border;
+    div.className = "nvx-contador-container-" + w.id;
+    div.style.borderRadius = border === "999" || border === "999px" ? "999px" : border;
     div.style.padding = padding;
 
     div.innerHTML = `
-      <div class="nvx-dot-pulse"></div>
-      <div class="nvx-contador-text">
-        🔥 <span class="nvx-contador-num">${visitas}</span> ${escapeHtml(textoAntes)}
+      <div class="nvx-dot-pulse-${w.id}"></div>
+      <div class="nvx-contador-text-${w.id}">
+        🔥 <span class="nvx-contador-num-${w.id}">${visitas}</span> ${escapeHtml(textoAntes)}
       </div>
     `;
 
-    targetPrice.parentNode.insertBefore(div, targetPrice.nextSibling);
-            }
-})();
+    if (insertAfter && targetNode.nextSibling) {
+      targetNode.parentNode.insertBefore(div, targetNode.nextSibling);
+    } else if (insertAfter) {
+      targetNode.parentNode.appendChild(div);
+    } else {
+      targetNode.parentNode.insertBefore(div, targetNode);
+    }
+      }
+  })();
