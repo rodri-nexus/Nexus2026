@@ -1,4 +1,3 @@
-// app/dashboard/components/RecientesCard.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -15,10 +14,21 @@ interface Widget {
 interface RecientesCardProps {
   widgets?: Widget[];
   storeId?: number;
+  onCreateClick?: () => void;
 }
 
-export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
+export default function RecientesCard({
+  widgets = [],
+  onCreateClick,
+}: RecientesCardProps) {
   const hasWidgets = widgets.length > 0;
+
+  const handleCreate = (e: React.MouseEvent) => {
+    if (onCreateClick) {
+      e.preventDefault();
+      onCreateClick();
+    }
+  };
 
   return (
     <motion.section
@@ -35,7 +45,7 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
         boxSizing: "border-box",
       }}
     >
-      {/* Header */}
+      {/* Header estilo referencia */}
       <div
         style={{
           display: "flex",
@@ -55,7 +65,7 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
             letterSpacing: "-0.01em",
           }}
         >
-          Widgets recientes
+          Recientes
         </h2>
 
         <div
@@ -68,7 +78,7 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
           <Link
             href="/widgets"
             style={{
-              padding: "0.5rem 1rem",
+              padding: "0.45rem 0.95rem",
               borderRadius: "999px",
               border: "1.5px solid #e5e7eb",
               background: "#ffffff",
@@ -79,15 +89,24 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
               display: "inline-flex",
               alignItems: "center",
               gap: "0.35rem",
-              transition: "all 0.15s",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#10B981";
+              e.currentTarget.style.color = "#10B981";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#e5e7eb";
+              e.currentTarget.style.color = "#000000";
             }}
           >
-            Ver todos
+            Ver
             <ArrowRight size={14} />
           </Link>
 
-          <Link
-            href="/widgets"
+          <a
+            href={onCreateClick ? "#" : "/widgets/nuevo"}
+            onClick={handleCreate}
             data-tutorial="crear-widget-btn"
             aria-label="Crear widget"
             style={{
@@ -101,15 +120,24 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
               color: "#ffffff",
               textDecoration: "none",
               boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
-              transition: "transform 0.15s, box-shadow 0.15s",
+              transition: "all 0.15s ease",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#059669";
+              e.currentTarget.style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#10B981";
+              e.currentTarget.style.transform = "scale(1)";
             }}
           >
             <Plus size={20} />
-          </Link>
+          </a>
         </div>
       </div>
 
-      {/* Lista o estado vacío */}
+      {/* Lista o estado vacío idéntico a foto 1 */}
       {hasWidgets ? (
         <div
           style={{
@@ -131,7 +159,15 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
                 border: "1px solid #f3f4f6",
                 textDecoration: "none",
                 background: "#f9fafb",
-                transition: "all 0.15s",
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#10B981";
+                e.currentTarget.style.background = "rgba(16, 185, 129, 0.02)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "#f3f4f6";
+                e.currentTarget.style.background = "#f9fafb";
               }}
             >
               <div
@@ -188,6 +224,7 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
             border: "1px dashed #e5e7eb",
           }}
         >
+          {/* Grilla 4 cuadrados como imagen 1 */}
           <div
             style={{
               width: "56px",
@@ -216,28 +253,39 @@ export default function RecientesCard({ widgets = [] }: RecientesCardProps) {
             No hay widgets creados todavía
           </p>
 
-          <Link
-            href="/widgets"
+          <a
+            href={onCreateClick ? "#" : "/widgets/nuevo"}
+            onClick={handleCreate}
             style={{
               display: "inline-flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: "0.5rem",
-              padding: "0.7rem 1.5rem",
+              padding: "0.75rem 2rem",
               borderRadius: "999px",
               background: "#10B981",
               color: "#ffffff",
-              fontSize: "0.9rem",
+              fontSize: "0.95rem",
               fontWeight: 700,
               textDecoration: "none",
-              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
-              transition: "transform 0.15s, box-shadow 0.15s",
+              boxShadow: "0 4px 14px rgba(16, 185, 129, 0.35)",
+              transition: "all 0.15s ease",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#059669";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#10B981";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            <Plus size={16} />
-            <span>Crear widget</span>
-          </Link>
+            <Plus size={18} />
+            <span>Crear</span>
+          </a>
         </div>
       )}
     </motion.section>
   );
-          }
+}
