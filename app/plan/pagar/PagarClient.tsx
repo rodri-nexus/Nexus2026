@@ -1,3 +1,4 @@
+// app/plan/pagar/PagarClient.tsx
 "use client";
 
 import { useState, useRef, useCallback } from "react";
@@ -41,14 +42,15 @@ export default function PagarClient({ email }: PagarClientProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
 
   const handleCopy = useCallback(async (text: string, field: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
-    } catch (e) {
-      // Fallback para navegadores viejos o webviews sin API clipboard
+    } catch {
+      // Fallback para navegadores antiguos o webviews móviles
       const textarea = document.createElement("textarea");
       textarea.value = text;
       document.body.appendChild(textarea);
@@ -57,7 +59,7 @@ export default function PagarClient({ email }: PagarClientProps) {
         document.execCommand("copy");
         setCopiedField(field);
         setTimeout(() => setCopiedField(null), 2000);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("Error al copiar texto:", err);
       }
       document.body.removeChild(textarea);
@@ -68,7 +70,7 @@ export default function PagarClient({ email }: PagarClientProps) {
     setError(null);
     if (!selectedFile) return;
 
-    const MAX_SIZE = 5 * 1024 * 1024;
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     const ALLOWED = [
       "image/jpeg",
       "image/png",
@@ -82,7 +84,7 @@ export default function PagarClient({ email }: PagarClientProps) {
     }
 
     if (!ALLOWED.includes(selectedFile.type)) {
-      setError("Solo se permiten imágenes (JPG, PNG, WebP) o PDF.");
+      setError("Solo se permiten imágenes (JPG, PNG, WebP) o archivos PDF.");
       return;
     }
 
@@ -135,7 +137,7 @@ export default function PagarClient({ email }: PagarClientProps) {
         throw new Error(data.error || "Error al subir el comprobante");
       }
 
-      // Redirigir a pendiente de aprobación
+      // Redirigir a pantalla de aprobación pendiente
       router.push(data.redirect || "/plan/pendiente");
       router.refresh();
     } catch (err: unknown) {
@@ -153,7 +155,7 @@ export default function PagarClient({ email }: PagarClientProps) {
         minHeight: "100vh",
         width: "100%",
         maxWidth: "100vw",
-        background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
@@ -637,6 +639,8 @@ export default function PagarClient({ email }: PagarClientProps) {
               type="text"
               value={reference}
               onChange={(e) => setReference(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
               placeholder="Ej: 123456789"
               maxLength={100}
               disabled={uploading}
@@ -644,7 +648,9 @@ export default function PagarClient({ email }: PagarClientProps) {
                 width: "100%",
                 padding: "0.75rem 0.9rem",
                 borderRadius: "10px",
-                border: "1px solid #e5e7eb",
+                border: inputFocused
+                  ? "1.5px solid #10B981"
+                  : "1px solid #e5e7eb",
                 fontSize: "0.9rem",
                 color: "#000000",
                 background: uploading ? "#f9fafb" : "white",
@@ -653,8 +659,6 @@ export default function PagarClient({ email }: PagarClientProps) {
                 outline: "none",
                 transition: "border-color 0.2s",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
             />
           </div>
 
@@ -709,7 +713,7 @@ export default function PagarClient({ email }: PagarClientProps) {
             style={{
               width: "100%",
               padding: "1.15rem 1.5rem",
-              background: !file || uploading ? "rgba(16, 185, 129, 0.4)" : "#10B981",
+              background: !file || uploading ? "#93c5fd" : "#10B981",
               color: "white",
               border: "none",
               borderRadius: "999px",
@@ -724,10 +728,22 @@ export default function PagarClient({ email }: PagarClientProps) {
               boxShadow:
                 !file || uploading
                   ? "none"
-                  : "0 15px 35px rgba(16, 185, 129, 0.3)",
-              opacity: !file || uploading ? 0.7 : 1,
-              transition: "all 0.2s",
+                  : "0 10px 25px rgba(16, 185, 129, 0.3)",
+              opacity: !file || uploading ? 0.6 : 1,
+              transition: "background 0.2s, transform 0.15s",
               boxSizing: "border-box",
+            }}
+            onMouseEnter={(e) => {
+              if (file && !uploading) {
+                e.currentTarget.style.background = "#059669";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (file && !uploading) {
+                e.currentTarget.style.background = "#10B981";
+                e.currentTarget.style.transform = "translateY(0)";
+              }
             }}
           >
             {uploading ? (
@@ -871,4 +887,4 @@ function DataRow({
       )}
     </div>
   );
-    }
+                                                }
