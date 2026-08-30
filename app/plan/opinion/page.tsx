@@ -16,6 +16,7 @@ export default async function OpinionPage() {
     redirect("/login");
   }
 
+  let redirectTo: string | null = null;
   let planData = null;
   let lastFeedback = null;
 
@@ -24,34 +25,36 @@ export default async function OpinionPage() {
 
     // Sin tienda conectada
     if (!planData) {
-      redirect("/dashboard");
+      redirectTo = "/dashboard";
+    } else {
+      const { plan } = planData;
+
+      // Si está en trial activo o plan pago activo, no debería estar acá
+      if (plan.canUseApp) {
+        redirectTo = "/dashboard";
+      } else if (plan.needsFeedback) {
+        // Si no respondió aún el feedback inicial, mandarlo a esa pantalla
+        redirectTo = "/plan/feedback";
+      } else {
+        // Verificar que efectivamente haya respondido "NO" (liked_app = false)
+        const { data: feedbackData } = await supabaseAdmin
+          .from("feedback")
+          .select("liked_app")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        lastFeedback = feedbackData;
+      }
     }
-
-    const { plan } = planData;
-
-    // Si está en trial activo o plan pago activo, no debería estar acá
-    if (plan.canUseApp) {
-      redirect("/dashboard");
-    }
-
-    // Si no respondió aún el feedback inicial, mandarlo a esa pantalla
-    if (plan.needsFeedback) {
-      redirect("/plan/feedback");
-    }
-
-    // Verificar que efectivamente haya respondido "NO" (liked_app = false)
-    const { data: feedbackData } = await supabaseAdmin
-      .from("feedback")
-      .select("liked_app")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    lastFeedback = feedbackData;
   } catch (err) {
     console.error("[OpinionPage Server Error]:", err);
-    redirect("/dashboard");
+    redirectTo = "/dashboard";
+  }
+
+  if (redirectTo) {
+    redirect(redirectTo);
   }
 
   // Si dijo SÍ (o no hay respuesta), no corresponde este flujo → mandar a pago
@@ -60,4 +63,4 @@ export default async function OpinionPage() {
   }
 
   return <OpinionClient email={user.email ?? ""} />;
-      }
+  }
