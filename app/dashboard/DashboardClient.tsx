@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Store,
@@ -69,42 +69,42 @@ const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
 const WIDGET_TEMPLATES = [
   {
-    id: "switch-extras",
+    id: "extras-interruptor",
     title: "Extras con interruptor",
     desc: "Suma un producto adicional que se agrega al carrito con solo activar un interruptor toggle.",
     icon: "⚡",
     tag: "NUEVO 🔥",
   },
   {
-    id: "visitor-counter",
+    id: "contador-visitas",
     title: "Contador de visitas",
     desc: "Muestra cuánta gente está mirando el producto en tiempo real para generar urgencia.",
     icon: "👁️",
     tag: "NUEVO 🚀",
   },
   {
-    id: "urgency",
-    title: "Urgencia y Stock",
-    desc: "Simula stock crítico para acelerar la compra.",
-    icon: "🔥",
-    tag: "Conversión",
-  },
-  {
-    id: "free-shipping",
-    title: "Envío Gratis",
-    desc: "Muestra barra de progreso dinámica para envío bonificado.",
-    icon: "🚚",
-    tag: "Sube Ticket",
-  },
-  {
-    id: "countdown",
+    id: "cuenta-regresiva",
     title: "Oferta Relámpago",
     desc: "Cuenta regresiva estética para ofertas por tiempo limitado.",
     icon: "⏳",
     tag: "Escasez",
   },
   {
-    id: "trust-badges",
+    id: "barra-progreso",
+    title: "Envío Gratis",
+    desc: "Muestra barra de progreso dinámica para envío bonificado.",
+    icon: "🚚",
+    tag: "Sube Ticket",
+  },
+  {
+    id: "mensaje-alerta",
+    title: "Urgencia y Stock",
+    desc: "Simula stock crítico para acelerar la compra.",
+    icon: "🔥",
+    tag: "Conversión",
+  },
+  {
+    id: "mensaje-garantia",
     title: "Confianza Total",
     desc: "Badges de pago seguro, garantía y envíos rápidos.",
     icon: "🛡️",
@@ -170,17 +170,16 @@ export default function DashboardClient({
     setModalStep("catalog");
   };
 
+  // Opción B: Manda directo a la pantalla de todos los widgets (fuera del modal)
   const handleSelectAllProducts = () => {
-    setSelectedProduct(null);
-    setModalStep("catalog");
+    setIsModalOpen(false);
+    window.location.href = "/widgets/nuevo/todos";
   };
 
   const handleSelectWidgetType = (widgetType: string) => {
     setIsModalOpen(false);
     if (selectedProduct) {
-      window.location.href = `/widgets/nuevo?type=${widgetType}&productId=${selectedProduct.id}`;
-    } else {
-      window.location.href = `/widgets/nuevo?type=${widgetType}`;
+      window.location.href = `/widgets/nuevo/producto/${selectedProduct.id}?type=${widgetType}`;
     }
   };
 
@@ -520,7 +519,7 @@ export default function DashboardClient({
         </div>
       </main>
 
-      {/* MODAL FLOTANTE PREMIUM: CREAR WIDGET */}
+      {/* MODAL FLOTANTE PREMIUM CON BACKDROP BLUR */}
       <AnimatePresence>
         {isModalOpen && (
           <div
@@ -530,7 +529,7 @@ export default function DashboardClient({
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(0, 0, 0, 0.45)",
+              background: "rgba(0, 0, 0, 0.4)",
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
               display: "flex",
@@ -540,7 +539,7 @@ export default function DashboardClient({
               padding: "1rem",
             }}
           >
-            {/* Backdrop click to close */}
+            {/* Cerrar al hacer clic fuera */}
             <div
               style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
               onClick={() => setIsModalOpen(false)}
@@ -580,13 +579,7 @@ export default function DashboardClient({
                     <button
                       onClick={() => {
                         if (modalStep === "products") setModalStep("selection");
-                        if (modalStep === "catalog") {
-                          if (selectedProduct) {
-                            setModalStep("products");
-                          } else {
-                            setModalStep("selection");
-                          }
-                        }
+                        if (modalStep === "catalog") setModalStep("products");
                       }}
                       style={{
                         background: "none",
@@ -608,12 +601,10 @@ export default function DashboardClient({
                       {modalStep === "catalog" && "Elegí el Widget Premium"}
                     </h3>
                     <p style={{ margin: 0, fontSize: "0.75rem", opacity: 0.5 }}>
-                      {modalStep === "selection" && "Elegí el alcance de tu optimización"}
+                      {modalStep === "selection" && "¿Qué tipo de widget querés crear?"}
                       {modalStep === "products" && "Buscá el producto en tu Tiendanube"}
                       {modalStep === "catalog" &&
-                        (selectedProduct
-                          ? `Para: ${selectedProduct.name.substring(0, 30)}...`
-                          : "Para aplicar en todos los productos")}
+                        `Configurando para: ${selectedProduct?.name.substring(0, 30)}...`}
                     </p>
                   </div>
                 </div>
@@ -728,7 +719,7 @@ export default function DashboardClient({
                           Widget para todos los productos
                         </h4>
                         <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.4 }}>
-                          Creá un widget global que se mostrará automáticamente en todo tu catálogo.
+                          Te redirige al catálogo de widgets globales que se muestran en toda tu tienda.
                         </p>
                       </div>
                     </div>
@@ -866,7 +857,7 @@ export default function DashboardClient({
                   </div>
                 )}
 
-                {/* PASO 3: CATÁLOGO DE WIDGETS */}
+                {/* PASO 3: CATÁLOGO DE WIDGETS INTERNO */}
                 {modalStep === "catalog" && (
                   <div
                     style={{
