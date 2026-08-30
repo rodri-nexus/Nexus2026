@@ -68,51 +68,6 @@ interface Product {
 const TIENDANUBE_CLIENT_ID = "37382";
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
-const WIDGET_TEMPLATES = [
-  {
-    id: "extras-interruptor",
-    title: "Extras con interruptor",
-    desc: "Suma un extra al carrito con un toggle, sin salir de la página.",
-    icon: "⚡",
-    tag: "NUEVO",
-  },
-  {
-    id: "contador-visitas",
-    title: "Contador de visitas",
-    desc: "Muestra cuánta gente está mirando el producto ahora.",
-    icon: "👁️",
-    tag: "NUEVO",
-  },
-  {
-    id: "cuenta-regresiva",
-    title: "Oferta Relámpago",
-    desc: "Cuenta regresiva para ofertas por tiempo limitado.",
-    icon: "⏳",
-    tag: "Urgencia",
-  },
-  {
-    id: "barra-progreso",
-    title: "Envío Gratis",
-    desc: "Barra de progreso hacia el envío bonificado.",
-    icon: "🚚",
-    tag: "Ticket",
-  },
-  {
-    id: "mensaje-alerta",
-    title: "Urgencia y Stock",
-    desc: "Stock crítico para acelerar la compra.",
-    icon: "🔥",
-    tag: "Conversión",
-  },
-  {
-    id: "mensaje-garantia",
-    title: "Confianza Total",
-    desc: "Garantía, pago seguro y envíos rápidos.",
-    icon: "🛡️",
-    tag: "Trust",
-  },
-];
-
 export default function DashboardClient({
   email,
   userId,
@@ -123,11 +78,9 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Estados del modal flotante
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalStep, setModalStep] = useState<"selection" | "products" | "catalog">(
-    "selection"
-  );
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [modalStep, setModalStep] = useState<"selection" | "products">("selection");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,6 +89,7 @@ export default function DashboardClient({
   const isAdmin = (email || "").toLowerCase() === ADMIN_EMAIL;
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
+  // Cargar productos de la tienda
   const loadProducts = async () => {
     if (!store?.store_id) return;
     setIsLoadingProducts(true);
@@ -156,7 +110,6 @@ export default function DashboardClient({
 
   const handleOpenModal = () => {
     setModalStep("selection");
-    setSelectedProduct(null);
     setSearchQuery("");
     setIsModalOpen(true);
   };
@@ -166,21 +119,16 @@ export default function DashboardClient({
     loadProducts();
   };
 
+  // Al elegir un producto -> Cierra modal y va directo al catálogo completo de ese producto
   const handleSelectProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setModalStep("catalog");
+    setIsModalOpen(false);
+    window.location.href = `/widgets/nuevo/producto/${product.id}`;
   };
 
+  // Opción B: Va directo al catálogo para todos los productos
   const handleSelectAllProducts = () => {
     setIsModalOpen(false);
     window.location.href = "/widgets/nuevo/todos";
-  };
-
-  const handleSelectWidgetType = (widgetType: string) => {
-    setIsModalOpen(false);
-    if (selectedProduct) {
-      window.location.href = `/widgets/nuevo/producto/${selectedProduct.id}?type=${encodeURIComponent(widgetType)}`;
-    }
   };
 
   const getProductImage = (p: Product) =>
@@ -525,7 +473,6 @@ export default function DashboardClient({
             activeWidgetsCount={activeWidgetsCount}
           />
           <MetricsCard />
-          {/* AQUÍ SE CONECTA EL MODAL DESDE RECIENTES */}
           <RecientesCard
             storeId={store?.store_id}
             onCreateClick={hasStore ? handleOpenModal : undefined}
@@ -535,7 +482,7 @@ export default function DashboardClient({
         </div>
       </main>
 
-      {/* MODAL FLOTANTE PREMIUM — FONDO BORROSO */}
+      {/* MODAL FLOTANTE PREMIUM CON FONDO BORROSO */}
       <AnimatePresence>
         {isModalOpen && (
           <div
@@ -555,7 +502,7 @@ export default function DashboardClient({
               padding: "0",
             }}
           >
-            {/* Overlay click → cerrar (mobile bottom-sheet friendly) */}
+            {/* Overlay click para cerrar */}
             <div
               style={{
                 position: "absolute",
@@ -620,13 +567,10 @@ export default function DashboardClient({
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  {modalStep !== "selection" && (
+                  {modalStep === "products" && (
                     <button
                       type="button"
-                      onClick={() => {
-                        if (modalStep === "catalog") setModalStep("products");
-                        else setModalStep("selection");
-                      }}
+                      onClick={() => setModalStep("selection")}
                       style={{
                         background: "none",
                         border: "none",
@@ -652,7 +596,6 @@ export default function DashboardClient({
                     >
                       {modalStep === "selection" && "Crear nuevo widget"}
                       {modalStep === "products" && "Seleccionar producto"}
-                      {modalStep === "catalog" && "Elegí el widget"}
                     </h3>
                     {modalStep === "selection" && (
                       <p
@@ -665,16 +608,15 @@ export default function DashboardClient({
                         ¿Qué tipo de widget querés crear?
                       </p>
                     )}
-                    {modalStep === "catalog" && selectedProduct && (
+                    {modalStep === "products" && (
                       <p
                         style={{
                           margin: "0.25rem 0 0",
-                          fontSize: "0.8rem",
+                          fontSize: "0.85rem",
                           color: "#6b7280",
                         }}
                       >
-                        {selectedProduct.name.substring(0, 40)}
-                        {selectedProduct.name.length > 40 ? "…" : ""}
+                        Elegí un producto para asignarle sus widgets
                       </p>
                     )}
                   </div>
@@ -711,7 +653,7 @@ export default function DashboardClient({
                   WebkitOverflowScrolling: "touch",
                 }}
               >
-                {/* PASO 1 — Dos opciones (foto 2) */}
+                {/* PASO 1 — Selección de alcance */}
                 {modalStep === "selection" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                     <button
@@ -848,7 +790,7 @@ export default function DashboardClient({
                   </div>
                 )}
 
-                {/* PASO 2 — Lista de productos (foto 3) */}
+                {/* PASO 2 — Lista de productos con redirección directa */}
                 {modalStep === "products" && (
                   <div>
                     <div style={{ position: "relative", marginBottom: "1rem" }}>
@@ -1004,9 +946,10 @@ export default function DashboardClient({
                               </div>
                               <span
                                 style={{
-                                  color: "#9ca3af",
+                                  color: "#10B981",
                                   fontSize: "1.25rem",
                                   flexShrink: 0,
+                                  fontWeight: 600,
                                 }}
                               >
                                 ›
@@ -1018,86 +961,6 @@ export default function DashboardClient({
                     )}
                   </div>
                 )}
-
-                {/* PASO 3 — Catálogo de widgets para el producto */}
-                {modalStep === "catalog" && (
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "0.75rem",
-                    }}
-                  >
-                    {WIDGET_TEMPLATES.map((tpl) => (
-                      <button
-                        key={tpl.id}
-                        type="button"
-                        onClick={() => handleSelectWidgetType(tpl.id)}
-                        style={{
-                          padding: "1rem",
-                          borderRadius: "14px",
-                          border: "1.5px solid #e5e7eb",
-                          background: "#ffffff",
-                          cursor: "pointer",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "0.45rem",
-                          textAlign: "left",
-                          fontFamily: "inherit",
-                          transition: "all 0.15s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = "#10B981";
-                          e.currentTarget.style.transform = "translateY(-2px)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = "#e5e7eb";
-                          e.currentTarget.style.transform = "translateY(0)";
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          <span style={{ fontSize: "1.35rem" }}>{tpl.icon}</span>
-                          <span
-                            style={{
-                              fontSize: "0.65rem",
-                              fontWeight: 800,
-                              background: "rgba(16, 185, 129, 0.12)",
-                              color: "#059669",
-                              padding: "2px 7px",
-                              borderRadius: "999px",
-                            }}
-                          >
-                            {tpl.tag}
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "0.82rem",
-                            fontWeight: 700,
-                            color: "#000000",
-                          }}
-                        >
-                          {tpl.title}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "0.72rem",
-                            color: "#6b7280",
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {tpl.desc}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             </motion.div>
           </div>
@@ -1105,4 +968,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-      }
+    }
