@@ -15,37 +15,43 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
   const [loading, setLoading] = useState<"yes" | "no" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleAnswer = useCallback(async (liked: boolean) => {
-    if (loading) return;
+  const handleAnswer = useCallback(
+    async (liked: boolean) => {
+      if (loading) return;
 
-    setError(null);
-    setLoading(liked ? "yes" : "no");
+      setError(null);
+      setLoading(liked ? "yes" : "no");
 
-    try {
-      const res = await fetch("/api/plan/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ liked }),
-      });
+      try {
+        const res = await fetch("/api/plan/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ liked }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Error al enviar respuesta");
+        if (!res.ok) {
+          throw new Error(data.error || "Error al enviar respuesta");
+        }
+
+        if (liked) {
+          router.push("/plan/expirado");
+        } else {
+          router.push("/plan/opinion");
+        }
+      } catch (err: unknown) {
+        console.error("Error enviando feedback:", err);
+        const errMsg =
+          err instanceof Error
+            ? err.message
+            : "Ocurrió un error. Intentá de nuevo.";
+        setError(errMsg);
+        setLoading(null);
       }
-
-      if (liked) {
-        router.push("/plan/expirado");
-      } else {
-        router.push("/plan/opinion");
-      }
-    } catch (err: unknown) {
-      console.error("Error enviando feedback:", err);
-      const errMsg = err instanceof Error ? err.message : "Ocurrió un error. Intentá de nuevo.";
-      setError(errMsg);
-      setLoading(null);
-    }
-  }, [loading, router]);
+    },
+    [loading, router]
+  );
 
   return (
     <div
@@ -233,7 +239,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
         >
           <motion.button
             type="button"
-            whileHover={{ scale: loading ? 1 : 1.03 }}
+            whileHover={{ scale: loading ? 1 : 1.02 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
             onClick={() => handleAnswer(true)}
             disabled={loading !== null}
@@ -246,12 +252,18 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
               cursor: loading ? "not-allowed" : "pointer",
               fontFamily: "inherit",
               boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
-              transition: "all 0.2s",
+              transition: "all 0.2s ease",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               gap: "0.6rem",
               opacity: loading === "no" ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) e.currentTarget.style.background = "#059669";
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) e.currentTarget.style.background = "#10B981";
             }}
           >
             {loading === "yes" ? (
@@ -284,7 +296,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
 
           <motion.button
             type="button"
-            whileHover={{ scale: loading ? 1 : 1.03 }}
+            whileHover={{ scale: loading ? 1 : 1.02 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
             onClick={() => handleAnswer(false)}
             disabled={loading !== null}
@@ -297,7 +309,7 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
               cursor: loading ? "not-allowed" : "pointer",
               fontFamily: "inherit",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-              transition: "all 0.2s",
+              transition: "all 0.2s ease",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -307,11 +319,13 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
             onMouseEnter={(e) => {
               if (!loading) {
                 e.currentTarget.style.borderColor = "#10B981";
+                e.currentTarget.style.background = "#f0fdf4";
               }
             }}
             onMouseLeave={(e) => {
               if (!loading) {
                 e.currentTarget.style.borderColor = "#e5e7eb";
+                e.currentTarget.style.background = "white";
               }
             }}
           >
@@ -384,4 +398,4 @@ export default function FeedbackClient({ email }: FeedbackClientProps) {
       </div>
     </div>
   );
-                        }
+    }
