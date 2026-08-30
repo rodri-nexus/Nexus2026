@@ -10,10 +10,14 @@ interface PageProps {
   params: {
     productId: string;
   };
+  searchParams?: {
+    type?: string;
+  };
 }
 
 export default async function WidgetsNuevoProductoDetailPage({
   params,
+  searchParams,
 }: PageProps) {
   const supabase = createClient();
   const {
@@ -49,7 +53,7 @@ export default async function WidgetsNuevoProductoDetailPage({
         productName = productData.name;
       }
     } catch {
-      // Fallback si falla la API de Tiendanube
+      // Fallback seguro si falla la API de Tiendanube
     }
   }
 
@@ -72,7 +76,7 @@ export default async function WidgetsNuevoProductoDetailPage({
         borderRadius: "10px",
         fontSize: "0.85rem",
         fontWeight: 700,
-        color: "#10B981",
+        color: "#059669",
       }}
     >
       <Package size={16} color="#10B981" />
@@ -97,8 +101,9 @@ export default async function WidgetsNuevoProductoDetailPage({
           chip={chip}
           baseUrl="/widgets/editar"
           productId={numericProductId}
+          selectedType={searchParams?.type}
         />
       </div>
     </div>
   );
-}
+        }
