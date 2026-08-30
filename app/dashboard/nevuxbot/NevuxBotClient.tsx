@@ -1,3 +1,4 @@
+// app/dashboard/nevuxbot/NevuxBotClient.tsx
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -17,10 +18,7 @@ import {
   Mail,
   User,
   Loader2,
-  CheckCircle2,
-  Clock,
   TrendingUp,
-  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import DashboardHeader from "../components/DashboardHeader";
@@ -79,6 +77,35 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSentSuccess, setEmailSentSuccess] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+
+  const formatCurrency = (val: number, currencyCode?: string) => {
+    const code = currencyCode || "ARS";
+    let locale = "es-AR";
+    if (code === "BRL") locale = "pt-BR";
+    else if (code === "MXN") locale = "es-MX";
+    else if (code === "COP") locale = "es-CO";
+    else if (code === "CLP") locale = "es-CL";
+
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+      maximumFractionDigits: code === "CLP" ? 0 : 0,
+    }).format(val);
+  };
+
+  const formatDate = (isoStr: string) => {
+    try {
+      const d = new Date(isoStr);
+      return d.toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return isoStr;
+    }
+  };
 
   // Cargar configuración e información de carritos
   const loadData = useCallback(async () => {
@@ -177,7 +204,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     setEmailError(null);
 
     try {
-      const totalFormatted = formatCurrency(c.total);
+      const totalFormatted = formatCurrency(c.total, c.currency);
       const res = await fetch("/api/nevuxbot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -217,7 +244,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     setEmailSentSuccess(false);
 
     try {
-      const totalFormatted = formatCurrency(selectedCheckout.total);
+      const totalFormatted = formatCurrency(selectedCheckout.total, selectedCheckout.currency);
       const res = await fetch("/api/nevuxbot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -237,7 +264,6 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
 
       if (res.ok && data.success) {
         setEmailSentSuccess(true);
-        // Marcar automáticamente como contactado
         updateCartStatus(selectedCheckout.id, "contacted");
       } else {
         setEmailError(data.error || "No se pudo enviar el correo de recupero.");
@@ -250,36 +276,13 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     }
   }
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
-
-  const formatDate = (isoStr: string) => {
-    try {
-      const d = new Date(isoStr);
-      return d.toLocaleDateString("es-AR", {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return isoStr;
-    }
-  };
-
   // Abrir WhatsApp con mensaje pre-cargado
   const handleOpenWhatsApp = () => {
     if (!selectedCheckout || !generatedMessage) return;
 
-    // Marcar automáticamente como contactado
     updateCartStatus(selectedCheckout.id, "contacted");
 
-    let phone = selectedCheckout.customerPhone.replace(/[^0-9]/g, "");
+    const phone = selectedCheckout.customerPhone.replace(/[^0-9]/g, "");
     if (!phone) {
       navigator.clipboard.writeText(generatedMessage);
       setCopied(true);
@@ -299,7 +302,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Cálculos dinámicos CRM
+  // Cálculos dinámicos CRM con soporte multidivisa dinámico por item
   const totalAbandoned = checkouts.length;
   const recoverableAmount = checkouts.reduce((acc, c) => acc + c.total, 0);
 
@@ -316,7 +319,6 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     (c) => cartStatuses[c.id] === "contacted"
   ).length;
 
-  // Filtrado por pestañas
   const filteredCheckouts = checkouts.filter((c) => {
     const st = cartStatuses[c.id] || "pending";
     if (activeTab === "todos") return true;
@@ -327,7 +329,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
     <div
       style={{
         minHeight: "100vh",
-        background: "#f9fafb",
+        background: "#ffffff",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
@@ -339,7 +341,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
         style={{
           maxWidth: "1100px",
           margin: "0 auto",
-          padding: "2rem 1.25rem 3rem",
+          padding: "1.5rem 1.25rem 4rem",
           boxSizing: "border-box",
         }}
       >
@@ -450,12 +452,21 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                   gap: "0.5rem",
                   padding: "0.65rem 1.15rem",
                   borderRadius: "12px",
-                  border: "1px solid #10B981",
+                  border: "1.5px solid #10B981",
                   background: "#10B981",
                   fontSize: "0.85rem",
                   fontWeight: 700,
                   color: "#ffffff",
                   cursor: "pointer",
+                  transition: "background 0.2s, border-color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#059669";
+                  e.currentTarget.style.borderColor = "#059669";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#10B981";
+                  e.currentTarget.style.borderColor = "#10B981";
                 }}
               >
                 <Settings size={15} />
@@ -478,7 +489,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                 borderRadius: "16px",
                 padding: "1.5rem",
                 marginBottom: "1.75rem",
-                boxShadow: "0 4px 16px rgba(16, 185, 129, 0.12)",
+                boxShadow: "0 4px 16px rgba(16, 185, 129, 0.08)",
               }}
             >
               <h3 style={{ margin: "0 0 1rem", fontSize: "1.1rem", fontWeight: 800, color: "#000" }}>
@@ -563,7 +574,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                   disabled={savingConfig}
                   style={{
                     padding: "0.65rem 1.5rem",
-                    borderRadius: "10px",
+                    borderRadius: "999px",
                     border: "none",
                     background: "#10B981",
                     color: "#ffffff",
@@ -573,10 +584,13 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                     display: "flex",
                     alignItems: "center",
                     gap: "0.5rem",
+                    transition: "background 0.2s",
                   }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#059669")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "#10B981")}
                 >
                   {savingConfig ? (
-                    <RefreshCw size={14} className="animate-spin" />
+                    <Loader2 size={14} className="animate-spin" />
                   ) : configSaved ? (
                     <Check size={14} />
                   ) : null}
@@ -587,7 +601,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
           )}
         </AnimatePresence>
 
-        {/* GRID DE MÉTRICAS FASE 3 */}
+        {/* GRID DE MÉTRICAS */}
         <div
           style={{
             display: "grid",
@@ -627,7 +641,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
               {totalAbandoned}
             </div>
             <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem" }}>
-              En Tiendanube
+              En tu tienda
             </div>
           </div>
 
@@ -659,21 +673,21 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
               Dinero en Riesgo
             </div>
             <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
-              {formatCurrency(recoverableAmount)}
+              {formatCurrency(recoverableAmount, checkouts[0]?.currency)}
             </div>
             <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem" }}>
-              Oportunidades de venta
+              Por recuperar
             </div>
           </div>
 
-          {/* Card 3 - NUEVA MÉTRICA FASE 3 */}
+          {/* Card 3 */}
           <div
             style={{
               background: "#ecfdf5",
               border: "1.5px solid #10B981",
               borderRadius: "16px",
               padding: "1.25rem",
-              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.15)",
+              boxShadow: "0 4px 12px rgba(16, 185, 129, 0.08)",
             }}
           >
             <div
@@ -694,10 +708,10 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
               Ventas Recuperadas
             </div>
             <div style={{ fontSize: "1.75rem", fontWeight: 800, color: "#000", marginTop: "0.2rem" }}>
-              {formatCurrency(recoveredAmount)}
+              {formatCurrency(recoveredAmount, checkouts[0]?.currency)}
             </div>
             <div style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 700, marginTop: "0.25rem" }}>
-              {recoveredCount} {recoveredCount === 1 ? "pedido cerrado" : "pedidos cerrados"} ✅
+              {recoveredCount} {recoveredCount === 1 ? "pedido" : "pedidos"} ✅
             </div>
           </div>
 
@@ -811,7 +825,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
 
           {loading ? (
             <div style={{ padding: "3rem 1rem", textAlign: "center", color: "#10B981" }}>
-              <RefreshCw size={32} className="animate-spin" style={{ margin: "0 auto 1rem" }} />
+              <RefreshCw size={32} className="animate-spin" style={{ margin: "0 auto 1rem", color: "#10B981" }} />
               <div style={{ fontWeight: 700, color: "#000" }}>Obteniendo carritos de Tiendanube...</div>
             </div>
           ) : filteredCheckouts.length > 0 ? (
@@ -934,7 +948,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
 
                       <div style={{ textAlign: "right" }}>
                         <div style={{ fontSize: "1.15rem", fontWeight: 800, color: "#10B981" }}>
-                          {formatCurrency(c.total)}
+                          {formatCurrency(c.total, c.currency)}
                         </div>
                       </div>
                     </div>
@@ -1031,8 +1045,11 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "0.4rem",
-                            boxShadow: "0 2px 8px rgba(16, 185, 129, 0.25)",
+                            boxShadow: "0 2px 8px rgba(16, 185, 129, 0.2)",
+                            transition: "background 0.2s",
                           }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "#059669")}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = "#10B981")}
                         >
                           <Sparkles size={14} />
                           Recuperar con IA
@@ -1235,7 +1252,7 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                           flex: "1 1 130px",
                           padding: "0.7rem",
                           borderRadius: "12px",
-                          border: "1px solid #10B981",
+                          border: "1.5px solid #10B981",
                           background: "#ffffff",
                           fontSize: "0.82rem",
                           fontWeight: 800,
@@ -1246,6 +1263,19 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                           justifyContent: "center",
                           gap: "0.35rem",
                           opacity: sendingEmail || !selectedCheckout.customerEmail ? 0.6 : 1,
+                          transition: "background 0.2s, color 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!sendingEmail && selectedCheckout?.customerEmail) {
+                            e.currentTarget.style.background = "#10B981";
+                            e.currentTarget.style.color = "#ffffff";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!sendingEmail && selectedCheckout?.customerEmail) {
+                            e.currentTarget.style.background = "#ffffff";
+                            e.currentTarget.style.color = "#10B981";
+                          }
                         }}
                       >
                         {sendingEmail ? (
@@ -1273,7 +1303,10 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
                           justifyContent: "center",
                           gap: "0.35rem",
                           boxShadow: "0 4px 12px rgba(34, 197, 94, 0.3)",
+                          transition: "background 0.2s",
                         }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "#1ebd52")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "#22c55e")}
                       >
                         <MessageCircle size={16} />
                         WhatsApp
@@ -1291,4 +1324,4 @@ export default function NevuxBotClient({ email, store }: NevuxBotClientProps) {
       </main>
     </div>
   );
-                                         }
+    }
