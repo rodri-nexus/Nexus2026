@@ -1,3 +1,4 @@
+// app/admin/pagos/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -34,6 +35,23 @@ export interface AdminStats {
   totalRevenue: number;
 }
 
+interface RawPaymentRecord {
+  id: string;
+  store_id: number;
+  user_id: string;
+  amount: number;
+  payment_method: string;
+  receipt_url: string | null;
+  transfer_reference: string | null;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+  approved_at: string | null;
+  approved_by: string | null;
+  rejected_at: string | null;
+  rejected_reason: string | null;
+}
+
 export default async function AdminPagosPage() {
   // 1. Auth check
   const supabase = createClient();
@@ -52,7 +70,7 @@ export default async function AdminPagosPage() {
   }
 
   // 3. Traer lista de pagos
-  let paymentsList: any[] = [];
+  let paymentsList: RawPaymentRecord[] = [];
   try {
     const { data: payments, error: paymentsError } = await supabaseAdmin
       .from("payments")
@@ -64,9 +82,9 @@ export default async function AdminPagosPage() {
     if (paymentsError) {
       console.error("[AdminPagosPage] Error trayendo pagos:", paymentsError);
     } else if (payments) {
-      paymentsList = payments;
+      paymentsList = payments as RawPaymentRecord[];
     }
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("[AdminPagosPage] Exception trayendo pagos:", err);
   }
 
@@ -95,7 +113,7 @@ export default async function AdminPagosPage() {
           months_active = storeRes.data.months_active || 0;
           plan_active_until = storeRes.data.plan_active_until || null;
         }
-      } catch (e) {
+      } catch (e: unknown) {
         console.error(`[AdminPagosPage] Error enriqueciendo pago ${p.id}:`, e);
       }
 
@@ -138,4 +156,4 @@ export default async function AdminPagosPage() {
       stats={stats}
     />
   );
-      }
+           }
