@@ -15,6 +15,7 @@ export default async function FeedbackPage() {
     redirect("/login");
   }
 
+  let redirectTo: string | null = null;
   let planData = null;
 
   try {
@@ -22,27 +23,28 @@ export default async function FeedbackPage() {
 
     // Si no tiene tienda conectada, mandarlo al dashboard
     if (!planData) {
-      redirect("/dashboard");
-    }
+      redirectTo = "/dashboard";
+    } else {
+      const { plan } = planData;
 
-    const { plan } = planData;
-
-    // Si NO está en feedback_pending, no debería estar acá
-    if (!plan.needsFeedback) {
-      // Si está en trial o plan activo, al dashboard
-      if (plan.canUseApp) {
-        redirect("/dashboard");
+      // Si NO está en feedback_pending, no debería estar acá
+      if (!plan.needsFeedback) {
+        if (plan.canUseApp) {
+          redirectTo = "/dashboard";
+        } else if (plan.needsPayment) {
+          redirectTo = "/plan/expirado";
+        } else {
+          redirectTo = "/dashboard";
+        }
       }
-      // Si necesita pagar, a la pantalla de expirado
-      if (plan.needsPayment) {
-        redirect("/plan/expirado");
-      }
-      // Fallback
-      redirect("/dashboard");
     }
   } catch (err) {
     console.error("[FeedbackPage Server Error]:", err);
-    redirect("/dashboard");
+    redirectTo = "/dashboard";
+  }
+
+  if (redirectTo) {
+    redirect(redirectTo);
   }
 
   return <FeedbackClient email={user.email ?? ""} />;
