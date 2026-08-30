@@ -6,15 +6,15 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 const FROM_EMAIL = "Nevux <onboarding@resend.dev>";
 
-type SendEmailParams = {
+interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
-};
+}
 
 /**
- * Envío base a Resend vía fetch (sin SDK, sin dependencias extra).
- * Si falla, LOGUEA pero NO tira error para no romper el flujo principal.
+ * Envío base a Resend vía fetch nativo (sin SDK pesado, ultra liviano).
+ * Si falla, registra en log pero no rompe el flujo de la aplicación.
  */
 async function sendEmail({ to, subject, html }: SendEmailParams): Promise<boolean> {
   if (!RESEND_API_KEY) {
@@ -49,8 +49,9 @@ async function sendEmail({ to, subject, html }: SendEmailParams): Promise<boolea
     const data = await response.json();
     console.log(`✅ [email] Enviado a ${to}, id:`, data.id);
     return true;
-  } catch (error: any) {
-    console.error("❌ [email] Error enviando:", error?.message || error);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Error desconocido";
+    console.error("❌ [email] Error enviando:", msg);
     return false;
   }
 }
@@ -59,17 +60,16 @@ async function sendEmail({ to, subject, html }: SendEmailParams): Promise<boolea
 // EMAILS AL ADMIN (nevuxapp@gmail.com)
 // ═══════════════════════════════════════════════════════════
 
-type NewPaymentAlertParams = {
+export interface NewPaymentAlertParams {
   customerEmail: string;
   amount: number;
   transferReference: string | null;
   paymentId: string;
   storeId: number;
-};
+}
 
 /**
- * Notifica al admin (nevuxapp@gmail.com) cuando un cliente sube un comprobante nuevo.
- * Se dispara desde /api/plan/upload-receipt.
+ * Notifica al admin cuando un cliente sube un comprobante de pago.
  */
 export async function sendNewPaymentAlert(
   params: NewPaymentAlertParams
@@ -96,6 +96,7 @@ export async function sendNewPaymentAlert(
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nuevo pago recibido - Nevux</title>
 </head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#000000;">
@@ -184,10 +185,10 @@ export async function sendNewPaymentAlert(
     <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:16px;margin-bottom:24px;">
       <div style="font-size:13px;color:#000000;line-height:1.5;">
         <strong style="color:#059669;">Próximos pasos:</strong><br>
-        1. Entrá al panel admin<br>
-        2. Verificá el comprobante contra tu cuenta Naranja X<br>
-        3. Aprobá o rechazá el pago<br>
-        4. Enviá el email al cliente desde tu Gmail (nevuxapp@gmail.com)
+        1. Entrá al panel admin.<br>
+        2. Verificá el comprobante contra tu cuenta Naranja X.<br>
+        3. Aprobá o rechazá el pago.<br>
+        4. Notificá al cliente desde tu correo oficial.
       </div>
     </div>
 
@@ -214,18 +215,16 @@ export async function sendNewPaymentAlert(
 // EMAIL: PLAN POR VENCER O VENCIDO
 // ═══════════════════════════════════════════════════════════
 
-type PlanExpiringAlertParams = {
+export interface PlanExpiringAlertParams {
   customerEmail: string;
   storeId: number;
   daysLeft: number;
   planEndDate: string; // ISO
   monthsActive: number;
-};
+}
 
 /**
- * Notifica al admin (nevuxapp@gmail.com) cuando el plan de un cliente está por vencer o venció hoy.
- * Se dispara desde el cron /api/cron/check-plans.
- * Incluye un enlace mailto: pre-armado para avisarle al cliente desde Gmail.
+ * Notifica al admin cuando el plan de un cliente está por vencer o venció hoy.
  */
 export async function sendPlanExpiringAlert(
   params: PlanExpiringAlertParams
@@ -243,7 +242,6 @@ export async function sendPlanExpiringAlert(
   const urgencyBg = daysLeft <= 1 ? "#fee2e2" : "#fef3c7";
   const urgencyText = daysLeft <= 1 ? "🚨 ÚLTIMO DÍA / EXPIRADO" : "⏰ VENCE PRONTO";
 
-  // Mailto: pre-armado para avisar al cliente
   const clientEmailSubject =
     daysLeft <= 1
       ? "🚨 Tu plan Nevux vence hoy"
@@ -283,6 +281,7 @@ Gracias por confiar en Nevux 🚀`;
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plan por vencer - Nevux</title>
 </head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#000000;">
@@ -309,8 +308,8 @@ Gracias por confiar en Nevux 🚀`;
     <p style="margin:0 0 32px;font-size:15px;color:#000000;opacity:0.6;text-align:center;">
       ${
         daysLeft <= 1
-          ? "El plan de este cliente vence HOY o ya expiró. Avisale por email."
-          : `Faltan ${daysLeft} días para el vencimiento. Avisale por email.`
+          ? "El plan de este cliente vence HOY o ya expiró."
+          : `Faltan ${daysLeft} días para el vencimiento.`
       }
     </p>
 
@@ -369,15 +368,12 @@ Gracias por confiar en Nevux 🚀`;
       <a href="${mailtoLink}" style="display:inline-block;background:#10B981;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;">
         📧 Avisarle al cliente
       </a>
-      <p style="margin:12px 0 0;font-size:12px;color:#000000;opacity:0.5;">
-        Se abre tu casilla (nevuxapp@gmail.com) con el mensaje redactado
-      </p>
     </div>
 
     <!-- Info extra -->
     <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:10px;padding:16px;">
       <div style="font-size:13px;color:#000000;line-height:1.5;">
-        <strong style="color:#dc2626;">Recordatorio:</strong> Si el cliente no renueva antes del ${endDateFormatted}, su plan pasará automáticamente a "expirado" y verá el paywall en su próximo login.
+        <strong style="color:#dc2626;">Recordatorio:</strong> Si el cliente no renueva antes del ${endDateFormatted}, su plan pasará a "expirado".
       </div>
     </div>
 
@@ -406,7 +402,7 @@ Gracias por confiar en Nevux 🚀`;
 // EMAIL: RECUPERO DE CARRITO ABANDONADO CON IA (NEVUXBOT)
 // ═══════════════════════════════════════════════════════════
 
-type CartRecoveryEmailParams = {
+export interface CartRecoveryEmailParams {
   to: string;
   customerName: string;
   products: string[];
@@ -414,11 +410,10 @@ type CartRecoveryEmailParams = {
   checkoutUrl: string;
   customMessage?: string;
   botName?: string;
-};
+}
 
 /**
  * Envía un correo HTML de recupero de carrito abandonado al comprador desde el NevuxBot AI.
- * Se dispara en 1-clic desde el Dashboard (/dashboard/nevuxbot).
  */
 export async function sendCartRecoveryEmail(
   params: CartRecoveryEmailParams
@@ -439,13 +434,15 @@ export async function sendCartRecoveryEmail(
   }
 
   const nameStr = customerName ? customerName : "Cliente";
-  const productListHtml = products.length > 0
-    ? products
-        .map(
-          (p) => `<li style="padding:6px 0;border-bottom:1px solid #e5e7eb;">${p}</li>`
-        )
-        .join("")
-    : `<li style="padding:6px 0;">Tu selección de productos</li>`;
+  const productListHtml =
+    products.length > 0
+      ? products
+          .map(
+            (p) =>
+              `<li style="padding:6px 0;border-bottom:1px solid #e5e7eb;">${p}</li>`
+          )
+          .join("")
+      : `<li style="padding:6px 0;">Tu selección de productos</li>`;
 
   const defaultBody = `Notamos que dejaste productos en tu carrito. Te los guardamos para que no pierdas tu selección y puedas completarla en 1 clic.`;
   const bodyText = customMessage || defaultBody;
@@ -455,6 +452,7 @@ export async function sendCartRecoveryEmail(
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>¡Te guardamos tu carrito!</title>
 </head>
 <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#000000;">
@@ -486,9 +484,13 @@ export async function sendCartRecoveryEmail(
         ${productListHtml}
       </ul>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:2px solid #e5e7eb;">
-        <span style="font-size:13px;font-weight:700;color:#000000;opacity:0.6;">Total del pedido:</span>
-        <span style="font-size:20px;font-weight:800;color:#10B981;">${totalFormatted}</span>
+      <div style="display:table;width:100%;padding-top:12px;border-top:2px solid #e5e7eb;">
+        <div style="display:table-cell;font-size:13px;font-weight:700;color:#000000;opacity:0.6;vertical-align:middle;">
+          Total del pedido:
+        </div>
+        <div style="display:table-cell;text-align:right;font-size:20px;font-weight:800;color:#10B981;vertical-align:middle;">
+          ${totalFormatted}
+        </div>
       </div>
     </div>
 
@@ -519,4 +521,4 @@ export async function sendCartRecoveryEmail(
     subject: `🛒 ¡${nameStr}, no te olvides de tu pedido!`,
     html,
   });
-}
+        }
