@@ -1573,6 +1573,8 @@
           if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
           if (w.widget_slug === "resenas-clientes") renderResenasClientes(w);
           if (w.widget_slug === "slider-video") renderSliderVideo(w);
+          if (w.widget_slug === "extras-interruptor") renderExtrasInterruptor(w);
+if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -5334,5 +5336,322 @@
       });
     });
   }
+  /* ═══════════════════════════════════════════
+     RENDER EXTRAS CON INTERRUPTOR
+  ═══════════════════════════════════════════ */
+  function renderExtrasInterruptor(w) {
+    if (pageType !== "product") return;
+    
+    var exist = document.getElementById("nvx-extras-" + w.id);
+    if (exist) return;
 
+    var cfg = w.config || {};
+    var titulo = cfg.titulo || "¡Llevá el protector de silicona!";
+    var precio = cfg.precioTexto || "$5.990";
+    var badge = cfg.badgeTexto || "PROMO EXCLUSIVA";
+    var img = cfg.imagenUrl || "";
+    var txtVerMas = cfg.textoVerMas || "VER DETALLES";
+    var variantId = cfg.variantId || "";
+    var primaryColor = "#10B981";
+    var border = cfg.bordes !== undefined ? cfg.bordes : "12px";
+    var padding = cfg.padding || "12px";
+
+    var target = document.querySelector("form[action*='/cart/add']") || 
+                 document.querySelector(".js-product-buy-container") ||
+                 document.querySelector(".product-buy-panel") ||
+                 document.querySelector(".js-product-form") ||
+                 document.querySelector(".product-form");
+                 
+    if (!target) return;
+
+    var styleId = "nvx-extras-styles-" + w.id;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        .nvx-extra-card {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border: 1px solid #e5e7eb;
+          background: #ffffff;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+          margin: 15px 0;
+          font-family: system-ui, -apple-system, sans-serif;
+          transition: all 0.3s ease;
+        }
+        .nvx-extra-card:hover {
+          border-color: ${primaryColor};
+        }
+        .nvx-extra-img {
+          width: 64px;
+          height: 64px;
+          object-fit: cover;
+          border-radius: 6px;
+          background: #f3f4f6;
+        }
+        .nvx-extra-info {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-width: 0;
+        }
+        .nvx-extra-badge {
+          align-self: flex-start;
+          font-size: 9px;
+          font-weight: 700;
+          color: #ffffff;
+          background: #dc2626;
+          padding: 2px 6px;
+          border-radius: 4px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 2px;
+        }
+        .nvx-extra-title {
+          font-size: 13px;
+          font-weight: 600;
+          color: #111827;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .nvx-extra-row {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .nvx-extra-price {
+          font-size: 13px;
+          font-weight: 700;
+          color: #111827;
+        }
+        .nvx-extra-link {
+          font-size: 10px;
+          font-weight: 600;
+          color: ${primaryColor};
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        .nvx-switch {
+          position: relative;
+          display: inline-block;
+          width: 44px;
+          height: 24px;
+          flex-shrink: 0;
+        }
+        .nvx-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+        .nvx-slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background-color: #d1d5db;
+          transition: .3s;
+          border-radius: 34px;
+        }
+        .nvx-slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .3s;
+          border-radius: 50%;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        input:checked + .nvx-slider {
+          background-color: ${primaryColor};
+        }
+        input:checked + .nvx-slider:before {
+          transform: translateX(20px);
+        }
+        .nvx-loader-spin {
+          border: 2px solid #f3f4f6;
+          border-top: 2px solid ${primaryColor};
+          border-radius: 50%;
+          width: 14px;
+          height: 14px;
+          animation: nvxSpin 0.8s linear infinite;
+          display: inline-block;
+        }
+        @keyframes nvxSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    var div = document.createElement("div");
+    div.id = "nvx-extras-" + w.id;
+    div.className = "nvx-extra-card";
+    div.style.borderRadius = border;
+    div.style.padding = padding;
+
+    var badgeHtml = badge ? '<span class="nvx-extra-badge">' + escapeHtml(badge) + '</span>' : '';
+    var imgHtml = img ? '<img class="nvx-extra-img" src="' + escapeHtml(img) + '" alt="" />' : '';
+    var linkHtml = txtVerMas ? '<span class="nvx-extra-link">' + escapeHtml(txtVerMas) + '</span>' : '';
+
+    div.innerHTML = `
+      ${imgHtml}
+      <div class="nvx-extra-info">
+        ${badgeHtml}
+        <div class="nvx-extra-title">${escapeHtml(titulo)}</div>
+        <div class="nvx-extra-row">
+          <span class="nvx-extra-price">${escapeHtml(precio)}</span>
+          ${linkHtml}
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="nvx-loader-${w.id}" style="display:none;"><span class="nvx-loader-spin"></span></span>
+        <label class="nvx-switch">
+          <input type="checkbox" id="nvx-chk-${w.id}">
+          <span class="nvx-slider"></span>
+        </label>
+      </div>
+    `;
+
+    target.parentNode.insertBefore(div, target);
+
+    var checkbox = div.querySelector("#nvx-chk-" + w.id);
+    var loader = div.querySelector("#nvx-loader-" + w.id);
+
+    checkbox.addEventListener("change", function () {
+      if (checkbox.checked) {
+        if (!variantId) {
+          alert("Este producto extra no tiene una variante asignada.");
+          checkbox.checked = false;
+          return;
+        }
+
+        loader.style.display = "inline-block";
+        checkbox.disabled = true;
+
+        var params = "variant_id=" + encodeURIComponent(variantId) + "&quantity=1";
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/cart/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            loader.style.display = "none";
+            checkbox.disabled = false;
+            if (xhr.status === 200 || xhr.status === 302 || xhr.status === 201) {
+              window.location.reload();
+            } else {
+              alert("No se pudo agregar el producto opcional al carrito. Inténtalo de nuevo.");
+              checkbox.checked = false;
+            }
+          }
+        };
+        xhr.send(params);
+      }
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER CONTADOR DE VISITAS
+  ═══════════════════════════════════════════ */
+  function renderContadorVisitas(w) {
+    if (pageType !== "product") return;
+
+    var exist = document.getElementById("nvx-contador-" + w.id);
+    if (exist) return;
+
+    var cfg = w.config || {};
+    var textoAntes = cfg.textoAntes || "personas mirando este producto ahora";
+    var min = parseInt(cfg.minVisitas) || 8;
+    var max = parseInt(cfg.maxVisitas) || 35;
+    var border = cfg.bordes !== undefined ? cfg.bordes : "999px";
+    var padding = cfg.padding || "8px 12px";
+
+    var targetPrice = document.querySelector(".js-price-display") || 
+                      document.querySelector("#price_display") || 
+                      document.querySelector(".product-price-container") ||
+                      document.querySelector(".product-price") ||
+                      document.querySelector(".js-product-price") ||
+                      document.querySelector("form[action*='/cart/add']");
+
+    if (!targetPrice) return;
+
+    var styleId = "nvx-contador-styles";
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        .nvx-contador-container {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: #ffffff;
+          border: 1px solid #f3f4f6;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+          font-family: system-ui, -apple-system, sans-serif;
+          margin: 10px 0;
+          width: fit-content;
+        }
+        .nvx-dot-pulse {
+          width: 8px;
+          height: 8px;
+          background-color: #dc2626;
+          border-radius: 50%;
+          position: relative;
+          flex-shrink: 0;
+        }
+        .nvx-dot-pulse::after {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background-color: #dc2626;
+          animation: nvxDotPulse 1.5s infinite ease-out;
+          top: 0; left: 0;
+        }
+        .nvx-contador-text {
+          font-size: 12px;
+          color: #4b5563;
+          font-weight: 500;
+        }
+        .nvx-contador-num {
+          font-weight: 700;
+          color: #dc2626;
+        }
+        @keyframes nvxDotPulse {
+          0% { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(2.8); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    var storageKey = "nvx-visitas-" + (productId || "general");
+    var visitas = sessionStorage.getItem(storageKey);
+    if (!visitas) {
+      visitas = Math.floor(Math.random() * (max - min + 1)) + min;
+      sessionStorage.setItem(storageKey, visitas);
+    }
+
+    var div = document.createElement("div");
+    div.id = "nvx-contador-" + w.id;
+    div.className = "nvx-contador-container";
+    div.style.borderRadius = border === "999" ? "999px" : border;
+    div.style.padding = padding;
+
+    div.innerHTML = `
+      <div class="nvx-dot-pulse"></div>
+      <div class="nvx-contador-text">
+        🔥 <span class="nvx-contador-num">${visitas}</span> ${escapeHtml(textoAntes)}
+      </div>
+    `;
+
+    targetPrice.parentNode.insertBefore(div, targetPrice.nextSibling);
+            }
 })();
