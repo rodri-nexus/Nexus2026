@@ -1,8 +1,15 @@
+// app/dashboard/nevuxbot/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import NevuxBotClient from "./NevuxBotClient";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
+export interface StoreData {
+  store_id: number;
+  installed_at: string;
+  is_active: boolean;
+}
 
 export default async function NevuxBotPage() {
   const supabase = createClient();
@@ -21,7 +28,7 @@ export default async function NevuxBotPage() {
     .eq("is_active", true)
     .maybeSingle();
 
-  const storeData = store
+  const storeData: StoreData | null = store
     ? {
         store_id: store.store_id,
         installed_at: store.installed_at,
