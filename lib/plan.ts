@@ -239,13 +239,16 @@ export async function isStorePlanActive(
   storeId: number | string
 ): Promise<boolean> {
   try {
-    const cleanStoreId = String(storeId).trim();
+    const rawId = String(storeId).trim();
+    const numericStoreId = Number(rawId);
+    const idToQuery = !isNaN(numericStoreId) ? numericStoreId : rawId;
+
     const { data: store, error } = await supabaseAdmin
       .from("stores")
       .select(
         "store_id, user_id, trial_started_at, trial_ends_at, plan_status, plan_active_until, last_payment_at, months_active, feedback_shown, is_active"
       )
-      .eq("store_id", cleanStoreId)
+      .eq("store_id", idToQuery)
       .eq("is_active", true)
       .maybeSingle();
 
@@ -255,7 +258,7 @@ export async function isStorePlanActive(
 
     const plan = buildPlanInfo(store as StorePlanData);
     return plan.canUseApp;
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Error verificando vencimiento de tienda:", err);
     return false;
   }
@@ -291,4 +294,4 @@ export async function syncPlanStatusIfNeeded(
 
 export function formatPrice(amount: number = PLAN_PRICE_ARS): string {
   return `$${amount.toLocaleString("es-AR")}`;
-    }
+  }
