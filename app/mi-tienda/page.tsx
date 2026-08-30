@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase-server";
 import { getProductsCount } from "@/lib/tiendanube";
 import MiTiendaClient from "./MiTiendaClient";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
-interface StoreInfo {
+export interface StoreInfo {
   store_id: number;
   installed_at: string;
   updated_at: string | null;
@@ -52,16 +52,6 @@ async function getStoreInfo(
   }
 }
 
-async function getWidgetsCount(storeId: number, userId: string): Promise<number> {
-  const supabase = createClient();
-  const { count } = await supabase
-    .from("widgets")
-    .select("id", { count: "exact", head: true })
-    .eq("store_id", storeId)
-    .eq("user_id", userId);
-  return count || 0;
-}
-
 export default async function MiTiendaPage() {
   const supabase = createClient();
 
@@ -69,7 +59,9 @@ export default async function MiTiendaPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) {
+    redirect("/login");
+  }
 
   // Traer tienda vinculada al usuario
   const { data: store } = await supabase
@@ -91,11 +83,26 @@ export default async function MiTiendaPage() {
     );
   }
 
+  // Traer widgets count
+  async function getWidgetsCount(): Promise<number> {
+    try {
+      const { count } = await supabase
+        .from("widgets")
+        .select("id", { count: "exact", head: true })
+        .eq("store_id", store!.store_id)
+        .eq("user_id", user!.id);
+      return count || 0;
+    } catch (e) {
+      console.error("Error contando widgets:", e);
+      return 0;
+    }
+  }
+
   // Traer info fresca en paralelo
   const [{ url, name }, productsCount, widgetsCount] = await Promise.all([
     getStoreInfo(store.store_id, store.access_token),
-    getProductsCount(store.store_id, store.access_token),
-    getWidgetsCount(store.store_id, user.id),
+    getProductsCount(store.store_id, store.access_token).catch(() => 0),
+    getWidgetsCount(),
   ]);
 
   const storeInfo: StoreInfo = {
@@ -116,4 +123,4 @@ export default async function MiTiendaPage() {
       widgetsCount={widgetsCount}
     />
   );
-}
+                    }
