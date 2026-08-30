@@ -1,3 +1,4 @@
+// app/admin/pagos/AdminPagosClient.tsx
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -13,7 +14,6 @@ import {
   X,
   Loader2,
   LogOut,
-  Shield,
   AlertCircle,
   Calendar,
   User,
@@ -120,6 +120,7 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
   const [activeTab, setActiveTab] = useState<TabKey>("pending");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilterKey>("all");
+  const [searchFocused, setSearchFocused] = useState(false);
   
   const [viewingReceipt, setViewingReceipt] = useState<PaymentWithUser | null>(null);
   const [approvingPayment, setApprovingPayment] = useState<PaymentWithUser | null>(null);
@@ -176,12 +177,11 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
   const handleLogout = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  }, [router]);
+    window.location.href = "/login";
+  }, []);
 
   return (
-    <div className="min-h-screen w-full bg-gray-50 text-black overflow-x-hidden box-border">
+    <div className="min-h-screen w-full bg-[#fafafa] text-black overflow-x-hidden box-border">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -192,14 +192,14 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
           <button
             type="button"
             onClick={() => setShowCronModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-transparent border border-gray-200 rounded-lg text-xs font-semibold text-black cursor-pointer hover:bg-gray-50 transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-transparent border border-gray-200 rounded-xl text-xs font-bold text-black cursor-pointer hover:bg-gray-50 transition"
           >
-            <Zap size={14} className="text-emerald-500" /> Cron
+            <Zap size={14} className="text-[#10B981]" /> Cron
           </button>
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-2 bg-transparent border border-gray-200 rounded-lg text-xs font-semibold text-black cursor-pointer hover:bg-gray-50 transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-transparent border border-gray-200 rounded-xl text-xs font-bold text-black cursor-pointer hover:bg-gray-50 transition"
           >
             <LogOut size={14} /> Salir
           </button>
@@ -210,15 +210,15 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
       <main className="max-w-7xl mx-auto px-4 py-6 box-border">
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-extrabold text-black tracking-tight mb-1">Panel de pagos</h1>
-          <p className="text-sm text-gray-500">Aprobá o rechazá los comprobantes de transferencia de los comercios.</p>
+          <p className="text-sm text-gray-500">Aprobá o rechazá los comprobantes de transferencia de los comercios de Nevux.</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={<Clock size={18} />} label="Pendientes" value={stats.pending} color="text-amber-500" bg="bg-amber-50" highlight={stats.pending > 0} />
-          <StatCard icon={<CheckCircle2 size={18} />} label="Aprobados" value={stats.approved} color="text-emerald-600" bg="bg-emerald-50" />
-          <StatCard icon={<XCircle size={18} />} label="Rechazados" value={stats.rejected} color="text-red-600" bg="bg-red-50" />
-          <StatCard icon={<DollarSign size={18} />} label="Ingresos" value={`$${stats.totalRevenue.toLocaleString("es-AR")}`} color="text-emerald-500" bg="bg-emerald-50" isText />
+          <StatCard icon={<Clock size={18} />} label="Pendientes" value={stats.pending} color="text-[#f59e0b]" bg="bg-amber-50" highlight={stats.pending > 0} />
+          <StatCard icon={<CheckCircle2 size={18} />} label="Aprobados" value={stats.approved} color="text-[#059669]" bg="bg-emerald-50" />
+          <StatCard icon={<XCircle size={18} />} label="Rechazados" value={stats.rejected} color="text-[#dc2626]" bg="bg-red-50" />
+          <StatCard icon={<DollarSign size={18} />} label="Ingresos" value={`$${stats.totalRevenue.toLocaleString("es-AR")}`} color="text-[#10B981]" bg="bg-emerald-50" isText />
         </div>
 
         {/* Tabs */}
@@ -232,19 +232,21 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
         {/* Filtros */}
         <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4 box-border shadow-sm">
           <div className="relative mb-3">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <Search size={16} color={searchFocused ? "#10B981" : "#9ca3af"} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors" />
             <input
               type="text"
               value={searchQuery}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por email del cliente..."
-              className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none border transition ${searchQuery ? "border-emerald-500 bg-white" : "border-gray-200 bg-gray-50"}`}
+              className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none border transition ${searchQuery ? "border-[#10B981] bg-white" : "border-gray-200 bg-gray-50"}`}
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black text-white flex items-center justify-center cursor-pointer p-0"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black text-white flex items-center justify-center cursor-pointer p-0 border-none"
               >
                 <X size={12} />
               </button>
@@ -258,7 +260,7 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
                 key={f}
                 type="button"
                 onClick={() => setDateFilter(f)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${dateFilter === f ? "bg-emerald-500 text-white border-emerald-500" : "bg-white text-black border-gray-200"}`}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${dateFilter === f ? "bg-[#10B981] text-white border-[#10B981]" : "bg-white text-black border-gray-200"}`}
               >
                 {f === "all" ? "Todas" : f === "today" ? "Hoy" : f === "7days" ? "7 días" : f === "30days" ? "30 días" : "Este mes"}
               </button>
@@ -272,7 +274,7 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
                 <button
                   type="button"
                   onClick={handleClearFilters}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-transparent border border-emerald-200 rounded-full text-xs font-bold text-emerald-500 cursor-pointer"
+                  className="flex items-center gap-1 px-3.5 py-1.5 bg-transparent border border-emerald-200 rounded-full text-xs font-bold text-[#10B981] cursor-pointer"
                 >
                   <RotateCcw size={12} /> Limpiar filtros
                 </button>
@@ -320,7 +322,7 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
 
 function StatCard({ icon, label, value, color, bg, isText = false, highlight = false }: { icon: React.ReactNode; label: string; value: number | string; color: string; bg: string; isText?: boolean; highlight?: boolean }) {
   return (
-    <div className={`bg-white p-4 rounded-2xl border transition shadow-sm ${highlight ? `border-amber-500 ring-2 ring-amber-100` : "border-gray-100"}`}>
+    <div className={`bg-white p-4 rounded-2xl border transition shadow-sm ${highlight ? `border-[#f59e0b] ring-2 ring-amber-100` : "border-gray-100"}`}>
       <div className={`inline-flex items-center justify-center w-8 h-8 rounded-xl ${bg} ${color} mb-2`}>{icon}</div>
       <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">{label}</div>
       <div className={`font-extrabold tracking-tight ${isText ? "text-lg" : "text-2xl"} ${highlight ? color : "text-black"}`}>{value}</div>
@@ -337,7 +339,7 @@ function TabButton({ active, onClick, children, count, urgent = false }: { activ
     >
       {children}
       {count > 0 && (
-        <span className={`inline-flex items-center justify-center h-5 px-1.5 rounded-full text-[10px] font-extrabold ${active ? "bg-white text-black" : urgent ? "bg-amber-500 text-white" : "bg-gray-100 text-gray-600"}`}>
+        <span className={`inline-flex items-center justify-center h-5 px-1.5 rounded-full text-[10px] font-extrabold ${active ? "bg-white text-black" : urgent ? "bg-[#f59e0b] text-white" : "bg-gray-100 text-gray-600"}`}>
           {count}
         </span>
       )}
@@ -377,10 +379,10 @@ function PaymentCard({ payment, onViewReceipt, onApprove, onReject }: { payment:
         )}
         {isPending && (
           <>
-            <button type="button" onClick={onApprove} className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-500 text-white border-none rounded-xl text-xs font-bold cursor-pointer hover:bg-emerald-600 transition">
+            <button type="button" onClick={onApprove} className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#10B981] text-white border-none rounded-xl text-xs font-bold cursor-pointer hover:bg-[#059669] transition">
               <Check size={14} /> Aprobar
             </button>
-            <button type="button" onClick={onReject} className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-red-600 border border-red-200 rounded-xl text-xs font-bold cursor-pointer hover:bg-red-50 transition">
+            <button type="button" onClick={onReject} className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-[#dc2626] border border-red-200 rounded-xl text-xs font-bold cursor-pointer hover:bg-red-50 transition">
               <X size={14} /> Rechazar
             </button>
           </>
@@ -458,7 +460,7 @@ function ReceiptModal({ payment, onClose }: { payment: PaymentWithUser; onClose:
       <ModalContent title="Comprobante de pago" onClose={onClose} large>
         {loading && (
           <div className="text-center py-12">
-            <Loader2 size={32} className="mx-auto text-emerald-500 animate-spin" />
+            <Loader2 size={32} className="mx-auto text-[#10B981] animate-spin" />
             <p className="text-xs text-gray-500 mt-3">Cargando comprobante...</p>
           </div>
         )}
@@ -467,14 +469,14 @@ function ReceiptModal({ payment, onClose }: { payment: PaymentWithUser; onClose:
           <div>
             {isPdf ? (
               <div className="text-center py-8">
-                <FileText size={56} className="mx-auto text-emerald-500 mb-4" />
+                <FileText size={56} className="mx-auto text-[#10B981] mb-4" />
                 <p className="text-sm font-bold text-black mb-4">Comprobante en PDF</p>
-                <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-xs font-bold no-underline"><ExternalLink size={14} /> Abrir PDF</a>
+                <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#10B981] text-white rounded-xl text-xs font-bold no-underline"><ExternalLink size={14} /> Abrir PDF</a>
               </div>
             ) : (
               <img src={url} alt="Comprobante" className="w-full h-auto max-h-[60vh] object-contain rounded-xl bg-gray-50" />
             )}
-            <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-500 font-bold no-underline mt-4"><ExternalLink size={13} /> Abrir en pestaña nueva</a>
+            <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-[#10B981] font-bold no-underline mt-4"><ExternalLink size={13} /> Abrir en pestaña nueva</a>
           </div>
         )}
       </ModalContent>
@@ -514,7 +516,7 @@ function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUse
       <ModalBackdrop onClose={onSuccess}>
         <ModalContent title="Pago aprobado ✓" onClose={onSuccess}>
           <div className="text-center mb-5">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-50 mb-3"><CheckCircle2 size={36} className="text-emerald-500" /></div>
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-50 mb-3"><CheckCircle2 size={36} className="text-[#10B981]" /></div>
             <h4 className="text-base font-extrabold text-black mb-1">Plan activado con éxito</h4>
             <p className="text-xs text-gray-500">Vence el {new Date(successData.newPlanEnd).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</p>
           </div>
@@ -524,7 +526,7 @@ function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUse
           </div>
           <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 text-xs">
             <p className="font-bold text-emerald-800 mb-3">📧 Enviale el email de confirmación redactado automáticamente.</p>
-            <a href={mailtoLink} className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-emerald-500 text-white rounded-xl font-extrabold text-sm no-underline"><Mail size={16} /> Enviar email al cliente</a>
+            <a href={mailtoLink} className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-extrabold text-sm no-underline transition-colors"><Mail size={16} /> Enviar email al cliente</a>
           </div>
           <button type="button" onClick={onSuccess} className="w-full py-2.5 bg-white text-black border border-gray-200 rounded-xl font-semibold text-xs cursor-pointer opacity-70">Cerrar</button>
         </ModalContent>
@@ -536,7 +538,7 @@ function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUse
     <ModalBackdrop onClose={submitting ? () => {} : onClose}>
       <ModalContent title="Aprobar pago" onClose={onClose}>
         <div className="p-3.5 bg-emerald-50 rounded-xl mb-4 flex gap-2 items-start text-xs text-emerald-800">
-          <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+          <CheckCircle2 size={16} className="text-[#10B981] shrink-0 mt-0.5" />
           <span>Se va a activar el plan del cliente por <b>30 días</b>. El usuario podrá usar todos los widgets inmediatamente.</span>
         </div>
         <div className="p-3 bg-gray-50 rounded-xl mb-4 text-xs flex flex-col gap-1">
@@ -548,12 +550,12 @@ function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUse
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notas internas (opcional)..."
           disabled={submitting}
-          className="w-full min-h-[80px] p-3 rounded-xl border border-gray-200 text-sm font-sans box-border resize-y outline-none focus:border-emerald-500"
+          className="w-full min-h-[80px] p-3 rounded-xl border border-gray-200 text-sm font-sans box-border resize-y outline-none focus:border-[#10B981] transition-all"
         />
-        {error && <div className="mt-3 p-3 bg-red-50 text-red-600 rounded-xl text-xs">{error}</div>}
+        {error && <div className="mt-3 p-3 bg-red-50 text-[#dc2626] rounded-xl text-xs">{error}</div>}
         <div className="flex gap-2 mt-4">
           <button type="button" onClick={onClose} disabled={submitting} className="flex-1 py-2.5 bg-white text-black border border-gray-200 rounded-xl text-xs font-bold cursor-pointer">Cancelar</button>
-          <button type="button" onClick={handleApprove} disabled={submitting} className="flex-1 py-2.5 bg-emerald-500 text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1">
+          <button type="button" onClick={handleApprove} disabled={submitting} className="flex-1 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors">
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Aprobar pago
           </button>
         </div>
@@ -598,7 +600,7 @@ function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser
       <ModalBackdrop onClose={onSuccess}>
         <ModalContent title="Pago rechazado" onClose={onSuccess}>
           <div className="text-center mb-5">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-50 mb-3"><XCircle size={36} className="text-red-500" /></div>
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-50 mb-3"><XCircle size={36} className="text-[#dc2626]" /></div>
             <h4 className="text-base font-extrabold text-black mb-1">Pago rechazado</h4>
             <p className="text-xs text-gray-500">El cliente puede subir otro comprobante.</p>
           </div>
@@ -608,7 +610,7 @@ function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser
           </div>
           <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 text-xs">
             <p className="font-bold text-emerald-800 mb-3">📧 Enviale el email de rechazo redactado automáticamente.</p>
-            <a href={mailtoLink} className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-emerald-500 text-white rounded-xl font-extrabold text-sm no-underline"><Mail size={16} /> Enviar email al cliente</a>
+            <a href={mailtoLink} className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-extrabold text-sm no-underline transition-colors"><Mail size={16} /> Enviar email al cliente</a>
           </div>
           <button type="button" onClick={onSuccess} className="w-full py-2.5 bg-white text-black border border-gray-200 rounded-xl font-semibold text-xs cursor-pointer opacity-70">Cerrar</button>
         </ModalContent>
@@ -620,7 +622,7 @@ function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser
     <ModalBackdrop onClose={submitting ? () => {} : onClose}>
       <ModalContent title="Rechazar pago" onClose={onClose}>
         <div className="p-3.5 bg-red-50 rounded-xl mb-4 flex gap-2 items-start text-xs text-red-800 border border-red-100">
-          <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
+          <AlertCircle size={18} className="text-[#dc2626] shrink-0 mt-0.5" />
           <span>El cliente verá la razón del rechazo de inmediato y podrá volver a cargar un comprobante desde su cuenta.</span>
         </div>
         <div className="flex flex-wrap gap-1 mb-4">
@@ -629,7 +631,7 @@ function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser
               key={r}
               type="button"
               onClick={() => setReason(r)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${reason === r ? "bg-emerald-500 text-white border-emerald-500" : "bg-white text-black border-gray-200"}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${reason === r ? "bg-[#10B981] text-white border-[#10B981]" : "bg-white text-black border-gray-200"}`}
             >
               {r}
             </button>
@@ -640,16 +642,16 @@ function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser
           onChange={(e) => setReason(e.target.value)}
           placeholder="Escribí la razón del rechazo..."
           disabled={submitting}
-          className="w-full min-h-[90px] p-3 rounded-xl border border-gray-200 text-sm font-sans box-border resize-y outline-none focus:border-red-500"
+          className="w-full min-h-[90px] p-3 rounded-xl border border-gray-200 text-sm font-sans box-border resize-y outline-none focus:border-[#dc2626] transition-all"
         />
-        {error && <div className="mt-3 p-3 bg-red-50 text-red-600 rounded-xl text-xs">{error}</div>}
+        {error && <div className="mt-3 p-3 bg-red-50 text-[#dc2626] rounded-xl text-xs">{error}</div>}
         <div className="flex gap-2 mt-4">
           <button type="button" onClick={onClose} disabled={submitting} className="flex-1 py-2.5 bg-white text-black border border-gray-200 rounded-xl text-xs font-bold cursor-pointer">Cancelar</button>
           <button
             type="button"
             onClick={handleReject}
             disabled={submitting || reason.trim().length < 3}
-            className={`flex-1 py-2.5 text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1 ${submitting || reason.trim().length < 3 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"}`}
+            className={`flex-1 py-2.5 text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors ${submitting || reason.trim().length < 3 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-[#dc2626] hover:bg-red-700"}`}
           >
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />} Rechazar pago
           </button>
@@ -670,7 +672,12 @@ function CronModal({ onClose }: { onClose: () => void }) {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch("/api/admin/run-cron", { method: "POST" });
+      const res = await fetch("/api/cron/check-plans", { 
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || "nevux_admin_sync_2026"}`
+        }
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo ejecutar el cron");
       setResult(data as CronResult);
@@ -687,12 +694,12 @@ function CronModal({ onClose }: { onClose: () => void }) {
         {!result && !error && (
           <>
             <div className="p-3.5 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 flex gap-2 items-start text-xs text-emerald-800">
-              <Zap size={18} className="text-emerald-500 shrink-0 mt-0.5" />
+              <Zap size={18} className="text-[#10B981] shrink-0 mt-0.5" />
               <span>Ejecuta el chequeo diario al instante: marca planes vencidos y envía recordatorios para planes por expirar.</span>
             </div>
             <div className="flex gap-2">
               <button type="button" onClick={onClose} disabled={running} className="flex-1 py-2.5 bg-white text-black border border-gray-200 rounded-xl text-xs font-bold cursor-pointer">Cancelar</button>
-              <button type="button" onClick={handleRun} disabled={running} className="flex-1 py-2.5 bg-emerald-500 text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1">
+              <button type="button" onClick={handleRun} disabled={running} className="flex-1 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors">
                 {running ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />} Ejecutar ahora
               </button>
             </div>
@@ -702,13 +709,13 @@ function CronModal({ onClose }: { onClose: () => void }) {
         {result && (
           <>
             <div className="text-center mb-4">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-50 mb-2"><CheckCircle2 size={30} className="text-emerald-500" /></div>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-50 mb-2"><CheckCircle2 size={30} className="text-[#10B981]" /></div>
               <h4 className="text-sm font-extrabold text-black mb-1">Cron ejecutado ✓</h4>
             </div>
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <CronStat label="Expirados" value={result.report?.expired ?? 0} color="text-red-500" bg="bg-red-50" />
-              <CronStat label="Emails OK" value={result.report?.remindersSent ?? 0} color="text-emerald-600" bg="bg-emerald-50" />
-              <CronStat label="Fallidos" value={result.report?.remindersFailed ?? 0} color="text-amber-500" bg="bg-amber-50" />
+              <CronStat label="Expirados" value={result.report?.expired ?? 0} color="text-[#dc2626]" bg="bg-red-50" />
+              <CronStat label="Emails OK" value={result.report?.remindersSent ?? 0} color="text-[#059669]" bg="bg-emerald-50" />
+              <CronStat label="Fallidos" value={result.report?.remindersFailed ?? 0} color="text-[#f59e0b]" bg="bg-amber-50" />
             </div>
             <button type="button" onClick={onClose} className="w-full py-2.5 bg-black text-white border-none rounded-xl font-bold text-xs cursor-pointer">Cerrar</button>
           </>
@@ -732,4 +739,4 @@ function CronStat({ label, value, color, bg }: { label: string; value: number; c
       <div className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">{label}</div>
     </div>
   );
-}
+  }
