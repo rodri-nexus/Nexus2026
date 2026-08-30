@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { createClient } from "@/lib/supabase-browser";
-import { useRouter } from "next/navigation";
 
 interface ExpiradoClientProps {
   email: string;
@@ -114,7 +113,7 @@ const FAQS = [
   },
   {
     q: "¿Cómo pago?",
-    a: "Por transferencia a Naranja X (más económico) o MercadoPago. Elegís el método que más te convenga en el próximo paso.",
+    a: "Por transferencia a Naranja X (más económico y directo). Los datos los obtenés en el siguiente paso.",
   },
   {
     q: "¿Devuelven el dinero?",
@@ -124,18 +123,19 @@ const FAQS = [
 
 export default function ExpiradoClient({
   email,
-  trialEndedAt: _trialEndedAt,
-  monthsActive: _monthsActive,
 }: ExpiradoClientProps) {
-  const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleLogout = useCallback(async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  }, [router]);
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Ignorar errores de red en logout
+    } finally {
+      window.location.href = "/login";
+    }
+  }, []);
 
   return (
     <div
@@ -231,7 +231,7 @@ export default function ExpiradoClient({
               boxShadow: "0 2px 8px rgba(16, 185, 129, 0.1)",
             }}
           >
-            <Clock size={12} />
+            <Clock size={12} color="#10B981" />
             Tu prueba gratis terminó
           </div>
 
@@ -449,6 +449,12 @@ export default function ExpiradoClient({
                   maxWidth: "360px",
                   boxSizing: "border-box",
                 }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#059669")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#10B981")
+                }
               >
                 Activar mi cuenta
                 <ArrowRight size={20} />
@@ -494,7 +500,7 @@ export default function ExpiradoClient({
                 letterSpacing: "0.05em",
               }}
             >
-              <Gift size={12} />
+              <Gift size={12} color="#10B981" />
               Recompensas por fidelidad
             </div>
             <h2
@@ -617,7 +623,7 @@ export default function ExpiradoClient({
                 letterSpacing: "0.05em",
               }}
             >
-              <Sparkles size={12} />
+              <Sparkles size={12} color="#10B981" />
               Próximamente
             </div>
             <h2
@@ -849,7 +855,7 @@ export default function ExpiradoClient({
               margin: "0 0 1.25rem 0",
             }}
           >
-            Escribinos por WhatsApp y te respondemos al toque
+            Escribinos por WhatsApp y te respondemos al instante
           </p>
           <a
             href="https://wa.me/5493434163999?text=Hola%20Nevux%20quiero%20saber%20mas%20sobre%20el%20plan"
@@ -860,14 +866,21 @@ export default function ExpiradoClient({
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.85rem 1.75rem",
-              background: "linear-gradient(135deg, #22c55e, #16a34a)",
+              background: "#10B981",
               color: "white",
               borderRadius: "999px",
               fontSize: "0.95rem",
               fontWeight: 700,
               textDecoration: "none",
-              boxShadow: "0 8px 20px rgba(34, 197, 94, 0.3)",
+              boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
+              transition: "background 0.15s ease",
             }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "#059669")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "#10B981")
+            }
           >
             <MessageCircle size={17} />
             Hablar por WhatsApp
