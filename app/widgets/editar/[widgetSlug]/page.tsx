@@ -16,6 +16,7 @@ import MensajeAlertaEditor from '@/components/widgets/editors/MensajeAlertaEdito
 import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
 import ResenasClientesEditor from '@/components/widgets/editors/ResenasClientesEditor';
 import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
+import ExtrasInterruptorEditor from '@/components/widgets/editors/ExtrasInterruptorEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -66,6 +67,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET NUEVO: EXTRAS CON INTERRUPTOR
+  if (params.widgetSlug === 'extras-interruptor' || params.widgetSlug === 'switch-extras') {
+    return (
+      <ExtrasInterruptorEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   if (params.widgetSlug === 'cuenta-regresiva') {
     return (
