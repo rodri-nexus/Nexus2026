@@ -5,15 +5,7 @@ import { Store } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-interface WidgetsNuevoTodosPageProps {
-  searchParams?: {
-    type?: string;
-  };
-}
-
-export default async function WidgetsNuevoTodosPage({
-  searchParams,
-}: WidgetsNuevoTodosPageProps) {
+export default async function WidgetsNuevoTodosPage() {
   const supabase = createClient();
   const {
     data: { user },
@@ -66,9 +58,8 @@ export default async function WidgetsNuevoTodosPage({
           chip={chip}
           baseUrl="/widgets/editar"
           target="all"
-          selectedType={searchParams?.type}
         />
       </div>
     </div>
   );
-      }
+}
