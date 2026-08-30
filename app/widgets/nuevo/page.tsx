@@ -11,11 +11,15 @@ function WidgetsNuevoContent() {
   const type = searchParams.get("type");
   const productId = searchParams.get("productId");
 
-  // Si viene del modal con parámetros, redirigimos automáticamente a la ruta correspondiente
+  // Redirección inteligente corregida
   useEffect(() => {
     if (type && productId) {
-      router.replace(`/widgets/nuevo/producto?type=${encodeURIComponent(type)}&productId=${encodeURIComponent(productId)}`);
+      // Redirige directo a la subcarpeta del producto específico
+      router.replace(
+        `/widgets/nuevo/producto/${productId}?type=${encodeURIComponent(type)}`
+      );
     } else if (type) {
+      // Redirige a todos los productos
       router.replace(`/widgets/nuevo/todos?type=${encodeURIComponent(type)}`);
     }
   }, [type, productId, router]);
@@ -298,4 +302,4 @@ export default function WidgetsNuevoPage() {
       </Suspense>
     </div>
   );
-      }
+          }
