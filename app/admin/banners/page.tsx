@@ -1,3 +1,4 @@
+// app/admin/banners/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -11,15 +12,15 @@ export default function BannersPage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#0f172a",
-        color: "#ffffff",
-        padding: "16px",
+        backgroundColor: "#fafafa",
+        color: "#000000",
+        padding: "24px 16px 80px",
         fontFamily:
-          "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "24px",
+        gap: "32px",
         boxSizing: "border-box",
       }}
     >
@@ -29,37 +30,63 @@ export default function BannersPage() {
           maxWidth: "650px",
           width: "100%",
           textAlign: "center",
-          backgroundColor: "#1e293b",
-          padding: "14px 18px",
-          borderRadius: "14px",
-          border: "1px solid rgba(16, 185, 129, 0.4)",
-          boxShadow: "0 10px 20px rgba(0,0,0,0.3)",
+          backgroundColor: "#ffffff",
+          padding: "20px",
+          borderRadius: "18px",
+          border: "1.5px solid #e5e7eb",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "10px",
+          gap: "12px",
         }}
       >
-        <h1 style={{ fontSize: "16px", fontWeight: "bold", color: "#34d399", margin: 0 }}>
-          📷 Banners Promocionales Oficiales de Nevux
+        <h1
+          style={{
+            fontSize: "18px",
+            fontWeight: 800,
+            color: "#10B981",
+            margin: 0,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          📷 Banners Promocionales Oficiales
         </h1>
-        <p style={{ fontSize: "12px", color: "#cbd5e1", margin: 0, lineHeight: "1.4" }}>
-          Elegí el idioma y sacale captura a cada tarjeta en modo horizontal.
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#64748b",
+            margin: 0,
+            lineHeight: "1.4",
+            fontWeight: 500,
+          }}
+        >
+          Elegí el idioma y sacale captura a cada tarjeta en modo horizontal desde tu celular para tus campañas de marketing.
         </p>
 
         {/* Botones de Idioma */}
-        <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            background: "#f1f5f9",
+            padding: "4px",
+            borderRadius: "12px",
+            marginTop: "6px",
+          }}
+        >
           <button
             onClick={() => setLang("es")}
             style={{
-              padding: "6px 14px",
+              padding: "8px 16px",
               borderRadius: "8px",
               fontSize: "12px",
-              fontWeight: "bold",
+              fontWeight: 700,
               border: "none",
               cursor: "pointer",
-              backgroundColor: !isPt ? "#10B981" : "#334155",
-              color: "#ffffff",
+              backgroundColor: !isPt ? "#10B981" : "transparent",
+              color: !isPt ? "#ffffff" : "#64748b",
+              transition: "all 0.2s ease",
             }}
           >
             🇦🇷 Español
@@ -67,17 +94,18 @@ export default function BannersPage() {
           <button
             onClick={() => setLang("pt")}
             style={{
-              padding: "6px 14px",
+              padding: "8px 16px",
               borderRadius: "8px",
               fontSize: "12px",
-              fontWeight: "bold",
+              fontWeight: 700,
               border: "none",
               cursor: "pointer",
-              backgroundColor: isPt ? "#10B981" : "#334155",
-              color: "#ffffff",
+              backgroundColor: isPt ? "#10B981" : "transparent",
+              color: isPt ? "#ffffff" : "#64748b",
+              transition: "all 0.2s ease",
             }}
           >
-            🇧🇷 Português (Brasil)
+            🇧🇷 Português
           </button>
         </div>
       </div>
@@ -90,18 +118,18 @@ export default function BannersPage() {
           width: "100%",
           maxWidth: "650px",
           minHeight: "350px",
-          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
-          borderRadius: "20px",
-          padding: "24px",
-          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #022c22 100%)",
+          borderRadius: "24px",
+          padding: "28px",
+          boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
           position: "relative",
           overflow: "hidden",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "16px",
+          gap: "20px",
           boxSizing: "border-box",
         }}
       >
@@ -115,7 +143,7 @@ export default function BannersPage() {
               fontWeight: "900",
               padding: "4px 10px",
               borderRadius: "999px",
-              marginBottom: "10px",
+              marginBottom: "12px",
               letterSpacing: "0.5px",
             }}
           >
@@ -123,31 +151,31 @@ export default function BannersPage() {
           </div>
           <h2
             style={{
-              fontSize: "24px",
+              fontSize: "26px",
               fontWeight: "900",
               color: "#ffffff",
               margin: "0 0 10px 0",
               lineHeight: "1.1",
-              letterSpacing: "-0.5px",
+              letterSpacing: "-0.03em",
             }}
           >
             {isPt ? "O primeiro CRM de Carrinhos com IA" : "El primer CRM de Carritos con IA"}
           </h2>
-          <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
+          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.45", fontWeight: "500" }}>
             {isPt
               ? "Detecte vendas perdidas, crie mensagens persuasivas com Gemini AI e recupere via WhatsApp ou E-mail."
               : "Detectá ventas perdidas, creá copys persuasivos con Gemini AI y recuperá por WhatsApp o Email."}
           </p>
           
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "12px" }}>
-            <div style={{ fontSize: "10px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "#34d399" }}>✓</span> {isPt ? "Dashboard completo" : "Panel CRM completo"}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "16px" }}>
+            <div style={{ fontSize: "11px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "#34d399", fontWeight: "bold" }}>✓</span> {isPt ? "Dashboard completo" : "Panel CRM completo"}
             </div>
-            <div style={{ fontSize: "10px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "#34d399" }}>✓</span> {isPt ? "Copys com Inteligência Artificial" : "Copys con Inteligencia Artificial"}
+            <div style={{ fontSize: "11px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "#34d399", fontWeight: "bold" }}>✓</span> {isPt ? "Copys com Inteligência Artificial" : "Copys con Inteligencia Artificial"}
             </div>
-            <div style={{ fontSize: "10px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "#34d399" }}>✓</span> {isPt ? "Envio 1-Clique" : "Disparo en 1-Clic"}
+            <div style={{ fontSize: "11px", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "#34d399", fontWeight: "bold" }}>✓</span> {isPt ? "Envio 1-Clique" : "Disparo en 1-Clic"}
             </div>
           </div>
         </div>
@@ -169,9 +197,9 @@ export default function BannersPage() {
               width: "100%",
               maxWidth: "320px",
               backgroundColor: "#f9fafb",
-              borderRadius: "12px",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-              border: "1px solid rgba(255,255,255,0.4)",
+              borderRadius: "14px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.4)",
+              border: "1px solid rgba(255,255,255,0.3)",
               overflow: "hidden",
               display: "flex",
               position: "relative",
@@ -234,7 +262,7 @@ export default function BannersPage() {
                 </div>
               </div>
 
-              {/* Floating WhatsApp Action Overlay - TOTALMENTE DENTRO DE LA TARJETA */}
+              {/* Floating WhatsApp Action Overlay */}
               <div style={{ 
                 position: "absolute", 
                 bottom: "6px", 
@@ -269,35 +297,35 @@ export default function BannersPage() {
           width: "100%",
           maxWidth: "650px",
           minHeight: "350px",
-          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
-          borderRadius: "20px",
-          padding: "24px",
-          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #022c22 100%)",
+          borderRadius: "24px",
+          padding: "28px",
+          boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
           position: "relative",
           overflow: "hidden",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "16px",
+          gap: "20px",
           boxSizing: "border-box",
         }}
       >
         <div style={{ flex: "1 1 220px", zIndex: 2 }}>
           <h2
             style={{
-              fontSize: "25px",
+              fontSize: "26px",
               fontWeight: "900",
               color: "#ffffff",
               margin: "0 0 10px 0",
               lineHeight: "1.1",
-              letterSpacing: "-0.5px",
+              letterSpacing: "-0.03em",
             }}
           >
             {isPt ? "Aumente o seu ticket médio" : "Impulsá tu ticket promedio"}
           </h2>
-          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
+          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.45", fontWeight: "500" }}>
             {isPt
               ? "Aumente seu faturamento elevando o valor de cada venda com ofertas irresistíveis."
               : "Aumentá tu facturación elevando el valor de cada venta con ofertas irresistibles."}
@@ -314,7 +342,7 @@ export default function BannersPage() {
               backgroundColor: "#ffffff",
               borderRadius: "12px",
               padding: "12px",
-              boxShadow: "0 15px 20px rgba(0, 0, 0, 0.25)",
+              boxShadow: "0 15px 20px rgba(0, 0, 0, 0.2)",
               border: "1px solid #e2e8f0",
               transform: "rotate(6deg) scale(0.95)",
               color: "#0f172a",
@@ -345,7 +373,7 @@ export default function BannersPage() {
               backgroundColor: "#ffffff",
               borderRadius: "16px",
               padding: "14px",
-              boxShadow: "0 20px 25px rgba(0, 0, 0, 0.35)",
+              boxShadow: "0 20px 30px rgba(0, 0, 0, 0.3)",
               border: "1px solid #e2e8f0",
               transform: "rotate(-3deg)",
               color: "#0f172a",
@@ -409,26 +437,26 @@ export default function BannersPage() {
           width: "100%",
           maxWidth: "650px",
           minHeight: "350px",
-          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
-          borderRadius: "20px",
-          padding: "24px",
-          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #022c22 100%)",
+          borderRadius: "24px",
+          padding: "28px",
+          boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
           position: "relative",
           overflow: "hidden",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "16px",
+          gap: "20px",
           boxSizing: "border-box",
         }}
       >
         <div style={{ flex: "1 1 220px", zIndex: 2 }}>
-          <h2 style={{ fontSize: "25px", fontWeight: "900", color: "#ffffff", margin: "0 0 10px 0", lineHeight: "1.1" }}>
+          <h2 style={{ fontSize: "26px", fontWeight: "900", color: "#ffffff", margin: "0 0 10px 0", lineHeight: "1.1", letterSpacing: "-0.03em" }}>
             {isPt ? "Destaque suas ofertas" : "Destacá tus ofertas"}
           </h2>
-          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
+          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.45", fontWeight: "500" }}>
             {isPt
               ? "Destaque promoções, cupons e banners de urgência para disparar suas conversões."
               : "Resaltá promociones, cupones y banners de urgencia para disparar tus conversiones."}
@@ -446,7 +474,7 @@ export default function BannersPage() {
               color: "#ffffff",
               borderRadius: "14px",
               padding: "12px",
-              boxShadow: "0 15px 25px rgba(0,0,0,0.4)",
+              boxShadow: "0 15px 25px rgba(0,0,0,0.35)",
               border: "1px solid #334155",
               transform: "rotate(-5deg)",
               zIndex: 3,
@@ -497,7 +525,7 @@ export default function BannersPage() {
               color: "#ffffff",
               borderRadius: "12px",
               padding: "10px 14px",
-              boxShadow: "0 15px 20px rgba(0,0,0,0.25)",
+              boxShadow: "0 15px 20px rgba(0,0,0,0.2)",
               border: "2px dashed #fca5a5",
               transform: "rotate(2deg)",
               display: "flex",
@@ -525,26 +553,26 @@ export default function BannersPage() {
           width: "100%",
           maxWidth: "650px",
           minHeight: "350px",
-          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
-          borderRadius: "20px",
-          padding: "24px",
-          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #022c22 100%)",
+          borderRadius: "24px",
+          padding: "28px",
+          boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
           position: "relative",
           overflow: "hidden",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "16px",
+          gap: "20px",
           boxSizing: "border-box",
         }}
       >
         <div style={{ flex: "1 1 220px", zIndex: 2 }}>
-          <h2 style={{ fontSize: "25px", fontWeight: "900", color: "#ffffff", margin: "0 0 10px 0", lineHeight: "1.1" }}>
+          <h2 style={{ fontSize: "26px", fontWeight: "900", color: "#ffffff", margin: "0 0 10px 0", lineHeight: "1.1", letterSpacing: "-0.03em" }}>
             {isPt ? "Gere confiança" : "Generá confianza"}
           </h2>
-          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
+          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.45", fontWeight: "500" }}>
             {isPt
               ? "Transmita total segurança aos seus clientes com depoimentos reais e selos de garantia."
               : "Transmití seguridad total a tus clientes con testimonios reales y sellos de garantía."}
@@ -562,7 +590,7 @@ export default function BannersPage() {
               color: "#0f172a",
               borderRadius: "16px",
               padding: "12px",
-              boxShadow: "0 20px 25px rgba(0,0,0,0.25)",
+              boxShadow: "0 20px 25px rgba(0,0,0,0.2)",
               border: "1px solid #e2e8f0",
               transform: "rotate(-3deg)",
               zIndex: 3,
@@ -606,7 +634,7 @@ export default function BannersPage() {
               color: "#0f172a",
               borderRadius: "14px",
               padding: "10px",
-              boxShadow: "0 15px 20px rgba(0,0,0,0.2)",
+              boxShadow: "0 15px 20px rgba(0,0,0,0.15)",
               border: "1px solid #e2e8f0",
               transform: "rotate(4deg)",
               zIndex: 4,
@@ -632,26 +660,26 @@ export default function BannersPage() {
           width: "100%",
           maxWidth: "650px",
           minHeight: "350px",
-          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #044e3a 100%)",
-          borderRadius: "20px",
-          padding: "24px",
-          boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #022c22 100%)",
+          borderRadius: "24px",
+          padding: "28px",
+          boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
           position: "relative",
           overflow: "hidden",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "16px",
+          gap: "20px",
           boxSizing: "border-box",
         }}
       >
         <div style={{ flex: "1 1 220px", zIndex: 2 }}>
-          <h2 style={{ fontSize: "25px", fontWeight: "900", color: "#ffffff", margin: "0 0 10px 0", lineHeight: "1.1" }}>
+          <h2 style={{ fontSize: "26px", fontWeight: "900", color: "#ffffff", margin: "0 0 10px 0", lineHeight: "1.1", letterSpacing: "-0.03em" }}>
             {isPt ? "Seus estilos, suas cores" : "Tus estilos, tus colores"}
           </h2>
-          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.4", fontWeight: "500" }}>
+          <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, lineHeight: "1.45", fontWeight: "500" }}>
             {isPt
               ? "Personalize cada widget com a tipografia, cores e identidade da sua marca."
               : "Customizá cada widget con la tipografía, colores e identidad de tu marca."}
@@ -667,7 +695,7 @@ export default function BannersPage() {
               color: "#0f172a",
               borderRadius: "16px",
               padding: "14px",
-              boxShadow: "0 20px 25px rgba(0,0,0,0.3)",
+              boxShadow: "0 20px 25px rgba(0,0,0,0.2)",
               border: "1px solid #e2e8f0",
               transform: "rotate(2deg)",
               display: "flex",
@@ -730,4 +758,4 @@ export default function BannersPage() {
       </div>
     </div>
   );
-              }
+          }
