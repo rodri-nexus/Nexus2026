@@ -4,7 +4,7 @@
 // - Detecta planes mensuales vencidos (active)
 // - Marca las tiendas como "expired" y envía alertas por email.
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendPlanExpiringAlert } from "@/lib/email";
 
@@ -14,6 +14,40 @@ export const maxDuration = 60;
 
 // Días antes del vencimiento en los que enviamos email de aviso
 const REMINDER_DAYS = [3, 1];
+
+interface StoreRecord {
+  store_id: number;
+  user_id: string;
+  installed_at: string | null;
+  plan_status: string | null;
+  plan_active_until: string | null;
+  trial_ends_at?: string | null;
+  months_active?: number | null;
+}
+
+interface ExpiredStoreDetail {
+  storeId: number;
+  email: string;
+  reason: string;
+}
+
+interface ReminderDetail {
+  storeId: number;
+  email: string;
+  daysLeft: number;
+}
+
+interface CronReport {
+  expired: number;
+  remindersSent: number;
+  remindersFailed: number;
+  checked: number;
+  errors: string[];
+  details: {
+    expiredStores: ExpiredStoreDetail[];
+    remindersToSend: ReminderDetail[];
+  };
+}
 
 /**
  * Calcula la fecha exacta de vencimiento de una tienda.
@@ -30,7 +64,7 @@ function getExpirationDate(store: {
     return store.plan_active_until ? new Date(store.plan_active_until) : null;
   }
 
-  // Si es trial, trial_ending_soon o null (default trial)
+  // Si es trial o trial_ends_at está definido
   if (store.trial_ends_at) {
     return new Date(store.trial_ends_at);
   }
@@ -44,7 +78,7 @@ function getExpirationDate(store: {
   return null;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   console.log("🔵 [cron/check-plans] INICIO");
 
   // 1. Verificar CRON_SECRET
@@ -69,19 +103,15 @@ export async function GET(request: Request) {
 
   console.log("✅ [cron] Auth OK");
 
-  const report = {
+  const report: CronReport = {
     expired: 0,
     remindersSent: 0,
     remindersFailed: 0,
     checked: 0,
-    errors: [] as string[],
+    errors: [],
     details: {
-      expiredStores: [] as Array<{ storeId: number; email: string; reason: string }>,
-      remindersToSend: [] as Array<{
-        storeId: number;
-        email: string;
-        daysLeft: number;
-      }>,
+      expiredStores: [],
+      remindersToSend: [],
     },
   };
 
@@ -104,9 +134,10 @@ export async function GET(request: Request) {
       console.error("❌ [cron] Error buscando candidatos:", fetchError);
       report.errors.push(`Buscar tiendas: ${fetchError.message}`);
     } else if (candidateStores && candidateStores.length > 0) {
-      console.log(`🔵 [cron] Analizando ${candidateStores.length} tiendas activas/trial`);
+      const stores: StoreRecord[] = candidateStores;
+      console.log(`🔵 [cron] Analizando ${stores.length} tiendas activas/trial`);
 
-      for (const store of candidateStores) {
+      for (const store of stores) {
         report.checked++;
         const expDate = getExpirationDate(store);
 
@@ -149,7 +180,7 @@ export async function GET(request: Request) {
                 const sentAlert = await sendPlanExpiringAlert({
                   customerEmail: email,
                   storeId: store.store_id,
-                  daysLeft: 0, // 0 significa VENCIDO / HOY
+                  daysLeft: 0,
                   planEndDate: expDate.toISOString(),
                   monthsActive: store.months_active || 0,
                 });
@@ -160,15 +191,17 @@ export async function GET(request: Request) {
                 } else {
                   report.remindersFailed++;
                 }
-              } catch (mailErr: any) {
-                console.error("❌ [cron] Error enviando email de expiración:", mailErr);
+              } catch (mailErr: unknown) {
+                const mailMsg = mailErr instanceof Error ? mailErr.message : "Error mail";
+                console.error("❌ [cron] Error enviando email de expiración:", mailMsg);
               }
 
               console.log(`✅ [cron] Store ${store.store_id} (${email}) vencida -> marcada como EXPIRED (${reason})`);
             }
-          } catch (err: any) {
-            console.error("❌ [cron] Error procesando vencimiento:", err);
-            report.errors.push(`Store ${store.store_id}: ${err.message}`);
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : "Error en vencimiento";
+            console.error("❌ [cron] Error procesando vencimiento:", msg);
+            report.errors.push(`Store ${store.store_id}: ${msg}`);
           }
         }
       }
@@ -178,7 +211,9 @@ export async function GET(request: Request) {
     // PARTE 2: Enviar recordatorios previos (3 días y 1 día antes)
     // ═══════════════════════════════════════════════════════════
     if (candidateStores && candidateStores.length > 0) {
-      for (const store of candidateStores) {
+      const stores: StoreRecord[] = candidateStores;
+
+      for (const store of stores) {
         const expDate = getExpirationDate(store);
         if (!expDate || expDate.getTime() <= now.getTime()) continue;
 
@@ -216,9 +251,10 @@ export async function GET(request: Request) {
                 `Email falló para store ${store.store_id} (${email})`
               );
             }
-          } catch (err: any) {
-            console.error("❌ [cron] Error enviando recordatorio:", err);
-            report.errors.push(`Recordatorio store ${store.store_id}: ${err.message}`);
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : "Error recordatorio";
+            console.error("❌ [cron] Error enviando recordatorio:", msg);
+            report.errors.push(`Recordatorio store ${store.store_id}: ${msg}`);
             report.remindersFailed++;
           }
         }
@@ -232,14 +268,15 @@ export async function GET(request: Request) {
       timestamp: todayISO,
       report,
     });
-  } catch (error: any) {
-    console.error("❌ [cron] CATCH:", error);
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : "desconocido";
+    console.error("❌ [cron] CATCH:", errorMsg);
     return NextResponse.json(
       {
-        error: `Error interno: ${error?.message || "desconocido"}`,
+        error: `Error interno: ${errorMsg}`,
         report,
       },
       { status: 500 }
     );
   }
-    }
+                      }
