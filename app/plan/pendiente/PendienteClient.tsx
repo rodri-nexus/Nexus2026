@@ -1,3 +1,4 @@
+// app/plan/pendiente/PendienteClient.tsx
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -45,9 +46,8 @@ export default function PendienteClient({
   const handleLogout = useCallback(async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  }, [router]);
+    window.location.href = "/login";
+  }, []);
 
   const handleManualRefresh = useCallback(() => {
     setRefreshing(true);
@@ -78,7 +78,7 @@ export default function PendienteClient({
         minHeight: "100vh",
         width: "100%",
         maxWidth: "100vw",
-        background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)",
+        background: "linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
@@ -691,4 +691,4 @@ function TimelineStep({
       </div>
     </div>
   );
-    }
+                                 }
