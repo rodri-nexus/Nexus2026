@@ -17,6 +17,7 @@ import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaE
 import ResenasClientesEditor from '@/components/widgets/editors/ResenasClientesEditor';
 import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
 import ExtrasInterruptorEditor from '@/components/widgets/editors/ExtrasInterruptorEditor';
+import ContadorVisitasEditor from '@/components/widgets/editors/ContadorVisitasEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -68,10 +69,23 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
 
-  // WIDGET NUEVO: EXTRAS CON INTERRUPTOR
+  // WIDGET NUEVO A: EXTRAS CON INTERRUPTOR
   if (params.widgetSlug === 'extras-interruptor' || params.widgetSlug === 'switch-extras') {
     return (
       <ExtrasInterruptorEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
+
+  // WIDGET NUEVO B: CONTADOR DE VISITAS
+  if (params.widgetSlug === 'contador-visitas' || params.widgetSlug === 'visitor-counter') {
+    return (
+      <ContadorVisitasEditor
         widgetDefinition={widgetDef}
         existingWidget={existingWidget}
         targetType={targetType as 'product' | 'all'}
