@@ -1,3 +1,4 @@
+// app/productos/ProductosClient.tsx
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -55,7 +56,7 @@ interface ProductosClientProps {
   productsCount: number;
 }
 
-// Helper para formatear dinero en ARS fuera del ciclo de render
+// Helper para formatear dinero fuera del ciclo de render
 function formatMoney(val: string | number | null | undefined): string {
   if (!val) return "$ 0";
   const num = typeof val === "number" ? val : parseFloat(val);
@@ -77,6 +78,7 @@ export default function ProductosClient({
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
 
   // Carga de productos desde la API blindada
   const fetchProducts = useCallback(async (signal?: AbortSignal) => {
@@ -149,7 +151,7 @@ export default function ProductosClient({
         style={{
           maxWidth: "1200px",
           margin: "0 auto",
-          padding: "2rem 1.25rem 3rem",
+          padding: "1.5rem 1.25rem 4rem",
           boxSizing: "border-box",
         }}
       >
@@ -256,7 +258,19 @@ export default function ProductosClient({
                   cursor: syncing || loading ? "not-allowed" : "pointer",
                   boxShadow: "0 4px 14px rgba(16, 185, 129, 0.3)",
                   fontFamily: "inherit",
-                  transition: "all 0.2s ease",
+                  transition: "background 0.2s, transform 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!syncing && !loading) {
+                    e.currentTarget.style.background = "#059669";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!syncing && !loading) {
+                    e.currentTarget.style.background = "#10B981";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }
                 }}
               >
                 <RefreshCw
@@ -284,32 +298,40 @@ export default function ProductosClient({
             <div style={{ position: "relative", maxWidth: "480px" }}>
               <Search
                 size={18}
-                color="#10B981"
+                color={searchFocused ? "#10B981" : "#9ca3af"}
                 style={{
                   position: "absolute",
                   left: "14px",
                   top: "50%",
                   transform: "translateY(-50%)",
                   pointerEvents: "none",
+                  transition: "color 0.2s",
                 }}
               />
               <input
                 type="text"
                 placeholder="Buscar producto por nombre o ID..."
                 value={searchQuery}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   width: "100%",
                   padding: "0.75rem 2.5rem 0.75rem 2.6rem",
                   fontSize: "0.9rem",
                   borderRadius: "14px",
-                  border: "1px solid #e5e7eb",
+                  border: searchFocused
+                    ? "1.5px solid #10B981"
+                    : "1px solid #e5e7eb",
                   background: "#ffffff",
                   outline: "none",
                   boxSizing: "border-box",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                  boxShadow: searchFocused
+                    ? "0 0 0 3px rgba(16, 185, 129, 0.12)"
+                    : "0 1px 3px rgba(0,0,0,0.03)",
                   color: "#000000",
                   fontWeight: 600,
+                  transition: "border-color 0.2s, box-shadow 0.2s",
                 }}
               />
               {searchQuery && (
@@ -519,6 +541,9 @@ export default function ProductosClient({
                                   height: "100%",
                                   objectFit: "cover",
                                 }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
                               />
                             ) : (
                               <ImageIcon size={20} color="#000000" style={{ opacity: 0.3 }} />
@@ -659,4 +684,4 @@ export default function ProductosClient({
       </main>
     </div>
   );
-      }
+  }
