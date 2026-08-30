@@ -69,52 +69,69 @@ function renderPreview(slug: string) {
   }
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
-   ═══════════════════════════════════════════════ */
+   ═══════════════════════════════════════════ */
 
 function ExtrasInterruptorPreview() {
   return (
     <div
       style={{
-        background: "#ffffff",
-        border: "1.5px solid #10B981",
-        borderRadius: "10px",
-        padding: "8px 12px",
-        width: "88%",
+        background: "#fffdf5",
+        border: "1.5px solid #fcd34d",
+        borderRadius: "12px",
+        padding: "8px 10px",
+        width: "92%",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         gap: "8px",
-        boxShadow: "0 2px 10px rgba(16, 185, 129, 0.12)",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
         <div
           style={{
             width: "28px",
             height: "28px",
             borderRadius: "6px",
-            background: "#ecfdf5",
+            background: "#f3f4f6",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "14px",
+            fontSize: "12px",
           }}
         >
-          ⚡
+          👔
         </div>
-        <div>
-          <div style={{ fontSize: "9px", fontWeight: 800, color: "#000000" }}>
-            + Agregar Garantía Extendida
-          </div>
-          <div style={{ fontSize: "8px", color: "#059669", fontWeight: 700 }}>
-            +$3.500 ARS
-          </div>
+        <span style={{ fontSize: "6.5px", fontWeight: 800, textDecoration: "underline" }}>
+          VER MÁS
+        </span>
+      </div>
+
+      <div style={{ flex: 1, paddingLeft: "4px" }}>
+        <div style={{ fontSize: "9.5px", fontWeight: 800, color: "#1f2937", lineHeight: 1.1 }}>
+          SACO GRIS
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "3px" }}>
+          <span style={{ fontSize: "10px", fontWeight: 900, color: "#111827" }}>
+            $59.999
+          </span>
+          <span
+            style={{
+              background: "#dc2626",
+              color: "#ffffff",
+              fontSize: "6.5px",
+              fontWeight: 900,
+              padding: "1px 4px",
+              borderRadius: "3px",
+            }}
+          >
+            PROMO
+          </span>
         </div>
       </div>
 
-      {/* Switch Toggle Activo */}
       <div
         style={{
           width: "32px",
@@ -146,35 +163,36 @@ function ContadorVisitasPreview() {
   return (
     <div
       style={{
-        background: "#f0fdf4",
-        border: "1.5px solid #a7f3d0",
-        borderRadius: "8px",
-        padding: "8px 12px",
-        display: "flex",
+        background: "#ffffff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "999px",
+        padding: "6px 14px",
+        display: "inline-flex",
         alignItems: "center",
-        gap: "8px",
-        width: "88%",
+        gap: "6px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
       }}
     >
       <div
         style={{
-          width: "8px",
-          height: "8px",
+          width: "7px",
+          height: "7px",
           borderRadius: "50%",
-          background: "#10B981",
-          boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.25)",
+          background: "#dc2626",
+          boxShadow: "0 0 0 2px rgba(220, 38, 38, 0.2)",
+          flexShrink: 0,
         }}
       />
-      <div style={{ fontSize: "10px", color: "#000000", fontWeight: 700, lineHeight: 1.3 }}>
-        <strong style={{ color: "#059669" }}>18 personas</strong> están viendo este producto ahora
+      <div style={{ fontSize: "9px", color: "#000000", fontWeight: 800 }}>
+        <strong style={{ color: "#000000", fontWeight: 900 }}>100</strong> personas viendo esto ahora
       </div>
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════
-   PREVIEWS EXISTENTES OPTIMIZADOS
-   ═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   PREVIEWS EXISTENTES
+   ═══════════════════════════════════════════ */
 
 function CuentaRegresivaPreview() {
   const cells = ["12", "34", "56"];
@@ -767,4 +785,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-  }
+        }
