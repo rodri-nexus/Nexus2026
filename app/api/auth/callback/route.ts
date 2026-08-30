@@ -1,37 +1,44 @@
 // app/api/auth/callback/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createClient } from "@/lib/supabase-server";
+
+export const dynamic = "force-dynamic";
 
 async function installStoreScript(
   storeId: number,
   accessToken: string,
   scriptUrl: string
-) {
-  const res = await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "User-Agent": "Nevux (37382 - soportenevux@gmail.com)",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: "Nevux Widgets",
-      src: scriptUrl,
-      where: "head",
-      position: "bottom",
-    }),
-  });
+): Promise<boolean> {
+  try {
+    const res = await fetch(`https://api.tiendanube.com/v1/${storeId}/scripts`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "User-Agent": "Nevux (nevux.app)",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Nevux Widgets",
+        src: scriptUrl,
+        where: "head",
+        position: "bottom",
+      }),
+    });
 
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("Error instalando script:", res.status, err);
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("Error instalando script:", res.status, err);
+      return false;
+    }
+
+    const data = await res.json();
+    console.log("Script instalado:", data);
+    return true;
+  } catch (e: unknown) {
+    console.error("Excepción instalando script:", e);
     return false;
   }
-
-  const data = await res.json();
-  console.log("Script instalado:", data);
-  return true;
 }
 
 async function getTiendanubeStoreEmail(
@@ -42,7 +49,7 @@ async function getTiendanubeStoreEmail(
     const res = await fetch(`https://api.tiendanube.com/v1/${storeId}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        "User-Agent": "Nevux (37382 - soportenevux@gmail.com)",
+        "User-Agent": "Nevux (nevux.app)",
         "Content-Type": "application/json",
       },
     });
@@ -51,14 +58,14 @@ async function getTiendanubeStoreEmail(
       const data = await res.json();
       return data.email || data.customer_email || null;
     }
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Error obteniendo email de tienda Tiendanube:", err);
   }
   return null;
 }
 
 function redirectDashboard(
-  request: Request,
+  request: NextRequest,
   params?: Record<string, string>
 ) {
   const url = new URL("/dashboard", request.url);
@@ -69,7 +76,7 @@ function redirectDashboard(
 }
 
 function redirectLogin(
-  request: Request,
+  request: NextRequest,
   params?: Record<string, string>
 ) {
   const url = new URL("/login", request.url);
@@ -79,24 +86,24 @@ function redirectLogin(
   return NextResponse.redirect(url);
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state"); // userId Nevux que inició "Conectar"
 
   if (!code) {
     return NextResponse.json(
-      { error: "Falta el parametro 'code' en la URL" },
+      { error: "Falta el parámetro 'code' en la URL" },
       { status: 400 }
     );
   }
 
-  const clientId = process.env.TIENDANUBE_CLIENT_ID;
+  const clientId = process.env.TIENDANUBE_CLIENT_ID || "37382";
   const clientSecret = process.env.TIENDANUBE_CLIENT_SECRET;
 
-  if (!clientId || !clientSecret) {
+  if (!clientSecret) {
     return NextResponse.json(
-      { error: "Variables de entorno de Tiendanube no configuradas" },
+      { error: "TIENDANUBE_CLIENT_SECRET no configurado en el servidor" },
       { status: 500 }
     );
   }
@@ -151,22 +158,22 @@ export async function GET(request: Request) {
       if (currentUser) {
         sessionUserId = currentUser.id;
         sessionEmail = currentUser.email ?? null;
-        console.log("✅ Sesión Nevux:", sessionEmail);
+        console.log("✅ Sesión Nevux detectada:", sessionEmail);
       }
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error leyendo sesión:", e);
     }
 
-    // state = userId de quien hizo clic en Conectar (no confiar solo en state si hay sesión)
+    // state = userId de quien hizo clic en Conectar
     const stateUserId =
       state && typeof state === "string" && state.length > 10 ? state : null;
 
     let userIdToLink: string | null = sessionUserId || stateUserId || null;
 
-    // Si hay sesión Y state distintos → gana la sesión (evita state manipulado)
+    // Si hay sesión Y state distintos → gana la sesión activa
     if (sessionUserId && stateUserId && sessionUserId !== stateUserId) {
       console.warn(
-        "⚠️ state distinto a sesión; se usa sesión:",
+        "⚠️ state distinto a sesión activa; se usa sesión:",
         sessionUserId
       );
       userIdToLink = sessionUserId;
@@ -189,13 +196,12 @@ export async function GET(request: Request) {
       userIdToLink &&
       existingStore.user_id !== userIdToLink
     ) {
-      console.error("🚫 BLOQUEO: intento de reasignar tienda", {
+      console.error("🚫 BLOQUEO ANTI-ROBO: intento de reasignar tienda", {
         storeId,
         owner: existingStore.user_id,
         attemptedBy: userIdToLink,
       });
 
-      // Actualizar token SOLO si fuera el dueño; acá NO tocamos user_id ni plan
       return redirectDashboard(request, {
         store_link_error: "already_linked",
         store_id: String(storeId),
@@ -227,14 +233,12 @@ export async function GET(request: Request) {
               console.log("🎯 Match email →", matchedUser.email);
             }
           }
-        } catch (e) {
+        } catch (e: unknown) {
           console.error("Error listUsers:", e);
         }
       }
     }
 
-    // Si la tienda ya tiene dueño y todavía no hay userIdToLink, no crear huérfano raro:
-    // dejamos token actualizado solo para el dueño vía reinstall path below
     const now = new Date();
     const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -246,10 +250,8 @@ export async function GET(request: Request) {
       existingStore.user_id &&
       userIdToLink &&
       existingStore.user_id === userIdToLink;
-    const isOwnerlessTokenRefresh =
-      existingStore && !existingStore.user_id && !userIdToLink;
 
-    // 4. Armar payload SIN pisar planes ajenos
+    // 4. Armar payload sin alterar planes pagados
     const upsertPayload: Record<string, unknown> = {
       store_id: storeId,
       access_token: accessToken,
@@ -258,7 +260,6 @@ export async function GET(request: Request) {
       is_active: true,
     };
 
-    // installed_at solo en alta nueva
     if (isBrandNewStore) {
       upsertPayload.installed_at = now.toISOString();
       upsertPayload.trial_started_at = now.toISOString();
@@ -269,13 +270,11 @@ export async function GET(request: Request) {
       if (userIdToLink) {
         upsertPayload.user_id = userIdToLink;
       }
-      console.log("🎁 Alta nueva: trial 7 días →", userIdToLink);
+      console.log("🎁 Alta nueva: trial 7 días asignado →", userIdToLink);
     } else if (isOwnerReconnect) {
-      // Dueño legítimo reconecta: solo token/script; NO tocar plan/trial/meses
       upsertPayload.user_id = userIdToLink;
-      console.log("🔄 Reconexión del dueño; plan intacto");
+      console.log("🔄 Reconexión de dueño legítimo: plan intacto");
     } else if (canClaimOrphan) {
-      // Tienda sin dueño: se vincula al usuario actual
       upsertPayload.user_id = userIdToLink;
       if (!existingStore.trial_started_at && !existingStore.plan_active_until) {
         upsertPayload.trial_started_at = now.toISOString();
@@ -284,16 +283,7 @@ export async function GET(request: Request) {
         upsertPayload.feedback_shown = false;
         upsertPayload.months_active = 0;
       }
-      console.log("🔗 Claim huérfana →", userIdToLink);
-    } else if (isOwnerlessTokenRefresh) {
-      // Token refresh sin usuario: no inventar dueño
-      console.log("⚠️ Token refresh sin user_id; tienda sigue pendiente de vínculo");
-    } else if (
-      existingStore?.user_id &&
-      !userIdToLink
-    ) {
-      // Reinstall sin saber usuario: conservar dueño, solo token
-      console.log("🔄 Reinstall anónimo: mantengo dueño y plan");
+      console.log("🔗 Claim de tienda huérfana →", userIdToLink);
     }
 
     const { error: dbError } = await supabaseAdmin
@@ -308,30 +298,18 @@ export async function GET(request: Request) {
       );
     }
 
-    // 5. Script en la tienda (siempre con el token nuevo de Tiendanube)
+    // 5. Instalar script en la tienda (siempre con token actualizado)
     const appUrl = new URL(request.url).origin;
     const scriptUrl = `${appUrl}/nevux-widget.js`;
 
     try {
       await installStoreScript(storeId, accessToken, scriptUrl);
-      console.log("Script Nevux instalado en tienda:", storeId);
-    } catch (scriptErr) {
-      console.error("Error instalando script (no critico):", scriptErr);
+      console.log("Script Nevux verificado en tienda:", storeId);
+    } catch (scriptErr: unknown) {
+      console.error("Error instalando script (no crítico):", scriptErr);
     }
 
-    console.log("Tienda procesada OK:", {
-      store_id: storeId,
-      user_id: userIdToLink || existingStore?.user_id || "PENDIENTE",
-      mode: isBrandNewStore
-        ? "new"
-        : isOwnerReconnect
-        ? "owner_reconnect"
-        : canClaimOrphan
-        ? "claim_orphan"
-        : "token_only",
-    });
-
-    // 6. Redirección
+    // 6. Redirección al Dashboard o Login
     const finalUser = userIdToLink || existingStore?.user_id || null;
 
     if (finalUser) {
@@ -342,11 +320,13 @@ export async function GET(request: Request) {
       pending_store: String(storeId),
       ...(storeEmail ? { email: storeEmail } : {}),
     });
-  } catch (error) {
-    console.error("Error al intercambiar el code:", error);
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Error al procesar la autorización";
+    console.error("Error en GET /api/auth/callback:", errorMsg);
     return NextResponse.json(
-      { error: "Error interno al procesar la autorizacion" },
+      { error: "Error interno al procesar la autorización", details: errorMsg },
       { status: 500 }
     );
   }
-      }
+  }
