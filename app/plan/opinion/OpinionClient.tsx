@@ -43,7 +43,9 @@ export default function OpinionClient({ email }: OpinionClientProps) {
     if (loading || sent) return;
 
     if (selectedTags.length === 0 && comment.trim().length === 0) {
-      setError("Contanos qué podemos mejorar (seleccioná alguna opción o escribí un mensaje)");
+      setError(
+        "Contanos qué podemos mejorar (seleccioná alguna opción o escribí un mensaje)"
+      );
       return;
     }
 
@@ -61,13 +63,16 @@ export default function OpinionClient({ email }: OpinionClientProps) {
       });
 
       if (!res.ok) {
-        throw new Error("Error al enviar");
+        throw new Error("Error al enviar el feedback");
       }
 
       setSent(true);
     } catch (err: unknown) {
-      console.error(err);
-      const errMsg = err instanceof Error ? err.message : "Ocurrió un error. Intentá de nuevo.";
+      console.error("Error enviando opinión:", err);
+      const errMsg =
+        err instanceof Error
+          ? err.message
+          : "Ocurrió un error. Intentá de nuevo.";
       setError(errMsg);
       setLoading(false);
     }
@@ -191,11 +196,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     boxShadow: "0 15px 35px rgba(0, 0, 0, 0.25)",
                   }}
                 >
-                  <MessageCircle
-                    size={44}
-                    color="white"
-                    strokeWidth={2}
-                  />
+                  <MessageCircle size={44} color="white" strokeWidth={2} />
                 </motion.div>
               </div>
 
@@ -233,7 +234,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
               >
                 Tu opinión nos ayuda a hacer{" "}
                 <strong style={{ color: "#000000", opacity: 1 }}>Nevux</strong>{" "}
-                mejor
+                cada día mejor
               </motion.p>
 
               {/* CHIPS DE RAZONES */}
@@ -271,10 +272,10 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                           : "2px solid #e5e7eb",
                         borderRadius: "999px",
                         fontSize: "0.85rem",
-                        fontWeight: 600,
+                        fontWeight: 700,
                         cursor: "pointer",
                         fontFamily: "inherit",
-                        transition: "all 0.15s",
+                        transition: "all 0.15s ease",
                         boxShadow: isSelected
                           ? "0 4px 12px rgba(16, 185, 129, 0.25)"
                           : "0 1px 3px rgba(0, 0, 0, 0.05)",
@@ -298,7 +299,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                   style={{
                     display: "block",
                     fontSize: "0.85rem",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     color: "#000000",
                     marginBottom: "0.5rem",
                     textAlign: "left",
@@ -318,7 +319,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Escribinos qué te gustaría que mejoremos, qué falta, qué no te convence..."
+                  placeholder="Escribinos qué te gustaría que agreguemos, qué te costó configurar o qué no te convenció..."
                   rows={5}
                   style={{
                     width: "100%",
@@ -389,7 +390,13 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)",
                     fontFamily: "inherit",
                     minWidth: "220px",
-                    transition: "all 0.2s",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) e.currentTarget.style.background = "#059669";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) e.currentTarget.style.background = "#10B981";
                   }}
                 >
                   {loading ? (
@@ -442,7 +449,7 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     width: "110px",
                     height: "110px",
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    background: "#10B981",
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -502,7 +509,14 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     fontWeight: 700,
                     textDecoration: "none",
                     boxShadow: "0 8px 20px rgba(16, 185, 129, 0.3)",
+                    transition: "all 0.15s ease",
                   }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "#059669")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "#10B981")
+                  }
                 >
                   Ver el plan
                   <ArrowRight size={16} />
@@ -524,6 +538,15 @@ export default function OpinionClient({ email }: OpinionClientProps) {
                     fontWeight: 600,
                     textDecoration: "none",
                     border: "2px solid #e5e7eb",
+                    transition: "all 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#10B981";
+                    e.currentTarget.style.color = "#059669";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#e5e7eb";
+                    e.currentTarget.style.color = "#000000";
                   }}
                 >
                   Hablar por WhatsApp
@@ -554,4 +577,4 @@ export default function OpinionClient({ email }: OpinionClientProps) {
       </div>
     </div>
   );
-    }
+         }
