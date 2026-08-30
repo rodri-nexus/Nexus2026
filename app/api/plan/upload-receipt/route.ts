@@ -144,11 +144,14 @@ export async function POST(request: NextRequest) {
     if (paymentError) {
       console.error("❌ [upload-receipt] Error insertando payment:", paymentError);
 
-      // Rollback: borrar el archivo subido si falla la DB
-      await supabaseAdmin.storage
-        .from("payment-receipts")
-        .remove([filePath])
-        .catch((e: unknown) => console.error("Error en rollback:", e));
+      // Rollback: intentar borrar el archivo subido si falla la DB
+      try {
+        await supabaseAdmin.storage
+          .from("payment-receipts")
+          .remove([filePath]);
+      } catch (rollbackErr: unknown) {
+        console.error("Error en rollback:", rollbackErr);
+      }
 
       return NextResponse.json(
         {
@@ -161,13 +164,16 @@ export async function POST(request: NextRequest) {
     console.log("✅ [upload-receipt] Registro de pago creado:", payment.id);
 
     // 7. Actualizar timestamp de la tienda
-    await supabaseAdmin
+    const { error: storeUpdateErr } = await supabaseAdmin
       .from("stores")
       .update({
         updated_at: new Date().toISOString(),
       })
-      .eq("store_id", store.store_id)
-      .catch((err: unknown) => console.warn("Aviso actualizando store:", err));
+      .eq("store_id", store.store_id);
+
+    if (storeUpdateErr) {
+      console.warn("Aviso actualizando timestamp de store:", storeUpdateErr);
+    }
 
     // 8. Notificar al admin por email (alerta instantánea a nevuxapp@gmail.com)
     try {
