@@ -1,5 +1,5 @@
 // app/api/plan/upload-receipt/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendNewPaymentAlert } from "@/lib/email";
@@ -15,33 +15,32 @@ const ALLOWED_MIME_TYPES = [
   "application/pdf",
 ];
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   console.log("🔵 [/api/plan/upload-receipt] INICIO");
 
   try {
-    // 1. Auth
+    // 1. Verificar autenticación del usuario
     const supabase = createClient();
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
-    console.log("🔵 [upload-receipt] user:", user?.id, "authError:", authError);
-
     if (authError || !user) {
-      console.error("❌ [upload-receipt] Sin usuario");
+      console.error("❌ [upload-receipt] Sin usuario autenticado:", authError);
       return NextResponse.json(
         { error: "No autenticado. Volvé a iniciar sesión." },
         { status: 401 }
       );
     }
 
-    // 2. Leer FormData
+    // 2. Leer FormData de forma segura
     let formData: FormData;
     try {
       formData = await request.formData();
-    } catch (e) {
-      console.error("❌ [upload-receipt] FormData inválido:", e);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Error leyendo FormData";
+      console.error("❌ [upload-receipt] FormData inválido:", msg);
       return NextResponse.json(
         { error: "Formato de archivo inválido" },
         { status: 400 }
@@ -52,8 +51,6 @@ export async function POST(request: Request) {
     const transferReference =
       (formData.get("transfer_reference") as string | null) || null;
 
-    console.log("🔵 [upload-receipt] file:", file?.name, file?.size, file?.type);
-
     if (!file) {
       return NextResponse.json(
         { error: "No se recibió ningún archivo" },
@@ -61,10 +58,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Validaciones del archivo
+    // 3. Validaciones de tamaño y formato
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "El archivo supera los 5 MB" },
+        { error: "El archivo supera el límite permitido de 5 MB" },
         { status: 400 }
       );
     }
@@ -73,14 +70,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Formato no permitido. Subí una imagen (JPG, PNG, WebP) o un PDF.",
+            "Formato no permitido. Subí una imagen (JPG, PNG, WebP) o un documento PDF.",
         },
         { status: 400 }
       );
     }
 
-    // 4. Traer la tienda del usuario
-    console.log("🔵 [upload-receipt] Buscando store para user:", user.id);
+    // 4. Traer la tienda activa del usuario
     const { data: store, error: storeError } = await supabaseAdmin
       .from("stores")
       .select("store_id")
@@ -99,18 +95,16 @@ export async function POST(request: Request) {
     if (!store) {
       console.error("❌ [upload-receipt] No se encontró tienda");
       return NextResponse.json(
-        { error: "No se encontró tienda vinculada" },
+        { error: "No se encontró una tienda vinculada a esta cuenta" },
         { status: 404 }
       );
     }
 
-    // 5. Subir el archivo al bucket
+    // 5. Subir el archivo al bucket en Supabase Storage
     const timestamp = Date.now();
     const extension = file.name.split(".").pop() || "bin";
     const safeExt = extension.toLowerCase().replace(/[^a-z0-9]/g, "");
     const filePath = `${user.id}/comprobante-${timestamp}.${safeExt}`;
-
-    console.log("🔵 [upload-receipt] Subiendo a:", filePath);
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -123,17 +117,16 @@ export async function POST(request: Request) {
       });
 
     if (uploadError) {
-      console.error("❌ [upload-receipt] Error subiendo:", uploadError);
+      console.error("❌ [upload-receipt] Error subiendo archivo:", uploadError);
       return NextResponse.json(
         { error: `Error subiendo archivo: ${uploadError.message}` },
         { status: 500 }
       );
     }
 
-    console.log("✅ [upload-receipt] Archivo subido");
+    console.log("✅ [upload-receipt] Archivo subido correctamente:", filePath);
 
-    // 6. Crear registro en payments
-    console.log("🔵 [upload-receipt] Insertando en payments...");
+    // 6. Crear registro en la tabla payments
     const { data: payment, error: paymentError } = await supabaseAdmin
       .from("payments")
       .insert({
@@ -151,11 +144,11 @@ export async function POST(request: Request) {
     if (paymentError) {
       console.error("❌ [upload-receipt] Error insertando payment:", paymentError);
 
-      // Rollback: borrar el archivo subido
+      // Rollback: borrar el archivo subido si falla la DB
       await supabaseAdmin.storage
         .from("payment-receipts")
         .remove([filePath])
-        .catch((e) => console.error("Error en rollback:", e));
+        .catch((e: unknown) => console.error("Error en rollback:", e));
 
       return NextResponse.json(
         {
@@ -165,23 +158,18 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("✅ [upload-receipt] Payment creado:", payment.id);
+    console.log("✅ [upload-receipt] Registro de pago creado:", payment.id);
 
-    // 7. Actualizar el plan_status de la tienda a "feedback_pending"
-    // (para que el guard sepa que está esperando aprobación)
-    const { error: updateError } = await supabaseAdmin
+    // 7. Actualizar timestamp de la tienda
+    await supabaseAdmin
       .from("stores")
       .update({
         updated_at: new Date().toISOString(),
       })
-      .eq("store_id", store.store_id);
+      .eq("store_id", store.store_id)
+      .catch((err: unknown) => console.warn("Aviso actualizando store:", err));
 
-    if (updateError) {
-      console.error("⚠️ [upload-receipt] Error actualizando store:", updateError);
-      // No es crítico, seguimos
-    }
-
-    // 8. Notificar al admin por email (no bloquea el flujo si falla)
+    // 8. Notificar al admin por email (alerta instantánea a nevuxapp@gmail.com)
     try {
       await sendNewPaymentAlert({
         customerEmail: user.email || "sin-email",
@@ -190,25 +178,26 @@ export async function POST(request: Request) {
         paymentId: payment.id,
         storeId: store.store_id,
       });
-    } catch (emailErr) {
+    } catch (emailErr: unknown) {
       console.error("⚠️ [upload-receipt] Error enviando email admin:", emailErr);
-      // No es crítico, seguimos
     }
 
-    console.log(`✅ [upload-receipt] OK: user=${user.email}, payment=${payment.id}`);
+    console.log(`✅ [upload-receipt] OK finalizado: user=${user.email}, payment=${payment.id}`);
 
     return NextResponse.json({
       success: true,
       paymentId: payment.id,
       redirect: "/plan/pendiente",
     });
-  } catch (error: any) {
-    console.error("❌ [upload-receipt] Error CATCH:", error);
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Error desconocido";
+    console.error("❌ [upload-receipt] Error CATCH:", errorMsg);
     return NextResponse.json(
       {
-        error: `Error interno: ${error?.message || "desconocido"}`,
+        error: `Error interno: ${errorMsg}`,
       },
       { status: 500 }
     );
   }
-      }
+  }
