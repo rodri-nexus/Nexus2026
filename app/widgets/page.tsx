@@ -61,7 +61,7 @@ export default async function WidgetsPage() {
     redirect("/login");
   }
 
-  // 1. Tienda activa del usuario usando supabaseAdmin (evita bloqueos de RLS)
+  // 1. Obtener la tienda activa usando supabaseAdmin (evitando bloqueos RLS)
   const { data: storesList } = await supabaseAdmin
     .from("stores")
     .select("store_id, access_token, installed_at, is_active")
@@ -75,7 +75,7 @@ export default async function WidgetsPage() {
   let widgets: WidgetRow[] = [];
 
   if (store?.store_id) {
-    // 2. Traer widgets de la tienda activa usando supabaseAdmin
+    // 2. Traer widgets vinculados
     const { data: widgetsData, error: widgetsError } = await supabaseAdmin
       .from("widgets")
       .select(
@@ -86,30 +86,30 @@ export default async function WidgetsPage() {
       .order("updated_at", { ascending: false });
 
     if (widgetsError) {
-      console.error("[widgets/page] Error trayendo widgets:", widgetsError);
+      console.error("[widgets/page] Error al traer widgets:", widgetsError);
     }
 
-    // 3. Traer definiciones de widgets usando supabaseAdmin
+    // 3. Traer definiciones de los widgets
     const { data: defsData, error: defsError } = await supabaseAdmin
       .from("widget_definitions")
       .select("slug, name, icon, category, description");
 
     if (defsError) {
-      console.error("[widgets/page] Error trayendo definitions:", defsError);
+      console.error("[widgets/page] Error al traer definiciones:", defsError);
     }
 
-    // 4. Armar map de definiciones por slug
+    // 4. Crear mapa indexado por slug
     const defsMap = new Map<string, WidgetDefinition>();
     ((defsData as DbWidgetDefinition[]) || []).forEach((d) => {
       defsMap.set(d.slug, {
         name: d.name || "",
-        icon: d.icon || "",
+        icon: d.icon || "🧩",
         category: d.category || "General",
         description: d.description || "",
       });
     });
 
-    // 5. Combinar
+    // 5. Combinar datos
     widgets = ((widgetsData as DbWidgetRow[]) || []).map((w) => ({
       id: w.id,
       widget_slug: w.widget_slug,
@@ -123,7 +123,7 @@ export default async function WidgetsPage() {
     }));
   }
 
-  // 6. Productos únicos a traer desde la API de Tiendanube
+  // 6. Consultar productos únicos en Tiendanube
   const productIds = Array.from(
     new Set(
       widgets
@@ -133,6 +133,7 @@ export default async function WidgetsPage() {
   );
 
   const productsMap: Record<number, ProductInfo | null> = {};
+
   if (store?.store_id && store?.access_token && productIds.length > 0) {
     const results = await Promise.all(
       productIds.map(async (pid) => {
@@ -174,4 +175,4 @@ export default async function WidgetsPage() {
       productsMap={productsMap}
     />
   );
-    }
+}
