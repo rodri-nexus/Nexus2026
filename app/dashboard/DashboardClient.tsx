@@ -60,8 +60,9 @@ interface DashboardClientProps {
 interface Product {
   id: number;
   name: string;
-  price: string | number;
+  price?: string | number;
   image_url?: string;
+  images?: { src: string }[];
 }
 
 const TIENDANUBE_CLIENT_ID = "37382";
@@ -71,44 +72,44 @@ const WIDGET_TEMPLATES = [
   {
     id: "extras-interruptor",
     title: "Extras con interruptor",
-    desc: "Suma un producto adicional que se agrega al carrito con solo activar un interruptor toggle.",
+    desc: "Suma un extra al carrito con un toggle, sin salir de la página.",
     icon: "⚡",
-    tag: "NUEVO 🔥",
+    tag: "NUEVO",
   },
   {
     id: "contador-visitas",
     title: "Contador de visitas",
-    desc: "Muestra cuánta gente está mirando el producto en tiempo real para generar urgencia.",
+    desc: "Muestra cuánta gente está mirando el producto ahora.",
     icon: "👁️",
-    tag: "NUEVO 🚀",
+    tag: "NUEVO",
   },
   {
     id: "cuenta-regresiva",
     title: "Oferta Relámpago",
-    desc: "Cuenta regresiva estética para ofertas por tiempo limitado.",
+    desc: "Cuenta regresiva para ofertas por tiempo limitado.",
     icon: "⏳",
-    tag: "Escasez",
+    tag: "Urgencia",
   },
   {
     id: "barra-progreso",
     title: "Envío Gratis",
-    desc: "Muestra barra de progreso dinámica para envío bonificado.",
+    desc: "Barra de progreso hacia el envío bonificado.",
     icon: "🚚",
-    tag: "Sube Ticket",
+    tag: "Ticket",
   },
   {
     id: "mensaje-alerta",
     title: "Urgencia y Stock",
-    desc: "Simula stock crítico para acelerar la compra.",
+    desc: "Stock crítico para acelerar la compra.",
     icon: "🔥",
     tag: "Conversión",
   },
   {
     id: "mensaje-garantia",
     title: "Confianza Total",
-    desc: "Badges de pago seguro, garantía y envíos rápidos.",
+    desc: "Garantía, pago seguro y envíos rápidos.",
     icon: "🛡️",
-    tag: "Seguridad",
+    tag: "Trust",
   },
 ];
 
@@ -121,31 +122,30 @@ export default function DashboardClient({
   plan,
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  
-  // Modal states
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalStep, setModalStep] = useState<"selection" | "products" | "catalog">("selection");
+  const [modalStep, setModalStep] = useState<"selection" | "products" | "catalog">(
+    "selection"
+  );
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  
-  // Products loading states
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const hasStore = store !== null;
   const isAdmin = (email || "").toLowerCase() === ADMIN_EMAIL;
-
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
-  // Fetch products
   const loadProducts = async () => {
     if (!store?.store_id) return;
     setIsLoadingProducts(true);
+    setSearchQuery("");
     try {
       const res = await fetch(`/api/products?storeId=${store.store_id}`);
       if (res.ok) {
         const data = await res.json();
-        setProducts(Array.isArray(data) ? data : data.products || []);
+        const list = Array.isArray(data) ? data : data.products || [];
+        setProducts(list);
       }
     } catch (err) {
       console.error("Error cargando productos:", err);
@@ -157,6 +157,7 @@ export default function DashboardClient({
   const handleOpenModal = () => {
     setModalStep("selection");
     setSelectedProduct(null);
+    setSearchQuery("");
     setIsModalOpen(true);
   };
 
@@ -170,7 +171,6 @@ export default function DashboardClient({
     setModalStep("catalog");
   };
 
-  // Opción B: Manda directo a la pantalla de todos los widgets (fuera del modal)
   const handleSelectAllProducts = () => {
     setIsModalOpen(false);
     window.location.href = "/widgets/nuevo/todos";
@@ -179,8 +179,17 @@ export default function DashboardClient({
   const handleSelectWidgetType = (widgetType: string) => {
     setIsModalOpen(false);
     if (selectedProduct) {
-      window.location.href = `/widgets/nuevo/producto/${selectedProduct.id}?type=${widgetType}`;
+      window.location.href = `/widgets/nuevo/producto/${selectedProduct.id}?type=${encodeURIComponent(widgetType)}`;
     }
+  };
+
+  const getProductImage = (p: Product) =>
+    p.image_url || p.images?.[0]?.src || "";
+
+  const getProductPrice = (p: Product) => {
+    if (typeof p.price === "number") return p.price.toLocaleString("es-AR");
+    if (p.price) return String(p.price);
+    return "—";
   };
 
   const filteredProducts = products.filter((p) =>
@@ -195,7 +204,9 @@ export default function DashboardClient({
         daysRemaining: plan.daysRemaining,
         hoursRemaining: plan.hoursRemaining,
         trialEndsAt: plan.trialEndsAtISO ? new Date(plan.trialEndsAtISO) : null,
-        planActiveUntil: plan.planActiveUntilISO ? new Date(plan.planActiveUntilISO) : null,
+        planActiveUntil: plan.planActiveUntilISO
+          ? new Date(plan.planActiveUntilISO)
+          : null,
         monthsActive: plan.monthsActive,
         needsFeedback: plan.needsFeedback,
         needsPayment: plan.needsPayment,
@@ -210,7 +221,8 @@ export default function DashboardClient({
         minHeight: "100vh",
         background: "#ffffff",
         color: "#000000",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
       <DashboardHeader email={email} onMenuClick={() => setMenuOpen(true)} />
@@ -285,7 +297,6 @@ export default function DashboardClient({
           </motion.div>
         )}
 
-        {/* Solo si NO hay tienda propia vinculada a ESTE usuario */}
         {!hasStore && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -322,7 +333,7 @@ export default function DashboardClient({
                 Conectá tu Tiendanube para empezar
               </div>
               <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.7, lineHeight: 1.5 }}>
-                Vinculá <strong>tu</strong> tienda para métricas, widgets y productos reales de tu cuenta.
+                Vinculá <strong>tu</strong> tienda para métricas, widgets y productos reales.
               </p>
               <a
                 href={tiendanubeInstallUrl}
@@ -401,6 +412,7 @@ export default function DashboardClient({
 
             {hasStore && (
               <button
+                type="button"
                 onClick={handleOpenModal}
                 style={{
                   padding: "0.75rem 1.5rem",
@@ -419,11 +431,9 @@ export default function DashboardClient({
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "#059669";
-                  e.currentTarget.style.transform = "translateY(-1px)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "#10B981";
-                  e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
                 <Sparkles size={16} />
@@ -433,7 +443,6 @@ export default function DashboardClient({
           </div>
         </motion.div>
 
-        {/* Tienda propia: chip de estado */}
         {hasStore && store && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -511,15 +520,22 @@ export default function DashboardClient({
 
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
-          <StatsCards productsCount={productsCount} activeWidgetsCount={activeWidgetsCount} />
+          <StatsCards
+            productsCount={productsCount}
+            activeWidgetsCount={activeWidgetsCount}
+          />
           <MetricsCard />
-          <RecientesCard storeId={store?.store_id} />
+          {/* AQUÍ SE CONECTA EL MODAL DESDE RECIENTES */}
+          <RecientesCard
+            storeId={store?.store_id}
+            onCreateClick={hasStore ? handleOpenModal : undefined}
+          />
           <AccionesRapidas />
           <CentroAyuda />
         </div>
       </main>
 
-      {/* MODAL FLOTANTE PREMIUM CON BACKDROP BLUR */}
+      {/* MODAL FLOTANTE PREMIUM — FONDO BORROSO */}
       <AnimatePresence>
         {isModalOpen && (
           <div
@@ -529,57 +545,87 @@ export default function DashboardClient({
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(0, 0, 0, 0.4)",
+              background: "rgba(0, 0, 0, 0.45)",
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-end",
               justifyContent: "center",
               zIndex: 9999,
-              padding: "1rem",
+              padding: "0",
             }}
           >
-            {/* Cerrar al hacer clic fuera */}
+            {/* Overlay click → cerrar (mobile bottom-sheet friendly) */}
             <div
-              style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 0,
+              }}
               onClick={() => setIsModalOpen(false)}
             />
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "spring", duration: 0.4 }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ type: "spring", damping: 28, stiffness: 320 }}
               style={{
+                position: "relative",
+                zIndex: 1,
                 background: "#ffffff",
                 width: "100%",
-                maxWidth: "600px",
-                maxHeight: "85vh",
-                borderRadius: "24px",
-                border: "1px solid #e5e7eb",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)",
+                maxWidth: "560px",
+                maxHeight: "88vh",
+                borderRadius: "24px 24px 0 0",
+                boxShadow: "0 -8px 40px rgba(0, 0, 0, 0.12)",
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
                 boxSizing: "border-box",
+                margin: "0 auto",
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* Header Modal */}
+              {/* Handle bar mobile */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  paddingTop: "0.65rem",
+                  paddingBottom: "0.25rem",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "4px",
+                    borderRadius: "999px",
+                    background: "#e5e7eb",
+                  }}
+                />
+              </div>
+
+              {/* Header */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "1.25rem 1.5rem",
+                  padding: "0.75rem 1.25rem 1rem",
                   borderBottom: "1px solid #f3f4f6",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   {modalStep !== "selection" && (
                     <button
+                      type="button"
                       onClick={() => {
-                        if (modalStep === "products") setModalStep("selection");
                         if (modalStep === "catalog") setModalStep("products");
+                        else setModalStep("selection");
                       }}
                       style={{
                         background: "none",
@@ -590,75 +636,114 @@ export default function DashboardClient({
                         display: "flex",
                         alignItems: "center",
                       }}
+                      aria-label="Volver"
                     >
                       <ArrowLeft size={20} />
                     </button>
                   )}
                   <div>
-                    <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800 }}>
-                      {modalStep === "selection" && "Nuevo Widget"}
-                      {modalStep === "products" && "Seleccioná el Producto"}
-                      {modalStep === "catalog" && "Elegí el Widget Premium"}
+                    <h3
+                      style={{
+                        margin: 0,
+                        fontSize: "1.15rem",
+                        fontWeight: 800,
+                        color: "#000000",
+                      }}
+                    >
+                      {modalStep === "selection" && "Crear nuevo widget"}
+                      {modalStep === "products" && "Seleccionar producto"}
+                      {modalStep === "catalog" && "Elegí el widget"}
                     </h3>
-                    <p style={{ margin: 0, fontSize: "0.75rem", opacity: 0.5 }}>
-                      {modalStep === "selection" && "¿Qué tipo de widget querés crear?"}
-                      {modalStep === "products" && "Buscá el producto en tu Tiendanube"}
-                      {modalStep === "catalog" &&
-                        `Configurando para: ${selectedProduct?.name.substring(0, 30)}...`}
-                    </p>
+                    {modalStep === "selection" && (
+                      <p
+                        style={{
+                          margin: "0.25rem 0 0",
+                          fontSize: "0.85rem",
+                          color: "#6b7280",
+                        }}
+                      >
+                        ¿Qué tipo de widget querés crear?
+                      </p>
+                    )}
+                    {modalStep === "catalog" && selectedProduct && (
+                      <p
+                        style={{
+                          margin: "0.25rem 0 0",
+                          fontSize: "0.8rem",
+                          color: "#6b7280",
+                        }}
+                      >
+                        {selectedProduct.name.substring(0, 40)}
+                        {selectedProduct.name.length > 40 ? "…" : ""}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
+                  aria-label="Cerrar"
                   style={{
                     background: "#f3f4f6",
                     border: "none",
                     borderRadius: "50%",
-                    width: "32px",
-                    height: "32px",
+                    width: "36px",
+                    height: "36px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
                     color: "#000000",
+                    flexShrink: 0,
                   }}
                 >
-                  <X size={16} />
+                  <X size={18} />
                 </button>
               </div>
 
-              {/* Contenido dinámico */}
-              <div style={{ padding: "1.5rem", overflowY: "auto", flex: 1 }}>
-                
-                {/* PASO 1: SELECCION DE ALCANCE */}
+              {/* Body */}
+              <div
+                style={{
+                  padding: "1.25rem",
+                  overflowY: "auto",
+                  flex: 1,
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                {/* PASO 1 — Dos opciones (foto 2) */}
                 {modalStep === "selection" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    <div
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    <button
+                      type="button"
                       onClick={handleSelectSpecificProduct}
                       style={{
-                        padding: "1.25rem",
+                        padding: "1.15rem",
                         borderRadius: "16px",
                         border: "1.5px solid #e5e7eb",
+                        background: "#ffffff",
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
                         gap: "1rem",
-                        transition: "all 0.2s ease",
+                        textAlign: "left",
+                        width: "100%",
+                        fontFamily: "inherit",
+                        transition: "all 0.15s ease",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = "#10B981";
-                        e.currentTarget.style.background = "rgba(16, 185, 129, 0.02)";
+                        e.currentTarget.style.background = "#f0fdf4";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.borderColor = "#e5e7eb";
-                        e.currentTarget.style.background = "none";
+                        e.currentTarget.style.background = "#ffffff";
                       }}
                     >
                       <div
                         style={{
-                          width: "44px",
-                          height: "44px",
+                          width: "48px",
+                          height: "48px",
                           borderRadius: "12px",
                           background: "#ecfdf5",
                           display: "flex",
@@ -669,41 +754,62 @@ export default function DashboardClient({
                       >
                         <Package size={22} color="#10B981" />
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: "0 0 0.25rem", fontSize: "1rem", fontWeight: 700 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: "0.95rem",
+                            fontWeight: 700,
+                            color: "#000000",
+                            marginBottom: "0.2rem",
+                          }}
+                        >
                           Widget para un producto específico
-                        </h4>
-                        <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.4 }}>
-                          Buscá un producto y personalizalo para maximizar sus ventas individuales.
-                        </p>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "#6b7280",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          Asociá widgets a un producto en particular
+                        </div>
                       </div>
-                    </div>
+                      <span style={{ color: "#10B981", fontSize: "1.25rem", fontWeight: 300 }}>
+                        ›
+                      </span>
+                    </button>
 
-                    <div
+                    <button
+                      type="button"
                       onClick={handleSelectAllProducts}
                       style={{
-                        padding: "1.25rem",
+                        padding: "1.15rem",
                         borderRadius: "16px",
                         border: "1.5px solid #e5e7eb",
+                        background: "#ffffff",
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
                         gap: "1rem",
-                        transition: "all 0.2s ease",
+                        textAlign: "left",
+                        width: "100%",
+                        fontFamily: "inherit",
+                        transition: "all 0.15s ease",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = "#10B981";
-                        e.currentTarget.style.background = "rgba(16, 185, 129, 0.02)";
+                        e.currentTarget.style.background = "#f0fdf4";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.borderColor = "#e5e7eb";
-                        e.currentTarget.style.background = "none";
+                        e.currentTarget.style.background = "#ffffff";
                       }}
                     >
                       <div
                         style={{
-                          width: "44px",
-                          height: "44px",
+                          width: "48px",
+                          height: "48px",
                           borderRadius: "12px",
                           background: "#ecfdf5",
                           display: "flex",
@@ -714,47 +820,64 @@ export default function DashboardClient({
                       >
                         <Layers size={22} color="#10B981" />
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: "0 0 0.25rem", fontSize: "1rem", fontWeight: 700 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: "0.95rem",
+                            fontWeight: 700,
+                            color: "#000000",
+                            marginBottom: "0.2rem",
+                          }}
+                        >
                           Widget para todos los productos
-                        </h4>
-                        <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.4 }}>
-                          Te redirige al catálogo de widgets globales que se muestran en toda tu tienda.
-                        </p>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "#6b7280",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          Asociá widgets a todos los productos y en el inicio de la tienda
+                        </div>
                       </div>
-                    </div>
+                      <span style={{ color: "#10B981", fontSize: "1.25rem", fontWeight: 300 }}>
+                        ›
+                      </span>
+                    </button>
                   </div>
                 )}
 
-                {/* PASO 2: SELECCIONAR PRODUCTO */}
+                {/* PASO 2 — Lista de productos (foto 3) */}
                 {modalStep === "products" && (
                   <div>
-                    <div
-                      style={{
-                        position: "relative",
-                        marginBottom: "1rem",
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
+                    <div style={{ position: "relative", marginBottom: "1rem" }}>
                       <Search
                         size={18}
                         color="#9ca3af"
-                        style={{ position: "absolute", left: "12px" }}
+                        style={{
+                          position: "absolute",
+                          left: "14px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          pointerEvents: "none",
+                        }}
                       />
                       <input
                         type="text"
-                        placeholder="Buscar producto por nombre..."
+                        placeholder="Buscar producto..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
                           width: "100%",
-                          padding: "0.65rem 0.65rem 0.65rem 2.5rem",
+                          padding: "0.75rem 1rem 0.75rem 2.6rem",
                           border: "1.5px solid #e5e7eb",
-                          borderRadius: "10px",
-                          fontSize: "0.85rem",
+                          borderRadius: "12px",
+                          fontSize: "0.9rem",
                           outline: "none",
-                          transition: "all 0.2s",
+                          boxSizing: "border-box",
+                          fontFamily: "inherit",
+                          background: "#ffffff",
                         }}
                         onFocus={(e) => (e.target.style.borderColor = "#10B981")}
                         onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
@@ -767,14 +890,13 @@ export default function DashboardClient({
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          justifyContent: "center",
                           padding: "3rem 1rem",
-                          gap: "0.5rem",
+                          gap: "0.75rem",
                         }}
                       >
-                        <Loader2 size={24} color="#10B981" className="animate-spin" />
-                        <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-                          Cargando productos de tu tienda...
+                        <Loader2 size={28} color="#10B981" className="animate-spin" />
+                        <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>
+                          Cargando productos...
                         </span>
                       </div>
                     ) : filteredProducts.length === 0 ? (
@@ -782,104 +904,147 @@ export default function DashboardClient({
                         style={{
                           textAlign: "center",
                           padding: "2.5rem 1rem",
-                          opacity: 0.5,
-                          fontSize: "0.85rem",
+                          color: "#6b7280",
+                          fontSize: "0.9rem",
                         }}
                       >
                         {searchQuery
-                          ? "No se encontraron productos que coincidan con la búsqueda."
-                          : "No se encontraron productos vinculados en esta tienda."}
+                          ? "No se encontraron productos."
+                          : "No hay productos en esta tienda."}
                       </div>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        {filteredProducts.map((p) => (
-                          <div
-                            key={p.id}
-                            onClick={() => handleSelectProduct(p)}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              padding: "0.65rem 0.85rem",
-                              borderRadius: "10px",
-                              border: "1px solid #f3f4f6",
-                              cursor: "pointer",
-                              transition: "all 0.15s ease",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.borderColor = "#10B981";
-                              e.currentTarget.style.background = "rgba(16, 185, 129, 0.02)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.borderColor = "#f3f4f6";
-                              e.currentTarget.style.background = "none";
-                            }}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                              <img
-                                src={p.image_url || "/fallback-product.png"}
-                                alt={p.name}
-                                onError={(e) => {
-                                  e.currentTarget.src = "https://placehold.co/50x50?text=NX";
-                                }}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        {filteredProducts.map((p) => {
+                          const img = getProductImage(p);
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => handleSelectProduct(p)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.85rem",
+                                padding: "0.75rem",
+                                borderRadius: "14px",
+                                border: "1.5px solid #f3f4f6",
+                                background: "#ffffff",
+                                cursor: "pointer",
+                                textAlign: "left",
+                                width: "100%",
+                                fontFamily: "inherit",
+                                transition: "all 0.15s ease",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = "#10B981";
+                                e.currentTarget.style.background = "#f0fdf4";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = "#f3f4f6";
+                                e.currentTarget.style.background = "#ffffff";
+                              }}
+                            >
+                              <div
                                 style={{
-                                  width: "40px",
-                                  height: "40px",
-                                  borderRadius: "6px",
-                                  objectFit: "cover",
+                                  width: "48px",
+                                  height: "48px",
+                                  borderRadius: "10px",
                                   background: "#f3f4f6",
+                                  overflow: "hidden",
+                                  flexShrink: 0,
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
                                 }}
-                              />
-                              <div>
+                              >
+                                {img ? (
+                                  <img
+                                    src={img}
+                                    alt=""
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                    }}
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                ) : (
+                                  <Package size={20} color="#9ca3af" />
+                                )}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
                                 <div
                                   style={{
-                                    fontSize: "0.85rem",
+                                    fontSize: "0.9rem",
                                     fontWeight: 700,
                                     color: "#000000",
-                                    lineHeight: 1.2,
+                                    lineHeight: 1.25,
+                                    marginBottom: "0.15rem",
                                   }}
                                 >
                                   {p.name}
                                 </div>
-                                <div style={{ fontSize: "0.75rem", opacity: 0.5, marginTop: "2px" }}>
-                                  ID: {p.id}
+                                <div
+                                  style={{
+                                    fontSize: "0.8rem",
+                                    fontWeight: 600,
+                                    color: "#10B981",
+                                  }}
+                                >
+                                  ${getProductPrice(p)}
                                 </div>
                               </div>
-                            </div>
-
-                            <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#10B981" }}>
-                              ${typeof p.price === "number" ? p.price.toLocaleString("es-AR") : p.price}
-                            </div>
-                          </div>
-                        ))}
+                              <span
+                                style={{
+                                  color: "#9ca3af",
+                                  fontSize: "1.25rem",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                ›
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* PASO 3: CATÁLOGO DE WIDGETS INTERNO */}
+                {/* PASO 3 — Catálogo de widgets para el producto */}
                 {modalStep === "catalog" && (
                   <div
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 1fr",
-                      gap: "0.85rem",
+                      gap: "0.75rem",
                     }}
                   >
                     {WIDGET_TEMPLATES.map((tpl) => (
-                      <div
+                      <button
                         key={tpl.id}
+                        type="button"
                         onClick={() => handleSelectWidgetType(tpl.id)}
                         style={{
                           padding: "1rem",
                           borderRadius: "14px",
                           border: "1.5px solid #e5e7eb",
+                          background: "#ffffff",
                           cursor: "pointer",
                           display: "flex",
                           flexDirection: "column",
-                          gap: "0.5rem",
-                          position: "relative",
-                          transition: "all 0.2s ease",
+                          gap: "0.45rem",
+                          textAlign: "left",
+                          fontFamily: "inherit",
+                          transition: "all 0.15s ease",
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.borderColor = "#10B981";
@@ -890,34 +1055,49 @@ export default function DashboardClient({
                           e.currentTarget.style.transform = "translateY(0)";
                         }}
                       >
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                          <span style={{ fontSize: "1.5rem" }}>{tpl.icon}</span>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <span style={{ fontSize: "1.35rem" }}>{tpl.icon}</span>
                           <span
                             style={{
                               fontSize: "0.65rem",
-                              fontWeight: 700,
+                              fontWeight: 800,
                               background: "rgba(16, 185, 129, 0.12)",
                               color: "#059669",
-                              padding: "2px 8px",
+                              padding: "2px 7px",
                               borderRadius: "999px",
                             }}
                           >
                             {tpl.tag}
                           </span>
                         </div>
-                        <div>
-                          <h4 style={{ margin: "0 0 0.2rem", fontSize: "0.85rem", fontWeight: 700 }}>
-                            {tpl.title}
-                          </h4>
-                          <p style={{ margin: 0, fontSize: "0.75rem", color: "#6b7280", lineHeight: 1.3 }}>
-                            {tpl.desc}
-                          </p>
+                        <div
+                          style={{
+                            fontSize: "0.82rem",
+                            fontWeight: 700,
+                            color: "#000000",
+                          }}
+                        >
+                          {tpl.title}
                         </div>
-                      </div>
+                        <div
+                          style={{
+                            fontSize: "0.72rem",
+                            color: "#6b7280",
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {tpl.desc}
+                        </div>
+                      </button>
                     ))}
                   </div>
                 )}
-
               </div>
             </motion.div>
           </div>
@@ -925,4 +1105,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-    }
+      }
