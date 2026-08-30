@@ -1,3 +1,4 @@
+// app/dashboard/components/SideMenu.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -9,9 +10,8 @@ import {
   Puzzle,
   Package,
   Bot,
-  BarChart3,
-  Settings,
-  HelpCircle,
+  Store,
+  User,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -35,9 +35,8 @@ const menuItems: MenuItem[] = [
   { label: "Widgets", href: "/widgets", icon: Puzzle },
   { label: "Productos", href: "/productos", icon: Package },
   { label: "NevuxBot AI", href: "/dashboard/nevuxbot", icon: Bot, badge: "NUEVO" },
-  { label: "Métricas", href: "/metricas", icon: BarChart3, disabled: true },
-  { label: "Configuración", href: "/configuracion", icon: Settings, disabled: true },
-  { label: "Ayuda", href: "/ayuda", icon: HelpCircle, disabled: true },
+  { label: "Mi Tienda", href: "/mi-tienda", icon: Store },
+  { label: "Mi Cuenta", href: "/mi-cuenta", icon: User },
 ];
 
 export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
@@ -131,7 +130,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                   cursor: "pointer",
                   color: "#000000",
                   borderRadius: "10px",
-                  transition: "background 0.15s",
+                  transition: "background 0.15s, color 0.15s",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "#ecfdf5";
@@ -314,4 +313,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-                }
+        }
