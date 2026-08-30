@@ -42,14 +42,11 @@ interface Props {
 
 interface ContadorVisitasConfig {
   textoAntes: string;
-  textoDespues: string;
   minVisitas: number;
   maxVisitas: number;
-  mostrarPuntoPulsante: boolean;
   colorPunto: string;
   colorFondo: string;
   colorTexto: string;
-  colorNumero: string;
   colorBorde: string;
   tamanoTexto: string;
   bordesRedondeados: number;
@@ -57,21 +54,18 @@ interface ContadorVisitasConfig {
 }
 
 /* ═══════════════════════════════════════════
-   DEFAULTS
+   DEFAULTS (Basados en tu imagen de referencia)
 ═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: ContadorVisitasConfig = {
-  textoAntes: 'personas están mirando este producto en vivo',
-  textoDespues: '¡No te quedes sin el tuyo!',
-  minVisitas: 12,
-  maxVisitas: 35,
-  mostrarPuntoPulsante: true,
-  colorPunto: '#10B981',
-  colorFondo: '#f0fdf4',
-  colorTexto: '#1f2937',
-  colorNumero: '#059669',
-  colorBorde: '#a7f3d0',
+  textoAntes: 'personas viendo esto ahora',
+  minVisitas: 60,
+  maxVisitas: 140,
+  colorPunto: '#dc2626',
+  colorFondo: '#ffffff',
+  colorTexto: '#000000',
+  colorBorde: '#e5e7eb',
   tamanoTexto: '14px',
-  bordesRedondeados: 12,
+  bordesRedondeados: 999,
   paddingInterno: 12,
 };
 
@@ -124,78 +118,54 @@ function SectionCard({
 }
 
 /* ═══════════════════════════════════════════
-   PREVIEW EN VIVO INLINE
+   PREVIEW EN VIVO (Misma estructura de la foto)
 ═══════════════════════════════════════════ */
 function ContadorVisitasPreview({ config }: { config: ContadorVisitasConfig }) {
   const numeroEjemplo = Math.floor(
     (config.minVisitas + config.maxVisitas) / 2
-  ) || 18;
+  ) || 100;
 
   return (
     <div
       style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
         background: config.colorFondo,
         border: `1.5px solid ${config.colorBorde}`,
         borderRadius: config.bordesRedondeados,
-        padding: config.paddingInterno,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        boxShadow: '0 2px 8px rgba(16, 185, 129, 0.08)',
+        padding: `8px ${config.paddingInterno + 8}px`,
+        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.04)',
+        margin: '0 auto',
       }}
     >
-      {config.mostrarPuntoPulsante && (
-        <div
-          style={{
-            position: 'relative',
-            width: 10,
-            height: 10,
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              width: 14,
-              height: 14,
-              borderRadius: '50%',
-              background: config.colorPunto,
-              opacity: 0.35,
-            }}
-          />
-          <div
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: config.colorPunto,
-            }}
-          />
-        </div>
-      )}
+      {/* Punto pulsante */}
+      <div
+        style={{
+          width: 10,
+          height: 10,
+          borderRadius: '50%',
+          background: config.colorPunto,
+          boxShadow: `0 0 0 3px ${config.colorPunto}33`,
+          flexShrink: 0,
+        }}
+      />
 
+      {/* Texto formateado */}
       <div
         style={{
           fontSize: config.tamanoTexto,
           color: config.colorTexto,
-          lineHeight: 1.35,
-          fontWeight: 600,
+          fontWeight: 800,
+          lineHeight: 1.2,
+          letterSpacing: '-0.01em',
         }}
       >
-        <span
-          style={{
-            fontWeight: 800,
-            color: config.colorNumero,
-            marginRight: 4,
-          }}
-        >
+        <span style={{ fontWeight: 900, marginRight: 4 }}>
           {numeroEjemplo}
         </span>
-        {config.textoAntes}{' '}
-        <span style={{ fontWeight: 700 }}>{config.textoDespues}</span>
+        {config.textoAntes || 'personas viendo esto ahora'}
       </div>
     </div>
   );
@@ -280,23 +250,16 @@ export default function ContadorVisitasEditor({
   const tabGeneral = (
     <div>
       <FieldInput
-        label="Texto después del número"
+        label="Texto que acompaña al número"
         value={config.textoAntes}
-        placeholder="personas están mirando este producto en vivo"
+        placeholder="personas viendo esto ahora"
         onChange={(v) => updateCfg('textoAntes', v)}
-      />
-
-      <FieldInput
-        label="Texto de llamada a la acción (opcional)"
-        value={config.textoDespues}
-        placeholder="¡No te quedes sin el tuyo!"
-        onChange={(v) => updateCfg('textoDespues', v)}
       />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
         <div>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-            Visitas Mínimas
+            Rango Mínimo
           </label>
           <input
             type="number"
@@ -315,7 +278,7 @@ export default function ContadorVisitasEditor({
 
         <div>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-            Visitas Máximas
+            Rango Máximo
           </label>
           <input
             type="number"
@@ -333,7 +296,7 @@ export default function ContadorVisitasEditor({
         </div>
       </div>
       <div style={{ fontSize: 12, color: '#6b7280', marginTop: -8, marginBottom: 16 }}>
-        El widget generará un número aleatorio entre el mínimo y el máximo de forma realista.
+        El widget generará automáticamente un número aleatorio entre estos dos valores.
       </div>
     </div>
   );
@@ -344,7 +307,7 @@ export default function ContadorVisitasEditor({
       <SectionCard
         icon="🎨"
         title="Colores"
-        description="Personalizá los colores de fondo, texto, número y punto indicador."
+        description="Personalizá los colores de la píldora, texto e indicador."
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <ColorPicker
@@ -353,14 +316,9 @@ export default function ContadorVisitasEditor({
             onChange={(v) => updateCfg('colorFondo', v)}
           />
           <ColorPicker
-            label="Color del texto"
+            label="Color del texto y número"
             value={config.colorTexto}
             onChange={(v) => updateCfg('colorTexto', v)}
-          />
-          <ColorPicker
-            label="Color del número"
-            value={config.colorNumero}
-            onChange={(v) => updateCfg('colorNumero', v)}
           />
           <ColorPicker
             label="Color del borde"
@@ -368,14 +326,14 @@ export default function ContadorVisitasEditor({
             onChange={(v) => updateCfg('colorBorde', v)}
           />
           <ColorPicker
-            label="Color del punto de en vivo"
+            label="Color del punto indicador"
             value={config.colorPunto}
             onChange={(v) => updateCfg('colorPunto', v)}
           />
         </div>
       </SectionCard>
 
-      <SectionCard icon="🇹" title="Tipografía y Tamaño" description="Tamaño del texto.">
+      <SectionCard icon="🇹" title="Tipografía" description="Tamaño de letra.">
         <FieldSelect
           label="Tamaño de letra"
           value={config.tamanoTexto}
@@ -384,19 +342,19 @@ export default function ContadorVisitasEditor({
         />
       </SectionCard>
 
-      <SectionCard icon="🎛" title="Diseño" description="Bordes y relleno del contenedor.">
+      <SectionCard icon="🎛" title="Diseño" description="Bordes y relleno de la píldora.">
         <Slider
           label="Bordes redondeados"
           value={config.bordesRedondeados}
           min={0}
-          max={24}
+          max={999}
           onChange={(v) => updateCfg('bordesRedondeados', v)}
         />
         <Slider
-          label="Padding interno"
+          label="Padding lateral"
           value={config.paddingInterno}
           min={6}
-          max={20}
+          max={30}
           onChange={(v) => updateCfg('paddingInterno', v)}
         />
       </SectionCard>
@@ -470,15 +428,16 @@ export default function ContadorVisitasEditor({
           {widgetDefinition.name}
         </h1>
 
-        {/* PREVIEW */}
+        {/* PREVIEW IDÉNTICO A TU IMAGEN */}
         <div
           style={{
             background: '#ffffff',
             border: '1px solid #e5e7eb',
             borderRadius: 16,
-            padding: 20,
+            padding: '24px 20px',
             marginBottom: 16,
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            textAlign: 'center',
           }}
         >
           <ContadorVisitasPreview config={config} />
@@ -599,4 +558,4 @@ export default function ContadorVisitasEditor({
       </div>
     </div>
   );
-}
+      }
