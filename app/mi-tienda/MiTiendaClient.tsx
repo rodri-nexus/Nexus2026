@@ -237,11 +237,11 @@ export default function MiTiendaClient({
             animate={{ opacity: 1, y: 0 }}
             style={{
               background: "#ffffff",
-              border: "1.5px solid #FF0000",
+              border: "1.5px solid #10B981",
               borderRadius: "16px",
               padding: "2.5rem 1.5rem",
               textAlign: "center",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+              boxShadow: "0 4px 20px rgba(16, 185, 129, 0.08)",
             }}
           >
             <div
@@ -249,14 +249,14 @@ export default function MiTiendaClient({
                 width: "64px",
                 height: "64px",
                 borderRadius: "16px",
-                background: "#fff5f5",
+                background: "#f0fdf4",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 margin: "0 auto 1.25rem",
               }}
             >
-              <Store size={30} color="#FF0000" />
+              <Store size={30} color="#10B981" />
             </div>
             <h2
               style={{
@@ -288,13 +288,16 @@ export default function MiTiendaClient({
                 gap: "0.5rem",
                 padding: "0.75rem 1.5rem",
                 borderRadius: "999px",
-                background: "#FF0000",
+                background: "#10B981",
                 color: "#ffffff",
                 textDecoration: "none",
                 fontSize: "0.9rem",
                 fontWeight: 700,
-                boxShadow: "0 4px 14px rgba(255, 0, 0, 0.35)",
+                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.3)",
+                transition: "background 0.2s ease",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#059669")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "#10B981")}
             >
               <Store size={16} />
               Conectar Tiendanube
@@ -338,11 +341,14 @@ export default function MiTiendaClient({
                     alignItems: "center",
                     gap: "0.4rem",
                     fontSize: "0.9rem",
-                    color: "#FF0000",
+                    color: "#10B981",
                     textDecoration: "none",
                     fontWeight: 700,
                     wordBreak: "break-all",
+                    transition: "color 0.2s",
                   }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#059669")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#10B981")}
                 >
                   {storeInfo.url}
                   <ExternalLink size={13} />
@@ -522,15 +528,17 @@ export default function MiTiendaClient({
                   fontWeight: 700,
                   cursor: "pointer",
                   boxShadow: "0 4px 14px rgba(220, 38, 38, 0.35)",
-                  transition: "transform 0.15s",
+                  transition: "transform 0.15s, background 0.15s",
                   fontFamily: "inherit",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "translateY(-1px)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "translateY(0)")
-                }
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                  e.currentTarget.style.background = "#b91c1c";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.background = "#dc2626";
+                }}
               >
                 <Unplug size={16} />
                 Desconectar tienda
@@ -820,16 +828,16 @@ function ActionButton({
   const isWarning = variant === "warning";
 
   let bg = "#ffffff";
-  let color = "#FF0000";
+  let color = "#10B981";
   let border = "1.5px solid #e5e7eb";
-  let hoverBg = "#fff5f5";
-  let hoverBorder = "#FF0000";
+  let hoverBg = "#f0fdf4";
+  let hoverBorder = "#10B981";
 
   if (isPrimary) {
-    bg = "#FF0000";
+    bg = "#10B981";
     color = "#ffffff";
     border = "none";
-    hoverBg = "#FF0000";
+    hoverBg = "#059669";
     hoverBorder = "transparent";
   } else if (isWarning) {
     bg = "#fffbeb";
@@ -837,6 +845,13 @@ function ActionButton({
     border = "1.5px solid #fcd34d";
     hoverBg = "#fef3c7";
     hoverBorder = "#f59e0b";
+  } else {
+    // Botones neutros "Ver productos" y "Ver widgets"
+    bg = "#ffffff";
+    color = "#000000";
+    border = "1.5px solid #e5e7eb";
+    hoverBg = "#f9fafb";
+    hoverBorder = "#10B981";
   }
 
   return (
@@ -859,27 +874,25 @@ function ActionButton({
         fontFamily: "inherit",
         transition:
           "transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s",
-        boxShadow: isPrimary ? "0 4px 14px rgba(255, 0, 0, 0.35)" : "none",
+        boxShadow: isPrimary ? "0 4px 14px rgba(16, 185, 129, 0.25)" : "none",
         boxSizing: "border-box",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-1px)";
-        if (!isPrimary) {
-          e.currentTarget.style.background = hoverBg;
-          e.currentTarget.style.borderColor = hoverBorder;
-        } else {
+        e.currentTarget.style.background = hoverBg;
+        e.currentTarget.style.borderColor = hoverBorder;
+        if (isPrimary) {
           e.currentTarget.style.boxShadow =
-            "0 6px 18px rgba(255, 0, 0, 0.45)";
+            "0 6px 18px rgba(16, 185, 129, 0.35)";
         }
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
-        if (!isPrimary) {
-          e.currentTarget.style.background = bg;
-          e.currentTarget.style.borderColor = "#e5e7eb";
-        } else {
+        e.currentTarget.style.background = bg;
+        e.currentTarget.style.borderColor = isPrimary ? "transparent" : (isWarning ? "#fcd34d" : "#e5e7eb");
+        if (isPrimary) {
           e.currentTarget.style.boxShadow =
-            "0 4px 14px rgba(255, 0, 0, 0.35)";
+            "0 4px 14px rgba(16, 185, 129, 0.25)";
         }
       }}
     >
@@ -887,4 +900,4 @@ function ActionButton({
       {label}
     </button>
   );
-      }
+}
