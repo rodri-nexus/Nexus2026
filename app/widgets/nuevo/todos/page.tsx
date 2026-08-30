@@ -3,7 +3,17 @@ import { createClient } from "@/lib/supabase-server";
 import WidgetCatalogClient from "@/components/widgets/WidgetCatalogClient";
 import { Store } from "lucide-react";
 
-export default async function WidgetsNuevoTodosPage() {
+export const dynamic = "force-dynamic";
+
+interface WidgetsNuevoTodosPageProps {
+  searchParams?: {
+    type?: string;
+  };
+}
+
+export default async function WidgetsNuevoTodosPage({
+  searchParams,
+}: WidgetsNuevoTodosPageProps) {
   const supabase = createClient();
   const {
     data: { user },
@@ -31,11 +41,11 @@ export default async function WidgetsNuevoTodosPage() {
         borderRadius: "10px",
         fontSize: "0.85rem",
         fontWeight: 700,
-        color: "#10B981",
+        color: "#059669",
       }}
     >
       <Store size={16} color="#10B981" />
-      Widgets generales para la tienda
+      Widgets generales para toda la tienda
     </div>
   );
 
@@ -54,10 +64,11 @@ export default async function WidgetsNuevoTodosPage() {
           definitions={definitions || []}
           title="¿Qué widget querés agregar a todos los productos de la tienda?"
           chip={chip}
-          baseUrl={`/widgets/editar`}
+          baseUrl="/widgets/editar"
           target="all"
+          selectedType={searchParams?.type}
         />
       </div>
     </div>
   );
-        }
+      }
