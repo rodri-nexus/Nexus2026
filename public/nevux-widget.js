@@ -3348,7 +3348,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     '</div>';
   }
 
-    /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER CAJA DE OPINIONES
   ═══════════════════════════════════════════ */
   function renderCajaOpiniones(widget) {
@@ -3548,7 +3548,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
 
     return '<div class="' + NS + '-opiniones-list">' + cardsHtml + '</div>';
-      }
+    }
 
   /* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE DESPACHO
