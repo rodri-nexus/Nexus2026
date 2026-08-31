@@ -3348,7 +3348,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     '</div>';
   }
 
-  /* ═══════════════════════════════════════════
+    /* ═══════════════════════════════════════════
      RENDER CAJA DE OPINIONES
   ═══════════════════════════════════════════ */
   function renderCajaOpiniones(widget) {
@@ -3378,6 +3378,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         compraVerificada: o.compraVerificada === true,
       };
     });
+    var ubicacion = raw.ubicacion || "arriba_carrito";
+    if (ubicacion !== "abajo_descripcion") ubicacion = "arriba_carrito";
     return {
       opiniones: op,
       colorFondo: raw.colorFondo || "#f7f7f7",
@@ -3390,6 +3392,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       bordeRedondeado: n(raw.bordeRedondeado, 10),
       padding: n(raw.padding, 20),
       tamanoAvatar: n(raw.tamanoAvatar, 44),
+      ubicacion: ubicacion,
     };
   }
 
@@ -3423,28 +3426,71 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     return palette[sum % palette.length];
   }
 
+  function findCajaOpinionesDescriptionTarget() {
+    var selectors = [
+      ".product-description",
+      ".js-product-description",
+      "#product-description",
+      "[data-store='product-description']",
+      ".product-detail-description",
+      ".description.user-content",
+      ".product-description-container",
+      ".js-product-description-container",
+      "#single-product .description",
+      ".product-info .description",
+      ".tab-content .description",
+      ".product-tabs .description"
+    ];
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (el) return el;
+    }
+    return null;
+  }
+
   function mountCajaOpiniones(widget, cfg) {
     var uniqueId = NS + "-opiniones-" + widget.id;
     if (qs("#" + uniqueId)) return;
 
-    var target = findProductTarget("before-button");
-    if (!target) {
-      console.warn("[Nevux] No se encontró target para caja de opiniones en producto");
-      return;
-    }
-
     var container = document.createElement("div");
     container.id = uniqueId;
     container.className = NS + "-root";
+    container.style.margin = "16px 0";
 
-    if (target.node.parentNode) {
-      target.node.parentNode.insertBefore(container, target.node.nextSibling);
-    } else {
-      return;
+    var inserted = false;
+
+    // Ubicación: debajo de la descripción del producto
+    if (cfg.ubicacion === "abajo_descripcion") {
+      var descEl = findCajaOpinionesDescriptionTarget();
+      if (descEl && descEl.parentNode) {
+        if (descEl.nextSibling) {
+          descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        } else {
+          descEl.parentNode.appendChild(container);
+        }
+        inserted = true;
+      }
     }
 
+    // Ubicación estándar (o fallback): arriba / junto al botón de compra
+    if (!inserted) {
+      var target = findProductTarget("before-button");
+      if (!target) {
+        console.warn("[Nevux] No se encontró target para caja de opiniones en producto");
+        return;
+      }
+      if (target.node && target.node.parentNode) {
+        target.node.parentNode.insertBefore(container, target.node.nextSibling);
+        inserted = true;
+      } else {
+        return;
+      }
+    }
+
+    if (!inserted) return;
+
     container.innerHTML = buildCajaOpinionesHtml(cfg);
-    console.log("[Nevux] Caja de opiniones montada");
+    console.log("[Nevux] Caja de opiniones montada (" + (cfg.ubicacion || "arriba_carrito") + ")");
   }
 
   function buildCajaOpinionesHtml(cfg) {
@@ -3502,7 +3548,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
 
     return '<div class="' + NS + '-opiniones-list">' + cardsHtml + '</div>';
-  }
+      }
 
   /* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE DESPACHO
