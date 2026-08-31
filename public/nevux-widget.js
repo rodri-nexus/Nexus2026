@@ -1575,6 +1575,7 @@
           if (w.widget_slug === "slider-video") renderSliderVideo(w);
           if (w.widget_slug === "extras-interruptor") renderExtrasInterruptor(w);
 if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
+          if (w.widget_slug === "info-compra") renderInfoCompra(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -2049,7 +2050,119 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
       }
+  /* ═══════════════════════════════════════════
+     RENDER INFORMACIÓN DE COMPRA (UNIFICADO)
+  ═══════════════════════════════════════════ */
+  function renderInfoCompra(widget) {
+    const cfg = normalizeInfoCompraConfig(widget.config || {});
+    if (pageType === "product") {
+      mountInfoCompra(widget, cfg);
+    }
+  }
 
+  function normalizeInfoCompraConfig(raw) {
+    function n(v, fb) {
+      if (v === undefined || v === null || v === "") return fb;
+      var p = typeof v === "string" ? parseInt(v, 10) : v;
+      return isNaN(p) ? fb : p;
+    }
+    return {
+      mostrarEnvio: raw.mostrarEnvio !== false,
+      tituloEnvio: raw.tituloEnvio || "Envío GRATIS",
+      subtituloEnvio: raw.subtituloEnvio || "En compras superiores a $50.000",
+      mostrarCuotas: raw.mostrarCuotas !== false,
+      tituloCuotas: raw.tituloCuotas || "Hasta 12 cuotas fijas",
+      subtituloCuotas: raw.subtituloCuotas || "3 cuotas sin interés con todas las tarjetas bancarias",
+      mostrarTransferencia: raw.mostrarTransferencia !== false,
+      tituloTransferencia: raw.tituloTransferencia || "10% OFF abonando con Transferencia",
+      subtituloTransferencia: raw.subtituloTransferencia || "Descuento automático aplicado en el checkout",
+      colorFondo: raw.colorFondo || "#ffffff",
+      colorBorde: raw.colorBorde || "#e5e7eb",
+      colorTexto: raw.colorTexto || "#111827",
+      colorSubtexto: raw.colorSubtexto || "#6b7280",
+      colorIcono: raw.colorIcono || "#10B981",
+      colorDestacado: raw.colorDestacado || "#059669",
+      bordeRedondeado: n(raw.bordeRedondeado, 12),
+      padding: n(raw.padding, 12)
+    };
+  }
+
+  function mountInfoCompra(widget, cfg) {
+    var uniqueId = NS + "-infocompra-" + widget.id;
+    if (qs("#" + uniqueId)) return;
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.className = NS + "-root";
+
+    var target = findProductTarget("before-button");
+    if (!target) {
+      console.warn("[Nevux] No se encontró target para Información de Compra");
+      return;
+    }
+    target.node.parentNode.insertBefore(container, target.node);
+    container.innerHTML = buildInfoCompraHtml(cfg);
+    console.log("[Nevux] Información de Compra montado");
+  }
+
+  function buildInfoCompraHtml(cfg) {
+    var rows = [];
+
+    if (cfg.mostrarEnvio) {
+      rows.push(
+        '<div style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;">' +
+          '<div style="font-size:20px;line-height:1;color:' + cfg.colorIcono + ';flex-shrink:0;display:flex;align-items:center;">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0;text-align:left;">' +
+            '<div style="font-size:13px;font-weight:700;color:' + cfg.colorTexto + ';line-height:1.25;">' + escapeHtml(cfg.tituloEnvio) + '</div>' +
+            '<div style="font-size:11.5px;color:' + cfg.colorSubtexto + ';margin-top:2px;line-height:1.25;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    if (cfg.mostrarCuotas) {
+      rows.push(
+        '<div style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;">' +
+          '<div style="font-size:20px;line-height:1;color:' + cfg.colorIcono + ';flex-shrink:0;display:flex;align-items:center;">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0;text-align:left;">' +
+            '<div style="font-size:13px;font-weight:700;color:' + cfg.colorTexto + ';line-height:1.25;">' + escapeHtml(cfg.tituloCuotas) + '</div>' +
+            '<div style="font-size:11.5px;color:' + cfg.colorSubtexto + ';margin-top:2px;line-height:1.25;">' + escapeHtml(cfg.subtituloCuotas) + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    if (cfg.mostrarTransferencia) {
+      rows.push(
+        '<div style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;">' +
+          '<div style="font-size:20px;line-height:1;color:' + cfg.colorDestacado + ';flex-shrink:0;display:flex;align-items:center;">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>' +
+          '</div>' +
+          '<div style="flex:1;min-width:0;text-align:left;">' +
+            '<div style="font-size:13px;font-weight:700;color:' + cfg.colorDestacado + ';line-height:1.25;">' + escapeHtml(cfg.tituloTransferencia) + '</div>' +
+            '<div style="font-size:11.5px;color:' + cfg.colorSubtexto + ';margin-top:2px;line-height:1.25;">' + escapeHtml(cfg.subtituloTransferencia) + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    if (rows.length === 0) return "";
+
+    var outputHtml = '<div style="display:flex;flex-direction:column;gap:' + cfg.padding + 'px;background:' + cfg.colorFondo + ';border:1px solid ' + cfg.colorBorde + ';border-radius:' + cfg.bordeRedondeado + 'px;padding:' + cfg.padding + 'px;width:100%;box-sizing:border-box;margin:12px 0;">';
+    for (var i = 0; i < rows.length; i++) {
+      outputHtml += rows[i];
+      if (i < rows.length - 1) {
+        outputHtml += '<div style="height:1px;background:' + cfg.colorBorde + ';width:100%;opacity:0.8;"></div>';
+      }
+    }
+    outputHtml += '</div>';
+    return outputHtml;
+                     }
+  
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
   ═══════════════════════════════════════════ */
