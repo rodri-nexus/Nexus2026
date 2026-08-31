@@ -2051,18 +2051,18 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       .replace(/'/g, "&#039;");
       }
 
-    /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE COMPRA (UNIFICADO)
   ═══════════════════════════════════════════ */
   function renderInfoCompra(widget) {
-  var rawConfig = widget.config;
-  if (typeof rawConfig === "string") {
-    try { rawConfig = JSON.parse(rawConfig); } catch (e) { rawConfig = {}; }
-  }
-  const cfg = normalizeInfoCompraConfig(rawConfig || {});
-  if (pageType === "product") {
-    mountInfoCompra(widget, cfg);
-  }
+    var rawConfig = widget.config;
+    if (typeof rawConfig === "string") {
+      try { rawConfig = JSON.parse(rawConfig); } catch (e) { rawConfig = {}; }
+    }
+    const cfg = normalizeInfoCompraConfig(rawConfig || {});
+    if (pageType === "product") {
+      mountInfoCompra(widget, cfg);
+    }
   }
 
   function normalizeInfoCompraConfig(raw) {
@@ -2099,15 +2099,32 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var container = document.createElement("div");
     container.id = uniqueId;
     container.className = NS + "-root";
+    container.style.cssText = "width:100% !important;box-sizing:border-box !important;margin:14px 0 !important;display:block !important;";
 
-    var target = findProductTarget("before-button");
+    // Búsqueda inteligente de target con múltiples fallbacks para cualquier tema de Tiendanube
+    var target = qs('form[action*="/cart/add"] input[type="submit"]') ||
+                 qs('form[action*="/cart/add"] button[type="submit"]') ||
+                 qs('.js-product-buy-container') ||
+                 qs('.js-addtocart') ||
+                 qs('input.js-addtocart') ||
+                 qs('.js-product-form') ||
+                 qs('form[action*="/cart/add"]') ||
+                 qs('.product-form') ||
+                 qs('.js-product-price-container');
+
+    if (!target) {
+      var fallback = findProductTarget("before-button");
+      target = fallback ? fallback.node : null;
+    }
+
     if (!target) {
       console.warn("[Nevux] No se encontró target para Información de Compra");
       return;
     }
-    target.node.parentNode.insertBefore(container, target.node);
+
+    target.parentNode.insertBefore(container, target);
     container.innerHTML = buildInfoCompraHtml(cfg);
-    console.log("[Nevux] Información de Compra montado con colores blindados");
+    console.log("[Nevux] Información de Compra montado con éxito y colores aplicados");
   }
 
   function buildInfoCompraHtml(cfg) {
@@ -2157,7 +2174,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (rows.length === 0) return "";
 
-    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;margin:14px 0 !important;box-shadow:0 1px 3px rgba(0,0,0,0.03) !important;">';
+    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;box-shadow:0 1px 3px rgba(0,0,0,0.03) !important;">';
     for (var i = 0; i < rows.length; i++) {
       outputHtml += rows[i];
       if (i < rows.length - 1) {
@@ -2166,7 +2183,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
     outputHtml += '</div>';
     return outputHtml;
-  }
+}
   
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
