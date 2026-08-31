@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   MousePointerClick,
@@ -9,6 +9,7 @@ import {
   DollarSign,
   BarChart3,
   ChevronDown,
+  ChevronUp,
   Loader2,
 } from "lucide-react";
 
@@ -49,6 +50,9 @@ export default function MetricsCard() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [chartMetric, setChartMetric] = useState<ChartMetric>("impressions");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  // Estado para colapsar/desplegar "Rendimiento por widget" (oculto por defecto)
+  const [showWidgetPerformance, setShowWidgetPerformance] = useState<boolean>(false);
 
   const [summary, setSummary] = useState<MetricSummary>({
     impressions: 0,
@@ -640,178 +644,233 @@ export default function MetricsCard() {
         )}
       </div>
 
-      {/* Rendimiento por widget */}
+      {/* Rendimiento por widget (COLAPSABLE / OCULTO POR DEFECTO) */}
       <div
         style={{
           borderTop: "1px solid #f3f4f6",
-          paddingTop: "1.5rem",
+          paddingTop: "1.25rem",
         }}
       >
-        <h3
-          style={{
-            margin: 0,
-            fontSize: "1rem",
-            fontWeight: 800,
-            color: "#000000",
-          }}
-        >
-          Rendimiento por widget
-        </h3>
-        <p
-          style={{
-            margin: "0.25rem 0 1rem",
-            fontSize: "0.85rem",
-            color: "#000000",
-            opacity: 0.6,
-          }}
-        >
-          Ordená para ver cuáles funcionan mejor en el período.
-        </p>
-
         <div
           style={{
             display: "flex",
-            flexWrap: "wrap",
-            gap: "0.5rem",
-            marginBottom: "1rem",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.75rem",
           }}
         >
-          <div style={{ position: "relative", flex: "1 1 160px" }}>
-            <select
-              value={sortMetric}
-              onChange={(e) => setSortMetric(e.target.value as SortMetric)}
-              style={{
-                width: "100%",
-                appearance: "none",
-                WebkitAppearance: "none",
-                padding: "0.6rem 2.25rem 0.6rem 0.9rem",
-                borderRadius: "10px",
-                border: "1px solid #e5e7eb",
-                background: "#ffffff",
-                fontSize: "0.85rem",
-                color: "#000000",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              <option value="impresiones">Impresiones</option>
-              <option value="clicks">Clicks</option>
-              <option value="agregados">Agregados al carrito</option>
-              <option value="facturacion">Facturación</option>
-            </select>
-            <ChevronDown
-              size={16}
-              color="#000000"
-              style={{
-                position: "absolute",
-                right: "0.75rem",
-                top: "50%",
-                transform: "translateY(-50%)",
-                pointerEvents: "none",
-                opacity: 0.6,
-              }}
-            />
-          </div>
-
-          <div style={{ position: "relative", flex: "1 1 160px" }}>
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-              style={{
-                width: "100%",
-                appearance: "none",
-                WebkitAppearance: "none",
-                padding: "0.6rem 2.25rem 0.6rem 0.9rem",
-                borderRadius: "10px",
-                border: "1px solid #e5e7eb",
-                background: "#ffffff",
-                fontSize: "0.85rem",
-                color: "#000000",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              <option value="desc">Mayor a menor</option>
-              <option value="asc">Menor a mayor</option>
-            </select>
-            <ChevronDown
-              size={16}
-              color="#000000"
-              style={{
-                position: "absolute",
-                right: "0.75rem",
-                top: "50%",
-                transform: "translateY(-50%)",
-                pointerEvents: "none",
-                opacity: 0.6,
-              }}
-            />
-          </div>
-        </div>
-
-        {sortedWidgets.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {sortedWidgets.map((w) => (
-              <div
-                key={w.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "0.85rem 1rem",
-                  background: "#f9fafb",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "10px",
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#000000" }}>
-                    {w.name}
-                  </div>
-                  <div style={{ fontSize: "0.75rem", color: "#000000", opacity: 0.5 }}>
-                    {w.type}
-                  </div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#10B981" }}>
-                    {sortMetric === "impresiones" && `${formatNumber(w.impressions)} vistas`}
-                    {sortMetric === "clicks" && `${formatNumber(w.clicks)} clicks`}
-                    {sortMetric === "agregados" && `${formatNumber(w.cartAdds)} carritos`}
-                    {sortMetric === "facturacion" && formatCurrency(w.revenue)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "2rem 1rem",
-              background: "#ffffff",
-              borderRadius: "12px",
-              border: "1px dashed #e5e7eb",
-            }}
-          >
-            <p
+          <div>
+            <h3
               style={{
                 margin: 0,
-                fontSize: "0.9rem",
+                fontSize: "1rem",
+                fontWeight: 800,
                 color: "#000000",
-                opacity: 0.5,
-                textAlign: "center",
               }}
             >
-              Todavía no hay widgets con métricas para este período.
+              Rendimiento por widget
+            </h3>
+            <p
+              style={{
+                margin: "0.2rem 0 0",
+                fontSize: "0.8rem",
+                color: "#000000",
+                opacity: 0.6,
+              }}
+            >
+              {widgetList.length > 0
+                ? `${widgetList.length} widget${widgetList.length === 1 ? "" : "s"} registrado${widgetList.length === 1 ? "" : "s"}`
+                : "Ordená y analizá cada widget"}
             </p>
           </div>
-        )}
+
+          {/* BOTÓN VER / OCULTAR */}
+          <button
+            type="button"
+            onClick={() => setShowWidgetPerformance(!showWidgetPerformance)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              padding: "0.45rem 0.9rem",
+              borderRadius: "999px",
+              border: showWidgetPerformance ? "1px solid #e5e7eb" : "1px solid #a7f3d0",
+              background: showWidgetPerformance ? "#f3f4f6" : "#ecfdf5",
+              color: showWidgetPerformance ? "#000000" : "#059669",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              fontFamily: "inherit",
+              flexShrink: 0,
+            }}
+          >
+            <span>{showWidgetPerformance ? "Ocultar" : "Ver"}</span>
+            {showWidgetPerformance ? (
+              <ChevronUp size={15} color="#000000" />
+            ) : (
+              <ChevronDown size={15} color="#059669" />
+            )}
+          </button>
+        </div>
+
+        {/* CONTENIDO DESPLEGABLE */}
+        <AnimatePresence>
+          {showWidgetPerformance && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              style={{ overflow: "hidden", marginTop: "1rem" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "0.5rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <div style={{ position: "relative", flex: "1 1 160px" }}>
+                  <select
+                    value={sortMetric}
+                    onChange={(e) => setSortMetric(e.target.value as SortMetric)}
+                    style={{
+                      width: "100%",
+                      appearance: "none",
+                      WebkitAppearance: "none",
+                      padding: "0.6rem 2.25rem 0.6rem 0.9rem",
+                      borderRadius: "10px",
+                      border: "1px solid #e5e7eb",
+                      background: "#ffffff",
+                      fontSize: "0.85rem",
+                      color: "#000000",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <option value="impresiones">Impresiones</option>
+                    <option value="clicks">Clicks</option>
+                    <option value="agregados">Agregados al carrito</option>
+                    <option value="facturacion">Facturación</option>
+                  </select>
+                  <ChevronDown
+                    size={16}
+                    color="#000000"
+                    style={{
+                      position: "absolute",
+                      right: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                      opacity: 0.6,
+                    }}
+                  />
+                </div>
+
+                <div style={{ position: "relative", flex: "1 1 160px" }}>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+                    style={{
+                      width: "100%",
+                      appearance: "none",
+                      WebkitAppearance: "none",
+                      padding: "0.6rem 2.25rem 0.6rem 0.9rem",
+                      borderRadius: "10px",
+                      border: "1px solid #e5e7eb",
+                      background: "#ffffff",
+                      fontSize: "0.85rem",
+                      color: "#000000",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <option value="desc">Mayor a menor</option>
+                    <option value="asc">Menor a mayor</option>
+                  </select>
+                  <ChevronDown
+                    size={16}
+                    color="#000000"
+                    style={{
+                      position: "absolute",
+                      right: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                      opacity: 0.6,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {sortedWidgets.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {sortedWidgets.map((w) => (
+                    <div
+                      key={w.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "0.85rem 1rem",
+                        background: "#f9fafb",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#000000" }}>
+                          {w.name}
+                        </div>
+                        <div style={{ fontSize: "0.75rem", color: "#000000", opacity: 0.5 }}>
+                          {w.type}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#10B981" }}>
+                          {sortMetric === "impresiones" && `${formatNumber(w.impressions)} vistas`}
+                          {sortMetric === "clicks" && `${formatNumber(w.clicks)} clicks`}
+                          {sortMetric === "agregados" && `${formatNumber(w.cartAdds)} carritos`}
+                          {sortMetric === "facturacion" && formatCurrency(w.revenue)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "2rem 1rem",
+                    background: "#ffffff",
+                    borderRadius: "12px",
+                    border: "1px dashed #e5e7eb",
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.9rem",
+                      color: "#000000",
+                      opacity: 0.5,
+                      textAlign: "center",
+                    }}
+                  >
+                    Todavía no hay widgets con métricas para este período.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.section>
   );
-                        }
+    }
