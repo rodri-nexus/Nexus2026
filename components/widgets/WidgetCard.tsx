@@ -19,6 +19,7 @@ const POPULAR_SLUGS = [
 ];
 
 const NEW_SLUGS = [
+  "info-compra",
   "extras-interruptor",
   "switch-extras",
   "contador-visitas",
@@ -197,4 +198,4 @@ export default function WidgetCard({ widget, onClick, index }: WidgetCardProps) 
       </div>
     </motion.div>
   );
-        }
+                  }
