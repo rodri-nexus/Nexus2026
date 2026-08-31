@@ -55,6 +55,7 @@ const DEFAULT_CONFIG = {
   bordeRedondeado: 10,
   padding: 20,
   tamanoAvatar: 44,
+  ubicacion: 'arriba_carrito', // 'arriba_carrito' | 'abajo_descripcion'
 };
 
 /* ================= HELPERS UI ================= */
@@ -718,7 +719,7 @@ export default function CajaOpinionesEditor({
               color: '#FFFFFF',
             }}
           >
-            RL
+            NX
           </div>
         </div>
       </div>
@@ -833,7 +834,31 @@ export default function CajaOpinionesEditor({
           {/* TAB GENERAL */}
           {tab === 'general' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>
+              {/* UBICACIÓN DEL WIDGET */}
+              <SectionCard
+                icon={
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                }
+                title="Ubicación en la tienda"
+                description="Elegí dónde se mostrará la caja de opiniones dentro de la página del producto para no saturar la vista."
+              >
+                <div>
+                  <FieldLabel>Posición de inserción</FieldLabel>
+                  <SelectField
+                    value={config.ubicacion || 'arriba_carrito'}
+                    onChange={(v) => updateConfig('ubicacion', v)}
+                    options={[
+                      { value: 'arriba_carrito', label: '📍 Arriba del botón "Agregar al carrito" (Estándar)' },
+                      { value: 'abajo_descripcion', label: '📄 Debajo de la descripción del producto (Dar respiro)' },
+                    ]}
+                  />
+                </div>
+              </SectionCard>
+
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000', marginTop: 8 }}>
                 Opiniones (mínimo 1, máximo 5)
               </div>
 
