@@ -5,16 +5,14 @@ import { isStorePlanActive } from '@/lib/plan'
 // ═══════════════════════════════════════════════════════════
 // GET /api/widget-render?store_id=X&product_id=Y (opcional)
 // API pública consumida por el script nevux-widget.js
-// Devuelve los widgets activos que deben mostrarse en la tienda
+// Devuelve los widgets activos en tiempo real sin caché stale
 // ═══════════════════════════════════════════════════════════
 
-// Headers CORS: permiten que el script en la tienda del cliente
-// pueda consumir esta API desde nevux.app
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
-  'Cache-Control': 'public, max-age=30, s-maxage=30',
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
 }
 
 // Handler para preflight CORS
@@ -46,8 +44,7 @@ export async function GET(req: NextRequest) {
 
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
 
-    // 🔒 2. VERIFICACIÓN ESTRICTA DEL PLAN / TRIAL DE 7 DÍAS
-    // Si la prueba de 7 días o el plan pago vencieron, se devuelven 0 widgets al instante
+    // 🔒 2. VERIFICACIÓN DEL PLAN / TRIAL DE 7 DÍAS
     const isActivePlan = await isStorePlanActive(storeId)
     if (!isActivePlan) {
       return NextResponse.json(
@@ -56,7 +53,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 3. Crear cliente Supabase con service_role_key (sin sesión de usuario)
+    // 3. Crear cliente Supabase con service_role_key
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -93,7 +90,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 5. Enriquecer widgets con sus definiciones (nombre, ícono, categoría, etc.)
+    // 5. Enriquecer widgets con sus definiciones
     const slugs = (widgets || []).map((w) => w.widget_slug)
     let definitions: any[] = []
 
@@ -150,7 +147,6 @@ export async function GET(req: NextRequest) {
         })
       )
 
-      // Reemplazar los widgets de reseñas con sus versiones enriquecidas
       enrichedWidgets = enrichedWidgets.map((w) => {
         if (w.widget_slug !== 'resenas-clientes') return w
         const enriquecido = enriquecidos.find((e) => e.id === w.id)
@@ -158,9 +154,9 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // 7. Devolver widgets
+    // 7. Devolver widgets siempre frescos
     return NextResponse.json(
-      { widgets: enrichedWidgets },
+      { widgets: enrichedWidgets, ts: Date.now() },
       { status: 200, headers: corsHeaders }
     )
   } catch (error: any) {
@@ -172,12 +168,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════
-// Helper: calcula stats sobre un array de reseñas aprobadas
-// ═══════════════════════════════════════════════════════════
 function calcularStats(reviews: any[]) {
   const total = reviews.length
-
   if (total === 0) return defaultStats()
 
   const distribucion: Record<string, number> = {
@@ -198,13 +190,9 @@ function calcularStats(reviews: any[]) {
   }
 
   const promedio = parseFloat((suma / total).toFixed(2))
-
   return { total, promedio, distribucion }
 }
 
-// ═══════════════════════════════════════════════════════════
-// Helper: stats vacías por defecto
-// ═══════════════════════════════════════════════════════════
 function defaultStats() {
   return {
     total: 0,
