@@ -128,7 +128,7 @@ function SectionCard({
 }
 
 /* ═══════════════════════════════════════════
-   PREVIEW EN VIVO (Misma estructura de tu imagen)
+   PREVIEW EN VIVO
 ═══════════════════════════════════════════ */
 function ExtrasInterruptorPreview({
   config,
@@ -408,6 +408,50 @@ export default function ExtrasInterruptorEditor({
         placeholder="Ej: 123456789"
         onChange={(v) => updateCfg('variantId', v)}
       />
+
+      {/* RECUADRO DE AYUDA / MINI-TUTORIAL */}
+      <div
+        style={{
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          borderRadius: 12,
+          padding: '14px 16px',
+          marginTop: -6,
+          marginBottom: 20,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{ fontSize: 16 }}>💡</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>
+            ¿Cómo obtener el ID de Variante en Tiendanube?
+          </span>
+        </div>
+        <ol
+          style={{
+            margin: 0,
+            paddingLeft: 18,
+            fontSize: 12,
+            color: '#15803d',
+            lineHeight: 1.55,
+          }}
+        >
+          <li style={{ marginBottom: 4 }}>
+            Entrá a tu panel de Tiendanube → <b>Productos</b>.
+          </li>
+          <li style={{ marginBottom: 4 }}>
+            Hacé clic en el producto que querés ofrecer como extra.
+          </li>
+          <li style={{ marginBottom: 4 }}>
+            <b>Si no tiene talles/colores (producto único):</b> Copiá el número que aparece al final de la URL en la barra de tu navegador (ej: <code>.../admin/products/<b>12345678</b></code>).
+          </li>
+          <li>
+            <b>Si tiene variantes (talles/colores):</b> Bajá a la sección <i>Variantes</i>, editá la variante específica y copiá el ID numérico de esa opción.
+          </li>
+        </ol>
+        <div style={{ marginTop: 8, fontSize: 11, color: '#166534', opacity: 0.85 }}>
+          ✨ <i>Al colocar este ID, cuando el cliente prenda el interruptor en tu tienda se agregará automáticamente este extra al carrito de compras.</i>
+        </div>
+      </div>
     </div>
   );
 
@@ -549,7 +593,7 @@ export default function ExtrasInterruptorEditor({
           {widgetDefinition.name}
         </h1>
 
-        {/* PREVIEW IDÉNTICO A LA IMAGEN DE REFERENCIA */}
+        {/* PREVIEW */}
         <div
           style={{
             background: '#ffffff',
@@ -683,4 +727,4 @@ export default function ExtrasInterruptorEditor({
       </div>
     </div>
   );
-  }
+    }
