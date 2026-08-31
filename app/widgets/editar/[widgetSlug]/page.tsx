@@ -18,6 +18,7 @@ import ResenasClientesEditor from '@/components/widgets/editors/ResenasClientesE
 import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
 import ExtrasInterruptorEditor from '@/components/widgets/editors/ExtrasInterruptorEditor';
 import ContadorVisitasEditor from '@/components/widgets/editors/ContadorVisitasEditor';
+import InfoCompraEditor from '@/components/widgets/editors/InfoCompraEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -68,6 +69,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // NUEVO WIDGET UNIFICADO: INFORMACIÓN DE COMPRA
+  if (params.widgetSlug === 'info-compra') {
+    return (
+      <InfoCompraEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET NUEVO A: EXTRAS CON INTERRUPTOR
   if (params.widgetSlug === 'extras-interruptor' || params.widgetSlug === 'switch-extras') {
@@ -288,4 +302,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-    }
+      }
