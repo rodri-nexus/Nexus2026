@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "info-compra":
+      return <InfoCompraPreview />;
     case "extras-interruptor":
     case "switch-extras":
       return <ExtrasInterruptorPreview />;
@@ -72,6 +74,67 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function InfoCompraPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "10px",
+        padding: "7px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+      }}
+    >
+      {/* Fila Envío */}
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ fontSize: "12px", lineHeight: 1 }}>🚚</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>
+            Envío GRATIS
+          </div>
+          <div style={{ fontSize: "7px", color: "#6b7280", lineHeight: 1 }}>
+            En compras mayores a $50.000
+          </div>
+        </div>
+      </div>
+
+      <div style={{ height: "1px", background: "#f3f4f6" }} />
+
+      {/* Fila Cuotas */}
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ fontSize: "12px", lineHeight: 1 }}>💳</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>
+            Hasta 12 cuotas
+          </div>
+          <div style={{ fontSize: "7px", color: "#6b7280", lineHeight: 1 }}>
+            3 cuotas sin interés con todas las tarjetas
+          </div>
+        </div>
+      </div>
+
+      <div style={{ height: "1px", background: "#f3f4f6" }} />
+
+      {/* Fila Transferencia */}
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ fontSize: "12px", lineHeight: 1 }}>💰</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#059669", lineHeight: 1.1 }}>
+            10% OFF abonando con Transferencia
+          </div>
+          <div style={{ fontSize: "7px", color: "#6b7280", lineHeight: 1 }}>
+            Descuento automático en el checkout
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ExtrasInterruptorPreview() {
   return (
@@ -440,7 +503,7 @@ function ResenasPreview() {
         gap: "4px",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ display: "flex", borderBottom: "1px solid #f3f4f6", paddingBottom: "4px", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ color: "#10B981", fontSize: "11px" }}>★★★★★</div>
         <div style={{ fontSize: "8px", color: "#000000", opacity: 0.5 }}>hace 2 horas</div>
       </div>
