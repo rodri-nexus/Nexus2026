@@ -1544,9 +1544,9 @@
   }
 
   injectGlobalStyles();
-
-  const url = API_BASE + "/api/widget-render?store_id=" + storeId +
-    (productId ? "&product_id=" + productId : "");
+const url = API_BASE + "/api/widget-render?store_id=" + storeId +
+  (productId ? "&product_id=" + productId : "") +
+  "&_t=" + Date.now();
 
   fetch(url)
     .then(function (r) { return r.json(); })
@@ -2055,10 +2055,14 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
      RENDER INFORMACIÓN DE COMPRA (UNIFICADO)
   ═══════════════════════════════════════════ */
   function renderInfoCompra(widget) {
-    const cfg = normalizeInfoCompraConfig(widget.config || {});
-    if (pageType === "product") {
-      mountInfoCompra(widget, cfg);
-    }
+  var rawConfig = widget.config;
+  if (typeof rawConfig === "string") {
+    try { rawConfig = JSON.parse(rawConfig); } catch (e) { rawConfig = {}; }
+  }
+  const cfg = normalizeInfoCompraConfig(rawConfig || {});
+  if (pageType === "product") {
+    mountInfoCompra(widget, cfg);
+  }
   }
 
   function normalizeInfoCompraConfig(raw) {
