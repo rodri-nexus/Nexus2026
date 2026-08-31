@@ -3427,25 +3427,45 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
   }
 
   function findCajaOpinionesDescriptionTarget() {
+    var form = document.querySelector("form[action*='/cart/add']") || 
+               document.querySelector(".js-product-buy-container") ||
+               document.querySelector(".product-buy-panel") ||
+               document.querySelector(".js-product-form");
+
     var selectors = [
-      ".product-description",
-      ".js-product-description",
       "#product-description",
+      "#description",
+      ".js-product-description",
       "[data-store='product-description']",
+      ".product-description",
+      ".js-product-user-content",
       ".product-detail-description",
-      ".description.user-content",
       ".product-description-container",
       ".js-product-description-container",
-      "#single-product .description",
-      ".product-info .description",
-      ".tab-content .description",
-      ".product-tabs .description"
+      ".description.user-content",
+      ".product-tabs",
+      ".js-product-tab-description",
+      ".js-accordion-container",
+      ".product-accordion"
     ];
+
+    // Buscar elementos que estén en el DOM DESPUÉS del formulario de compra
     for (var i = 0; i < selectors.length; i++) {
-      var el = document.querySelector(selectors[i]);
-      if (el) return el;
+      var els = document.querySelectorAll(selectors[i]);
+      for (var j = 0; j < els.length; j++) {
+        var el = els[j];
+        if (form) {
+          if (form.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            return el;
+          }
+        } else {
+          return el;
+        }
+      }
     }
-    return null;
+
+    // Fallback: si no encontró selector específico posterior, busca el contenedor principal
+    return document.querySelector(".user-content") || form;
   }
 
   function mountCajaOpiniones(widget, cfg) {
@@ -3455,11 +3475,12 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var container = document.createElement("div");
     container.id = uniqueId;
     container.className = NS + "-root";
-    container.style.margin = "16px 0";
+    container.style.margin = "24px 0";
+    container.style.clear = "both";
 
     var inserted = false;
 
-    // Ubicación: debajo de la descripción del producto
+    // 1. Si eligió "Debajo de la descripción del producto"
     if (cfg.ubicacion === "abajo_descripcion") {
       var descEl = findCajaOpinionesDescriptionTarget();
       if (descEl && descEl.parentNode) {
@@ -3472,25 +3493,19 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       }
     }
 
-    // Ubicación estándar (o fallback): arriba / junto al botón de compra
+    // 2. Si eligió "Arriba del botón" (o fallback)
     if (!inserted) {
       var target = findProductTarget("before-button");
-      if (!target) {
-        console.warn("[Nevux] No se encontró target para caja de opiniones en producto");
-        return;
-      }
-      if (target.node && target.node.parentNode) {
-        target.node.parentNode.insertBefore(container, target.node.nextSibling);
+      if (target && target.node && target.node.parentNode) {
+        target.node.parentNode.insertBefore(container, target.node);
         inserted = true;
-      } else {
-        return;
       }
     }
 
     if (!inserted) return;
 
     container.innerHTML = buildCajaOpinionesHtml(cfg);
-    console.log("[Nevux] Caja de opiniones montada (" + (cfg.ubicacion || "arriba_carrito") + ")");
+    console.log("[Nevux] Caja de opiniones montada en (" + (cfg.ubicacion || "arriba_carrito") + ")");
   }
 
   function buildCajaOpinionesHtml(cfg) {
@@ -3548,7 +3563,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
 
     return '<div class="' + NS + '-opiniones-list">' + cardsHtml + '</div>';
-    }
+      }
 
   /* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE DESPACHO
