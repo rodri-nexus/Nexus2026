@@ -50,7 +50,7 @@ interface InfoCompraConfig {
   badgeTransferencia: string;
 
   // Estilos
-  colorFondo: '#FFFFFF' | string;
+  colorFondo: string;
   colorTexto: string;
   colorIconos: string;
   colorBadgeFondo: string;
@@ -280,7 +280,7 @@ function TextInput({ value, onChange, placeholder }: { value: string | number; o
 
 function ToggleField({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', justifySpace: 'space-between', gap: 10, cursor: 'pointer' }}>
+    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, cursor: 'pointer' }}>
       <span style={{ fontSize: 14, fontWeight: 600, color: '#000000', flex: 1 }}>{label}</span>
       <div
         onClick={() => onChange(!checked)}
@@ -546,4 +546,4 @@ export default function InfoCompraEditor({
       </div>
     </div>
   );
-}
+    }
