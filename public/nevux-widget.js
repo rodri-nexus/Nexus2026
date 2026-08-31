@@ -2050,7 +2050,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
       }
-  /* ═══════════════════════════════════════════
+
+    /* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE COMPRA (UNIFICADO)
   ═══════════════════════════════════════════ */
   function renderInfoCompra(widget) {
@@ -2102,7 +2103,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
     target.node.parentNode.insertBefore(container, target.node);
     container.innerHTML = buildInfoCompraHtml(cfg);
-    console.log("[Nevux] Información de Compra montado");
+    console.log("[Nevux] Información de Compra montado con colores blindados");
   }
 
   function buildInfoCompraHtml(cfg) {
@@ -2110,13 +2111,13 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (cfg.mostrarEnvio) {
       rows.push(
-        '<div style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;">' +
-          '<div style="font-size:20px;line-height:1;color:' + cfg.colorIcono + ';flex-shrink:0;display:flex;align-items:center;">' +
-            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>' +
+        '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;">' +
+          '<div style="flex-shrink:0 !important;display:flex !important;align-items:center !important;">' +
+            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorIcono + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorIcono + ' !important;"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>' +
           '</div>' +
-          '<div style="flex:1;min-width:0;text-align:left;">' +
-            '<div style="font-size:13px;font-weight:700;color:' + cfg.colorTexto + ';line-height:1.25;">' + escapeHtml(cfg.tituloEnvio) + '</div>' +
-            '<div style="font-size:11.5px;color:' + cfg.colorSubtexto + ';margin-top:2px;line-height:1.25;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
+          '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
+            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;">' + escapeHtml(cfg.tituloEnvio) + '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2124,13 +2125,13 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (cfg.mostrarCuotas) {
       rows.push(
-        '<div style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;">' +
-          '<div style="font-size:20px;line-height:1;color:' + cfg.colorIcono + ';flex-shrink:0;display:flex;align-items:center;">' +
-            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
+        '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;">' +
+          '<div style="flex-shrink:0 !important;display:flex !important;align-items:center !important;">' +
+            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorIcono + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorIcono + ' !important;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
           '</div>' +
-          '<div style="flex:1;min-width:0;text-align:left;">' +
-            '<div style="font-size:13px;font-weight:700;color:' + cfg.colorTexto + ';line-height:1.25;">' + escapeHtml(cfg.tituloCuotas) + '</div>' +
-            '<div style="font-size:11.5px;color:' + cfg.colorSubtexto + ';margin-top:2px;line-height:1.25;">' + escapeHtml(cfg.subtituloCuotas) + '</div>' +
+          '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
+            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;">' + escapeHtml(cfg.tituloCuotas) + '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;">' + escapeHtml(cfg.subtituloCuotas) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2138,13 +2139,13 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (cfg.mostrarTransferencia) {
       rows.push(
-        '<div style="display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;">' +
-          '<div style="font-size:20px;line-height:1;color:' + cfg.colorDestacado + ';flex-shrink:0;display:flex;align-items:center;">' +
-            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>' +
+        '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;">' +
+          '<div style="flex-shrink:0 !important;display:flex !important;align-items:center !important;">' +
+            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorDestacado + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorDestacado + ' !important;"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>' +
           '</div>' +
-          '<div style="flex:1;min-width:0;text-align:left;">' +
-            '<div style="font-size:13px;font-weight:700;color:' + cfg.colorDestacado + ';line-height:1.25;">' + escapeHtml(cfg.tituloTransferencia) + '</div>' +
-            '<div style="font-size:11.5px;color:' + cfg.colorSubtexto + ';margin-top:2px;line-height:1.25;">' + escapeHtml(cfg.subtituloTransferencia) + '</div>' +
+          '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
+            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorDestacado + ' !important;line-height:1.25 !important;">' + escapeHtml(cfg.tituloTransferencia) + '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;">' + escapeHtml(cfg.subtituloTransferencia) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2152,16 +2153,16 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (rows.length === 0) return "";
 
-    var outputHtml = '<div style="display:flex;flex-direction:column;gap:' + cfg.padding + 'px;background:' + cfg.colorFondo + ';border:1px solid ' + cfg.colorBorde + ';border-radius:' + cfg.bordeRedondeado + 'px;padding:' + cfg.padding + 'px;width:100%;box-sizing:border-box;margin:12px 0;">';
+    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;margin:14px 0 !important;box-shadow:0 1px 3px rgba(0,0,0,0.03) !important;">';
     for (var i = 0; i < rows.length; i++) {
       outputHtml += rows[i];
       if (i < rows.length - 1) {
-        outputHtml += '<div style="height:1px;background:' + cfg.colorBorde + ';width:100%;opacity:0.8;"></div>';
+        outputHtml += '<div style="height:1px !important;background:' + cfg.colorBorde + ' !important;width:100% !important;opacity:0.8 !important;"></div>';
       }
     }
     outputHtml += '</div>';
     return outputHtml;
-                     }
+  }
   
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
