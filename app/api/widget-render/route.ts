@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isStorePlanActive } from '@/lib/plan'
 
-// 🔒 FORZAR DINÁMICO EN VERCEL (Evita que Vercel guarde en CDN las respuestas de la API)
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
@@ -19,7 +18,6 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest) {
   try {
-    // 1. Leer query params
     const { searchParams } = new URL(req.url)
     const storeIdParam = searchParams.get('store_id')
     const productIdParam = searchParams.get('product_id')
@@ -41,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
 
-    // 🔒 2. VERIFICACIÓN DEL PLAN / TRIAL DE 7 DÍAS
+    // 🔒 Verificación de plan activo
     const isActivePlan = await isStorePlanActive(storeId)
     if (!isActivePlan) {
       return NextResponse.json(
@@ -50,7 +48,6 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 3. Crear cliente Supabase con service_role_key
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -60,7 +57,7 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 4. Buscar widgets activos de la tienda ordenados por actualización más reciente
+    // Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
     let query = supabase
       .from('widgets')
       .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
@@ -86,17 +83,16 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 🧹 DEDUPLICACIÓN INTELIGENTE: Conservar SOLO la configuración más reciente por cada widget
+    // 🧹 DEDUPLICACIÓN ESTRICTA: Conservar ÚNICAMENTE la configuración MÁS RECIENTE guardada para cada widget_slug
     const uniqueMap = new Map<string, any>()
     for (const w of rawWidgets || []) {
-      const key = `${w.widget_slug}_${w.target_type}_${w.target_product_id || 'all'}`
-      if (!uniqueMap.has(key)) {
-        uniqueMap.set(key, w)
+      if (!uniqueMap.has(w.widget_slug)) {
+        uniqueMap.set(w.widget_slug, w)
       }
     }
     const widgets = Array.from(uniqueMap.values())
 
-    // 5. Enriquecer widgets con sus definiciones
+    // Enriquecer widgets con sus definiciones
     const slugs = widgets.map((w) => w.widget_slug)
     let definitions: any[] = []
 
@@ -114,7 +110,7 @@ export async function GET(req: NextRequest) {
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
 
-    // 6. Enriquecer widgets de reseñas con reviews aprobadas + stats
+    // Enriquecer widgets de reseñas si existen
     const widgetsResenas = enrichedWidgets.filter(
       (w) => w.widget_slug === 'resenas-clientes'
     )
@@ -160,7 +156,6 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // 7. Devolver respuesta 100% fresca sin caché estático
     return NextResponse.json(
       { widgets: enrichedWidgets, ts: Date.now() },
       { status: 200, headers: corsHeaders }
@@ -205,4 +200,4 @@ function defaultStats() {
     promedio: 0,
     distribucion: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 },
   }
-  }
+        }
