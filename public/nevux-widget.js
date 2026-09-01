@@ -2072,28 +2072,39 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       return isNaN(p) ? fb : p;
     }
     return {
-      mostrarEnvio: raw.mostrarEnvio !== false,
-      tituloEnvio: raw.tituloEnvio || "Envío GRATIS",
-      subtituloEnvio: raw.subtituloEnvio || "En compras superiores a $50.000",
+      // Cuotas
       mostrarCuotas: raw.mostrarCuotas !== false,
-      tituloCuotas: raw.tituloCuotas || "Hasta 12 cuotas fijas",
-      subtituloCuotas: raw.subtituloCuotas || "3 cuotas sin interés con todas las tarjetas bancarias",
+      tituloCuotas: raw.tituloCuotas || "Hasta 6 cuotas sin interés",
+      subtituloCuotas: raw.subtituloCuotas || "Con todas las tarjetas bancarias",
+      badgeCuotas: raw.badgeCuotas !== undefined ? raw.badgeCuotas : "PROMO",
+      colorBadgeCuotas: raw.colorBadgeCuotas || "#2563eb",
+
+      // Transferencia
       mostrarTransferencia: raw.mostrarTransferencia !== false,
-      tituloTransferencia: raw.tituloTransferencia || "10% OFF abonando con Transferencia",
-      subtituloTransferencia: raw.subtituloTransferencia || "Descuento automático aplicado en el checkout",
-      colorFondo: raw.colorFondo || "#ffffff",
-      colorBorde: raw.colorBorde || "#e5e7eb",
-      colorTexto: raw.colorTexto || "#111827",
-      colorSubtexto: raw.colorSubtexto || "#6b7280",
-      colorIcono: raw.colorIcono || "#10B981",
-      colorDestacado: raw.colorDestacado || "#059669",
-      bordeRedondeado: n(raw.bordeRedondeado, 12),
-      padding: n(raw.padding, 12)
+      tituloTransferencia: raw.tituloTransferencia || "10% de descuento pagando con Transferencia",
+      subtituloTransferencia: raw.subtituloTransferencia || "Aplica automáticamente en el checkout",
+      badgeTransferencia: raw.badgeTransferencia !== undefined ? raw.badgeTransferencia : "10% OFF",
+      colorBadgeTransferencia: raw.colorBadgeTransferencia || "#dc2626",
+
+      // Envío
+      mostrarEnvio: raw.mostrarEnvio !== false,
+      tituloEnvio: raw.tituloEnvio || "Envíos a todo el país",
+      subtituloEnvio: raw.subtituloEnvio || "Despachamos en 24hs hábiles",
+      badgeEnvio: raw.badgeEnvio || "",
+      colorBadgeEnvio: raw.colorBadgeEnvio || "#10b981",
+
+      // Estilos Generales
+      colorFondo: raw.colorFondo || "#000000",
+      colorBorde: raw.colorBorde || "#1f2937",
+      colorTexto: raw.colorTexto || "#ffffff",
+      colorSubtexto: raw.colorSubtexto || "#9ca3af",
+      bordeRedondeado: n(raw.bordeRedondeado, 16),
+      padding: n(raw.padding, 16)
     };
   }
 
   function mountInfoCompra(widget, cfg) {
-    var uniqueId = NS + "-infocompra-" + widget.id;
+    var uniqueId = NS + "-infocompra-single";
     if (qs("#" + uniqueId)) return;
 
     var container = document.createElement("div");
@@ -2124,49 +2135,64 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
 
     container.innerHTML = buildInfoCompraHtml(cfg);
-    console.log("[Nevux] Información de Compra montado con éxito");
+    console.log("[Nevux] Información de Compra (Diseño Foto 1) montado con éxito");
   }
 
   function buildInfoCompraHtml(cfg) {
     var rows = [];
 
-    if (cfg.mostrarEnvio) {
-      rows.push(
-        '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;">' +
-          '<div style="flex-shrink:0 !important;display:flex !important;align-items:center !important;">' +
-            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorIcono + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorIcono + ' !important;"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>' +
-          '</div>' +
-          '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' + escapeHtml(cfg.tituloEnvio) + '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
-          '</div>' +
-        '</div>'
-      );
-    }
-
+    // Fila Cuotas (💳)
     if (cfg.mostrarCuotas) {
+      var badgeCuotasHtml = cfg.badgeCuotas
+        ? '<span style="display:inline-block !important;background:' + cfg.colorBadgeCuotas + ' !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:2px 6px !important;border-radius:4px !important;margin-left:6px !important;vertical-align:middle !important;text-transform:uppercase !important;letter-spacing:0.03em !important;">' + escapeHtml(cfg.badgeCuotas) + '</span>'
+        : '';
+
       rows.push(
         '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;">' +
-          '<div style="flex-shrink:0 !important;display:flex !important;align-items:center !important;">' +
-            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorIcono + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorIcono + ' !important;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
-          '</div>' +
+          '<div style="width:38px !important;height:38px !important;border-radius:10px !important;background:#ffffff !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">💳</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' + escapeHtml(cfg.tituloCuotas) + '</div>' +
+            '<div style="font-size:13.5px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' +
+              escapeHtml(cfg.tituloCuotas) + badgeCuotasHtml +
+            '</div>' +
             '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloCuotas) + '</div>' +
           '</div>' +
         '</div>'
       );
     }
 
+    // Fila Transferencia (💵)
     if (cfg.mostrarTransferencia) {
+      var badgeTransfHtml = cfg.badgeTransferencia
+        ? '<span style="display:inline-block !important;background:' + cfg.colorBadgeTransferencia + ' !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:2px 6px !important;border-radius:4px !important;margin-left:6px !important;vertical-align:middle !important;text-transform:uppercase !important;letter-spacing:0.03em !important;">' + escapeHtml(cfg.badgeTransferencia) + '</span>'
+        : '';
+
       rows.push(
         '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;">' +
-          '<div style="flex-shrink:0 !important;display:flex !important;align-items:center !important;">' +
-            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorDestacado + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorDestacado + ' !important;"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>' +
-          '</div>' +
+          '<div style="width:38px !important;height:38px !important;border-radius:10px !important;background:#ffffff !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">💵</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorDestacado + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' + escapeHtml(cfg.tituloTransferencia) + '</div>' +
+            '<div style="font-size:13.5px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' +
+              escapeHtml(cfg.tituloTransferencia) + badgeTransfHtml +
+            '</div>' +
             '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloTransferencia) + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    // Fila Envío (🚚)
+    if (cfg.mostrarEnvio) {
+      var badgeEnvioHtml = cfg.badgeEnvio
+        ? '<span style="display:inline-block !important;background:' + cfg.colorBadgeEnvio + ' !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:2px 6px !important;border-radius:4px !important;margin-left:6px !important;vertical-align:middle !important;text-transform:uppercase !important;letter-spacing:0.03em !important;">' + escapeHtml(cfg.badgeEnvio) + '</span>'
+        : '';
+
+      rows.push(
+        '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;box-sizing:border-box !important;">' +
+          '<div style="width:38px !important;height:38px !important;border-radius:10px !important;background:#ffffff !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">🚚</div>' +
+          '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
+            '<div style="font-size:13.5px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' +
+              escapeHtml(cfg.tituloEnvio) + badgeEnvioHtml +
+            '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2174,17 +2200,17 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (rows.length === 0) return "";
 
-    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background-color:' + cfg.colorFondo + ' !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;box-shadow:0 1px 4px rgba(0,0,0,0.08) !important;">';
+    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background-color:' + cfg.colorFondo + ' !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;box-shadow:0 4px 14px rgba(0,0,0,0.12) !important;">';
     for (var i = 0; i < rows.length; i++) {
       outputHtml += rows[i];
       if (i < rows.length - 1) {
-        outputHtml += '<div style="height:1px !important;background-color:' + cfg.colorBorde + ' !important;background:' + cfg.colorBorde + ' !important;width:100% !important;opacity:0.8 !important;margin:0 !important;"></div>';
+        outputHtml += '<div style="height:1px !important;background-color:' + cfg.colorBorde + ' !important;background:' + cfg.colorBorde + ' !important;width:100% !important;opacity:0.6 !important;margin:0 !important;"></div>';
       }
     }
     outputHtml += '</div>';
     return outputHtml;
-      }
-  
+  }
+
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
   ═══════════════════════════════════════════ */
