@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "comparador-marca":
+      return <ComparadorMarcaPreview />;
     case "badge-cupon":
       return <BadgeCuponPreview />;
     case "info-compra":
@@ -76,6 +78,53 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function ComparadorMarcaPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      <div style={{ fontSize: "8px", fontWeight: 800, color: "#000000", textAlign: "center", marginBottom: "2px" }}>
+        ¿POR QUÉ ELEGIRNOS?
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr 1fr",
+          background: "#f9fafb",
+          border: "1px solid #e5e7eb",
+          borderRadius: "6px",
+          overflow: "hidden",
+          fontSize: "6.5px",
+          fontWeight: 800,
+          textAlign: "center",
+        }}
+      >
+        <div style={{ padding: "3px 4px", textAlign: "left", color: "#6b7280" }}>BENEFICIO</div>
+        <div style={{ padding: "3px 4px", background: "#ecfdf5", color: "#059669" }}>VOS</div>
+        <div style={{ padding: "3px 4px", color: "#9ca3af" }}>OTROS</div>
+
+        <div style={{ padding: "3px 4px", textAlign: "left", borderTop: "1px solid #f3f4f6", fontWeight: 600 }}>Envío Rápido</div>
+        <div style={{ padding: "3px 4px", background: "#ecfdf5", color: "#10B981", borderTop: "1px solid #f3f4f6", fontWeight: 900 }}>✓</div>
+        <div style={{ padding: "3px 4px", color: "#9ca3af", borderTop: "1px solid #f3f4f6" }}>✗</div>
+
+        <div style={{ padding: "3px 4px", textAlign: "left", borderTop: "1px solid #f3f4f6", fontWeight: 600 }}>Garantía Total</div>
+        <div style={{ padding: "3px 4px", background: "#ecfdf5", color: "#10B981", borderTop: "1px solid #f3f4f6", fontWeight: 900 }}>✓</div>
+        <div style={{ padding: "3px 4px", color: "#9ca3af", borderTop: "1px solid #f3f4f6" }}>✗</div>
+      </div>
+    </div>
+  );
+}
 
 function BadgeCuponPreview() {
   return (
@@ -917,4 +966,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-          }
+  }
