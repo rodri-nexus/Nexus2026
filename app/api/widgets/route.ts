@@ -80,14 +80,45 @@ export async function POST(req: NextRequest) {
       return corsResponse({ error: "Tienda no autorizada o inactiva" }, 403);
     }
 
+    const targetTypeFinal = target_type || "all";
+    const targetProductIdFinal = targetTypeFinal === "product" ? target_product_id : null;
+
+    // 🔍 PREVENCION DE DUPLICADOS: Si no viene un ID, buscar si ya existe una fila activa o previa
+    let targetWidgetId = id;
+
+    if (!targetWidgetId) {
+      let checkQuery = supabase
+        .from("widgets")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("store_id", store_id)
+        .eq("widget_slug", widget_slug)
+        .eq("target_type", targetTypeFinal);
+
+      if (targetTypeFinal === "product" && targetProductIdFinal) {
+        checkQuery = checkQuery.eq("target_product_id", targetProductIdFinal);
+      } else {
+        checkQuery = checkQuery.is("target_product_id", null);
+      }
+
+      const { data: existingFound } = await checkQuery
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingFound?.id) {
+        targetWidgetId = existingFound.id;
+      }
+    }
+
     const now = new Date().toISOString();
     const payload = {
       user_id: user.id,
       store_id,
       widget_slug,
       widget_type: widget_type || widget_slug,
-      target_type: target_type || "all",
-      target_product_id: target_type === "product" ? target_product_id : null,
+      target_type: targetTypeFinal,
+      target_product_id: targetProductIdFinal,
       config: config || {},
       is_active: is_active !== undefined ? is_active : true,
       updated_at: now,
@@ -97,9 +128,9 @@ export async function POST(req: NextRequest) {
       .from("widgets")
       .upsert(
         {
-          ...(id ? { id } : {}),
+          ...(targetWidgetId ? { id: targetWidgetId } : {}),
           ...payload,
-          ...(id ? {} : { created_at: now }),
+          ...(targetWidgetId ? {} : { created_at: now }),
         },
         { onConflict: "id" }
       )
@@ -141,7 +172,8 @@ export async function GET(req: NextRequest) {
         .from("widgets")
         .select("*")
         .eq("store_id", parsedStoreId)
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .order("updated_at", { ascending: false });
 
       if (publicErr) {
         throw publicErr;
@@ -149,7 +181,7 @@ export async function GET(req: NextRequest) {
 
       return corsResponse({
         widgets: widgets || [],
-        ts: Date.now(), // Cache-buster para tiendas reales
+        ts: Date.now(),
       });
     }
 
