@@ -27,34 +27,33 @@ interface EditorProps {
 }
 
 interface InfoCompraConfig {
-  // Toggles de módulos
   mostrarEnvio: boolean;
   mostrarCuotas: boolean;
   mostrarTransferencia: boolean;
 
-  // Config Envío
-  diasHastaEnvio: number;
-  diasParaEntrega: number;
-  horaCorte: string;
-  mostrarHoraLimite: boolean;
-  mostrarRangoEntrega: boolean;
-
-  // Config Cuotas
+  // Textos libres Cuotas
   textoCuotas: string;
   subtextoCuotas: string;
   badgeCuotas: string;
 
-  // Config Transferencia
+  // Textos libres Transferencia
   textoTransferencia: string;
   subtextoTransferencia: string;
   badgeTransferencia: string;
 
+  // Textos libres Envío
+  textoEnvio: string;
+  subtextoEnvio: string;
+  badgeEnvio: string;
+
   // Estilos
   colorFondo: string;
   colorTexto: string;
+  colorSubtexto: string;
   colorIconos: string;
   colorBadgeFondo: string;
   colorBadgeTexto: string;
+  colorBadgeTransferencia: string;
   activarBorde: boolean;
   colorBorde: string;
   bordesRedondeados: number;
@@ -66,12 +65,6 @@ const DEFAULT_CONFIG: InfoCompraConfig = {
   mostrarCuotas: true,
   mostrarTransferencia: true,
 
-  diasHastaEnvio: 1,
-  diasParaEntrega: 2,
-  horaCorte: '18:00',
-  mostrarHoraLimite: true,
-  mostrarRangoEntrega: true,
-
   textoCuotas: 'Hasta 6 cuotas sin interés',
   subtextoCuotas: 'Con todas las tarjetas bancarias',
   badgeCuotas: 'PROMO',
@@ -80,46 +73,52 @@ const DEFAULT_CONFIG: InfoCompraConfig = {
   subtextoTransferencia: 'Aplica automáticamente en el checkout',
   badgeTransferencia: '10% OFF',
 
-  colorFondo: '#ffffff',
-  colorTexto: '#1f2937',
+  textoEnvio: 'Envío GRATIS a todo el país',
+  subtextoEnvio: 'Despachamos en 24hs hábiles',
+  badgeEnvio: '',
+
+  colorFondo: '#000000',
+  colorTexto: '#ffffff',
+  colorSubtexto: '#9ca3af',
   colorIconos: '#10B981',
-  colorBadgeFondo: '#10B981',
+  colorBadgeFondo: '#2563eb',
   colorBadgeTexto: '#ffffff',
+  colorBadgeTransferencia: '#dc2626',
   activarBorde: true,
-  colorBorde: '#e5e7eb',
-  bordesRedondeados: 12,
+  colorBorde: '#1f2937',
+  bordesRedondeados: 16,
   paddingInterno: 16,
 };
 
-/* ================= PREVIEW EN VIVO ================= */
-
 function InfoCompraPreview({ config }: { config: InfoCompraConfig }) {
+  const hasAny = config.mostrarCuotas || config.mostrarTransferencia || config.mostrarEnvio;
+
   return (
     <div
       style={{
         background: config.colorFondo,
-        border: config.activarBorde ? `1px solid ${config.colorBorde}` : 'none',
+        border: config.activarBorde ? `1.5px solid ${config.colorBorde}` : 'none',
         borderRadius: config.bordesRedondeados,
         padding: config.paddingInterno,
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
       }}
     >
-      {/* BLOQUE CUOTAS */}
       {config.mostrarCuotas && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: '#ecfdf5',
+              width: 38,
+              height: 38,
+              borderRadius: 10,
+              background: '#ffffff',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 18,
+              fontSize: 20,
               flexShrink: 0,
             }}
           >
@@ -127,26 +126,27 @@ function InfoCompraPreview({ config }: { config: InfoCompraConfig }) {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: config.colorTexto }}>
-                {config.textoCuotas || 'Cuotas sin interés'}
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: config.colorTexto }}>
+                {config.textoCuotas || 'Cuotas'}
               </span>
-              {config.badgeCuotas && (
+              {!!config.badgeCuotas?.trim() && (
                 <span
                   style={{
                     background: config.colorBadgeFondo,
                     color: config.colorBadgeTexto,
-                    fontSize: 9,
+                    fontSize: 10,
                     fontWeight: 800,
                     padding: '2px 6px',
                     borderRadius: 4,
+                    textTransform: 'uppercase',
                   }}
                 >
                   {config.badgeCuotas}
                 </span>
               )}
             </div>
-            {config.subtextoCuotas && (
-              <div style={{ fontSize: 11, color: config.colorTexto, opacity: 0.65 }}>
+            {!!config.subtextoCuotas?.trim() && (
+              <div style={{ fontSize: 11.5, color: config.colorSubtexto, marginTop: 2 }}>
                 {config.subtextoCuotas}
               </div>
             )}
@@ -154,19 +154,19 @@ function InfoCompraPreview({ config }: { config: InfoCompraConfig }) {
         </div>
       )}
 
-      {/* BLOQUE TRANSFERENCIA */}
       {config.mostrarTransferencia && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: '#ecfdf5',
+              width: 38,
+              height: 38,
+              borderRadius: 10,
+              background: '#ffffff',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 18,
+              fontSize: 20,
               flexShrink: 0,
             }}
           >
@@ -174,26 +174,27 @@ function InfoCompraPreview({ config }: { config: InfoCompraConfig }) {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: config.colorTexto }}>
-                {config.textoTransferencia || 'Descuento por transferencia'}
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: config.colorTexto }}>
+                {config.textoTransferencia || 'Transferencia'}
               </span>
-              {config.badgeTransferencia && (
+              {!!config.badgeTransferencia?.trim() && (
                 <span
                   style={{
-                    background: '#dc2626',
+                    background: config.colorBadgeTransferencia,
                     color: '#ffffff',
-                    fontSize: 9,
+                    fontSize: 10,
                     fontWeight: 800,
                     padding: '2px 6px',
                     borderRadius: 4,
+                    textTransform: 'uppercase',
                   }}
                 >
                   {config.badgeTransferencia}
                 </span>
               )}
             </div>
-            {config.subtextoTransferencia && (
-              <div style={{ fontSize: 11, color: config.colorTexto, opacity: 0.65 }}>
+            {!!config.subtextoTransferencia?.trim() && (
+              <div style={{ fontSize: 11.5, color: config.colorSubtexto, marginTop: 2 }}>
                 {config.subtextoTransferencia}
               </div>
             )}
@@ -201,36 +202,55 @@ function InfoCompraPreview({ config }: { config: InfoCompraConfig }) {
         </div>
       )}
 
-      {/* BLOQUE ENVÍO */}
       {config.mostrarEnvio && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: '#ecfdf5',
+              width: 38,
+              height: 38,
+              borderRadius: 10,
+              background: '#ffffff',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 18,
+              fontSize: 20,
               flexShrink: 0,
             }}
           >
             🚚
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: config.colorTexto }}>
-              Envíos a todo el país
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: config.colorTexto }}>
+                {config.textoEnvio || 'Envío'}
+              </span>
+              {!!config.badgeEnvio?.trim() && (
+                <span
+                  style={{
+                    background: config.colorIconos,
+                    color: '#ffffff',
+                    fontSize: 10,
+                    fontWeight: 800,
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {config.badgeEnvio}
+                </span>
+              )}
             </div>
-            <div style={{ fontSize: 11, color: config.colorTexto, opacity: 0.65 }}>
-              Despachamos en 24hs hábiles
-            </div>
+            {!!config.subtextoEnvio?.trim() && (
+              <div style={{ fontSize: 11.5, color: config.colorSubtexto, marginTop: 2 }}>
+                {config.subtextoEnvio}
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {!config.mostrarCuotas && !config.mostrarTransferencia && !config.mostrarEnvio && (
+      {!hasAny && (
         <div style={{ textAlign: 'center', fontSize: 12, color: '#9ca3af', padding: 10 }}>
           Activá al menos una sección para visualizar el widget.
         </div>
@@ -239,11 +259,25 @@ function InfoCompraPreview({ config }: { config: InfoCompraConfig }) {
   );
 }
 
-/* ================= HELPERS UI ================= */
-
-function SectionCard({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
+function SectionCard({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #e5e7eb', borderRadius: 12, padding: 18, marginBottom: 16 }}>
+    <div
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #e5e7eb',
+        borderRadius: 12,
+        padding: 18,
+        marginBottom: 16,
+      }}
+    >
       <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 4 }}>{title}</div>
       <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 14 }}>{description}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{children}</div>
@@ -252,10 +286,26 @@ function SectionCard({ title, description, children }: { title: string; descript
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>{children}</div>;
+  return (
+    <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>{children}</div>
+  );
 }
 
-function TextInput({ value, onChange, placeholder }: { value: string | number; onChange: (v: string) => void; placeholder?: string }) {
+function HelpText({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6, lineHeight: 1.4 }}>{children}</div>
+  );
+}
+
+function TextInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
   return (
     <input
       type="text"
@@ -278,9 +328,25 @@ function TextInput({ value, onChange, placeholder }: { value: string | number; o
   );
 }
 
-function ToggleField({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+function ToggleField({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, cursor: 'pointer' }}>
+    <label
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 10,
+        cursor: 'pointer',
+      }}
+    >
       <span style={{ fontSize: 14, fontWeight: 600, color: '#000000', flex: 1 }}>{label}</span>
       <div
         onClick={() => onChange(!checked)}
@@ -319,19 +385,31 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
         type="color"
         value={value || '#FFFFFF'}
         onChange={(e) => onChange(e.target.value)}
-        style={{ width: 40, height: 38, border: '1px solid #e5e7eb', borderRadius: 6, cursor: 'pointer', padding: 2 }}
+        style={{
+          width: 40,
+          height: 38,
+          border: '1px solid #e5e7eb',
+          borderRadius: 6,
+          cursor: 'pointer',
+          padding: 2,
+        }}
       />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{ flex: 1, padding: '9px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, fontFamily: 'monospace' }}
+        style={{
+          flex: 1,
+          padding: '9px 12px',
+          border: '1px solid #e5e7eb',
+          borderRadius: 8,
+          fontSize: 14,
+          fontFamily: 'monospace',
+        }}
       />
     </div>
   );
 }
-
-/* ================= EDITOR PRINCIPAL ================= */
 
 export default function InfoCompraEditor({
   widgetDefinition,
@@ -343,7 +421,25 @@ export default function InfoCompraEditor({
   const router = useRouter();
 
   const initialConfig = useMemo(() => {
-    return { ...DEFAULT_CONFIG, ...(existingWidget?.config || {}) };
+    const raw = existingWidget?.config || {};
+    // Compatibilidad: si venía con nombres viejos del script, los mapeamos
+    return {
+      ...DEFAULT_CONFIG,
+      ...raw,
+      textoCuotas: raw.textoCuotas || raw.tituloCuotas || DEFAULT_CONFIG.textoCuotas,
+      subtextoCuotas: raw.subtextoCuotas || raw.subtituloCuotas || DEFAULT_CONFIG.subtextoCuotas,
+      textoTransferencia:
+        raw.textoTransferencia || raw.tituloTransferencia || DEFAULT_CONFIG.textoTransferencia,
+      subtextoTransferencia:
+        raw.subtextoTransferencia ||
+        raw.subtituloTransferencia ||
+        DEFAULT_CONFIG.subtextoTransferencia,
+      textoEnvio: raw.textoEnvio || raw.tituloEnvio || DEFAULT_CONFIG.textoEnvio,
+      subtextoEnvio: raw.subtextoEnvio || raw.subtituloEnvio || DEFAULT_CONFIG.subtextoEnvio,
+      badgeEnvio: raw.badgeEnvio || '',
+      colorSubtexto: raw.colorSubtexto || DEFAULT_CONFIG.colorSubtexto,
+      colorBadgeTransferencia: raw.colorBadgeTransferencia || DEFAULT_CONFIG.colorBadgeTransferencia,
+    } as InfoCompraConfig;
   }, [existingWidget]);
 
   const [config, setConfig] = useState<InfoCompraConfig>(initialConfig);
@@ -358,30 +454,38 @@ export default function InfoCompraEditor({
     setSaving(true);
     setError(null);
     try {
+      // Guardamos con los nombres que el script de la tienda va a leer
+      const configToSave = {
+        ...config,
+        // aliases para el script (por si acaso)
+        tituloCuotas: config.textoCuotas,
+        subtituloCuotas: config.subtextoCuotas,
+        tituloTransferencia: config.textoTransferencia,
+        subtituloTransferencia: config.subtextoTransferencia,
+        tituloEnvio: config.textoEnvio,
+        subtituloEnvio: config.subtextoEnvio,
+        colorBadgeCuotas: config.colorBadgeFondo,
+        padding: config.paddingInterno,
+        bordeRedondeado: config.bordesRedondeados,
+      };
+
       const res = await fetch('/api/widgets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: existingWidget?.id ?? null,
-          widget_slug: widgetDefinition.slug,
+          widget_slug: 'info-compra',
           store_id: storeId,
           target_type: targetType,
           target_product_id: productId,
-          config,
+          config: configToSave,
           is_active: isActive,
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Error al guardar');
 
-      if (data.action === 'created') {
-        const params = new URLSearchParams();
-        params.set('created', widgetDefinition.slug);
-        if (targetType === 'product' && productId) params.set('product', String(productId));
-        router.push(`/widgets?${params.toString()}`);
-      } else {
-        router.push('/widgets');
-      }
+      router.push('/dashboard');
     } catch (e: any) {
       setError(e.message || 'Error al guardar el widget');
       setSaving(false);
@@ -390,7 +494,6 @@ export default function InfoCompraEditor({
 
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
-      {/* HEADER */}
       <div
         style={{
           position: 'sticky',
@@ -405,24 +508,55 @@ export default function InfoCompraEditor({
         }}
       >
         <NevuxLogo size="medium" />
-        <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFFFFF' }}>
+        <div
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: '50%',
+            background: '#000000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#FFFFFF',
+          }}
+        >
           NX
         </div>
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: '#000000', marginBottom: 16 }}>
-          {existingWidget ? 'Editar widget: ' : 'Nuevo widget: '} {widgetDefinition.name}
+          {existingWidget ? 'Editar widget: ' : 'Nuevo widget: '}
+          {widgetDefinition.name}
         </h1>
 
-        {/* PREVIEW EN VIVO */}
-        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 20, marginBottom: 16 }}>
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 20,
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 800,
+              color: '#6b7280',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              marginBottom: 10,
+            }}
+          >
+            Vista previa en vivo
+          </div>
           <InfoCompraPreview config={config} />
         </div>
 
-        {/* EDITOR */}
         <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 20 }}>
-          {/* TABS */}
           <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: 20 }}>
             {(['secciones', 'estilos'] as const).map((t) => (
               <button
@@ -446,77 +580,188 @@ export default function InfoCompraEditor({
             ))}
           </div>
 
-          {/* TAB 1: SECCIONES */}
           {tab === 'secciones' && (
             <div>
-              <SectionCard title="1. Cuotas y Financiación 💳" description="Ofrecé cuotas sin interés para incentivar la venta.">
-                <ToggleField label="Mostrar sección de Cuotas" checked={config.mostrarCuotas} onChange={(v) => updateCfg('mostrarCuotas', v)} />
+              <SectionCard
+                title="1. Cuotas y Financiación 💳"
+                description="Escribí libremente el mensaje que quieras mostrar (3, 6, 12 cuotas, lo que sea)."
+              >
+                <ToggleField
+                  label="Mostrar sección de Cuotas"
+                  checked={config.mostrarCuotas}
+                  onChange={(v) => updateCfg('mostrarCuotas', v)}
+                />
                 {config.mostrarCuotas && (
                   <>
                     <div>
                       <FieldLabel>Texto principal</FieldLabel>
-                      <TextInput value={config.textoCuotas} onChange={(v) => updateCfg('textoCuotas', v)} placeholder="Hasta 6 cuotas sin interés" />
+                      <TextInput
+                        value={config.textoCuotas}
+                        onChange={(v) => updateCfg('textoCuotas', v)}
+                        placeholder="Ej: Hasta 3 cuotas sin interés"
+                      />
+                      <HelpText>Libertad total: poné 3, 6, 12, 18 cuotas o el texto que quieras.</HelpText>
                     </div>
                     <div>
                       <FieldLabel>Subtexto informativo</FieldLabel>
-                      <TextInput value={config.subtextoCuotas} onChange={(v) => updateCfg('subtextoCuotas', v)} placeholder="Con todas las tarjetas" />
+                      <TextInput
+                        value={config.subtextoCuotas}
+                        onChange={(v) => updateCfg('subtextoCuotas', v)}
+                        placeholder="Ej: Con todas las tarjetas bancarias"
+                      />
                     </div>
                     <div>
-                      <FieldLabel>Etiqueta / Badge (ej: PROMO)</FieldLabel>
-                      <TextInput value={config.badgeCuotas} onChange={(v) => updateCfg('badgeCuotas', v)} placeholder="PROMO" />
+                      <FieldLabel>Etiqueta / Badge (opcional)</FieldLabel>
+                      <TextInput
+                        value={config.badgeCuotas}
+                        onChange={(v) => updateCfg('badgeCuotas', v)}
+                        placeholder="Ej: PROMO"
+                      />
+                      <HelpText>Dejalo vacío si no querés badge.</HelpText>
                     </div>
                   </>
                 )}
               </SectionCard>
 
-              <SectionCard title="2. Descuento por Transferencia 💵" description="Destacá el beneficio de pago inmediato.">
-                <ToggleField label="Mostrar sección de Transferencia" checked={config.mostrarTransferencia} onChange={(v) => updateCfg('mostrarTransferencia', v)} />
+              <SectionCard
+                title="2. Descuento por Transferencia 💵"
+                description="Poné 10%, 15%, 20%, 25% o el mensaje que quieras."
+              >
+                <ToggleField
+                  label="Mostrar sección de Transferencia"
+                  checked={config.mostrarTransferencia}
+                  onChange={(v) => updateCfg('mostrarTransferencia', v)}
+                />
                 {config.mostrarTransferencia && (
                   <>
                     <div>
                       <FieldLabel>Texto principal</FieldLabel>
-                      <TextInput value={config.textoTransferencia} onChange={(v) => updateCfg('textoTransferencia', v)} placeholder="10% OFF pagando con Transferencia" />
+                      <TextInput
+                        value={config.textoTransferencia}
+                        onChange={(v) => updateCfg('textoTransferencia', v)}
+                        placeholder="Ej: 15% OFF pagando con Transferencia"
+                      />
+                      <HelpText>Libertad total de porcentaje y texto.</HelpText>
                     </div>
                     <div>
                       <FieldLabel>Subtexto informativo</FieldLabel>
-                      <TextInput value={config.subtextoTransferencia} onChange={(v) => updateCfg('subtextoTransferencia', v)} placeholder="Aplica en el checkout" />
+                      <TextInput
+                        value={config.subtextoTransferencia}
+                        onChange={(v) => updateCfg('subtextoTransferencia', v)}
+                        placeholder="Ej: Aplica automáticamente en el checkout"
+                      />
                     </div>
                     <div>
-                      <FieldLabel>Etiqueta / Badge (ej: 10% OFF)</FieldLabel>
-                      <TextInput value={config.badgeTransferencia} onChange={(v) => updateCfg('badgeTransferencia', v)} placeholder="10% OFF" />
+                      <FieldLabel>Etiqueta / Badge (opcional)</FieldLabel>
+                      <TextInput
+                        value={config.badgeTransferencia}
+                        onChange={(v) => updateCfg('badgeTransferencia', v)}
+                        placeholder="Ej: 15% OFF"
+                      />
                     </div>
                   </>
                 )}
               </SectionCard>
 
-              <SectionCard title="3. Información de Envíos 🚚" description="Tranquilizá al cliente sobre los tiempos de despacho.">
-                <ToggleField label="Mostrar sección de Envíos" checked={config.mostrarEnvio} onChange={(v) => updateCfg('mostrarEnvio', v)} />
+              <SectionCard
+                title="3. Información de Envíos 🚚"
+                description="Escribí libremente: Envío GRATIS, a todo el país, CABA, etc."
+              >
+                <ToggleField
+                  label="Mostrar sección de Envíos"
+                  checked={config.mostrarEnvio}
+                  onChange={(v) => updateCfg('mostrarEnvio', v)}
+                />
+                {config.mostrarEnvio && (
+                  <>
+                    <div>
+                      <FieldLabel>Texto principal</FieldLabel>
+                      <TextInput
+                        value={config.textoEnvio}
+                        onChange={(v) => updateCfg('textoEnvio', v)}
+                        placeholder="Ej: Envío GRATIS a todo el país"
+                      />
+                      <HelpText>Antes estaba fijo. Ahora es 100% editable.</HelpText>
+                    </div>
+                    <div>
+                      <FieldLabel>Subtexto informativo</FieldLabel>
+                      <TextInput
+                        value={config.subtextoEnvio}
+                        onChange={(v) => updateCfg('subtextoEnvio', v)}
+                        placeholder="Ej: Despachamos en 24hs hábiles"
+                      />
+                    </div>
+                    <div>
+                      <FieldLabel>Etiqueta / Badge (opcional)</FieldLabel>
+                      <TextInput
+                        value={config.badgeEnvio}
+                        onChange={(v) => updateCfg('badgeEnvio', v)}
+                        placeholder="Ej: GRATIS"
+                      />
+                    </div>
+                  </>
+                )}
               </SectionCard>
             </div>
           )}
 
-          {/* TAB 2: ESTILOS */}
           {tab === 'estilos' && (
             <div>
-              <SectionCard title="Colores generales" description="Personalizá la paleta de colores de la tarjeta unificada.">
+              <SectionCard title="Colores generales" description="Personalizá la paleta del bloque unificado.">
                 <div>
                   <FieldLabel>Color de fondo</FieldLabel>
                   <ColorPickerField value={config.colorFondo} onChange={(v) => updateCfg('colorFondo', v)} />
                 </div>
                 <div>
-                  <FieldLabel>Color del texto</FieldLabel>
+                  <FieldLabel>Color del texto principal</FieldLabel>
                   <ColorPickerField value={config.colorTexto} onChange={(v) => updateCfg('colorTexto', v)} />
                 </div>
                 <div>
-                  <FieldLabel>Color del badge PROMO</FieldLabel>
-                  <ColorPickerField value={config.colorBadgeFondo} onChange={(v) => updateCfg('colorBadgeFondo', v)} />
+                  <FieldLabel>Color del subtexto</FieldLabel>
+                  <ColorPickerField
+                    value={config.colorSubtexto}
+                    onChange={(v) => updateCfg('colorSubtexto', v)}
+                  />
                 </div>
+                <div>
+                  <FieldLabel>Color badge Cuotas (PROMO)</FieldLabel>
+                  <ColorPickerField
+                    value={config.colorBadgeFondo}
+                    onChange={(v) => updateCfg('colorBadgeFondo', v)}
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Color badge Transferencia</FieldLabel>
+                  <ColorPickerField
+                    value={config.colorBadgeTransferencia}
+                    onChange={(v) => updateCfg('colorBadgeTransferencia', v)}
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Color del borde</FieldLabel>
+                  <ColorPickerField value={config.colorBorde} onChange={(v) => updateCfg('colorBorde', v)} />
+                </div>
+                <ToggleField
+                  label="Mostrar borde"
+                  checked={config.activarBorde}
+                  onChange={(v) => updateCfg('activarBorde', v)}
+                />
               </SectionCard>
             </div>
           )}
 
-          {/* GUARDAR */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, paddingTop: 16, borderTop: '1px solid #e5e7eb' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginTop: 20,
+              paddingTop: 16,
+              borderTop: '1px solid #e5e7eb',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
             <ToggleField label="Widget activo" checked={isActive} onChange={setIsActive} />
             <button
               type="button"
@@ -531,13 +776,27 @@ export default function InfoCompraEditor({
                 fontSize: 14,
                 fontWeight: 700,
                 cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.7 : 1,
               }}
             >
               {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
             </button>
           </div>
 
-          {error && <div style={{ marginTop: 12, padding: 10, background: '#fee2e2', color: '#b91c1c', borderRadius: 8, fontSize: 13 }}>{error}</div>}
+          {error && (
+            <div
+              style={{
+                marginTop: 12,
+                padding: 10,
+                background: '#fee2e2',
+                color: '#b91c1c',
+                borderRadius: 8,
+                fontSize: 13,
+              }}
+            >
+              {error}
+            </div>
+          )}
         </div>
 
         <div style={{ marginTop: 40 }}>
@@ -546,4 +805,4 @@ export default function InfoCompraEditor({
       </div>
     </div>
   );
-    }
+}
