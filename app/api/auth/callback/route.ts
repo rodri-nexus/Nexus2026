@@ -5,6 +5,13 @@ import { createClient } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 
+interface TiendanubeStoreDetails {
+  email: string | null;
+  storeName: string | null;
+  businessName: string | null;
+  bestName: string | null;
+}
+
 async function installStoreScript(
   storeId: number,
   accessToken: string,
@@ -41,10 +48,10 @@ async function installStoreScript(
   }
 }
 
-async function getTiendanubeStoreEmail(
+async function getTiendanubeStoreDetails(
   storeId: number,
   accessToken: string
-): Promise<string | null> {
+): Promise<TiendanubeStoreDetails> {
   try {
     const res = await fetch(`https://api.tiendanube.com/v1/${storeId}`, {
       headers: {
@@ -56,12 +63,52 @@ async function getTiendanubeStoreEmail(
 
     if (res.ok) {
       const data = await res.json();
-      return data.email || data.customer_email || null;
+      const email = data.email || data.customer_email || null;
+
+      // Tiendanube puede devolver name como string o como objeto { es: "...", pt: "..." }
+      let storeName: string | null = null;
+      if (typeof data.name === "string" && data.name.trim()) {
+        storeName = data.name.trim();
+      } else if (data.name && typeof data.name === "object") {
+        const langName =
+          data.name.es ||
+          data.name.pt ||
+          (Object.values(data.name)[0] as string) ||
+          null;
+        if (typeof langName === "string" && langName.trim()) {
+          storeName = langName.trim();
+        }
+      }
+
+      // business_name suele contener el nombre de la persona titular o razón social
+      let businessName: string | null = null;
+      if (typeof data.business_name === "string" && data.business_name.trim()) {
+        businessName = data.business_name.trim();
+      }
+
+      // Seleccionar el mejor nombre disponible
+      const bestName =
+        businessName ||
+        storeName ||
+        (email ? email.split("@")[0] : null);
+
+      return {
+        email,
+        storeName,
+        businessName,
+        bestName,
+      };
     }
   } catch (err: unknown) {
-    console.error("Error obteniendo email de tienda Tiendanube:", err);
+    console.error("Error obteniendo datos de tienda Tiendanube:", err);
   }
-  return null;
+
+  return {
+    email: null,
+    storeName: null,
+    businessName: null,
+    bestName: null,
+  };
 }
 
 function redirectDashboard(
@@ -145,7 +192,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. Usuario Nevux que debe quedar como dueño (prioridad segura)
+    // 2. Obtener datos completos de la tienda en Tiendanube (Email, Nombre comercial, Nombre tienda)
+    const storeDetails = await getTiendanubeStoreDetails(storeId, accessToken);
+    const storeEmail = storeDetails.email;
+
+    // 3. Usuario Nevux que debe quedar como dueño (prioridad segura)
     let sessionUserId: string | null = null;
     let sessionEmail: string | null = null;
 
@@ -179,7 +230,7 @@ export async function GET(request: NextRequest) {
       userIdToLink = sessionUserId;
     }
 
-    // 3. Tienda existente en Nevux (dueño actual)
+    // 4. Tienda existente en Nevux (dueño actual)
     const { data: existingStore } = await supabaseAdmin
       .from("stores")
       .select(
@@ -215,27 +266,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Match por email de Tiendanube solo si la tienda NO tiene dueño
-    let storeEmail: string | null = null;
-    if (!userIdToLink && !existingStore?.user_id) {
-      storeEmail = await getTiendanubeStoreEmail(storeId, accessToken);
-      if (storeEmail) {
-        try {
-          const { data: usersData, error: usersError } =
-            await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    if (!userIdToLink && !existingStore?.user_id && storeEmail) {
+      try {
+        const { data: usersData, error: usersError } =
+          await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
 
-          if (!usersError && usersData?.users) {
-            const matchedUser = usersData.users.find(
-              (u) =>
-                (u.email || "").toLowerCase() === storeEmail!.toLowerCase()
-            );
-            if (matchedUser) {
-              userIdToLink = matchedUser.id;
-              console.log("🎯 Match email →", matchedUser.email);
-            }
+        if (!usersError && usersData?.users) {
+          const matchedUser = usersData.users.find(
+            (u) =>
+              (u.email || "").toLowerCase() === storeEmail.toLowerCase()
+          );
+          if (matchedUser) {
+            userIdToLink = matchedUser.id;
+            console.log("🎯 Match email →", matchedUser.email);
           }
-        } catch (e: unknown) {
-          console.error("Error listUsers:", e);
         }
+      } catch (e: unknown) {
+        console.error("Error listUsers:", e);
       }
     }
 
@@ -251,7 +298,7 @@ export async function GET(request: NextRequest) {
       userIdToLink &&
       existingStore.user_id === userIdToLink;
 
-    // 4. Armar payload sin alterar planes pagados
+    // 5. Armar payload de tienda
     const upsertPayload: Record<string, unknown> = {
       store_id: storeId,
       access_token: accessToken,
@@ -298,7 +345,37 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 5. Instalar script en la tienda (siempre con token actualizado)
+    // 6. Si tenemos usuario vinculado y tenemos un nombre de Tiendanube, actualizar profiles.full_name si está vacío
+    if (userIdToLink && storeDetails.bestName) {
+      try {
+        const { data: existingProfile } = await supabaseAdmin
+          .from("profiles")
+          .select("full_name")
+          .eq("id", userIdToLink)
+          .maybeSingle();
+
+        if (!existingProfile?.full_name || existingProfile.full_name.trim() === "") {
+          await supabaseAdmin
+            .from("profiles")
+            .update({
+              full_name: storeDetails.bestName,
+              updated_at: now.toISOString(),
+            })
+            .eq("id", userIdToLink);
+
+          console.log(
+            "👤 Nombre actualizado en profile:",
+            userIdToLink,
+            "→",
+            storeDetails.bestName
+          );
+        }
+      } catch (profileErr: unknown) {
+        console.error("Error actualizando full_name en profile:", profileErr);
+      }
+    }
+
+    // 7. Instalar script en la tienda (siempre con token actualizado)
     const appUrl = new URL(request.url).origin;
     const scriptUrl = `${appUrl}/nevux-widget.js`;
 
@@ -309,7 +386,7 @@ export async function GET(request: NextRequest) {
       console.error("Error instalando script (no crítico):", scriptErr);
     }
 
-    // 6. Redirección al Dashboard o Login
+    // 8. Redirección al Dashboard o Login
     const finalUser = userIdToLink || existingStore?.user_id || null;
 
     if (finalUser) {
@@ -319,6 +396,7 @@ export async function GET(request: NextRequest) {
     return redirectLogin(request, {
       pending_store: String(storeId),
       ...(storeEmail ? { email: storeEmail } : {}),
+      ...(storeDetails.bestName ? { name: storeDetails.bestName } : {}),
     });
   } catch (error: unknown) {
     const errorMsg =
@@ -329,4 +407,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-  }
+    }
