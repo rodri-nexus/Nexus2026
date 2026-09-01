@@ -2107,7 +2107,6 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       "display:block !important;" +
       "clear:both !important;";
 
-    // Inyectar ARRIBA de todo el formulario para evitar entrar en flexbox reducidos
     var form = qs('form[action*="/cart/add"]') ||
                qs('.js-product-form') ||
                qs('.product-form') ||
@@ -2125,7 +2124,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
 
     container.innerHTML = buildInfoCompraHtml(cfg);
-    console.log("[Nevux] Información de Compra montado correctamente arriba del formulario");
+    console.log("[Nevux] Información de Compra montado con éxito");
   }
 
   function buildInfoCompraHtml(cfg) {
