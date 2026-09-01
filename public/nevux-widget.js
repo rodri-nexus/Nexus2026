@@ -2071,35 +2071,39 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       var p = typeof v === "string" ? parseInt(v, 10) : v;
       return isNaN(p) ? fb : p;
     }
+    function t() {
+      // Lee el primer valor no vacío entre varios nombres posibles
+      for (var i = 0; i < arguments.length; i++) {
+        var v = arguments[i];
+        if (v !== undefined && v !== null && String(v).trim() !== "") return String(v);
+      }
+      return "";
+    }
     return {
-      // Cuotas
       mostrarCuotas: raw.mostrarCuotas !== false,
-      tituloCuotas: raw.tituloCuotas || "Hasta 6 cuotas sin interés",
-      subtituloCuotas: raw.subtituloCuotas || "Con todas las tarjetas bancarias",
-      badgeCuotas: raw.badgeCuotas !== undefined ? raw.badgeCuotas : "PROMO",
-      colorBadgeCuotas: raw.colorBadgeCuotas || "#2563eb",
+      textoCuotas: t(raw.textoCuotas, raw.tituloCuotas, "Hasta 6 cuotas sin interés"),
+      subtextoCuotas: t(raw.subtextoCuotas, raw.subtituloCuotas, "Con todas las tarjetas bancarias"),
+      badgeCuotas: t(raw.badgeCuotas, "PROMO"),
+      colorBadgeCuotas: t(raw.colorBadgeCuotas, raw.colorBadgeFondo, "#2563eb"),
 
-      // Transferencia
       mostrarTransferencia: raw.mostrarTransferencia !== false,
-      tituloTransferencia: raw.tituloTransferencia || "10% de descuento pagando con Transferencia",
-      subtituloTransferencia: raw.subtituloTransferencia || "Aplica automáticamente en el checkout",
-      badgeTransferencia: raw.badgeTransferencia !== undefined ? raw.badgeTransferencia : "10% OFF",
-      colorBadgeTransferencia: raw.colorBadgeTransferencia || "#dc2626",
+      textoTransferencia: t(raw.textoTransferencia, raw.tituloTransferencia, "10% de descuento pagando con Transferencia"),
+      subtextoTransferencia: t(raw.subtextoTransferencia, raw.subtituloTransferencia, "Aplica automáticamente en el checkout"),
+      badgeTransferencia: t(raw.badgeTransferencia, "10% OFF"),
+      colorBadgeTransferencia: t(raw.colorBadgeTransferencia, "#dc2626"),
 
-      // Envío
       mostrarEnvio: raw.mostrarEnvio !== false,
-      tituloEnvio: raw.tituloEnvio || "Envíos a todo el país",
-      subtituloEnvio: raw.subtituloEnvio || "Despachamos en 24hs hábiles",
-      badgeEnvio: raw.badgeEnvio || "",
-      colorBadgeEnvio: raw.colorBadgeEnvio || "#10b981",
+      textoEnvio: t(raw.textoEnvio, raw.tituloEnvio, "Envío GRATIS a todo el país"),
+      subtextoEnvio: t(raw.subtextoEnvio, raw.subtituloEnvio, "Despachamos en 24hs hábiles"),
+      badgeEnvio: t(raw.badgeEnvio, ""),
+      colorBadgeEnvio: t(raw.colorBadgeEnvio, raw.colorIconos, "#10B981"),
 
-      // Estilos Generales
-      colorFondo: raw.colorFondo || "#000000",
-      colorBorde: raw.colorBorde || "#1f2937",
-      colorTexto: raw.colorTexto || "#ffffff",
-      colorSubtexto: raw.colorSubtexto || "#9ca3af",
-      bordeRedondeado: n(raw.bordeRedondeado, 16),
-      padding: n(raw.padding, 16)
+      colorFondo: t(raw.colorFondo, "#000000"),
+      colorBorde: t(raw.colorBorde, "#1f2937"),
+      colorTexto: t(raw.colorTexto, "#ffffff"),
+      colorSubtexto: t(raw.colorSubtexto, "#9ca3af"),
+      bordeRedondeado: n(raw.bordeRedondeado !== undefined ? raw.bordeRedondeado : raw.bordesRedondeados, 16),
+      padding: n(raw.padding !== undefined ? raw.padding : raw.paddingInterno, 16)
     };
   }
 
@@ -2135,13 +2139,13 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
 
     container.innerHTML = buildInfoCompraHtml(cfg);
-    console.log("[Nevux] Información de Compra (Diseño Foto 1) montado con éxito");
+    console.log("[Nevux] Información de Compra montado con textos libres");
   }
 
   function buildInfoCompraHtml(cfg) {
     var rows = [];
 
-    // Fila Cuotas (💳)
+    // Cuotas 💳
     if (cfg.mostrarCuotas) {
       var badgeCuotasHtml = cfg.badgeCuotas
         ? '<span style="display:inline-block !important;background:' + cfg.colorBadgeCuotas + ' !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:2px 6px !important;border-radius:4px !important;margin-left:6px !important;vertical-align:middle !important;text-transform:uppercase !important;letter-spacing:0.03em !important;">' + escapeHtml(cfg.badgeCuotas) + '</span>'
@@ -2152,15 +2156,17 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           '<div style="width:38px !important;height:38px !important;border-radius:10px !important;background:#ffffff !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">💳</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
             '<div style="font-size:13.5px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' +
-              escapeHtml(cfg.tituloCuotas) + badgeCuotasHtml +
+              escapeHtml(cfg.textoCuotas) + badgeCuotasHtml +
             '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloCuotas) + '</div>' +
+            (cfg.subtextoCuotas
+              ? '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtextoCuotas) + '</div>'
+              : '') +
           '</div>' +
         '</div>'
       );
     }
 
-    // Fila Transferencia (💵)
+    // Transferencia 💵
     if (cfg.mostrarTransferencia) {
       var badgeTransfHtml = cfg.badgeTransferencia
         ? '<span style="display:inline-block !important;background:' + cfg.colorBadgeTransferencia + ' !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:2px 6px !important;border-radius:4px !important;margin-left:6px !important;vertical-align:middle !important;text-transform:uppercase !important;letter-spacing:0.03em !important;">' + escapeHtml(cfg.badgeTransferencia) + '</span>'
@@ -2171,15 +2177,17 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           '<div style="width:38px !important;height:38px !important;border-radius:10px !important;background:#ffffff !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">💵</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
             '<div style="font-size:13.5px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' +
-              escapeHtml(cfg.tituloTransferencia) + badgeTransfHtml +
+              escapeHtml(cfg.textoTransferencia) + badgeTransfHtml +
             '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloTransferencia) + '</div>' +
+            (cfg.subtextoTransferencia
+              ? '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtextoTransferencia) + '</div>'
+              : '') +
           '</div>' +
         '</div>'
       );
     }
 
-    // Fila Envío (🚚)
+    // Envío 🚚
     if (cfg.mostrarEnvio) {
       var badgeEnvioHtml = cfg.badgeEnvio
         ? '<span style="display:inline-block !important;background:' + cfg.colorBadgeEnvio + ' !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:2px 6px !important;border-radius:4px !important;margin-left:6px !important;vertical-align:middle !important;text-transform:uppercase !important;letter-spacing:0.03em !important;">' + escapeHtml(cfg.badgeEnvio) + '</span>'
@@ -2190,9 +2198,11 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           '<div style="width:38px !important;height:38px !important;border-radius:10px !important;background:#ffffff !important;box-shadow:0 2px 6px rgba(0,0,0,0.12) !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">🚚</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
             '<div style="font-size:13.5px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' +
-              escapeHtml(cfg.tituloEnvio) + badgeEnvioHtml +
+              escapeHtml(cfg.textoEnvio) + badgeEnvioHtml +
             '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
+            (cfg.subtextoEnvio
+              ? '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtextoEnvio) + '</div>'
+              : '') +
           '</div>' +
         '</div>'
       );
@@ -2200,16 +2210,24 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (rows.length === 0) return "";
 
-    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background-color:' + cfg.colorFondo + ' !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;box-shadow:0 4px 14px rgba(0,0,0,0.12) !important;">';
+    var outputHtml =
+      '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;' +
+      'background-color:' + cfg.colorFondo + ' !important;background:' + cfg.colorFondo + ' !important;' +
+      'border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;' +
+      'padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;' +
+      'box-shadow:0 4px 14px rgba(0,0,0,0.12) !important;">';
+
     for (var i = 0; i < rows.length; i++) {
       outputHtml += rows[i];
       if (i < rows.length - 1) {
-        outputHtml += '<div style="height:1px !important;background-color:' + cfg.colorBorde + ' !important;background:' + cfg.colorBorde + ' !important;width:100% !important;opacity:0.6 !important;margin:0 !important;"></div>';
+        outputHtml +=
+          '<div style="height:1px !important;background-color:' + cfg.colorBorde + ' !important;background:' +
+          cfg.colorBorde + ' !important;width:100% !important;opacity:0.6 !important;margin:0 !important;"></div>';
       }
     }
     outputHtml += '</div>';
     return outputHtml;
-  }
+                    }
 
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
