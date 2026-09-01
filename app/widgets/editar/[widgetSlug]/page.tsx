@@ -19,6 +19,7 @@ import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
 import ExtrasInterruptorEditor from '@/components/widgets/editors/ExtrasInterruptorEditor';
 import ContadorVisitasEditor from '@/components/widgets/editors/ContadorVisitasEditor';
 import InfoCompraEditor from '@/components/widgets/editors/InfoCompraEditor';
+import BadgeCuponEditor from '@/components/widgets/editors/BadgeCuponEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -71,6 +72,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: BADGE CUPÓN
+  if (params.widgetSlug === 'badge-cupon') {
+    return (
+      <BadgeCuponEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET UNIFICADO: INFORMACIÓN DE COMPRA
   if (params.widgetSlug === 'info-compra') {
@@ -304,4 +318,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-            }
+      }
