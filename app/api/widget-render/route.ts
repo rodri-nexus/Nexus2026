@@ -5,7 +5,7 @@ import { isStorePlanActive } from '@/lib/plan'
 // ═══════════════════════════════════════════════════════════
 // GET /api/widget-render?store_id=X&product_id=Y (opcional)
 // API pública consumida por el script nevux-widget.js
-// Devuelve los widgets activos en tiempo real sin caché stale
+// Devuelve los widgets activos en tiempo real sin duplos
 // ═══════════════════════════════════════════════════════════
 
 const corsHeaders = {
@@ -15,7 +15,6 @@ const corsHeaders = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
 }
 
-// Handler para preflight CORS
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
@@ -63,24 +62,23 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 4. Buscar widgets activos de la tienda
+    // 4. Buscar widgets activos de la tienda ordenados por actualización más reciente
     let query = supabase
       .from('widgets')
-      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active')
+      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
       .eq('store_id', storeId)
       .eq('is_active', true)
+      .order('updated_at', { ascending: false })
 
     if (productId) {
-      // En ficha de producto: widgets para toda la tienda + widgets para este producto específico
       query = query.or(
         `target_type.eq.all,and(target_type.eq.product,target_product_id.eq.${productId})`
       )
     } else {
-      // En cualquier otra página: solo widgets para toda la tienda
       query = query.eq('target_type', 'all')
     }
 
-    const { data: widgets, error: widgetsError } = await query
+    const { data: rawWidgets, error: widgetsError } = await query
 
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
@@ -90,8 +88,18 @@ export async function GET(req: NextRequest) {
       )
     }
 
+    // 🧹 DEDUPLICACIÓN INTELIGENTE: Si existen varias filas activas para un mismo slug y target, conservar SOLO la más reciente
+    const uniqueMap = new Map<string, any>()
+    for (const w of rawWidgets || []) {
+      const key = `${w.widget_slug}_${w.target_type}_${w.target_product_id || 'all'}`
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, w)
+      }
+    }
+    const widgets = Array.from(uniqueMap.values())
+
     // 5. Enriquecer widgets con sus definiciones
-    const slugs = (widgets || []).map((w) => w.widget_slug)
+    const slugs = widgets.map((w) => w.widget_slug)
     let definitions: any[] = []
 
     if (slugs.length > 0) {
@@ -103,7 +111,7 @@ export async function GET(req: NextRequest) {
       definitions = defs || []
     }
 
-    let enrichedWidgets = (widgets || []).map((w) => ({
+    let enrichedWidgets = widgets.map((w) => ({
       ...w,
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
@@ -154,7 +162,7 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // 7. Devolver widgets siempre frescos
+    // 7. Devolver widgets siempre frescos y sin duplicados
     return NextResponse.json(
       { widgets: enrichedWidgets, ts: Date.now() },
       { status: 200, headers: corsHeaders }
@@ -199,4 +207,4 @@ function defaultStats() {
     promedio: 0,
     distribucion: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 },
   }
-  }
+        }
