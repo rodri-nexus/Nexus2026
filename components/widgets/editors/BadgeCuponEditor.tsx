@@ -1,21 +1,47 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Ticket, Copy, Check, Palette, Type, Eye, Save, Loader2 } from 'lucide-react';
 import {
-  Ticket,
-  Copy,
-  Check,
-  Sparkles,
-  Palette,
-  Type,
-  Eye,
-  Save,
-  Loader2,
-  X,
-} from "lucide-react";
+  ColorPicker,
+  Slider,
+  FieldInput,
+} from './EditorFields';
+import EditorTabs from './EditorTabs';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
-export interface BadgeCuponConfig {
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
+interface WidgetDefinition {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+}
+
+interface ExistingWidget {
+  id: string;
+  config: Record<string, unknown>;
+  is_active: boolean;
+  target_type: string;
+  target_product_id: number | null;
+}
+
+interface Props {
+  widgetDefinition: WidgetDefinition;
+  existingWidget: ExistingWidget | null;
+  targetType: 'product' | 'all';
+  productId: number | null;
+  storeId: string | number;
+}
+
+interface BadgeCuponConfig {
   titulo: string;
   subtexto: string;
   codigo: string;
@@ -29,58 +55,252 @@ export interface BadgeCuponConfig {
   badgeTextColor: string;
   botonBgColor: string;
   botonTextColor: string;
+  bordesRedondeados: number;
+  paddingInterno: number;
 }
 
+/* ═══════════════════════════════════════════
+   DEFAULTS
+═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: BadgeCuponConfig = {
-  titulo: "🔥 ¡CUPÓN EXCLUSIVO!",
-  subtexto: "Tocá para copiar el código y aplicalo en el checkout",
-  codigo: "NEVUX10",
-  badge: "10% OFF",
-  textoBoton: "Copiar",
-  textoCopiado: "¡Copiado! 🎉",
-  bgColor: "#ffffff",
-  borderColor: "#10B981",
-  textColor: "#000000",
-  badgeBgColor: "#ecfdf5",
-  badgeTextColor: "#059669",
-  botonBgColor: "#10B981",
-  botonTextColor: "#ffffff",
+  titulo: '🔥 ¡CUPÓN EXCLUSIVO!',
+  subtexto: 'Tocá para copiar el código y aplicalo en el checkout',
+  codigo: 'NEVUX10',
+  badge: '10% OFF',
+  textoBoton: 'Copiar',
+  textoCopiado: '¡Copiado! 🎉',
+  bgColor: '#ffffff',
+  borderColor: '#10B981',
+  textColor: '#000000',
+  badgeBgColor: '#ecfdf5',
+  badgeTextColor: '#059669',
+  botonBgColor: '#10B981',
+  botonTextColor: '#ffffff',
+  bordesRedondeados: 14,
+  paddingInterno: 16,
 };
 
-interface BadgeCuponEditorProps {
-  initialConfig?: Partial<BadgeCuponConfig>;
-  onSave: (config: BadgeCuponConfig) => Promise<void> | void;
-  onCancel?: () => void;
-  isSaving?: boolean;
+/* ═══════════════════════════════════════════
+   SECTION CARD
+═══════════════════════════════════════════ */
+function SectionCard({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: 14,
+        padding: 20,
+        marginBottom: 16,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
+        <div style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{icon}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
+            {title}
+          </div>
+          <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, lineHeight: 1.4 }}>
+            {description}
+          </div>
+        </div>
+      </div>
+      <div>{children}</div>
+    </div>
+  );
 }
 
+/* ═══════════════════════════════════════════
+   PREVIEW EN VIVO
+═══════════════════════════════════════════ */
+function BadgeCuponPreview({
+  config,
+  copied,
+  onCopyClick,
+}: {
+  config: BadgeCuponConfig;
+  copied: boolean;
+  onCopyClick: () => void;
+}) {
+  return (
+    <div
+      style={{
+        background: config.bgColor,
+        border: `1.5px dashed ${config.borderColor}`,
+        borderRadius: config.bordesRedondeados,
+        padding: config.paddingInterno,
+        boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
+        transition: 'all 0.2s ease',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          flexWrap: 'wrap',
+          marginBottom: '0.6rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Ticket size={18} color={config.borderColor} />
+          <span
+            style={{
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              color: config.textColor,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {config.titulo}
+          </span>
+        </div>
+
+        {config.badge && (
+          <span
+            style={{
+              background: config.badgeBgColor,
+              color: config.badgeTextColor,
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              padding: '0.25rem 0.65rem',
+              borderRadius: '999px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.02em',
+            }}
+          >
+            {config.badge}
+          </span>
+        )}
+      </div>
+
+      <p
+        style={{
+          margin: '0 0 0.85rem 0',
+          fontSize: '0.82rem',
+          color: config.textColor,
+          opacity: 0.75,
+          lineHeight: 1.4,
+        }}
+      >
+        {config.subtexto}
+      </p>
+
+      {/* Fila del Código + Botón Copiar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          background: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          borderRadius: '10px',
+          padding: '0.45rem 0.65rem 0.45rem 0.85rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+          <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>
+            Código:
+          </span>
+          <span
+            style={{
+              fontFamily: 'monospace',
+              fontWeight: 800,
+              fontSize: '1.05rem',
+              color: '#000000',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {config.codigo}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={onCopyClick}
+          style={{
+            background: copied ? '#059669' : config.botonBgColor,
+            color: config.botonTextColor,
+            border: 'none',
+            borderRadius: '8px',
+            padding: '0.5rem 0.9rem',
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            transition: 'all 0.15s ease',
+            flexShrink: 0,
+          }}
+        >
+          {copied ? (
+            <>
+              <Check size={14} strokeWidth={3} />
+              {config.textoCopiado}
+            </>
+          ) : (
+            <>
+              <Copy size={14} />
+              {config.textoBoton}
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   EDITOR PRINCIPAL
+═══════════════════════════════════════════ */
 export default function BadgeCuponEditor({
-  initialConfig,
-  onSave,
-  onCancel,
-  isSaving = false,
-}: BadgeCuponEditorProps) {
-  const [config, setConfig] = useState<BadgeCuponConfig>({
-    ...DEFAULT_CONFIG,
-    ...initialConfig,
+  widgetDefinition,
+  existingWidget,
+  targetType,
+  productId,
+  storeId,
+}: Props) {
+  const router = useRouter();
+
+  const [config, setConfig] = useState<BadgeCuponConfig>(() => {
+    if (existingWidget?.config) {
+      return { ...DEFAULT_CONFIG, ...(existingWidget.config as Partial<BadgeCuponConfig>) };
+    }
+    return DEFAULT_CONFIG;
   });
 
-  const [copiedPreview, setCopiedPreview] = useState(false);
+  const [isActive, setIsActive] = useState<boolean>(existingWidget?.is_active ?? true);
+  const [copiedPreview, setCopiedPreview] = useState<boolean>(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const updateField = <K extends keyof BadgeCuponConfig>(
+  const updateCfg = <K extends keyof BadgeCuponConfig>(
     key: K,
-    value: BadgeCuponConfig[K]
+    val: BadgeCuponConfig[K]
   ) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    setConfig((prev) => ({ ...prev, [key]: val }));
   };
 
   const handleTestCopy = () => {
     try {
-      if (typeof navigator !== "undefined" && navigator.clipboard) {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
         navigator.clipboard.writeText(config.codigo);
       }
     } catch (e) {
-      console.log("Copy fallback", e);
+      console.log('Copy fallback', e);
     }
     setCopiedPreview(true);
     setTimeout(() => {
@@ -88,764 +308,383 @@ export default function BadgeCuponEditor({
     }, 2000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(config);
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: existingWidget?.id ?? null,
+          widget_slug: widgetDefinition.slug,
+          store_id: storeId,
+          target_type: targetType,
+          target_product_id: productId,
+          config,
+          is_active: isActive,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          (data as { error?: string })?.error || 'Error al guardar el widget'
+        );
+      }
+
+      if ((data as { action?: string }).action === 'created') {
+        const params = new URLSearchParams();
+        params.set('created', widgetDefinition.slug);
+        if (targetType === 'product' && productId) {
+          params.set('product', String(productId));
+        }
+        router.push(`/widgets?${params.toString()}`);
+      } else {
+        router.push('/widgets');
+      }
+      router.refresh();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error inesperado al guardar';
+      setError(msg);
+    } finally {
+      setSaving(false);
+    }
   };
 
+  /* ─── TAB GENERAL ─── */
+  const tabGeneral = (
+    <div>
+      <FieldInput
+        label="Título del cupón"
+        value={config.titulo}
+        placeholder="🔥 ¡CUPÓN EXCLUSIVO!"
+        onChange={(v) => updateCfg('titulo', v)}
+      />
+
+      <FieldInput
+        label="Subtexto descriptivo"
+        value={config.subtexto}
+        placeholder="Tocá para copiar el código y aplicalo en el checkout"
+        onChange={(v) => updateCfg('subtexto', v)}
+      />
+
+      <FieldInput
+        label="Código del cupón (el mismo que creaste en Tiendanube)"
+        value={config.codigo}
+        placeholder="NEVUX10"
+        onChange={(v) => updateCfg('codigo', v.toUpperCase())}
+      />
+
+      <FieldInput
+        label="Texto del badge destacado (ej: 10% OFF / PROMO)"
+        value={config.badge}
+        placeholder="10% OFF"
+        onChange={(v) => updateCfg('badge', v)}
+      />
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <FieldInput
+          label="Texto del botón"
+          value={config.textoBoton}
+          placeholder="Copiar"
+          onChange={(v) => updateCfg('textoBoton', v)}
+        />
+        <FieldInput
+          label="Texto al copiar"
+          value={config.textoCopiado}
+          placeholder="¡Copiado! 🎉"
+          onChange={(v) => updateCfg('textoCopiado', v)}
+        />
+      </div>
+    </div>
+  );
+
+  /* ─── TAB ESTILOS ─── */
+  const tabEstilos = (
+    <div>
+      <SectionCard
+        icon="🎨"
+        title="Colores"
+        description="Personalizá la paleta de colores completa de tu tarjeta de cupón."
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <ColorPicker
+            label="Fondo de la tarjeta"
+            value={config.bgColor}
+            onChange={(v) => updateCfg('bgColor', v)}
+          />
+          <ColorPicker
+            label="Borde discontinuo"
+            value={config.borderColor}
+            onChange={(v) => updateCfg('borderColor', v)}
+          />
+          <ColorPicker
+            label="Texto principal"
+            value={config.textColor}
+            onChange={(v) => updateCfg('textColor', v)}
+          />
+          <ColorPicker
+            label="Fondo del botón"
+            value={config.botonBgColor}
+            onChange={(v) => updateCfg('botonBgColor', v)}
+          />
+          <ColorPicker
+            label="Texto del botón"
+            value={config.botonTextColor}
+            onChange={(v) => updateCfg('botonTextColor', v)}
+          />
+          <ColorPicker
+            label="Fondo del badge destacado"
+            value={config.badgeBgColor}
+            onChange={(v) => updateCfg('badgeBgColor', v)}
+          />
+          <ColorPicker
+            label="Texto del badge destacado"
+            value={config.badgeTextColor}
+            onChange={(v) => updateCfg('badgeTextColor', v)}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        icon="🎛"
+        title="Diseño"
+        description="Adaptá la estructura espacial y bordes de la tarjeta."
+      >
+        <Slider
+          label="Bordes redondeados"
+          value={config.bordesRedondeados}
+          min={0}
+          max={24}
+          onChange={(v) => updateCfg('bordesRedondeados', v)}
+        />
+        <Slider
+          label="Margen/Padding interno"
+          value={config.paddingInterno}
+          min={8}
+          max={24}
+          onChange={(v) => updateCfg('paddingInterno', v)}
+        />
+      </SectionCard>
+    </div>
+  );
+
   return (
-    <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: "1000px", margin: "0 auto" }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-        
-        {/* VISTA PREVIA EN VIVO */}
+    <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
+      {/* HEADER */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 30,
+          background: '#FFFFFF',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <NevuxLogo size="medium" />
         <div
           style={{
-            background: "#f9fafb",
-            borderRadius: "18px",
-            padding: "1.5rem",
-            border: "1.5px solid #e5e7eb",
+            width: 34,
+            height: 34,
+            borderRadius: '50%',
+            background: '#000000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#FFFFFF',
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              marginBottom: "1rem",
-              color: "#374151",
-              fontSize: "0.9rem",
-              fontWeight: 700,
-            }}
-          >
-            <Eye size={18} color="#10B981" />
-            <span>Vista Previa en Vivo (Página del producto)</span>
-          </div>
-
-          {/* Tarjeta Renderizada en Vivo */}
-          <div
-            style={{
-              background: config.bgColor,
-              border: `1.5px dashed ${config.borderColor}`,
-              borderRadius: "14px",
-              padding: "1.1rem 1.25rem",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
-              transition: "all 0.2s ease",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "0.75rem",
-                flexWrap: "wrap",
-                marginBottom: "0.6rem",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <Ticket size={18} color={config.borderColor} />
-                <span
-                  style={{
-                    fontWeight: 800,
-                    fontSize: "0.95rem",
-                    color: config.textColor,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {config.titulo}
-                </span>
-              </div>
-
-              {config.badge && (
-                <span
-                  style={{
-                    background: config.badgeBgColor,
-                    color: config.badgeTextColor,
-                    fontSize: "0.75rem",
-                    fontWeight: 800,
-                    padding: "0.25rem 0.65rem",
-                    borderRadius: "999px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  {config.badge}
-                </span>
-              )}
-            </div>
-
-            <p
-              style={{
-                margin: "0 0 0.85rem 0",
-                fontSize: "0.82rem",
-                color: config.textColor,
-                opacity: 0.75,
-                lineHeight: 1.4,
-              }}
-            >
-              {config.subtexto}
-            </p>
-
-            {/* Fila del Código + Botón Copiar */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "0.75rem",
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
-                borderRadius: "10px",
-                padding: "0.45rem 0.65rem 0.45rem 0.85rem",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", minWidth: 0 }}>
-                <span style={{ fontSize: "0.75rem", color: "#6b7280", fontWeight: 600 }}>
-                  Código:
-                </span>
-                <span
-                  style={{
-                    fontFamily: "monospace",
-                    fontWeight: 800,
-                    fontSize: "1.05rem",
-                    color: "#000000",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  {config.codigo}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleTestCopy}
-                style={{
-                  background: copiedPreview ? "#059669" : config.botonBgColor,
-                  color: config.botonTextColor,
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "0.5rem 0.9rem",
-                  fontSize: "0.82rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  transition: "all 0.15s ease",
-                  flexShrink: 0,
-                }}
-              >
-                {copiedPreview ? (
-                  <>
-                    <Check size={14} strokeWidth={3} />
-                    {config.textoCopiado}
-                  </>
-                ) : (
-                  <>
-                    <Copy size={14} />
-                    {config.textoBoton}
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-          <div
-            style={{
-              fontSize: "0.75rem",
-              color: "#6b7280",
-              textAlign: "center",
-              marginTop: "0.6rem",
-            }}
-          >
-            💡 Podés hacer clic en el botón de la vista previa para probar cómo se copia.
-          </div>
-        </div>
-
-        {/* SECCIÓN 1: TEXTOS DEL CUPÓN */}
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: "18px",
-            padding: "1.5rem",
-            border: "1.5px solid #e5e7eb",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              marginBottom: "1.25rem",
-              color: "#111827",
-              fontSize: "1.05rem",
-              fontWeight: 800,
-            }}
-          >
-            <Type size={18} color="#10B981" />
-            <span>Textos y Contenido del Cupón</span>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
-            {/* Título */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.85rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Título del Badge
-              </label>
-              <input
-                type="text"
-                value={config.titulo}
-                onChange={(e) => updateField("titulo", e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: "10px",
-                  border: "1.5px solid #e5e7eb",
-                  fontSize: "0.9rem",
-                  boxSizing: "border-box",
-                  outline: "none",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-              />
-            </div>
-
-            {/* Subtexto */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.85rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Subtexto explicativo
-              </label>
-              <input
-                type="text"
-                value={config.subtexto}
-                onChange={(e) => updateField("subtexto", e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: "10px",
-                  border: "1.5px solid #e5e7eb",
-                  fontSize: "0.9rem",
-                  boxSizing: "border-box",
-                  outline: "none",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-              />
-            </div>
-
-            {/* Código del Cupón y Badge */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "1rem",
-              }}
-            >
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    color: "#374151",
-                    marginBottom: "0.35rem",
-                  }}
-                >
-                  Código del Cupón (El que creaste en Tiendanube)
-                </label>
-                <input
-                  type="text"
-                  value={config.codigo}
-                  onChange={(e) =>
-                    updateField("codigo", e.target.value.toUpperCase())
-                  }
-                  placeholder="Ej: NEVUX10"
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem",
-                    borderRadius: "10px",
-                    border: "1.5px solid #e5e7eb",
-                    fontSize: "0.9rem",
-                    fontFamily: "monospace",
-                    fontWeight: 700,
-                    boxSizing: "border-box",
-                    outline: "none",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    color: "#374151",
-                    marginBottom: "0.35rem",
-                  }}
-                >
-                  Texto del Badge Destacado
-                </label>
-                <input
-                  type="text"
-                  value={config.badge}
-                  onChange={(e) => updateField("badge", e.target.value)}
-                  placeholder="Ej: 10% OFF"
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem",
-                    borderRadius: "10px",
-                    border: "1.5px solid #e5e7eb",
-                    fontSize: "0.9rem",
-                    boxSizing: "border-box",
-                    outline: "none",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
-              </div>
-            </div>
-
-            {/* Texto Botón y Texto Copiado */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "1rem",
-              }}
-            >
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    color: "#374151",
-                    marginBottom: "0.35rem",
-                  }}
-                >
-                  Texto del botón copiar
-                </label>
-                <input
-                  type="text"
-                  value={config.textoBoton}
-                  onChange={(e) => updateField("textoBoton", e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem",
-                    borderRadius: "10px",
-                    border: "1.5px solid #e5e7eb",
-                    fontSize: "0.9rem",
-                    boxSizing: "border-box",
-                    outline: "none",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    color: "#374151",
-                    marginBottom: "0.35rem",
-                  }}
-                >
-                  Texto al hacer clic (Copiado)
-                </label>
-                <input
-                  type="text"
-                  value={config.textoCopiado}
-                  onChange={(e) => updateField("textoCopiado", e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem",
-                    borderRadius: "10px",
-                    border: "1.5px solid #e5e7eb",
-                    fontSize: "0.9rem",
-                    boxSizing: "border-box",
-                    outline: "none",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#10B981")}
-                  onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* SECCIÓN 2: PERSONALIZACIÓN DE COLORES */}
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: "18px",
-            padding: "1.5rem",
-            border: "1.5px solid #e5e7eb",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              marginBottom: "1.25rem",
-              color: "#111827",
-              fontSize: "1.05rem",
-              fontWeight: 800,
-            }}
-          >
-            <Palette size={18} color="#10B981" />
-            <span>Paleta de Colores y Estilo</span>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "1.25rem",
-            }}
-          >
-            {/* Color Fondo Tarjeta */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Fondo de la Tarjeta
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="color"
-                  value={config.bgColor}
-                  onChange={(e) => updateField("bgColor", e.target.value)}
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                />
-                <input
-                  type="text"
-                  value={config.bgColor}
-                  onChange={(e) => updateField("bgColor", e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "0.85rem",
-                    fontFamily: "monospace",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Color Borde */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Borde y Acentos
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="color"
-                  value={config.borderColor}
-                  onChange={(e) => updateField("borderColor", e.target.value)}
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                />
-                <input
-                  type="text"
-                  value={config.borderColor}
-                  onChange={(e) => updateField("borderColor", e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "0.85rem",
-                    fontFamily: "monospace",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Color Texto */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Texto Principal
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="color"
-                  value={config.textColor}
-                  onChange={(e) => updateField("textColor", e.target.value)}
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                />
-                <input
-                  type="text"
-                  value={config.textColor}
-                  onChange={(e) => updateField("textColor", e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "0.85rem",
-                    fontFamily: "monospace",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Color Botón Copiar */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Fondo Botón Copiar
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="color"
-                  value={config.botonBgColor}
-                  onChange={(e) => updateField("botonBgColor", e.target.value)}
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                />
-                <input
-                  type="text"
-                  value={config.botonBgColor}
-                  onChange={(e) => updateField("botonBgColor", e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "0.85rem",
-                    fontFamily: "monospace",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Color Badge Fondo */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Fondo Badge Destacado
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="color"
-                  value={config.badgeBgColor}
-                  onChange={(e) => updateField("badgeBgColor", e.target.value)}
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                />
-                <input
-                  type="text"
-                  value={config.badgeBgColor}
-                  onChange={(e) => updateField("badgeBgColor", e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "0.85rem",
-                    fontFamily: "monospace",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Color Badge Texto */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "0.35rem",
-                }}
-              >
-                Texto Badge Destacado
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="color"
-                  value={config.badgeTextColor}
-                  onChange={(e) => updateField("badgeTextColor", e.target.value)}
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                />
-                <input
-                  type="text"
-                  value={config.badgeTextColor}
-                  onChange={(e) => updateField("badgeTextColor", e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "0.85rem",
-                    fontFamily: "monospace",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* BOTONES DE ACCIÓN */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            gap: "1rem",
-            paddingTop: "0.5rem",
-          }}
-        >
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              style={{
-                padding: "0.85rem 1.5rem",
-                background: "#f3f4f6",
-                color: "#374151",
-                border: "none",
-                borderRadius: "12px",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Cancelar
-            </button>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSaving}
-            style={{
-              padding: "0.85rem 2rem",
-              background: isSaving ? "rgba(16, 185, 129, 0.6)" : "#10B981",
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "12px",
-              fontSize: "0.95rem",
-              fontWeight: 700,
-              cursor: isSaving ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
-            }}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Guardando...
-              </>
-            ) : (
-              <>
-                <Save size={18} />
-                Guardar cambios
-              </>
-            )}
-          </button>
+          NX
         </div>
       </div>
-    </form>
+
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
+        {/* Chip de alcance */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: targetType === 'all' ? '#10B981' : '#ffffff',
+            color: targetType === 'all' ? '#ffffff' : '#000000',
+            border: targetType === 'all' ? 'none' : '1px solid #e5e7eb',
+            padding: '8px 14px',
+            borderRadius: 999,
+            fontSize: 14,
+            fontWeight: 700,
+            marginBottom: 14,
+          }}
+        >
+          {targetType === 'all' ? 'Todos los productos' : '🛍️ Producto específico'}
+        </div>
+
+        <h1
+          style={{
+            fontSize: 26,
+            fontWeight: 800,
+            color: '#000000',
+            marginBottom: 20,
+            lineHeight: 1.2,
+          }}
+        >
+          {existingWidget ? 'Editar widget: ' : 'Nuevo widget: '}
+          {widgetDefinition.name}
+        </h1>
+
+        {/* PREVIEW */}
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 20,
+            marginBottom: 16,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#10B981',
+              marginBottom: 12,
+            }}
+          >
+            <Eye size={14} />
+            <span>Vista previa interactiva</span>
+          </div>
+          <BadgeCuponPreview
+            config={config}
+            copied={copiedPreview}
+            onCopyClick={handleTestCopy}
+          />
+        </div>
+
+        {/* FORMULARIO DE EDICIÓN */}
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 20,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          <EditorTabs
+            tabs={[
+              { id: 'general', label: 'General', icon: '⚙️' },
+              { id: 'estilos', label: 'Estilos', icon: '🎨' },
+            ]}
+          >
+            {[tabGeneral, tabEstilos]}
+          </EditorTabs>
+
+          {/* GUARDAR */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginTop: 24,
+              paddingTop: 20,
+              borderTop: '1px solid #f1f3f5',
+              gap: 12,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => setIsActive(!isActive)}
+                style={{
+                  width: 48,
+                  height: 26,
+                  borderRadius: 13,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: isActive ? '#10B981' : '#e5e7eb',
+                  position: 'relative',
+                  flexShrink: 0,
+                  transition: 'background 0.25s ease',
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: 3,
+                    left: isActive ? 24 : 3,
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: '#ffffff',
+                    transition: 'left 0.25s ease',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                  }}
+                />
+              </button>
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#000000' }}>
+                Widget activo
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                padding: '12px 28px',
+                background: saving ? '#e5e7eb' : '#10B981',
+                color: saving ? '#000000' : '#ffffff',
+                border: 'none',
+                borderRadius: 999,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.7 : 1,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!saving) e.currentTarget.style.background = '#059669';
+              }}
+              onMouseLeave={(e) => {
+                if (!saving) e.currentTarget.style.background = '#10B981';
+              }}
+            >
+              {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
+            </button>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                marginTop: 14,
+                padding: '10px 14px',
+                background: '#fee2e2',
+                color: '#b91c1c',
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: 40 }}>
+          <CentroAyuda />
+        </div>
+      </div>
+    </div>
   );
-  }
+    }
