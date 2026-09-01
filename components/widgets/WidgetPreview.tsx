@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "badge-cupon":
+      return <BadgeCuponPreview />;
     case "info-compra":
       return <InfoCompraPreview />;
     case "extras-interruptor":
@@ -74,6 +76,73 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function BadgeCuponPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1.5px dashed #10B981",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <span style={{ fontSize: "11px" }}>🎟️</span>
+          <span style={{ fontSize: "8.5px", fontWeight: 800, color: "#000000" }}>
+            ¡CUPÓN EXCLUSIVO!
+          </span>
+        </div>
+        <span
+          style={{
+            background: "#ecfdf5",
+            color: "#059669",
+            fontSize: "7px",
+            fontWeight: 900,
+            padding: "1px 5px",
+            borderRadius: "999px",
+          }}
+        >
+          10% OFF
+        </span>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "#f9fafb",
+          border: "1px solid #e5e7eb",
+          borderRadius: "6px",
+          padding: "3px 6px",
+        }}
+      >
+        <span style={{ fontFamily: "monospace", fontSize: "8.5px", fontWeight: 800, color: "#111827" }}>
+          NEVUX10
+        </span>
+        <div
+          style={{
+            background: "#10B981",
+            color: "#ffffff",
+            fontSize: "7.5px",
+            fontWeight: 800,
+            padding: "2px 6px",
+            borderRadius: "4px",
+          }}
+        >
+          Copiar
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function InfoCompraPreview() {
   return (
@@ -848,4 +917,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-        }
+          }
