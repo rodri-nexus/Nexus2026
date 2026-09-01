@@ -2099,41 +2099,33 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var container = document.createElement("div");
     container.id = uniqueId;
     container.className = NS + "-root";
-    
-    // ESTILOS DE ANCHO COMPLETO PARA FLEXBOX DE TIENDANUBE
     container.style.cssText =
       "width:100% !important;" +
       "max-width:100% !important;" +
-      "flex-basis:100% !important;" +
-      "flex-grow:1 !important;" +
-      "flex-shrink:0 !important;" +
-      "clear:both !important;" +
+      "box-sizing:border-box !important;" +
+      "margin:16px 0 !important;" +
       "display:block !important;" +
-      "margin:14px 0 !important;" +
-      "box-sizing:border-box !important;";
+      "clear:both !important;";
 
-    var target = qs('form[action*="/cart/add"] input[type="submit"]') ||
-                 qs('form[action*="/cart/add"] button[type="submit"]') ||
-                 qs('.js-product-buy-container') ||
-                 qs('.js-addtocart') ||
-                 qs('input.js-addtocart') ||
-                 qs('.js-product-form') ||
-                 qs('form[action*="/cart/add"]') ||
-                 qs('.product-form');
+    // Inyectar ARRIBA de todo el formulario para evitar entrar en flexbox reducidos
+    var form = qs('form[action*="/cart/add"]') ||
+               qs('.js-product-form') ||
+               qs('.product-form') ||
+               qs('.js-product-buy-container');
 
-    if (!target) {
+    if (form && form.parentNode) {
+      form.parentNode.insertBefore(container, form);
+    } else {
       var fallback = findProductTarget("before-button");
-      target = fallback ? fallback.node : null;
+      if (fallback && fallback.node && fallback.node.parentNode) {
+        fallback.node.parentNode.insertBefore(container, fallback.node);
+      } else {
+        return;
+      }
     }
 
-    if (!target) {
-      console.warn("[Nevux] No se encontró target para Información de Compra");
-      return;
-    }
-
-    target.parentNode.insertBefore(container, target);
     container.innerHTML = buildInfoCompraHtml(cfg);
-    console.log("[Nevux] Información de Compra montado con ancho completo");
+    console.log("[Nevux] Información de Compra montado correctamente arriba del formulario");
   }
 
   function buildInfoCompraHtml(cfg) {
@@ -2175,7 +2167,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           '</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
             '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorDestacado + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' + escapeHtml(cfg.tituloTransferencia) + '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloSubtexto || cfg.subtituloTransferencia) + '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloTransferencia) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2192,7 +2184,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
     outputHtml += '</div>';
     return outputHtml;
-                                   }
+      }
   
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
