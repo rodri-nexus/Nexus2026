@@ -2099,9 +2099,19 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var container = document.createElement("div");
     container.id = uniqueId;
     container.className = NS + "-root";
-    container.style.cssText = "width:100% !important;box-sizing:border-box !important;margin:14px 0 !important;display:block !important;";
+    
+    // ESTILOS DE ANCHO COMPLETO PARA FLEXBOX DE TIENDANUBE
+    container.style.cssText =
+      "width:100% !important;" +
+      "max-width:100% !important;" +
+      "flex-basis:100% !important;" +
+      "flex-grow:1 !important;" +
+      "flex-shrink:0 !important;" +
+      "clear:both !important;" +
+      "display:block !important;" +
+      "margin:14px 0 !important;" +
+      "box-sizing:border-box !important;";
 
-    // Búsqueda inteligente de target con múltiples fallbacks para cualquier tema de Tiendanube
     var target = qs('form[action*="/cart/add"] input[type="submit"]') ||
                  qs('form[action*="/cart/add"] button[type="submit"]') ||
                  qs('.js-product-buy-container') ||
@@ -2109,8 +2119,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
                  qs('input.js-addtocart') ||
                  qs('.js-product-form') ||
                  qs('form[action*="/cart/add"]') ||
-                 qs('.product-form') ||
-                 qs('.js-product-price-container');
+                 qs('.product-form');
 
     if (!target) {
       var fallback = findProductTarget("before-button");
@@ -2124,7 +2133,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     target.parentNode.insertBefore(container, target);
     container.innerHTML = buildInfoCompraHtml(cfg);
-    console.log("[Nevux] Información de Compra montado con éxito y colores aplicados");
+    console.log("[Nevux] Información de Compra montado con ancho completo");
   }
 
   function buildInfoCompraHtml(cfg) {
@@ -2137,8 +2146,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
             '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorIcono + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorIcono + ' !important;"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>' +
           '</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;">' + escapeHtml(cfg.tituloEnvio) + '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
+            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' + escapeHtml(cfg.tituloEnvio) + '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloEnvio) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2151,8 +2160,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
             '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorIcono + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorIcono + ' !important;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' +
           '</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;">' + escapeHtml(cfg.tituloCuotas) + '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;">' + escapeHtml(cfg.subtituloCuotas) + '</div>' +
+            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorTexto + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' + escapeHtml(cfg.tituloCuotas) + '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloCuotas) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2165,8 +2174,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
             '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorDestacado + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke:' + cfg.colorDestacado + ' !important;"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>' +
           '</div>' +
           '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorDestacado + ' !important;line-height:1.25 !important;">' + escapeHtml(cfg.tituloTransferencia) + '</div>' +
-            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;">' + escapeHtml(cfg.subtituloTransferencia) + '</div>' +
+            '<div style="font-size:13px !important;font-weight:700 !important;color:' + cfg.colorDestacado + ' !important;line-height:1.25 !important;margin:0 !important;padding:0 !important;">' + escapeHtml(cfg.tituloTransferencia) + '</div>' +
+            '<div style="font-size:11.5px !important;color:' + cfg.colorSubtexto + ' !important;margin-top:2px !important;line-height:1.25 !important;padding:0 !important;">' + escapeHtml(cfg.subtituloSubtexto || cfg.subtituloTransferencia) + '</div>' +
           '</div>' +
         '</div>'
       );
@@ -2174,16 +2183,16 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     if (rows.length === 0) return "";
 
-    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;box-shadow:0 1px 3px rgba(0,0,0,0.03) !important;">';
+    var outputHtml = '<div style="display:flex !important;flex-direction:column !important;gap:' + cfg.padding + 'px !important;background-color:' + cfg.colorFondo + ' !important;background:' + cfg.colorFondo + ' !important;border:1.5px solid ' + cfg.colorBorde + ' !important;border-radius:' + cfg.bordeRedondeado + 'px !important;padding:' + cfg.padding + 'px !important;width:100% !important;box-sizing:border-box !important;box-shadow:0 1px 4px rgba(0,0,0,0.08) !important;">';
     for (var i = 0; i < rows.length; i++) {
       outputHtml += rows[i];
       if (i < rows.length - 1) {
-        outputHtml += '<div style="height:1px !important;background:' + cfg.colorBorde + ' !important;width:100% !important;opacity:0.8 !important;"></div>';
+        outputHtml += '<div style="height:1px !important;background-color:' + cfg.colorBorde + ' !important;background:' + cfg.colorBorde + ' !important;width:100% !important;opacity:0.8 !important;margin:0 !important;"></div>';
       }
     }
     outputHtml += '</div>';
     return outputHtml;
-}
+                                   }
   
   /* ═══════════════════════════════════════════
      RENDER BADGE CUOTAS
