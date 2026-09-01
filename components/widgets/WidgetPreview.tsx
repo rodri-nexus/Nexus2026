@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "medios-pago":
+      return <MediosPagoPreview />;
     case "comparador-marca":
       return <ComparadorMarcaPreview />;
     case "badge-cupon":
@@ -78,6 +80,43 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function MediosPagoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "6px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center" }}>
+        MEDIOS DE PAGO ACEPTADOS
+      </div>
+      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#1a1f71", background: "#f3f4f6", padding: "2px 5px", borderRadius: "4px" }}>
+          VISA
+        </span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#eb001b", background: "#f3f4f6", padding: "2px 5px", borderRadius: "4px" }}>
+          Mastercard
+        </span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#009ee3", background: "#f3f4f6", padding: "2px 5px", borderRadius: "4px" }}>
+          Mercado Pago
+        </span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#059669", background: "#ecfdf5", padding: "2px 5px", borderRadius: "4px" }}>
+          🏦 Transferencia
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function ComparadorMarcaPreview() {
   return (
@@ -966,4 +1005,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-  }
+      }
