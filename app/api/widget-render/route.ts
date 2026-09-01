@@ -2,11 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isStorePlanActive } from '@/lib/plan'
 
-// ═══════════════════════════════════════════════════════════
-// GET /api/widget-render?store_id=X&product_id=Y (opcional)
-// API pública consumida por el script nevux-widget.js
-// Devuelve los widgets activos en tiempo real sin duplos
-// ═══════════════════════════════════════════════════════════
+// 🔒 FORZAR DINÁMICO EN VERCEL (Evita que Vercel guarde en CDN las respuestas de la API)
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -88,7 +86,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 🧹 DEDUPLICACIÓN INTELIGENTE: Si existen varias filas activas para un mismo slug y target, conservar SOLO la más reciente
+    // 🧹 DEDUPLICACIÓN INTELIGENTE: Conservar SOLO la configuración más reciente por cada widget
     const uniqueMap = new Map<string, any>()
     for (const w of rawWidgets || []) {
       const key = `${w.widget_slug}_${w.target_type}_${w.target_product_id || 'all'}`
@@ -162,7 +160,7 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // 7. Devolver widgets siempre frescos y sin duplicados
+    // 7. Devolver respuesta 100% fresca sin caché estático
     return NextResponse.json(
       { widgets: enrichedWidgets, ts: Date.now() },
       { status: 200, headers: corsHeaders }
@@ -207,4 +205,4 @@ function defaultStats() {
     promedio: 0,
     distribucion: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 },
   }
-        }
+  }
