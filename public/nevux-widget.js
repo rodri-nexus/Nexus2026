@@ -1579,6 +1579,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           if (w.widget_slug === "badge-cupon") {
   renderBadgeCupon(w);
           }
+              if (w.widget_slug === "comparador-marca") {
+      renderComparadorMarca(w);
+              }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -6168,4 +6171,192 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       }
     }
           }
+    /* ═══════════════════════════════════════════
+     RENDER COMPARADOR DE MARCA
+  ═══════════════════════════════════════════ */
+  function renderComparadorMarca(w) {
+    if (pageType !== "product") return;
+
+    var exist = document.getElementById("nvx-comparador-" + w.id);
+    if (exist) return;
+
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
+    }
+
+    var titulo = cfg.titulo || "¿POR QUÉ ELEGIRNOS?";
+    var subtexto = cfg.subtexto || "Nuestros beneficios frente a otras tiendas";
+    var nombreTuMarca = cfg.nombreTuMarca || "NOSOTROS";
+    var nombreCompetencia = cfg.nombreCompetencia || "OTRAS TIENDAS";
+    var items = Array.isArray(cfg.items) ? cfg.items : [
+      { caracteristica: "Envío rápido y asegurado", nosotros: true, competencia: false },
+      { caracteristica: "Atención 1 a 1 por WhatsApp", nosotros: true, competencia: false },
+      { caracteristica: "Garantía oficial de cambio", nosotros: true, competencia: false },
+      { caracteristica: "Cuotas sin interés reales", nosotros: true, competencia: false }
+    ];
+
+    var bgColor = cfg.bgColor || "#ffffff";
+    var borderColor = cfg.borderColor || "#e5e7eb";
+    var textColor = cfg.textColor || "#000000";
+    var destacadoBgColor = cfg.destacadoBgColor || "#ecfdf5";
+    var destacadoTextColor = cfg.destacadoTextColor || "#059669";
+    var checkColor = cfg.checkColor || "#10B981";
+    var crossColor = cfg.crossColor || "#9ca3af";
+
+    var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 16) + "px";
+    var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 18) + "px";
+
+    var target = document.querySelector("form[action*='/cart/add']") || 
+                 document.querySelector(".js-product-buy-container") ||
+                 document.querySelector(".product-buy-panel") ||
+                 document.querySelector(".js-product-form") ||
+                 document.querySelector(".product-form");
+
+    if (!target) return;
+
+    var styleId = "nvx-comparador-styles-" + w.id;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        #nvx-comparador-${w.id} {
+          background: ${bgColor} !important;
+          border: 1.5px solid ${borderColor} !important;
+          border-radius: ${borderRad} !important;
+          padding: ${padInt} !important;
+          margin: 18px 0 !important;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
+          font-family: system-ui, -apple-system, sans-serif !important;
+          box-sizing: border-box !important;
+          width: 100% !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-title {
+          font-size: 15px !important;
+          font-weight: 900 !important;
+          color: ${textColor} !important;
+          letter-spacing: -0.02em !important;
+          text-align: center !important;
+          margin: 0 0 3px 0 !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-subtext {
+          font-size: 12px !important;
+          color: ${textColor} !important;
+          opacity: 0.65 !important;
+          text-align: center !important;
+          margin: 0 0 14px 0 !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-table {
+          border: 1px solid ${borderColor} !important;
+          border-radius: 12px !important;
+          overflow: hidden !important;
+          background: #ffffff !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-header-row {
+          display: grid !important;
+          grid-template-columns: 2fr 1fr 1fr !important;
+          background: #f9fafb !important;
+          border-bottom: 1px solid ${borderColor} !important;
+          padding: 10px 12px !important;
+          align-items: center !important;
+          font-size: 11px !important;
+          font-weight: 800 !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-row {
+          display: grid !important;
+          grid-template-columns: 2fr 1fr 1fr !important;
+          padding: 10px 12px !important;
+          align-items: center !important;
+          font-size: 12px !important;
+          border-bottom: 1px solid ${borderColor} !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-row:last-child {
+          border-bottom: none !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-col-destacada {
+          background: ${destacadoBgColor} !important;
+          color: ${destacadoTextColor} !important;
+          padding: 4px 6px !important;
+          border-radius: 6px !important;
+          font-weight: 900 !important;
+          text-align: center !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-icon-check {
+          width: 22px !important;
+          height: 22px !important;
+          border-radius: 50% !important;
+          background: ${checkColor} !important;
+          color: #ffffff !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          font-weight: 900 !important;
+          font-size: 13px !important;
+          margin: 0 auto !important;
+        }
+        #nvx-comparador-${w.id} .nvx-cmp-icon-cross {
+          width: 20px !important;
+          height: 20px !important;
+          border-radius: 50% !important;
+          background: #f3f4f6 !important;
+          border: 1px solid #e5e7eb !important;
+          color: ${crossColor} !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          font-weight: 900 !important;
+          font-size: 12px !important;
+          margin: 0 auto !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    var div = document.createElement("div");
+    div.id = "nvx-comparador-" + w.id;
+
+    var rowsHtml = items.map(function(item, idx) {
+      var checkNosotros = item.nosotros 
+        ? '<div class="nvx-cmp-icon-check">✓</div>' 
+        : '<div class="nvx-cmp-icon-cross">✕</div>';
+
+      var checkOtros = item.competencia 
+        ? '<div class="nvx-cmp-icon-check">✓</div>' 
+        : '<div class="nvx-cmp-icon-cross">✕</div>';
+
+      var rowBg = idx % 2 === 0 ? "#ffffff" : "#fafafa";
+
+      return `
+        <div class="nvx-cmp-row" style="background:${rowBg};">
+          <div style="font-weight:600; color:${textColor}; padding-right:6px;">${escapeHtml(item.caracteristica || "")}</div>
+          <div style="background:${destacadoBgColor}; margin:-10px 0; padding:10px 0; display:flex; align-items:center; justify-content:center;">
+            ${checkNosotros}
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center;">
+            ${checkOtros}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    div.innerHTML = `
+      <div class="nvx-cmp-title">${escapeHtml(titulo)}</div>
+      ${subtexto ? '<div class="nvx-cmp-subtext">' + escapeHtml(subtexto) + '</div>' : ''}
+      <div class="nvx-cmp-table">
+        <div class="nvx-cmp-header-row">
+          <div style="color:#6b7280;">BENEFICIO</div>
+          <div class="nvx-cmp-col-destacada">${escapeHtml(nombreTuMarca)}</div>
+          <div style="text-align:center; color:#6b7280;">${escapeHtml(nombreCompetencia)}</div>
+        </div>
+        ${rowsHtml}
+      </div>
+    `;
+
+    // Se inyecta justo debajo del formulario de compra
+    if (target.nextSibling) {
+      target.parentNode.insertBefore(div, target.nextSibling);
+    } else {
+      target.parentNode.appendChild(div);
+    }
+  }
 })();
