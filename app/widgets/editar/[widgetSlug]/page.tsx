@@ -54,12 +54,14 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   const targetType = searchParams.product ? 'product' : 'all';
   const productId = searchParams.product ? parseInt(searchParams.product, 10) : null;
 
+  // Consulta ordenada por actualización más reciente
   let existingQuery = supabase
     .from('widgets')
     .select('id, config, is_active, target_type, target_product_id')
     .eq('user_id', user.id)
     .eq('store_id', store.store_id)
-    .eq('widget_slug', params.widgetSlug);
+    .eq('widget_slug', params.widgetSlug)
+    .order('updated_at', { ascending: false });
 
   if (targetType === 'product' && productId) {
     existingQuery = existingQuery.eq('target_product_id', productId);
@@ -70,7 +72,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
 
-  // NUEVO WIDGET UNIFICADO: INFORMACIÓN DE COMPRA
+  // WIDGET UNIFICADO: INFORMACIÓN DE COMPRA
   if (params.widgetSlug === 'info-compra') {
     return (
       <InfoCompraEditor
@@ -83,7 +85,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  // WIDGET NUEVO A: EXTRAS CON INTERRUPTOR
+  // WIDGET EXTRAS CON INTERRUPTOR
   if (params.widgetSlug === 'extras-interruptor' || params.widgetSlug === 'switch-extras') {
     return (
       <ExtrasInterruptorEditor
@@ -96,7 +98,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  // WIDGET NUEVO B: CONTADOR DE VISITAS
+  // WIDGET CONTADOR DE VISITAS
   if (params.widgetSlug === 'contador-visitas' || params.widgetSlug === 'visitor-counter') {
     return (
       <ContadorVisitasEditor
@@ -302,4 +304,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-      }
+            }
