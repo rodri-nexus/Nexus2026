@@ -15,6 +15,7 @@ import {
   Package,
   Layers,
   Loader2,
+  User,
 } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
@@ -25,6 +26,8 @@ import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
 import PlanStatusCard from "./components/PlanStatusCard";
 import type { PlanInfo, PlanStatus, RawPlanStatus } from "@/lib/plan";
+import { createClient } from "@/lib/supabase-browser";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 interface StoreData {
   store_id: number;
@@ -50,6 +53,7 @@ interface SerializedPlan {
 interface DashboardClientProps {
   email: string;
   userId: string;
+  fullName?: string;
   store: StoreData | null;
   productsCount: number;
   activeWidgetsCount: number;
@@ -68,9 +72,19 @@ interface Product {
 const TIENDANUBE_CLIENT_ID = "37382";
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
+// Función para validar si el nombre contiene Nombre y Apellido real (mínimo 2 palabras válidas)
+function isValidFullName(name: string | null | undefined): boolean {
+  if (!name) return false;
+  const trimmed = name.trim();
+  if (trimmed.includes("@")) return false; // Si es un email no es un nombre real
+  const parts = trimmed.split(/\s+/);
+  return parts.length >= 2 && parts[0].length >= 2 && parts[1].length >= 2;
+}
+
 export default function DashboardClient({
   email,
   userId,
+  fullName = "",
   store,
   productsCount,
   activeWidgetsCount,
@@ -78,7 +92,14 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Estados del modal flotante
+  // Estados de Nombre y Gatekeeper
+  const [currentFullName, setCurrentFullName] = useState(fullName);
+  const [gatekeeperNombre, setGatekeeperNombre] = useState("");
+  const [gatekeeperApellido, setGatekeeperApellido] = useState("");
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+
+  // Estados del modal flotante de creación de widgets
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState<"selection" | "products">("selection");
   const [products, setProducts] = useState<Product[]>([]);
@@ -88,6 +109,69 @@ export default function DashboardClient({
   const hasStore = store !== null;
   const isAdmin = (email || "").toLowerCase() === ADMIN_EMAIL;
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
+
+  // El gatekeeper se muestra si NO es admin y el nombre NO es válido
+  const showGatekeeper = !isAdmin && !isValidFullName(currentFullName);
+
+  // Guardar Nombre y Apellido desde el Gatekeeper
+  const handleSaveName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNameError(null);
+
+    const cleanNombre = gatekeeperNombre.trim();
+    const cleanApellido = gatekeeperApellido.trim();
+
+    if (!cleanNombre || cleanNombre.length < 2) {
+      setNameError("Por favor ingresá tu nombre");
+      return;
+    }
+
+    if (!cleanApellido || cleanApellido.length < 2) {
+      setNameError("Por favor ingresá tu apellido");
+      return;
+    }
+
+    setIsSavingName(true);
+
+    try {
+      const supabase = createClient();
+      const finalFullName = `${cleanNombre} ${cleanApellido}`;
+
+      // 1. Actualizar en tabla profiles
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          full_name: finalFullName,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", userId);
+
+      if (profileError) {
+        console.error("Error actualizando profiles:", profileError);
+      }
+
+      // 2. Actualizar metadata de auth
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            full_name: finalFullName,
+            first_name: cleanNombre,
+            last_name: cleanApellido,
+          },
+        });
+      } catch (authErr) {
+        console.warn("Auth updateUser warning:", authErr);
+      }
+
+      // Desbloquear dashboard en vivo
+      setCurrentFullName(finalFullName);
+    } catch (err) {
+      console.error("Error guardando nombre:", err);
+      setNameError("Ocurrió un error al guardar. Reintentá.");
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   // Cargar productos de la tienda
   const loadProducts = async () => {
@@ -119,13 +203,11 @@ export default function DashboardClient({
     loadProducts();
   };
 
-  // Al elegir un producto -> Cierra modal y va directo al catálogo completo de ese producto
   const handleSelectProduct = (product: Product) => {
     setIsModalOpen(false);
     window.location.href = `/widgets/nuevo/producto/${product.id}`;
   };
 
-  // Opción B: Va directo al catálogo para todos los productos
   const handleSelectAllProducts = () => {
     setIsModalOpen(false);
     window.location.href = "/widgets/nuevo/todos";
@@ -171,8 +253,233 @@ export default function DashboardClient({
         color: "#000000",
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        position: "relative",
       }}
     >
+      {/* MODAL GATEKEEPER BLOQUEANTE: NOMBRE Y APELLIDO OBLIGATORIO */}
+      <AnimatePresence>
+        {showGatekeeper && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 999999,
+              padding: "1rem",
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              style={{
+                width: "100%",
+                maxWidth: "440px",
+                background: "#ffffff",
+                borderRadius: "20px",
+                padding: "2.2rem 1.8rem",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                border: "1px solid #e5e7eb",
+                boxSizing: "border-box",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ marginBottom: "0.85rem" }}>
+                <NevuxLogo size="large" />
+              </div>
+
+              <h2
+                style={{
+                  margin: "0 0 0.4rem 0",
+                  fontSize: "1.4rem",
+                  fontWeight: 800,
+                  color: "#000000",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                ¡Te damos la bienvenida!
+              </h2>
+              <p
+                style={{
+                  margin: "0 0 1.5rem 0",
+                  fontSize: "0.9rem",
+                  color: "#4b5563",
+                  lineHeight: 1.45,
+                }}
+              >
+                Completá tu nombre y apellido para personalizar tu cuenta en Nevux.
+              </p>
+
+              <form onSubmit={handleSaveName} style={{ textAlign: "left" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "0.75rem",
+                    marginBottom: "1.25rem",
+                  }}
+                >
+                  {/* Nombre */}
+                  <div>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        color: "#000000",
+                        marginBottom: "0.35rem",
+                      }}
+                    >
+                      Nombre
+                    </label>
+                    <div style={{ position: "relative" }}>
+                      <User
+                        size={16}
+                        style={{
+                          position: "absolute",
+                          left: "0.75rem",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          color: "#9ca3af",
+                          pointerEvents: "none",
+                        }}
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Rodrigo"
+                        value={gatekeeperNombre}
+                        onChange={(e) => setGatekeeperNombre(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "0.75rem 0.75rem 0.75rem 2.25rem",
+                          border: "1.5px solid #e5e7eb",
+                          borderRadius: "12px",
+                          fontSize: "0.92rem",
+                          outline: "none",
+                          boxSizing: "border-box",
+                          fontFamily: "inherit",
+                          color: "#000000",
+                          background: "#ffffff",
+                        }}
+                        onFocus={(e) => (e.target.style.borderColor = "#10B981")}
+                        onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Apellido */}
+                  <div>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        color: "#000000",
+                        marginBottom: "0.35rem",
+                      }}
+                    >
+                      Apellido
+                    </label>
+                    <div style={{ position: "relative" }}>
+                      <User
+                        size={16}
+                        style={{
+                          position: "absolute",
+                          left: "0.75rem",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          color: "#9ca3af",
+                          pointerEvents: "none",
+                        }}
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Pérez"
+                        value={gatekeeperApellido}
+                        onChange={(e) => setGatekeeperApellido(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "0.75rem 0.75rem 0.75rem 2.25rem",
+                          border: "1.5px solid #e5e7eb",
+                          borderRadius: "12px",
+                          fontSize: "0.92rem",
+                          outline: "none",
+                          boxSizing: "border-box",
+                          fontFamily: "inherit",
+                          color: "#000000",
+                          background: "#ffffff",
+                        }}
+                        onFocus={(e) => (e.target.style.borderColor = "#10B981")}
+                        onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {nameError && (
+                  <div
+                    style={{
+                      padding: "0.65rem 0.85rem",
+                      background: "#fef2f2",
+                      color: "#dc2626",
+                      borderRadius: "10px",
+                      fontSize: "0.82rem",
+                      marginBottom: "1rem",
+                      border: "1px solid #fecaca",
+                      textAlign: "center",
+                    }}
+                  >
+                    {nameError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSavingName}
+                  style={{
+                    width: "100%",
+                    padding: "0.85rem",
+                    background: isSavingName ? "rgba(16, 185, 129, 0.6)" : "#10B981",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "12px",
+                    fontSize: "0.95rem",
+                    fontWeight: 700,
+                    cursor: isSavingName ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
+                    transition: "all 0.2s",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {isSavingName ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Guardando datos...
+                    </>
+                  ) : (
+                    "Guardar y Continuar →"
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <DashboardHeader email={email} onMenuClick={() => setMenuOpen(true)} />
       <SideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
 
@@ -354,7 +661,11 @@ export default function DashboardClient({
                 Dashboard
               </h1>
               <p style={{ margin: "0.5rem 0 0", fontSize: "0.95rem", opacity: 0.6 }}>
-                Hola, <strong style={{ opacity: 1 }}>{email}</strong> 👋
+                Hola,{" "}
+                <strong style={{ opacity: 1 }}>
+                  {isValidFullName(currentFullName) ? currentFullName : email}
+                </strong>{" "}
+                👋
               </p>
             </div>
 
@@ -502,7 +813,6 @@ export default function DashboardClient({
               padding: "0",
             }}
           >
-            {/* Overlay click para cerrar */}
             <div
               style={{
                 position: "absolute",
@@ -968,4 +1278,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-    }
+}
