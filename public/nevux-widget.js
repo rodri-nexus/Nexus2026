@@ -1576,6 +1576,9 @@ const url = API_BASE + "/api/widget-render?store_id=" + storeId +
           if (w.widget_slug === "extras-interruptor") renderExtrasInterruptor(w);
 if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           if (w.widget_slug === "info-compra") renderInfoCompra(w);
+          if (w.widget_slug === "badge-cupon") {
+  renderBadgeCupon(w);
+          }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -5967,4 +5970,202 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     targetPrice.parentNode.insertBefore(div, targetPrice.nextSibling);
   }
+
+    /* ═══════════════════════════════════════════
+     RENDER BADGE CUPÓN
+  ═══════════════════════════════════════════ */
+  function renderBadgeCupon(w) {
+    if (pageType !== "product") return;
+
+    var exist = document.getElementById("nvx-cupon-" + w.id);
+    if (exist) return;
+
+    var cfg = w.config || {};
+    var titulo = cfg.titulo || "🔥 ¡CUPÓN EXCLUSIVO!";
+    var subtexto = cfg.subtexto || "Tocá para copiar el código y aplicalo en el checkout";
+    var codigo = cfg.codigo || "NEVUX10";
+    var badge = cfg.badge || "10% OFF";
+    var textoBoton = cfg.textoBoton || "Copiar";
+    var textoCopiado = cfg.textoCopiado || "¡Copiado! 🎉";
+
+    var bgColor = cfg.bgColor || "#ffffff";
+    var borderColor = cfg.borderColor || "#10B981";
+    var textColor = cfg.textColor || "#000000";
+    var badgeBgColor = cfg.badgeBgColor || "#ecfdf5";
+    var badgeTextColor = cfg.badgeTextColor || "#059669";
+    var botonBgColor = cfg.botonBgColor || "#10B981";
+    var botonTextColor = cfg.botonTextColor || "#ffffff";
+
+    var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 14) + "px";
+    var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 16) + "px";
+
+    var target = document.querySelector("form[action*='/cart/add']") || 
+                 document.querySelector(".js-product-buy-container") ||
+                 document.querySelector(".product-buy-panel") ||
+                 document.querySelector(".js-product-form") ||
+                 document.querySelector(".product-form");
+
+    if (!target) return;
+
+    var styleId = "nvx-cupon-styles-" + w.id;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        #nvx-cupon-${w.id} {
+          background: ${bgColor} !important;
+          border: 1.5px dashed ${borderColor} !important;
+          border-radius: ${borderRad} !important;
+          padding: ${padInt} !important;
+          margin: 14px 0 !important;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
+          font-family: system-ui, -apple-system, sans-serif !important;
+          box-sizing: border-box !important;
+          width: 100% !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-header {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 8px !important;
+          margin-bottom: 6px !important;
+          flex-wrap: wrap !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-title-box {
+          display: flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-title {
+          font-weight: 800 !important;
+          font-size: 14px !important;
+          color: ${textColor} !important;
+          letter-spacing: -0.01em !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-badge {
+          background: ${badgeBgColor} !important;
+          color: ${badgeTextColor} !important;
+          font-size: 10px !important;
+          font-weight: 800 !important;
+          padding: 3px 8px !important;
+          border-radius: 999px !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.02em !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-subtext {
+          margin: 0 0 10px 0 !important;
+          font-size: 12px !important;
+          color: ${textColor} !important;
+          opacity: 0.75 !important;
+          line-height: 1.4 !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-code-row {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 8px !important;
+          background: #f9fafb !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 8px !important;
+          padding: 6px 8px 6px 12px !important;
+          box-sizing: border-box !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-code {
+          font-family: monospace !important;
+          font-weight: 800 !important;
+          font-size: 15px !important;
+          color: #000000 !important;
+          letter-spacing: 0.05em !important;
+        }
+        #nvx-cupon-${w.id} .nvx-cp-btn {
+          background: ${botonBgColor} !important;
+          color: ${botonTextColor} !important;
+          border: none !important;
+          border-radius: 6px !important;
+          padding: 7px 14px !important;
+          font-size: 12px !important;
+          font-weight: 700 !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 5px !important;
+          transition: all 0.15s ease !important;
+          flex-shrink: 0 !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    var div = document.createElement("div");
+    div.id = "nvx-cupon-" + w.id;
+
+    var badgeHtml = badge ? '<span class="nvx-cp-badge">' + escapeHtml(badge) + '</span>' : '';
+
+    div.innerHTML = `
+      <div class="nvx-cp-header">
+        <div class="nvx-cp-title-box">
+          <span style="font-size:16px;">🎟️</span>
+          <span class="nvx-cp-title">${escapeHtml(titulo)}</span>
+        </div>
+        ${badgeHtml}
+      </div>
+      <p class="nvx-cp-subtext">${escapeHtml(subtexto)}</p>
+      <div class="nvx-cp-code-row">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span style="font-size:11px; color:#6b7280; font-weight:600;">Código:</span>
+          <span class="nvx-cp-code">${escapeHtml(codigo)}</span>
+        </div>
+        <button type="button" class="nvx-cp-btn" id="nvx-copy-btn-${w.id}">
+          <span id="nvx-copy-txt-${w.id}">${escapeHtml(textoBoton)}</span>
+        </button>
+      </div>
+    `;
+
+    target.parentNode.insertBefore(div, target);
+
+    var btn = div.querySelector("#nvx-copy-btn-" + w.id);
+    var btnTxt = div.querySelector("#nvx-copy-txt-" + w.id);
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var codeToCopy = String(codigo).trim();
+
+      function onCopiedSuccess() {
+        btn.style.background = "#059669";
+        btnTxt.innerText = textoCopiado;
+        setTimeout(function () {
+          btn.style.background = botonBgColor;
+          btnTxt.innerText = textoBoton;
+        }, 2500);
+      }
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(codeToCopy).then(onCopiedSuccess).catch(function() {
+          fallbackCopy(codeToCopy, onCopiedSuccess);
+        });
+      } else {
+        fallbackCopy(codeToCopy, onCopiedSuccess);
+      }
+    });
+
+    function fallbackCopy(text, cb) {
+      try {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        if (cb) cb();
+      } catch (err) {
+        console.error("Nevux copy error:", err);
+      }
+    }
+          }
 })();
