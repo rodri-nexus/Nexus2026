@@ -1582,6 +1582,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
               if (w.widget_slug === "comparador-marca") {
       renderComparadorMarca(w);
               }
+              if (w.widget_slug === "medios-pago") {
+      renderMediosPago(w);
+              }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -6359,4 +6362,143 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       target.parentNode.appendChild(div);
     }
   }
+
+    /* ═══════════════════════════════════════════
+     RENDER MEDIOS DE PAGO
+  ═══════════════════════════════════════════ */
+  function renderMediosPago(w) {
+    if (pageType !== "product") return;
+
+    var exist = document.getElementById("nvx-mediospago-" + w.id);
+    if (exist) return;
+
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
+    }
+
+    var titulo = cfg.titulo || "MEDIOS DE PAGO ACEPTADOS";
+    var subtexto = cfg.subtexto || "Comprá de forma 100% segura con tus tarjetas o efectivo";
+    
+    var mostrarVisa = cfg.mostrarVisa !== false;
+    var mostrarMastercard = cfg.mostrarMastercard !== false;
+    var mostrarAmex = cfg.mostrarAmex !== false;
+    var mostrarMercadoPago = cfg.mostrarMercadoPago !== false;
+    var mostrarNaranja = cfg.mostrarNaranja !== false;
+    var mostrarTransferencia = cfg.mostrarTransferencia !== false;
+    var mostrarEfectivo = cfg.mostrarEfectivo !== false;
+    var mostrarUala = cfg.mostrarUala !== false;
+    var mostrarCabal = cfg.mostrarCabal === true;
+
+    var bgColor = cfg.bgColor || "#ffffff";
+    var borderColor = cfg.borderColor || "#e5e7eb";
+    var textColor = cfg.textColor || "#000000";
+
+    var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 14) + "px";
+    var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 16) + "px";
+
+    var target = document.querySelector("form[action*='/cart/add']") || 
+                 document.querySelector(".js-product-buy-container") ||
+                 document.querySelector(".product-buy-panel") ||
+                 document.querySelector(".js-product-form") ||
+                 document.querySelector(".product-form");
+
+    if (!target) return;
+
+    var styleId = "nvx-mediospago-styles-" + w.id;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        #nvx-mediospago-${w.id} {
+          background: ${bgColor} !important;
+          border: 1.5px solid ${borderColor} !important;
+          border-radius: ${borderRad} !important;
+          padding: ${padInt} !important;
+          margin: 16px 0 !important;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
+          font-family: system-ui, -apple-system, sans-serif !important;
+          box-sizing: border-box !important;
+          width: 100% !important;
+          text-align: center !important;
+        }
+        #nvx-mediospago-${w.id} .nvx-mp-title {
+          font-size: 13px !important;
+          font-weight: 800 !important;
+          color: ${textColor} !important;
+          letter-spacing: -0.01em !important;
+          margin: 0 0 3px 0 !important;
+        }
+        #nvx-mediospago-${w.id} .nvx-mp-subtext {
+          font-size: 11px !important;
+          color: ${textColor} !important;
+          opacity: 0.65 !important;
+          margin: 0 0 12px 0 !important;
+        }
+        #nvx-mediospago-${w.id} .nvx-mp-grid {
+          display: flex !important;
+          flex-wrap: wrap !important;
+          gap: 7px !important;
+          justify-content: center !important;
+          align-items: center !important;
+        }
+        #nvx-mediospago-${w.id} .nvx-mp-badge {
+          border: 1px solid #e5e7eb !important;
+          border-radius: 7px !important;
+          padding: 5px 10px !important;
+          font-size: 11px !important;
+          font-weight: 800 !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+          user-select: none !important;
+          line-height: 1 !important;
+        }
+        #nvx-mediospago-${w.id} .nvx-mp-security {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 5px !important;
+          margin-top: 12px !important;
+          font-size: 10.5px !important;
+          color: #10B981 !important;
+          font-weight: 700 !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    var div = document.createElement("div");
+    div.id = "nvx-mediospago-" + w.id;
+
+    var badgesHtml = "";
+    if (mostrarVisa) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#1a1f71;">VISA</span>';
+    if (mostrarMastercard) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#eb001b;">Mastercard</span>';
+    if (mostrarMercadoPago) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#009ee3;">Mercado Pago</span>';
+    if (mostrarAmex) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#006fcf;">AMEX</span>';
+    if (mostrarNaranja) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#ff5000;">Naranja X</span>';
+    if (mostrarTransferencia) badgesHtml += '<span class="nvx-mp-badge" style="background:#ecfdf5; color:#059669; border-color:#a7f3d0 !important;">🏦 Transferencia</span>';
+    if (mostrarEfectivo) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#374151;">💵 Rapipago / Pago Fácil</span>';
+    if (mostrarUala) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#e31c79;">Ualá</span>';
+    if (mostrarCabal) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#004b93;">Cabal</span>';
+
+    div.innerHTML = `
+      <div class="nvx-mp-title">${escapeHtml(titulo)}</div>
+      ${subtexto ? '<div class="nvx-mp-subtext">' + escapeHtml(subtexto) + '</div>' : ''}
+      <div class="nvx-mp-grid">
+        ${badgesHtml}
+      </div>
+      <div class="nvx-mp-security">
+        <span>🛡️ Pago 100% protegido y encriptado</span>
+      </div>
+    `;
+
+    // Se inyecta justo debajo del formulario de compra
+    if (target.nextSibling) {
+      target.parentNode.insertBefore(div, target.nextSibling);
+    } else {
+      target.parentNode.appendChild(div);
+    }
+                                             }
 })();
