@@ -26,6 +26,7 @@ export default async function DashboardPage() {
 
   let store: any = null;
   let onboardingCompleted = false;
+  let fullName = "";
   let activeWidgetsCount = 0;
   let planInfo: PlanInfo | null = null;
   let productsCount = 0;
@@ -45,14 +46,15 @@ export default async function DashboardPage() {
 
     store = storesList && storesList.length > 0 ? storesList[0] : null;
 
-    // 2. Perfil onboarding
+    // 2. Perfil onboarding y nombre completo real
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("onboarding_completed")
+      .select("onboarding_completed, full_name")
       .eq("id", user.id)
       .maybeSingle();
 
     onboardingCompleted = profile?.onboarding_completed ?? false;
+    fullName = profile?.full_name ?? "";
 
     // 3. Cantidad de widgets activos
     const { count: widgetsCount } = await supabaseAdmin
@@ -133,6 +135,7 @@ export default async function DashboardPage() {
     <DashboardClient
       email={user.email ?? ""}
       userId={user.id}
+      fullName={fullName}
       store={storeData}
       productsCount={productsCount}
       activeWidgetsCount={activeWidgetsCount}
@@ -140,4 +143,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-      }
+}
