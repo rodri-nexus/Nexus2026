@@ -4,13 +4,23 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Lock, Loader2, CheckCircle2, XCircle, Check } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  Check,
+  User,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function RegistroPage() {
   const router = useRouter();
 
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,6 +38,19 @@ export default function RegistroPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    const cleanNombre = nombre.trim();
+    const cleanApellido = apellido.trim();
+
+    if (!cleanNombre || cleanNombre.length < 2) {
+      setError("Por favor ingresá tu nombre real");
+      return;
+    }
+
+    if (!cleanApellido || cleanApellido.length < 2) {
+      setError("Por favor ingresá tu apellido real");
+      return;
+    }
 
     if (!passwordChecks.length) {
       setError("La contraseña debe tener al menos 8 caracteres");
@@ -50,9 +73,18 @@ export default function RegistroPage() {
 
     try {
       const supabase = createClient();
+      const fullName = `${cleanNombre} ${cleanApellido}`;
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
+        options: {
+          data: {
+            full_name: fullName,
+            first_name: cleanNombre,
+            last_name: cleanApellido,
+          },
+        },
       });
 
       if (signUpError) {
@@ -70,15 +102,13 @@ export default function RegistroPage() {
 
       // Crear perfil en tabla profiles
       if (data?.user) {
-        const fullName = email.split("@")[0] || "Usuario";
-
         // Trial de 7 días desde ahora
         const trialEndsAt = new Date();
         trialEndsAt.setDate(trialEndsAt.getDate() + 7);
 
         const { error: profileError } = await supabase
           .from("profiles")
-          .insert({
+          .upsert({
             id: data.user.id,
             email: data.user.email,
             full_name: fullName,
@@ -86,6 +116,7 @@ export default function RegistroPage() {
             plan: "free",
             onboarding_completed: false,
             trial_ends_at: trialEndsAt.toISOString(),
+            updated_at: new Date().toISOString(),
           });
 
         if (profileError) {
@@ -125,10 +156,10 @@ export default function RegistroPage() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
           width: "100%",
-          maxWidth: "440px",
+          maxWidth: "460px",
           background: "white",
           borderRadius: "20px",
-          padding: "2.5rem 2rem",
+          padding: "2.2rem 1.8rem",
           boxShadow:
             "0 20px 60px rgba(16, 185, 129, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04)",
           border: "1px solid #e5e7eb",
@@ -145,7 +176,7 @@ export default function RegistroPage() {
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
-            marginBottom: "2rem",
+            marginBottom: "1.75rem",
           }}
         >
           <div style={{ marginBottom: "0.75rem" }}>
@@ -166,6 +197,132 @@ export default function RegistroPage() {
 
         {/* Formulario */}
         <form onSubmit={handleSubmit}>
+          {/* Nombre y Apellido (2 Columnas) */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0.75rem",
+              marginBottom: "1rem",
+            }}
+          >
+            {/* Nombre */}
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  color: "#000000",
+                  marginBottom: "0.4rem",
+                }}
+              >
+                Nombre
+              </label>
+              <div style={{ position: "relative" }}>
+                <User
+                  size={17}
+                  style={{
+                    position: "absolute",
+                    left: "0.8rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "rgba(0, 0, 0, 0.4)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <input
+                  type="text"
+                  required
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  onFocus={() => setFocusedField("nombre")}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="Rodrigo"
+                  autoComplete="given-name"
+                  style={{
+                    width: "100%",
+                    padding: "0.8rem 0.8rem 0.8rem 2.4rem",
+                    border:
+                      focusedField === "nombre"
+                        ? "1.5px solid #10B981"
+                        : "1.5px solid #e5e7eb",
+                    borderRadius: "12px",
+                    fontSize: "0.92rem",
+                    outline: "none",
+                    transition: "all 0.2s",
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                    color: "#000000",
+                    background: "#FFFFFF",
+                  }}
+                />
+              </div>
+            </motion.div>
+
+            {/* Apellido */}
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  color: "#000000",
+                  marginBottom: "0.4rem",
+                }}
+              >
+                Apellido
+              </label>
+              <div style={{ position: "relative" }}>
+                <User
+                  size={17}
+                  style={{
+                    position: "absolute",
+                    left: "0.8rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "rgba(0, 0, 0, 0.4)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <input
+                  type="text"
+                  required
+                  value={apellido}
+                  onChange={(e) => setApellido(e.target.value)}
+                  onFocus={() => setFocusedField("apellido")}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="Pérez"
+                  autoComplete="family-name"
+                  style={{
+                    width: "100%",
+                    padding: "0.8rem 0.8rem 0.8rem 2.4rem",
+                    border:
+                      focusedField === "apellido"
+                        ? "1.5px solid #10B981"
+                        : "1.5px solid #e5e7eb",
+                    borderRadius: "12px",
+                    fontSize: "0.92rem",
+                    outline: "none",
+                    transition: "all 0.2s",
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                    color: "#000000",
+                    background: "#FFFFFF",
+                  }}
+                />
+              </div>
+            </motion.div>
+          </div>
+
           {/* Email */}
           <motion.div
             initial={{ opacity: 0, x: -10 }}
@@ -179,7 +336,7 @@ export default function RegistroPage() {
                 fontSize: "0.85rem",
                 fontWeight: 600,
                 color: "#000000",
-                marginBottom: "0.5rem",
+                marginBottom: "0.4rem",
               }}
             >
               Email
@@ -208,7 +365,10 @@ export default function RegistroPage() {
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
-                  border: focusedField === "email" ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
+                  border:
+                    focusedField === "email"
+                      ? "1.5px solid #10B981"
+                      : "1.5px solid #e5e7eb",
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
@@ -235,7 +395,7 @@ export default function RegistroPage() {
                 fontSize: "0.85rem",
                 fontWeight: 600,
                 color: "#000000",
-                marginBottom: "0.5rem",
+                marginBottom: "0.4rem",
               }}
             >
               Contraseña
@@ -264,7 +424,10 @@ export default function RegistroPage() {
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
-                  border: focusedField === "password" ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
+                  border:
+                    focusedField === "password"
+                      ? "1.5px solid #10B981"
+                      : "1.5px solid #e5e7eb",
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
@@ -291,7 +454,7 @@ export default function RegistroPage() {
                 fontSize: "0.85rem",
                 fontWeight: 600,
                 color: "#000000",
-                marginBottom: "0.5rem",
+                marginBottom: "0.4rem",
               }}
             >
               Confirmar contraseña
@@ -320,7 +483,10 @@ export default function RegistroPage() {
                 style={{
                   width: "100%",
                   padding: "0.85rem 1rem 0.85rem 2.75rem",
-                  border: focusedField === "confirmPassword" ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
+                  border:
+                    focusedField === "confirmPassword"
+                      ? "1.5px solid #10B981"
+                      : "1.5px solid #e5e7eb",
                   borderRadius: "12px",
                   fontSize: "0.95rem",
                   outline: "none",
@@ -410,7 +576,6 @@ export default function RegistroPage() {
                 userSelect: "none",
               }}
             >
-              {/* Checkbox custom */}
               <div
                 style={{
                   position: "relative",
@@ -454,7 +619,6 @@ export default function RegistroPage() {
                 </div>
               </div>
 
-              {/* Texto */}
               <div
                 style={{
                   fontSize: "0.82rem",
@@ -583,4 +747,4 @@ export default function RegistroPage() {
       </motion.div>
     </div>
   );
-            }
+    }
