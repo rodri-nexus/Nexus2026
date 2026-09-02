@@ -1585,9 +1585,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
               if (w.widget_slug === "medios-pago") {
       renderMediosPago(w);
               }
-              if (w.widget_slug === "tabla-talles") {
+                  if (w.widget_slug === "tabla-talles") {
       renderTablaTalles(w);
-              }
+                  }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
