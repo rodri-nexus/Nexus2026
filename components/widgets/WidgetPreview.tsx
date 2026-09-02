@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "menu-circulos":
+      return <MenuCirculosPreview />;
     case "pack-complementarios":
       return <PackComplementariosPreview />;
     case "tabla-talles":
@@ -84,6 +86,57 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function MenuCirculosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", letterSpacing: "0.02em" }}>
+        CATEGORÍAS DESTACADAS
+      </div>
+      <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+        {[
+          { name: "Ofertas", icon: "🔥", active: true },
+          { name: "Novedades", icon: "✨", active: false },
+          { name: "Remeras", icon: "👕", active: false },
+        ].map((c, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+            <div
+              style={{
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                border: c.active ? "2px solid #10B981" : "1.5px solid #e5e7eb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "11px",
+                background: "#f9fafb",
+              }}
+            >
+              {c.icon}
+            </div>
+            <span style={{ fontSize: "6.5px", fontWeight: c.active ? 800 : 600, color: "#111827" }}>
+              {c.name}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function PackComplementariosPreview() {
   return (
@@ -1139,4 +1192,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-}
+               }
