@@ -7123,7 +7123,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       target.parentNode.appendChild(div);
     }
 }
-  /* ═══════════════════════════════════════════
+ /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
   function renderMenuCirculos(w) {
@@ -7286,8 +7286,10 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         var bColor = item.destacado ? colorBordeActivo : colorBordeInactivo;
         var ringShadow = item.destacado ? "box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);" : "";
         var fontWeight = item.destacado ? "font-weight: 800;" : "font-weight: 600;";
+        
+        // Detección de fallos en imagen física con fallback limpio in-line sin romper la estructura
         var imgHtml = item.imagenUrl
-          ? '<img class="nvx-cr-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" />'
+          ? '<img class="nvx-cr-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" onerror="this.onerror=null; this.style.display=\'none\'; this.parentNode.insertAdjacentHTML(\'beforeend\', \'<div class=\\\'nvx-cr-img\\\' style=\\\'font-size:' + Math.round(tamanoCirculo * 0.35) + 'px; display:flex; align-items:center; justify-content:center; background:#f3f4f6; border-radius:50%; width:100%; height:100%;\\\'>🛍️</div>\');" />'
           : '<div class="nvx-cr-img" style="font-size:' + Math.round(tamanoCirculo * 0.35) + 'px;">🛍️</div>';
 
         var href = item.link || "#";
@@ -7324,5 +7326,5 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     } else {
       tryInject();
     }
-    }
+}
 })();
