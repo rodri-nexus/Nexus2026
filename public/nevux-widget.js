@@ -1591,6 +1591,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
               if (w.widget_slug === "pack-complementarios") {
       renderPackComplementarios(w);
               }
+              if (w.widget_slug === "menu-circulos") {
+      renderMenuCirculos(w);
+              }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -7120,4 +7123,157 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       target.parentNode.appendChild(div);
     }
 }
+    /* ═══════════════════════════════════════════
+     RENDER MENÚ DE CÍRCULOS (HISTORIAS)
+  ═══════════════════════════════════════════ */
+  function renderMenuCirculos(w) {
+    var exist = document.getElementById("nvx-circulos-" + w.id);
+    if (exist) return;
+
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
+    }
+
+    var titulo = cfg.titulo || "CATEGORÍAS DESTACADAS";
+    var mostrarTitulo = cfg.mostrarTitulo !== false && titulo !== "";
+    var tamanoCirculo = Number(cfg.tamanoCirculo) || 66;
+    var colorBordeActivo = cfg.colorBordeActivo || "#10B981";
+    var colorBordeInactivo = cfg.colorBordeInactivo || "#e5e7eb";
+    var colorTexto = cfg.colorTexto || "#000000";
+    var colorFondo = cfg.colorFondo || "#ffffff";
+
+    var items = Array.isArray(cfg.items) && cfg.items.length > 0 ? cfg.items : [
+      { nombre: "🔥 Ofertas", imagenUrl: "", link: "/ofertas", destacado: true },
+      { nombre: "Novedades", imagenUrl: "", link: "/novedades", destacado: false }
+    ];
+
+    var target = document.querySelector("form[action*='/cart/add']") || 
+                 document.querySelector(".js-product-buy-container") ||
+                 document.querySelector(".product-buy-panel") ||
+                 document.querySelector(".js-home-sections") ||
+                 document.querySelector("main") ||
+                 document.querySelector("#wrapper") ||
+                 document.querySelector(".js-main-content");
+
+    if (!target) return;
+
+    var styleId = "nvx-circulos-styles-" + w.id;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        #nvx-circulos-${w.id} {
+          background: ${colorFondo} !important;
+          padding: 14px 10px !important;
+          margin: 14px 0 !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+          font-family: system-ui, -apple-system, sans-serif !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-title {
+          font-size: 13px !important;
+          font-weight: 800 !important;
+          color: ${colorTexto} !important;
+          letter-spacing: 0.03em !important;
+          margin: 0 0 10px 0 !important;
+          text-align: center !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-scroll {
+          display: flex !important;
+          gap: 12px !important;
+          overflow-x: auto !important;
+          padding-bottom: 6px !important;
+          padding-top: 4px !important;
+          -webkit-overflow-scrolling: touch !important;
+          scrollbar-width: none !important;
+          justify-content: ${items.length <= 4 ? "center" : "flex-start"} !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-scroll::-webkit-scrollbar {
+          display: none !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-item {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          gap: 5px !important;
+          flex-shrink: 0 !important;
+          text-decoration: none !important;
+          width: ${tamanoCirculo + 8}px !important;
+          cursor: pointer !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-ring {
+          width: ${tamanoCirculo}px !important;
+          height: ${tamanoCirculo}px !important;
+          border-radius: 50% !important;
+          padding: 2.5px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          background: #ffffff !important;
+          box-sizing: border-box !important;
+          transition: transform 0.15s ease !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-item:hover .nvx-cr-ring {
+          transform: scale(1.05) !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-img {
+          width: 100% !important;
+          height: 100% !important;
+          border-radius: 50% !important;
+          object-fit: cover !important;
+          background: #f3f4f6 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+        #nvx-circulos-${w.id} .nvx-cr-name {
+          font-size: 11px !important;
+          color: ${colorTexto} !important;
+          text-align: center !important;
+          line-height: 1.2 !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          width: 100% !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    var div = document.createElement("div");
+    div.id = "nvx-circulos-" + w.id;
+
+    var itemsHtml = items.map(function(item, idx) {
+      var bColor = item.destacado ? colorBordeActivo : colorBordeInactivo;
+      var ringShadow = item.destacado ? "box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);" : "";
+      var fontWeight = item.destacado ? "font-weight: 800;" : "font-weight: 600;";
+      var imgHtml = item.imagenUrl
+        ? '<img class="nvx-cr-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" />'
+        : '<div class="nvx-cr-img" style="font-size:' + Math.round(tamanoCirculo * 0.35) + 'px;">🛍️</div>';
+
+      var href = item.link || "#";
+
+      return `
+        <a href="${escapeHtml(href)}" class="nvx-cr-item">
+          <div class="nvx-cr-ring" style="border: 2px solid ${bColor}; ${ringShadow}">
+            ${imgHtml}
+          </div>
+          <span class="nvx-cr-name" style="${fontWeight}">${escapeHtml(item.nombre || '')}</span>
+        </a>
+      `;
+    }).join("");
+
+    div.innerHTML = `
+      ${mostrarTitulo ? '<div class="nvx-cr-title">' + escapeHtml(titulo) + '</div>' : ''}
+      <div class="nvx-cr-scroll">
+        ${itemsHtml}
+      </div>
+    `;
+
+    // Se inyecta arriba del objetivo para máxima visibilidad
+    if (target.parentNode) {
+      target.parentNode.insertBefore(div, target);
+    }
+                              }
 })();
