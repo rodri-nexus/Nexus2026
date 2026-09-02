@@ -1585,6 +1585,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
               if (w.widget_slug === "medios-pago") {
       renderMediosPago(w);
               }
+              if (w.widget_slug === "tabla-talles") {
+      renderTablaTalles(w);
+              }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -6501,4 +6504,252 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       target.parentNode.appendChild(div);
     }
                                              }
+
+    /* ═══════════════════════════════════════════
+     RENDER TABLA DE TALLES
+  ═══════════════════════════════════════════ */
+  function renderTablaTalles(w) {
+    if (pageType !== "product") return;
+
+    var exist = document.getElementById("nvx-talles-btn-wrapper-" + w.id);
+    if (exist) return;
+
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
+    }
+
+    var textoBoton = cfg.textoBoton || "📏 Guía de talles";
+    var tituloModal = cfg.tituloModal || "GUÍA DE TALLES Y MEDIDAS";
+    var subtextoModal = cfg.subtextoModal || "Todas las medidas están expresadas en centímetros (cm)";
+    var columnas = Array.isArray(cfg.columnas) ? cfg.columnas : ["Talle", "Pecho", "Cintura", "Cadera"];
+    var filas = Array.isArray(cfg.filas) ? cfg.filas : [
+      { talle: "S", col1: "88-92", col2: "70-74", col3: "94-98" },
+      { talle: "M", col1: "93-97", col2: "75-79", col3: "99-103" },
+      { talle: "L", col1: "98-102", col2: "80-84", col3: "104-108" },
+      { talle: "XL", col1: "103-108", col2: "85-90", col3: "109-114" }
+    ];
+    var notaAyuda = cfg.notaAyuda || "💡 ¿Cómo medirte? Usá un centímetro de costurera sobre la ropa interior sin ajustar demasiado.";
+
+    var botonBgColor = cfg.botonBgColor || "#f3f4f6";
+    var botonTextColor = cfg.botonTextColor || "#000000";
+    var botonBorderColor = cfg.botonBorderColor || "#e5e7eb";
+    var modalBgColor = cfg.modalBgColor || "#ffffff";
+    var modalTextColor = cfg.modalTextColor || "#000000";
+    var headerBgColor = cfg.headerBgColor || "#ecfdf5";
+    var headerTextColor = cfg.headerTextColor || "#059669";
+    var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 12) + "px";
+
+    var target = document.querySelector("form[action*='/cart/add']") || 
+                 document.querySelector(".js-product-buy-container") ||
+                 document.querySelector(".product-buy-panel") ||
+                 document.querySelector(".js-product-form") ||
+                 document.querySelector(".product-form");
+
+    if (!target) return;
+
+    var styleId = "nvx-talles-styles-" + w.id;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        #nvx-talles-btn-wrapper-${w.id} {
+          margin: 10px 0 !important;
+          width: 100% !important;
+          display: flex !important;
+          justify-content: flex-start !important;
+          box-sizing: border-box !important;
+        }
+        #nvx-talles-btn-${w.id} {
+          background: ${botonBgColor} !important;
+          color: ${botonTextColor} !important;
+          border: 1.5px solid ${botonBorderColor} !important;
+          border-radius: ${borderRad} !important;
+          padding: 7px 14px !important;
+          font-size: 13px !important;
+          font-weight: 700 !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
+          font-family: system-ui, -apple-system, sans-serif !important;
+          transition: all 0.15s ease !important;
+          text-decoration: none !important;
+        }
+        #nvx-talles-btn-${w.id}:hover {
+          opacity: 0.9 !important;
+          transform: translateY(-1px) !important;
+        }
+        #nvx-talles-modal-${w.id} {
+          position: fixed !important;
+          top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+          background: rgba(0, 0, 0, 0.65) !important;
+          backdrop-filter: blur(8px) !important;
+          -webkit-backdrop-filter: blur(8px) !important;
+          display: none;
+          align-items: center !important;
+          justify-content: center !important;
+          z-index: 9999999 !important;
+          padding: 16px !important;
+          box-sizing: border-box !important;
+        }
+        #nvx-talles-modal-card-${w.id} {
+          background: ${modalBgColor} !important;
+          color: ${modalTextColor} !important;
+          width: 100% !important;
+          max-width: 520px !important;
+          border-radius: 18px !important;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
+          padding: 20px !important;
+          box-sizing: border-box !important;
+          font-family: system-ui, -apple-system, sans-serif !important;
+          position: relative !important;
+          max-height: 90vh !important;
+          overflow-y: auto !important;
+          animation: nvxModalPop 0.25s ease-out forwards !important;
+        }
+        @keyframes nvxModalPop {
+          from { opacity: 0; transform: scale(0.94) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        #nvx-talles-modal-card-${w.id} .nvx-modal-header {
+          display: flex !important;
+          align-items: flex-start !important;
+          justify-content: space-between !important;
+          margin-bottom: 12px !important;
+          border-bottom: 1px solid #f3f4f6 !important;
+          padding-bottom: 10px !important;
+        }
+        #nvx-talles-modal-card-${w.id} .nvx-modal-title {
+          font-size: 15px !important;
+          font-weight: 900 !important;
+          color: ${modalTextColor} !important;
+          margin: 0 !important;
+        }
+        #nvx-talles-modal-card-${w.id} .nvx-modal-subtext {
+          font-size: 11px !important;
+          opacity: 0.65 !important;
+          margin: 3px 0 0 0 !important;
+        }
+        #nvx-talles-modal-card-${w.id} .nvx-close-btn {
+          background: #f3f4f6 !important;
+          border: none !important;
+          width: 32px !important;
+          height: 32px !important;
+          border-radius: 50% !important;
+          font-size: 16px !important;
+          font-weight: 700 !important;
+          cursor: pointer !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          color: #000000 !important;
+          flex-shrink: 0 !important;
+        }
+        #nvx-talles-modal-card-${w.id} table {
+          width: 100% !important;
+          border-collapse: collapse !important;
+          font-size: 12px !important;
+          text-align: center !important;
+          margin: 10px 0 !important;
+        }
+        #nvx-talles-modal-card-${w.id} th {
+          background: ${headerBgColor} !important;
+          color: ${headerTextColor} !important;
+          padding: 9px 10px !important;
+          font-weight: 800 !important;
+          border-bottom: 1px solid #e5e7eb !important;
+        }
+        #nvx-talles-modal-card-${w.id} td {
+          padding: 8px 10px !important;
+          border-bottom: 1px solid #f3f4f6 !important;
+          color: ${modalTextColor} !important;
+        }
+        #nvx-talles-modal-card-${w.id} .nvx-help-note {
+          margin-top: 12px !important;
+          padding: 9px 12px !important;
+          background: #f9fafb !important;
+          border-radius: 10px !important;
+          border: 1px solid #f3f4f6 !important;
+          font-size: 11px !important;
+          color: #4b5563 !important;
+          line-height: 1.45 !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    // 1. Crear el botón disparador arriba del formulario
+    var btnWrapper = document.createElement("div");
+    btnWrapper.id = "nvx-talles-btn-wrapper-" + w.id;
+    btnWrapper.innerHTML = `<button type="button" id="nvx-talles-btn-${w.id}">${escapeHtml(textoBoton)}</button>`;
+    target.parentNode.insertBefore(btnWrapper, target);
+
+    // 2. Crear el modal flotante directo en document.body (para que no lo tape ningún contenedor)
+    var modal = document.createElement("div");
+    modal.id = "nvx-talles-modal-" + w.id;
+
+    var theadCols = columnas.map(function(c) {
+      return '<th>' + escapeHtml(c) + '</th>';
+    }).join("");
+
+    var tbodyRows = filas.map(function(f, idx) {
+      var bg = idx % 2 === 0 ? "#ffffff" : "#fafafa";
+      return `
+        <tr style="background:${bg};">
+          <td style="font-weight:900;">${escapeHtml(f.talle || "")}</td>
+          <td>${escapeHtml(f.col1 || "")} cm</td>
+          <td>${escapeHtml(f.col2 || "")} cm</td>
+          <td>${escapeHtml(f.col3 || "")} cm</td>
+        </tr>
+      `;
+    }).join("");
+
+    modal.innerHTML = `
+      <div id="nvx-talles-modal-card-${w.id}">
+        <div class="nvx-modal-header">
+          <div>
+            <h3 class="nvx-modal-title">${escapeHtml(tituloModal)}</h3>
+            ${subtextoModal ? '<p class="nvx-modal-subtext">' + escapeHtml(subtextoModal) + '</p>' : ''}
+          </div>
+          <button type="button" class="nvx-close-btn" id="nvx-talles-close-${w.id}">✕</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr>${theadCols}</tr></thead>
+            <tbody>${tbodyRows}</tbody>
+          </table>
+        </div>
+        ${notaAyuda ? '<div class="nvx-help-note">' + escapeHtml(notaAyuda) + '</div>' : ''}
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    var openBtn = btnWrapper.querySelector("#nvx-talles-btn-" + w.id);
+    var closeBtn = modal.querySelector("#nvx-talles-close-" + w.id);
+
+    function openModal(e) {
+      if (e) e.preventDefault();
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(e) {
+      if (e) e.preventDefault();
+      modal.style.display = "none";
+      document.body.style.overflow = "";
+    }
+
+    openBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+
+    // Cerrar al tocar afuera de la tarjeta
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) {
+        closeModal(e);
+      }
+    });
+      }
 })();
