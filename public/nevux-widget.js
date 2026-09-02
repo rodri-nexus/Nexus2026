@@ -7123,17 +7123,23 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       target.parentNode.appendChild(div);
     }
 }
-      /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
   function renderMenuCirculos(w) {
     var exist = document.getElementById("nvx-circulos-" + w.id);
     if (exist) return;
 
-    // Solo renderizar en la página de inicio (homepage)
-    var path = window.location.pathname;
-    var isHome = (path === "/" || path === "" || path === "/index" || path === "/inicio");
-    if (!isHome) return;
+    // Detección universal de página de inicio (Home) en Tiendanube
+    function isStoreHome() {
+      var p = window.location.pathname.toLowerCase().replace(/\/+$/, "");
+      if (p === "" || p === "/home" || p === "/inicio" || p === "/index" || p === "/es" || p === "/pt") return true;
+      if (document.body && (document.body.classList.contains("page-home") || document.body.classList.contains("template-home") || document.body.id === "page-home")) return true;
+      if (window.LS && window.LS.template === "home") return true;
+      return false;
+    }
+
+    if (!isStoreHome()) return;
 
     var cfg = w.config || {};
     if (typeof cfg === "string") {
@@ -7150,144 +7156,173 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     var items = Array.isArray(cfg.items) && cfg.items.length > 0 ? cfg.items : [
       { nombre: "🔥 Ofertas", imagenUrl: "", link: "/ofertas", destacado: true },
-      { nombre: "Novedades", imagenUrl: "", link: "/novedades", destacado: false }
+      { nombre: "Tecnología", imagenUrl: "", link: "/tecnologia", destacado: false },
+      { nombre: "Uso Personal", imagenUrl: "", link: "/uso-personal", destacado: false },
+      { nombre: "Belleza", imagenUrl: "", link: "/belleza", destacado: false }
     ];
 
-    // Buscar el banner/slider principal de la tienda para inyectar debajo
-    var banner = document.querySelector(".js-slider-section") ||
-                 document.querySelector(".js-home-banner") ||
-                 document.querySelector(".slider-section") ||
-                 document.querySelector(".js-carousel") ||
-                 document.querySelector(".home-slider") ||
-                 document.querySelector(".banner-section") ||
-                 document.querySelector('[data-section-type="slider"]') ||
-                 document.querySelector('[data-section-type="banner"]') ||
-                 document.querySelector(".js-home-sections") ||
-                 document.querySelector("main") ||
-                 document.querySelector("#wrapper") ||
-                 document.querySelector(".js-main-content");
+    var attempts = 0;
+    function tryInject() {
+      if (document.getElementById("nvx-circulos-" + w.id)) return;
 
-    if (!banner) return;
+      // Buscar el banner/slider principal de cualquier tema de Tiendanube
+      var target = document.querySelector(".js-slider-section") ||
+                   document.querySelector(".js-home-slider") ||
+                   document.querySelector(".js-slider-desktop") ||
+                   document.querySelector(".section-slider") ||
+                   document.querySelector(".slider-section") ||
+                   document.querySelector(".home-slider") ||
+                   document.querySelector(".js-home-banner") ||
+                   document.querySelector(".banner-section") ||
+                   document.querySelector('[data-section-type="slider"]') ||
+                   document.querySelector('[data-section-type="banner"]') ||
+                   document.querySelector(".js-carousel") ||
+                   document.querySelector(".js-home-sections") ||
+                   document.querySelector("main") ||
+                   document.querySelector(".js-main-content") ||
+                   document.querySelector("#wrapper") ||
+                   document.querySelector("header") ||
+                   document.body;
 
-    var styleId = "nvx-circulos-styles-" + w.id;
-    if (!document.getElementById(styleId)) {
-      var styleEl = document.createElement("style");
-      styleEl.id = styleId;
-      styleEl.innerHTML = `
-        #nvx-circulos-${w.id} {
-          background: ${colorFondo} !important;
-          padding: 16px 10px !important;
-          margin: 0 !important;
-          width: 100% !important;
-          box-sizing: border-box !important;
-          font-family: system-ui, -apple-system, sans-serif !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-title {
-          font-size: 13px !important;
-          font-weight: 800 !important;
-          color: ${colorTexto} !important;
-          letter-spacing: 0.03em !important;
-          margin: 0 0 12px 0 !important;
-          text-align: center !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-scroll {
-          display: flex !important;
-          gap: 14px !important;
-          overflow-x: auto !important;
-          padding-bottom: 6px !important;
-          padding-top: 4px !important;
-          -webkit-overflow-scrolling: touch !important;
-          scrollbar-width: none !important;
-          justify-content: ${items.length <= 4 ? "center" : "flex-start"} !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-scroll::-webkit-scrollbar {
-          display: none !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-item {
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: center !important;
-          gap: 6px !important;
-          flex-shrink: 0 !important;
-          text-decoration: none !important;
-          width: ${tamanoCirculo + 10}px !important;
-          cursor: pointer !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-ring {
-          width: ${tamanoCirculo}px !important;
-          height: ${tamanoCirculo}px !important;
-          border-radius: 50% !important;
-          padding: 2.5px !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          background: #ffffff !important;
-          box-sizing: border-box !important;
-          transition: transform 0.15s ease !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-item:hover .nvx-cr-ring,
-        #nvx-circulos-${w.id} .nvx-cr-item:active .nvx-cr-ring {
-          transform: scale(1.06) !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-img {
-          width: 100% !important;
-          height: 100% !important;
-          border-radius: 50% !important;
-          object-fit: cover !important;
-          background: #f3f4f6 !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-        }
-        #nvx-circulos-${w.id} .nvx-cr-name {
-          font-size: 11px !important;
-          color: ${colorTexto} !important;
-          text-align: center !important;
-          line-height: 1.2 !important;
-          white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          width: 100% !important;
-        }
+      if (!target && attempts < 15) {
+        attempts++;
+        setTimeout(tryInject, 200);
+        return;
+      }
+
+      if (!target) return;
+
+      var styleId = "nvx-circulos-styles-" + w.id;
+      if (!document.getElementById(styleId)) {
+        var styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.innerHTML = `
+          #nvx-circulos-${w.id} {
+            background: ${colorFondo} !important;
+            padding: 16px 10px !important;
+            margin: 10px auto 20px auto !important;
+            width: 100% !important;
+            max-width: 1200px !important;
+            box-sizing: border-box !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-title {
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            color: ${colorTexto} !important;
+            letter-spacing: 0.03em !important;
+            margin: 0 0 12px 0 !important;
+            text-align: center !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-scroll {
+            display: flex !important;
+            gap: 16px !important;
+            overflow-x: auto !important;
+            padding: 4px 10px 10px 10px !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+            justify-content: ${items.length <= 4 ? "center" : "flex-start"} !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-scroll::-webkit-scrollbar {
+            display: none !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-item {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 6px !important;
+            flex-shrink: 0 !important;
+            text-decoration: none !important;
+            width: ${tamanoCirculo + 12}px !important;
+            cursor: pointer !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-ring {
+            width: ${tamanoCirculo}px !important;
+            height: ${tamanoCirculo}px !important;
+            border-radius: 50% !important;
+            padding: 2.5px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: #ffffff !important;
+            box-sizing: border-box !important;
+            transition: transform 0.15s ease !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-item:hover .nvx-cr-ring,
+          #nvx-circulos-${w.id} .nvx-cr-item:active .nvx-cr-ring {
+            transform: scale(1.08) !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-img {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            background: #f3f4f6 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          #nvx-circulos-${w.id} .nvx-cr-name {
+            font-size: 11.5px !important;
+            color: ${colorTexto} !important;
+            text-align: center !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            width: 100% !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      var div = document.createElement("div");
+      div.id = "nvx-circulos-" + w.id;
+
+      var itemsHtml = items.map(function(item) {
+        var bColor = item.destacado ? colorBordeActivo : colorBordeInactivo;
+        var ringShadow = item.destacado ? "box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);" : "";
+        var fontWeight = item.destacado ? "font-weight: 800;" : "font-weight: 600;";
+        var imgHtml = item.imagenUrl
+          ? '<img class="nvx-cr-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" />'
+          : '<div class="nvx-cr-img" style="font-size:' + Math.round(tamanoCirculo * 0.35) + 'px;">🛍️</div>';
+
+        var href = item.link || "#";
+
+        return `
+          <a href="${escapeHtml(href)}" class="nvx-cr-item">
+            <div class="nvx-cr-ring" style="border: 2.5px solid ${bColor}; ${ringShadow}">
+              ${imgHtml}
+            </div>
+            <span class="nvx-cr-name" style="${fontWeight}">${escapeHtml(item.nombre || '')}</span>
+          </a>
+        `;
+      }).join("");
+
+      div.innerHTML = `
+        ${mostrarTitulo ? '<div class="nvx-cr-title">' + escapeHtml(titulo) + '</div>' : ''}
+        <div class="nvx-cr-scroll">
+          ${itemsHtml}
+        </div>
       `;
-      document.head.appendChild(styleEl);
+
+      // Inyección inteligente:
+      if (target === document.body || target.tagName === "MAIN" || target.classList.contains("js-home-sections")) {
+        target.insertBefore(div, target.firstChild);
+      } else if (target.nextSibling) {
+        target.parentNode.insertBefore(div, target.nextSibling);
+      } else {
+        target.parentNode.appendChild(div);
+      }
     }
 
-    var div = document.createElement("div");
-    div.id = "nvx-circulos-" + w.id;
-
-    var itemsHtml = items.map(function(item) {
-      var bColor = item.destacado ? colorBordeActivo : colorBordeInactivo;
-      var ringShadow = item.destacado ? "box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);" : "";
-      var fontWeight = item.destacado ? "font-weight: 800;" : "font-weight: 600;";
-      var imgHtml = item.imagenUrl
-        ? '<img class="nvx-cr-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" />'
-        : '<div class="nvx-cr-img" style="font-size:' + Math.round(tamanoCirculo * 0.35) + 'px;">🛍️</div>';
-
-      var href = item.link || "#";
-
-      return `
-        <a href="${escapeHtml(href)}" class="nvx-cr-item">
-          <div class="nvx-cr-ring" style="border: 2px solid ${bColor}; ${ringShadow}">
-            ${imgHtml}
-          </div>
-          <span class="nvx-cr-name" style="${fontWeight}">${escapeHtml(item.nombre || '')}</span>
-        </a>
-      `;
-    }).join("");
-
-    div.innerHTML = `
-      ${mostrarTitulo ? '<div class="nvx-cr-title">' + escapeHtml(titulo) + '</div>' : ''}
-      <div class="nvx-cr-scroll">
-        ${itemsHtml}
-      </div>
-    `;
-
-    // Inyectar JUSTO DEBAJO del banner principal
-    if (banner.nextSibling) {
-      banner.parentNode.insertBefore(div, banner.nextSibling);
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", tryInject);
     } else {
-      banner.parentNode.appendChild(div);
+      tryInject();
     }
-        }
+    }
 })();
