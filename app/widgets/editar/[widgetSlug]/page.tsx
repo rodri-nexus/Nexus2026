@@ -23,6 +23,7 @@ import BadgeCuponEditor from '@/components/widgets/editors/BadgeCuponEditor';
 import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaEditor';
 import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
+import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -75,6 +76,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: PACK COMPLEMENTARIOS
+  if (params.widgetSlug === 'pack-complementarios') {
+    return (
+      <PackComplementariosEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: TABLA DE TALLES
   if (params.widgetSlug === 'tabla-talles') {
@@ -360,4 +374,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+                      }
