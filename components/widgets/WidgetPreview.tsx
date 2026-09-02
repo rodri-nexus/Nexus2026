@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "tabla-talles":
+      return <TablaTallesPreview />;
     case "medios-pago":
       return <MediosPagoPreview />;
     case "comparador-marca":
@@ -80,6 +82,85 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function TablaTallesPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "10px",
+        padding: "7px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontSize: "8px", fontWeight: 800, color: "#000000" }}>
+          📏 GUÍA DE MEDIDAS
+        </span>
+        <span
+          style={{
+            fontSize: "6.5px",
+            color: "#059669",
+            background: "#ecfdf5",
+            padding: "1px 5px",
+            borderRadius: "4px",
+            fontWeight: 800,
+          }}
+        >
+          CM
+        </span>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          fontSize: "7px",
+          textAlign: "center",
+          background: "#f9fafb",
+          borderRadius: "4px",
+          padding: "2px",
+          fontWeight: 800,
+          color: "#6b7280",
+        }}
+      >
+        <div>Talle</div>
+        <div>Pecho</div>
+        <div>Cintura</div>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          fontSize: "7px",
+          textAlign: "center",
+          color: "#111827",
+        }}
+      >
+        <div style={{ fontWeight: 800 }}>S</div>
+        <div>88-92</div>
+        <div>70-74</div>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          fontSize: "7px",
+          textAlign: "center",
+          color: "#111827",
+        }}
+      >
+        <div style={{ fontWeight: 800 }}>M</div>
+        <div>93-97</div>
+        <div>75-79</div>
+      </div>
+    </div>
+  );
+}
 
 function MediosPagoPreview() {
   return (
@@ -1005,4 +1086,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-      }
+  }
