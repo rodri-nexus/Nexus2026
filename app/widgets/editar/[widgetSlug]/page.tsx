@@ -25,6 +25,7 @@ import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
 import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
 import MenuCirculosEditor from '@/components/widgets/editors/MenuCirculosEditor';
+import SliderCategoriasEditor from '@/components/widgets/editors/SliderCategoriasEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -77,6 +78,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: SLIDER DE CATEGORÍAS (COLECCIONES)
+  if (params.widgetSlug === 'slider-categorias') {
+    return (
+      <SliderCategoriasEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: MENÚ DE CÍRCULOS (HISTORIAS)
   if (params.widgetSlug === 'menu-circulos') {
@@ -388,4 +402,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-    }
+        }
