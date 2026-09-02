@@ -11,6 +11,7 @@ import {
   Loader2,
   Sparkles,
   ExternalLink,
+  HelpCircle,
 } from 'lucide-react';
 import {
   ColorPicker,
@@ -86,21 +87,21 @@ const DEFAULT_CONFIG: MenuCirculosConfig = {
       destacado: true,
     },
     {
-      nombre: 'Novedades',
-      imagenUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=150&q=80',
-      link: '/novedades',
+      nombre: 'Tecnología',
+      imagenUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=150&q=80',
+      link: '/tecnologia',
       destacado: false,
     },
     {
-      nombre: 'Remeras',
-      imagenUrl: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=150&q=80',
-      link: '/remeras',
+      nombre: 'Uso Personal',
+      imagenUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=150&q=80',
+      link: '/uso-personal',
       destacado: false,
     },
     {
-      nombre: 'Pantalones',
-      imagenUrl: 'https://images.unsplash.com/photo-1542272604-780c96856592?auto=format&fit=crop&w=150&q=80',
-      link: '/pantalones',
+      nombre: 'Belleza',
+      imagenUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=150&q=80',
+      link: '/belleza',
       destacado: false,
     },
   ],
@@ -403,8 +404,45 @@ export default function MenuCirculosEditor({
         />
       )}
 
+      {/* MINI TUTORIAL EXPLICATIVO DE CÓMO FUNCIONA Y DÓNDE APARECE */}
+      <div
+        style={{
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          borderRadius: 14,
+          padding: '14px 16px',
+          margin: '14px 0 20px 0',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+          <span style={{ fontSize: 16 }}>💡</span>
+          <span style={{ fontSize: 13, fontWeight: 800, color: '#166534' }}>
+            ¿Cómo funciona el Menú de Círculos y dónde aparece?
+          </span>
+        </div>
+        <ul
+          style={{
+            margin: 0,
+            paddingLeft: 18,
+            fontSize: 12,
+            color: '#15803d',
+            lineHeight: 1.55,
+          }}
+        >
+          <li style={{ marginBottom: 6 }}>
+            <b>Ubicación:</b> Aparece en la <b>pantalla principal (inicio)</b> de tu tienda, justo debajo del banner/slider principal.
+          </li>
+          <li style={{ marginBottom: 6 }}>
+            <b>Links de categorías (ej: Tecnología, Belleza, Uso Personal):</b> Podés poner el link relativo como <code>/tecnologia</code>, <code>/belleza</code> o la URL completa de tu categoría (ej: <code>https://mitienda.com/productos/uso-personal</code>).
+          </li>
+          <li>
+            <b>Aro Destacado:</b> Si tildás la casilla <i>"Aro Destacado"</i>, ese círculo tendrá un borde verde brillante para llamar la atención hacia tus promociones u ofertas especiales.
+          </li>
+        </ul>
+      </div>
+
       {/* GESTIÓN DE CÍRCULOS */}
-      <div style={{ marginTop: 20 }}>
+      <div style={{ marginTop: 10 }}>
         <div
           style={{
             fontSize: 14,
@@ -416,7 +454,7 @@ export default function MenuCirculosEditor({
             alignItems: 'center',
           }}
         >
-          <span>Círculos / Historias ({config.items.length}/8)</span>
+          <span>Círculos / Categorías ({config.items.length}/8)</span>
           {config.items.length < 8 && (
             <button
               type="button"
@@ -484,7 +522,7 @@ export default function MenuCirculosEditor({
                   type="text"
                   value={item.nombre}
                   onChange={(e) => updateItem(idx, 'nombre', e.target.value)}
-                  placeholder="Nombre (ej: Ofertas)"
+                  placeholder="Nombre (ej: Tecnología)"
                   style={{
                     padding: '8px 10px',
                     borderRadius: 8,
@@ -498,7 +536,7 @@ export default function MenuCirculosEditor({
                   type="text"
                   value={item.link}
                   onChange={(e) => updateItem(idx, 'link', e.target.value)}
-                  placeholder="Link destino (ej: /ofertas)"
+                  placeholder="Link (ej: /tecnologia)"
                   style={{
                     padding: '8px 10px',
                     borderRadius: 8,
