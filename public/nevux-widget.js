@@ -7123,12 +7123,17 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       target.parentNode.appendChild(div);
     }
 }
-    /* ═══════════════════════════════════════════
+      /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
   function renderMenuCirculos(w) {
     var exist = document.getElementById("nvx-circulos-" + w.id);
     if (exist) return;
+
+    // Solo renderizar en la página de inicio (homepage)
+    var path = window.location.pathname;
+    var isHome = (path === "/" || path === "" || path === "/index" || path === "/inicio");
+    if (!isHome) return;
 
     var cfg = w.config || {};
     if (typeof cfg === "string") {
@@ -7148,15 +7153,21 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       { nombre: "Novedades", imagenUrl: "", link: "/novedades", destacado: false }
     ];
 
-    var target = document.querySelector("form[action*='/cart/add']") || 
-                 document.querySelector(".js-product-buy-container") ||
-                 document.querySelector(".product-buy-panel") ||
+    // Buscar el banner/slider principal de la tienda para inyectar debajo
+    var banner = document.querySelector(".js-slider-section") ||
+                 document.querySelector(".js-home-banner") ||
+                 document.querySelector(".slider-section") ||
+                 document.querySelector(".js-carousel") ||
+                 document.querySelector(".home-slider") ||
+                 document.querySelector(".banner-section") ||
+                 document.querySelector('[data-section-type="slider"]') ||
+                 document.querySelector('[data-section-type="banner"]') ||
                  document.querySelector(".js-home-sections") ||
                  document.querySelector("main") ||
                  document.querySelector("#wrapper") ||
                  document.querySelector(".js-main-content");
 
-    if (!target) return;
+    if (!banner) return;
 
     var styleId = "nvx-circulos-styles-" + w.id;
     if (!document.getElementById(styleId)) {
@@ -7165,8 +7176,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       styleEl.innerHTML = `
         #nvx-circulos-${w.id} {
           background: ${colorFondo} !important;
-          padding: 14px 10px !important;
-          margin: 14px 0 !important;
+          padding: 16px 10px !important;
+          margin: 0 !important;
           width: 100% !important;
           box-sizing: border-box !important;
           font-family: system-ui, -apple-system, sans-serif !important;
@@ -7176,12 +7187,12 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           font-weight: 800 !important;
           color: ${colorTexto} !important;
           letter-spacing: 0.03em !important;
-          margin: 0 0 10px 0 !important;
+          margin: 0 0 12px 0 !important;
           text-align: center !important;
         }
         #nvx-circulos-${w.id} .nvx-cr-scroll {
           display: flex !important;
-          gap: 12px !important;
+          gap: 14px !important;
           overflow-x: auto !important;
           padding-bottom: 6px !important;
           padding-top: 4px !important;
@@ -7196,10 +7207,10 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           display: flex !important;
           flex-direction: column !important;
           align-items: center !important;
-          gap: 5px !important;
+          gap: 6px !important;
           flex-shrink: 0 !important;
           text-decoration: none !important;
-          width: ${tamanoCirculo + 8}px !important;
+          width: ${tamanoCirculo + 10}px !important;
           cursor: pointer !important;
         }
         #nvx-circulos-${w.id} .nvx-cr-ring {
@@ -7214,8 +7225,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           box-sizing: border-box !important;
           transition: transform 0.15s ease !important;
         }
-        #nvx-circulos-${w.id} .nvx-cr-item:hover .nvx-cr-ring {
-          transform: scale(1.05) !important;
+        #nvx-circulos-${w.id} .nvx-cr-item:hover .nvx-cr-ring,
+        #nvx-circulos-${w.id} .nvx-cr-item:active .nvx-cr-ring {
+          transform: scale(1.06) !important;
         }
         #nvx-circulos-${w.id} .nvx-cr-img {
           width: 100% !important;
@@ -7244,7 +7256,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var div = document.createElement("div");
     div.id = "nvx-circulos-" + w.id;
 
-    var itemsHtml = items.map(function(item, idx) {
+    var itemsHtml = items.map(function(item) {
       var bColor = item.destacado ? colorBordeActivo : colorBordeInactivo;
       var ringShadow = item.destacado ? "box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);" : "";
       var fontWeight = item.destacado ? "font-weight: 800;" : "font-weight: 600;";
@@ -7271,9 +7283,11 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       </div>
     `;
 
-    // Se inyecta arriba del objetivo para máxima visibilidad
-    if (target.parentNode) {
-      target.parentNode.insertBefore(div, target);
+    // Inyectar JUSTO DEBAJO del banner principal
+    if (banner.nextSibling) {
+      banner.parentNode.insertBefore(div, banner.nextSibling);
+    } else {
+      banner.parentNode.appendChild(div);
     }
-                              }
+        }
 })();
