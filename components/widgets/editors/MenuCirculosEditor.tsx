@@ -12,6 +12,10 @@ import {
   Sparkles,
   ExternalLink,
   HelpCircle,
+  Info,
+  Image as ImageIcon,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   ColorPicker,
@@ -240,6 +244,17 @@ function MenuCirculosPreview({ config }: { config: MenuCirculosConfig }) {
                     <img
                       src={item.imagenUrl}
                       alt={item.nombre}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                        if (target.parentElement && !target.parentElement.querySelector('.nvx-preview-fallback')) {
+                          const span = document.createElement('span');
+                          span.className = 'nvx-preview-fallback';
+                          span.style.fontSize = `${Math.round(size * 0.35)}px`;
+                          span.innerText = '🛍️';
+                          target.parentElement.appendChild(span);
+                        }
+                      }}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
@@ -404,41 +419,81 @@ export default function MenuCirculosEditor({
         />
       )}
 
-      {/* MINI TUTORIAL EXPLICATIVO DE CÓMO FUNCIONA Y DÓNDE APARECE */}
+      {/* MINI TUTORIAL REFORZADO: CÓMO PONER FOTOS Y LINKS CORRECTAMENTE */}
       <div
         style={{
           background: '#f0fdf4',
-          border: '1px solid #bbf7d0',
+          border: '1.5px solid #86efac',
           borderRadius: 14,
-          padding: '14px 16px',
-          margin: '14px 0 20px 0',
+          padding: '16px',
+          margin: '16px 0 22px 0',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-          <span style={{ fontSize: 16 }}>💡</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <span style={{ fontSize: 18 }}>📸</span>
           <span style={{ fontSize: 13, fontWeight: 800, color: '#166534' }}>
-            ¿Cómo funciona el Menú de Círculos y dónde aparece?
+            Guía rápida: ¿Cómo obtener la URL directa de tus fotos?
           </span>
         </div>
-        <ul
-          style={{
-            margin: 0,
-            paddingLeft: 18,
-            fontSize: 12,
-            color: '#15803d',
-            lineHeight: 1.55,
-          }}
-        >
-          <li style={{ marginBottom: 6 }}>
-            <b>Ubicación:</b> Aparece en la <b>pantalla principal (inicio)</b> de tu tienda, justo debajo del banner/slider principal.
-          </li>
-          <li style={{ marginBottom: 6 }}>
-            <b>Links de categorías (ej: Tecnología, Belleza, Uso Personal):</b> Podés poner el link relativo como <code>/tecnologia</code>, <code>/belleza</code> o la URL completa de tu categoría (ej: <code>https://mitienda.com/productos/uso-personal</code>).
-          </li>
-          <li>
-            <b>Aro Destacado:</b> Si tildás la casilla <i>"Aro Destacado"</i>, ese círculo tendrá un borde verde brillante para llamar la atención hacia tus promociones u ofertas especiales.
-          </li>
-        </ul>
+
+        <div style={{ fontSize: 12, color: '#15803d', lineHeight: 1.6 }}>
+          <div style={{ marginBottom: 8 }}>
+            Para que la foto se vea perfecta en tu tienda, necesitás el <b>enlace directo al archivo de imagen</b> (que termina en <code>.jpg</code>, <code>.png</code> o <code>.webp</code>):
+          </div>
+
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid #bbf7d0',
+              borderRadius: 10,
+              padding: '10px 12px',
+              marginBottom: 10,
+            }}
+          >
+            <div style={{ fontWeight: 800, color: '#166534', marginBottom: 4 }}>
+              📱 Si estás desde el Celular:
+            </div>
+            1. Abrí tu tienda o foto en el navegador (Chrome o Safari).<br />
+            2. Mantené el <b>dedo presionado</b> sobre la imagen durante 1 segundo.<br />
+            3. Elegí la opción <b>"Copiar dirección de la imagen"</b> (o "Copiar enlace de imagen").<br />
+            4. Pegalo en el casillero <i>"URL de la imagen"</i> aquí abajo.
+          </div>
+
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid #bbf7d0',
+              borderRadius: 10,
+              padding: '10px 12px',
+              marginBottom: 10,
+            }}
+          >
+            <div style={{ fontWeight: 800, color: '#166534', marginBottom: 4 }}>
+              💻 Si estás desde la Computadora:
+            </div>
+            Hacé <b>clic derecho</b> sobre cualquier imagen de tus productos y elegí <b>"Copiar dirección de imagen"</b>.
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 11.5,
+              fontWeight: 700,
+              color: '#b45309',
+              background: '#fffbeb',
+              padding: '6px 10px',
+              borderRadius: 8,
+              border: '1px solid #fde68a',
+            }}
+          >
+            <span>⚠️</span>
+            <span>
+              NO pegues el link de la página ni de búsquedas de Google. Debe ser el link directo a la foto.
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* GESTIÓN DE CÍRCULOS */}
@@ -518,50 +573,69 @@ export default function MenuCirculosEditor({
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 8 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
+                    Nombre visible:
+                  </label>
+                  <input
+                    type="text"
+                    value={item.nombre}
+                    onChange={(e) => updateItem(idx, 'nombre', e.target.value)}
+                    placeholder="Ej: Tecnología"
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      border: '1px solid #e5e7eb',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      background: '#ffffff',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
+                    Link de destino:
+                  </label>
+                  <input
+                    type="text"
+                    value={item.link}
+                    onChange={(e) => updateItem(idx, 'link', e.target.value)}
+                    placeholder="Ej: /tecnologia"
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      border: '1px solid #e5e7eb',
+                      fontSize: 13,
+                      background: '#ffffff',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
+                  URL directa de la imagen (.jpg / .png):
+                </label>
                 <input
                   type="text"
-                  value={item.nombre}
-                  onChange={(e) => updateItem(idx, 'nombre', e.target.value)}
-                  placeholder="Nombre (ej: Tecnología)"
+                  value={item.imagenUrl}
+                  onChange={(e) => updateItem(idx, 'imagenUrl', e.target.value)}
+                  placeholder="https://mitienda.com/imagen.jpg"
                   style={{
+                    width: '100%',
                     padding: '8px 10px',
                     borderRadius: 8,
                     border: '1px solid #e5e7eb',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    background: '#ffffff',
-                  }}
-                />
-                <input
-                  type="text"
-                  value={item.link}
-                  onChange={(e) => updateItem(idx, 'link', e.target.value)}
-                  placeholder="Link (ej: /tecnologia)"
-                  style={{
-                    padding: '8px 10px',
-                    borderRadius: 8,
-                    border: '1px solid #e5e7eb',
-                    fontSize: 13,
+                    fontSize: 12,
+                    boxSizing: 'border-box',
                     background: '#ffffff',
                   }}
                 />
               </div>
-
-              <input
-                type="text"
-                value={item.imagenUrl}
-                onChange={(e) => updateItem(idx, 'imagenUrl', e.target.value)}
-                placeholder="URL de la imagen (https://...)"
-                style={{
-                  width: '100%',
-                  padding: '8px 10px',
-                  borderRadius: 8,
-                  border: '1px solid #e5e7eb',
-                  fontSize: 12,
-                  boxSizing: 'border-box',
-                  background: '#ffffff',
-                }}
-              />
             </div>
           ))}
         </div>
@@ -829,4 +903,4 @@ export default function MenuCirculosEditor({
       </div>
     </div>
   );
-}
+    }
