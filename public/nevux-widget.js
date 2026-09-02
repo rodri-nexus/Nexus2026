@@ -1594,6 +1594,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
               if (w.widget_slug === "menu-circulos") {
       renderMenuCirculos(w);
               }
+              if (w.widget_slug === "slider-categorias") {
+      renderSliderCategorias(w);
+              }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -7327,4 +7330,240 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       tryInject();
     }
 }
+    /* ═══════════════════════════════════════════
+     RENDER SLIDER DE CATEGORÍAS (COLECCIONES)
+  ═══════════════════════════════════════════ */
+  function renderSliderCategorias(w) {
+    var exist = document.getElementById("nvx-slider-cat-" + w.id);
+    if (exist) return;
+
+    // Detección universal de página de inicio (Home) en Tiendanube
+    function isStoreHome() {
+      var p = window.location.pathname.toLowerCase().replace(/\/+$/, "");
+      if (p === "" || p === "/home" || p === "/inicio" || p === "/index" || p === "/es" || p === "/pt") return true;
+      if (document.body && (document.body.classList.contains("page-home") || document.body.classList.contains("template-home") || document.body.id === "page-home")) return true;
+      if (window.LS && window.LS.template === "home") return true;
+      return false;
+    }
+
+    if (!isStoreHome()) return;
+
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
+    }
+
+    var titulo = cfg.titulo || "EXPLORÁ NUESTRAS COLECCIONES";
+    var mostrarTitulo = cfg.mostrarTitulo !== false && titulo !== "";
+    var alturaTarjeta = Number(cfg.alturaTarjeta) || 160;
+    var anchoTarjeta = Number(cfg.anchoTarjeta) || 120;
+    var colorTexto = cfg.colorTexto || "#ffffff";
+    var colorFondo = cfg.colorFondo || "#ffffff";
+    var colorBordeDestacado = cfg.colorBordeDestacado || "#10B981";
+
+    var items = Array.isArray(cfg.items) && cfg.items.length > 0 ? cfg.items : [
+      { nombre: "🔥 LIQUIDACIÓN", subtitulo: "Hasta 40% OFF", imagenUrl: "", link: "/ofertas", destacado: true },
+      { nombre: "Hombre", subtitulo: "Nueva Colección", imagenUrl: "", link: "/hombre", destacado: false },
+      { nombre: "Mujer", subtitulo: "Tendencias", imagenUrl: "", link: "/mujer", destacado: false },
+      { nombre: "Accesorios", subtitulo: "Ver catálogo", imagenUrl: "", link: "/accesorios", destacado: false }
+    ];
+
+    var attempts = 0;
+    function tryInject() {
+      if (document.getElementById("nvx-slider-cat-" + w.id)) return;
+
+      // Buscar el banner/slider principal de cualquier tema de Tiendanube
+      var target = document.querySelector(".js-slider-section") ||
+                   document.querySelector(".js-home-slider") ||
+                   document.querySelector(".js-slider-desktop") ||
+                   document.querySelector(".section-slider") ||
+                   document.querySelector(".slider-section") ||
+                   document.querySelector(".home-slider") ||
+                   document.querySelector(".js-home-banner") ||
+                   document.querySelector(".banner-section") ||
+                   document.querySelector('[data-section-type="slider"]') ||
+                   document.querySelector('[data-section-type="banner"]') ||
+                   document.querySelector(".js-carousel") ||
+                   document.querySelector(".js-home-sections") ||
+                   document.querySelector("main") ||
+                   document.querySelector(".js-main-content") ||
+                   document.querySelector("#wrapper") ||
+                   document.querySelector("header") ||
+                   document.body;
+
+      if (!target && attempts < 15) {
+        attempts++;
+        setTimeout(tryInject, 200);
+        return;
+      }
+
+      if (!target) return;
+
+      var styleId = "nvx-slider-cat-styles-" + w.id;
+      if (!document.getElementById(styleId)) {
+        var styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.innerHTML = `
+          #nvx-slider-cat-${w.id} {
+            background: ${colorFondo} !important;
+            padding: 16px 10px !important;
+            margin: 10px auto 20px auto !important;
+            width: 100% !important;
+            max-width: 1200px !important;
+            box-sizing: border-box !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-title {
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            color: #000000 !important; /* Mantenemos título exterior oscuro por defecto, u opcionalmente colorTexto */
+            letter-spacing: 0.03em !important;
+            margin: 0 0 12px 0 !important;
+            text-align: center !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-scroll {
+            display: flex !important;
+            gap: 12px !important;
+            overflow-x: auto !important;
+            padding: 4px 10px 10px 10px !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+            justify-content: ${items.length <= 3 ? "center" : "flex-start"} !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-scroll::-webkit-scrollbar {
+            display: none !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-card {
+            position: relative !important;
+            width: ${anchoTarjeta}px !important;
+            height: ${alturaTarjeta}px !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            flex-shrink: 0 !important;
+            text-decoration: none !important;
+            box-sizing: border-box !important;
+            background: #1f2937 !important;
+            transition: transform 0.15s ease !important;
+            display: block !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-card:hover,
+          #nvx-slider-cat-${w.id} .nvx-sc-card:active {
+            transform: translateY(-2px) scale(1.02) !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1 !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-overlay {
+            position: absolute !important;
+            inset: 0 !important;
+            background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.8) 100%) !important;
+            z-index: 2 !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-badge {
+            position: absolute !important;
+            top: 8px !important;
+            right: 8px !important;
+            background: ${colorBordeDestacado} !important;
+            color: #ffffff !important;
+            font-size: 9px !important;
+            font-weight: 800 !important;
+            padding: 2px 6px !important;
+            border-radius: 999px !important;
+            z-index: 3 !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-content {
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            padding: 10px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 2px !important;
+            z-index: 3 !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-name {
+            font-size: 12px !important;
+            font-weight: 800 !important;
+            color: ${colorTexto} !important;
+            line-height: 1.2 !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8) !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+          #nvx-slider-cat-${w.id} .nvx-sc-sub {
+            font-size: 10px !important;
+            font-weight: 500 !important;
+            color: ${colorTexto} !important;
+            opacity: 0.85 !important;
+            line-height: 1.1 !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      var div = document.createElement("div");
+      div.id = "nvx-slider-cat-" + w.id;
+
+      var itemsHtml = items.map(function(item) {
+        var isHighlight = item.destacado;
+        var borderStyle = isHighlight ? "border: 2.5px solid " + colorBordeDestacado + "; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);" : "border: 1px solid rgba(255,255,255,0.2);";
+        var imgHtml = item.imagenUrl
+          ? '<img class="nvx-sc-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" onerror="this.style.display=\'none\';" />'
+          : '';
+        var badgeHtml = isHighlight ? '<div class="nvx-sc-badge">HOT</div>' : '';
+        var subHtml = item.subtitulo ? '<div class="nvx-sc-sub">' + escapeHtml(item.subtitulo) + '</div>' : '';
+        var href = item.link || "#";
+
+        return `
+          <a href="${escapeHtml(href)}" class="nvx-sc-card" style="${borderStyle}">
+            ${imgHtml}
+            <div class="nvx-sc-overlay"></div>
+            ${badgeHtml}
+            <div class="nvx-sc-content">
+              <div class="nvx-sc-name">${escapeHtml(item.nombre || '')}</div>
+              ${subHtml}
+            </div>
+          </a>
+        `;
+      }).join("");
+
+      div.innerHTML = `
+        ${mostrarTitulo ? '<div class="nvx-sc-title">' + escapeHtml(titulo) + '</div>' : ''}
+        <div class="nvx-sc-scroll">
+          ${itemsHtml}
+        </div>
+      `;
+
+      // Inyección inteligente idéntica a renderMenuCirculos:
+      if (target === document.body || target.tagName === "MAIN" || target.classList.contains("js-home-sections")) {
+        target.insertBefore(div, target.firstChild);
+      } else if (target.nextSibling) {
+        target.parentNode.insertBefore(div, target.nextSibling);
+      } else {
+        target.parentNode.appendChild(div);
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", tryInject);
+    } else {
+      tryInject();
+    }
+    }
 })();
