@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "slider-categorias":
+      return <SliderCategoriasPreview />;
     case "menu-circulos":
       return <MenuCirculosPreview />;
     case "pack-complementarios":
@@ -86,6 +88,77 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function SliderCategoriasPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "6px 8px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center", letterSpacing: "0.02em" }}>
+        EXPLORÁ COLECCIONES
+      </div>
+      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+        {[
+          { title: "HOT SALE", sub: "-40% OFF", bg: "#1f2937", isHot: true },
+          { title: "Hombre", sub: "Nueva Temp", bg: "#374151", isHot: false },
+          { title: "Mujer", sub: "Tendencias", bg: "#4b5563", isHot: false },
+        ].map((card, i) => (
+          <div
+            key={i}
+            style={{
+              width: "44px",
+              height: "56px",
+              borderRadius: "6px",
+              background: card.bg,
+              position: "relative",
+              overflow: "hidden",
+              border: card.isHot ? "1.5px solid #10B981" : "1px solid rgba(0,0,0,0.1)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-end",
+              padding: "3px",
+              boxSizing: "border-box",
+            }}
+          >
+            {card.isHot && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "2px",
+                  right: "2px",
+                  background: "#10B981",
+                  color: "#ffffff",
+                  fontSize: "5px",
+                  fontWeight: 900,
+                  padding: "0.5px 3px",
+                  borderRadius: "999px",
+                }}
+              >
+                HOT
+              </div>
+            )}
+            <div style={{ fontSize: "6px", fontWeight: 800, color: "#ffffff", lineHeight: 1.1 }}>
+              {card.title}
+            </div>
+            <div style={{ fontSize: "4.5px", color: "rgba(255,255,255,0.8)", lineHeight: 1 }}>
+              {card.sub}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function MenuCirculosPreview() {
   return (
@@ -1192,4 +1265,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-               }
+}
