@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, ArrowRight, Rocket, Sparkles } from "lucide-react";
+import { Check, ArrowRight, Rocket, Sparkles, ShieldCheck, TrendingUp } from "lucide-react";
 
 export default function CTAFinal() {
   return (
@@ -9,6 +9,7 @@ export default function CTAFinal() {
       style={{
         padding: "5rem 1.25rem",
         background: "#ffffff",
+        fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
       <motion.div
@@ -17,14 +18,14 @@ export default function CTAFinal() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         style={{
-          maxWidth: "900px",
+          maxWidth: "920px",
           margin: "0 auto",
           background: "#ffffff",
           borderRadius: "32px",
-          padding: "clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 3rem)",
+          padding: "clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 4vw, 3rem)",
           position: "relative",
           overflow: "hidden",
-          border: "1.5px solid #10B981",
+          border: "2px solid #10B981",
           boxShadow: "0 20px 60px rgba(16, 185, 129, 0.12)",
           boxSizing: "border-box",
         }}
@@ -37,8 +38,7 @@ export default function CTAFinal() {
             left: "-100px",
             width: "300px",
             height: "300px",
-            background:
-              "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
           }}
@@ -50,8 +50,7 @@ export default function CTAFinal() {
             right: "-100px",
             width: "350px",
             height: "350px",
-            background:
-              "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
           }}
@@ -59,84 +58,30 @@ export default function CTAFinal() {
 
         {/* Sparkles flotantes decorativos */}
         <motion.div
-          animate={{
-            y: [0, -15, 0],
-            rotate: [0, 15, 0],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          style={{
-            position: "absolute",
-            top: "15%",
-            left: "8%",
-            color: "#10B981",
-            opacity: 0.35,
-            pointerEvents: "none",
-          }}
+          animate={{ y: [0, -15, 0], rotate: [0, 15, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          style={{ position: "absolute", top: "15%", left: "8%", color: "#10B981", opacity: 0.35, pointerEvents: "none" }}
         >
           <Sparkles size={24} />
         </motion.div>
 
         <motion.div
-          animate={{
-            y: [0, 12, 0],
-            rotate: [0, -15, 0],
-          }}
-          transition={{
-            duration: 3.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-          style={{
-            position: "absolute",
-            top: "20%",
-            right: "10%",
-            color: "#10B981",
-            opacity: 0.35,
-            pointerEvents: "none",
-          }}
+          animate={{ y: [0, 12, 0], rotate: [0, -15, 0] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          style={{ position: "absolute", top: "20%", right: "10%", color: "#10B981", opacity: 0.35, pointerEvents: "none" }}
         >
           <Sparkles size={20} />
         </motion.div>
 
-        <motion.div
-          animate={{
-            y: [0, -10, 0],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.5,
-          }}
-          style={{
-            position: "absolute",
-            bottom: "20%",
-            left: "12%",
-            color: "#10B981",
-            opacity: 0.35,
-            pointerEvents: "none",
-          }}
-        >
-          <Sparkles size={18} />
-        </motion.div>
-
-        {/* Contenido */}
+        {/* Contenido principal */}
         <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+          
           {/* Ícono destacado */}
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             whileInView={{ scale: 1, rotate: 0 }}
             viewport={{ once: true }}
-            transition={{
-              duration: 0.6,
-              type: "spring",
-              delay: 0.1,
-            }}
+            transition={{ duration: 0.6, type: "spring", delay: 0.1 }}
             style={{
               width: "72px",
               height: "72px",
@@ -149,79 +94,97 @@ export default function CTAFinal() {
               boxShadow: "0 15px 40px rgba(16, 185, 129, 0.35)",
             }}
           >
-            <Rocket size={32} color="#ffffff" strokeWidth={2} />
+            <Rocket size={32} color="#ffffff" strokeWidth={2.5} />
           </motion.div>
 
-          {/* Título */}
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+          {/* Título de Alto Impacto */}
+          <h2
             style={{
-              fontSize: "clamp(1.75rem, 5vw, 2.75rem)",
-              fontWeight: 800,
-              color: "#000000",
+              fontSize: "clamp(1.8rem, 5vw, 2.85rem)",
+              fontWeight: 900,
+              color: "#111827",
               margin: "0 0 1rem 0",
-              letterSpacing: "-0.02em",
+              letterSpacing: "-0.03em",
               lineHeight: 1.15,
             }}
           >
-            ¿Listo para{" "}
-            <span
-              style={{
-                color: "#10B981",
-              }}
-            >
-              aumentar tus ventas
-            </span>
-            ?
-          </motion.h2>
+            Llevá la conversión de tu tienda al{" "}
+            <span style={{ color: "#10B981" }}>máximo nivel</span>
+          </h2>
 
-          {/* Subtítulo */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+          <p
             style={{
               fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
-              color: "#000000",
-              opacity: 0.7,
-              lineHeight: 1.6,
-              margin: "0 auto 2.5rem auto",
-              maxWidth: "560px",
+              color: "#4b5563",
+              lineHeight: 1.55,
+              margin: "0 auto 2rem auto",
+              maxWidth: "640px",
+              fontWeight: 500,
             }}
           >
-            Sumate a las tiendas que ya están convirtiendo más con{" "}
-            <strong style={{ color: "#000000", opacity: 1 }}>Nevux</strong>
-          </motion.p>
+            Activá de inmediato el pack completo de las 27 herramientas premium de Nevux. 
+            Sin letra chica, sin comisiones ocultas y diseñado para cargarse al instante en teléfonos celulares.
+          </p>
 
-          {/* Bullets */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+          {/* TARJETA INTERNA DE PRECIOS ULTRA CLARA (ROI FOCUS) */}
+          <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.75rem",
-              alignItems: "center",
-              marginBottom: "2.5rem",
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "20px",
+              padding: "1.75rem 1.5rem",
+              maxWidth: "540px",
+              margin: "0 auto 2.5rem auto",
+              textAlign: "center",
             }}
           >
-            <BulletItem text="7 días de prueba gratis" />
-            <BulletItem text="Sin tarjeta de crédito" />
-            <BulletItem text="Asistencia personalizada 24/7" />
-          </motion.div>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                color: "#059669",
+                background: "#ecfdf5",
+                padding: "0.35rem 0.75rem",
+                borderRadius: "999px",
+                fontSize: "0.75rem",
+                fontWeight: 800,
+                marginBottom: "0.75rem",
+              }}
+            >
+              <TrendingUp size={12} />
+              <span>SE PAGA SOLA CON SOLO 1 O 2 VENTAS EXTRA</span>
+            </div>
 
-          {/* Botones Nativo Blindados */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: "0.25rem", marginBottom: "0.25rem" }}>
+              <span style={{ fontSize: "2.25rem", fontWeight: 900, color: "#111827" }}>$30.000 ARS</span>
+              <span style={{ fontSize: "1rem", color: "#6b7280", fontWeight: 700 }}>/ mes</span>
+            </div>
+
+            <div style={{ fontSize: "0.9rem", color: "#4b5563", fontWeight: 700, marginBottom: "1rem" }}>
+              Plan Único Todo Incluido • Acceso Ilimitado a los 27 Widgets
+            </div>
+
+            <div style={{ height: "1px", background: "#e5e7eb", margin: "1rem 0" }} />
+
+            {/* Beneficios clave */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "0.6rem",
+                textAlign: "left",
+              }}
+            >
+              <BulletItem text="Activación instantánea en 1 clic" />
+              <BulletItem text="Sin comisiones por ventas" />
+              <BulletItem text="Carga ultra-veloz de 12kb" />
+              <BulletItem text="Soporte prioritario por WhatsApp" />
+            </div>
+          </div>
+
+          {/* Botones de Acción de Alta Conversión */}
+          <div
             style={{
               display: "flex",
               flexDirection: "column",
@@ -231,7 +194,7 @@ export default function CTAFinal() {
               margin: "0 auto",
             }}
           >
-            {/* Botón principal */}
+            {/* Botón Principal (Prueba Gratis) */}
             <a
               href="/registro"
               style={{
@@ -240,8 +203,8 @@ export default function CTAFinal() {
                 background: "#10B981",
                 color: "#ffffff",
                 borderRadius: "999px",
-                fontSize: "1.05rem",
-                fontWeight: 700,
+                fontSize: "1.1rem",
+                fontWeight: 800,
                 textDecoration: "none",
                 boxShadow: "0 10px 30px rgba(16, 185, 129, 0.35)",
                 transition: "all 0.2s",
@@ -257,111 +220,94 @@ export default function CTAFinal() {
             >
               {/* Brillo animado */}
               <motion.div
-                animate={{
-                  x: ["-100%", "200%"],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "linear",
-                  repeatDelay: 1,
-                }}
+                animate={{ x: ["-100%", "200%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
                 style={{
                   position: "absolute",
                   top: 0,
                   left: 0,
                   width: "50%",
                   height: "100%",
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
+                  background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
                   pointerEvents: "none",
                 }}
               />
-              <span style={{ position: "relative", zIndex: 2 }}>
-                Probar gratis
-              </span>
+              <span style={{ position: "relative", zIndex: 2 }}>Comenzar Prueba Gratis</span>
               <ArrowRight size={20} style={{ position: "relative", zIndex: 2 }} />
             </a>
 
-            {/* Botón secundario */}
+            {/* Link secundario sutil */}
             <a
               href="/registro"
               style={{
-                width: "100%",
-                padding: "1.05rem 2rem",
-                background: "#ffffff",
-                color: "#000000",
-                borderRadius: "999px",
-                fontSize: "1.05rem",
-                fontWeight: 600,
-                textDecoration: "none",
-                border: "1.5px solid #000000",
-                transition: "all 0.2s",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-                boxSizing: "border-box",
+                fontSize: "0.9rem",
+                color: "#4b5563",
+                fontWeight: 700,
+                textDecoration: "underline",
                 cursor: "pointer",
               }}
             >
-              Ver todos los widgets
-              <ArrowRight size={18} />
+              O registrate e instalá desde el App Store de Tiendanube
             </a>
-          </motion.div>
+          </div>
 
-          {/* Nota inferior */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.7 }}
+          {/* Sellos de Confianza Final */}
+          <div
             style={{
-              marginTop: "1.5rem",
+              marginTop: "2rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "1.25rem",
               fontSize: "0.8rem",
-              color: "#000000",
-              opacity: 0.6,
-              margin: "1.5rem 0 0 0",
-              fontWeight: 500,
+              color: "#6b7280",
+              fontWeight: 600,
             }}
           >
-            🔒 Datos protegidos · ⚡ Setup en menos de 5 minutos
-          </motion.p>
+            <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <ShieldCheck size={14} color="#10B981" />
+              No requiere tarjeta
+            </span>
+            <span>•</span>
+            <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              ⭐ 7 días de prueba completa
+            </span>
+          </div>
         </div>
       </motion.div>
     </section>
   );
 }
 
-// Bullet item
+// Subcomponente de viñeta premium
 function BulletItem({ text }: { text: string }) {
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "0.6rem",
-        fontSize: "0.95rem",
-        color: "#000000",
-        fontWeight: 600,
+        gap: "0.5rem",
+        fontSize: "0.85rem",
+        color: "#374151",
+        fontWeight: 700,
       }}
     >
       <div
         style={{
-          width: "24px",
-          height: "24px",
+          width: "20px",
+          height: "20px",
           borderRadius: "50%",
-          background: "#10B981",
+          background: "#ecfdf5",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
-          boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
+          color: "#10B981",
         }}
       >
-        <Check size={14} color="#ffffff" strokeWidth={3} />
+        <Check size={12} strokeWidth={3} />
       </div>
       <span>{text}</span>
     </div>
   );
-              }
+                  }
