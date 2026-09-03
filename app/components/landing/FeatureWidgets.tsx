@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap,
   Sparkles,
-  ShoppingBag,
   Flame,
   ShieldCheck,
   Gift,
@@ -16,17 +15,20 @@ import {
   ArrowRight,
   TrendingUp,
   Tag,
+  Bot,
+  BarChart3,
+  Rocket,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
-   DATOS DE LOS 27 WIDGETS DE NEVUX
+   DATOS DE LOS 27 WIDGETS POR OBJETIVO
 ═══════════════════════════════════════════ */
 type Categoria = "todos" | "aov" | "urgencia" | "confianza" | "gamificacion" | "home";
 
 interface WidgetItem {
   id: string;
   nombre: string;
-  descripcion: string;
+  problemaSolucion: string;
   categoria: Categoria;
   badge: string;
   icono: string;
@@ -43,107 +45,107 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "bundle-promociones",
     nombre: "Bundle Promociones",
-    descripcion: "Packs de 'Llevá 2 con 10% OFF, llevá 3 con 20% OFF'.",
+    problemaSolucion: "Incentiva a llevar 2 o 3 unidades ofreciendo descuentos automáticos por volumen.",
     categoria: "aov",
-    badge: "Más Vendido",
+    badge: "Más Facturación",
     icono: "📦",
   },
   {
     id: "bundle-cantidad",
-    nombre: "Bundle Cantidad",
-    descripcion: "Selector escalonado de unidades con descuentos automáticos.",
+    nombre: "Bundle por Cantidad",
+    problemaSolucion: "Escala de precios por unidad para que el cliente siempre elija la opción más grande.",
     categoria: "aov",
-    badge: "Alto Impacto",
+    badge: "Ticket Alto",
     icono: "🔢",
   },
   {
     id: "pack-complementarios",
-    nombre: "Pack Complementarios",
-    descripcion: "Sección 'Frecuentemente comprados juntos' con 1 clic.",
+    nombre: "Pack 'Comprados Juntos'",
+    problemaSolucion: "Suma productos relacionados (ej: remera + cinturón) al carrito en un solo toque.",
     categoria: "aov",
-    badge: "Cross-selling",
+    badge: "Cross-Selling",
     icono: "🛍️",
   },
   {
     id: "extras-interruptor",
-    nombre: "Extras con Interruptor",
-    descripcion: "Agregá garantías, packaging de regalo o accesorios al carrito.",
+    nombre: "Extras con Switch",
+    problemaSolucion: "Ofrece packaging de regalo o garantía extendida con un interruptor directo al carrito.",
     categoria: "aov",
-    badge: "Upselling",
+    badge: "Margen Extra",
     icono: "🔘",
   },
   {
     id: "barra-progreso",
-    nombre: "Barra de Progreso",
-    descripcion: "'¡Te faltan $X para Envío Gratis!' motivando a sumar productos.",
+    nombre: "Barra de Envío Gratis",
+    problemaSolucion: "Muestra '¡Te faltan $X para Envío Gratis!' motivando a sumar un producto más.",
     categoria: "aov",
-    badge: "Indispensable",
+    badge: "Cero Dudas",
     icono: "📊",
   },
 
-  // ⚡ URGENCIA Y CONVERSIÓN
+  // ⚡ URGENCIA Y CIERRE INMEDIATO
   {
     id: "cuenta-regresiva",
     nombre: "Cuenta Regresiva",
-    descripcion: "Reloj dinámico de liquidaciones y ofertas de tiempo limitado.",
+    problemaSolucion: "Crea FOMO con un reloj dinámico de liquidación para que no pospongan la compra.",
     categoria: "urgencia",
-    badge: "FOMO",
+    badge: "Venta Rápida",
     icono: "⏳",
   },
   {
     id: "contador-visitas",
-    nombre: "Contador de Visitas",
-    descripcion: "'X personas están viendo este producto ahora mismo'.",
+    nombre: "Contador de Personas en Vivo",
+    problemaSolucion: "Muestra cuántos visitantes miran el producto ahora, demostrando alta demanda.",
     categoria: "urgencia",
     badge: "Prueba Social",
     icono: "👀",
   },
   {
     id: "mensaje-alerta",
-    nombre: "Mensaje de Alerta",
-    descripcion: "Destacados urgentes como '¡Últimas 2 unidades en stock!'.",
+    nombre: "Aviso de Últimas Unidades",
+    problemaSolucion: "Destaca escasez real ('¡Últimas 2 unidades en stock!') para cerrar en el momento.",
     categoria: "urgencia",
     badge: "Escasez",
     icono: "🚨",
   },
   {
-    id: "banner-deslizante",
-    nombre: "Banner Deslizante",
-    descripcion: "Cinta infinita ticker con cupones, beneficios y anuncios.",
-    categoria: "urgencia",
-    badge: "Visual",
-    icono: "📢",
-  },
-  {
     id: "badge-cupon",
-    nombre: "Badge Cupón",
-    descripcion: "Cupón troquelado interactivo con botón 'Copiar código'.",
+    nombre: "Cupón Troquelado",
+    problemaSolucion: "Código de descuento visual con botón de copiado en 1 clic para usar en el checkout.",
     categoria: "urgencia",
     badge: "1 Clic",
     icono: "🎟️",
   },
+  {
+    id: "banner-deslizante",
+    nombre: "Banner Ticker Infinito",
+    problemaSolucion: "Cinta continua con promociones y cuotas pasando en la cabecera sin molestar.",
+    categoria: "urgencia",
+    badge: "Visual",
+    icono: "📢",
+  },
 
-  // 🛡️ CONFIANZA Y SOCIAL PROOF
+  // 🛡️ CONFIANZA Y ANTIDEVOLUCIONES
   {
     id: "tabla-talles",
     nombre: "Tabla de Talles Inteligente",
-    descripcion: "Modal interactivo con botón 'Elegir talle' que selecciona la variante.",
+    problemaSolucion: "El cliente elige su talle y se selecciona automáticamente en la tienda. Cero cambios.",
     categoria: "confianza",
-    badge: "Antidevoluciones",
+    badge: "Antidevolución",
     icono: "📏",
   },
   {
     id: "resenas-foto",
-    nombre: "Reseñas con Fotos UGC",
-    descripcion: "Muro de fotos reales de clientes subidas desde su celular.",
+    nombre: "Muro de Fotos Reales (UGC)",
+    problemaSolucion: "Tus clientes suben fotos reales de cómo les queda el producto desde su celular.",
     categoria: "confianza",
-    badge: "Conversión +40%",
+    badge: "+45% Confianza",
     icono: "📸",
   },
   {
     id: "resenas-clientes",
-    nombre: "Reseñas de Clientes",
-    descripcion: "Testimonios y calificaciones 5 estrellas verificadas.",
+    nombre: "Calificaciones de Clientes",
+    problemaSolucion: "Puntaje de 5 estrellas verificado y testimonios destacados cerca del botón de compra.",
     categoria: "confianza",
     badge: "Reputación",
     icono: "⭐",
@@ -151,79 +153,79 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "caja-opiniones",
     nombre: "Caja de Opiniones",
-    descripcion: "Comentarios destacados debajo del botón de compra.",
+    problemaSolucion: "Comentarios reales y preguntas frecuentes justo donde el cliente toma la decisión.",
     categoria: "confianza",
-    badge: "Confianza",
+    badge: "Claridad",
     icono: "💬",
   },
   {
     id: "comparador-marca",
-    nombre: "Comparador de Marca",
-    descripcion: "Tabla visual de 'Nosotros vs Otras Marcas' derribando dudas.",
+    nombre: "Tabla Comparativa",
+    problemaSolucion: "Demuestra por qué tu producto es superior vs otras marcas genéricas.",
     categoria: "confianza",
     badge: "Autoridad",
     icono: "⚖️",
   },
   {
-    id: "medios-pago",
-    nombre: "Medios de Pago Visuales",
-    descripcion: "Tarjetas, transferencias y pasarelas con logos de alta calidad.",
-    categoria: "confianza",
-    badge: "Claridad",
-    icono: "💳",
-  },
-  {
     id: "info-compra",
-    nombre: "Información de Compra Unificada",
-    descripcion: "Envío + Cuotas + Descuento por transferencia en una sola tarjeta.",
+    nombre: "Tarjeta de Compra Unificada",
+    problemaSolucion: "Envío, cuotas y descuento por transferencia resumidos en una sola tarjeta elegante.",
     categoria: "confianza",
     badge: "Todo en Uno",
     icono: "✨",
   },
   {
+    id: "medios-pago",
+    nombre: "Medios de Pago y Tarjetas",
+    problemaSolucion: "Muestra claramente con qué tarjetas, pasarelas y bancos pueden pagar.",
+    categoria: "confianza",
+    badge: "Financiación",
+    icono: "💳",
+  },
+  {
     id: "info-envio",
-    nombre: "Información de Envío",
-    descripcion: "Tiempos estimados de entrega y transportes disponibles.",
+    nombre: "Plazos de Envío Claros",
+    problemaSolucion: "Informa tiempos estimados de entrega para que no teman demoras en el paquete.",
     categoria: "confianza",
     badge: "Logística",
     icono: "🚚",
   },
   {
     id: "info-despacho",
-    nombre: "Información de Despacho",
-    descripcion: "Avisos de 'Despachamos en el día o en menos de 24hs'.",
+    nombre: "Aviso 'Despachamos en 24hs'",
+    problemaSolucion: "Tranquiliza al comprador asegurando despacho rápido en el día.",
     categoria: "confianza",
     badge: "Velocidad",
     icono: "⏱️",
   },
   {
     id: "mensaje-garantia",
-    nombre: "Mensaje de Garantía",
-    descripcion: "Sellos de devolución garantizada o garantía oficial.",
+    nombre: "Sello de Garantía Oficial",
+    problemaSolucion: "Garantía de devolución o cambio sin preguntas para eliminar el miedo al riesgo.",
     categoria: "confianza",
     badge: "Cero Riesgo",
     icono: "🛡️",
   },
   {
     id: "badge-cuotas",
-    nombre: "Badge Cuotas",
-    descripcion: "Destacador de 3, 6, 9 o 12 cuotas sin interés.",
+    nombre: "Badge Cuotas sin Interés",
+    problemaSolucion: "Destaca 3, 6, 9 o 12 cuotas para compras de valor alto.",
     categoria: "confianza",
-    badge: "Financiación",
+    badge: "Facilidades",
     icono: "🏷️",
   },
   {
     id: "badge-envio",
-    nombre: "Badge Envío",
-    descripcion: "Insignia visual de Envío Gratis a todo el país.",
+    nombre: "Badge Envío Gratis",
+    problemaSolucion: "Insignia visual atractiva para productos con envío bonificado.",
     categoria: "confianza",
     badge: "Beneficio",
     icono: "✈️",
   },
   {
     id: "badge-transferencia",
-    nombre: "Badge Transferencia",
-    descripcion: "Porcentaje de descuento automático pagando con transferencia.",
+    nombre: "Badge Descuento Transferencia",
+    problemaSolucion: "Destaca el porcentaje de ahorro pagando con transferencia bancaria.",
     categoria: "confianza",
     badge: "Ahorro",
     icono: "🏦",
@@ -232,18 +234,18 @@ const WIDGETS_DATA: WidgetItem[] = [
   // 🎡 INTERACTIVOS Y GAMIFICACIÓN
   {
     id: "ruleta-descuentos",
-    nombre: "Ruleta de Descuentos",
-    descripcion: "Popup gamificado para capturar emails antes de que el cliente se vaya.",
+    nombre: "Ruleta Popup Inteligente",
+    problemaSolucion: "Captura emails entregando cupones con blindaje anti-saturación (no molesta al cliente).",
     categoria: "gamificacion",
-    badge: "Anti-Saturación",
+    badge: "Captura Leads",
     icono: "🎡",
   },
 
-  // 📱 HOME Y NAVEGACIÓN
+  // 📱 EXPERIENCIA APP EN CELULARES
   {
     id: "menu-circulos",
-    nombre: "Menú de Círculos (Historias)",
-    descripcion: "Historias estilo Instagram en la Home para navegar categorías.",
+    nombre: "Historias en la Home",
+    problemaSolucion: "Círculos estilo Instagram en tu inicio para navegar colecciones de forma visual.",
     categoria: "home",
     badge: "Mobile First",
     icono: "⭕",
@@ -251,34 +253,34 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "slider-categorias",
     nombre: "Slider de Categorías",
-    descripcion: "Carrusel visual moderno de colecciones y novedades.",
+    problemaSolucion: "Carrusel moderno de colecciones para encontrar rápido lo que buscan.",
     categoria: "home",
-    badge: "Diseño App",
+    badge: "Navegación",
     icono: "🗂️",
   },
   {
     id: "slider-video",
-    nombre: "Slider de Video",
-    descripcion: "Reels y videos de productos interactivos en formato vertical.",
+    nombre: "Slider de Video Vertical",
+    problemaSolucion: "Reels y videos de producto para mostrar cómo queda puesto en formato celular.",
     categoria: "home",
-    badge: "TikTok Style",
+    badge: "Estilo TikTok",
     icono: "🎬",
   },
 ];
 
 const CATEGORIAS: CategoriaItem[] = [
-  { id: "todos", label: "Todos (27)", icon: Sparkles },
+  { id: "todos", label: "Todos los Widgets (27)", icon: Sparkles },
   { id: "aov", label: "💰 Aumentar Ticket", icon: TrendingUp },
-  { id: "urgencia", label: "⚡ Urgencia", icon: Flame },
-  { id: "confianza", label: "🛡️ Confianza", icon: ShieldCheck },
-  { id: "gamificacion", label: "🎡 Interactivos", icon: Gift },
+  { id: "urgencia", label: "⚡ Generar Urgencia", icon: Flame },
+  { id: "confianza", label: "🛡️ Confianza & Talles", icon: ShieldCheck },
+  { id: "gamificacion", label: "🎡 Gamificación", icon: Gift },
   { id: "home", label: "📱 Estilo App", icon: Smartphone },
 ];
 
 export default function FeatureWidgets() {
   const [categoriaActiva, setCategoriaActiva] = useState<Categoria>("todos");
   const [copied, setCopied] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 18, seconds: 42 });
+  const [timeLeft, setTimeLeft] = useState({ hours: 3, minutes: 42, seconds: 15 });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -323,18 +325,9 @@ export default function FeatureWidgets() {
       }}
     >
       <div style={{ maxWidth: "1150px", margin: "0 auto" }}>
-        {/* Badge Superior */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: "1rem",
-          }}
-        >
+        
+        {/* Encabezado Principal */}
+        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
           <div
             style={{
               display: "inline-flex",
@@ -348,54 +341,42 @@ export default function FeatureWidgets() {
               fontWeight: 800,
               letterSpacing: "0.03em",
               border: "1px solid #a7f3d0",
+              marginBottom: "1rem",
             }}
           >
             <Zap size={14} />
-            ARSENAL COMPLETO DE CONVERSIÓN
+            HERRAMIENTAS DISEÑADAS PARA CERRAR VENTAS
           </div>
-        </motion.div>
 
-        {/* Título de la Sección */}
-        <motion.h2
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          style={{
-            fontSize: "clamp(1.8rem, 5vw, 2.85rem)",
-            fontWeight: 900,
-            color: "#111827",
-            textAlign: "center",
-            margin: "0 0 1rem 0",
-            letterSpacing: "-0.03em",
-            lineHeight: 1.15,
-          }}
-        >
-          27 Soluciones Diseñadas Para{" "}
-          <span style={{ color: "#10B981" }}>Vender Más</span>
-        </motion.h2>
+          <h2
+            style={{
+              fontSize: "clamp(1.8rem, 5vw, 2.85rem)",
+              fontWeight: 900,
+              color: "#111827",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.15,
+              margin: "0 0 1rem 0",
+            }}
+          >
+            Cada widget resuelve un{" "}
+            <span style={{ color: "#10B981" }}>obstáculo de compra</span>
+          </h2>
 
-        {/* Subtítulo */}
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{
-            fontSize: "clamp(1rem, 2vw, 1.15rem)",
-            color: "#6b7280",
-            textAlign: "center",
-            lineHeight: 1.6,
-            maxWidth: "720px",
-            margin: "0 auto 3rem auto",
-            fontWeight: 500,
-          }}
-        >
-          Todas incluidas en tu suscripción única. Activá las que necesitás en 1 clic
-          sin saturar la velocidad de tu Tiendanube.
-        </motion.p>
+          <p
+            style={{
+              fontSize: "clamp(1rem, 2vw, 1.15rem)",
+              color: "#6b7280",
+              lineHeight: 1.6,
+              maxWidth: "720px",
+              margin: "0 auto",
+              fontWeight: 500,
+            }}
+          >
+            Elegí qué querés mejorar hoy en tu tienda: subir el ticket promedio, eliminar dudas de medidas o generar compras rápidas.
+          </p>
+        </div>
 
-        {/* FILTROS DE CATEGORÍAS (TABS HORIZONTALES) */}
+        {/* FILTROS POR OBJETIVO */}
         <div
           style={{
             display: "flex",
@@ -419,7 +400,7 @@ export default function FeatureWidgets() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.5rem",
-                  padding: "0.6rem 1.1rem",
+                  padding: "0.6rem 1.15rem",
                   borderRadius: "999px",
                   fontSize: "0.85rem",
                   fontWeight: 700,
@@ -439,14 +420,14 @@ export default function FeatureWidgets() {
           })}
         </div>
 
-        {/* GRILLA PRINCIPAL DE LOS 27 WIDGETS */}
+        {/* GRILLA DE WIDGETS */}
         <motion.div
           layout
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
             gap: "1.25rem",
-            marginBottom: "4.5rem",
+            marginBottom: "5rem",
           }}
         >
           <AnimatePresence>
@@ -460,130 +441,192 @@ export default function FeatureWidgets() {
                 transition={{ duration: 0.2 }}
                 style={{
                   background: "#ffffff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "16px",
-                  padding: "1.25rem",
+                  border: "1.5px solid #e5e7eb",
+                  borderRadius: "18px",
+                  padding: "1.35rem",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
-                  transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                  transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-3px)";
-                  e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.06)";
-                  e.currentTarget.style.borderColor = "#a7f3d0";
+                  e.currentTarget.style.borderColor = "#10B981";
+                  e.currentTarget.style.boxShadow = "0 8px 24px rgba(16, 185, 129, 0.12)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.03)";
                   e.currentTarget.style.borderColor = "#e5e7eb";
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
                 }}
               >
                 <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: "0.75rem",
-                    }}
-                  >
-                    <span style={{ fontSize: "1.75rem" }}>{item.icono}</span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.85rem" }}>
+                    <span style={{ fontSize: "1.85rem" }}>{item.icono}</span>
                     <span
                       style={{
                         fontSize: "0.7rem",
                         fontWeight: 800,
-                        padding: "0.25rem 0.6rem",
+                        padding: "0.25rem 0.65rem",
                         borderRadius: "999px",
-                        background: "#f3f4f6",
-                        color: "#4b5563",
+                        background: "#ecfdf5",
+                        color: "#059669",
+                        border: "1px solid #a7f3d0",
                       }}
                     >
                       {item.badge}
                     </span>
                   </div>
 
-                  <h3
-                    style={{
-                      fontSize: "1.05rem",
-                      fontWeight: 800,
-                      color: "#111827",
-                      margin: "0 0 0.35rem 0",
-                    }}
-                  >
+                  <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#111827", margin: "0 0 0.4rem 0" }}>
                     {item.nombre}
                   </h3>
 
-                  <p
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "#6b7280",
-                      lineHeight: 1.45,
-                      margin: 0,
-                    }}
-                  >
-                    {item.descripcion}
+                  <p style={{ fontSize: "0.85rem", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
+                    {item.problemaSolucion}
                   </p>
                 </div>
 
                 <div
                   style={{
-                    marginTop: "1rem",
-                    paddingTop: "0.75rem",
+                    marginTop: "1.25rem",
+                    paddingTop: "0.85rem",
                     borderTop: "1px solid #f3f4f6",
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.35rem",
+                    justifyContent: "space-between",
                     fontSize: "0.75rem",
                     fontWeight: 700,
                     color: "#10B981",
                   }}
                 >
-                  <span>Incluido en Plan Full</span>
-                  <Check size={14} />
+                  <span>Activalo en 1 clic</span>
+                  <Check size={15} />
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
 
-        {/* SECCIÓN DE MOCKUPS EN VIVO */}
+        {/* ═══════════════════════════════════════════
+           SECCIÓN: LO QUE SE VIENE EN NEVUX (ROADMAP)
+        ═══════════════════════════════════════════ */}
         <div
           style={{
-            background: "#f9fafb",
-            borderRadius: "24px",
-            border: "1px solid #e5e7eb",
-            padding: "2.5rem 1.5rem",
+            background: "linear-gradient(135deg, #111827 0%, #030712 100%)",
+            borderRadius: "28px",
+            border: "1.5px solid #1f2937",
+            padding: "clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 2.5rem)",
+            color: "#ffffff",
+            marginBottom: "5rem",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <div style={{ textAlign: "center", maxWidth: "720px", margin: "0 auto 3rem auto" }}>
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.4rem",
-                color: "#10B981",
-                fontSize: "0.8rem",
+                padding: "0.35rem 0.85rem",
+                background: "rgba(16, 185, 129, 0.15)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+                borderRadius: "999px",
+                fontSize: "0.75rem",
                 fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                marginBottom: "0.5rem",
+                color: "#10B981",
+                marginBottom: "0.75rem",
               }}
             >
-              <Sparkles size={14} />
-              EXPERIENCIA INTERACTIVA
+              <Rocket size={14} />
+              INNOVACIÓN CONSTANTE
             </div>
-            <h3
-              style={{
-                fontSize: "clamp(1.4rem, 3vw, 2rem)",
-                fontWeight: 900,
-                color: "#111827",
-                margin: 0,
-              }}
-            >
-              Así se ven y funcionan en tu tienda
+
+            <h3 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, margin: "0 0 0.75rem 0" }}>
+              Lo que se viene en el ecosistema Nevux
             </h3>
+
+            <p style={{ fontSize: "0.95rem", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
+              Nevux no se queda quieto. Tu suscripción única incluye automáticamente todas las nuevas tecnologías que lanzamos mes a mes sin costo extra.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "1.25rem",
+            }}
+          >
+            {/* Feature 1: NevuxBot IA CRM */}
+            <div style={{ background: "#1f2937", border: "1px solid #374151", borderRadius: "18px", padding: "1.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
+                  <Bot size={22} />
+                </div>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: 800 }}>NevuxBot IA CRM</div>
+                  <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 700 }}>● Próxima Actualización</span>
+                </div>
+              </div>
+              <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
+                Detección automática de carritos abandonados con generación de mensajes persuasivos con IA y disparo directo a WhatsApp en 1 clic.
+              </p>
+            </div>
+
+            {/* Feature 2: A/B Testing Predictivo */}
+            <div style={{ background: "#1f2937", border: "1px solid #374151", borderRadius: "18px", padding: "1.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
+                  <BarChart3 size={22} />
+                </div>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: 800 }}>Analytics de Facturación Extra</div>
+                  <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 700 }}>● En Desarrollo</span>
+                </div>
+              </div>
+              <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
+                Métricas en tiempo real que te muestran con exactitud cuántos pesos extra facturaste gracias a cada widget activado.
+              </p>
+            </div>
+
+            {/* Feature 3: Nuevos Formatos de Storytelling */}
+            <div style={{ background: "#1f2937", border: "1px solid #374151", borderRadius: "18px", padding: "1.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
+                  <Smartphone size={22} />
+                </div>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: 800 }}>Nuevos Widgets Nativos</div>
+                  <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 700 }}>● Sin Costo Adicional</span>
+                </div>
+              </div>
+              <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
+                Nuevas herramientas de gamificación y formatos de video interactivo para mantener tu tienda siempre un paso adelante de la competencia.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════
+           MOCKUPS INTERACTIVOS EN VIVO
+        ═══════════════════════════════════════════ */}
+        <div
+          style={{
+            background: "#f9fafb",
+            borderRadius: "28px",
+            border: "1.5px solid #e5e7eb",
+            padding: "2.5rem 1.5rem",
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+            <h3 style={{ fontSize: "clamp(1.4rem, 3vw, 2rem)", fontWeight: 900, color: "#111827", margin: "0 0 0.5rem 0" }}>
+              Así interactúan tus clientes con Nevux
+            </h3>
+            <p style={{ fontSize: "0.9rem", color: "#6b7280", margin: 0 }}>
+              Probá los botones directamente desde esta pantalla
+            </p>
           </div>
 
           <div
@@ -593,51 +636,21 @@ export default function FeatureWidgets() {
               gap: "1.5rem",
             }}
           >
-            {/* MOCKUP 1: Cupón Troquelado */}
-            <div
-              style={{
-                background: "#ffffff",
-                borderRadius: "20px",
-                padding: "1.5rem",
-                border: "1.5px solid #e5e7eb",
-                boxShadow: "0 8px 20px rgba(0,0,0,0.04)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
+            {/* Mockup 1: Cupón */}
+            <div style={{ background: "#ffffff", borderRadius: "20px", padding: "1.5rem", border: "1.5px solid #e5e7eb", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                  <div
-                    style={{
-                      background: "#10B981",
-                      borderRadius: "8px",
-                      padding: "0.35rem",
-                      color: "#ffffff",
-                      display: "flex",
-                    }}
-                  >
+                  <div style={{ background: "#10B981", borderRadius: "8px", padding: "0.35rem", color: "#ffffff", display: "flex" }}>
                     <Tag size={16} />
                   </div>
                   <div>
-                    <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>WIDGET #19</div>
+                    <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>CIERRE DE VENTA</div>
                     <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>Badge Cupón Troquelado</div>
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    background: "linear-gradient(135deg, #10b981, #059669)",
-                    borderRadius: "14px",
-                    padding: "1.25rem 1rem",
-                    color: "#ffffff",
-                    textAlign: "center",
-                    position: "relative",
-                    marginBottom: "1rem",
-                    boxShadow: "0 6px 16px rgba(16,185,129,0.25)",
-                  }}
-                >
-                  <div style={{ fontSize: "0.75rem", fontWeight: 800, opacity: 0.9 }}>REGALO EXCLUSIVO HOY</div>
+                <div style={{ background: "linear-gradient(135deg, #10b981, #059669)", borderRadius: "14px", padding: "1.25rem 1rem", color: "#ffffff", textAlign: "center", position: "relative", marginBottom: "1rem" }}>
+                  <div style={{ fontSize: "0.75rem", fontWeight: 800, opacity: 0.9 }}>CUPÓN ESPECIAL HOY</div>
                   <div style={{ fontSize: "1.4rem", fontWeight: 900, fontFamily: "monospace", letterSpacing: "0.08em" }}>
                     NEVUX20
                   </div>
@@ -670,44 +683,18 @@ export default function FeatureWidgets() {
               </button>
             </div>
 
-            {/* MOCKUP 2: Contador Regresivo */}
-            <div
-              style={{
-                background: "linear-gradient(135deg, #111827, #1f2937)",
-                borderRadius: "20px",
-                padding: "1.5rem",
-                color: "#ffffff",
-                boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  padding: "0.3rem 0.75rem",
-                  background: "rgba(16, 185, 129, 0.2)",
-                  border: "1px solid rgba(16, 185, 129, 0.4)",
-                  borderRadius: "999px",
-                  fontSize: "0.7rem",
-                  fontWeight: 800,
-                  color: "#a7f3d0",
-                  margin: "0 auto 0.75rem auto",
-                }}
-              >
+            {/* Mockup 2: Contador de Oferta */}
+            <div style={{ background: "linear-gradient(135deg, #111827, #1f2937)", borderRadius: "20px", padding: "1.5rem", color: "#ffffff", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.75rem", background: "rgba(16, 185, 129, 0.2)", border: "1px solid rgba(16, 185, 129, 0.4)", borderRadius: "999px", fontSize: "0.7rem", fontWeight: 800, color: "#a7f3d0", margin: "0 auto 0.75rem auto" }}>
                 <Clock size={12} />
-                OFERTA RELÁMPAGO
+                URGENCIA EN TIEMPO REAL
               </div>
 
               <div style={{ fontSize: "1.25rem", fontWeight: 900, marginBottom: "0.25rem" }}>
-                ¡Envío Gratis Finaliza en! 🔥
+                ¡Oferta de Despacho Inmediato! 🔥
               </div>
               <div style={{ fontSize: "0.8rem", opacity: 0.7, marginBottom: "1.25rem" }}>
-                Aprovechá antes de que se agoten las unidades
+                Comprá antes de que se agoten las unidades
               </div>
 
               <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
@@ -734,38 +721,27 @@ export default function FeatureWidgets() {
               </div>
             </div>
 
-            {/* MOCKUP 3: Ruleta y Tabla de Talles */}
-            <div
-              style={{
-                background: "#ffffff",
-                borderRadius: "20px",
-                padding: "1.5rem",
-                border: "1.5px solid #e5e7eb",
-                boxShadow: "0 8px 20px rgba(0,0,0,0.04)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
+            {/* Mockup 3: Tabla Interactiva y Gamificación */}
+            <div style={{ background: "#ffffff", borderRadius: "20px", padding: "1.5rem", border: "1.5px solid #e5e7eb", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
                   <div style={{ background: "#10B981", borderRadius: "8px", padding: "0.35rem", color: "#ffffff", display: "flex" }}>
-                    <Gift size={16} />
+                    <ShieldCheck size={16} />
                   </div>
                   <div>
-                    <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>INNOVACIÓN</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>Gamificación + Talles</div>
+                    <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>EXPERIENCIA SIN FRICCIÓN</div>
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>Talles + Ruleta</div>
                   </div>
                 </div>
 
                 <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "10px", marginBottom: "8px" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#166534" }}>🎡 Ruleta Anti-Saturación</div>
-                  <div style={{ fontSize: "0.75rem", color: "#15803d" }}>Captura emails y entrega premios de 5%, 10%, 15% o 20% OFF.</div>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#166534" }}>📏 Talles con Selección Real</div>
+                  <div style={{ fontSize: "0.75rem", color: "#15803d" }}>El cliente elige el talle y se selecciona automáticamente en el carrito.</div>
                 </div>
 
                 <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "10px" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1e293b" }}>📏 Tabla con Selector Nativo</div>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Al tocar "Elegir talle", selecciona la variante directo en Tiendanube.</div>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1e293b" }}>🎡 Ruleta Anti-Saturación</div>
+                  <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Captura leads y sólo se muestra una vez por cliente para no molestar.</div>
                 </div>
               </div>
 
@@ -786,7 +762,7 @@ export default function FeatureWidgets() {
                   marginTop: "1rem",
                 }}
               >
-                <span>Probar todos los widgets</span>
+                <span>Probar Nevux 7 días gratis</span>
                 <ArrowRight size={16} />
               </a>
             </div>
