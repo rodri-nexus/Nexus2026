@@ -7,13 +7,7 @@ import {
   Plus,
   Trash2,
   Eye,
-  Save,
-  Loader2,
-  X,
-  HelpCircle,
-  Palette,
-  Type,
-  Layers,
+  Check,
 } from 'lucide-react';
 import {
   ColorPicker,
@@ -61,6 +55,7 @@ export interface TalleFila {
 
 interface TablaTallesConfig {
   textoBoton: string;
+  textoBotonElegir?: string;
   tituloModal: string;
   subtextoModal: string;
   columnas: string[];
@@ -81,6 +76,7 @@ interface TablaTallesConfig {
 ═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: TablaTallesConfig = {
   textoBoton: '📏 Guía de talles',
+  textoBotonElegir: 'Elegir talle',
   tituloModal: 'GUÍA DE TALLES Y MEDIDAS',
   subtextoModal: 'Todas las medidas están expresadas en centímetros (cm)',
   columnas: ['Talle', 'Pecho', 'Cintura', 'Cadera'],
@@ -153,6 +149,15 @@ function TablaTallesPreview({
   isOpen: boolean;
   onToggleModal: () => void;
 }) {
+  const [talleSeleccionado, setTalleSeleccionado] = useState<string | null>(null);
+
+  const handleSimularElegir = (talle: string) => {
+    setTalleSeleccionado(talle);
+    setTimeout(() => {
+      setTalleSeleccionado(null);
+    }, 2500);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
       {/* Botón Disparador en la Tienda */}
@@ -234,6 +239,28 @@ function TablaTallesPreview({
           </span>
         </div>
 
+        {/* Notificación de prueba de selección */}
+        {talleSeleccionado && (
+          <div
+            style={{
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              color: '#059669',
+              padding: '8px 12px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 800,
+              marginBottom: 10,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Check size={16} />
+            <span>¡Variante "{talleSeleccionado}" seleccionada automáticamente!</span>
+          </div>
+        )}
+
         {/* Tabla */}
         <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <table
@@ -258,6 +285,15 @@ function TablaTallesPreview({
                     {col}
                   </th>
                 ))}
+                <th
+                  style={{
+                    padding: '8px 10px',
+                    fontWeight: 800,
+                    borderBottom: '1px solid #e5e7eb',
+                  }}
+                >
+                  Acción
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -280,6 +316,26 @@ function TablaTallesPreview({
                   </td>
                   <td style={{ padding: '8px 10px', color: config.modalTextColor }}>
                     {fila.col3} cm
+                  </td>
+                  <td style={{ padding: '6px 8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleSimularElegir(fila.talle)}
+                      style={{
+                        background: '#10B981',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: 6,
+                        padding: '4px 10px',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 2px 4px rgba(16,185,129,0.2)',
+                      }}
+                    >
+                      {config.textoBotonElegir || 'Elegir talle'}
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -422,12 +478,20 @@ export default function TablaTallesEditor({
   /* ─── TAB GENERAL ─── */
   const tabGeneral = (
     <div>
-      <FieldInput
-        label="Texto del botón en la página del producto"
-        value={config.textoBoton}
-        placeholder="📏 Guía de talles"
-        onChange={(v) => updateCfg('textoBoton', v)}
-      />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <FieldInput
+          label="Texto del botón en la página del producto"
+          value={config.textoBoton}
+          placeholder="📏 Guía de talles"
+          onChange={(v) => updateCfg('textoBoton', v)}
+        />
+        <FieldInput
+          label="Texto del botón en cada fila (Acción directa)"
+          value={config.textoBotonElegir || 'Elegir talle'}
+          placeholder="Elegir talle"
+          onChange={(v) => updateCfg('textoBotonElegir', v)}
+        />
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <FieldInput
@@ -893,4 +957,4 @@ export default function TablaTallesEditor({
       </div>
     </div>
   );
-  }
+}
