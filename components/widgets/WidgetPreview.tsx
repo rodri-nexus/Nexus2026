@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "resenas-foto":
+      return <ResenasFotoPreview />;
     case "slider-categorias":
       return <SliderCategoriasPreview />;
     case "menu-circulos":
@@ -88,6 +90,59 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function ResenasFotoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "6px 8px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center", letterSpacing: "0.02em" }}>
+        OPINIONES CON FOTO
+      </div>
+      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
+        {[
+          { name: "Sofía R.", text: "¡Hermosa campera!", img: "🧥", stars: "★★★★★" },
+          { name: "Lucas M.", text: "10/10 la calidad.", img: "👕", stars: "★★★★★" },
+        ].map((r, i) => (
+          <div
+            key={i}
+            style={{
+              width: "60px",
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              padding: "4px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "2px",
+            }}
+          >
+            <div style={{ width: "100%", height: "28px", background: "#e5e7eb", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}>
+              {r.img}
+            </div>
+            <div style={{ color: "#fbbf24", fontSize: "6.5px", lineHeight: 1 }}>{r.stars}</div>
+            <div style={{ fontSize: "5.5px", color: "#111827", fontWeight: 700, lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {r.text}
+            </div>
+            <div style={{ fontSize: "5px", color: "#6b7280", display: "flex", alignItems: "center", gap: "1px" }}>
+              <span style={{ color: "#10B981", fontWeight: 800 }}>✓</span> {r.name}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function SliderCategoriasPreview() {
   return (
@@ -1146,7 +1201,7 @@ function InfoDespachoPreview() {
     >
       <div style={{ fontSize: "18px" }}>📦</div>
       <div>
-        <div style={{ fontSize: "9.5px", fontWeight: 800, color: "#059669" }}>
+        <div style={{ fontSize: "9.5px", fontWeight: 800, color: "#000000" }}>
           Despacho en 24-48hs
         </div>
         <div style={{ fontSize: "8px", color: "#000000", opacity: 0.7 }}>
@@ -1265,4 +1320,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-}
+        }
