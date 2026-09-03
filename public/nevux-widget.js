@@ -7569,12 +7569,24 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       tryInject();
     }
     }
-  /* ═══════════════════════════════════════════
-     RENDER RESEÑAS CON FOTO (UGC)
+  
+   /* ═══════════════════════════════════════════
+     RENDER RESEÑAS CON FOTO (UGC - HOME FOOTER)
   ═══════════════════════════════════════════ */
   function renderResenasFoto(w) {
     var exist = document.getElementById("nvx-resenas-foto-" + w.id);
     if (exist) return;
+
+    // Detección universal de página de inicio (Home) en Tiendanube
+    function isStoreHome() {
+      var p = window.location.pathname.toLowerCase().replace(/\/+$/, "");
+      if (p === "" || p === "/home" || p === "/inicio" || p === "/index" || p === "/es" || p === "/pt") return true;
+      if (document.body && (document.body.classList.contains("page-home") || document.body.classList.contains("template-home") || document.body.id === "page-home")) return true;
+      if (window.LS && window.LS.template === "home") return true;
+      return false;
+    }
+
+    if (!isStoreHome()) return;
 
     var cfg = w.config || {};
     if (typeof cfg === "string") {
@@ -7611,29 +7623,23 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     function tryInject() {
       if (document.getElementById("nvx-resenas-foto-" + w.id)) return;
 
-      // Buscar ubicación ideal: debajo de descripción o formulario de compra
-      var target = document.querySelector(".js-product-description") ||
-                   document.querySelector(".product-description") ||
-                   document.querySelector(".js-product-form") ||
-                   document.querySelector("form[action*='/comprar/']") ||
-                   document.querySelector("form[action*='/cart/add']") ||
-                   document.querySelector(".js-product-buy-form") ||
-                   document.querySelector(".product-form") ||
-                   document.querySelector(".js-product-detail") ||
-                   document.querySelector(".js-product-container") ||
-                   document.querySelector(".js-home-sections") ||
-                   document.querySelector("main") ||
-                   document.querySelector(".js-main-content") ||
-                   document.querySelector("#wrapper") ||
-                   document.body;
+      // Buscar pie de página o contenedor final de secciones de Home
+      var footer = document.querySelector("footer") ||
+                   document.querySelector(".js-footer") ||
+                   document.querySelector("#footer") ||
+                   document.querySelector(".footer");
 
-      if (!target && attempts < 15) {
+      var homeSections = document.querySelector(".js-home-sections") ||
+                         document.querySelector("main") ||
+                         document.querySelector(".js-main-content") ||
+                         document.querySelector("#wrapper") ||
+                         document.body;
+
+      if (!footer && !homeSections && attempts < 15) {
         attempts++;
         setTimeout(tryInject, 200);
         return;
       }
-
-      if (!target) return;
 
       var styleId = "nvx-resenas-foto-styles-" + w.id;
       if (!document.getElementById(styleId)) {
@@ -7642,8 +7648,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         styleEl.innerHTML = `
           #nvx-resenas-foto-${w.id} {
             background: ${colorFondo} !important;
-            padding: 20px 14px !important;
-            margin: 20px auto !important;
+            padding: 24px 14px !important;
+            margin: 30px auto !important;
             width: 100% !important;
             max-width: 1200px !important;
             box-sizing: border-box !important;
@@ -7797,13 +7803,13 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         </div>
       `;
 
-      // Inserción limpia:
-      if (target === document.body || target.tagName === "MAIN") {
-        target.appendChild(div);
-      } else if (target.nextSibling) {
-        target.parentNode.insertBefore(div, target.nextSibling);
+      // Inyección garantizada abajo de todo en Home (antes del footer):
+      if (footer && footer.parentNode) {
+        footer.parentNode.insertBefore(div, footer);
+      } else if (homeSections) {
+        homeSections.appendChild(div);
       } else {
-        target.parentNode.appendChild(div);
+        document.body.appendChild(div);
       }
     }
 
@@ -7812,5 +7818,5 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     } else {
       tryInject();
     }
-      }
+                                                             }             
 })();
