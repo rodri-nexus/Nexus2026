@@ -32,6 +32,12 @@ interface WidgetItem {
   icono: string;
 }
 
+interface CategoriaItem {
+  id: Categoria;
+  label: string;
+  icon: React.ComponentType<{ size?: number | string }>;
+}
+
 const WIDGETS_DATA: WidgetItem[] = [
   // 💰 AUMENTO DE TICKET PROMEDIO (AOV)
   {
@@ -260,7 +266,7 @@ const WIDGETS_DATA: WidgetItem[] = [
   },
 ];
 
-const CATEGORIAS: { id: Categoria; label: string; icon: any } = [
+const CATEGORIAS: CategoriaItem[] = [
   { id: "todos", label: "Todos (27)", icon: Sparkles },
   { id: "aov", label: "💰 Aumentar Ticket", icon: TrendingUp },
   { id: "urgencia", label: "⚡ Urgencia", icon: Flame },
@@ -789,4 +795,4 @@ export default function FeatureWidgets() {
       </div>
     </section>
   );
-      }
+  }
