@@ -8,7 +8,6 @@ import {
   Eye,
   Gift,
   Sparkles,
-  Mail,
   ShieldCheck,
 } from 'lucide-react';
 import {
@@ -18,6 +17,17 @@ import {
 import EditorTabs from './EditorTabs';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   OPCIONES FIJAS DE PREMIOS
+═══════════════════════════════════════════ */
+const OPCIONES_PREMIOS = [
+  { label: '5% OFF', value: '5% OFF', esGanador: true },
+  { label: '10% OFF', value: '10% OFF', esGanador: true },
+  { label: '15% OFF', value: '15% OFF', esGanador: true },
+  { label: '20% OFF', value: '20% OFF', esGanador: true },
+  { label: 'Sigue Intentando 😢', value: 'Sigue Intentando 😢', esGanador: false },
+];
 
 /* ═══════════════════════════════════════════
    TIPOS
@@ -48,9 +58,9 @@ interface Props {
 }
 
 export interface PremioItem {
-  texto: string;         // Ej: "10% OFF"
-  codigoCupon: string;   // Ej: "GANASTE10"
-  esGanador: boolean;    // Si otorga premio o es "Sigue intentando"
+  texto: string;         // '5% OFF' | '10% OFF' | '15% OFF' | '20% OFF' | 'Sigue Intentando 😢'
+  codigoCupon: string;   // Ej: "SUERTE10"
+  esGanador: boolean;    // true para descuentos, false para "Sigue Intentando"
 }
 
 interface RuletaDescuentosConfig {
@@ -80,10 +90,10 @@ const DEFAULT_CONFIG: RuletaDescuentosConfig = {
   premios: [
     { texto: '10% OFF', codigoCupon: 'SUERTE10', esGanador: true },
     { texto: '5% OFF', codigoCupon: 'SUERTE5', esGanador: true },
-    { texto: 'Envío Gratis', codigoCupon: 'FREESHIP', esGanador: true },
     { texto: '15% OFF', codigoCupon: 'SUPER15', esGanador: true },
     { texto: 'Sigue Intentando 😢', codigoCupon: '', esGanador: false },
     { texto: '20% OFF', codigoCupon: 'MEGA20', esGanador: true },
+    { texto: '10% OFF', codigoCupon: 'PROMO10', esGanador: true },
   ],
 };
 
@@ -316,9 +326,21 @@ export default function RuletaDescuentosEditor({
     setConfig((prev) => ({ ...prev, [key]: val }));
   };
 
-  const updatePremio = (index: number, field: keyof PremioItem, value: any) => {
+  const handleSelectPremio = (index: number, selectedValue: string) => {
+    const isWinner = selectedValue !== 'Sigue Intentando 😢';
     const newPremios = [...config.premios];
-    newPremios[index] = { ...newPremios[index], [field]: value };
+    newPremios[index] = {
+      ...newPremios[index],
+      texto: selectedValue,
+      esGanador: isWinner,
+      codigoCupon: isWinner ? (newPremios[index].codigoCupon || 'DESCUENTO') : '',
+    };
+    setConfig((prev) => ({ ...prev, premios: newPremios }));
+  };
+
+  const updateCodigoCupon = (index: number, value: string) => {
+    const newPremios = [...config.premios];
+    newPremios[index] = { ...newPremios[index], codigoCupon: value };
     setConfig((prev) => ({ ...prev, premios: newPremios }));
   };
 
@@ -328,7 +350,7 @@ export default function RuletaDescuentosEditor({
       ...prev,
       premios: [
         ...prev.premios,
-        { texto: 'Premio Sorpresa 🎁', codigoCupon: 'SORPRESA', esGanador: true },
+        { texto: '10% OFF', codigoCupon: 'PROMO10', esGanador: true },
       ],
     }));
   };
@@ -464,36 +486,44 @@ export default function RuletaDescuentosEditor({
               }}
             >
               <Plus size={14} />
-              Agregar premio
+              Agregar porción
             </button>
           )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {config.premios.map((item, idx) => (
-            <div
-              key={idx}
-              style={{
-                background: '#f9fafb',
-                border: '1px solid #e5e7eb',
-                borderRadius: 12,
-                padding: 14,
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
-                  Porción #{idx + 1}
-                </span>
+          {config.premios.map((item, idx) => {
+            const esOpcionConocida = OPCIONES_PREMIOS.some((op) => op.value === item.texto);
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: item.esGanador ? '#059669' : '#6b7280', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={item.esGanador}
-                      onChange={(e) => updatePremio(idx, 'esGanador', e.target.checked)}
-                    />
-                    Otorga Premio
-                  </label>
+            return (
+              <div
+                key={idx}
+                style={{
+                  background: '#f9fafb',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 14,
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
+                      Porción #{idx + 1}
+                    </span>
+                    <span
+                      style={{
+                        background: item.esGanador ? '#ecfdf5' : '#f3f4f6',
+                        color: item.esGanador ? '#059669' : '#6b7280',
+                        border: `1px solid ${item.esGanador ? '#a7f3d0' : '#e5e7eb'}`,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: 999,
+                      }}
+                    >
+                      {item.esGanador ? '🎁 Otorga Premio' : '😢 Sin Premio'}
+                    </span>
+                  </div>
 
                   {config.premios.length > 4 && (
                     <button
@@ -505,55 +535,69 @@ export default function RuletaDescuentosEditor({
                     </button>
                   )}
                 </div>
-              </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
-                    Texto en la ruleta:
-                  </label>
-                  <input
-                    type="text"
-                    value={item.texto}
-                    onChange={(e) => updatePremio(idx, 'texto', e.target.value)}
-                    placeholder="Ej: 10% OFF"
-                    style={{
-                      width: '100%',
-                      padding: '8px 10px',
-                      borderRadius: 8,
-                      border: '1px solid #e5e7eb',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      background: '#ffffff',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
+                      Seleccionar Premio:
+                    </label>
+                    <select
+                      value={item.texto}
+                      onChange={(e) => handleSelectPremio(idx, e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        border: '1px solid #d1d5db',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        background: '#ffffff',
+                        color: '#111827',
+                        boxSizing: 'border-box',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {OPCIONES_PREMIOS.map((op) => (
+                        <option key={op.value} value={op.value}>
+                          {op.label}
+                        </option>
+                      ))}
+                      {/* Compatibilidad si tenía un valor anterior personalizado */}
+                      {!esOpcionConocida && (
+                        <option value={item.texto}>
+                          {item.texto} (Anterior)
+                        </option>
+                      )}
+                    </select>
+                  </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
-                    Código de Cupón en Tiendanube:
-                  </label>
-                  <input
-                    type="text"
-                    value={item.codigoCupon}
-                    disabled={!item.esGanador}
-                    onChange={(e) => updatePremio(idx, 'codigoCupon', e.target.value)}
-                    placeholder="Ej: DESCUENTO10"
-                    style={{
-                      width: '100%',
-                      padding: '8px 10px',
-                      borderRadius: 8,
-                      border: '1px solid #e5e7eb',
-                      fontSize: 13,
-                      background: item.esGanador ? '#ffffff' : '#f3f4f6',
-                      boxSizing: 'border-box',
-                    }}
-                  />
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
+                      Código de Cupón en Tiendanube:
+                    </label>
+                    <input
+                      type="text"
+                      value={item.codigoCupon}
+                      disabled={!item.esGanador}
+                      onChange={(e) => updateCodigoCupon(idx, e.target.value)}
+                      placeholder={item.esGanador ? 'Ej: DESCUENTO10' : 'No aplica (sin premio)'}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        border: '1px solid #e5e7eb',
+                        fontSize: 13,
+                        background: item.esGanador ? '#ffffff' : '#f3f4f6',
+                        color: item.esGanador ? '#111827' : '#9ca3af',
+                        boxSizing: 'border-box',
+                        fontWeight: item.esGanador ? 600 : 400,
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
