@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Plus,
@@ -8,10 +8,12 @@ import {
   Eye,
   Star,
   CheckCircle2,
+  Upload,
+  Image as ImageIcon,
+  RotateCcw,
 } from 'lucide-react';
 import {
   ColorPicker,
-  Slider,
   FieldInput,
 } from './EditorFields';
 import EditorTabs from './EditorTabs';
@@ -50,8 +52,8 @@ export interface ReviewFotoItem {
   nombre: string;
   texto: string;
   estrellas: number;
-  imagenUrl: string;
-  datosExtra: string; // ej: "Comprador verificado", "Hace 2 días"
+  imagenUrl: string; // Guardará el base64 comprimido
+  datosExtra: string;
   verificada: boolean;
 }
 
@@ -71,7 +73,7 @@ interface ResenasFotoConfig {
 const DEFAULT_CONFIG: ResenasFotoConfig = {
   titulo: 'LO QUE DICEN NUESTROS COMPRADORES',
   mostrarTitulo: true,
-  colorEstrellas: '#fbbf24', // Dorado
+  colorEstrellas: '#fbbf24',
   colorTexto: '#111827',
   colorFondo: '#ffffff',
   colorTarjeta: '#f9fafb',
@@ -80,7 +82,7 @@ const DEFAULT_CONFIG: ResenasFotoConfig = {
       nombre: 'Sofía R.',
       texto: '¡Espectacular la campera! La calidad es de primera y el talle M me quedó justo como quería. Llegó súper rápido.',
       estrellas: 5,
-      imagenUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+      imagenUrl: '',
       datosExtra: 'Buenos Aires',
       verificada: true,
     },
@@ -88,7 +90,7 @@ const DEFAULT_CONFIG: ResenasFotoConfig = {
       nombre: 'Lucas M.',
       texto: 'Las remeras oversize son un 10 de 10. Algodón pesado muy premium, ya las lavé y no achicaron nada. Recomiendo.',
       estrellas: 5,
-      imagenUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80',
+      imagenUrl: '',
       datosExtra: 'Córdoba',
       verificada: true,
     },
@@ -202,20 +204,21 @@ function ResenasFotoPreview({ config }: { config: ResenasFotoConfig }) {
                 background: '#f3f4f6',
                 overflow: 'hidden',
                 position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               {item.imagenUrl ? (
                 <img
                   src={item.imagenUrl}
                   alt={item.nombre}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', fontSize: 24 }}>
-                  📸
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, color: '#9ca3af' }}>
+                  <ImageIcon size={24} />
+                  <span style={{ fontSize: 9, fontWeight: 700 }}>Sin foto</span>
                 </div>
               )}
             </div>
@@ -301,6 +304,9 @@ export default function ResenasFotoEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Referencias para los inputs de archivo ocultos
+  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+
   const updateCfg = <K extends keyof ResenasFotoConfig>(
     key: K,
     val: ResenasFotoConfig[K]
@@ -312,6 +318,52 @@ export default function ResenasFotoEditor({
     const newItems = [...config.items];
     newItems[index] = { ...newItems[index], [field]: value };
     setConfig((prev) => ({ ...prev, items: newItems }));
+  };
+
+  // Compresor y convertidor inteligente de imágenes del celular
+  const handleFileChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400; // Medida ideal para miniaturas retina nítidas
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Exportamos a un JPEG comprimido de peso pluma
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          updateItem(index, 'imagenUrl', compressedBase64);
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileSelect = (index: number) => {
+    fileInputRefs.current[index]?.click();
   };
 
   const addItem = () => {
@@ -409,7 +461,7 @@ export default function ResenasFotoEditor({
         />
       )}
 
-      {/* TUTORIAL DE IMÁGENES */}
+      {/* TUTORIAL TOTALMENTE REAJUSTADO */}
       <div
         style={{
           background: '#f0fdf4',
@@ -420,14 +472,13 @@ export default function ResenasFotoEditor({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <span style={{ fontSize: 18 }}>📸</span>
+          <span style={{ fontSize: 18 }}>✨</span>
           <span style={{ fontSize: 13, fontWeight: 800, color: '#166534' }}>
-            ¿Cómo subir fotos reales de tus clientes?
+            ¡Subida directa sin enlaces ni complicaciones!
           </span>
         </div>
         <div style={{ fontSize: 12, color: '#15803d', lineHeight: 1.55 }}>
-          Podés subir fotos que tus clientes te manden por WhatsApp o Instagram. <br />
-          <b>¿Cómo obtener la URL?:</b> Podés subirlas primero a tu hosting, subirlas como imágenes de un producto oculto en tu Tiendanube, o usar un servidor gratuito de imágenes como <code>postimages.org</code> o <code>imgur.com</code> para copiar el "Enlace directo" de la imagen (que termine en <code>.jpg</code> o <code>.png</code>).
+          Ahora es súper fácil. Tocá el botón <b>"Subir Foto"</b> en cada opinión, elegí la imagen desde la galería de tu celular o sacale una foto con la cámara y Nevux se encargará de comprimirla automáticamente para mantener tu velocidad al máximo.
         </div>
       </div>
 
@@ -480,7 +531,7 @@ export default function ResenasFotoEditor({
                 padding: 14,
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
                   Reseña #{idx + 1}
                 </span>
@@ -504,6 +555,77 @@ export default function ResenasFotoEditor({
                       <Trash2 size={16} />
                     </button>
                   )}
+                </div>
+              </div>
+
+              {/* CONTENEDOR DE SUBIDA DE IMAGEN */}
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12, background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 10, padding: 10 }}>
+                {/* Miniatura actual */}
+                <div style={{ width: 56, height: 56, borderRadius: 8, background: '#f3f4f6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e5e7eb', flexShrink: 0 }}>
+                  {item.imagenUrl ? (
+                    <img src={item.imagenUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <ImageIcon size={20} color="#9ca3af" />
+                  )}
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
+                    Foto de la opinión
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {/* Botón gatillo */}
+                    <button
+                      type="button"
+                      onClick={() => triggerFileSelect(idx)}
+                      style={{
+                        background: '#ecfdf5',
+                        color: '#059669',
+                        border: '1px solid #a7f3d0',
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}
+                    >
+                      <Upload size={12} />
+                      {item.imagenUrl ? 'Cambiar Foto' : 'Subir Foto de Galería'}
+                    </button>
+
+                    {item.imagenUrl && (
+                      <button
+                        type="button"
+                        onClick={() => updateItem(idx, 'imagenUrl', '')}
+                        style={{
+                          background: '#fef2f2',
+                          color: '#b91c1c',
+                          border: '1px solid #fca5a5',
+                          padding: '6px 12px',
+                          borderRadius: 6,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Quitar
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Input de tipo archivo oculto */}
+                  <input
+                    type="file"
+                    ref={(el) => {
+                      fileInputRefs.current[idx] = el;
+                    }}
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(idx, e)}
+                    style={{ display: 'none' }}
+                  />
                 </div>
               </div>
 
@@ -576,7 +698,7 @@ export default function ResenasFotoEditor({
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
                     Opinión del cliente:
@@ -584,7 +706,7 @@ export default function ResenasFotoEditor({
                   <textarea
                     value={item.texto}
                     onChange={(e) => updateItem(idx, 'texto', e.target.value)}
-                    placeholder="Escribí aquí lo que opina el cliente de tu producto..."
+                    placeholder="Escribí aquí lo que opina el cliente..."
                     rows={2}
                     style={{
                       width: '100%',
@@ -599,27 +721,6 @@ export default function ResenasFotoEditor({
                     }}
                   />
                 </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#4b5563', marginBottom: 4 }}>
-                  URL directa de la foto del producto/cliente:
-                </label>
-                <input
-                  type="text"
-                  value={item.imagenUrl}
-                  onChange={(e) => updateItem(idx, 'imagenUrl', e.target.value)}
-                  placeholder="https://.../foto.jpg"
-                  style={{
-                    width: '100%',
-                    padding: '8px 10px',
-                    borderRadius: 8,
-                    border: '1px solid #e5e7eb',
-                    fontSize: 12,
-                    boxSizing: 'border-box',
-                    background: '#ffffff',
-                  }}
-                />
               </div>
             </div>
           ))}
@@ -874,4 +975,4 @@ export default function ResenasFotoEditor({
       </div>
     </div>
   );
-  }
+                       }
