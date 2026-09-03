@@ -6520,7 +6520,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
                                              }
 
-    /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER TABLA DE TALLES
   ═══════════════════════════════════════════ */
   function renderTablaTalles(w) {
@@ -6535,6 +6535,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
 
     var textoBoton = cfg.textoBoton || "📏 Guía de talles";
+    var textoBotonElegir = cfg.textoBotonElegir || "Elegir talle";
     var tituloModal = cfg.tituloModal || "GUÍA DE TALLES Y MEDIDAS";
     var subtextoModal = cfg.subtextoModal || "Todas las medidas están expresadas en centímetros (cm)";
     var columnas = Array.isArray(cfg.columnas) ? cfg.columnas : ["Talle", "Pecho", "Cintura", "Cadera"];
@@ -6613,7 +6614,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           background: ${modalBgColor} !important;
           color: ${modalTextColor} !important;
           width: 100% !important;
-          max-width: 520px !important;
+          max-width: 540px !important;
           border-radius: 18px !important;
           box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
           padding: 20px !important;
@@ -6681,6 +6682,27 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           border-bottom: 1px solid #f3f4f6 !important;
           color: ${modalTextColor} !important;
         }
+        .nvx-talle-action-btn {
+          background: #10B981 !important;
+          color: #ffffff !important;
+          border: none !important;
+          border-radius: 6px !important;
+          padding: 5px 10px !important;
+          font-size: 11px !important;
+          font-weight: 800 !important;
+          cursor: pointer !important;
+          white-space: nowrap !important;
+          box-shadow: 0 2px 4px rgba(16,185,129,0.2) !important;
+          transition: all 0.15s ease !important;
+          font-family: inherit !important;
+        }
+        .nvx-talle-action-btn:hover {
+          background: #059669 !important;
+          transform: scale(1.03) !important;
+        }
+        .nvx-talle-action-btn.nvx-selected-success {
+          background: #047857 !important;
+        }
         #nvx-talles-modal-card-${w.id} .nvx-help-note {
           margin-top: 12px !important;
           padding: 9px 12px !important;
@@ -6701,22 +6723,28 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     btnWrapper.innerHTML = `<button type="button" id="nvx-talles-btn-${w.id}">${escapeHtml(textoBoton)}</button>`;
     target.parentNode.insertBefore(btnWrapper, target);
 
-    // 2. Crear el modal flotante directo en document.body (para que no lo tape ningún contenedor)
+    // 2. Crear el modal flotante en document.body
     var modal = document.createElement("div");
     modal.id = "nvx-talles-modal-" + w.id;
 
     var theadCols = columnas.map(function(c) {
       return '<th>' + escapeHtml(c) + '</th>';
-    }).join("");
+    }).join("") + '<th>Acción</th>';
 
     var tbodyRows = filas.map(function(f, idx) {
       var bg = idx % 2 === 0 ? "#ffffff" : "#fafafa";
+      var talleVal = (f.talle || "").trim();
       return `
         <tr style="background:${bg};">
-          <td style="font-weight:900;">${escapeHtml(f.talle || "")}</td>
+          <td style="font-weight:900;">${escapeHtml(talleVal)}</td>
           <td>${escapeHtml(f.col1 || "")} cm</td>
           <td>${escapeHtml(f.col2 || "")} cm</td>
           <td>${escapeHtml(f.col3 || "")} cm</td>
+          <td style="padding: 6px 8px;">
+            <button type="button" class="nvx-talle-action-btn" data-talle="${escapeHtml(talleVal)}">
+              ${escapeHtml(textoBotonElegir)}
+            </button>
+          </td>
         </tr>
       `;
     }).join("");
@@ -6760,13 +6788,92 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     openBtn.addEventListener("click", openModal);
     closeBtn.addEventListener("click", closeModal);
 
-    // Cerrar al tocar afuera de la tarjeta
     modal.addEventListener("click", function(e) {
       if (e.target === modal) {
         closeModal(e);
       }
     });
+
+    // 3. DETECTOR Y SELECCIONADOR UNIVERSAL DE VARIANTES TIENDANUBE
+    function triggerTiendanubeVariant(talleStr) {
+      if (!talleStr) return false;
+      var clean = talleStr.trim().toLowerCase();
+      var found = false;
+
+      // A. Buscar en dropdowns <select>
+      var selects = document.querySelectorAll("form[action*='/cart/add'] select, .js-product-form select, select.js-variation-option, select[name*='variation']");
+      for (var i = 0; i < selects.length; i++) {
+        var sel = selects[i];
+        for (var j = 0; j < sel.options.length; j++) {
+          var opt = sel.options[j];
+          var optText = (opt.textContent || opt.innerText || "").trim().toLowerCase();
+          var optVal = (opt.value || "").trim().toLowerCase();
+          
+          if (optText === clean || optVal === clean || optText.indexOf(" " + clean) !== -1 || optText.indexOf(clean + " ") !== -1 || optText.indexOf(clean) === 0) {
+            sel.selectedIndex = j;
+            sel.value = opt.value;
+            sel.dispatchEvent(new Event("change", { bubbles: true }));
+            sel.dispatchEvent(new Event("input", { bubbles: true }));
+            if (window.jQuery) {
+              try { window.jQuery(sel).trigger("change"); } catch(err){}
+            }
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
       }
+
+      // B. Si no está en select, buscar en swatches, pills, botones o radios
+      if (!found) {
+        var clickableCandidates = document.querySelectorAll(
+          "form[action*='/cart/add'] input[type='radio'], " +
+          "form[action*='/cart/add'] [data-option-value], " +
+          "form[action*='/cart/add'] .js-variant-item, " +
+          "form[action*='/cart/add'] .js-swatch-option, " +
+          "form[action*='/cart/add'] .btn-variant, " +
+          "form[action*='/cart/add'] label, " +
+          "form[action*='/cart/add'] button[data-value]"
+        );
+
+        for (var k = 0; k < clickableCandidates.length; k++) {
+          var el = clickableCandidates[k];
+          var text = (el.textContent || el.innerText || el.getAttribute("data-option-value") || el.getAttribute("data-value") || el.value || "").trim().toLowerCase();
+          
+          if (text === clean || text === "talle " + clean || text === clean + " " || text.indexOf(clean) !== -1) {
+            el.click();
+            el.dispatchEvent(new Event("change", { bubbles: true }));
+            if (window.jQuery) {
+              try { window.jQuery(el).trigger("click").trigger("change"); } catch(err){}
+            }
+            found = true;
+            break;
+          }
+        }
+      }
+
+      return found;
+    }
+
+    // 4. Asignar evento click a cada botón de talle
+    var actionBtns = modal.querySelectorAll(".nvx-talle-action-btn");
+    actionBtns.forEach(function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        var talleElegido = btn.getAttribute("data-talle") || "";
+        triggerTiendanubeVariant(talleElegido);
+
+        btn.classList.add("nvx-selected-success");
+        btn.textContent = "¡Elegido! ✓";
+
+        setTimeout(function() {
+          btn.classList.remove("nvx-selected-success");
+          btn.textContent = textoBotonElegir;
+          closeModal();
+        }, 450);
+      });
+    });
+}
     /* ═══════════════════════════════════════════
      RENDER PACK COMPLEMENTARIOS
   ═══════════════════════════════════════════ */
