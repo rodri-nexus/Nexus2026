@@ -7570,7 +7570,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
     }
   
-   /* ═══════════════════════════════════════════
+     /* ═══════════════════════════════════════════
      RENDER RESEÑAS CON FOTO (UGC - HOME FOOTER)
   ═══════════════════════════════════════════ */
   function renderResenasFoto(w) {
@@ -7648,16 +7648,17 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         styleEl.innerHTML = `
           #nvx-resenas-foto-${w.id} {
             background: ${colorFondo} !important;
-            padding: 24px 14px !important;
+            padding: 20px 10px !important;
             margin: 30px auto !important;
             width: 100% !important;
-            max-width: 1200px !important;
+            max-width: 100% !important;
             box-sizing: border-box !important;
             font-family: system-ui, -apple-system, sans-serif !important;
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
             border-radius: 14px !important;
+            overflow: hidden !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-title {
             font-size: 15px !important;
@@ -7669,36 +7670,42 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-scroll {
             display: flex !important;
-            gap: 14px !important;
+            gap: 12px !important;
             overflow-x: auto !important;
-            padding: 4px 6px 12px 6px !important;
+            overflow-y: hidden !important;
+            padding: 4px 10px 16px 10px !important;
             -webkit-overflow-scrolling: touch !important;
+            touch-action: pan-x !important;
             scrollbar-width: none !important;
-            justify-content: ${items.length <= 3 ? "center" : "flex-start"} !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-scroll::-webkit-scrollbar {
             display: none !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-card {
-            width: 220px !important;
+            flex: 0 0 210px !important;
+            width: 210px !important;
+            max-width: 80vw !important;
             background: ${colorTarjeta} !important;
             border: 1px solid #e5e7eb !important;
             border-radius: 12px !important;
             padding: 12px !important;
-            flex-shrink: 0 !important;
             display: flex !important;
             flex-direction: column !important;
             gap: 10px !important;
             box-sizing: border-box !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
             transition: transform 0.15s ease !important;
+            word-break: break-word !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-card:hover {
             transform: translateY(-2px) !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-img-box {
             width: 100% !important;
-            height: 140px !important;
+            height: 130px !important;
             border-radius: 8px !important;
             background: #f3f4f6 !important;
             overflow: hidden !important;
@@ -7731,7 +7738,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
             font-weight: 700 !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-text {
-            font-size: 12px !important;
+            font-size: 11.5px !important;
             color: ${colorTexto} !important;
             margin: 0 !important;
             line-height: 1.45 !important;
@@ -7743,12 +7750,12 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
             margin-top: auto !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-name {
-            font-size: 11.5px !important;
+            font-size: 11px !important;
             font-weight: 800 !important;
             color: #111827 !important;
           }
           #nvx-resenas-foto-${w.id} .nvx-rf-extra {
-            font-size: 10px !important;
+            font-size: 9.5px !important;
             color: #6b7280 !important;
             margin-top: 2px !important;
           }
@@ -7803,7 +7810,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         </div>
       `;
 
-      // Inyección garantizada abajo de todo en Home (antes del footer):
+      // Inyección en Home:
       if (footer && footer.parentNode) {
         footer.parentNode.insertBefore(div, footer);
       } else if (homeSections) {
@@ -7818,5 +7825,5 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     } else {
       tryInject();
     }
-                                                             }             
+        }        
 })();
