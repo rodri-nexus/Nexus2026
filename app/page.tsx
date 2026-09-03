@@ -1,11 +1,6 @@
 import Header from "./components/landing/Header";
 import Hero from "./components/landing/Hero";
-import SocialProof from "./components/landing/SocialProof";
-import FeatureBundles from "./components/landing/FeatureBundles";
 import FeatureWidgets from "./components/landing/FeatureWidgets";
-import FeatureTrust from "./components/landing/FeatureTrust";
-import FeatureCustomize from "./components/landing/FeatureCustomize";
-import Testimonials from "./components/landing/Testimonials";
 import CTAFinal from "./components/landing/CTAFinal";
 import Footer from "./components/landing/Footer";
 import ChatBubble from "./components/landing/ChatBubble";
@@ -24,14 +19,9 @@ export default function HomePage() {
       {/* Header sticky */}
       <Header />
 
-      {/* Secciones principales */}
+      {/* Secciones principales de alta conversión */}
       <Hero />
-      <SocialProof />
-      <FeatureBundles />
       <FeatureWidgets />
-      <FeatureTrust />
-      <FeatureCustomize />
-      <Testimonials />
       <CTAFinal />
 
       {/* Footer */}
@@ -41,4 +31,4 @@ export default function HomePage() {
       <ChatBubble />
     </main>
   );
-      }
+}
