@@ -1597,6 +1597,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
               if (w.widget_slug === "slider-categorias") {
       renderSliderCategorias(w);
               }
+                    if (w.widget_slug === "resenas-foto") {
+            renderResenasFoto(w);
+                    }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -7566,4 +7569,248 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       tryInject();
     }
     }
+  /* ═══════════════════════════════════════════
+     RENDER RESEÑAS CON FOTO (UGC)
+  ═══════════════════════════════════════════ */
+  function renderResenasFoto(w) {
+    var exist = document.getElementById("nvx-resenas-foto-" + w.id);
+    if (exist) return;
+
+    var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
+    }
+
+    var titulo = cfg.titulo || "LO QUE DICEN NUESTROS COMPRADORES";
+    var mostrarTitulo = cfg.mostrarTitulo !== false && titulo !== "";
+    var colorEstrellas = cfg.colorEstrellas || "#fbbf24";
+    var colorTexto = cfg.colorTexto || "#111827";
+    var colorFondo = cfg.colorFondo || "#ffffff";
+    var colorTarjeta = cfg.colorTarjeta || "#f9fafb";
+
+    var items = Array.isArray(cfg.items) && cfg.items.length > 0 ? cfg.items : [
+      {
+        nombre: "Sofía R.",
+        texto: "¡Espectacular la campera! La calidad es de primera y el talle M me quedó justo como quería. Llegó súper rápido.",
+        estrellas: 5,
+        imagenUrl: "",
+        datosExtra: "Buenos Aires",
+        verificada: true
+      },
+      {
+        nombre: "Lucas M.",
+        texto: "Las remeras oversize son un 10 de 10. Algodón pesado muy premium, ya las lavé y no achicaron nada. Recomiendo.",
+        estrellas: 5,
+        imagenUrl: "",
+        datosExtra: "Córdoba",
+        verificada: true
+      }
+    ];
+
+    var attempts = 0;
+    function tryInject() {
+      if (document.getElementById("nvx-resenas-foto-" + w.id)) return;
+
+      // Buscar ubicación ideal: debajo de descripción o formulario de compra
+      var target = document.querySelector(".js-product-description") ||
+                   document.querySelector(".product-description") ||
+                   document.querySelector(".js-product-form") ||
+                   document.querySelector("form[action*='/comprar/']") ||
+                   document.querySelector("form[action*='/cart/add']") ||
+                   document.querySelector(".js-product-buy-form") ||
+                   document.querySelector(".product-form") ||
+                   document.querySelector(".js-product-detail") ||
+                   document.querySelector(".js-product-container") ||
+                   document.querySelector(".js-home-sections") ||
+                   document.querySelector("main") ||
+                   document.querySelector(".js-main-content") ||
+                   document.querySelector("#wrapper") ||
+                   document.body;
+
+      if (!target && attempts < 15) {
+        attempts++;
+        setTimeout(tryInject, 200);
+        return;
+      }
+
+      if (!target) return;
+
+      var styleId = "nvx-resenas-foto-styles-" + w.id;
+      if (!document.getElementById(styleId)) {
+        var styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.innerHTML = `
+          #nvx-resenas-foto-${w.id} {
+            background: ${colorFondo} !important;
+            padding: 20px 14px !important;
+            margin: 20px auto !important;
+            width: 100% !important;
+            max-width: 1200px !important;
+            box-sizing: border-box !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            border-radius: 14px !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-title {
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            color: #000000 !important;
+            letter-spacing: 0.03em !important;
+            margin: 0 0 16px 0 !important;
+            text-align: center !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-scroll {
+            display: flex !important;
+            gap: 14px !important;
+            overflow-x: auto !important;
+            padding: 4px 6px 12px 6px !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+            justify-content: ${items.length <= 3 ? "center" : "flex-start"} !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-scroll::-webkit-scrollbar {
+            display: none !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-card {
+            width: 220px !important;
+            background: ${colorTarjeta} !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 12px !important;
+            padding: 12px !important;
+            flex-shrink: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            box-sizing: border-box !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+            transition: transform 0.15s ease !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-card:hover {
+            transform: translateY(-2px) !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-img-box {
+            width: 100% !important;
+            height: 140px !important;
+            border-radius: 8px !important;
+            background: #f3f4f6 !important;
+            overflow: hidden !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-stars {
+            color: ${colorEstrellas} !important;
+            font-size: 13px !important;
+            letter-spacing: 1px !important;
+            line-height: 1 !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-verified {
+            display: flex !important;
+            align-items: center !important;
+            gap: 3px !important;
+            color: #10b981 !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-text {
+            font-size: 12px !important;
+            color: ${colorTexto} !important;
+            margin: 0 !important;
+            line-height: 1.45 !important;
+            flex: 1 !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-footer {
+            border-top: 1px solid #f1f3f5 !important;
+            padding-top: 8px !important;
+            margin-top: auto !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-name {
+            font-size: 11.5px !important;
+            font-weight: 800 !important;
+            color: #111827 !important;
+          }
+          #nvx-resenas-foto-${w.id} .nvx-rf-extra {
+            font-size: 10px !important;
+            color: #6b7280 !important;
+            margin-top: 2px !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      var div = document.createElement("div");
+      div.id = "nvx-resenas-foto-" + w.id;
+
+      var itemsHtml = items.map(function(item) {
+        var starsStr = "";
+        var numStars = Number(item.estrellas) || 5;
+        for (var i = 0; i < 5; i++) {
+          starsStr += i < numStars ? "★" : "☆";
+        }
+
+        var imgHtml = item.imagenUrl
+          ? '<img class="nvx-rf-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" onerror="this.onerror=null; this.style.display=\'none\'; this.parentNode.innerHTML=\'<span style=\\\'font-size:28px;\\\'>📸</span>\';" />'
+          : '<span style="font-size:28px;">📸</span>';
+
+        var verifiedHtml = item.verificada
+          ? '<div class="nvx-rf-verified">✓ Verificado</div>'
+          : '';
+
+        var extraHtml = item.datosExtra
+          ? '<div class="nvx-rf-extra">' + escapeHtml(item.datosExtra) + '</div>'
+          : '';
+
+        return `
+          <div class="nvx-rf-card">
+            <div class="nvx-rf-img-box">
+              ${imgHtml}
+            </div>
+            <div class="nvx-rf-header">
+              <div class="nvx-rf-stars">${starsStr}</div>
+              ${verifiedHtml}
+            </div>
+            <p class="nvx-rf-text">"${escapeHtml(item.texto || '')}"</p>
+            <div class="nvx-rf-footer">
+              <div class="nvx-rf-name">${escapeHtml(item.nombre || 'Cliente')}</div>
+              ${extraHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      div.innerHTML = `
+        ${mostrarTitulo ? '<div class="nvx-rf-title">' + escapeHtml(titulo) + '</div>' : ''}
+        <div class="nvx-rf-scroll">
+          ${itemsHtml}
+        </div>
+      `;
+
+      // Inserción limpia:
+      if (target === document.body || target.tagName === "MAIN") {
+        target.appendChild(div);
+      } else if (target.nextSibling) {
+        target.parentNode.insertBefore(div, target.nextSibling);
+      } else {
+        target.parentNode.appendChild(div);
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", tryInject);
+    } else {
+      tryInject();
+    }
+      }
 })();
