@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "ruleta-descuentos":
+      return <RuletaDescuentosPreview />;
     case "resenas-foto":
       return <ResenasFotoPreview />;
     case "slider-categorias":
@@ -90,6 +92,64 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function RuletaDescuentosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "6px 8px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "4px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827", letterSpacing: "0.02em" }}>
+        🎡 ¡GIRÁ Y GANÁ!
+      </div>
+      
+      {/* Mini Rueda */}
+      <div
+        style={{
+          width: "36px",
+          height: "36px",
+          borderRadius: "50%",
+          border: "2px solid #111827",
+          background: "conic-gradient(#10B981 0deg 60deg, #111827 60deg 120deg, #10B981 120deg 180deg, #111827 180deg 240deg, #10B981 240deg 300deg, #111827 300deg 360deg)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+        }}
+      >
+        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ffffff", border: "1px solid #111827" }} />
+      </div>
+
+      <div style={{ fontSize: "6px", color: "#6b7280", lineHeight: 1 }}>
+        Ingresá tu email
+      </div>
+
+      <div
+        style={{
+          background: "#10B981",
+          color: "#ffffff",
+          fontSize: "6.5px",
+          fontWeight: 800,
+          padding: "2px 8px",
+          borderRadius: "999px",
+        }}
+      >
+        ¡Girar Ruleta!
+      </div>
+    </div>
+  );
+}
 
 function ResenasFotoPreview() {
   return (
@@ -1320,4 +1380,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-        }
+  }
