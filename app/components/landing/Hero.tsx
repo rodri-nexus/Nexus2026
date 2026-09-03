@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Zap, ShieldCheck, ArrowRight, Star, Sparkles } from "lucide-react";
+import { Zap, ArrowRight, TrendingUp, Sparkles, Shield, ShoppingCart } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -14,16 +14,16 @@ export default function Hero() {
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Luces decorativas de fondo premium */}
+      {/* Luz difusa ambiental */}
       <div
         style={{
           position: "absolute",
-          top: "-15%",
+          top: "-10%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "min(600px, 100vw)",
-          height: "400px",
-          background: "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
+          width: "min(700px, 100vw)",
+          height: "450px",
+          background: "radial-gradient(circle, rgba(16, 185, 129, 0.09) 0%, transparent 70%)",
           zIndex: 1,
           pointerEvents: "none",
         }}
@@ -31,14 +31,14 @@ export default function Hero() {
 
       <div
         style={{
-          maxWidth: "1000px",
+          maxWidth: "1050px",
           margin: "0 auto",
           position: "relative",
           zIndex: 2,
           textAlign: "center",
         }}
       >
-        {/* Badge de App Aprobada Oficial */}
+        {/* Propuesta de Valor: Badge Dinámico */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -47,49 +47,40 @@ export default function Hero() {
             display: "inline-flex",
             alignItems: "center",
             gap: "0.5rem",
-            padding: "0.5rem 1rem",
+            padding: "0.45rem 1rem",
             background: "#ecfdf5",
-            border: "1px solid #a7f3d0",
+            border: "1.5px solid #a7f3d0",
             borderRadius: "999px",
             fontSize: "0.8rem",
             color: "#059669",
             fontWeight: 800,
             marginBottom: "1.5rem",
-            boxShadow: "0 4px 10px rgba(16, 185, 129, 0.05)",
+            letterSpacing: "0.02em",
           }}
         >
-          <ShieldCheck size={14} />
-          <span>APP OFICIAL APROBADA EN TIENDANUBE (ID: 37382)</span>
+          <Sparkles size={14} />
+          <span>LA SUITE DE CONVERSIÓN & AUMENTO DE TICKET #1 EN LATAM</span>
         </motion.div>
 
-        {/* Título Principal de Alto Impacto */}
+        {/* Título Vendedor de Alto Impacto */}
         <motion.h1
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           style={{
-            fontSize: "clamp(2.1rem, 6.5vw, 4rem)",
+            fontSize: "clamp(2.1rem, 6.5vw, 4.2rem)",
             fontWeight: 900,
             color: "#111827",
-            lineHeight: 1.1,
-            letterSpacing: "-0.03em",
+            lineHeight: 1.08,
+            letterSpacing: "-0.035em",
             margin: "0 0 1.25rem 0",
           }}
         >
-          Multiplica el{" "}
-          <span
-            style={{
-              color: "#10B981",
-              position: "relative",
-              display: "inline-block",
-            }}
-          >
-            ticket promedio
-          </span>{" "}
-          y las ventas de tu tienda
+          Convertí las visitas de tu tienda en{" "}
+          <span style={{ color: "#10B981" }}>compras reales</span>
         </motion.h1>
 
-        {/* Subtítulo de Conversión */}
+        {/* Subtítulo enfocado en la Solución */}
         <motion.p
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -98,16 +89,16 @@ export default function Hero() {
             fontSize: "clamp(1.05rem, 2.5vw, 1.25rem)",
             color: "#4b5563",
             lineHeight: 1.5,
-            maxWidth: "740px",
+            maxWidth: "760px",
             margin: "0 auto 2.5rem auto",
             fontWeight: 500,
           }}
         >
-          Instala en un clic **los 27 widgets premium de conversión** más potentes de LATAM.
-          Sin programar, sin diseñadores y con carga ultra-rápida garantizada.
+          Sin programadores ni gastar más en anuncios. Instalás en 1 clic los <b>27 widgets inteligentes</b> que 
+          derriban dudas, generan urgencia y motivan a sumar más productos a cada carrito.
         </motion.p>
 
-        {/* CTAs de Conversión */}
+        {/* CTA Principal */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -125,7 +116,7 @@ export default function Hero() {
             href="/registro"
             style={{
               width: "min(340px, 90vw)",
-              padding: "1.1rem 2rem",
+              padding: "1.15rem 2rem",
               background: "#10B981",
               color: "#ffffff",
               borderRadius: "999px",
@@ -148,105 +139,123 @@ export default function Hero() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "1.25rem",
+              gap: "1rem",
               fontSize: "0.85rem",
               color: "#6b7280",
               fontWeight: 600,
             }}
           >
-            <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-              ⭐ 7 días de prueba gratis
-            </span>
+            <span>⚡ Instalación instantánea</span>
             <span>•</span>
-            <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-              ⚡ Configuración en 2 minutos
-            </span>
+            <span>💳 7 días de prueba sin tarjeta</span>
           </div>
         </motion.div>
 
-        {/* Grid de Beneficios Core en 1 sola fila/carrusel limpio */}
+        {/* ═══════════════════════════════════════════
+           TABLERO VISUAL: CÓMO SOLUCIONA NEVUX TUS VENTAS
+        ═══════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: "1rem",
-            background: "#f9fafb",
-            border: "1px solid #e5e7eb",
-            borderRadius: "20px",
-            padding: "1.5rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "1.25rem",
             textAlign: "left",
           }}
         >
-          <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-            <div
-              style={{
-                background: "#ecfdf5",
-                padding: "0.5rem",
-                borderRadius: "10px",
-                color: "#10B981",
-                display: "flex",
-              }}
-            >
-              <Zap size={18} />
-            </div>
+          {/* Tarjeta 1: Aumento de Ticket Promedio */}
+          <div
+            style={{
+              background: "#f9fafb",
+              border: "1.5px solid #e5e7eb",
+              borderRadius: "20px",
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <div>
-              <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#111827", marginBottom: "0.15rem" }}>
-                Velocidad Imbatible
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#10B981" }}>
+                  <TrendingUp size={20} />
+                </div>
+                <span style={{ fontSize: "14px", fontWeight: 800, color: "#111827" }}>
+                  Multiplicá el Ticket Promedio
+                </span>
               </div>
-              <div style={{ fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.4 }}>
-                1 único script unificado de 12kb. No frena tu checkout.
-              </div>
+              <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
+                Bundles por volumen, packs complementarios y barra de envío gratis para que cada cliente gaste más en cada compra.
+              </p>
+            </div>
+            <div style={{ marginTop: "16px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
+              +35% promedio en valor por pedido ↗
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-            <div
-              style={{
-                background: "#ecfdf5",
-                padding: "0.5rem",
-                borderRadius: "10px",
-                color: "#10B981",
-                display: "flex",
-              }}
-            >
-              <Sparkles size={18} />
-            </div>
+          {/* Tarjeta 2: Cero Dudas y Antidevoluciones */}
+          <div
+            style={{
+              background: "#f9fafb",
+              border: "1.5px solid #e5e7eb",
+              borderRadius: "20px",
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <div>
-              <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#111827", marginBottom: "0.15rem" }}>
-                27 Soluciones Premium
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#10B981" }}>
+                  <Shield size={20} />
+                </div>
+                <span style={{ fontSize: "14px", fontWeight: 800, color: "#111827" }}>
+                  Confianza Total & Menos Cambios
+                </span>
               </div>
-              <div style={{ fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.4 }}>
-                Desde ruleta interactiva hasta bundles inteligentes.
-              </div>
+              <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
+                Tabla de talles con selección de variante real en 1 clic y fotos UGC subidas por tus clientes reales.
+              </p>
+            </div>
+            <div style={{ marginTop: "16px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
+              Elimina objeciones antes del pago 🛡️
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-            <div
-              style={{
-                background: "#ecfdf5",
-                padding: "0.5rem",
-                borderRadius: "10px",
-                color: "#10B981",
-                display: "flex",
-              }}
-            >
-              <Star size={18} />
-            </div>
+          {/* Tarjeta 3: Urgencia y Ventas Rápidas */}
+          <div
+            style={{
+              background: "#f9fafb",
+              border: "1.5px solid #e5e7eb",
+              borderRadius: "20px",
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
             <div>
-              <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#111827", marginBottom: "0.15rem" }}>
-                Plan Todo Incluido
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#10B981" }}>
+                  <Zap size={20} />
+                </div>
+                <span style={{ fontSize: "14px", fontWeight: 800, color: "#111827" }}>
+                  Urgencia & Cierre Inmediato
+                </span>
               </div>
-              <div style={{ fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.4 }}>
-                Un solo precio mensual fijo. Sin comisiones por ventas.
-              </div>
+              <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
+                Contadores regresivos, avisos de stock en tiempo real y ruleta popup anti-saturación para capturar la venta antes de que se vayan.
+              </p>
+            </div>
+            <div style={{ marginTop: "16px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
+              Menos carritos abandonados 🔥
             </div>
           </div>
         </motion.div>
       </div>
     </section>
   );
-            }
+        }
