@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { 
   ImageIcon, Smartphone, Palette, Check, Copy, ChevronLeft, 
   Video, Phone, MoreVertical, Pin, Play, Mic, Paperclip, Camera, Smile, 
-  Sparkles, TrendingUp, AlertTriangle, Zap, Gift, Star, Users, MessageSquare, ArrowRight
+  Sparkles, TrendingUp, AlertTriangle, Zap, Gift, Star, Users, MessageSquare, 
+  ArrowRight, ShoppingBag
 } from 'lucide-react';
 
 // ==========================================
@@ -192,7 +193,7 @@ export default function BannersAdminPage() {
       {/* HEADER PRINCIPAL */}
       <div style={{ maxWidth: '1100px', margin: '0 auto 24px auto', paddingBottom: '16px', borderBottom: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#ffffff', display: 'flex', itemsCenter: 'center', gap: '8px', margin: 0 }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
             <Sparkles style={{ color: '#34d399', width: '24px', height: '24px' }} /> Panel Visual Nevux
           </h1>
           <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
@@ -462,9 +463,9 @@ export default function BannersAdminPage() {
                     </div>
 
                     {/* HEADER INSTAGRAM USER */}
-                    <div style={{ display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', color: '#ffffff', padding: '0 4px' }}>
-                      <div style={{ display: 'flex', itemsCenter: 'center', gap: '8px' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#10b981', display: 'flex', itemsCenter: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#020617', fontSize: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#ffffff', padding: '0 4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#020617', fontSize: '12px' }}>
                           N
                         </div>
                         <div>
@@ -478,14 +479,14 @@ export default function BannersAdminPage() {
                     </div>
                   </div>
 
-                  {/* CHAT SIMULADOR WHATSAPP DARK MODE (TAL CUAL LA IMAGEN RELEVADA) */}
+                  {/* CHAT SIMULADOR WHATSAPP DARK MODE */}
                   <div style={{ flex: 1, margin: '8px 0', backgroundColor: '#0b141a', borderRadius: '16px', overflow: 'hidden', border: '1px solid #2a3942', display: 'flex', flexDirection: 'column' }}>
                     
                     {/* WHATSAPP DARK HEADER */}
-                    <div style={{ backgroundColor: '#202c33', color: '#e9edef', padding: '8px 12px', display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', borderBottom: '1px solid #2a3942' }}>
-                      <div style={{ display: 'flex', itemsCenter: 'center', gap: '8px' }}>
+                    <div style={{ backgroundColor: '#202c33', color: '#e9edef', padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #2a3942' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ChevronLeft style={{ width: '18px', height: '18px', color: '#8696a0' }} />
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#059669', display: 'flex', itemsCenter: 'center', justifyContent: 'center', fontSize: '14px' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
                           {currentTestimonio.avatar}
                         </div>
                         <div>
@@ -493,20 +494,20 @@ export default function BannersAdminPage() {
                           <p style={{ fontSize: '9px', color: '#8696a0', margin: '2px 0 0 0', lineHeight: 1 }}>{currentTestimonio.status}</p>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', itemsCenter: 'center', gap: '12px', color: '#aebac1' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#aebac1' }}>
                         <Video style={{ width: '14px', height: '14px' }} />
                         <Phone style={{ width: '14px', height: '14px' }} />
                         <MoreVertical style={{ width: '14px', height: '14px' }} />
                       </div>
                     </div>
 
-                    {/* PINNED LINK BANNER (TAL CUAL LA CAPTURA MOSTRADA) */}
-                    <div style={{ backgroundColor: '#182229', padding: '4px 12px', borderBottom: '1px solid #222d34', display: 'flex', itemsCenter: 'center', gap: '6px', fontSize: '10px' }}>
+                    {/* PINNED LINK BANNER */}
+                    <div style={{ backgroundColor: '#182229', padding: '4px 12px', borderBottom: '1px solid #222d34', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px' }}>
                       <Pin style={{ width: '12px', height: '12px', color: '#00a884' }} />
                       <span style={{ fontFamily: 'monospace', color: '#00a884', textDecoration: 'underline' }}>https://nexus2026-gx7e.vercel.app</span>
                     </div>
 
-                    {/* CHAT BODY CON CONTEXTO BORROSO Y HIGHLIGHTS */}
+                    {/* CHAT BODY */}
                     <div style={{
                       flex: 1,
                       padding: '10px',
@@ -519,17 +520,17 @@ export default function BannersAdminPage() {
                       gap: '8px'
                     }}>
                       
-                      {/* BURBUJA CONTEXTO ARRIBA (BORROSA) */}
+                      {/* CONTEXTO ARRIBA (BORROSO) */}
                       <div style={{ display: 'flex', justifyContent: 'flex-start', filter: 'blur(3px)', opacity: 0.35 }}>
                         <div style={{ maxWidth: '85%', backgroundColor: '#202c33', color: '#e9edef', borderRadius: '8px', padding: '8px', fontSize: '10px' }}>
                           <p style={{ margin: 0 }}>{currentTestimonio.beforeText}</p>
                         </div>
                       </div>
 
-                      {/* AUDIO FALSO DE CONTEXTO (BORROSO) */}
+                      {/* AUDIO FALSO (BORROSO) */}
                       <div style={{ display: 'flex', justifyContent: 'flex-start', filter: 'blur(3px)', opacity: 0.35 }}>
-                        <div style={{ backgroundColor: '#202c33', color: '#e9edef', borderRadius: '8px', padding: '8px', display: 'flex', itemsCenter: 'center', gap: '8px', fontSize: '10px' }}>
-                          <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#00a884', display: 'flex', itemsCenter: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                        <div style={{ backgroundColor: '#202c33', color: '#e9edef', borderRadius: '8px', padding: '8px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10px' }}>
+                          <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#00a884', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
                             <Play style={{ width: '10px', height: '10px', fill: 'currentColor' }} />
                           </div>
                           <div style={{ height: '4px', backgroundColor: '#8696a0', width: '80px', borderRadius: '2px' }}></div>
@@ -537,7 +538,7 @@ export default function BannersAdminPage() {
                         </div>
                       </div>
 
-                      {/* MENSAJE DESTACADO DEL CLIENTE (BRIGHT GREEN GLOW) */}
+                      {/* MENSAJE DESTACADO DEL CLIENTE */}
                       <div style={{ display: 'flex', justifyContent: 'flex-start', position: 'relative', zIndex: 10 }}>
                         <div style={{
                           maxWidth: '92%',
@@ -555,7 +556,7 @@ export default function BannersAdminPage() {
                         </div>
                       </div>
 
-                      {/* RESPUESTA DESTACADA DEL CREADOR (WHATSAPP DARK GREEN + GLOW) */}
+                      {/* RESPUESTA DESTACADA DEL CREADOR */}
                       <div style={{ display: 'flex', justifyContent: 'flex-end', position: 'relative', zIndex: 10 }}>
                         <div style={{
                           maxWidth: '92%',
@@ -569,14 +570,14 @@ export default function BannersAdminPage() {
                           boxShadow: '0 0 22px rgba(16,185,129,0.45)'
                         }}>
                           <p style={{ margin: 0, lineHeight: 1.4, fontWeight: 500 }}>{currentTestimonio.creatorMsg}</p>
-                          <div style={{ display: 'flex', itemsCenter: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
                             <span style={{ fontSize: '9px', color: 'rgba(233,237,239,0.8)', fontFamily: 'monospace' }}>{currentTestimonio.creatorTime}</span>
                             <span style={{ fontSize: '10px', color: '#53bdeb', fontWeight: 'bold' }}>✓✓</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* BURBUJA CONTEXTO ABAJO (BORROSA) */}
+                      {/* CONTEXTO ABAJO (BORROSO) */}
                       <div style={{ display: 'flex', justifyContent: 'flex-end', filter: 'blur(3px)', opacity: 0.35 }}>
                         <div style={{ maxWidth: '85%', backgroundColor: '#005c4b', color: '#e9edef', borderRadius: '8px', padding: '8px', fontSize: '10px' }}>
                           <p style={{ margin: 0 }}>{currentTestimonio.afterText}</p>
@@ -586,45 +587,45 @@ export default function BannersAdminPage() {
                     </div>
 
                     {/* WHATSAPP DARK FOOTER */}
-                    <div style={{ backgroundColor: '#202c33', padding: '6px', display: 'flex', itemsCenter: 'center', gap: '6px', borderTop: '1px solid #2a3942' }}>
-                      <div style={{ flex: 1, backgroundColor: '#2a3942', borderRadius: '20px', padding: '4px 10px', display: 'flex', itemsCenter: 'center', gap: '8px', color: '#8696a0', fontSize: '10px' }}>
+                    <div style={{ backgroundColor: '#202c33', padding: '6px', display: 'flex', alignItems: 'center', gap: '6px', borderTop: '1px solid #2a3942' }}>
+                      <div style={{ flex: 1, backgroundColor: '#2a3942', borderRadius: '20px', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '8px', color: '#8696a0', fontSize: '10px' }}>
                         <Smile style={{ width: '14px', height: '14px' }} />
                         <span style={{ flex: 1, color: '#8696a0' }}>Mensaje</span>
                         <Paperclip style={{ width: '14px', height: '14px' }} />
                         <Camera style={{ width: '14px', height: '14px' }} />
                       </div>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#00a884', display: 'flex', itemsCenter: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#00a884', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
                         <Mic style={{ width: '14px', height: '14px' }} />
                       </div>
                     </div>
 
                   </div>
 
-                  {/* INSTAGRAM BADGE STICKER DE IMPACTO */}
+                  {/* BADGE DE IMPACTO */}
                   <div style={{ zIndex: 20, margin: '4px 0', background: 'linear-gradient(90deg, #10b981, #14b8a6)', color: '#020617', padding: '6px 12px', borderRadius: '12px', fontWeight: 900, textAlign: 'center', fontSize: '11px', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }}>
                     <span>{currentTestimonio.metricBadge}</span>
                   </div>
 
-                  {/* BOTTOM ACTION CTA */}
+                  {/* BOTTOM CTA */}
                   <div style={{ zIndex: 20, textAlign: 'center', padding: '4px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <p style={{ fontSize: '10px', fontWeight: 'bold', color: '#ffffff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', itemsCenter: 'center', justifyContent: 'center', gap: '4px' }}>
+                    <p style={{ fontSize: '10px', fontWeight: 'bold', color: '#ffffff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                       🔥 Caso Real Tiendanube • Deslizá arriba <ArrowRight style={{ width: '12px', height: '12px', color: '#34d399' }} />
                     </p>
                   </div>
 
                 </div>
 
-                {/* CONTROLES NAVEGACIÓN HISTORIAS */}
+                {/* CONTROLES NAVEGACIÓN */}
                 <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
                   <button
                     onClick={() => setCurrentTestimonioIndex((prev) => (prev > 0 ? prev - 1 : testimoniosData.length - 1))}
-                    style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '8px 16px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', itemsCenter: 'center', gap: '4px' }}
+                    style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '8px 16px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     <ChevronLeft style={{ width: '16px', height: '16px' }} /> Anterior
                   </button>
                   <button
                     onClick={() => setCurrentTestimonioIndex((prev) => (prev < testimoniosData.length - 1 ? prev + 1 : 0))}
-                    style={{ backgroundColor: '#059669', color: '#ffffff', padding: '8px 20px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', display: 'flex', itemsCenter: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(5,150,105,0.3)' }}
+                    style={{ backgroundColor: '#059669', color: '#ffffff', padding: '8px 20px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(5,150,105,0.3)' }}
                   >
                     Siguiente <ArrowRight style={{ width: '16px', height: '16px' }} />
                   </button>
@@ -663,8 +664,8 @@ export default function BannersAdminPage() {
             {portadasData.map((portada) => {
               const IconComponent = portada.icon;
               return (
-                <div key={portada.id} style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #1e293b', display: 'flex', flexDirection: 'column', itemsCenter: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                  <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: portada.bgGradient, display: 'flex', itemsCenter: 'center', justifyContent: 'center', color: '#ffffff', marginBottom: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', border: '2px solid #020617' }}>
+                <div key={portada.id} style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #1e293b', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                  <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: portada.bgGradient, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', marginBottom: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', border: '2px solid #020617' }}>
                     <IconComponent style={{ width: '30px', height: '30px' }} />
                   </div>
                   <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>{portada.title}</p>
@@ -677,4 +678,4 @@ export default function BannersAdminPage() {
       </div>
     </div>
   );
-}
+    }
