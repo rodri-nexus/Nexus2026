@@ -19,10 +19,11 @@ type StoryDestacada =
   | "nevuxbot"
   | "analytics"
   | "blackfriday"
-  | "estilomarca";
+  | "estilomarca"
+  | "crossselling";
 
 /* ═══════════════════════════════════════════
-   TODOS LOS ESTILOS Y HELPERS DECLARADOS AL INICIO
+   ESTILOS Y HELPERS
 ═══════════════════════════════════════════ */
 
 const subTabStyle = (isActive: boolean): React.CSSProperties => ({
@@ -278,9 +279,10 @@ const coverCircleStyle: React.CSSProperties = {
 };
 
 const coverLabelStyle: React.CSSProperties = {
-  fontSize: "11.5px",
+  fontSize: "11px",
   fontWeight: 800,
   color: "#ffffff",
+  textAlign: "center",
 };
 
 const bannerStyle: React.CSSProperties = {
@@ -331,6 +333,9 @@ const bannerDescStyle: React.CSSProperties = {
   fontWeight: "500",
 };
 
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES VISUALES WHATSAPP
+═══════════════════════════════════════════ */
 function WhatsAppHeader({
   name,
   status,
@@ -478,7 +483,7 @@ export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("stories");
   const [lang, setLang] = useState<"es" | "pt">("pt");
   const [activeDestacada, setActiveDestacada] =
-    useState<StoryDestacada>("estilomarca");
+    useState<StoryDestacada>("crossselling"); // Por defecto en la nueva
 
   const isPt = lang === "pt";
 
@@ -716,6 +721,12 @@ export default function BannersPage() {
             >
               🎨 7. Marca
             </button>
+            <button
+              onClick={() => setActiveDestacada("crossselling")}
+              style={subTabStyle(activeDestacada === "crossselling")}
+            >
+              🧠 8. Cross-Sell
+            </button>
           </div>
 
           {/* RENDERING PROBLEMA */}
@@ -855,8 +866,28 @@ export default function BannersPage() {
             </div>
           )}
 
-          {/* 🎨 DESTACADA 7: ESTILO MARCA AUTOMÁTICO (6 HISTORIAS) */}
+          {/* RENDERING ESTILO MARCA */}
           {activeDestacada === "estilomarca" && (
+            <div style={storyContainerStyle}>
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}>
+                  <NevuxLogo size="small" />
+                </div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>
+                    🎨
+                  </div>
+                  <h2 style={storyTitleStyle}>
+                    Tus estilos, tus colores.{" "}
+                    <span style={{ color: "#10B981" }}>Auto-detectables</span>.
+                  </h2>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 🧠 DESTACADA 8: CROSS-SELLING PREDICTIVO CON IA (6 HISTORIAS) */}
+          {activeDestacada === "crossselling" && (
             <div style={storyContainerStyle}>
               <div
                 style={{
@@ -877,7 +908,7 @@ export default function BannersPage() {
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "44px", marginBottom: "12px" }}>
-                    🎨
+                    🧠
                   </div>
                   <div
                     style={{
@@ -893,7 +924,7 @@ export default function BannersPage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    IDENTIDAD CORPORATIVA
+                    INTELIGENCIA ARTIFICIAL DE VENTA
                   </div>
                   <h2
                     style={{
@@ -905,8 +936,8 @@ export default function BannersPage() {
                       letterSpacing: "-0.03em",
                     }}
                   >
-                    Tus estilos, tus colores.{" "}
-                    <span style={{ color: "#10B981" }}>Auto-detectables</span>.
+                    Recomendaciones IA:{" "}
+                    <span style={{ color: "#10B981" }}>Venta Cruzada</span>.
                   </h2>
                   <p
                     style={{
@@ -917,21 +948,20 @@ export default function BannersPage() {
                       fontWeight: 500,
                     }}
                   >
-                    Fase 4: El único editor que lee el diseño de tu Tiendanube y
-                    aplica tu identidad a todos los widgets en 1 segundo.
+                    Fase 5: Un algoritmo que analiza el comportamiento del cliente y le muestra exactamente lo que quiere comprar.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>¿Cómo funciona? Deslizá ➔</div>
               </div>
 
-              {/* H2: EL DOLOR MANUAL */}
+              {/* H2: EL PROBLEMA */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                    🎨❌
+                    🤷‍♂️
                   </div>
                   <div
                     style={{
@@ -943,7 +973,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    EL DOLOR DE CONFIGURAR
+                    EL PROBLEMA TRADICIONAL
                   </div>
                   <h3
                     style={{
@@ -954,7 +984,7 @@ export default function BannersPage() {
                       margin: "0 0 14px 0",
                     }}
                   >
-                    Nadie quiere perder tiempo copiando códigos HEX
+                    Los "relacionados" manuales no convierten
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -966,9 +996,7 @@ export default function BannersPage() {
                         fontWeight: 600,
                       }}
                     >
-                      En otras aplicaciones tenés que abrir widget por widget,
-                      pegar el color de tu marca (#F100B9, etc.) y configurar
-                      bordes y textos de manera infinita. Es agotador.
+                      En Tiendanube tenés que cargar manualmente qué producto se relaciona con cuál. Si tenés 100 productos, es una tarea titánica y casi nadie le presta atención.
                     </p>
                   </div>
                   <p
@@ -979,20 +1007,20 @@ export default function BannersPage() {
                       margin: 0,
                     }}
                   >
-                    El desorden visual espanta a tus clientes móviles.
+                    Resultado: El cliente compra solo 1 cosa y se va.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente ➔</div>
               </div>
 
-              {/* H3: AUTO-DETECCION INTELIGENTE */}
+              {/* H3: LA IA PREDICTIVA */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                    👁️
+                    ⚡
                   </div>
                   <div
                     style={{
@@ -1004,7 +1032,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    TECNOLOGÍA DE LECTURA NEVUX
+                    APRENDIZAJE AUTOMÁTICO
                   </div>
                   <h3
                     style={{
@@ -1015,7 +1043,7 @@ export default function BannersPage() {
                       margin: "0 0 12px 0",
                     }}
                   >
-                    Nevux lee tu logo y aplica tu marca
+                    La IA aprende de cada visitante
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -1026,9 +1054,7 @@ export default function BannersPage() {
                         lineHeight: 1.5,
                       }}
                     >
-                      Al sincronizar tu Tiendanube, nuestro motor inteligente
-                      detecta tus colores corporativos, tipografías y el
-                      redondeado de tus botones nativos de forma automática.
+                      Nevux analiza qué miró, qué agregó al carrito y qué compraron otros usuarios similares, mostrando una sugerencia irresistible personalizada en tiempo real.
                     </p>
                   </div>
                   <p
@@ -1039,90 +1065,13 @@ export default function BannersPage() {
                       margin: 0,
                     }}
                   >
-                    Identidad perfecta sin esfuerzo 🎨
+                    Venta cruzada 100% automatizada 🛍️
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente ➔</div>
               </div>
 
-              {/* H4: 1 CLIC APLICAR */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                    ✨
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      color: "#a7f3d0",
-                      fontWeight: 900,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    SIMPLICIDAD RADICAL
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: "22px",
-                      fontWeight: 900,
-                      color: "#ffffff",
-                      lineHeight: 1.25,
-                      margin: "0 0 12px 0",
-                    }}
-                  >
-                    Botón "Aplicar Estilo Marca" en cada editor
-                  </h3>
-                  <div
-                    style={{
-                      background: "rgba(0, 0, 0, 0.5)",
-                      border: "2px solid #10B981",
-                      borderRadius: "16px",
-                      padding: "14px",
-                      marginBottom: "14px",
-                      boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 900,
-                        color: "#10B981",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      🎨 Aplicar mi identidad de marca
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "10px",
-                        color: "#a7f3d0",
-                        fontWeight: 700,
-                      }}
-                    >
-                      Sincroniza todos los widgets en 1 clic
-                    </div>
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      margin: 0,
-                    }}
-                  >
-                    Tu ruleta, tabla de talles, bundles y banners se unifican al
-                    instante.
-                  </p>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente ➔</div>
-              </div>
-
-              {/* H5: PROFESIONALISMO MOBILE */}
+              {/* H4: IMPACTO EN FACTURACION */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
@@ -1141,7 +1090,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    CONFIANZA DE COMPRA
+                    MÉTRICAS COMPROBADAS
                   </div>
                   <h3
                     style={{
@@ -1152,7 +1101,7 @@ export default function BannersPage() {
                       margin: "0 0 12px 0",
                     }}
                   >
-                    Consistencia visual = 4x más ventas
+                    +25% en Ticket Promedio garantizado
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -1163,9 +1112,55 @@ export default function BannersPage() {
                         lineHeight: 1.5,
                       }}
                     >
-                      Cuando los widgets parecen integrados de forma nativa por
-                      tu propia marca, el usuario del celular siente seguridad y
-                      compra de inmediato sin desconfiar de popups externos.
+                      Cuando la sugerencia es precisa (ej: llevás un jean y te sugiere el cinturón exacto de tu talle), 1 de cada 4 compradores suma el producto sin dudarlo.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipe}>Siguiente ➔</div>
+              </div>
+
+              {/* H5: INTEGRACION NATIVA */}
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}>
+                  <NevuxLogo size="small" />
+                </div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>
+                    📱
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#a7f3d0",
+                      fontWeight: 900,
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    DISEÑO NO INVASIVO
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 900,
+                      color: "#ffffff",
+                      lineHeight: 1.25,
+                      margin: "0 0 12px 0",
+                    }}
+                  >
+                    Aparece justo en el momento correcto
+                  </h3>
+                  <div style={bubbleDarkStyle}>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#d1fae5",
+                        margin: 0,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      Debajo del botón de compra o dentro del carrito flotante antes de pagar. El cliente suma el producto con 1 toque sin recargar la página.
                     </p>
                   </div>
                 </div>
@@ -1190,7 +1185,7 @@ export default function BannersPage() {
                       margin: "0 0 14px 0",
                     }}
                   >
-                    La única suite unificada estéticamente
+                    El poder de la IA en tu Tiendanube
                   </h2>
                   <p
                     style={{
@@ -1200,7 +1195,7 @@ export default function BannersPage() {
                       margin: "0 0 16px 0",
                     }}
                   >
-                    Próximamente en Nevux 🎨
+                    Próximamente en Nevux 🧠
                   </p>
                   <div
                     style={{
@@ -1239,7 +1234,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES */}
+      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES (AHORA CON 8 PORTADAS) */}
       {activeTab === "covers" && (
         <div
           style={{
@@ -1314,9 +1309,15 @@ export default function BannersPage() {
               </div>
               <span style={coverLabelStyle}>7. Estilo Marca</span>
             </div>
+            <div style={coverContainerStyle}>
+              <div style={coverCircleStyle}>
+                <span style={{ fontSize: "44px" }}>🧠</span>
+              </div>
+              <span style={coverLabelStyle}>8. Cross-Selling</span>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
-}
+  }
