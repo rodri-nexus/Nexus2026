@@ -18,7 +18,7 @@ type StoryDestacada = "problema" | "solucion" | "testimonios";
 export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("stories");
   const [lang, setLang] = useState<"es" | "pt">("pt");
-  const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("testimonios"); // Por defecto testimonios ahora
+  const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("testimonios");
 
   const isPt = lang === "pt";
 
@@ -107,7 +107,7 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* 💻 TAB 1: BANNERS PARTNERS (INTACTO) */}
+      {/* TAB 1: BANNERS PARTNERS (INTACTO) */}
       {activeTab === "partners" && (
         <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "32px" }}>
           <div style={{ display: "flex", gap: "8px", background: "#0b2920", padding: "4px", borderRadius: "12px" }}>
@@ -121,13 +121,14 @@ export default function BannersPage() {
           <div style={bannerStyle}>
             <div style={{ flex: "1 1 200px", zIndex: 2 }}>
               <div style={badgeStyle}>🤖 NEVUXBOT</div>
-              <h2 style={bannerTitleStyle}>El primer CRM con IA</h2>
+              <h2 style={bannerTitleStyle}>{isPt ? "O primeiro CRM de Carrinhos com IA" : "El primer CRM de Carritos con IA"}</h2>
+              <p style={bannerDescStyle}>{isPt ? "Detecte vendas perdidas, crie mensagens persuasivas com Gemini AI e recupere via WhatsApp ou E-mail." : "Detectá ventas perdidas, creá copys persuasivos con Gemini AI y recuperá por WhatsApp o Email."}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* 📱 TAB 2: HISTORIAS INSTAGRAM (9:16) */}
+      {/* TAB 2: HISTORIAS INSTAGRAM (9:16) */}
       {activeTab === "stories" && (
         <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "24px" }}>
           
@@ -151,42 +152,335 @@ export default function BannersPage() {
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "42px", marginBottom: "12px" }}>🛑</div>
-                  <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1.15, margin: "0 0 16px 0" }}>
-                    ¿Por qué tu tienda vende <span style={{ color: "#fca5a5" }}>menos</span>?
+                  <div style={{ display: "inline-block", background: "rgba(239, 68, 68, 0.2)", border: "1.5px solid #ef4444", color: "#ffffff", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
+                    REALIDAD DEL E-COMMERCE
+                  </div>
+                  <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1.15, margin: "0 0 16px 0", letterSpacing: "-0.03em" }}>
+                    ¿Por qué tu tienda vende <span style={{ color: "#fca5a5", textDecoration: "underline" }}>menos</span> de lo que podría?
                   </h2>
+                  <p style={{ fontSize: "14px", color: "#d1fae5", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
+                    Si tenés visitas pero no se reflejan en tu facturación, hay 3 fugas silenciosas que te están costando miles de pesos.
+                  </p>
+                </div>
+                <div style={storyBottomSwipe}>Deslizá para ver las fugas ➔</div>
+              </div>
+
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "44px", fontWeight: 900, color: "#fca5a5", fontFamily: "monospace", marginBottom: "6px", textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
+                    7 de cada 10
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "18px" }}>
+                    FUGA #1 — CARRITOS ABANDONADOS
+                  </div>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "16px", padding: "16px", textAlign: "left", marginBottom: "16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                      <ShoppingCart size={20} color="#fca5a5" />
+                      <span style={{ fontSize: "13px", fontWeight: 800, color: "#fff" }}>El cliente llena el carrito...</span>
+                    </div>
+                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.45 }}>
+                      Pero en el último segundo le surge una duda, se distrae con otra app o pospone la compra y <strong style={{ color: "#ffffff" }}>nunca más vuelve</strong>.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>
+                    Perdés ventas de gente que <span style={{ color: "#a7f3d0", textDecoration: "underline" }}>ya quería comprarte</span>.
+                  </p>
+                </div>
+                <div style={storyBottomSwipe}>Siguiente fuga ➔</div>
+              </div>
+
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📉</div>
+                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>
+                    FUGA #2 — TICKET PROMEDIO ESTANCADO
+                  </div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    Tus clientes compran de a 1 solo producto
+                  </h3>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#fca5a5", margin: 0, lineHeight: 1.45, fontWeight: 600 }}>
+                      ❌ Sin ofertas por volumen (2x1, 3x2)<br />
+                      ❌ Sin productos complementarios sugeridos<br />
+                      ❌ Sin motivación para alcanzar el Envío Gratis
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, fontWeight: 600 }}>
+                    Estás dejando el <strong style={{ color: "#ffffff" }}>40% de facturación extra</strong> sobre la mesa en cada pedido.
+                  </p>
+                </div>
+                <div style={storyBottomSwipe}>Siguiente fuga ➔</div>
+              </div>
+
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📏</div>
+                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>
+                    FUGA #3 — LA DUDA QUE MATA LA COMPRA
+                  </div>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", border: "1.5px solid rgba(16, 185, 129, 0.4)" }}>
+                    <div style={{ fontSize: "13px", fontWeight: 800, color: "#fff", marginBottom: "6px" }}>
+                      "¿Me quedará bien el talle M o será chico?"
+                    </div>
+                    <p style={{ fontSize: "11px", color: "#d1fae5", margin: 0, lineHeight: 1.4 }}>
+                      Si el cliente tiene que mandar un WhatsApp para preguntar las medidas, en el 80% de los casos <strong style={{ color: "#fca5a5" }}>cierra la pestaña y compra en otro lado</strong>.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>
+                    La indecisión es el enemigo #1 de tus ventas online.
+                  </p>
+                </div>
+                <div style={storyBottomSwipe}>Deslizá ➔</div>
+              </div>
+
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>💸</div>
+                  <h3 style={{ fontSize: "24px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    El error más común: "Tengo que meter más plata en pauta"
+                  </h3>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>
+                      Meter tráfico a una tienda que no convierte es como <strong style={{ color: "#fca5a5" }}>echarle agua a un balde pinchado</strong>. El costo por clic sube y tu margen desaparece.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#a7f3d0", fontWeight: 800, margin: 0 }}>
+                    La clave no es traer más visitas. Es exprimir al máximo las que ya tenés.
+                  </p>
+                </div>
+                <div style={storyBottomSwipe}>Deslizá ➔</div>
+              </div>
+
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🐌</div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    Instalar 6 apps distintas destruye tu velocidad móvil
+                  </h3>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>
+                      Cada app externa agrega códigos pesados que traban el celular del comprador. Si tu tienda tarda más de 3 segundos en cargar, <strong style={{ color: "#fca5a5" }}>perdés el 53% de las compras</strong>.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, fontWeight: 700 }}>
+                    Terminás pagando 4 suscripciones caras por apps lentas.
+                  </p>
+                </div>
+                <div style={storyBottomSwipe}>La solución ➔</div>
+              </div>
+
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>💡</div>
+                  <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    El problema no es tu producto.
+                  </h2>
+                  <p style={{ fontSize: "15px", color: "#a7f3d0", fontWeight: 800, margin: "0 0 16px 0" }}>
+                    Es la falta de herramientas que cierren la venta en el momento.
+                  </p>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "2px solid #10B981", borderRadius: "16px", padding: "14px", marginBottom: "16px", boxShadow: "0 8px 20px rgba(0,0,0,0.3)" }}>
+                    <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0, lineHeight: 1.45 }}>
+                      Por eso creamos <span style={{ color: "#34d399", fontWeight: 900 }}>Nevux</span>: una única app con 27 herramientas que resuelven todas las fugas de tu tienda en 1 clic.
+                    </p>
+                  </div>
+                </div>
+                <div style={{ ...storyBottomSwipe, color: "#34d399", fontWeight: 900 }}>
+                  Mirá la siguiente destacada: "⚡ La Solución" ➔
                 </div>
               </div>
             </div>
           )}
 
-          {/* RENDERING SOLUCION */}
+          {/* RENDERING SOLUCION (FONDO MENTA LIGHT GLASS) */}
           {activeDestacada === "solucion" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "36px", width: "100%", alignItems: "center" }}>
+              <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
+                👇 Sacale captura de pantalla en vertical a cada tarjeta para armar tu destacada
+              </div>
+
               <div style={storyFrameLightStyle}>
                 <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "42px", marginBottom: "12px" }}>⚡</div>
-                  <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#065f46" }}>Una sola app. 27 widgets.</h2>
+                  <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", color: "#065f46", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
+                    LA SOLUCIÓN DEFINITIVA
+                  </div>
+                  <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#065f46", lineHeight: 1.15, margin: "0 0 16px 0", letterSpacing: "-0.03em" }}>
+                    Una sola app.<br />27 widgets de conversión.
+                  </h2>
+                  <p style={{ fontSize: "14px", color: "#374151", lineHeight: 1.5, margin: 0, fontWeight: 600 }}>
+                    Nevux reemplaza todas las aplicaciones lentas de tu Tiendanube por una suite única, liviana y automatizada.
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Mirá cómo funciona ➔</div>
+              </div>
+
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📦</div>
+                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
+                    TICKET PROMEDIO AL MÁXIMO
+                  </div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
+                    Hacé que cada cliente gaste más antes de pagar
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      ✅ <b>Bundles por volumen:</b> Descuentos progresivos por llevar 2 o 3 unidades.<br />
+                      ✅ <b>Barra de Envío Gratis:</b> El empujón que necesitan para sumar productos al carrito.<br />
+                      ✅ <b>Packs Sugeridos:</b> Venta cruzada en un solo toque.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📏</div>
+                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
+                    MEDIDAS Y CONFIANZA REAL
+                  </div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
+                    Eliminá las dudas de talles en segundos
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      ✅ <b>Talles Inteligentes:</b> Selector interactivo que guarda el talle y lo selecciona directo en la tienda.<br />
+                      ✅ <b>Reseñas con Foto (UGC):</b> Tus clientes subiendo fotos reales de cómo les queda la prenda.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#059669", fontWeight: 800, margin: 0 }}>
+                    Menos preguntas de soporte, cero devoluciones.
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>⚡</div>
+                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
+                    URGENCIA & CIERRE INMEDIATO
+                  </div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
+                    No los dejes postergar su decisión
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      ✅ <b>Cuenta Regresiva:</b> Temporizadores visuales para liquidaciones.<br />
+                      ✅ <b>Alertas de Stock:</b> "Últimas 2 unidades disponibles".<br />
+                      ✅ <b>Cupones interactivos:</b> Cupones troquelados listos para copiar con 1 clic.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🖱️</div>
+                  <h3 style={{ fontSize: "24px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    Instalación en 1 solo clic. Sin tocar código.
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#475569", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      No necesitás diseñadores ni programadores. Te registrás, elegís qué widgets activar y en menos de 2 minutos están brillando en tu Tiendanube.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#10B981", fontWeight: 900, margin: 0 }}>
+                    Control total de colores, textos y estilos 🎨
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🚀</div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    Un solo script ultra liviano de 12kb
+                  </h3>
+                  <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#065f46", margin: 0, lineHeight: 1.5, fontWeight: 700 }}>
+                      A diferencia de instalar 6 apps pesadas por separado que ralentizan tu servidor, Nevux corre unificado bajo un único código inteligente que no frena tu checkout.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#374151", margin: 0, fontWeight: 600 }}>
+                    Tu tienda vuela en teléfonos celulares.
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Prueba gratis ➔</div>
+              </div>
+
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔥</div>
+                  <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    7 Días de Prueba Completa Gratis
+                  </h2>
+                  <p style={{ fontSize: "15px", color: "#10B981", fontWeight: 800, margin: "0 0 16px 0" }}>
+                    Sin tarjeta de crédito, sin contratos.
+                  </p>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "16px", padding: "14px", marginBottom: "16px", boxShadow: "0 8px 24px rgba(16,185,129,0.1)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", fontWeight: 700, margin: 0, lineHeight: 1.45 }}>
+                      Probá todas las herramientas hoy mismo y comproba el aumento de tu facturación antes de pagar un solo peso.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipeLight}>Los precios ➔</div>
+              </div>
+
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>💳</div>
+                  <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", color: "#065f46", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
+                    PLAN ÚNICO TRANSPARENTE
+                  </div>
+                  <h2 style={{ fontSize: "32px", fontWeight: 900, color: "#065f46", lineHeight: 1.15, margin: "0 0 8px 0" }}>
+                    $30.000 ARS
+                  </h2>
+                  <p style={{ fontSize: "14px", color: "#374151", fontWeight: 700, margin: "0 0 16px 0" }}>
+                    por mes • Acceso Ilimitado a Todo
+                  </p>
+                  <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 16px 0", lineHeight: 1.4 }}>
+                    Sin comisiones por ventas • Sin límites de visitas o impresiones • Soporte directo por WhatsApp
+                  </p>
+                </div>
+                <div style={{ ...storyBottomSwipeLight, color: "#059669", fontWeight: 900 }}>
+                  Mirá los resultados de nuestros clientes ➔
                 </div>
               </div>
             </div>
           )}
 
-          {/* 💬 DESTACADA 3: TESTIMONIOS WHATSAPP CON DESENFOQUE (6 HISTORIAS) */}
+          {/* RENDERING TESTIMONIOS WHATSAPP CON DESENFOQUE (6 HISTORIAS) */}
           {activeDestacada === "testimonios" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "40px", width: "100%", alignItems: "center" }}>
               <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
                 👇 Sacale captura de pantalla en vertical a cada chat para tu destacada de testimonios
               </div>
 
-              {/* TESTIMONIO 1: MARIANA (INDUMENTARIA, CABA) */}
+              {/* T1: MARIANA */}
               <div style={whatsappFrameStyle}>
                 <WhatsAppHeader name="Mariana 💚 Cliente" status="en línea" emoji="🧥" />
                 <div style={whatsappBodyStyle}>
                   <BlurBubble text="Hola Rodri! Todo bien? Che te quería preguntar sobre el script, una consulta rápida..." isLeft={true} />
                   <BlurBubble text="Sisi decime tranqui Mari" isLeft={false} />
                   
-                  {/* Mensaje destacado (Nítido con brillo verde) */}
                   <div style={highlightBubbleStyle}>
                     <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
                       Rodri boludo GRACIAS 🙌 desde q instalé nevux subí el ticket promedio 35% en 3 semanas. La app es una locura, se instala re fácil y la tabla de talles es un 10.
@@ -194,7 +488,6 @@ export default function BannersPage() {
                     <div style={whatsappTimeStyle}>15:47</div>
                   </div>
 
-                  {/* Tu respuesta destacada */}
                   <div style={myHighlightBubbleStyle}>
                     <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
                       Nooo Mari 🙌 me pone re contento q te esté funcionando! Esa es la idea, que se pague sola al toque. ¡A seguir rompiéndola! 💚
@@ -209,7 +502,7 @@ export default function BannersPage() {
                 <WhatsAppFooter />
               </div>
 
-              {/* TESTIMONIO 2: FEDE (SNEAKERS, CÓRDOBA) */}
+              {/* T2: FEDE */}
               <div style={whatsappFrameStyle}>
                 <WhatsAppHeader name="Fede 👟 Córdoba" status="últ. vez hoy 11:20" emoji="👟" />
                 <div style={whatsappBodyStyle}>
@@ -237,7 +530,7 @@ export default function BannersPage() {
                 <WhatsAppFooter />
               </div>
 
-              {/* TESTIMONIO 3: CAMI (COSMÉTICA, ROSARIO) */}
+              {/* T3: CAMI */}
               <div style={whatsappFrameStyle}>
                 <WhatsAppHeader name="Cami 💄 Rosario" status="en línea" emoji="💅" />
                 <div style={whatsappBodyStyle}>
@@ -265,7 +558,7 @@ export default function BannersPage() {
                 <WhatsAppFooter />
               </div>
 
-              {/* TESTIMONIO 4: NICOLÁS (DECO, MENDOZA) */}
+              {/* T4: NICOLAS */}
               <div style={whatsappFrameStyle}>
                 <WhatsAppHeader name="Nico Deco 🏺" status="últ. vez hoy 09:15" emoji="🏺" />
                 <div style={whatsappBodyStyle}>
@@ -293,7 +586,7 @@ export default function BannersPage() {
                 <WhatsAppFooter />
               </div>
 
-              {/* TESTIMONIO 5: SOFI (SPORTSWEAR, MDP) */}
+              {/* T5: SOFI */}
               <div style={whatsappFrameStyle}>
                 <WhatsAppHeader name="Sofi Sport 🏋️" status="en línea" emoji="🏃" />
                 <div style={whatsappBodyStyle}>
@@ -321,7 +614,7 @@ export default function BannersPage() {
                 <WhatsAppFooter />
               </div>
 
-              {/* TESTIMONIO 6: MARTÍN (SUPLEMENTOS, BSAS) */}
+              {/* T6: MARTIN */}
               <div style={whatsappFrameStyle}>
                 <WhatsAppHeader name="Martin Suples 💪" status="últ. vez ayer" emoji="💊" />
                 <div style={whatsappBodyStyle}>
@@ -363,7 +656,6 @@ export default function BannersPage() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "20px", width: "100%", justifyContent: "center" }}>
-            {/* PORTADA 1: EL PROBLEMA */}
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
                 <span style={{ fontSize: "56px" }}>🚨</span>
@@ -371,7 +663,6 @@ export default function BannersPage() {
               <span style={coverLabelStyle}>1. El Problema</span>
             </div>
 
-            {/* PORTADA 2: LA SOLUCION */}
             <div style={coverContainerStyle}>
               <div style={{ ...coverCircleStyle, border: "4px solid #10B981" }}>
                 <span style={{ fontSize: "56px" }}>⚡</span>
@@ -379,7 +670,6 @@ export default function BannersPage() {
               <span style={coverLabelStyle}>2. La Solución</span>
             </div>
 
-            {/* PORTADA 3: TESTIMONIOS */}
             <div style={coverContainerStyle}>
               <div style={{ ...coverCircleStyle, border: "4px solid #10B981" }}>
                 <span style={{ fontSize: "56px" }}>💬</span>
@@ -390,97 +680,6 @@ export default function BannersPage() {
         </div>
       )}
 
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   SUB-COMPONENTES VISUALES WHATSAPP (SIMULADOR REAL)
-═══════════════════════════════════════════ */
-function WhatsAppHeader({ name, status, emoji }: { name: string; status: string; emoji: string }) {
-  return (
-    <div style={{
-      width: "100%",
-      background: "#075e54",
-      padding: "10px 14px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      borderBottom: "1px solid rgba(0,0,0,0.15)",
-      boxSizing: "border-box",
-      zIndex: 10,
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <ChevronLeft size={20} color="#ffffff" style={{ cursor: "pointer" }} />
-        <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#eceff1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
-          {emoji}
-        </div>
-        <div style={{ textAlign: "left" }}>
-          <div style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>{name}</div>
-          <div style={{ fontSize: "10px", color: "#a5d6a7", fontWeight: 500 }}>{status}</div>
-        </div>
-      </div>
-      <div style={{ display: "flex", gap: "16px", color: "#ffffff" }}>
-        <Video size={18} />
-        <Phone size={16} />
-        <MoreVertical size={18} />
-      </div>
-    </div>
-  );
-}
-
-function WhatsAppFooter() {
-  return (
-    <div style={{
-      width: "100%",
-      background: "#f0f0f0",
-      padding: "8px 12px",
-      display: "flex",
-      alignItems: "center",
-      gap: "10px",
-      borderTop: "1px solid #dddddd",
-      boxSizing: "border-box",
-      zIndex: 10,
-    }}>
-      <div style={{
-        flex: 1,
-        background: "#ffffff",
-        borderRadius: "20px",
-        padding: "8px 14px",
-        fontSize: "12px",
-        color: "#999999",
-        textAlign: "left",
-        border: "1px solid #e0e0e0"
-      }}>
-        Escribí un mensaje...
-      </div>
-      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#075e54", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "16px" }}>
-        🎤
-      </div>
-    </div>
-  );
-}
-
-function BlurBubble({ text, isLeft }: { text: string; isLeft: boolean }) {
-  return (
-    <div style={{
-      alignSelf: isLeft ? "flex-start" : "flex-end",
-      background: isLeft ? "#ffffff" : "#dcf8c6",
-      color: "#303030",
-      padding: "6px 10px",
-      borderRadius: isLeft ? "0px 10px 10px 10px" : "10px 0px 10px 10px",
-      maxWidth: "75%",
-      fontSize: "11px",
-      lineHeight: "1.4",
-      filter: "blur(5px)",
-      opacity: 0.35,
-      pointerEvents: "none",
-      boxShadow: "0 1px 1px rgba(0,0,0,0.1)",
-      wordBreak: "break-word",
-      position: "relative",
-    }}>
-      {text}
-      <div style={{ fontSize: "8px", color: "#999999", textAlign: "right", marginTop: "2px" }}>12:34</div>
     </div>
   );
 }
@@ -550,7 +749,7 @@ const storyFrameLightStyle: React.CSSProperties = {
 const storyTopHeaderLight: React.CSSProperties = {
   width: "100%",
   display: "flex",
-  justify "center",
+  justifyContent: "center",
   alignItems: "center",
   paddingBottom: "10px",
   borderBottom: "1px solid rgba(5, 150, 105, 0.15)",
