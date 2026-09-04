@@ -6520,8 +6520,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     }
                                              }
 
-  /* ═══════════════════════════════════════════
-     RENDER TABLA DE TALLES (INTERACTIVA + SELECCIÓN REAL)
+    /* ═══════════════════════════════════════════
+     RENDER TABLA DE TALLES (CON TELEMETRÍA REAL)
   ═══════════════════════════════════════════ */
   function renderTablaTalles(w) {
     if (pageType !== "product") return;
@@ -6533,6 +6533,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     if (typeof cfg === "string") {
       try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
     }
+
+    // Registrar impresión del widget en Analytics
+    nvxTrack(w, "view", 0);
 
     var storageKey = "nvx_saved_size_" + (w.target_product_id || window.location.pathname);
     var savedSize = "";
@@ -6740,13 +6743,12 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       document.head.appendChild(styleEl);
     }
 
-    // 1. Selector Universal de Variantes Tiendanube
+    // Selector Universal de Variantes Tiendanube
     function triggerTiendanubeVariant(talleStr) {
       if (!talleStr) return false;
       var clean = talleStr.trim().toLowerCase();
       var found = false;
 
-      // Dropdowns
       var selects = document.querySelectorAll("form[action*='/cart/add'] select, .js-product-form select, select.js-variation-option, select[name*='variation']");
       for (var i = 0; i < selects.length; i++) {
         var sel = selects[i];
@@ -6770,7 +6772,6 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         if (found) break;
       }
 
-      // Swatches / Buttons / Radios
       if (!found) {
         var clickables = document.querySelectorAll(
           "form[action*='/cart/add'] input[type='radio'], " +
@@ -6800,21 +6801,20 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       return found;
     }
 
-    // Si ya tenía un talle guardado previamente, sincronizarlo al cargar
     if (savedSize) {
       setTimeout(function() {
         triggerTiendanubeVariant(savedSize);
       }, 500);
     }
 
-    // 2. Crear el botón disparador en la tienda
+    // Crear el botón disparador en la tienda
     var btnWrapper = document.createElement("div");
     btnWrapper.id = "nvx-talles-btn-wrapper-" + w.id;
     var btnLabel = savedSize ? ("📏 Tu talle: " + savedSize + " (Cambiar)") : textoBoton;
     btnWrapper.innerHTML = `<button type="button" id="nvx-talles-btn-${w.id}">${escapeHtml(btnLabel)}</button>`;
     target.parentNode.insertBefore(btnWrapper, target);
 
-    // 3. Crear el modal con selección interactiva
+    // Crear modal
     var modal = document.createElement("div");
     modal.id = "nvx-talles-modal-" + w.id;
 
@@ -6877,6 +6877,8 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       if (e) e.preventDefault();
       modal.style.display = "flex";
       document.body.style.overflow = "hidden";
+      // Registrar apertura / clic
+      nvxTrack(w, "click", 0, { action: "open_modal" });
     }
 
     function closeModal(e) {
@@ -6892,7 +6894,6 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       if (e.target === modal) closeModal(e);
     });
 
-    // Interacción al tocar las filas de la tabla
     var rows = modal.querySelectorAll(".nvx-talle-row");
     rows.forEach(function(row) {
       row.addEventListener("click", function() {
@@ -6909,7 +6910,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       });
     });
 
-    // Guardar selección y activar variante en Tiendanube
+    // Guardar selección y disparar evento de conversión real
     saveBtn.addEventListener("click", function(e) {
       e.preventDefault();
       if (!currentSelectedTalle) return;
@@ -6919,6 +6920,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       } catch(err) {}
 
       triggerTiendanubeVariant(currentSelectedTalle);
+
+      // Disparar evento a Nevux Analytics
+      nvxTrack(w, "size_selected", 2500, { talle: currentSelectedTalle });
 
       if (openBtn) {
         openBtn.textContent = "📏 Tu talle: " + currentSelectedTalle + " (Cambiar)";
@@ -6933,7 +6937,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         closeModal();
       }, 450);
     });
-      }
+  }
   
     /* ═══════════════════════════════════════════
      RENDER PACK COMPLEMENTARIOS
@@ -8315,4 +8319,54 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       }, 4200);
     });
           }
+    /* ═══════════════════════════════════════════
+     MOTOR DE TELEMETRÍA Y ANALYTICS EN VIVO (NEVUX TRACK)
+  ═══════════════════════════════════════════ */
+  var nvxSessionId = (function() {
+    try {
+      var sid = sessionStorage.getItem("nvx_sid");
+      if (!sid) {
+        sid = "nvx_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now();
+        sessionStorage.setItem("nvx_sid", sid);
+      }
+      return sid;
+    } catch(e) {
+      return "nvx_anon_" + Date.now();
+    }
+  })();
+
+  function nvxTrack(w, eventType, eventValue, metadata) {
+    try {
+      if (!w || !w.widget_slug) return;
+      var sId = (typeof storeId !== "undefined" && storeId) ? storeId : (w.store_id || 0);
+      if (!sId) return;
+
+      var pId = (typeof productId !== "undefined" && productId) ? productId : (w.target_product_id || null);
+
+      var payload = {
+        store_id: Number(sId),
+        widget_id: w.id || null,
+        widget_slug: String(w.widget_slug),
+        event_type: String(eventType),
+        event_value: Number(eventValue) || 0,
+        session_id: nvxSessionId,
+        product_id: pId ? Number(pId) : null,
+        metadata: metadata || {}
+      };
+
+      var trackUrl = "https://nexus2026-gx7e.vercel.app/api/analytics/track";
+      var dataStr = JSON.stringify(payload);
+
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(trackUrl, new Blob([dataStr], { type: "application/json" }));
+      } else {
+        fetch(trackUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: dataStr,
+          keepalive: true
+        }).catch(function(){});
+      }
+    } catch(err) {}
+        }
 })();
