@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   ShoppingCart,
-  Check,
   CheckCheck,
   MoreVertical,
   Phone,
@@ -648,7 +647,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* 🎨 TAB 3: PORTADAS DESTACADAS CIRCULARES */}
+      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES */}
       {activeTab === "covers" && (
         <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "32px", alignItems: "center" }}>
           <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px" }}>
@@ -685,7 +684,98 @@ export default function BannersPage() {
 }
 
 /* ═══════════════════════════════════════════
-   ESTILOS PREMIUM DE HISTORIAS INSTAGRAM (9:16)
+   SUB-COMPONENTES VISUALES WHATSAPP (SIMULADOR REAL)
+═══════════════════════════════════════════ */
+function WhatsAppHeader({ name, status, emoji }: { name: string; status: string; emoji: string }) {
+  return (
+    <div style={{
+      width: "100%",
+      background: "#075e54",
+      padding: "10px 14px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderBottom: "1px solid rgba(0,0,0,0.15)",
+      boxSizing: "border-box",
+      zIndex: 10,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <ChevronLeft size={20} color="#ffffff" style={{ cursor: "pointer" }} />
+        <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#eceff1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
+          {emoji}
+        </div>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>{name}</div>
+          <div style={{ fontSize: "10px", color: "#a5d6a7", fontWeight: 500 }}>{status}</div>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: "16px", color: "#ffffff" }}>
+        <Video size={18} />
+        <Phone size={16} />
+        <MoreVertical size={18} />
+      </div>
+    </div>
+  );
+}
+
+function WhatsAppFooter() {
+  return (
+    <div style={{
+      width: "100%",
+      background: "#f0f0f0",
+      padding: "8px 12px",
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      borderTop: "1px solid #e0e0e0",
+      boxSizing: "border-box",
+      zIndex: 10,
+    }}>
+      <div style={{
+        flex: 1,
+        background: "#ffffff",
+        borderRadius: "20px",
+        padding: "8px 14px",
+        fontSize: "12px",
+        color: "#999999",
+        textAlign: "left",
+        border: "1px solid #e0e0e0"
+      }}>
+        Escribí un mensaje...
+      </div>
+      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#075e54", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "16px" }}>
+        🎤
+      </div>
+    </div>
+  );
+}
+
+function BlurBubble({ text, isLeft }: { text: string; isLeft: boolean }) {
+  return (
+    <div style={{
+      alignSelf: isLeft ? "flex-start" : "flex-end",
+      background: isLeft ? "#ffffff" : "#dcf8c6",
+      color: "#303030",
+      padding: "6px 10px",
+      borderRadius: isLeft ? "0px 10px 10px 10px" : "10px 0px 10px 10px",
+      maxWidth: "75%",
+      fontSize: "11px",
+      lineHeight: "1.4",
+      filter: "blur(5px)",
+      opacity: 0.35,
+      pointerEvents: "none",
+      boxShadow: "0 1px 1px rgba(0,0,0,0.1)",
+      wordBreak: "break-word",
+      position: "relative",
+    }}>
+      {text}
+      <div style={{ fontSize: "8px", color: "#999999", textAlign: "right", marginTop: "2px" }}>12:34</div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   ESTILOS PREMIUM VERDE ESMERALDA (9:16)
 ═══════════════════════════════════════════ */
 const storyFrameStyle: React.CSSProperties = {
   width: "100%",
