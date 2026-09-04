@@ -1,998 +1,553 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import {
-  ShoppingCart,
-  CheckCheck,
-  MoreVertical,
-  Phone,
-  Video,
-  ChevronLeft,
-} from "lucide-react";
-import NevuxLogo from "@/app/components/landing/NevuxLogo";
+import React, { useState } from 'react';
+import { 
+  Image as ImageIcon, Smartphone, Palette, Check, Copy, ArrowLeft, ChevronLeft, 
+  Video, Phone, MoreVertical, Pin, Play, Mic, Paperclip, Camera, Smile, 
+  Send, Sparkles, TrendingUp, AlertTriangle, ShieldCheck, ShoppingBag, 
+  Zap, Award, Gift, RefreshCw, Star, Users, MessageSquare, ThumbsUp, ArrowRight
+} from 'lucide-react';
 
-type TabId = "partners" | "stories" | "covers";
-type StoryDestacada = "problema" | "solucion" | "testimonios";
+// ==========================================
+// DATA: BANNERS PARTNERS (TAB 1)
+// ==========================================
+const bannersPartnersData = [
+  {
+    id: 1,
+    titleEs: "Multiplicá tus Ventas y Ticket Promedio",
+    titlePt: "Multiplique suas Vendas e Ticket Médio",
+    descEs: "Widgets estratégicos de conversión para tu tienda online. Creado para vender más en Tiendanube.",
+    descPt: "Widgets estratégicos de conversão para sua loja online. Criado para vender mais na Nuvemshop.",
+    badge: "Aumentá tu ROI",
+    color: "from-emerald-600 to-teal-800"
+  },
+  {
+    id: 2,
+    titleEs: "+27 Widgets de Conversión en 1 Click",
+    titlePt: "+27 Widgets de Conversão em 1 Clique",
+    descEs: "Barra de progreso, ruleta de descuentos, bundles, tabla de talles interactiva y mucho más.",
+    descPt: "Barra de progresso, roleta de descontos, bundles, tabela de tamanhos e muito mais.",
+    badge: "Catálogo Completo",
+    color: "from-teal-600 to-emerald-900"
+  },
+  {
+    id: 3,
+    titleEs: "NevuxBot IA: Recuperá Carritos por WhatsApp",
+    titlePt: "NevuxBot IA: Recupere Carrinhos pelo WhatsApp",
+    descEs: "Inteligencia artificial que contacta a tus clientes por WhatsApp y recupera ventas automáticamente.",
+    descPt: "Inteligência artificial que contacta seus clientes pelo WhatsApp e recupera vendas automaticamente.",
+    badge: "Automatización IA",
+    color: "from-emerald-500 to-green-700"
+  },
+  {
+    id: 4,
+    titleEs: "ROI Analytics en Vivo: Medí tus Ganancias",
+    titlePt: "ROI Analytics ao Vivo: Meça seus Lucros",
+    descEs: "Panel en tiempo real que muestra la facturación extra exacta generada por los widgets.",
+    descPt: "Painel em tempo real que mostra o faturamento extra exato gerado pelos widgets.",
+    badge: "Telemetría Real",
+    color: "from-green-600 to-emerald-800"
+  },
+  {
+    id: 5,
+    titleEs: "App Oficial Aprobada para LATAM",
+    titlePt: "App Oficial Aprovado para LATAM",
+    descEs: "Instalación en 30 segundos sin tocar código. Compatible con todos los layouts de Tiendanube.",
+    descPt: "Instalação em 30 segundos sem tocar em código. Compatível com todos os temas da Nuvemshop.",
+    badge: "100% Seguro",
+    color: "from-emerald-700 to-slate-900"
+  }
+];
 
-export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("stories");
-  const [lang, setLang] = useState<"es" | "pt">("pt");
-  const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("testimonios");
+// ==========================================
+// DATA: TESTIMONIOS WHATSAPP DARK MODE (TAB 2 - DESTACADA 3)
+// ==========================================
+const testimoniosData = [
+  {
+    id: 1,
+    name: "Mariana • Indumentaria",
+    location: "Buenos Aires",
+    avatar: "👩‍💼",
+    status: "en línea",
+    metricBadge: "+$450.000 EXTRA en 5 días 🚀",
+    storeName: "Marii_Store",
+    beforeText: "Hola Rodri! Consulta, el widget de la tabla de talles va en todas las variantes?",
+    clientMsg: "Che Rodri no sabés!! Pusimos el de la Tabla de Talles y el Bundle de Promociones la semana pasada... MÁS DE 450 LUCAS EXTRA EN 5 DÍAS 😱🔥 La gente compra directo 2 o 3 prendas de una. Posta mil gracias boludo, nos cambió la tienda completamente 🙌💚",
+    clientTime: "15:42",
+    creatorMsg: "¡¡Vaaaaamaaaa Mariana!! 🥳 No sabés lo contento que me pone leer esto che. El bundle de indumentaria es clave total para subir el ticket. ¡A reventarla en ventas este mes! 🚀🚀",
+    creatorTime: "15:44",
+    afterText: "Te hago otra consulta sobre los packs...",
+  },
+  {
+    id: 2,
+    name: "Fede • Sneakers Córdoba",
+    location: "Córdoba",
+    avatar: "👟",
+    status: "hace 5 min",
+    metricBadge: "+35% Ventas en Checkout 👟🔥",
+    storeName: "Cordoba_Kicks",
+    beforeText: "Rodri ahí lo activamos en la tienda de zapatillas",
+    clientMsg: "Hermanooo te juro que no lo puedo creer jajaja. Con la ruleta de descuentos y las cuotas fijas en el checkout se nos dispararon las ventas un 35% en Córdoba 👟🔥 Pensé que era humo pero la prueba gratis ya se pagó sola 20 veces. ¡Un caño Nevux! 👏",
+    clientTime: "18:12",
+    creatorMsg: "¡Qué grande Fede! 💪🔥 Las zapatillas vuelan cuando le das confianza al cliente con cuotas y el incentivo de la ruleta. ¡Gracias por confiar culiau, a seguir escalando!",
+    creatorTime: "18:15",
+    afterText: "Che me preguntaron de otra marca...",
+  },
+  {
+    id: 3,
+    name: "Cami • Cosmética Natural",
+    location: "Rosario",
+    avatar: "🧴",
+    status: "en línea",
+    metricBadge: "Ticket Promedio $18k ➔ $34k ✨",
+    storeName: "Cami_Glow",
+    beforeText: "Holaa Rodri buenas tardes!!",
+    clientMsg: "Hola Rodri!! Te escribo para agradecerte posta. La barra de progreso de envío gratis + el pack de sérums en la ficha de producto nos subió el ticket promedio de $18k a $34k en dos semanas 🧴✨ Mis clientas aman la experiencia visual. Sos un genio!!",
+    clientTime: "11:20",
+    creatorMsg: "¡Hermoso Cami! 🥰 Casi duplicaron el ticket promedio, una locura total. Esos packs para cosmética son una bomba. ¡Cualquier duda que tengas me avisás al toque! 💚",
+    creatorTime: "11:23",
+    afterText: "Siii mil gracias genio!",
+  },
+  {
+    id: 4,
+    name: "Nico • Home & Deco",
+    location: "Mendoza",
+    avatar: "🏡",
+    status: "en línea",
+    metricBadge: "$1.2M en 1 Fin de Semana 📦",
+    storeName: "Mendoza_Deco",
+    beforeText: "Viejo te hago una consulta rápida...",
+    clientMsg: "Viejo no te miento, estaba por cerrar la tienda porque no llegaba a cubrir pauta... instalé Nevux, puse la cuenta regresiva + envío en 24hs y en un solo fin de semana vendí $1.2M 📦🏡 Me salvaste el negocio en serio chabón. Eternamente agradecido 🥹",
+    clientTime: "20:05",
+    creatorMsg: "Nooo Nico, me emociona un montón leer esto boludo... 🥹❤️ Para esto creé Nevux, para darle herramientas reales a los emprendedores. ¡No aflojes que recién empieza!",
+    creatorTime: "20:08",
+    afterText: "Posta gracias de corazón hermano",
+  },
+  {
+    id: 5,
+    name: "Sofi • Sportwear",
+    location: "Mar del Plata",
+    avatar: "🏃‍♀️",
+    status: "hace 12 min",
+    metricBadge: "Stock Agotado en 3 Días 🏃‍♀️💨",
+    storeName: "Sofi_Fit",
+    beforeText: "Buenas Rodri! Te hablo de parte de Sofi",
+    clientMsg: "Rodri genio!! Te cuento que el contador de visitas en vivo y las reseñas con foto le dieron una confianza tremenda a la web. Vendimos todo el stock de calzas en 3 días 🏃‍♀️💨 Ya le recomendé Nevux a 3 marcas amigas jaja!",
+    clientTime: "14:30",
+    creatorMsg: "¡Jajaja sos la mejor Sofi! 🙌 Gracias por la recomendación boca en boca, es lo más valioso. ¡A reponer stock urgente que la tienda no para! ⚡",
+    creatorTime: "14:33",
+    afterText: "Jajaja si ya estamos fabricando más!",
+  },
+  {
+    id: 6,
+    name: "Martín • Suplementos Fitness",
+    location: "BsAs",
+    avatar: "💪",
+    status: "en línea",
+    metricBadge: "+$890.000 Generados (ROI x20) 📊",
+    storeName: "Nutri_Fit_Arg",
+    beforeText: "Hola Rodrigo, recién revisé el Analytics",
+    clientMsg: "Che Rodrigo te hago una devolución sincera: es la PRIMERA app de Tiendanube que realmente cumple lo que promete sin vueltas. El ROI Tracker me marca +$890.000 generados gracias a los widgets. Vale cada peso del plan 💯🔥",
+    clientTime: "17:50",
+    creatorMsg: "¡Muchas gracias Martín! 🤝 Nos matamos trabajando para que cada peso invertido vuelva multiplicado x10. ¡Abrazo enorme bro!",
+    creatorTime: "17:53",
+    afterText: "Abrazo enorme crack!",
+  }
+];
 
-  const isPt = lang === "pt";
+// ==========================================
+// DATA: PORTADAS DESTACADAS INSTAGRAM (TAB 3)
+// ==========================================
+const portadasData = [
+  { id: 1, title: "El Problema", icon: AlertTriangle, color: "from-red-500 to-rose-700" },
+  { id: 2, title: "La Solución", icon: Zap, color: "from-emerald-500 to-teal-700" },
+  { id: 3, title: "Testimonios", icon: MessageSquare, color: "from-emerald-400 to-green-600" },
+  { id: 4, title: "NevuxBot IA", icon: Sparkles, color: "from-teal-500 to-cyan-700" },
+  { id: 5, title: "Analytics ROI", icon: TrendingUp, color: "from-green-500 to-emerald-700" },
+  { id: 6, title: "Modo Fechas", icon: Gift, color: "from-emerald-600 to-emerald-900" },
+  { id: 7, title: "Estilo Marca", icon: Palette, color: "from-teal-400 to-emerald-600" },
+  { id: 8, title: "Cross-Sell IA", icon: ShoppingBag, color: "from-green-600 to-teal-800" },
+  { id: 9, title: "Multi-Idioma", icon: Star, color: "from-emerald-500 to-teal-600" },
+  { id: 10, title: "Búsqueda Voz", icon: Mic, color: "from-teal-600 to-cyan-800" },
+  { id: 11, title: "Vendedor IA", icon: Users, color: "from-emerald-700 to-slate-900" }
+];
 
-  const tabs: { id: TabId; label: string; icon: string }[] = [
-    { id: "partners", label: "Banners Partners", icon: "🖼️" },
-    { id: "stories", label: "Historias Instagram", icon: "📱" },
-    { id: "covers", label: "Portadas Destacadas", icon: "🎨" },
-  ];
+export default function BannersAdminPage() {
+  const [activeTab, setActiveTab] = useState<'banners' | 'historias' | 'portadas'>('historias');
+  const [lang, setLang] = useState<'ES' | 'PT'>('ES');
+  const [activeHighlight, setActiveHighlight] = useState<number>(3); // Default: Testimonios (3)
+  const [currentTestimonioIndex, setCurrentTestimonioIndex] = useState<number>(0);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const handleCopyText = (text: string, id: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const currentTestimonio = testimoniosData[currentTestimonioIndex];
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#061a14",
-        color: "#ffffff",
-        padding: "24px 16px 120px",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "24px",
-        boxSizing: "border-box",
-      }}
-    >
-      {/* PANEL DE CONTROL SUPERIOR */}
-      <div
-        style={{
-          maxWidth: "650px",
-          width: "100%",
-          textAlign: "center",
-          backgroundColor: "#0b2920",
-          padding: "20px",
-          borderRadius: "18px",
-          border: "1.5px solid rgba(16, 185, 129, 0.3)",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.4)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "14px",
-        }}
-      >
-        <h1 style={{ fontSize: "18px", fontWeight: 800, color: "#10B981", margin: 0 }}>
-          📷 Generador de Contenido Visual Nevux
-        </h1>
-        <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, lineHeight: "1.4" }}>
-          Seleccioná qué tipo de contenido querés generar y sacale captura desde tu celular.
-        </p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-6 font-sans">
+      {/* HEADER PRINCIPAL */}
+      <div className="max-w-6xl mx-auto mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-emerald-400" /> Panel Visual Nevux
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Generador de contenido oficial para Tiendanube LATAM & Instagram
+          </p>
+        </div>
 
-        {/* TABS DE NAVEGACIÓN */}
-        <div
-          style={{
-            display: "flex",
-            gap: "6px",
-            background: "#061a14",
-            padding: "4px",
-            borderRadius: "12px",
-            width: "100%",
-            overflowX: "auto",
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
+        {/* NAVEGACIÓN PRINCIPAL DE PESTAÑAS */}
+        <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 w-full sm:w-auto">
+          <button
+            onClick={() => setActiveTab('banners')}
+            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+              activeTab === 'banners' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <ImageIcon className="w-4 h-4" /> 🖼️ Banners Partners
+          </button>
+          <button
+            onClick={() => setActiveTab('historias')}
+            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+              activeTab === 'historias' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Smartphone className="w-4 h-4" /> 📱 Historias Instagram
+          </button>
+          <button
+            onClick={() => setActiveTab('portadas')}
+            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+              activeTab === 'portadas' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Palette className="w-4 h-4" /> 🎨 Portadas
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto">
+        {/* ========================================== */}
+        {/* TAB 1: BANNERS PARTNERS (ES / PT) */}
+        {/* ========================================== */}
+        {activeTab === 'banners' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center bg-slate-900 p-3 rounded-xl border border-slate-800">
+              <span className="text-xs text-slate-300 font-medium">Idioma de Banners:</span>
+              <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
+                <button
+                  onClick={() => setLang('ES')}
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
+                    lang === 'ES' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🇦🇷 / 🇲🇽 Español
+                </button>
+                <button
+                  onClick={() => setLang('PT')}
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
+                    lang === 'PT' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🇧🇷 Português BR
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {bannersPartnersData.map((banner) => {
+                const title = lang === 'ES' ? banner.titleEs : banner.titlePt;
+                const desc = lang === 'ES' ? banner.descEs : banner.descPt;
+                return (
+                  <div key={banner.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl flex flex-col">
+                    <div className={`p-6 bg-gradient-to-br ${banner.color} min-h-[180px] flex flex-col justify-between relative`}>
+                      <span className="bg-black/40 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full w-max border border-emerald-500/30">
+                        {banner.badge}
+                      </span>
+                      <div>
+                        <h3 className="text-lg font-black text-white leading-tight mb-2">{title}</h3>
+                        <p className="text-xs text-slate-200 opacity-90 leading-relaxed">{desc}</p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-slate-900 border-t border-slate-800 flex justify-between items-center text-xs">
+                      <span className="text-slate-400 font-mono text-[11px]">Banner #{banner.id} (1200x630px)</span>
+                      <button
+                        onClick={() => handleCopyText(`${title} - ${desc}`, banner.id)}
+                        className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-xs"
+                      >
+                        {copiedId === banner.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedId === banner.id ? '¡Copiado!' : 'Copiar Texto'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================== */}
+        {/* TAB 2: HISTORIAS INSTAGRAM (FORMATO 9:16) */}
+        {/* ========================================== */}
+        {activeTab === 'historias' && (
+          <div className="space-y-6">
+            {/* SELECTOR DE HISTORIA DESTACADA */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  flex: 1,
-                  padding: "8px 10px",
-                  borderRadius: "8px",
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  border: "none",
-                  cursor: "pointer",
-                  backgroundColor: isActive ? "#10B981" : "transparent",
-                  color: isActive ? "#ffffff" : "#6ee7b7",
-                  transition: "all 0.2s ease",
-                  whiteSpace: "nowrap",
-                }}
+                onClick={() => setActiveHighlight(1)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  activeHighlight === 1 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                }`}
               >
-                {tab.icon} {tab.label}
+                🚨 1. El Problema (7)
               </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* TAB 1: BANNERS PARTNERS (INTACTO) */}
-      {activeTab === "partners" && (
-        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "32px" }}>
-          <div style={{ display: "flex", gap: "8px", background: "#0b2920", padding: "4px", borderRadius: "12px" }}>
-            <button onClick={() => setLang("es")} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", backgroundColor: !isPt ? "#10B981" : "transparent", color: !isPt ? "#ffffff" : "#a7f3d0" }}>
-              🇦🇷 Español
-            </button>
-            <button onClick={() => setLang("pt")} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", backgroundColor: isPt ? "#10B981" : "transparent", color: isPt ? "#ffffff" : "#a7f3d0" }}>
-              🇧🇷 Português
-            </button>
-          </div>
-          <div style={bannerStyle}>
-            <div style={{ flex: "1 1 200px", zIndex: 2 }}>
-              <div style={badgeStyle}>🤖 NEVUXBOT</div>
-              <h2 style={bannerTitleStyle}>{isPt ? "O primeiro CRM de Carrinhos com IA" : "El primer CRM de Carritos con IA"}</h2>
-              <p style={bannerDescStyle}>{isPt ? "Detecte vendas perdidas, crie mensagens persuasivas com Gemini AI e recupere via WhatsApp ou E-mail." : "Detectá ventas perdidas, creá copys persuasivos con Gemini AI y recuperá por WhatsApp o Email."}</p>
+              <button
+                onClick={() => setActiveHighlight(2)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  activeHighlight === 2 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                }`}
+              >
+                ⚡ 2. La Solución (8)
+              </button>
+              <button
+                onClick={() => setActiveHighlight(3)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  activeHighlight === 3 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                }`}
+              >
+                💬 3. Testimonios ({testimoniosData.length})
+              </button>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* TAB 2: HISTORIAS INSTAGRAM (9:16) */}
-      {activeTab === "stories" && (
-        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "24px" }}>
-          
-          {/* Sub-selector de Destacadas */}
-          <div style={{ display: "flex", gap: "8px", background: "#0b2920", padding: "6px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.3)", width: "100%", overflowX: "auto" }}>
-            <button onClick={() => setActiveDestacada("problema")} style={{ flex: 1, padding: "8px 12px", borderRadius: "10px", fontSize: "12px", fontWeight: 800, border: "none", cursor: "pointer", background: activeDestacada === "problema" ? "#10B981" : "transparent", color: activeDestacada === "problema" ? "#ffffff" : "#a7f3d0", whiteSpace: "nowrap" }}>
-              🚨 1. El Problema (7)
-            </button>
-            <button onClick={() => setActiveDestacada("solucion")} style={{ flex: 1, padding: "8px 12px", borderRadius: "10px", fontSize: "12px", fontWeight: 800, border: "none", cursor: "pointer", background: activeDestacada === "solucion" ? "#10B981" : "transparent", color: activeDestacada === "solucion" ? "#ffffff" : "#a7f3d0", whiteSpace: "nowrap" }}>
-              ⚡ 2. La Solución (8)
-            </button>
-            <button onClick={() => setActiveDestacada("testimonios")} style={{ flex: 1, padding: "8px 12px", borderRadius: "10px", fontSize: "12px", fontWeight: 800, border: "none", cursor: "pointer", background: activeDestacada === "testimonios" ? "#10B981" : "transparent", color: activeDestacada === "testimonios" ? "#ffffff" : "#a7f3d0", whiteSpace: "nowrap" }}>
-              💬 3. Testimonios (6)
-            </button>
-          </div>
-
-          {/* RENDERING PROBLEMA */}
-          {activeDestacada === "problema" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "36px", width: "100%", alignItems: "center" }}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>🛑</div>
-                  <div style={{ display: "inline-block", background: "rgba(239, 68, 68, 0.2)", border: "1.5px solid #ef4444", color: "#ffffff", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
-                    REALIDAD DEL E-COMMERCE
-                  </div>
-                  <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1.15, margin: "0 0 16px 0", letterSpacing: "-0.03em" }}>
-                    ¿Por qué tu tienda vende <span style={{ color: "#fca5a5", textDecoration: "underline" }}>menos</span> de lo que podría?
-                  </h2>
-                  <p style={{ fontSize: "14px", color: "#d1fae5", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-                    Si tenés visitas pero no se reflejan en tu facturación, hay 3 fugas silenciosas que te están costando miles de pesos.
-                  </p>
+            {/* DESTACADA 3: TESTIMONIOS CON SIMULADOR WHATSAPP DARK MODE */}
+            {activeHighlight === 3 && (
+              <div className="flex flex-col items-center">
+                {/* SELECTOR RÁPIDO DE CLIENTE */}
+                <div className="flex flex-wrap justify-center gap-2 mb-4 max-w-md">
+                  {testimoniosData.map((t, idx) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setCurrentTestimonioIndex(idx)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                        currentTestimonioIndex === idx
+                          ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
+                          : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                      }`}
+                    >
+                      {t.avatar} {t.name.split('•')[0]}
+                    </button>
+                  ))}
                 </div>
-                <div style={storyBottomSwipe}>Deslizá para ver las fugas ➔</div>
-              </div>
 
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", fontWeight: 900, color: "#fca5a5", fontFamily: "monospace", marginBottom: "6px", textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
-                    7 de cada 10
-                  </div>
-                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "18px" }}>
-                    FUGA #1 — CARRITOS ABANDONADOS
-                  </div>
-                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "16px", padding: "16px", textAlign: "left", marginBottom: "16px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                      <ShoppingCart size={20} color="#fca5a5" />
-                      <span style={{ fontSize: "13px", fontWeight: 800, color: "#fff" }}>El cliente llena el carrito...</span>
-                    </div>
-                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.45 }}>
-                      Pero en el último segundo le surge una duda, se distrae con otra app o pospone la compra y <strong style={{ color: "#ffffff" }}>nunca más vuelve</strong>.
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>
-                    Perdés ventas de gente que <span style={{ color: "#a7f3d0", textDecoration: "underline" }}>ya quería comprarte</span>.
-                  </p>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente fuga ➔</div>
-              </div>
-
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📉</div>
-                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>
-                    FUGA #2 — TICKET PROMEDIO ESTANCADO
-                  </div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
-                    Tus clientes compran de a 1 solo producto
-                  </h3>
-                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#fca5a5", margin: 0, lineHeight: 1.45, fontWeight: 600 }}>
-                      ❌ Sin ofertas por volumen (2x1, 3x2)<br />
-                      ❌ Sin productos complementarios sugeridos<br />
-                      ❌ Sin motivación para alcanzar el Envío Gratis
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, fontWeight: 600 }}>
-                    Estás dejando el <strong style={{ color: "#ffffff" }}>40% de facturación extra</strong> sobre la mesa en cada pedido.
-                  </p>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente fuga ➔</div>
-              </div>
-
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📏</div>
-                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>
-                    FUGA #3 — LA DUDA QUE MATA LA COMPRA
-                  </div>
-                  <div style={{ background: "rgba(0, 0, 0, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", border: "1.5px solid rgba(16, 185, 129, 0.4)" }}>
-                    <div style={{ fontSize: "13px", fontWeight: 800, color: "#fff", marginBottom: "6px" }}>
-                      "¿Me quedará bien el talle M o será chico?"
-                    </div>
-                    <p style={{ fontSize: "11px", color: "#d1fae5", margin: 0, lineHeight: 1.4 }}>
-                      Si el cliente tiene que mandar un WhatsApp para preguntar las medidas, en el 80% de los casos <strong style={{ color: "#fca5a5" }}>cierra la pestaña y compra en otro lado</strong>.
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>
-                    La indecisión es el enemigo #1 de tus ventas online.
-                  </p>
-                </div>
-                <div style={storyBottomSwipe}>Deslizá ➔</div>
-              </div>
-
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>💸</div>
-                  <h3 style={{ fontSize: "24px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
-                    El error más común: "Tengo que meter más plata en pauta"
-                  </h3>
-                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>
-                      Meter tráfico a una tienda que no convierte es como <strong style={{ color: "#fca5a5" }}>echarle agua a un balde pinchado</strong>. El costo por clic sube y tu margen desaparece.
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#a7f3d0", fontWeight: 800, margin: 0 }}>
-                    La clave no es traer más visitas. Es exprimir al máximo las que ya tenés.
-                  </p>
-                </div>
-                <div style={storyBottomSwipe}>Deslizá ➔</div>
-              </div>
-
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🐌</div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
-                    Instalar 6 apps distintas destruye tu velocidad móvil
-                  </h3>
-                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>
-                      Cada app externa agrega códigos pesados que traban el celular del comprador. Si tu tienda tarda más de 3 segundos en cargar, <strong style={{ color: "#fca5a5" }}>perdés el 53% de las compras</strong>.
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, fontWeight: 700 }}>
-                    Terminás pagando 4 suscripciones caras por apps lentas.
-                  </p>
-                </div>
-                <div style={storyBottomSwipe}>La solución ➔</div>
-              </div>
-
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>💡</div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
-                    El problema no es tu producto.
-                  </h2>
-                  <p style={{ fontSize: "15px", color: "#a7f3d0", fontWeight: 800, margin: "0 0 16px 0" }}>
-                    Es la falta de herramientas que cierren la venta en el momento.
-                  </p>
-                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "2px solid #10B981", borderRadius: "16px", padding: "14px", marginBottom: "16px", boxShadow: "0 8px 20px rgba(0,0,0,0.3)" }}>
-                    <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0, lineHeight: 1.45 }}>
-                      Por eso creamos <span style={{ color: "#34d399", fontWeight: 900 }}>Nevux</span>: una única app con 27 herramientas que resuelven todas las fugas de tu tienda en 1 clic.
-                    </p>
-                  </div>
-                </div>
-                <div style={{ ...storyBottomSwipe, color: "#34d399", fontWeight: 900 }}>
-                  Mirá la siguiente destacada: "⚡ La Solución" ➔
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING SOLUCION (FONDO MENTA LIGHT GLASS) */}
-          {activeDestacada === "solucion" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "36px", width: "100%", alignItems: "center" }}>
-              <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
-                👇 Sacale captura de pantalla en vertical a cada tarjeta para armar tu destacada
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>⚡</div>
-                  <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", color: "#065f46", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
-                    LA SOLUCIÓN DEFINITIVA
-                  </div>
-                  <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#065f46", lineHeight: 1.15, margin: "0 0 16px 0", letterSpacing: "-0.03em" }}>
-                    Una sola app.<br />27 widgets de conversión.
-                  </h2>
-                  <p style={{ fontSize: "14px", color: "#374151", lineHeight: 1.5, margin: 0, fontWeight: 600 }}>
-                    Nevux reemplaza todas las aplicaciones lentas de tu Tiendanube por una suite única, liviana y automatizada.
-                  </p>
-                </div>
-                <div style={storyBottomSwipeLight}>Mirá cómo funciona ➔</div>
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📦</div>
-                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
-                    TICKET PROMEDIO AL MÁXIMO
-                  </div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
-                    Hacé que cada cliente gaste más antes de pagar
-                  </h3>
-                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
-                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
-                      ✅ <b>Bundles por volumen:</b> Descuentos progresivos por llevar 2 o 3 unidades.<br />
-                      ✅ <b>Barra de Envío Gratis:</b> El empujón que necesitan para sumar productos al carrito.<br />
-                      ✅ <b>Packs Sugeridos:</b> Venta cruzada en un solo toque.
-                    </p>
-                  </div>
-                </div>
-                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📏</div>
-                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
-                    MEDIDAS Y CONFIANZA REAL
-                  </div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
-                    Eliminá las dudas de talles en segundos
-                  </h3>
-                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
-                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
-                      ✅ <b>Talles Inteligentes:</b> Selector interactivo que guarda el talle y lo selecciona directo en la tienda.<br />
-                      ✅ <b>Reseñas con Foto (UGC):</b> Tus clientes subiendo fotos reales de cómo les queda la prenda.
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#059669", fontWeight: 800, margin: 0 }}>
-                    Menos preguntas de soporte, cero devoluciones.
-                  </p>
-                </div>
-                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>⚡</div>
-                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
-                    URGENCIA & CIERRE INMEDIATO
-                  </div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
-                    No los dejes postergar su decisión
-                  </h3>
-                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
-                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
-                      ✅ <b>Cuenta Regresiva:</b> Temporizadores visuales para liquidaciones.<br />
-                      ✅ <b>Alertas de Stock:</b> "Últimas 2 unidades disponibles".<br />
-                      ✅ <b>Cupones interactivos:</b> Cupones troquelados listos para copiar con 1 clic.
-                    </p>
-                  </div>
-                </div>
-                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🖱️</div>
-                  <h3 style={{ fontSize: "24px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
-                    Instalación en 1 solo clic. Sin tocar código.
-                  </h3>
-                  <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#475569", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
-                      No necesitás diseñadores ni programadores. Te registrás, elegís qué widgets activar y en menos de 2 minutos están brillando en tu Tiendanube.
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#10B981", fontWeight: 900, margin: 0 }}>
-                    Control total de colores, textos y estilos 🎨
-                  </p>
-                </div>
-                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🚀</div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
-                    Un solo script ultra liviano de 12kb
-                  </h3>
-                  <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#065f46", margin: 0, lineHeight: 1.5, fontWeight: 700 }}>
-                      A diferencia de instalar 6 apps pesadas por separado que ralentizan tu servidor, Nevux corre unificado bajo un único código inteligente que no frena tu checkout.
-                    </p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#374151", margin: 0, fontWeight: 600 }}>
-                    Tu tienda vuela en teléfonos celulares.
-                  </p>
-                </div>
-                <div style={storyBottomSwipeLight}>Prueba gratis ➔</div>
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔥</div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
-                    7 Días de Prueba Completa Gratis
-                  </h2>
-                  <p style={{ fontSize: "15px", color: "#10B981", fontWeight: 800, margin: "0 0 16px 0" }}>
-                    Sin tarjeta de crédito, sin contratos.
-                  </p>
-                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "16px", padding: "14px", marginBottom: "16px", boxShadow: "0 8px 24px rgba(16,185,129,0.1)" }}>
-                    <p style={{ fontSize: "12px", color: "#374151", fontWeight: 700, margin: 0, lineHeight: 1.45 }}>
-                      Probá todas las herramientas hoy mismo y comproba el aumento de tu facturación antes de pagar un solo peso.
-                    </p>
-                  </div>
-                </div>
-                <div style={storyBottomSwipeLight}>Los precios ➔</div>
-              </div>
-
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>💳</div>
-                  <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", color: "#065f46", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
-                    PLAN ÚNICO TRANSPARENTE
-                  </div>
-                  <h2 style={{ fontSize: "32px", fontWeight: 900, color: "#065f46", lineHeight: 1.15, margin: "0 0 8px 0" }}>
-                    $30.000 ARS
-                  </h2>
-                  <p style={{ fontSize: "14px", color: "#374151", fontWeight: 700, margin: "0 0 16px 0" }}>
-                    por mes • Acceso Ilimitado a Todo
-                  </p>
-                  <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 16px 0", lineHeight: 1.4 }}>
-                    Sin comisiones por ventas • Sin límites de visitas o impresiones • Soporte directo por WhatsApp
-                  </p>
-                </div>
-                <div style={{ ...storyBottomSwipeLight, color: "#059669", fontWeight: 900 }}>
-                  Mirá los resultados de nuestros clientes ➔
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING TESTIMONIOS WHATSAPP CON DESENFOQUE (6 HISTORIAS) */}
-          {activeDestacada === "testimonios" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "40px", width: "100%", alignItems: "center" }}>
-              <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
-                👇 Sacale captura de pantalla en vertical a cada chat para tu destacada de testimonios
-              </div>
-
-              {/* T1: MARIANA */}
-              <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Mariana 💚 Cliente" status="en línea" emoji="🧥" />
-                <div style={whatsappBodyStyle}>
-                  <BlurBubble text="Hola Rodri! Todo bien? Che te quería preguntar sobre el script, una consulta rápida..." isLeft={true} />
-                  <BlurBubble text="Sisi decime tranqui Mari" isLeft={false} />
+                {/* HISTORIA 9:16 MARCO CELULAR */}
+                <div className="w-full max-w-[360px] aspect-[9/16] bg-slate-950 rounded-[36px] border-4 border-slate-800 shadow-2xl overflow-hidden relative flex flex-col justify-between p-3 my-2">
                   
-                  <div style={highlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Rodri boludo GRACIAS 🙌 desde q instalé nevux subí el ticket promedio 35% en 3 semanas. La app es una locura, se instala re fácil y la tabla de talles es un 10.
+                  {/* TOP INSTAGRAM BARS & HEADER */}
+                  <div className="z-20 relative space-y-2">
+                    {/* BARRAS DE PROGRESO */}
+                    <div className="flex gap-1">
+                      {testimoniosData.map((_, idx) => (
+                        <div
+                          key={idx}
+                          className={`h-1 flex-1 rounded-full transition-all ${
+                            idx <= currentTestimonioIndex ? 'bg-white' : 'bg-white/30'
+                          }`}
+                        />
+                      ))}
                     </div>
-                    <div style={whatsappTimeStyle}>15:47</div>
+
+                    {/* HEADER INSTAGRAM USER */}
+                    <div className="flex items-center justify-between text-white px-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-slate-950 text-xs border border-emerald-300">
+                          N
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold leading-none">nevux.app <span className="text-[10px] opacity-70 font-normal">2 h</span></p>
+                          <p className="text-[10px] text-emerald-400 font-semibold leading-none mt-0.5">Destacada 3 • Testimonios Reales</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-slate-300 font-bold bg-white/10 px-2 py-0.5 rounded-full border border-white/20">
+                        {currentTestimonioIndex + 1}/{testimoniosData.length}
+                      </span>
+                    </div>
                   </div>
 
-                  <div style={myHighlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Nooo Mari 🙌 me pone re contento q te esté funcionando! Esa es la idea, que se pague sola al toque. ¡A seguir rompiéndola! 💚
+                  {/* CHAT SIMULADOR WHATSAPP DARK MODE TAL CUAL LA IMAGEN REAL */}
+                  <div className="flex-1 my-2 bg-[#0b141a] rounded-2xl overflow-hidden border border-[#2a3942] flex flex-col shadow-inner relative">
+                    
+                    {/* WHATSAPP DARK HEADER */}
+                    <div className="bg-[#202c33] text-white px-3 py-2 flex items-center justify-between border-b border-[#2a3942] shrink-0">
+                      <div className="flex items-center gap-2">
+                        <ChevronLeft className="w-4 h-4 text-[#8696a0]" />
+                        <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm overflow-hidden border border-emerald-400/30">
+                          {currentTestimonio.avatar}
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-xs text-[#e9edef] leading-tight">{currentTestimonio.name}</h4>
+                          <p className="text-[9px] text-[#8696a0] leading-none mt-0.5">{currentTestimonio.status}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 text-[#aebac1]">
+                        <Video className="w-3.5 h-3.5" />
+                        <Phone className="w-3.5 h-3.5" />
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </div>
                     </div>
-                    <div style={{ ...whatsappTimeStyle, color: "#4b5563", display: "flex", gap: "2px", justifyContent: "flex-end" }}>
-                      15:49 <CheckCheck size={12} color="#34b7f1" />
+
+                    {/* PINNED LINK BANNER (TAL CUAL CAPTURA RELEVADA) */}
+                    <div className="bg-[#182229] px-3 py-1 border-b border-[#222d34] flex items-center gap-1.5 text-[10px] text-[#8696a0] shrink-0">
+                      <Pin className="w-3 h-3 text-[#00a884] shrink-0" />
+                      <span className="truncate font-mono text-[10px] text-[#00a884] underline">https://nexus2026-gx7e.vercel.app</span>
                     </div>
+
+                    {/* CHAT BODY CON DOODLE BACKGROUND Y MENSAJES */}
+                    <div 
+                      className="flex-1 p-2.5 overflow-y-auto space-y-2 flex flex-col justify-center relative"
+                      style={{
+                        backgroundColor: '#0b141a',
+                        backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0)`,
+                        backgroundSize: '14px 14px',
+                      }}
+                    >
+                      {/* BURBUJA CONTEXTO ARRIBA (BORROSA) */}
+                      <div className="flex justify-start my-0.5 select-none pointer-events-none filter blur-[3px] opacity-35">
+                        <div className="max-w-[85%] bg-[#202c33] text-[#e9edef] rounded-lg p-2 text-[10px]">
+                          <p>{currentTestimonio.beforeText}</p>
+                        </div>
+                      </div>
+
+                      {/* AUDIO FALSO DE CONTEXTO (BORROSO) */}
+                      <div className="flex justify-start my-0.5 select-none pointer-events-none filter blur-[3px] opacity-35">
+                        <div className="bg-[#202c33] text-[#e9edef] rounded-lg p-2 flex items-center gap-2 text-[10px]">
+                          <div className="w-5 h-5 rounded-full bg-[#00a884] flex items-center justify-center text-white">
+                            <Play className="w-2.5 h-2.5 fill-current" />
+                          </div>
+                          <div className="h-1 bg-[#8696a0] w-20 rounded-full"></div>
+                          <span className="text-[9px] text-[#8696a0]">0:18</span>
+                        </div>
+                      </div>
+
+                      {/* MENSAJE DESTACADO DEL CLIENTE (BRIGHT GREEN GLOW) */}
+                      <div className="flex justify-start my-1 relative z-10 animate-fade-in">
+                        <div className="max-w-[92%] bg-[#202c33] text-[#e9edef] rounded-xl rounded-tl-none p-3 text-xs border-2 border-[#10B981] shadow-[0_0_20px_rgba(16,185,129,0.35)] relative">
+                          <p className="leading-relaxed font-medium">{currentTestimonio.clientMsg}</p>
+                          <span className="block text-[9px] text-[#8696a0] text-right mt-1 font-mono">{currentTestimonio.clientTime}</span>
+                        </div>
+                      </div>
+
+                      {/* RESPUESTA DESTACADA DEL CREADOR (WHATSAPP DARK GREEN + GLOW) */}
+                      <div className="flex justify-end my-1 relative z-10 animate-fade-in">
+                        <div className="max-w-[92%] bg-[#005c4b] text-white rounded-xl rounded-tr-none p-3 text-xs border-2 border-[#10B981] shadow-[0_0_25px_rgba(16,185,129,0.45)] relative">
+                          <p className="leading-relaxed font-medium">{currentTestimonio.creatorMsg}</p>
+                          <div className="flex items-center justify-end gap-1 mt-1">
+                            <span className="text-[9px] text-[#e9edef]/80 font-mono">{currentTestimonio.creatorTime}</span>
+                            <span className="text-[10px] text-[#53bdeb] font-bold">✓✓</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* BURBUJA CONTEXTO ABAJO (BORROSA) */}
+                      <div className="flex justify-end my-0.5 select-none pointer-events-none filter blur-[3px] opacity-35">
+                        <div className="max-w-[85%] bg-[#005c4b] text-[#e9edef] rounded-lg p-2 text-[10px]">
+                          <p>{currentTestimonio.afterText}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* WHATSAPP DARK FOOTER */}
+                    <div className="bg-[#202c33] p-1.5 flex items-center gap-1.5 border-t border-[#2a3942] shrink-0">
+                      <div className="flex-1 bg-[#2a3942] rounded-full px-2.5 py-1 flex items-center gap-2 text-[#8696a0] text-[10px]">
+                        <Smile className="w-3.5 h-3.5" />
+                        <span className="flex-1 text-[#8696a0]">Mensaje</span>
+                        <Paperclip className="w-3.5 h-3.5" />
+                        <Camera className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="w-7 h-7 rounded-full bg-[#00a884] flex items-center justify-center text-white shrink-0">
+                        <Mic className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+
                   </div>
 
-                  <BlurBubble text="Olvidate! Ya se la recomendé a una amiga que tiene un showroom. Mañana te escribe seguro!" isLeft={true} />
+                  {/* INSTAGRAM BADGE STICKER DE IMPACTO */}
+                  <div className="z-20 my-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 px-3 py-1.5 rounded-xl font-black text-center text-xs shadow-lg flex items-center justify-center gap-1.5 border border-emerald-300">
+                    <span>{currentTestimonio.metricBadge}</span>
+                  </div>
+
+                  {/* BOTTOM ACTION CTA */}
+                  <div className="z-20 text-center py-1 bg-black/60 backdrop-blur-md rounded-xl border border-white/10">
+                    <p className="text-[10px] font-bold text-white uppercase tracking-wider flex items-center justify-center gap-1">
+                      🔥 Caso Real Tiendanube • Deslizá arriba <ArrowRight className="w-3 h-3 text-emerald-400" />
+                    </p>
+                  </div>
+
                 </div>
-                <WhatsAppFooter />
-              </div>
 
-              {/* T2: FEDE */}
-              <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Fede 👟 Córdoba" status="últ. vez hoy 11:20" emoji="👟" />
-                <div style={whatsappBodyStyle}>
-                  <BlurBubble text="Che bro, te hago una consulta del plan de pagos. ¿Cómo se debita?" isLeft={true} />
-                  <BlurBubble text="Es automático todos los meses amigo, te olvidás." isLeft={false} />
-
-                  <div style={highlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      che amigo te paso las métricas de este mes... una locura. El ROI tracker me marca 15x de retorno. Recuperé un montón de carritos con el bot. No vuelvo a usar Wigy ni loco jajaja
-                    </div>
-                    <div style={whatsappTimeStyle}>11:24</div>
-                  </div>
-
-                  <div style={myHighlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Qué grande Fede!! Sabía q la ibas a romper toda amigo. Gracias por confiar y por pasarme los números, me motivan un montón! 🟢⚡
-                    </div>
-                    <div style={{ ...whatsappTimeStyle, color: "#4b5563", display: "flex", gap: "2px", justifyContent: "flex-end" }}>
-                      11:26 <CheckCheck size={12} color="#34b7f1" />
-                    </div>
-                  </div>
-
-                  <BlurBubble text="Sisi posta, el bot de IA de carritos te soluciona la vida" isLeft={true} />
+                {/* CONTROLES NAVEGACIÓN HISTORIAS */}
+                <div className="flex gap-4 mt-3">
+                  <button
+                    onClick={() => setCurrentTestimonioIndex((prev) => (prev > 0 ? prev - 1 : testimoniosData.length - 1))}
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold border border-slate-800 flex items-center gap-1"
+                  >
+                    <ChevronLeft className="w-4 h-4" /> Anterior
+                  </button>
+                  <button
+                    onClick={() => setCurrentTestimonioIndex((prev) => (prev < testimoniosData.length - 1 ? prev + 1 : 0))}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30 flex items-center gap-1"
+                  >
+                    Siguiente <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
-                <WhatsAppFooter />
               </div>
+            )}
 
-              {/* T3: CAMI */}
-              <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Cami 💄 Rosario" status="en línea" emoji="💅" />
-                <div style={whatsappBodyStyle}>
-                  <BlurBubble text="Holaa! Te hago una consulta rápida, la ruleta se puede desactivar para móviles?" isLeft={true} />
-                  <BlurBubble text="Hola Cami! Sí, desde el editor podés apagarla si querés." isLeft={false} />
-
-                  <div style={highlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Hola Rodri! Te queria contar q me esta yendo increible con nevux 💚 la ruleta me capturo mas de 200 emails en 1 semana, no lo puedo creer jaja. Ya cerramos varias ventas de ahí.
-                    </div>
-                    <div style={whatsappTimeStyle}>18:03</div>
-                  </div>
-
-                  <div style={myHighlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Espectacular Cami! La ruleta es una máquina de capturar leads. ¡Me alegro un montón que ya estén cerrando ventas por ahí! 🙌
-                    </div>
-                    <div style={{ ...whatsappTimeStyle, color: "#4b5563", display: "flex", gap: "2px", justifyContent: "flex-end" }}>
-                      18:05 <CheckCheck size={12} color="#34b7f1" />
-                    </div>
-                  </div>
-
-                  <BlurBubble text="Sisi! Re contenta, posta la app vuela. Gracias!" isLeft={true} />
-                </div>
-                <WhatsAppFooter />
+            {/* DESTACADA 1 Y 2 PLACEHOLDERS Y DESCRIPCIÓN */}
+            {activeHighlight === 1 && (
+              <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-center">
+                <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-white">Destacada 1: El Problema (7 Historias)</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Enfocada en resolver el bajo ticket promedio, la desconfianza del comprador y el abandono de carritos.
+                </p>
               </div>
+            )}
 
-              {/* T4: NICOLAS */}
-              <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Nico Deco 🏺" status="últ. vez hoy 09:15" emoji="🏺" />
-                <div style={whatsappBodyStyle}>
-                  <BlurBubble text="Buenas loco! Che se puede agregar un widget a una categoría entera?" isLeft={true} />
-                  <BlurBubble text="Sí, elegís todos los productos o categoría y listo." isLeft={false} />
-
-                  <div style={highlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Hola loco, che te hago una pregunta... nah mentira era para decirte q los bundles son lo mas. En 2 días vendimos 18 packs de decoración que antes costaba un huevo venderlos juntos. Gracias posta!
-                    </div>
-                    <div style={whatsappTimeStyle}>09:32</div>
-                  </div>
-
-                  <div style={myHighlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Jajaja qué hdp me asustaste! Qué alegría Nico, los bundles de volumen nunca fallan, hacen que la venta del pack sea re fluida. 💪
-                    </div>
-                    <div style={{ ...whatsappTimeStyle, color: "#4b5563", display: "flex", gap: "2px", justifyContent: "flex-end" }}>
-                      09:35 <CheckCheck size={12} color="#34b7f1" />
-                    </div>
-                  </div>
-
-                  <BlurBubble text="Se re nota la diferencia, antes andaba renegando con cupones" isLeft={true} />
-                </div>
-                <WhatsAppFooter />
+            {activeHighlight === 2 && (
+              <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-center">
+                <Zap className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-white">Destacada 2: La Solución (8 Historias)</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Demostración interactiva de los 27 widgets estratégicos activables en 1 click para Tiendanube.
+                </p>
               </div>
-
-              {/* T5: SOFI */}
-              <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Sofi Sport 🏋️" status="en línea" emoji="🏃" />
-                <div style={whatsappBodyStyle}>
-                  <BlurBubble text="Hola Rodri! Una duda, si instalo Nevux me va a pesar mucho en el PageSpeed de Google?" isLeft={true} />
-                  <BlurBubble text="Para nada Sofi, está re contra optimizado en un solo script." isLeft={false} />
-
-                  <div style={highlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Sinceramente Rodri estaba media cagada con el script xq las otras apps me dejaban la tienda re pesada... pero Nevux literal vuela. Es re liviana y la tabla de talles interactiva es un 10 total 📏✨
-                    </div>
-                    <div style={whatsappTimeStyle}>14:15</div>
-                  </div>
-
-                  <div style={myHighlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Sii Sofi, está re optimizada la app, solo pesa 12kb! Un placer tenerte en la familia de Nevux, a meterle con todo a esos talles! 💚
-                    </div>
-                    <div style={{ ...whatsappTimeStyle, color: "#4b5563", display: "flex", gap: "2px", justifyContent: "flex-end" }}>
-                      14:18 <CheckCheck size={12} color="#34b7f1" />
-                    </div>
-                  </div>
-
-                  <BlurBubble text="Se nota que hay desarrollo atrás, excelente laburo posta." isLeft={true} />
-                </div>
-                <WhatsAppFooter />
-              </div>
-
-              {/* T6: MARTIN */}
-              <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Martin Suples 💪" status="últ. vez ayer" emoji="💊" />
-                <div style={whatsappBodyStyle}>
-                  <BlurBubble text="Che Rodri, una pregunta del trial de 7 días, ¿después me avisa antes de cobrar?" isLeft={true} />
-                  <BlurBubble text="Sisi obvio, te llega un mail y te avisa en el dash." isLeft={false} />
-
-                  <div style={highlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Che posta se paga sola la app. Al principio dudaba de los 30k x mes pero con 2 ventas de packs que metí ayer gracias al widget de compra unificada ya recuperé la inversión del mes completo jaja
-                    </div>
-                    <div style={whatsappTimeStyle}>20:42</div>
-                  </div>
-
-                  <div style={myHighlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4", margin: 0 }}>
-                      Tal cual Tincho! Esa es la idea de Nevux, que el ROI sea inmediato y se pague sola con las primeras ventas extra. ¡A seguir facturando fuerte! 🚀🔥
-                    </div>
-                    <div style={{ ...whatsappTimeStyle, color: "#4b5563", display: "flex", gap: "2px", justifyContent: "flex-end" }}>
-                      20:45 <CheckCheck size={12} color="#34b7f1" />
-                    </div>
-                  </div>
-
-                  <BlurBubble text="Olvidate, ya lo dejé configurado fijo en toda la tienda." isLeft={true} />
-                </div>
-                <WhatsAppFooter />
-              </div>
-
-            </div>
-          )}
-
-        </div>
-      )}
-
-      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES */}
-      {activeTab === "covers" && (
-        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "32px", alignItems: "center" }}>
-          <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px" }}>
-            👇 Sacale captura de pantalla en vertical para las tapas de tus historias destacadas en Instagram.
+            )}
           </div>
+        )}
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "20px", width: "100%", justifyContent: "center" }}>
-            <div style={coverContainerStyle}>
-              <div style={coverCircleStyle}>
-                <span style={{ fontSize: "56px" }}>🚨</span>
-              </div>
-              <span style={coverLabelStyle}>1. El Problema</span>
-            </div>
-
-            <div style={coverContainerStyle}>
-              <div style={{ ...coverCircleStyle, border: "4px solid #10B981" }}>
-                <span style={{ fontSize: "56px" }}>⚡</span>
-              </div>
-              <span style={coverLabelStyle}>2. La Solución</span>
-            </div>
-
-            <div style={coverContainerStyle}>
-              <div style={{ ...coverCircleStyle, border: "4px solid #10B981" }}>
-                <span style={{ fontSize: "56px" }}>💬</span>
-              </div>
-              <span style={coverLabelStyle}>3. Testimonios</span>
-            </div>
+        {/* ========================================== */}
+        {/* TAB 3: PORTADAS DESTACADAS INSTAGRAM */}
+        {/* ========================================== */}
+        {activeTab === 'portadas' && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {portadasData.map((portada) => {
+              const IconComponent = portada.icon;
+              return (
+                <div key={portada.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
+                  <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${portada.color} flex items-center justify-center text-white shadow-xl mb-3 border-2 border-slate-950 ring-2 ring-emerald-500/30`}>
+                    <IconComponent className="w-8 h-8" />
+                  </div>
+                  <p className="text-xs font-bold text-white">{portada.title}</p>
+                  <span className="text-[10px] text-slate-400 mt-0.5">Portada #{portada.id}</span>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   SUB-COMPONENTES VISUALES WHATSAPP (SIMULADOR REAL)
-═══════════════════════════════════════════ */
-function WhatsAppHeader({ name, status, emoji }: { name: string; status: string; emoji: string }) {
-  return (
-    <div style={{
-      width: "100%",
-      background: "#075e54",
-      padding: "10px 14px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      borderBottom: "1px solid rgba(0,0,0,0.15)",
-      boxSizing: "border-box",
-      zIndex: 10,
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <ChevronLeft size={20} color="#ffffff" style={{ cursor: "pointer" }} />
-        <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#eceff1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
-          {emoji}
-        </div>
-        <div style={{ textAlign: "left" }}>
-          <div style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>{name}</div>
-          <div style={{ fontSize: "10px", color: "#a5d6a7", fontWeight: 500 }}>{status}</div>
-        </div>
-      </div>
-      <div style={{ display: "flex", gap: "16px", color: "#ffffff" }}>
-        <Video size={18} />
-        <Phone size={16} />
-        <MoreVertical size={18} />
+        )}
       </div>
     </div>
   );
-}
-
-function WhatsAppFooter() {
-  return (
-    <div style={{
-      width: "100%",
-      background: "#f0f0f0",
-      padding: "8px 12px",
-      display: "flex",
-      alignItems: "center",
-      gap: "10px",
-      borderTop: "1px solid #e0e0e0",
-      boxSizing: "border-box",
-      zIndex: 10,
-    }}>
-      <div style={{
-        flex: 1,
-        background: "#ffffff",
-        borderRadius: "20px",
-        padding: "8px 14px",
-        fontSize: "12px",
-        color: "#999999",
-        textAlign: "left",
-        border: "1px solid #e0e0e0"
-      }}>
-        Escribí un mensaje...
-      </div>
-      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#075e54", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "16px" }}>
-        🎤
-      </div>
-    </div>
-  );
-}
-
-function BlurBubble({ text, isLeft }: { text: string; isLeft: boolean }) {
-  return (
-    <div style={{
-      alignSelf: isLeft ? "flex-start" : "flex-end",
-      background: isLeft ? "#ffffff" : "#dcf8c6",
-      color: "#303030",
-      padding: "6px 10px",
-      borderRadius: isLeft ? "0px 10px 10px 10px" : "10px 0px 10px 10px",
-      maxWidth: "75%",
-      fontSize: "11px",
-      lineHeight: "1.4",
-      filter: "blur(5px)",
-      opacity: 0.35,
-      pointerEvents: "none",
-      boxShadow: "0 1px 1px rgba(0,0,0,0.1)",
-      wordBreak: "break-word",
-      position: "relative",
-    }}>
-      {text}
-      <div style={{ fontSize: "8px", color: "#999999", textAlign: "right", marginTop: "2px" }}>12:34</div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   ESTILOS PREMIUM VERDE ESMERALDA (9:16)
-═══════════════════════════════════════════ */
-const storyFrameStyle: React.CSSProperties = {
-  width: "100%",
-  maxWidth: "340px",
-  minHeight: "580px",
-  background: "linear-gradient(145deg, #047857 0%, #064e3b 50%, #022c22 100%)",
-  border: "2px solid #10B981",
-  borderRadius: "28px",
-  padding: "24px 20px 20px",
-  boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.35)",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-  position: "relative",
-  overflow: "hidden",
-  boxSizing: "border-box",
-};
-
-const storyTopHeader: React.CSSProperties = {
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  paddingBottom: "10px",
-  borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
-  zIndex: 2,
-};
-
-const storyBottomSwipe: React.CSSProperties = {
-  fontSize: "11px",
-  fontWeight: 800,
-  color: "#a7f3d0",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  paddingTop: "12px",
-  borderTop: "1px solid rgba(255, 255, 255, 0.15)",
-  width: "100%",
-  textAlign: "center",
-  zIndex: 2,
-};
-
-const storyFrameLightStyle: React.CSSProperties = {
-  width: "100%",
-  maxWidth: "340px",
-  minHeight: "580px",
-  background: "linear-gradient(145deg, #ecfdf5 0%, #f9fafb 100%)",
-  border: "2px solid #10B981",
-  borderRadius: "28px",
-  padding: "24px 20px 20px",
-  boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-  position: "relative",
-  overflow: "hidden",
-  boxSizing: "border-box",
-};
-
-const storyTopHeaderLight: React.CSSProperties = {
-  width: "100%",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  paddingBottom: "10px",
-  borderBottom: "1px solid rgba(5, 150, 105, 0.15)",
-  zIndex: 2,
-};
-
-const storyBottomSwipeLight: React.CSSProperties = {
-  fontSize: "11px",
-  fontWeight: 800,
-  color: "#059669",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  paddingTop: "12px",
-  borderTop: "1px solid rgba(5, 150, 105, 0.15)",
-  width: "100%",
-  textAlign: "center",
-  zIndex: 2,
-};
-
-/* ═══════════════════════════════════════════
-   ESTILOS ESPECÍFICOS DEL SIMULADOR DE CHATS (9:16)
-═══════════════════════════════════════════ */
-const whatsappFrameStyle: React.CSSProperties = {
-  width: "100%",
-  maxWidth: "340px",
-  height: "580px",
-  background: "#efe7e3 url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png') repeat",
-  border: "2px solid #10B981",
-  borderRadius: "28px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.35)",
-  position: "relative",
-  overflow: "hidden",
-  boxSizing: "border-box",
-};
-
-const whatsappBodyStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "16px 10px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "12px",
-  overflowY: "auto",
-};
-
-const highlightBubbleStyle: React.CSSProperties = {
-  alignSelf: "flex-start",
-  background: "#ffffff",
-  color: "#111827",
-  padding: "10px 14px",
-  borderRadius: "0px 14px 14px 14px",
-  maxWidth: "85%",
-  boxShadow: "0 4px 15px rgba(16, 185, 129, 0.25)",
-  border: "1.5px solid #10B981",
-  textAlign: "left",
-  position: "relative",
-};
-
-const myHighlightBubbleStyle: React.CSSProperties = {
-  alignSelf: "flex-end",
-  background: "#e1ffc7",
-  color: "#303030",
-  padding: "10px 14px",
-  borderRadius: "14px 0px 14px 14px",
-  maxWidth: "85%",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-  border: "1px solid rgba(0,0,0,0.08)",
-  textAlign: "left",
-  position: "relative",
-};
-
-const whatsappTimeStyle: React.CSSProperties = {
-  fontSize: "8px",
-  color: "#666666",
-  textAlign: "right",
-  marginTop: "4px",
-  fontWeight: 600,
-};
-
-/* ═══════════════════════════════════════════
-   ESTILOS DE PORTADAS CIRCULARES (TAPAS)
-═══════════════════════════════════════════ */
-const coverContainerStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: "10px",
-};
-
-const coverCircleStyle: React.CSSProperties = {
-  width: "110px",
-  height: "110px",
-  borderRadius: "50%",
-  background: "linear-gradient(135deg, #047857 0%, #064e3b 100%)",
-  border: "4px solid #10B981",
-  boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const coverLabelStyle: React.CSSProperties = {
-  fontSize: "13px",
-  fontWeight: 800,
-  color: "#ffffff",
-};
-
-const bannerStyle: React.CSSProperties = {
-  width: "100%",
-  maxWidth: "650px",
-  minHeight: "350px",
-  background: "linear-gradient(135deg, #10B981 0%, #059669 50%, #022c22 100%)",
-  borderRadius: "24px",
-  padding: "28px",
-  boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  position: "relative",
-  overflow: "hidden",
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: "20px",
-  boxSizing: "border-box",
-};
-
-const badgeStyle: React.CSSProperties = {
-  display: "inline-block",
-  background: "rgba(255, 255, 255, 0.2)",
-  color: "#ffffff",
-  fontSize: "9px",
-  fontWeight: "900",
-  padding: "4px 10px",
-  borderRadius: "999px",
-  marginBottom: "12px",
-  letterSpacing: "0.5px",
-};
-
-const bannerTitleStyle: React.CSSProperties = {
-  fontSize: "26px",
-  fontWeight: "900",
-  color: "#ffffff",
-  margin: "0 0 10px 0",
-  lineHeight: "1.1",
-  letterSpacing: "-0.03em",
-};
-
-const bannerDescStyle: React.CSSProperties = {
-  fontSize: "13px",
-  color: "#d1fae5",
-  margin: 0,
-  lineHeight: "1.45",
-  fontWeight: "500",
-};
+    }
