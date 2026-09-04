@@ -9,6 +9,12 @@ import {
   Flame,
   ArrowRight,
   Sparkles,
+  CheckCircle2,
+  Zap,
+  TrendingUp,
+  ShieldCheck,
+  MousePointer,
+  Smartphone,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
@@ -18,7 +24,7 @@ type StoryDestacada = "problema" | "solucion" | "testimonios";
 export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("stories");
   const [lang, setLang] = useState<"es" | "pt">("pt");
-  const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("problema");
+  const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("solucion"); // Por defecto en Solución ahora para capturar fácil
 
   const isPt = lang === "pt";
 
@@ -110,10 +116,11 @@ export default function BannersPage() {
       </div>
 
       {/* ═══════════════════════════════════════════
-          TAB 1: BANNERS PARTNERS
+          TAB 1: BANNERS PARTNERS (INTACTO)
       ═══════════════════════════════════════════ */}
       {activeTab === "partners" && (
         <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", alignItems: "center", gap: "32px" }}>
+          {/* Selector de idioma */}
           <div style={{ display: "flex", gap: "8px", background: "#0b2920", padding: "4px", borderRadius: "12px" }}>
             <button onClick={() => setLang("es")} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", backgroundColor: !isPt ? "#10B981" : "transparent", color: !isPt ? "#ffffff" : "#a7f3d0" }}>
               🇦🇷 Español
@@ -356,18 +363,198 @@ export default function BannersPage() {
                   Mirá la siguiente destacada: "⚡ La Solución" ➔
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════
+              DESTACADA 2: ⚡ LA SOLUCIÓN NEVUX (8 HISTORIAS - LIGHT EMERALD GLASS)
+          ═══════════════════════════════════════════ */}
+          {activeDestacada === "solucion" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "36px", width: "100%", alignItems: "center" }}>
+              <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
+                👇 Sacale captura de pantalla en vertical a cada tarjeta para armar tu destacada
+              </div>
+
+              {/* H1: PORTADA SOLUCION */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>⚡</div>
+                  <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", color: "#065f46", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
+                    LA SOLUCIÓN DEFINITIVA
+                  </div>
+                  <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#065f46", lineHeight: 1.15, margin: "0 0 16px 0", letterSpacing: "-0.03em" }}>
+                    Una sola app.<br />27 widgets de conversión.
+                  </h2>
+                  <p style={{ fontSize: "14px", color: "#374151", lineHeight: 1.5, margin: 0, fontWeight: 600 }}>
+                    Nevux reemplaza todas las aplicaciones lentas de tu Tiendanube por una suite única, liviana y automatizada.
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Mirá cómo funciona ➔</div>
+              </div>
+
+              {/* H2: PROPUESTA DE VALOR */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📦</div>
+                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
+                    TICKET PROMEDIO AL MÁXIMO
+                  </div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
+                    Hacé que cada cliente gaste más antes de pagar
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      ✅ <b>Bundles por volumen:</b> Descuentos progresivos por llevar 2 o 3 unidades.<br />
+                      ✅ <b>Barra de Envío Gratis:</b> El empujón que necesitan para sumar productos al carrito.<br />
+                      ✅ <b>Packs Sugeridos:</b> Venta cruzada en un solo toque.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              {/* H3: CONFIANZA Y TALLES */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📏</div>
+                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
+                    MEDIDAS Y CONFIANZA REAL
+                  </div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
+                    Eliminá las dudas de talles en segundos
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      ✅ <b>Talles Inteligentes:</b> Selector interactivo que guarda el talle y lo selecciona directo en la tienda.<br />
+                      ✅ <b>Reseñas con Foto (UGC):</b> Tus clientes subiendo fotos reales de cómo les queda la prenda.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#059669", fontWeight: 800, margin: 0 }}>
+                    Menos preguntas de soporte, cero devoluciones.
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              {/* H4: URGENCIA Y COMPRA RAPIDA */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>⚡</div>
+                  <div style={{ fontSize: "11px", color: "#059669", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "14px" }}>
+                    URGENCIA & CIERRE INMEDIATO
+                  </div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.25, margin: "0 0 12px 0" }}>
+                    No los dejes postergar su decisión
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", boxShadow: "0 8px 24px rgba(16, 185, 129, 0.08)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      ✅ <b>Cuenta Regresiva:</b> Temporizadores visuales para liquidaciones.<br />
+                      ✅ <b>Alertas de Stock:</b> "Últimas 2 unidades disponibles".<br />
+                      ✅ <b>Cupones interactivos:</b> Cupones troquelados listos para copiar con 1 clic.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              {/* H5: INSTALACION RAPIDA */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🖱️</div>
+                  <h3 style={{ fontSize: "24px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    Instalación en 1 solo clic. Sin tocar código.
+                  </h3>
+                  <div style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#475569", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      No necesitás diseñadores ni programadores. Te registrás, elegís qué widgets activar y en menos de 2 minutos están brillando en tu Tiendanube.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#10B981", fontWeight: 900, margin: 0 }}>
+                    Control total de colores, textos y estilos 🎨
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Siguiente beneficio ➔</div>
+              </div>
+
+              {/* H6: VELOCIDAD EXTREMA */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🚀</div>
+                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    Un solo script ultra liviano de 12kb
+                  </h3>
+                  <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#065f46", margin: 0, lineHeight: 1.5, fontWeight: 700 }}>
+                      A diferencia de instalar 6 apps pesadas por separado que ralentizan tu servidor, Nevux corre unificado bajo un único código inteligente que no frena tu checkout.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#374151", margin: 0, fontWeight: 600 }}>
+                    Tu tienda vuela en teléfonos celulares.
+                  </p>
+                </div>
+                <div style={storyBottomSwipeLight}>Prueba gratis ➔</div>
+              </div>
+
+              {/* H7: PRUEBA GRATIS */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔥</div>
+                  <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#065f46", lineHeight: 1.2, margin: "0 0 14px 0" }}>
+                    7 Días de Prueba Completa Gratis
+                  </h2>
+                  <p style={{ fontSize: "15px", color: "#10B981", fontWeight: 800, margin: "0 0 16px 0" }}>
+                    Sin tarjeta de crédito, sin contratos.
+                  </p>
+                  <div style={{ background: "#ffffff", border: "1.5px solid #10B981", borderRadius: "16px", padding: "14px", marginBottom: "16px", boxShadow: "0 8px 24px rgba(16,185,129,0.1)" }}>
+                    <p style={{ fontSize: "12px", color: "#374151", fontWeight: 700, margin: 0, lineHeight: 1.45 }}>
+                      Probá todas las herramientas hoy mismo y comproba el aumento de tu facturación antes de pagar un solo peso.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipeLight}>Los precios ➔</div>
+              </div>
+
+              {/* H8: PRECIOS */}
+              <div style={storyFrameLightStyle}>
+                <div style={storyTopHeaderLight}><NevuxLogo size="small" /></div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>💳</div>
+                  <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", color: "#065f46", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
+                    PLAN ÚNICO TRANSPARENTE
+                  </div>
+                  <h2 style={{ fontSize: "32px", fontWeight: 900, color: "#065f46", lineHeight: 1.15, margin: "0 0 8px 0" }}>
+                    $30.000 ARS
+                  </h2>
+                  <p style={{ fontSize: "14px", color: "#374151", fontWeight: 700, margin: "0 0 16px 0" }}>
+                    por mes • Acceso Ilimitado a Todo
+                  </p>
+                  <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 16px 0", lineHeight: 1.4 }}>
+                    Sin comisiones por ventas • Sin límites de visitas o impresiones • Soporte directo por WhatsApp
+                  </p>
+                </div>
+                <div style={{ ...storyBottomSwipeLight, color: "#059669", fontWeight: 900 }}>
+                  Mirá los resultados de nuestros clientes ➔
+                </div>
+              </div>
 
             </div>
           )}
 
-          {/* PLACEHOLDER PARA DESTACADA 2 Y 3 */}
-          {activeDestacada !== "problema" && (
+          {/* PLACEHOLDER PARA DESTACADA 3 */}
+          {activeDestacada === "testimonios" && (
             <div style={{ textAlign: "center", padding: "60px 20px" }}>
               <div style={{ fontSize: "40px", marginBottom: "12px" }}>⏳</div>
               <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#10B981", margin: "0 0 8px 0" }}>
-                {activeDestacada === "solucion" ? "⚡ 2. La Solución Nevux" : "💬 3. Testimonios WhatsApp"}
+                💬 3. Testimonios WhatsApp
               </h3>
-              <p style={{ fontSize: "13px", color: "#a7f3d0" }}>
+              <p style={{ fontSize: "13px", color: "#9ca3af" }}>
                 Se habilitará a continuación.
               </p>
             </div>
@@ -430,6 +617,50 @@ const storyBottomSwipe: React.CSSProperties = {
   letterSpacing: "0.05em",
   paddingTop: "12px",
   borderTop: "1px solid rgba(255, 255, 255, 0.15)",
+  width: "100%",
+  textAlign: "center",
+  zIndex: 2,
+};
+
+/* ═══════════════════════════════════════════
+   ESTILOS PREMIUM MENTA LIGHT (9:16)
+═══════════════════════════════════════════ */
+const storyFrameLightStyle: React.CSSProperties = {
+  width: "100%",
+  maxWidth: "340px",
+  minHeight: "580px",
+  background: "linear-gradient(145deg, #ecfdf5 0%, #f9fafb 100%)",
+  border: "2px solid #10B981",
+  borderRadius: "28px",
+  padding: "24px 20px 20px",
+  boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.15)",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
+  position: "relative",
+  overflow: "hidden",
+  boxSizing: "border-box",
+};
+
+const storyTopHeaderLight: React.CSSProperties = {
+  width: "100%",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  paddingBottom: "10px",
+  borderBottom: "1px solid rgba(5, 150, 105, 0.15)",
+  zIndex: 2,
+};
+
+const storyBottomSwipeLight: React.CSSProperties = {
+  fontSize: "11px",
+  fontWeight: 800,
+  color: "#059669",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+  paddingTop: "12px",
+  borderTop: "1px solid rgba(5, 150, 105, 0.15)",
   width: "100%",
   textAlign: "center",
   zIndex: 2,
