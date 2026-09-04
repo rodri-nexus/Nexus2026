@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  ShoppingCart,
   CheckCheck,
   MoreVertical,
   Phone,
@@ -20,10 +19,11 @@ type StoryDestacada =
   | "analytics"
   | "blackfriday"
   | "estilomarca"
-  | "crossselling";
+  | "crossselling"
+  | "multiidioma";
 
 /* ═══════════════════════════════════════════
-   ESTILOS Y HELPERS
+   ESTILOS Y HELPERS (DECLARADOS AL INICIO)
 ═══════════════════════════════════════════ */
 
 const subTabStyle = (isActive: boolean): React.CSSProperties => ({
@@ -334,7 +334,7 @@ const bannerDescStyle: React.CSSProperties = {
 };
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTES VISUALES WHATSAPP
+   SUB-COMPONENTES VISUALES WHATSAPP (ÚNICOS)
 ═══════════════════════════════════════════ */
 function WhatsAppHeader({
   name,
@@ -483,7 +483,7 @@ export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("stories");
   const [lang, setLang] = useState<"es" | "pt">("pt");
   const [activeDestacada, setActiveDestacada] =
-    useState<StoryDestacada>("crossselling"); // Por defecto en la nueva
+    useState<StoryDestacada>("multiidioma"); // Por defecto en la nueva
 
   const isPt = lang === "pt";
 
@@ -727,6 +727,12 @@ export default function BannersPage() {
             >
               🧠 8. Cross-Sell
             </button>
+            <button
+              onClick={() => setActiveDestacada("multiidioma")}
+              style={subTabStyle(activeDestacada === "multiidioma")}
+            >
+              🌎 9. Multi-Idioma
+            </button>
           </div>
 
           {/* RENDERING PROBLEMA */}
@@ -886,8 +892,28 @@ export default function BannersPage() {
             </div>
           )}
 
-          {/* 🧠 DESTACADA 8: CROSS-SELLING PREDICTIVO CON IA (6 HISTORIAS) */}
+          {/* RENDERING CROSS-SELLING */}
           {activeDestacada === "crossselling" && (
+            <div style={storyContainerStyle}>
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}>
+                  <NevuxLogo size="small" />
+                </div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>
+                    🧠
+                  </div>
+                  <h2 style={storyTitleStyle}>
+                    Recomendaciones IA:{" "}
+                    <span style={{ color: "#10B981" }}>Venta Cruzada</span>.
+                  </h2>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 🌎 DESTACADA 9: MULTI-IDIOMA AUTOMÁTICO CON IA (6 HISTORIAS) */}
+          {activeDestacada === "multiidioma" && (
             <div style={storyContainerStyle}>
               <div
                 style={{
@@ -908,7 +934,7 @@ export default function BannersPage() {
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "44px", marginBottom: "12px" }}>
-                    🧠
+                    🌎
                   </div>
                   <div
                     style={{
@@ -924,7 +950,7 @@ export default function BannersPage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    INTELIGENCIA ARTIFICIAL DE VENTA
+                    EXPANSIÓN GLOBAL LATAM
                   </div>
                   <h2
                     style={{
@@ -936,8 +962,8 @@ export default function BannersPage() {
                       letterSpacing: "-0.03em",
                     }}
                   >
-                    Recomendaciones IA:{" "}
-                    <span style={{ color: "#10B981" }}>Venta Cruzada</span>.
+                    Multi-Idioma con IA:{" "}
+                    <span style={{ color: "#10B981" }}>Vende sin fronteras</span>.
                   </h2>
                   <p
                     style={{
@@ -948,20 +974,20 @@ export default function BannersPage() {
                       fontWeight: 500,
                     }}
                   >
-                    Fase 5: Un algoritmo que analiza el comportamiento del cliente y le muestra exactamente lo que quiere comprar.
+                    Fase 6: Detecta la ubicación de tu visitante y traduce automáticamente todos tus widgets al portugués o inglés en tiempo real.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>¿Cómo funciona? Deslizá ➔</div>
               </div>
 
-              {/* H2: EL PROBLEMA */}
+              {/* H2: EL PROBLEMA INTERNACIONAL */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                    🤷‍♂️
+                    🇧🇷❌
                   </div>
                   <div
                     style={{
@@ -973,7 +999,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    EL PROBLEMA TRADICIONAL
+                    LA BARRERA DEL IDIOMA
                   </div>
                   <h3
                     style={{
@@ -984,7 +1010,7 @@ export default function BannersPage() {
                       margin: "0 0 14px 0",
                     }}
                   >
-                    Los "relacionados" manuales no convierten
+                    Si un brasileño entra a tu tienda, se va
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -996,7 +1022,7 @@ export default function BannersPage() {
                         fontWeight: 600,
                       }}
                     >
-                      En Tiendanube tenés que cargar manualmente qué producto se relaciona con cuál. Si tenés 100 productos, es una tarea titánica y casi nadie le presta atención.
+                      Si vendés o hacés envíos a Brasil, Chile o Uruguay, pero tus cupones, banners y ruleta dicen "Envío Gratis" en español, el comprador desconfía y cancela la compra.
                     </p>
                   </div>
                   <p
@@ -1007,13 +1033,13 @@ export default function BannersPage() {
                       margin: 0,
                     }}
                   >
-                    Resultado: El cliente compra solo 1 cosa y se va.
+                    Perdés ventas internacionales todos los días.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente ➔</div>
               </div>
 
-              {/* H3: LA IA PREDICTIVA */}
+              {/* H3: DETECCIÓN POR IP */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
@@ -1032,7 +1058,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    APRENDIZAJE AUTOMÁTICO
+                    DETECCIÓN AUTOMÁTICA DE UBICACIÓN
                   </div>
                   <h3
                     style={{
@@ -1043,7 +1069,7 @@ export default function BannersPage() {
                       margin: "0 0 12px 0",
                     }}
                   >
-                    La IA aprende de cada visitante
+                    Traducción inteligente al instante
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -1054,7 +1080,7 @@ export default function BannersPage() {
                         lineHeight: 1.5,
                       }}
                     >
-                      Nevux analiza qué miró, qué agregó al carrito y qué compraron otros usuarios similares, mostrando una sugerencia irresistible personalizada en tiempo real.
+                      Nevux detecta la IP del visitante y adapta los textos con IA natural. En Brasil cambia a "Frete Grátis", "Tabela de Medidas" y destaca PIX en menos de 50 milisegundos.
                     </p>
                   </div>
                   <p
@@ -1065,13 +1091,61 @@ export default function BannersPage() {
                       margin: 0,
                     }}
                   >
-                    Venta cruzada 100% automatizada 🛍️
+                    Cero configuración manual 🌎
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente ➔</div>
               </div>
 
-              {/* H4: IMPACTO EN FACTURACION */}
+              {/* H4: IMPACTO EN NUVEMSHOP BRASIL */}
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}>
+                  <NevuxLogo size="small" />
+                </div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>
+                    🇧🇷🚀
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#a7f3d0",
+                      fontWeight: 900,
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    COMPATIBLE CON NUVEMSHOP
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 900,
+                      color: "#ffffff",
+                      lineHeight: 1.25,
+                      margin: "0 0 12px 0",
+                    }}
+                  >
+                    El mercado brasileño en tus manos
+                  </h3>
+                  <div style={bubbleDarkStyle}>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#d1fae5",
+                        margin: 0,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      Brasil es el mercado de e-commerce más grande de Latinoamérica. Nevux te permite venderle a millones de compradores con la terminología exacta que genera confianza.
+                    </p>
+                  </div>
+                </div>
+                <div style={storyBottomSwipe}>Siguiente ➔</div>
+              </div>
+
+              {/* H5: +40% CONVERSIÓN */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
@@ -1090,7 +1164,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    MÉTRICAS COMPROBADAS
+                    RESULTADOS REALES
                   </div>
                   <h3
                     style={{
@@ -1101,7 +1175,7 @@ export default function BannersPage() {
                       margin: "0 0 12px 0",
                     }}
                   >
-                    +25% en Ticket Promedio garantizado
+                    +40% de conversión internacional
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -1112,55 +1186,7 @@ export default function BannersPage() {
                         lineHeight: 1.5,
                       }}
                     >
-                      Cuando la sugerencia es precisa (ej: llevás un jean y te sugiere el cinturón exacto de tu talle), 1 de cada 4 compradores suma el producto sin dudarlo.
-                    </p>
-                  </div>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente ➔</div>
-              </div>
-
-              {/* H5: INTEGRACION NATIVA */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                    📱
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      color: "#a7f3d0",
-                      fontWeight: 900,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    DISEÑO NO INVASIVO
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: "22px",
-                      fontWeight: 900,
-                      color: "#ffffff",
-                      lineHeight: 1.25,
-                      margin: "0 0 12px 0",
-                    }}
-                  >
-                    Aparece justo en el momento correcto
-                  </h3>
-                  <div style={bubbleDarkStyle}>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "#d1fae5",
-                        margin: 0,
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      Debajo del botón de compra o dentro del carrito flotante antes de pagar. El cliente suma el producto con 1 toque sin recargar la página.
+                      Hablarle al cliente en su idioma nativo derriba la desconfianza del checkout y multiplica las ventas cruzadas entre países.
                     </p>
                   </div>
                 </div>
@@ -1185,7 +1211,7 @@ export default function BannersPage() {
                       margin: "0 0 14px 0",
                     }}
                   >
-                    El poder de la IA en tu Tiendanube
+                    Llevá tu Tiendanube al mundo entero
                   </h2>
                   <p
                     style={{
@@ -1195,7 +1221,7 @@ export default function BannersPage() {
                       margin: "0 0 16px 0",
                     }}
                   >
-                    Próximamente en Nevux 🧠
+                    Próximamente en Nevux 🌎
                   </p>
                   <div
                     style={{
@@ -1234,7 +1260,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES (AHORA CON 8 PORTADAS) */}
+      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES (AHORA CON 9 PORTADAS) */}
       {activeTab === "covers" && (
         <div
           style={{
@@ -1314,6 +1340,12 @@ export default function BannersPage() {
                 <span style={{ fontSize: "44px" }}>🧠</span>
               </div>
               <span style={coverLabelStyle}>8. Cross-Selling</span>
+            </div>
+            <div style={coverContainerStyle}>
+              <div style={coverCircleStyle}>
+                <span style={{ fontSize: "44px" }}>🌎</span>
+              </div>
+              <span style={coverLabelStyle}>9. Multi-Idioma</span>
             </div>
           </div>
         </div>
