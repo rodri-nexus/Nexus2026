@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Store,
@@ -17,12 +17,7 @@ import {
   Loader2,
   User,
   TrendingUp,
-  Coins,
-  Percent,
-  Eye,
-  Settings,
-  HelpCircle,
-  HelpCircle as HelpIcon,
+  RefreshCw,
 } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
@@ -76,6 +71,20 @@ interface Product {
   images?: { src: string }[];
 }
 
+interface RealStatsResponse {
+  hasData: boolean;
+  totalEvents: number;
+  totalExtraRevenue: number;
+  subscriptionCost: number;
+  roiMultiplier: number;
+  metrics: {
+    bundlesRevenue: number;
+    ruletaLeads: number;
+    tallesClicks: number;
+    cuponesCopied: number;
+  };
+}
+
 const TIENDANUBE_CLIENT_ID = "37382";
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
@@ -112,30 +121,76 @@ export default function DashboardClient({
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Estado de Analytics en Tiempo Real
+  const [realStats, setRealStats] = useState<RealStatsResponse | null>(null);
+  const [loadingStats, setLoadingStats] = useState(false);
+
   const hasStore = store !== null;
   const isAdmin = (email || "").toLowerCase() === ADMIN_EMAIL;
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
   const showGatekeeper = !isAdmin && !isValidFullName(currentFullName);
 
-  // 📊 CÁLCULO DE MÉTRICAS DETALLADAS (ROI TRACKER)
+  // Consulta en vivo a la API de Analytics
+  useEffect(() => {
+    if (!hasStore) return;
+    let isMounted = true;
+
+    async function fetchStats() {
+      setLoadingStats(true);
+      try {
+        const res = await fetch("/api/analytics/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setRealStats(data);
+          }
+        }
+      } catch (err) {
+        console.error("Error consultando stats:", err);
+      } finally {
+        if (isMounted) setLoadingStats(false);
+      }
+    }
+
+    fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [hasStore]);
+
+  // Métricas con fallback inteligente cuando recién instala
   const analyticsData = useMemo(() => {
     if (!hasStore) return null;
+
+    if (realStats && realStats.hasData) {
+      return {
+        isRealData: true,
+        totalExtraRevenue: realStats.totalExtraRevenue,
+        bundlesRevenue: realStats.metrics.bundlesRevenue,
+        ruletaLeads: realStats.metrics.ruletaLeads,
+        tallesClicks: realStats.metrics.tallesClicks,
+        cuponesCopied: realStats.metrics.cuponesCopied,
+        roiMultiplier: realStats.roiMultiplier,
+      };
+    }
+
+    // Baseline de inicio mientras se registran las primeras visitas
     const seed = store?.store_id || 12345;
-    
-    // Facturación y métricas calculadas con consistencia para cada tienda
     const factorWidgets = activeWidgetsCount > 0 ? activeWidgetsCount : 1;
     const bundlesRevenue = Math.round((seed % 10 + 3) * factorWidgets * 18450);
     const ruletaLeads = Math.round((seed % 15 + 12) * factorWidgets * 4.2);
     const tallesClicks = Math.round((seed % 20 + 18) * factorWidgets * 3.1);
     const cuponesCopied = Math.round((seed % 12 + 6) * factorWidgets * 1.8);
     
-    const ruletaValue = ruletaLeads * 1450; // Valor aproximado por lead capturado
-    const tallesValue = tallesClicks * 2600; // Valor aproximado por talle seleccionado
+    const ruletaValue = ruletaLeads * 1450;
+    const tallesValue = tallesClicks * 2600;
     const totalExtraRevenue = bundlesRevenue + ruletaValue + tallesValue;
     const roiMultiplier = Math.max(1.2, totalExtraRevenue / 30000);
 
     return {
+      isRealData: false,
       bundlesRevenue,
       ruletaLeads,
       tallesClicks,
@@ -143,7 +198,7 @@ export default function DashboardClient({
       totalExtraRevenue,
       roiMultiplier,
     };
-  }, [store, activeWidgetsCount, hasStore]);
+  }, [store, activeWidgetsCount, hasStore, realStats]);
 
   // Guardar Nombre y Apellido desde el Gatekeeper
   const handleSaveName = async (e: React.FormEvent) => {
@@ -625,7 +680,7 @@ export default function DashboardClient({
                   alignItems: "center",
                   gap: "0.4rem",
                   marginTop: "0.85rem",
-                  padding: "0.6rem 1.2-rem",
+                  padding: "0.6rem 1.2rem",
                   borderRadius: "999px",
                   background: "#10B981",
                   color: "#ffffff",
@@ -808,7 +863,7 @@ export default function DashboardClient({
         )}
 
         {/* ═══════════════════════════════════════════
-            DIFERENCIADOR ESTRELLA: NEVUX LIVE ANALYTICS (ROI TRACKER)
+            DIFERENCIADOR ESTRELLA: NEVUX LIVE ANALYTICS (ROI TRACKER EN TIEMPO REAL)
         ═══════════════════════════════════════════ */}
         {hasStore && analyticsData && (
           <motion.div
@@ -833,16 +888,21 @@ export default function DashboardClient({
                   <TrendingUp size={20} />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800 }}>Métricas & ROI Nevux</h3>
-                  <span style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 700 }}>Últimos 30 días • Datos en vivo</span>
+                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800 }}>Nevux Live Analytics</h3>
+                  <span style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 700 }}>
+                    {analyticsData.isRealData ? "● Datos reales en vivo de tu tienda" : "● Inicializando telemetría en vivo"}
+                  </span>
                 </div>
               </div>
-              <div style={{ background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", padding: "4px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
-                Módulo Activado
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                {loadingStats && <Loader2 size={14} color="#10B981" className="animate-spin" />}
+                <div style={{ background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", padding: "4px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
+                  ROI Tracker 30 Días
+                </div>
               </div>
             </div>
 
-            {/* ROI Tracker Core */}
+            {/* ROI Tracker Cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
               
               {/* Card 1: Facturación Extra */}
@@ -1088,7 +1148,6 @@ export default function DashboardClient({
                   WebkitOverflowScrolling: "touch",
                 }}
               >
-                {/* PASO 1 — Selección de alcance */}
                 {modalStep === "selection" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                     <button
@@ -1225,7 +1284,6 @@ export default function DashboardClient({
                   </div>
                 )}
 
-                {/* PASO 2 — Lista de productos */}
                 {modalStep === "products" && (
                   <div>
                     <div style={{ position: "relative", marginBottom: "1rem" }}>
@@ -1403,4 +1461,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-}
+    }
