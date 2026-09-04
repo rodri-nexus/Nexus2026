@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react';
 import { 
-  Image as ImageIcon, Smartphone, Palette, Check, Copy, ArrowLeft, ChevronLeft, 
+  ImageIcon, Smartphone, Palette, Check, Copy, ChevronLeft, 
   Video, Phone, MoreVertical, Pin, Play, Mic, Paperclip, Camera, Smile, 
-  Send, Sparkles, TrendingUp, AlertTriangle, ShieldCheck, ShoppingBag, 
-  Zap, Award, Gift, RefreshCw, Star, Users, MessageSquare, ThumbsUp, ArrowRight
+  Sparkles, TrendingUp, AlertTriangle, Zap, Gift, Star, Users, MessageSquare, ArrowRight
 } from 'lucide-react';
 
 // ==========================================
@@ -19,7 +18,7 @@ const bannersPartnersData = [
     descEs: "Widgets estratégicos de conversión para tu tienda online. Creado para vender más en Tiendanube.",
     descPt: "Widgets estratégicos de conversão para sua loja online. Criado para vender mais na Nuvemshop.",
     badge: "Aumentá tu ROI",
-    color: "from-emerald-600 to-teal-800"
+    bgGradient: "linear-gradient(135deg, #059669 0%, #064e3b 100%)"
   },
   {
     id: 2,
@@ -28,7 +27,7 @@ const bannersPartnersData = [
     descEs: "Barra de progreso, ruleta de descuentos, bundles, tabla de talles interactiva y mucho más.",
     descPt: "Barra de progresso, roleta de descontos, bundles, tabela de tamanhos e muito mais.",
     badge: "Catálogo Completo",
-    color: "from-teal-600 to-emerald-900"
+    bgGradient: "linear-gradient(135deg, #0d9488 0%, #115e59 100%)"
   },
   {
     id: 3,
@@ -37,7 +36,7 @@ const bannersPartnersData = [
     descEs: "Inteligencia artificial que contacta a tus clientes por WhatsApp y recupera ventas automáticamente.",
     descPt: "Inteligência artificial que contacta seus clientes pelo WhatsApp e recupera vendas automaticamente.",
     badge: "Automatización IA",
-    color: "from-emerald-500 to-green-700"
+    bgGradient: "linear-gradient(135deg, #10b981 0%, #047857 100%)"
   },
   {
     id: 4,
@@ -46,7 +45,7 @@ const bannersPartnersData = [
     descEs: "Panel en tiempo real que muestra la facturación extra exacta generada por los widgets.",
     descPt: "Painel em tempo real que mostra o faturamento extra exato gerado pelos widgets.",
     badge: "Telemetría Real",
-    color: "from-green-600 to-emerald-800"
+    bgGradient: "linear-gradient(135deg, #16a34a 0%, #14532d 100%)"
   },
   {
     id: 5,
@@ -55,7 +54,7 @@ const bannersPartnersData = [
     descEs: "Instalación en 30 segundos sin tocar código. Compatible con todos los layouts de Tiendanube.",
     descPt: "Instalação em 30 segundos sem tocar em código. Compatível com todos os temas da Nuvemshop.",
     badge: "100% Seguro",
-    color: "from-emerald-700 to-slate-900"
+    bgGradient: "linear-gradient(135deg, #0f766e 0%, #0f172a 100%)"
   }
 ];
 
@@ -159,23 +158,23 @@ const testimoniosData = [
 // DATA: PORTADAS DESTACADAS INSTAGRAM (TAB 3)
 // ==========================================
 const portadasData = [
-  { id: 1, title: "El Problema", icon: AlertTriangle, color: "from-red-500 to-rose-700" },
-  { id: 2, title: "La Solución", icon: Zap, color: "from-emerald-500 to-teal-700" },
-  { id: 3, title: "Testimonios", icon: MessageSquare, color: "from-emerald-400 to-green-600" },
-  { id: 4, title: "NevuxBot IA", icon: Sparkles, color: "from-teal-500 to-cyan-700" },
-  { id: 5, title: "Analytics ROI", icon: TrendingUp, color: "from-green-500 to-emerald-700" },
-  { id: 6, title: "Modo Fechas", icon: Gift, color: "from-emerald-600 to-emerald-900" },
-  { id: 7, title: "Estilo Marca", icon: Palette, color: "from-teal-400 to-emerald-600" },
-  { id: 8, title: "Cross-Sell IA", icon: ShoppingBag, color: "from-green-600 to-teal-800" },
-  { id: 9, title: "Multi-Idioma", icon: Star, color: "from-emerald-500 to-teal-600" },
-  { id: 10, title: "Búsqueda Voz", icon: Mic, color: "from-teal-600 to-cyan-800" },
-  { id: 11, title: "Vendedor IA", icon: Users, color: "from-emerald-700 to-slate-900" }
+  { id: 1, title: "El Problema", icon: AlertTriangle, bgGradient: "linear-gradient(135deg, #ef4444, #9f1239)" },
+  { id: 2, title: "La Solución", icon: Zap, bgGradient: "linear-gradient(135deg, #10b981, #0f766e)" },
+  { id: 3, title: "Testimonios", icon: MessageSquare, bgGradient: "linear-gradient(135deg, #34d399, #059669)" },
+  { id: 4, title: "NevuxBot IA", icon: Sparkles, bgGradient: "linear-gradient(135deg, #14b8a6, #0e7490)" },
+  { id: 5, title: "Analytics ROI", icon: TrendingUp, bgGradient: "linear-gradient(135deg, #22c55e, #047857)" },
+  { id: 6, title: "Modo Fechas", icon: Gift, bgGradient: "linear-gradient(135deg, #059669, #064e3b)" },
+  { id: 7, title: "Estilo Marca", icon: Palette, bgGradient: "linear-gradient(135deg, #2dd4bf, #047857)" },
+  { id: 8, title: "Cross-Sell IA", icon: ShoppingBag, bgGradient: "linear-gradient(135deg, #16a34a, #115e59)" },
+  { id: 9, title: "Multi-Idioma", icon: Star, bgGradient: "linear-gradient(135deg, #10b981, #0f766e)" },
+  { id: 10, title: "Búsqueda Voz", icon: Mic, bgGradient: "linear-gradient(135deg, #0d9488, #164e63)" },
+  { id: 11, title: "Vendedor IA", icon: Users, bgGradient: "linear-gradient(135deg, #047857, #0f172a)" }
 ];
 
 export default function BannersAdminPage() {
   const [activeTab, setActiveTab] = useState<'banners' | 'historias' | 'portadas'>('historias');
   const [lang, setLang] = useState<'ES' | 'PT'>('ES');
-  const [activeHighlight, setActiveHighlight] = useState<number>(3); // Default: Testimonios (3)
+  const [activeHighlight, setActiveHighlight] = useState<number>(3);
   const [currentTestimonioIndex, setCurrentTestimonioIndex] = useState<number>(0);
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
@@ -188,97 +187,152 @@ export default function BannersAdminPage() {
   const currentTestimonio = testimoniosData[currentTestimonioIndex];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-6 font-sans">
+    <div style={{ backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', padding: '16px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      
       {/* HEADER PRINCIPAL */}
-      <div className="max-w-6xl mx-auto mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+      <div style={{ maxWidth: '1100px', margin: '0 auto 24px auto', paddingBottom: '16px', borderBottom: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-emerald-400" /> Panel Visual Nevux
+          <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#ffffff', display: 'flex', itemsCenter: 'center', gap: '8px', margin: 0 }}>
+            <Sparkles style={{ color: '#34d399', width: '24px', height: '24px' }} /> Panel Visual Nevux
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0 0' }}>
             Generador de contenido oficial para Tiendanube LATAM & Instagram
           </p>
         </div>
 
         {/* NAVEGACIÓN PRINCIPAL DE PESTAÑAS */}
-        <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 w-full sm:w-auto">
+        <div style={{ display: 'flex', backgroundColor: '#0f172a', padding: '4px', borderRadius: '12px', border: '1px solid #1e293b' }}>
           <button
             onClick={() => setActiveTab('banners')}
-            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === 'banners' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-400 hover:text-white'
-            }`}
+            style={{
+              flex: 1,
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              backgroundColor: activeTab === 'banners' ? '#059669' : 'transparent',
+              color: activeTab === 'banners' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.2s'
+            }}
           >
-            <ImageIcon className="w-4 h-4" /> 🖼️ Banners Partners
+            <ImageIcon style={{ width: '16px', height: '16px' }} /> 🖼️ Banners Partners
           </button>
           <button
             onClick={() => setActiveTab('historias')}
-            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === 'historias' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-400 hover:text-white'
-            }`}
+            style={{
+              flex: 1,
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              backgroundColor: activeTab === 'historias' ? '#059669' : 'transparent',
+              color: activeTab === 'historias' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.2s'
+            }}
           >
-            <Smartphone className="w-4 h-4" /> 📱 Historias Instagram
+            <Smartphone style={{ width: '16px', height: '16px' }} /> 📱 Historias Instagram
           </button>
           <button
             onClick={() => setActiveTab('portadas')}
-            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === 'portadas' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-400 hover:text-white'
-            }`}
+            style={{
+              flex: 1,
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              backgroundColor: activeTab === 'portadas' ? '#059669' : 'transparent',
+              color: activeTab === 'portadas' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.2s'
+            }}
           >
-            <Palette className="w-4 h-4" /> 🎨 Portadas
+            <Palette style={{ width: '16px', height: '16px' }} /> 🎨 Portadas
           </button>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto">
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        
         {/* ========================================== */}
         {/* TAB 1: BANNERS PARTNERS (ES / PT) */}
         {/* ========================================== */}
         {activeTab === 'banners' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center bg-slate-900 p-3 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium">Idioma de Banners:</span>
-              <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0f172a', padding: '12px 16px', borderRadius: '12px', border: '1px solid #1e293b' }}>
+              <span style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 500 }}>Idioma de Banners:</span>
+              <div style={{ display: 'flex', gap: '6px', backgroundColor: '#020617', padding: '4px', borderRadius: '8px', border: '1px solid #1e293b' }}>
                 <button
                   onClick={() => setLang('ES')}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
-                    lang === 'ES' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'
-                  }`}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: lang === 'ES' ? '#10b981' : 'transparent',
+                    color: lang === 'ES' ? '#020617' : '#94a3b8'
+                  }}
                 >
                   🇦🇷 / 🇲🇽 Español
                 </button>
                 <button
                   onClick={() => setLang('PT')}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${
-                    lang === 'PT' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'
-                  }`}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: lang === 'PT' ? '#10b981' : 'transparent',
+                    color: lang === 'PT' ? '#020617' : '#94a3b8'
+                  }}
                 >
                   🇧🇷 Português BR
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
               {bannersPartnersData.map((banner) => {
                 const title = lang === 'ES' ? banner.titleEs : banner.titlePt;
                 const desc = lang === 'ES' ? banner.descEs : banner.descPt;
                 return (
-                  <div key={banner.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl flex flex-col">
-                    <div className={`p-6 bg-gradient-to-br ${banner.color} min-h-[180px] flex flex-col justify-between relative`}>
-                      <span className="bg-black/40 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full w-max border border-emerald-500/30">
+                  <div key={banner.id} style={{ backgroundColor: '#0f172a', borderRadius: '16px', border: '1px solid #1e293b', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '24px', background: banner.bgGradient, minHeight: '180px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <span style={{ backgroundColor: 'rgba(0,0,0,0.4)', color: '#6ee7b7', fontSize: '10px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '20px', width: 'max-content', border: '1px solid rgba(16,185,129,0.3)' }}>
                         {banner.badge}
                       </span>
-                      <div>
-                        <h3 className="text-lg font-black text-white leading-tight mb-2">{title}</h3>
-                        <p className="text-xs text-slate-200 opacity-90 leading-relaxed">{desc}</p>
+                      <div style={{ marginTop: '16px' }}>
+                        <h3 style={{ fontSize: '17px', fontWeight: 900, color: '#ffffff', margin: '0 0 8px 0', lineHeight: 1.2 }}>{title}</h3>
+                        <p style={{ fontSize: '12px', color: '#e2e8f0', opacity: 0.9, margin: 0, lineHeight: 1.4 }}>{desc}</p>
                       </div>
                     </div>
-                    <div className="p-3 bg-slate-900 border-t border-slate-800 flex justify-between items-center text-xs">
-                      <span className="text-slate-400 font-mono text-[11px]">Banner #{banner.id} (1200x630px)</span>
+                    <div style={{ padding: '12px 16px', backgroundColor: '#0f172a', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#64748b', fontFamily: 'monospace', fontSize: '11px' }}>Banner #{banner.id} (1200x630px)</span>
                       <button
                         onClick={() => handleCopyText(`${title} - ${desc}`, banner.id)}
-                        className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-xs"
+                        style={{ backgroundColor: '#1e293b', color: '#f1f5f9', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}
                       >
-                        {copiedId === banner.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedId === banner.id ? <Check style={{ width: '14px', height: '14px', color: '#34d399' }} /> : <Copy style={{ width: '14px', height: '14px' }} />}
                         {copiedId === banner.id ? '¡Copiado!' : 'Copiar Texto'}
                       </button>
                     </div>
@@ -293,30 +347,55 @@ export default function BannersAdminPage() {
         {/* TAB 2: HISTORIAS INSTAGRAM (FORMATO 9:16) */}
         {/* ========================================== */}
         {activeTab === 'historias' && (
-          <div className="space-y-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            
             {/* SELECTOR DE HISTORIA DESTACADA */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
               <button
                 onClick={() => setActiveHighlight(1)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                  activeHighlight === 1 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-                }`}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: activeHighlight === 1 ? '#059669' : '#0f172a',
+                  color: activeHighlight === 1 ? '#ffffff' : '#94a3b8'
+                }}
               >
                 🚨 1. El Problema (7)
               </button>
               <button
                 onClick={() => setActiveHighlight(2)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                  activeHighlight === 2 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-                }`}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: activeHighlight === 2 ? '#059669' : '#0f172a',
+                  color: activeHighlight === 2 ? '#ffffff' : '#94a3b8'
+                }}
               >
                 ⚡ 2. La Solución (8)
               </button>
               <button
                 onClick={() => setActiveHighlight(3)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                  activeHighlight === 3 ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
-                }`}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: activeHighlight === 3 ? '#059669' : '#0f172a',
+                  color: activeHighlight === 3 ? '#ffffff' : '#94a3b8'
+                }}
               >
                 💬 3. Testimonios ({testimoniosData.length})
               </button>
@@ -324,18 +403,24 @@ export default function BannersAdminPage() {
 
             {/* DESTACADA 3: TESTIMONIOS CON SIMULADOR WHATSAPP DARK MODE */}
             {activeHighlight === 3 && (
-              <div className="flex flex-col items-center">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                
                 {/* SELECTOR RÁPIDO DE CLIENTE */}
-                <div className="flex flex-wrap justify-center gap-2 mb-4 max-w-md">
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '16px', maxWidth: '450px' }}>
                   {testimoniosData.map((t, idx) => (
                     <button
                       key={t.id}
                       onClick={() => setCurrentTestimonioIndex(idx)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                        currentTestimonioIndex === idx
-                          ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                          : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
-                      }`}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        border: 'none',
+                        cursor: 'pointer',
+                        backgroundColor: currentTestimonioIndex === idx ? '#10b981' : '#0f172a',
+                        color: currentTestimonioIndex === idx ? '#020617' : '#94a3b8'
+                      }}
                     >
                       {t.avatar} {t.name.split('•')[0]}
                     </button>
@@ -343,184 +428,226 @@ export default function BannersAdminPage() {
                 </div>
 
                 {/* HISTORIA 9:16 MARCO CELULAR */}
-                <div className="w-full max-w-[360px] aspect-[9/16] bg-slate-950 rounded-[36px] border-4 border-slate-800 shadow-2xl overflow-hidden relative flex flex-col justify-between p-3 my-2">
+                <div style={{
+                  width: '100%',
+                  maxWidth: '360px',
+                  aspectRatio: '9/16',
+                  backgroundColor: '#020617',
+                  borderRadius: '36px',
+                  border: '4px solid #1e293b',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '12px'
+                }}>
                   
                   {/* TOP INSTAGRAM BARS & HEADER */}
-                  <div className="z-20 relative space-y-2">
+                  <div style={{ zIndex: 20, position: 'relative', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {/* BARRAS DE PROGRESO */}
-                    <div className="flex gap-1">
+                    <div style={{ display: 'flex', gap: '4px' }}>
                       {testimoniosData.map((_, idx) => (
                         <div
                           key={idx}
-                          className={`h-1 flex-1 rounded-full transition-all ${
-                            idx <= currentTestimonioIndex ? 'bg-white' : 'bg-white/30'
-                          }`}
+                          style={{
+                            height: '4px',
+                            flex: 1,
+                            borderRadius: '2px',
+                            backgroundColor: idx <= currentTestimonioIndex ? '#ffffff' : 'rgba(255,255,255,0.3)'
+                          }}
                         />
                       ))}
                     </div>
 
                     {/* HEADER INSTAGRAM USER */}
-                    <div className="flex items-center justify-between text-white px-1">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-slate-950 text-xs border border-emerald-300">
+                    <div style={{ display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', color: '#ffffff', padding: '0 4px' }}>
+                      <div style={{ display: 'flex', itemsCenter: 'center', gap: '8px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#10b981', display: 'flex', itemsCenter: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#020617', fontSize: '12px' }}>
                           N
                         </div>
                         <div>
-                          <p className="text-xs font-bold leading-none">nevux.app <span className="text-[10px] opacity-70 font-normal">2 h</span></p>
-                          <p className="text-[10px] text-emerald-400 font-semibold leading-none mt-0.5">Destacada 3 • Testimonios Reales</p>
+                          <p style={{ fontSize: '12px', fontWeight: 'bold', margin: 0, lineHeight: 1 }}>nevux.app <span style={{ fontSize: '10px', opacity: 0.7, fontWeight: 'normal' }}>2 h</span></p>
+                          <p style={{ fontSize: '10px', color: '#34d399', fontWeight: 600, margin: '2px 0 0 0', lineHeight: 1 }}>Destacada 3 • Testimonios Reales</p>
                         </div>
                       </div>
-                      <span className="text-xs text-slate-300 font-bold bg-white/10 px-2 py-0.5 rounded-full border border-white/20">
+                      <span style={{ fontSize: '11px', color: '#e2e8f0', fontWeight: 'bold', backgroundColor: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '12px' }}>
                         {currentTestimonioIndex + 1}/{testimoniosData.length}
                       </span>
                     </div>
                   </div>
 
-                  {/* CHAT SIMULADOR WHATSAPP DARK MODE TAL CUAL LA IMAGEN REAL */}
-                  <div className="flex-1 my-2 bg-[#0b141a] rounded-2xl overflow-hidden border border-[#2a3942] flex flex-col shadow-inner relative">
+                  {/* CHAT SIMULADOR WHATSAPP DARK MODE (TAL CUAL LA IMAGEN RELEVADA) */}
+                  <div style={{ flex: 1, margin: '8px 0', backgroundColor: '#0b141a', borderRadius: '16px', overflow: 'hidden', border: '1px solid #2a3942', display: 'flex', flexDirection: 'column' }}>
                     
                     {/* WHATSAPP DARK HEADER */}
-                    <div className="bg-[#202c33] text-white px-3 py-2 flex items-center justify-between border-b border-[#2a3942] shrink-0">
-                      <div className="flex items-center gap-2">
-                        <ChevronLeft className="w-4 h-4 text-[#8696a0]" />
-                        <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-sm overflow-hidden border border-emerald-400/30">
+                    <div style={{ backgroundColor: '#202c33', color: '#e9edef', padding: '8px 12px', display: 'flex', itemsCenter: 'center', justifyContent: 'space-between', borderBottom: '1px solid #2a3942' }}>
+                      <div style={{ display: 'flex', itemsCenter: 'center', gap: '8px' }}>
+                        <ChevronLeft style={{ width: '18px', height: '18px', color: '#8696a0' }} />
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#059669', display: 'flex', itemsCenter: 'center', justifyContent: 'center', fontSize: '14px' }}>
                           {currentTestimonio.avatar}
                         </div>
                         <div>
-                          <h4 className="font-semibold text-xs text-[#e9edef] leading-tight">{currentTestimonio.name}</h4>
-                          <p className="text-[9px] text-[#8696a0] leading-none mt-0.5">{currentTestimonio.status}</p>
+                          <h4 style={{ fontWeight: 600, fontSize: '12px', color: '#e9edef', margin: 0, lineHeight: 1.2 }}>{currentTestimonio.name}</h4>
+                          <p style={{ fontSize: '9px', color: '#8696a0', margin: '2px 0 0 0', lineHeight: 1 }}>{currentTestimonio.status}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 text-[#aebac1]">
-                        <Video className="w-3.5 h-3.5" />
-                        <Phone className="w-3.5 h-3.5" />
-                        <MoreVertical className="w-3.5 h-3.5" />
+                      <div style={{ display: 'flex', itemsCenter: 'center', gap: '12px', color: '#aebac1' }}>
+                        <Video style={{ width: '14px', height: '14px' }} />
+                        <Phone style={{ width: '14px', height: '14px' }} />
+                        <MoreVertical style={{ width: '14px', height: '14px' }} />
                       </div>
                     </div>
 
-                    {/* PINNED LINK BANNER (TAL CUAL CAPTURA RELEVADA) */}
-                    <div className="bg-[#182229] px-3 py-1 border-b border-[#222d34] flex items-center gap-1.5 text-[10px] text-[#8696a0] shrink-0">
-                      <Pin className="w-3 h-3 text-[#00a884] shrink-0" />
-                      <span className="truncate font-mono text-[10px] text-[#00a884] underline">https://nexus2026-gx7e.vercel.app</span>
+                    {/* PINNED LINK BANNER (TAL CUAL LA CAPTURA MOSTRADA) */}
+                    <div style={{ backgroundColor: '#182229', padding: '4px 12px', borderBottom: '1px solid #222d34', display: 'flex', itemsCenter: 'center', gap: '6px', fontSize: '10px' }}>
+                      <Pin style={{ width: '12px', height: '12px', color: '#00a884' }} />
+                      <span style={{ fontFamily: 'monospace', color: '#00a884', textDecoration: 'underline' }}>https://nexus2026-gx7e.vercel.app</span>
                     </div>
 
-                    {/* CHAT BODY CON DOODLE BACKGROUND Y MENSAJES */}
-                    <div 
-                      className="flex-1 p-2.5 overflow-y-auto space-y-2 flex flex-col justify-center relative"
-                      style={{
-                        backgroundColor: '#0b141a',
-                        backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0)`,
-                        backgroundSize: '14px 14px',
-                      }}
-                    >
+                    {/* CHAT BODY CON CONTEXTO BORROSO Y HIGHLIGHTS */}
+                    <div style={{
+                      flex: 1,
+                      padding: '10px',
+                      backgroundColor: '#0b141a',
+                      backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0)',
+                      backgroundSize: '14px 14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}>
+                      
                       {/* BURBUJA CONTEXTO ARRIBA (BORROSA) */}
-                      <div className="flex justify-start my-0.5 select-none pointer-events-none filter blur-[3px] opacity-35">
-                        <div className="max-w-[85%] bg-[#202c33] text-[#e9edef] rounded-lg p-2 text-[10px]">
-                          <p>{currentTestimonio.beforeText}</p>
+                      <div style={{ display: 'flex', justifyContent: 'flex-start', filter: 'blur(3px)', opacity: 0.35 }}>
+                        <div style={{ maxWidth: '85%', backgroundColor: '#202c33', color: '#e9edef', borderRadius: '8px', padding: '8px', fontSize: '10px' }}>
+                          <p style={{ margin: 0 }}>{currentTestimonio.beforeText}</p>
                         </div>
                       </div>
 
                       {/* AUDIO FALSO DE CONTEXTO (BORROSO) */}
-                      <div className="flex justify-start my-0.5 select-none pointer-events-none filter blur-[3px] opacity-35">
-                        <div className="bg-[#202c33] text-[#e9edef] rounded-lg p-2 flex items-center gap-2 text-[10px]">
-                          <div className="w-5 h-5 rounded-full bg-[#00a884] flex items-center justify-center text-white">
-                            <Play className="w-2.5 h-2.5 fill-current" />
+                      <div style={{ display: 'flex', justifyContent: 'flex-start', filter: 'blur(3px)', opacity: 0.35 }}>
+                        <div style={{ backgroundColor: '#202c33', color: '#e9edef', borderRadius: '8px', padding: '8px', display: 'flex', itemsCenter: 'center', gap: '8px', fontSize: '10px' }}>
+                          <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#00a884', display: 'flex', itemsCenter: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                            <Play style={{ width: '10px', height: '10px', fill: 'currentColor' }} />
                           </div>
-                          <div className="h-1 bg-[#8696a0] w-20 rounded-full"></div>
-                          <span className="text-[9px] text-[#8696a0]">0:18</span>
+                          <div style={{ height: '4px', backgroundColor: '#8696a0', width: '80px', borderRadius: '2px' }}></div>
+                          <span style={{ fontSize: '9px', color: '#8696a0' }}>0:18</span>
                         </div>
                       </div>
 
                       {/* MENSAJE DESTACADO DEL CLIENTE (BRIGHT GREEN GLOW) */}
-                      <div className="flex justify-start my-1 relative z-10 animate-fade-in">
-                        <div className="max-w-[92%] bg-[#202c33] text-[#e9edef] rounded-xl rounded-tl-none p-3 text-xs border-2 border-[#10B981] shadow-[0_0_20px_rgba(16,185,129,0.35)] relative">
-                          <p className="leading-relaxed font-medium">{currentTestimonio.clientMsg}</p>
-                          <span className="block text-[9px] text-[#8696a0] text-right mt-1 font-mono">{currentTestimonio.clientTime}</span>
+                      <div style={{ display: 'flex', justifyContent: 'flex-start', position: 'relative', zIndex: 10 }}>
+                        <div style={{
+                          maxWidth: '92%',
+                          backgroundColor: '#202c33',
+                          color: '#e9edef',
+                          borderRadius: '12px',
+                          borderTopLeftRadius: '0px',
+                          padding: '12px',
+                          fontSize: '11px',
+                          border: '2px solid #10B981',
+                          boxShadow: '0 0 20px rgba(16,185,129,0.35)'
+                        }}>
+                          <p style={{ margin: 0, lineHeight: 1.4, fontWeight: 500 }}>{currentTestimonio.clientMsg}</p>
+                          <span style={{ display: 'block', fontSize: '9px', color: '#8696a0', textAlign: 'right', marginTop: '4px', fontFamily: 'monospace' }}>{currentTestimonio.clientTime}</span>
                         </div>
                       </div>
 
                       {/* RESPUESTA DESTACADA DEL CREADOR (WHATSAPP DARK GREEN + GLOW) */}
-                      <div className="flex justify-end my-1 relative z-10 animate-fade-in">
-                        <div className="max-w-[92%] bg-[#005c4b] text-white rounded-xl rounded-tr-none p-3 text-xs border-2 border-[#10B981] shadow-[0_0_25px_rgba(16,185,129,0.45)] relative">
-                          <p className="leading-relaxed font-medium">{currentTestimonio.creatorMsg}</p>
-                          <div className="flex items-center justify-end gap-1 mt-1">
-                            <span className="text-[9px] text-[#e9edef]/80 font-mono">{currentTestimonio.creatorTime}</span>
-                            <span className="text-[10px] text-[#53bdeb] font-bold">✓✓</span>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', position: 'relative', zIndex: 10 }}>
+                        <div style={{
+                          maxWidth: '92%',
+                          backgroundColor: '#005c4b',
+                          color: '#ffffff',
+                          borderRadius: '12px',
+                          borderTopRightRadius: '0px',
+                          padding: '12px',
+                          fontSize: '11px',
+                          border: '2px solid #10B981',
+                          boxShadow: '0 0 22px rgba(16,185,129,0.45)'
+                        }}>
+                          <p style={{ margin: 0, lineHeight: 1.4, fontWeight: 500 }}>{currentTestimonio.creatorMsg}</p>
+                          <div style={{ display: 'flex', itemsCenter: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
+                            <span style={{ fontSize: '9px', color: 'rgba(233,237,239,0.8)', fontFamily: 'monospace' }}>{currentTestimonio.creatorTime}</span>
+                            <span style={{ fontSize: '10px', color: '#53bdeb', fontWeight: 'bold' }}>✓✓</span>
                           </div>
                         </div>
                       </div>
 
                       {/* BURBUJA CONTEXTO ABAJO (BORROSA) */}
-                      <div className="flex justify-end my-0.5 select-none pointer-events-none filter blur-[3px] opacity-35">
-                        <div className="max-w-[85%] bg-[#005c4b] text-[#e9edef] rounded-lg p-2 text-[10px]">
-                          <p>{currentTestimonio.afterText}</p>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', filter: 'blur(3px)', opacity: 0.35 }}>
+                        <div style={{ maxWidth: '85%', backgroundColor: '#005c4b', color: '#e9edef', borderRadius: '8px', padding: '8px', fontSize: '10px' }}>
+                          <p style={{ margin: 0 }}>{currentTestimonio.afterText}</p>
                         </div>
                       </div>
+
                     </div>
 
                     {/* WHATSAPP DARK FOOTER */}
-                    <div className="bg-[#202c33] p-1.5 flex items-center gap-1.5 border-t border-[#2a3942] shrink-0">
-                      <div className="flex-1 bg-[#2a3942] rounded-full px-2.5 py-1 flex items-center gap-2 text-[#8696a0] text-[10px]">
-                        <Smile className="w-3.5 h-3.5" />
-                        <span className="flex-1 text-[#8696a0]">Mensaje</span>
-                        <Paperclip className="w-3.5 h-3.5" />
-                        <Camera className="w-3.5 h-3.5" />
+                    <div style={{ backgroundColor: '#202c33', padding: '6px', display: 'flex', itemsCenter: 'center', gap: '6px', borderTop: '1px solid #2a3942' }}>
+                      <div style={{ flex: 1, backgroundColor: '#2a3942', borderRadius: '20px', padding: '4px 10px', display: 'flex', itemsCenter: 'center', gap: '8px', color: '#8696a0', fontSize: '10px' }}>
+                        <Smile style={{ width: '14px', height: '14px' }} />
+                        <span style={{ flex: 1, color: '#8696a0' }}>Mensaje</span>
+                        <Paperclip style={{ width: '14px', height: '14px' }} />
+                        <Camera style={{ width: '14px', height: '14px' }} />
                       </div>
-                      <div className="w-7 h-7 rounded-full bg-[#00a884] flex items-center justify-center text-white shrink-0">
-                        <Mic className="w-3.5 h-3.5" />
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#00a884', display: 'flex', itemsCenter: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                        <Mic style={{ width: '14px', height: '14px' }} />
                       </div>
                     </div>
 
                   </div>
 
                   {/* INSTAGRAM BADGE STICKER DE IMPACTO */}
-                  <div className="z-20 my-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 px-3 py-1.5 rounded-xl font-black text-center text-xs shadow-lg flex items-center justify-center gap-1.5 border border-emerald-300">
+                  <div style={{ zIndex: 20, margin: '4px 0', background: 'linear-gradient(90deg, #10b981, #14b8a6)', color: '#020617', padding: '6px 12px', borderRadius: '12px', fontWeight: 900, textAlign: 'center', fontSize: '11px', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }}>
                     <span>{currentTestimonio.metricBadge}</span>
                   </div>
 
                   {/* BOTTOM ACTION CTA */}
-                  <div className="z-20 text-center py-1 bg-black/60 backdrop-blur-md rounded-xl border border-white/10">
-                    <p className="text-[10px] font-bold text-white uppercase tracking-wider flex items-center justify-center gap-1">
-                      🔥 Caso Real Tiendanube • Deslizá arriba <ArrowRight className="w-3 h-3 text-emerald-400" />
+                  <div style={{ zIndex: 20, textAlign: 'center', padding: '4px', backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p style={{ fontSize: '10px', fontWeight: 'bold', color: '#ffffff', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', itemsCenter: 'center', justifyContent: 'center', gap: '4px' }}>
+                      🔥 Caso Real Tiendanube • Deslizá arriba <ArrowRight style={{ width: '12px', height: '12px', color: '#34d399' }} />
                     </p>
                   </div>
 
                 </div>
 
                 {/* CONTROLES NAVEGACIÓN HISTORIAS */}
-                <div className="flex gap-4 mt-3">
+                <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
                   <button
                     onClick={() => setCurrentTestimonioIndex((prev) => (prev > 0 ? prev - 1 : testimoniosData.length - 1))}
-                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-semibold border border-slate-800 flex items-center gap-1"
+                    style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '8px 16px', borderRadius: '12px', fontSize: '12px', fontWeight: 600, border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', itemsCenter: 'center', gap: '4px' }}
                   >
-                    <ChevronLeft className="w-4 h-4" /> Anterior
+                    <ChevronLeft style={{ width: '16px', height: '16px' }} /> Anterior
                   </button>
                   <button
                     onClick={() => setCurrentTestimonioIndex((prev) => (prev < testimoniosData.length - 1 ? prev + 1 : 0))}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30 flex items-center gap-1"
+                    style={{ backgroundColor: '#059669', color: '#ffffff', padding: '8px 20px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', display: 'flex', itemsCenter: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(5,150,105,0.3)' }}
                   >
-                    Siguiente <ArrowRight className="w-4 h-4" />
+                    Siguiente <ArrowRight style={{ width: '16px', height: '16px' }} />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* DESTACADA 1 Y 2 PLACEHOLDERS Y DESCRIPCIÓN */}
+            {/* DESTACADAS 1 Y 2 */}
             {activeHighlight === 1 && (
-              <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-center">
-                <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
-                <h3 className="text-lg font-bold text-white">Destacada 1: El Problema (7 Historias)</h3>
-                <p className="text-xs text-slate-400 mt-1">
+              <div style={{ backgroundColor: '#0f172a', padding: '32px', borderRadius: '16px', border: '1px solid #1e293b', textAlign: 'center' }}>
+                <AlertTriangle style={{ width: '48px', height: '48px', color: '#f87171', margin: '0 auto 12px auto' }} />
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>Destacada 1: El Problema (7 Historias)</h3>
+                <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
                   Enfocada en resolver el bajo ticket promedio, la desconfianza del comprador y el abandono de carritos.
                 </p>
               </div>
             )}
 
             {activeHighlight === 2 && (
-              <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 text-center">
-                <Zap className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-                <h3 className="text-lg font-bold text-white">Destacada 2: La Solución (8 Historias)</h3>
-                <p className="text-xs text-slate-400 mt-1">
+              <div style={{ backgroundColor: '#0f172a', padding: '32px', borderRadius: '16px', border: '1px solid #1e293b', textAlign: 'center' }}>
+                <Zap style={{ width: '48px', height: '48px', color: '#34d399', margin: '0 auto 12px auto' }} />
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>Destacada 2: La Solución (8 Historias)</h3>
+                <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
                   Demostración interactiva de los 27 widgets estratégicos activables en 1 click para Tiendanube.
                 </p>
               </div>
@@ -532,16 +659,16 @@ export default function BannersAdminPage() {
         {/* TAB 3: PORTADAS DESTACADAS INSTAGRAM */}
         {/* ========================================== */}
         {activeTab === 'portadas' && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
             {portadasData.map((portada) => {
               const IconComponent = portada.icon;
               return (
-                <div key={portada.id} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
-                  <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${portada.color} flex items-center justify-center text-white shadow-xl mb-3 border-2 border-slate-950 ring-2 ring-emerald-500/30`}>
-                    <IconComponent className="w-8 h-8" />
+                <div key={portada.id} style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #1e293b', display: 'flex', flexDirection: 'column', itemsCenter: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                  <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: portada.bgGradient, display: 'flex', itemsCenter: 'center', justifyContent: 'center', color: '#ffffff', marginBottom: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)', border: '2px solid #020617' }}>
+                    <IconComponent style={{ width: '30px', height: '30px' }} />
                   </div>
-                  <p className="text-xs font-bold text-white">{portada.title}</p>
-                  <span className="text-[10px] text-slate-400 mt-0.5">Portada #{portada.id}</span>
+                  <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>{portada.title}</p>
+                  <span style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>Portada #{portada.id}</span>
                 </div>
               );
             })}
@@ -550,4 +677,4 @@ export default function BannersAdminPage() {
       </div>
     </div>
   );
-    }
+}
