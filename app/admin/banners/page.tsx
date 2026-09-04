@@ -32,7 +32,7 @@ export default function BannersPage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#0b0f19",
+        backgroundColor: "#061a14",
         color: "#ffffff",
         padding: "24px 16px 120px",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -51,11 +51,11 @@ export default function BannersPage() {
           maxWidth: "650px",
           width: "100%",
           textAlign: "center",
-          backgroundColor: "#111827",
+          backgroundColor: "#0b2920",
           padding: "20px",
           borderRadius: "18px",
-          border: "1.5px solid #1f2937",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+          border: "1.5px solid rgba(16, 185, 129, 0.3)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.4)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -65,7 +65,7 @@ export default function BannersPage() {
         <h1 style={{ fontSize: "18px", fontWeight: 800, color: "#10B981", margin: 0 }}>
           📷 Generador de Contenido Visual Nevux
         </h1>
-        <p style={{ fontSize: "13px", color: "#9ca3af", margin: 0, lineHeight: "1.4" }}>
+        <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, lineHeight: "1.4" }}>
           Seleccioná qué tipo de contenido querés generar y sacale captura desde tu celular.
         </p>
 
@@ -74,7 +74,7 @@ export default function BannersPage() {
           style={{
             display: "flex",
             gap: "6px",
-            background: "#1f2937",
+            background: "#061a14",
             padding: "4px",
             borderRadius: "12px",
             width: "100%",
@@ -97,7 +97,7 @@ export default function BannersPage() {
                   border: "none",
                   cursor: "pointer",
                   backgroundColor: isActive ? "#10B981" : "transparent",
-                  color: isActive ? "#ffffff" : "#9ca3af",
+                  color: isActive ? "#ffffff" : "#6ee7b7",
                   transition: "all 0.2s ease",
                   whiteSpace: "nowrap",
                 }}
@@ -110,21 +110,19 @@ export default function BannersPage() {
       </div>
 
       {/* ═══════════════════════════════════════════
-          TAB 1: BANNERS PARTNERS (INTACTO)
+          TAB 1: BANNERS PARTNERS
       ═══════════════════════════════════════════ */}
       {activeTab === "partners" && (
         <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", alignItems: "center", gap: "32px" }}>
-          {/* Selector de idioma */}
-          <div style={{ display: "flex", gap: "8px", background: "#1f2937", padding: "4px", borderRadius: "12px" }}>
-            <button onClick={() => setLang("es")} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", backgroundColor: !isPt ? "#10B981" : "transparent", color: !isPt ? "#ffffff" : "#9ca3af" }}>
+          <div style={{ display: "flex", gap: "8px", background: "#0b2920", padding: "4px", borderRadius: "12px" }}>
+            <button onClick={() => setLang("es")} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", backgroundColor: !isPt ? "#10B981" : "transparent", color: !isPt ? "#ffffff" : "#a7f3d0" }}>
               🇦🇷 Español
             </button>
-            <button onClick={() => setLang("pt")} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", backgroundColor: isPt ? "#10B981" : "transparent", color: isPt ? "#ffffff" : "#9ca3af" }}>
+            <button onClick={() => setLang("pt")} style={{ padding: "8px 16px", borderRadius: "8px", fontSize: "12px", fontWeight: 700, border: "none", cursor: "pointer", backgroundColor: isPt ? "#10B981" : "transparent", color: isPt ? "#ffffff" : "#a7f3d0" }}>
               🇧🇷 Português
             </button>
           </div>
 
-          {/* BANNER NEVUXBOT */}
           <div style={bannerStyle}>
             <div style={{ flex: "1 1 200px", zIndex: 2 }}>
               <div style={badgeStyle}>🤖 NEVUXBOT AI</div>
@@ -142,7 +140,7 @@ export default function BannersPage() {
         <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
           
           {/* Sub-selector de Destacadas */}
-          <div style={{ display: "flex", gap: "8px", background: "#111827", padding: "6px", borderRadius: "14px", border: "1px solid #1f2937", width: "100%", overflowX: "auto" }}>
+          <div style={{ display: "flex", gap: "8px", background: "#0b2920", padding: "6px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.3)", width: "100%", overflowX: "auto" }}>
             <button
               onClick={() => setActiveDestacada("problema")}
               style={{
@@ -153,8 +151,8 @@ export default function BannersPage() {
                 fontWeight: 800,
                 border: "none",
                 cursor: "pointer",
-                background: activeDestacada === "problema" ? "#dc2626" : "transparent",
-                color: activeDestacada === "problema" ? "#ffffff" : "#9ca3af",
+                background: activeDestacada === "problema" ? "#10B981" : "transparent",
+                color: activeDestacada === "problema" ? "#ffffff" : "#a7f3d0",
                 whiteSpace: "nowrap",
               }}
             >
@@ -171,7 +169,7 @@ export default function BannersPage() {
                 border: "none",
                 cursor: "pointer",
                 background: activeDestacada === "solucion" ? "#10B981" : "transparent",
-                color: activeDestacada === "solucion" ? "#ffffff" : "#9ca3af",
+                color: activeDestacada === "solucion" ? "#ffffff" : "#a7f3d0",
                 whiteSpace: "nowrap",
               }}
             >
@@ -187,8 +185,8 @@ export default function BannersPage() {
                 fontWeight: 800,
                 border: "none",
                 cursor: "pointer",
-                background: activeDestacada === "testimonios" ? "#059669" : "transparent",
-                color: activeDestacada === "testimonios" ? "#ffffff" : "#9ca3af",
+                background: activeDestacada === "testimonios" ? "#10B981" : "transparent",
+                color: activeDestacada === "testimonios" ? "#ffffff" : "#a7f3d0",
                 whiteSpace: "nowrap",
               }}
             >
@@ -197,11 +195,11 @@ export default function BannersPage() {
           </div>
 
           {/* ═══════════════════════════════════════════
-              DESTACADA 1: 🚨 EL PROBLEMA (7 HISTORIAS)
+              DESTACADA 1: 🚨 EL PROBLEMA (FONDO VERDE ESMERALDA)
           ═══════════════════════════════════════════ */}
           {activeDestacada === "problema" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "36px", width: "100%", alignItems: "center" }}>
-              <div style={{ textAlign: "center", color: "#9ca3af", fontSize: "12px" }}>
+              <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
                 👇 Sacale captura de pantalla en vertical a cada tarjeta para armar tu destacada
               </div>
 
@@ -209,14 +207,14 @@ export default function BannersPage() {
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "12px" }}>🛑</div>
-                  <div style={{ display: "inline-block", background: "rgba(220, 38, 38, 0.2)", border: "1px solid #ef4444", color: "#f87171", fontSize: "10px", fontWeight: 900, padding: "4px 10px", borderRadius: "999px", marginBottom: "16px" }}>
+                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>🛑</div>
+                  <div style={{ display: "inline-block", background: "rgba(239, 68, 68, 0.2)", border: "1.5px solid #ef4444", color: "#ffffff", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>
                     REALIDAD DEL E-COMMERCE
                   </div>
                   <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1.15, margin: "0 0 16px 0", letterSpacing: "-0.03em" }}>
-                    ¿Por qué tu tienda vende <span style={{ color: "#ef4444" }}>menos</span> de lo que podría?
+                    ¿Por qué tu tienda vende <span style={{ color: "#fca5a5", textDecoration: "underline" }}>menos</span> de lo que podría?
                   </h2>
-                  <p style={{ fontSize: "14px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
+                  <p style={{ fontSize: "14px", color: "#d1fae5", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
                     Si tenés visitas pero no se reflejan en tu facturación, hay 3 fugas silenciosas que te están costando miles de pesos.
                   </p>
                 </div>
@@ -227,23 +225,23 @@ export default function BannersPage() {
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", fontWeight: 900, color: "#ef4444", fontFamily: "monospace", marginBottom: "6px" }}>
+                  <div style={{ fontSize: "44px", fontWeight: 900, color: "#fca5a5", fontFamily: "monospace", marginBottom: "6px", textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
                     7 de cada 10
                   </div>
-                  <div style={{ fontSize: "12px", color: "#f87171", fontWeight: 800, textTransform: "uppercase", marginBottom: "20px" }}>
+                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "18px" }}>
                     FUGA #1 — CARRITOS ABANDONADOS
                   </div>
-                  <div style={{ background: "#1f2937", border: "1.5px solid #374151", borderRadius: "16px", padding: "16px", textAlign: "left", marginBottom: "16px" }}>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "16px", padding: "16px", textAlign: "left", marginBottom: "16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                      <ShoppingCart size={20} color="#ef4444" />
+                      <ShoppingCart size={20} color="#fca5a5" />
                       <span style={{ fontSize: "13px", fontWeight: 800, color: "#fff" }}>El cliente llena el carrito...</span>
                     </div>
-                    <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0, lineHeight: 1.45 }}>
-                      Pero en el último segundo le surge una duda, se distrae con otra app o pospone la compra y <strong style={{ color: "#fff" }}>nunca más vuelve</strong>.
+                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.45 }}>
+                      Pero en el último segundo le surge una duda, se distrae con otra app o pospone la compra y <strong style={{ color: "#ffffff" }}>nunca más vuelve</strong>.
                     </p>
                   </div>
-                  <p style={{ fontSize: "13px", color: "#d1d5db", fontWeight: 600, margin: 0 }}>
-                    Perdés ventas de gente que <span style={{ color: "#34d399" }}>ya quería comprarte</span>.
+                  <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>
+                    Perdés ventas de gente que <span style={{ color: "#a7f3d0", textDecoration: "underline" }}>ya quería comprarte</span>.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente fuga ➔</div>
@@ -253,22 +251,22 @@ export default function BannersPage() {
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "36px", marginBottom: "10px" }}>📉</div>
-                  <div style={{ fontSize: "12px", color: "#f87171", fontWeight: 800, textTransform: "uppercase", marginBottom: "16px" }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📉</div>
+                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>
                     FUGA #2 — TICKET PROMEDIO ESTANCADO
                   </div>
                   <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
                     Tus clientes compran de a 1 solo producto
                   </h3>
-                  <div style={{ background: "rgba(220, 38, 38, 0.1)", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#fca5a5", margin: 0, lineHeight: 1.45 }}>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#fca5a5", margin: 0, lineHeight: 1.45, fontWeight: 600 }}>
                       ❌ Sin ofertas por volumen (2x1, 3x2)<br />
                       ❌ Sin productos complementarios sugeridos<br />
                       ❌ Sin motivación para alcanzar el Envío Gratis
                     </p>
                   </div>
-                  <p style={{ fontSize: "13px", color: "#9ca3af", margin: 0 }}>
-                    Estás dejando el <strong style={{ color: "#fff" }}>40% de facturación extra</strong> sobre la mesa en cada pedido.
+                  <p style={{ fontSize: "13px", color: "#d1fae5", margin: 0, fontWeight: 600 }}>
+                    Estás dejando el <strong style={{ color: "#ffffff" }}>40% de facturación extra</strong> sobre la mesa en cada pedido.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente fuga ➔</div>
@@ -278,16 +276,16 @@ export default function BannersPage() {
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "36px", marginBottom: "10px" }}>📏</div>
-                  <div style={{ fontSize: "12px", color: "#f87171", fontWeight: 800, textTransform: "uppercase", marginBottom: "16px" }}>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>📏</div>
+                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>
                     FUGA #3 — LA DUDA QUE MATA LA COMPRA
                   </div>
-                  <div style={{ background: "#1f2937", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", border: "1px solid #374151" }}>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px", border: "1.5px solid rgba(16, 185, 129, 0.4)" }}>
                     <div style={{ fontSize: "13px", fontWeight: 800, color: "#fff", marginBottom: "6px" }}>
                       "¿Me quedará bien el talle M o será chico?"
                     </div>
-                    <p style={{ fontSize: "11px", color: "#9ca3af", margin: 0 }}>
-                      Si el cliente tiene que mandar un WhatsApp para preguntar las medidas, en el 80% de los casos <strong style={{ color: "#ef4444" }}>cierra la pestaña y compra en otro lado</strong>.
+                    <p style={{ fontSize: "11px", color: "#d1fae5", margin: 0, lineHeight: 1.4 }}>
+                      Si el cliente tiene que mandar un WhatsApp para preguntar las medidas, en el 80% de los casos <strong style={{ color: "#fca5a5" }}>cierra la pestaña y compra en otro lado</strong>.
                     </p>
                   </div>
                   <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>
@@ -301,60 +299,60 @@ export default function BannersPage() {
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "36px", marginBottom: "10px" }}>💸</div>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>💸</div>
                   <h3 style={{ fontSize: "24px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
                     El error más común: "Tengo que meter más plata en pauta"
                   </h3>
-                  <div style={{ background: "#1f2937", border: "1px solid #374151", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#d1d5db", margin: 0, lineHeight: 1.5 }}>
-                      Meter tráfico a una tienda que no convierte es como <strong style={{ color: "#ef4444" }}>echarle agua a un balde pinchado</strong>. El costo por clic sube y tu margen desaparece.
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>
+                      Meter tráfico a una tienda que no convierte es como <strong style={{ color: "#fca5a5" }}>echarle agua a un balde pinchado</strong>. El costo por clic sube y tu margen desaparece.
                     </p>
                   </div>
-                  <p style={{ fontSize: "13px", color: "#34d399", fontWeight: 800, margin: 0 }}>
+                  <p style={{ fontSize: "13px", color: "#a7f3d0", fontWeight: 800, margin: 0 }}>
                     La clave no es traer más visitas. Es exprimir al máximo las que ya tenés.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Deslizá ➔</div>
               </div>
 
-              {/* HISTORIA 6: APPS LENTAS QUE ARRUINAN LA TIENDA */}
+              {/* HISTORIA 6: APPS LENTAS */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "36px", marginBottom: "10px" }}>🐌</div>
+                  <div style={{ fontSize: "38px", marginBottom: "10px" }}>🐌</div>
                   <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
                     Instalar 6 apps distintas destruye tu velocidad móvil
                   </h3>
-                  <div style={{ background: "rgba(220, 38, 38, 0.1)", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
-                    <p style={{ fontSize: "12px", color: "#fca5a5", margin: 0, lineHeight: 1.5 }}>
-                      Cada app externa agrega códigos pesados que traban el celular del comprador. Si tu tienda tarda más de 3 segundos en cargar, <strong style={{ color: "#fff" }}>perdés el 53% de las compras</strong>.
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "14px", padding: "14px", textAlign: "left", marginBottom: "14px" }}>
+                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>
+                      Cada app externa agrega códigos pesados que traban el celular del comprador. Si tu tienda tarda más de 3 segundos en cargar, <strong style={{ color: "#fca5a5" }}>perdés el 53% de las compras</strong>.
                     </p>
                   </div>
-                  <p style={{ fontSize: "13px", color: "#9ca3af", margin: 0 }}>
+                  <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, fontWeight: 700 }}>
                     Terminás pagando 4 suscripciones caras por apps lentas.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>La solución ➔</div>
               </div>
 
-              {/* HISTORIA 7: CIERRE Y PUENTE A LA SOLUCIÓN */}
+              {/* HISTORIA 7: CIERRE Y PUENTE */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}><NevuxLogo size="small" /></div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "38px", marginBottom: "12px" }}>💡</div>
+                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>💡</div>
                   <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>
                     El problema no es tu producto.
                   </h2>
-                  <p style={{ fontSize: "15px", color: "#34d399", fontWeight: 800, margin: "0 0 16px 0" }}>
+                  <p style={{ fontSize: "15px", color: "#a7f3d0", fontWeight: 800, margin: "0 0 16px 0" }}>
                     Es la falta de herramientas que cierren la venta en el momento.
                   </p>
-                  <div style={{ background: "#1f2937", border: "1.5px solid #10B981", borderRadius: "16px", padding: "14px", marginBottom: "16px" }}>
+                  <div style={{ background: "rgba(0, 0, 0, 0.4)", border: "2px solid #10B981", borderRadius: "16px", padding: "14px", marginBottom: "16px", boxShadow: "0 8px 20px rgba(0,0,0,0.3)" }}>
                     <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0, lineHeight: 1.45 }}>
-                      Por eso creamos <span style={{ color: "#10B981" }}>Nevux</span>: una única app con 27 herramientas que resuelven todas las fugas de tu tienda en 1 clic.
+                      Por eso creamos <span style={{ color: "#34d399", fontWeight: 900 }}>Nevux</span>: una única app con 27 herramientas que resuelven todas las fugas de tu tienda en 1 clic.
                     </p>
                   </div>
                 </div>
-                <div style={{ ...storyBottomSwipe, color: "#10B981", fontWeight: 900 }}>
+                <div style={{ ...storyBottomSwipe, color: "#34d399", fontWeight: 900 }}>
                   Mirá la siguiente destacada: "⚡ La Solución" ➔
                 </div>
               </div>
@@ -362,15 +360,15 @@ export default function BannersPage() {
             </div>
           )}
 
-          {/* PLACEHOLDER PARA DESTACADA 2 Y 3 (COMMIT 3) */}
+          {/* PLACEHOLDER PARA DESTACADA 2 Y 3 */}
           {activeDestacada !== "problema" && (
             <div style={{ textAlign: "center", padding: "60px 20px" }}>
               <div style={{ fontSize: "40px", marginBottom: "12px" }}>⏳</div>
               <h3 style={{ fontSize: "18px", fontWeight: 800, color: "#10B981", margin: "0 0 8px 0" }}>
                 {activeDestacada === "solucion" ? "⚡ 2. La Solución Nevux" : "💬 3. Testimonios WhatsApp"}
               </h3>
-              <p style={{ fontSize: "13px", color: "#9ca3af" }}>
-                Se habilitará en el Commit 3 tras confirmar este deploy.
+              <p style={{ fontSize: "13px", color: "#a7f3d0" }}>
+                Se habilitará a continuación.
               </p>
             </div>
           )}
@@ -379,13 +377,13 @@ export default function BannersPage() {
       )}
 
       {/* ═══════════════════════════════════════════
-          TAB 3: PORTADAS DESTACADAS (COMMIT 3)
+          TAB 3: PORTADAS DESTACADAS
       ═══════════════════════════════════════════ */}
       {activeTab === "covers" && (
         <div style={{ maxWidth: "650px", width: "100%", textAlign: "center", padding: "60px 20px" }}>
           <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎨</div>
           <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#10B981", margin: "0 0 8px 0" }}>Portadas Circulares de Destacadas</h2>
-          <p style={{ fontSize: "14px", color: "#9ca3af" }}>Se agregarán en el Commit 3.</p>
+          <p style={{ fontSize: "14px", color: "#a7f3d0" }}>Se agregarán a continuación.</p>
         </div>
       )}
 
@@ -394,17 +392,17 @@ export default function BannersPage() {
 }
 
 /* ═══════════════════════════════════════════
-   ESTILOS PREMIUM DE HISTORIAS INSTAGRAM (9:16)
+   ESTILOS PREMIUM VERDE ESMERALDA (9:16)
 ═══════════════════════════════════════════ */
 const storyFrameStyle: React.CSSProperties = {
   width: "100%",
   maxWidth: "340px",
   minHeight: "580px",
-  backgroundColor: "#111827",
-  border: "2px solid #1f2937",
+  background: "linear-gradient(145deg, #047857 0%, #064e3b 50%, #022c22 100%)",
+  border: "2px solid #10B981",
   borderRadius: "28px",
   padding: "24px 20px 20px",
-  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+  boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.35)",
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
@@ -420,18 +418,18 @@ const storyTopHeader: React.CSSProperties = {
   justifyContent: "center",
   alignItems: "center",
   paddingBottom: "10px",
-  borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+  borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
   zIndex: 2,
 };
 
 const storyBottomSwipe: React.CSSProperties = {
   fontSize: "11px",
   fontWeight: 800,
-  color: "#9ca3af",
+  color: "#a7f3d0",
   textTransform: "uppercase",
   letterSpacing: "0.05em",
   paddingTop: "12px",
-  borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+  borderTop: "1px solid rgba(255, 255, 255, 0.15)",
   width: "100%",
   textAlign: "center",
   zIndex: 2,
