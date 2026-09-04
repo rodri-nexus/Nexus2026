@@ -21,7 +21,8 @@ type StoryDestacada =
   | "estilomarca"
   | "crossselling"
   | "multiidioma"
-  | "voz";
+  | "voz"
+  | "vendedor";
 
 /* ═══════════════════════════════════════════
    ESTILOS Y HELPERS (DECLARADOS AL INICIO)
@@ -335,7 +336,7 @@ const bannerDescStyle: React.CSSProperties = {
 };
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTES VISUALES WHATSAPP (DECLARADOS 1 SOLA VEZ)
+   SUB-COMPONENTES VISUALES WHATSAPP (ÚNICOS)
 ═══════════════════════════════════════════ */
 function WhatsAppHeader({
   name,
@@ -484,7 +485,7 @@ export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("stories");
   const [lang, setLang] = useState<"es" | "pt">("pt");
   const [activeDestacada, setActiveDestacada] =
-    useState<StoryDestacada>("voz"); // Por defecto en la nueva
+    useState<StoryDestacada>("vendedor"); // Por defecto en la nueva
 
   const isPt = lang === "pt";
 
@@ -740,6 +741,12 @@ export default function BannersPage() {
             >
               🎙️ 10. Voz
             </button>
+            <button
+              onClick={() => setActiveDestacada("vendedor")}
+              style={subTabStyle(activeDestacada === "vendedor")}
+            >
+              🤝 11. Vendedor IA
+            </button>
           </div>
 
           {/* RENDERING PROBLEMA */}
@@ -939,8 +946,28 @@ export default function BannersPage() {
             </div>
           )}
 
-          {/* 🎙️ DESTACADA 10: BÚSQUEDA POR VOZ EN LA TIENDA (6 HISTORIAS) */}
+          {/* RENDERING VOZ */}
           {activeDestacada === "voz" && (
+            <div style={storyContainerStyle}>
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}>
+                  <NevuxLogo size="small" />
+                </div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>
+                    🎙️
+                  </div>
+                  <h2 style={storyTitleStyle}>
+                    Búsqueda por Voz:{" "}
+                    <span style={{ color: "#10B981" }}>Comprar hablando</span>.
+                  </h2>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 🤝 DESTACADA 11: VENDEDOR VIRTUAL IA PERSONALIZADO (6 HISTORIAS) */}
+          {activeDestacada === "vendedor" && (
             <div style={storyContainerStyle}>
               <div
                 style={{
@@ -951,7 +978,7 @@ export default function BannersPage() {
                 }}
               >
                 👇 Sacale captura de pantalla vertical a cada tarjeta para armar
-                tu destacada
+                tu destacada final
               </div>
 
               {/* H1: PORTADA */}
@@ -961,7 +988,7 @@ export default function BannersPage() {
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "44px", marginBottom: "12px" }}>
-                    🎙️
+                    🤝
                   </div>
                   <div
                     style={{
@@ -977,7 +1004,7 @@ export default function BannersPage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    EXPERIENCIA VOICE-COMMERCE
+                    VENDEDOR CON INTELIGENCIA ARTIFICIAL
                   </div>
                   <h2
                     style={{
@@ -989,8 +1016,8 @@ export default function BannersPage() {
                       letterSpacing: "-0.03em",
                     }}
                   >
-                    Búsqueda por Voz:{" "}
-                    <span style={{ color: "#10B981" }}>Comprar hablando</span>.
+                    Vendedor Virtual IA:{" "}
+                    <span style={{ color: "#10B981" }}>Ventas 24/7</span>.
                   </h2>
                   <p
                     style={{
@@ -1001,20 +1028,20 @@ export default function BannersPage() {
                       fontWeight: 500,
                     }}
                   >
-                    Fase 7: Un botón de micrófono inteligente en tu barra de búsqueda para que tus clientes encuentren lo que quieren diciendo una sola frase.
+                    Fase 8: Un agente inteligente que conoce tu catálogo completo, asesora a tus clientes y cierra compras mientras dormís.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>¿Cómo funciona? Deslizá ➔</div>
               </div>
 
-              {/* H2: EL PROBLEMA EN CELULARES */}
+              {/* H2: EL PROBLEMA NOCHE Y DEMORAS */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                    ⌨️❌
+                    ⏰❌
                   </div>
                   <div
                     style={{
@@ -1026,7 +1053,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    FRICCIÓN DE ESCRITURA
+                    VENTAS PERDIDAS POR DEMORA
                   </div>
                   <h3
                     style={{
@@ -1037,7 +1064,7 @@ export default function BannersPage() {
                       margin: "0 0 14px 0",
                     }}
                   >
-                    Escribir en el celular es incómodo
+                    Responder a las 2 AM es imposible
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -1049,7 +1076,7 @@ export default function BannersPage() {
                         fontWeight: 600,
                       }}
                     >
-                      El 85% de tus clientes compra desde el móvil. Tipear "remera oversize blanca talle L" en teclados chicos genera faltas de ortografía, no encuentran el producto y se van.
+                      El 40% de las compras online ocurren de noche o fines de semana. Si un cliente pregunta "¿Viene con accesorios?" o "¿Qué me recomendás para regalo?" y no recibe respuesta en 5 minutos, compra en otra tienda.
                     </p>
                   </div>
                   <p
@@ -1060,71 +1087,13 @@ export default function BannersPage() {
                       margin: 0,
                     }}
                   >
-                    Cada error de tipeo es una venta que se pierde.
+                    Perdés ventas todos los días por no estar online.
                   </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente ➔</div>
               </div>
 
-              {/* H3: LA SOLUCIÓN NEVUX */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                    ⚡
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      color: "#a7f3d0",
-                      fontWeight: 900,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    BÚSQUEDA INSTANTÁNEA
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: "22px",
-                      fontWeight: 900,
-                      color: "#ffffff",
-                      lineHeight: 1.25,
-                      margin: "0 0 12px 0",
-                    }}
-                  >
-                    El cliente habla, la tienda filtra
-                  </h3>
-                  <div style={bubbleDarkStyle}>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "#d1fae5",
-                        margin: 0,
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      El comprador toca el micrófono, dice: <b>"Buzo negro talle M"</b> y Nevux filtra en 0.2 segundos exactos los resultados perfectos en pantalla.
-                    </p>
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      color: "#34d399",
-                      fontWeight: 900,
-                      margin: 0,
-                    }}
-                  >
-                    Cero esfuerzo, compra en 1 clic 🎙️
-                  </p>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente ➔</div>
-              </div>
-
-              {/* H4: IA NATURAL ARGENTINA Y LATAM */}
+              {/* H3: ASESORAMIENTO REAL */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
@@ -1143,7 +1112,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    RECONOCIMIENTO AVANZADO
+                    ENTRENADO CON TU TIENDA
                   </div>
                   <h3
                     style={{
@@ -1154,7 +1123,7 @@ export default function BannersPage() {
                       margin: "0 0 12px 0",
                     }}
                   >
-                    Entiende modismos y lenguaje cotidiano
+                    Sabe de precios, stock, medidas y envíos
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -1165,14 +1134,82 @@ export default function BannersPage() {
                         lineHeight: 1.5,
                       }}
                     >
-                      Nuestra IA de voz comprende perfectamente expresiones como "zapas urbanas", "campera abrigada", marcas difíciles y números de talle sin equivocarse jamás.
+                      Nevux sincroniza tu catálogo en tiempo real. La IA responde como tu mejor empleado de mostrador: con empatía, fotos del producto y enlaces directos al carrito.
                     </p>
                   </div>
+                  <p
+                    style={{
+                      fontSize: "13px",
+                      color: "#34d399",
+                      fontWeight: 900,
+                      margin: 0,
+                    }}
+                  >
+                    No es un bot rígido, es un vendedor real 🤝
+                  </p>
                 </div>
                 <div style={storyBottomSwipe}>Siguiente ➔</div>
               </div>
 
-              {/* H5: CONVERSIÓN +70% */}
+              {/* H4: CIERRE ADENTRO DEL CHAT */}
+              <div style={storyFrameStyle}>
+                <div style={storyTopHeader}>
+                  <NevuxLogo size="small" />
+                </div>
+                <div style={{ textAlign: "center", zIndex: 2 }}>
+                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>
+                    💬
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#a7f3d0",
+                      fontWeight: 900,
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    CONVERSIÓN DIRECTA
+                  </div>
+                  <h3
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 900,
+                      color: "#ffffff",
+                      lineHeight: 1.25,
+                      margin: "0 0 12px 0",
+                    }}
+                  >
+                    Arma el pedido adentro del chat
+                  </h3>
+                  <div style={bubbleDarkStyle}>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#d1fae5",
+                        margin: 0,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      El cliente dice: "Quiero 2 remeras negras talle L con envío a Córdoba" y la IA genera el link de pago final listo con descuentos y cupones aplicados.
+                    </p>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "13px",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      margin: 0,
+                    }}
+                  >
+                    Fricción cero = Cierre instantáneo.
+                  </p>
+                </div>
+                <div style={storyBottomSwipe}>Siguiente ➔</div>
+              </div>
+
+              {/* H5: +85% DUDAS RESUELTAS */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
@@ -1191,7 +1228,7 @@ export default function BannersPage() {
                       marginBottom: "16px",
                     }}
                   >
-                    RESULTADOS COMPROBADOS
+                    AUTONOMÍA ABSOLUTA
                   </div>
                   <h3
                     style={{
@@ -1202,7 +1239,7 @@ export default function BannersPage() {
                       margin: "0 0 12px 0",
                     }}
                   >
-                    +70% de conversión en búsquedas
+                    85% de consultas resueltas sin tu tiempo
                   </h3>
                   <div style={bubbleDarkStyle}>
                     <p
@@ -1213,14 +1250,14 @@ export default function BannersPage() {
                         lineHeight: 1.5,
                       }}
                     >
-                      Los usuarios que buscan por voz llegan directo al producto deseado 3 veces más rápido y lo agregan al carrito sin dudar.
+                      Ahorrá 4 horas diarias de contestar los mismos mensajes en WhatsApp e Instagram. Tu negocio escala mientras vos te enfocás en crecer.
                     </p>
                   </div>
                 </div>
                 <div style={storyBottomSwipe}>Prueba gratis ➔</div>
               </div>
 
-              {/* H6: CTA */}
+              {/* H6: CTA FINAL ROADMAP */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
@@ -1238,7 +1275,7 @@ export default function BannersPage() {
                       margin: "0 0 14px 0",
                     }}
                   >
-                    El futuro del e-commerce en tu tienda
+                    La suite más potente de Tiendanube
                   </h2>
                   <p
                     style={{
@@ -1248,7 +1285,7 @@ export default function BannersPage() {
                       margin: "0 0 16px 0",
                     }}
                   >
-                    Próximamente en Nevux 🎙️
+                    Próximamente en Nevux 🤝
                   </p>
                   <div
                     style={{
@@ -1266,9 +1303,7 @@ export default function BannersPage() {
                         lineHeight: 1.45,
                       }}
                     >
-                      Sumate hoy a Nevux, disfrutá de la suite de 27 widgets y
-                      asegurá tu acceso gratis de por vida a esta y todas las
-                      actualizaciones.
+                      Sumate hoy a Nevux por $30.000 ARS/mes, aprovechá tus 7 días gratis y asegurá tu lugar en todas las fases del roadmap.
                     </p>
                   </div>
                 </div>
@@ -1279,7 +1314,7 @@ export default function BannersPage() {
                     fontWeight: 900,
                   }}
                 >
-                  Empezá gratis en: nexus2026-gx7e.vercel.app
+                  Probá Nevux en: nexus2026-gx7e.vercel.app
                 </div>
               </div>
             </div>
@@ -1287,7 +1322,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES (AHORA CON 10 PORTADAS) */}
+      {/* TAB 3: PORTADAS DESTACADAS CIRCULARES (11 PORTADAS COMPLETAS) */}
       {activeTab === "covers" && (
         <div
           style={{
@@ -1314,71 +1349,77 @@ export default function BannersPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
-              gap: "20px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))",
+              gap: "16px",
               width: "100%",
               justifyContent: "center",
             }}
           >
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>🚨</span>
+                <span style={{ fontSize: "40px" }}>🚨</span>
               </div>
               <span style={coverLabelStyle}>1. El Problema</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>⚡</span>
+                <span style={{ fontSize: "40px" }}>⚡</span>
               </div>
               <span style={coverLabelStyle}>2. La Solución</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>💬</span>
+                <span style={{ fontSize: "40px" }}>💬</span>
               </div>
               <span style={coverLabelStyle}>3. Testimonios</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>🤖</span>
+                <span style={{ fontSize: "40px" }}>🤖</span>
               </div>
               <span style={coverLabelStyle}>4. NevuxBot IA</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>📊</span>
+                <span style={{ fontSize: "40px" }}>📊</span>
               </div>
               <span style={coverLabelStyle}>5. Analytics ROI</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>🔥</span>
+                <span style={{ fontSize: "40px" }}>🔥</span>
               </div>
               <span style={coverLabelStyle}>6. Modo Fechas</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>🎨</span>
+                <span style={{ fontSize: "40px" }}>🎨</span>
               </div>
               <span style={coverLabelStyle}>7. Estilo Marca</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>🧠</span>
+                <span style={{ fontSize: "40px" }}>🧠</span>
               </div>
               <span style={coverLabelStyle}>8. Cross-Selling</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>🌎</span>
+                <span style={{ fontSize: "40px" }}>🌎</span>
               </div>
               <span style={coverLabelStyle}>9. Multi-Idioma</span>
             </div>
             <div style={coverContainerStyle}>
               <div style={coverCircleStyle}>
-                <span style={{ fontSize: "44px" }}>🎙️</span>
+                <span style={{ fontSize: "40px" }}>🎙️</span>
               </div>
               <span style={coverLabelStyle}>10. Búsqueda Voz</span>
+            </div>
+            <div style={coverContainerStyle}>
+              <div style={coverCircleStyle}>
+                <span style={{ fontSize: "40px" }}>🤝</span>
+              </div>
+              <span style={coverLabelStyle}>11. Vendedor IA</span>
             </div>
           </div>
         </div>
