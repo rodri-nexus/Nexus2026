@@ -18,16 +18,124 @@ import {
   Palette,
   Eye,
   Settings,
+  HelpCircle,
+  Tag,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 type TabId = "partners" | "stories" | "covers";
 type StoryDestacada = "problema" | "solucion" | "testimonios" | "nevuxbot" | "analytics" | "blackfriday" | "estilomarca";
 
+/* ═══════════════════════════════════════════
+   HELPERS & COMPONENTES AUXILIARES (DEFINIDOS AL INICIO)
+═══════════════════════════════════════════ */
+const subTabStyle = (isActive: boolean): React.CSSProperties => ({
+  flex: "1 0 auto",
+  padding: "8px 12px",
+  borderRadius: "10px",
+  fontSize: "11px",
+  fontWeight: 800,
+  border: "none",
+  cursor: "pointer",
+  background: isActive ? "#10B981" : "transparent",
+  color: isActive ? "#ffffff" : "#6ee7b7",
+  transition: "all 0.15s ease",
+  whiteSpace: "nowrap",
+});
+
+function WhatsAppHeader({ name, status, emoji }: { name: string; status: string; emoji: string }) {
+  return (
+    <div style={{
+      width: "100%",
+      background: "#075e54",
+      padding: "10px 14px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderBottom: "1px solid rgba(0,0,0,0.15)",
+      boxSizing: "border-box",
+      zIndex: 10,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <ChevronLeft size={20} color="#ffffff" style={{ cursor: "pointer" }} />
+        <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#eceff1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
+          {emoji}
+        </div>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>{name}</div>
+          <div style={{ fontSize: "10px", color: "#a5d6a7", fontWeight: 500 }}>{status}</div>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: "16px", color: "#ffffff" }}>
+        <Video size={18} />
+        <Phone size={16} />
+        <MoreVertical size={18} />
+      </div>
+    </div>
+  );
+}
+
+function WhatsAppFooter() {
+  return (
+    <div style={{
+      width: "100%",
+      background: "#f0f0f0",
+      padding: "8px 12px",
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      borderTop: "1px solid #e0e0e0",
+      boxSizing: "border-box",
+      zIndex: 10,
+    }}>
+      <div style={{
+        flex: 1,
+        background: "#ffffff",
+        borderRadius: "20px",
+        padding: "8px 14px",
+        fontSize: "12px",
+        color: "#999999",
+        textAlign: "left",
+        border: "1px solid #e0e0e0"
+      }}>
+        Escribí un mensaje...
+      </div>
+      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#075e54", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "16px" }}>🎤</div>
+    </div>
+  );
+}
+
+function BlurBubble({ text, isLeft }: { text: string; isLeft: boolean }) {
+  return (
+    <div style={{
+      alignSelf: isLeft ? "flex-start" : "flex-end",
+      background: isLeft ? "#ffffff" : "#dcf8c6",
+      color: "#303030",
+      padding: "6px 10px",
+      borderRadius: isLeft ? "0px 10px 10px 10px" : "10px 0px 10px 10px",
+      maxWidth: "75%",
+      fontSize: "11px",
+      lineHeight: "1.4",
+      filter: "blur(5px)",
+      opacity: 0.35,
+      pointerEvents: "none",
+      boxShadow: "0 1px 1px rgba(0,0,0,0.1)",
+      wordBreak: "break-word",
+      position: "relative"
+    }}>
+      {text}
+      <div style={{ fontSize: "8px", color: "#999999", textAlign: "right", marginTop: "2px" }}>12:34</div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("stories");
   const [lang, setLang] = useState<"es" | "pt">("pt");
-  const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("estilomarca"); // Por defecto en la nueva destaca para capturar rápido
+  const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("estilomarca");
 
   const isPt = lang === "pt";
 
@@ -641,4 +749,72 @@ const bannerTitleStyle: React.CSSProperties = {
   margin: "0 0 10px 0",
   lineHeight: "1.1",
   letterSpacing: "-0.03em",
+};
+
+const bannerDescStyle: React.CSSProperties = {
+  fontSize: "13px",
+  color: "#d1fae5",
+  margin: 0,
+  lineHeight: "1.45",
+  fontWeight: "500",
+};
+
+const storyBadgeStyle: React.CSSProperties = {
+  display: "inline-block",
+  background: "rgba(239, 68, 68, 0.2)",
+  border: "1.5px solid #ef4444",
+  color: "#ffffff",
+  fontSize: "10px",
+  fontWeight: 900,
+  padding: "5px 12px",
+  borderRadius: "999px",
+  marginBottom: "16px",
+  letterSpacing: "0.05em",
+};
+
+const storyBadgeLightStyle: React.CSSProperties = {
+  display: "inline-block",
+  background: "rgba(16, 185, 129, 0.15)",
+  border: "1.5px solid #10B981",
+  color: "#065f46",
+  fontSize: "10px",
+  fontWeight: 900,
+  padding: "5px 12px",
+  borderRadius: "999px",
+  marginBottom: "16px",
+  letterSpacing: "0.05em",
+};
+
+const storyTitleStyle: React.CSSProperties = {
+  fontSize: "28px",
+  fontWeight: 900,
+  color: "#ffffff",
+  lineHeight: 1.15,
+  margin: "0 0 16px 0",
+  letterSpacing: "-0.03em",
+};
+
+const storyTitleLightStyle: React.CSSProperties = {
+  fontSize: "28px",
+  fontWeight: 900,
+  color: "#065f46",
+  lineHeight: 1.15,
+  margin: "0 0 16px 0",
+  letterSpacing: "-0.03em",
+};
+
+const storyDescStyle: React.CSSProperties = {
+  fontSize: "14px",
+  color: "#d1fae5",
+  lineHeight: 1.5,
+  margin: 0,
+  fontWeight: 500,
+};
+
+const storyDescLightStyle: React.CSSProperties = {
+  fontSize: "14px",
+  color: "#374151",
+  lineHeight: 1.5,
+  margin: 0,
+  fontWeight: 600,
 };
