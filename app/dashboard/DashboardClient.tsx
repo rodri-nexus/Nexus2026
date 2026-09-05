@@ -27,10 +27,14 @@ import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
 import PlanStatusCard from "./components/PlanStatusCard";
+import CampaignActivator from "./components/CampaignActivator";
 import type { PlanInfo, PlanStatus, RawPlanStatus } from "@/lib/plan";
 import { createClient } from "@/lib/supabase-browser";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 interface StoreData {
   store_id: number;
   installed_at: string;
@@ -85,6 +89,9 @@ interface RealStatsResponse {
   };
 }
 
+/* ═══════════════════════════════════════════
+   CONSTANTES Y HELPERS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 const TIENDANUBE_CLIENT_ID = "37382";
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
@@ -96,6 +103,9 @@ function isValidFullName(name: string | null | undefined): boolean {
   return parts.length >= 2 && parts[0].length >= 2 && parts[1].length >= 2;
 }
 
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function DashboardClient({
   email,
   userId,
@@ -962,6 +972,13 @@ export default function DashboardClient({
           </motion.div>
         )}
 
+        {/* ═══════════════════════════════════════════
+            NOVEDAD FASE 3: MODO BLACK FRIDAY / FECHAS ESPECIALES (1 CLICK)
+        ═══════════════════════════════════════════ */}
+        {hasStore && store && (
+          <CampaignActivator storeId={store.store_id} />
+        )}
+
         {/* RESTO DE METRICAS Y CARDS */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
@@ -1461,4 +1478,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-    }
+}
