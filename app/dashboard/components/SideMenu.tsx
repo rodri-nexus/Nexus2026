@@ -54,7 +54,7 @@ const menuItems: MenuItem[] = [
 const proMenuItems: MenuItem[] = [
   { label: "Live Analytics", href: "/dashboard/analytics", icon: TrendingUp },
   { label: "Fechas Especiales", href: "/dashboard/campanas", icon: Flame },
-  { label: "Estilo Marca", href: "/dashboard/estilo-marca", icon: Palette, disabled: true },
+  { label: "Estilo Marca", href: "/dashboard/estilo-marca", icon: Palette, badge: "NUEVO" },
   { label: "Sugerencias IA", href: "/dashboard/sugerencias-ia", icon: Cpu, disabled: true },
   { label: "Multi-Idioma IA", href: "/dashboard/idiomas-ia", icon: Globe, disabled: true },
   { label: "Búsqueda por Voz", href: "/dashboard/busqueda-voz", icon: Mic, disabled: true },
@@ -383,6 +383,24 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                         color={isActive ? "#059669" : "#000000"}
                       />
                       <span>{item.label}</span>
+
+                      {item.badge && (
+                        <span
+                          style={{
+                            marginLeft: "auto",
+                            fontSize: "0.62rem",
+                            fontWeight: 800,
+                            background: "#10B981",
+                            color: "#ffffff",
+                            padding: "0.15rem 0.55rem",
+                            borderRadius: "999px",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.03em",
+                          }}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -415,4 +433,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-            }
+      }
