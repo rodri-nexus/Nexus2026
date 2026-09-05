@@ -17,7 +17,6 @@ import {
   Loader2,
   User,
   TrendingUp,
-  RefreshCw,
 } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
@@ -657,7 +656,7 @@ export default function DashboardClient({
                 border: "1px solid #a7f3d0",
                 display: "flex",
                 alignItems: "center",
-                justify { "center" },
+                justifyContent: "center",
                 flexShrink: 0,
               }}
             >
@@ -879,7 +878,7 @@ export default function DashboardClient({
             }}
           >
             {/* Header del Tracker */}
-            <div style={{ display: "flex", alignItems: "center", justify: "space-between", flexWrap: "wrap", gap: "10px", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px", marginBottom: "1.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <div style={{ background: "rgba(16, 185, 129, 0.2)", border: "1px solid #10B981", color: "#10B981", padding: "6px", borderRadius: "8px" }}>
                   <TrendingUp size={20} />
@@ -1082,7 +1081,7 @@ export default function DashboardClient({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justify: "space-between",
+                  justifyContent: "space-between",
                   padding: "0.75rem 1.25rem 1rem",
                   borderBottom: "1px solid #f3f4f6",
                 }}
