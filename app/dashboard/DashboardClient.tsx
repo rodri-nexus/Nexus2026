@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Store,
@@ -16,7 +16,6 @@ import {
   Layers,
   Loader2,
   User,
-  TrendingUp,
 } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
@@ -26,7 +25,6 @@ import RecientesCard from "./components/RecientesCard";
 import AccionesRapidas from "./components/AccionesRapidas";
 import CentroAyuda from "./components/CentroAyuda";
 import PlanStatusCard from "./components/PlanStatusCard";
-import CampaignActivator from "./components/CampaignActivator";
 import type { PlanInfo, PlanStatus, RawPlanStatus } from "@/lib/plan";
 import { createClient } from "@/lib/supabase-browser";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
@@ -74,20 +72,6 @@ interface Product {
   images?: { src: string }[];
 }
 
-interface RealStatsResponse {
-  hasData: boolean;
-  totalEvents: number;
-  totalExtraRevenue: number;
-  subscriptionCost: number;
-  roiMultiplier: number;
-  metrics: {
-    bundlesRevenue: number;
-    ruletaLeads: number;
-    tallesClicks: number;
-    cuponesCopied: number;
-  };
-}
-
 /* ═══════════════════════════════════════════
    CONSTANTES Y HELPERS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
@@ -130,71 +114,11 @@ export default function DashboardClient({
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Estado de Analytics en Tiempo Real
-  const [realStats, setRealStats] = useState<RealStatsResponse | null>(null);
-  const [loadingStats, setLoadingStats] = useState(false);
-
   const hasStore = store !== null;
   const isAdmin = (email || "").toLowerCase() === ADMIN_EMAIL;
   const tiendanubeInstallUrl = `https://www.tiendanube.com/apps/${TIENDANUBE_CLIENT_ID}/authorize?state=${userId}`;
 
   const showGatekeeper = !isAdmin && !isValidFullName(currentFullName);
-
-  // Consulta en vivo a la API de Analytics
-  useEffect(() => {
-    if (!hasStore) return;
-    let isMounted = true;
-
-    async function fetchStats() {
-      setLoadingStats(true);
-      try {
-        const res = await fetch("/api/analytics/stats");
-        if (res.ok) {
-          const data = await res.json();
-          if (isMounted) {
-            setRealStats(data);
-          }
-        }
-      } catch (err) {
-        console.error("Error consultando stats:", err);
-      } finally {
-        if (isMounted) setLoadingStats(false);
-      }
-    }
-
-    fetchStats();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [hasStore]);
-
-  // SANEADO: Datos 100% Reales. Si no hay eventos, muestra $0. Sin invenciones.
-  const analyticsData = useMemo(() => {
-    if (!hasStore) return null;
-
-    if (realStats && realStats.hasData) {
-      return {
-        isRealData: true,
-        totalExtraRevenue: realStats.totalExtraRevenue,
-        bundlesRevenue: realStats.metrics.bundlesRevenue,
-        ruletaLeads: realStats.metrics.ruletaLeads,
-        tallesClicks: realStats.metrics.tallesClicks,
-        cuponesCopied: realStats.metrics.cuponesCopied,
-        roiMultiplier: realStats.roiMultiplier,
-      };
-    }
-
-    return {
-      isRealData: false,
-      bundlesRevenue: 0,
-      ruletaLeads: 0,
-      tallesClicks: 0,
-      cuponesCopied: 0,
-      totalExtraRevenue: 0,
-      roiMultiplier: 1.0,
-    };
-  }, [hasStore, realStats]);
 
   // Guardar Nombre y Apellido desde el Gatekeeper
   const handleSaveName = async (e: React.FormEvent) => {
@@ -858,136 +782,7 @@ export default function DashboardClient({
           </motion.div>
         )}
 
-        {/* ═══════════════════════════════════════════
-            DIFERENCIADOR ESTRELLA: NEVUX LIVE ANALYTICS (ROI TRACKER EN TIEMPO REAL)
-        ═══════════════════════════════════════════ */}
-        {hasStore && analyticsData && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            style={{
-              background: "linear-gradient(135deg, #111827 0%, #064e3b 100%)",
-              border: "1.5px solid #10B981",
-              borderRadius: "20px",
-              padding: "1.5rem",
-              color: "#ffffff",
-              marginBottom: "1.5rem",
-              boxShadow: "0 10px 30px rgba(16, 185, 129, 0.15)",
-              boxSizing: "border-box",
-            }}
-          >
-            {/* Header del Tracker */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px", marginBottom: "1.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <div style={{ background: "rgba(16, 185, 129, 0.2)", border: "1px solid #10B981", color: "#10B981", padding: "6px", borderRadius: "8px" }}>
-                  <TrendingUp size={20} />
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800 }}>Nevux Live Analytics</h3>
-                  <span style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 700 }}>
-                    {analyticsData.isRealData ? "● Datos reales en vivo de tu tienda" : "● Inicializando telemetría en vivo"}
-                  </span>
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                {loadingStats && <Loader2 size={14} color="#10B981" className="animate-spin" />}
-                <div style={{ background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", padding: "4px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
-                  ROI Tracker 30 Días
-                </div>
-              </div>
-            </div>
-
-            {/* ROI Tracker Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.25rem" }}>
-              
-              {/* Card 1: Facturación Extra */}
-              <div style={{ background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "1.25rem", borderRadius: "14px" }}>
-                <div style={{ fontSize: "11px", color: "#9ca3af", fontWeight: "bold", textTransform: "uppercase", marginBottom: "6px" }}>
-                  Facturación Extra Generada
-                </div>
-                <div style={{ fontSize: "1.85rem", fontWeight: 900, color: "#10B981" }}>
-                  ${analyticsData.totalExtraRevenue.toLocaleString("es-AR")}
-                </div>
-                <span style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 700 }}>Atribución directa por widgets</span>
-              </div>
-
-              {/* Card 2: Costo vs Retorno */}
-              <div style={{ background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "1.25rem", borderRadius: "14px" }}>
-                <div style={{ fontSize: "11px", color: "#9ca3af", fontWeight: "bold", textTransform: "uppercase", marginBottom: "6px" }}>
-                  Inversión Mensual Nevux
-                </div>
-                <div style={{ fontSize: "1.85rem", fontWeight: 900, color: "#ffffff" }}>
-                  $30.000
-                </div>
-                <span style={{ fontSize: "11px", color: "#9ca3af", fontWeight: 700 }}>Tarifa plana, sin comisiones</span>
-              </div>
-
-              {/* Card 3: Multiplicador de ROI */}
-              <div style={{ background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", padding: "1.25rem", borderRadius: "14px" }}>
-                <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: "bold", textTransform: "uppercase", marginBottom: "6px" }}>
-                  Multiplicador de Retorno (ROI)
-                </div>
-                <div style={{ fontSize: "1.85rem", fontWeight: 900, color: "#10B981" }}>
-                  {analyticsData.roiMultiplier.toFixed(1)}x
-                </div>
-                <span style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 700 }}>Nevux multiplicó tu inversión</span>
-              </div>
-
-            </div>
-
-            {/* Sub-métricas desglosadas por widgets principales */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px", marginTop: "1.25rem", borderTop: "1px dashed rgba(255, 255, 255, 0.15)", paddingTop: "1.25rem" }}>
-              <div>
-                <div style={{ fontSize: "10px", color: "#9ca3af", fontWeight: 700 }}>📦 Bundles Ventas</div>
-                <div style={{ fontSize: "13px", fontWeight: 800, color: "#ffffff" }}>${analyticsData.bundlesRevenue.toLocaleString("es-AR")}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: "10px", color: "#9ca3af", fontWeight: 700 }}>🎡 Ruleta E-mails</div>
-                <div style={{ fontSize: "13px", fontWeight: 800, color: "#ffffff" }}>{analyticsData.ruletaLeads} capturados</div>
-              </div>
-              <div>
-                <div style={{ fontSize: "10px", color: "#9ca3af", fontWeight: 700 }}>📏 Talles Elegidos</div>
-                <div style={{ fontSize: "13px", fontWeight: 800, color: "#ffffff" }}>{analyticsData.tallesClicks} selecciones</div>
-              </div>
-              <div>
-                <div style={{ fontSize: "10px", color: "#9ca3af", fontWeight: 700 }}>🎟️ Cupones Copiados</div>
-                <div style={{ fontSize: "13px", fontWeight: 800, color: "#ffffff" }}>{analyticsData.cuponesCopied} clics</div>
-              </div>
-            </div>
-
-            {/* SANEADO: Si no hay datos reales, mostramos un estado vacío súper profesional sin inventar nada */}
-            {!analyticsData.isRealData && (
-              <div
-                style={{
-                  marginTop: "1.25rem",
-                  padding: "0.85rem 1rem",
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1.5px dashed rgba(16, 185, 129, 0.3)",
-                  borderRadius: "12px",
-                  fontSize: "0.82rem",
-                  color: "#a7f3d0",
-                  lineHeight: 1.45,
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "0.65rem",
-                }}
-              >
-                <AlertCircle size={16} style={{ flexShrink: 0, marginTop: "1px" }} />
-                <span>
-                  <b>Esperando actividad:</b> Todavía no registramos interacciones en tus widgets activos. Los datos de facturación extra y ROI se actualizarán automáticamente en vivo a medida que tus clientes interactúen con la tienda.
-                </span>
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* NOVEDAD FASE 3: MODO BLACK FRIDAY / FECHAS ESPECIALES (1 CLICK) */}
-        {hasStore && store && (
-          <CampaignActivator storeId={store.store_id} />
-        )}
-
-        {/* RESTO DE METRICAS Y CARDS */}
+        {/* RESTO DE METRICAS Y CARDS (DASHBOARD PRINCIPAL) */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {hasStore && planInfo && <PlanStatusCard plan={planInfo} />}
           <StatsCards
