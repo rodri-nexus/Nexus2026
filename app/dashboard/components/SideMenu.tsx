@@ -55,8 +55,8 @@ const proMenuItems: MenuItem[] = [
   { label: "Live Analytics", href: "/dashboard/analytics", icon: TrendingUp },
   { label: "Fechas Especiales", href: "/dashboard/campanas", icon: Flame },
   { label: "Estilo Marca", href: "/dashboard/estilo-marca", icon: Palette },
-  { label: "Sugerencias IA", href: "/dashboard/sugerencias-ia", icon: Cpu, badge: "NUEVO" },
-  { label: "Multi-Idioma IA", href: "/dashboard/idiomas-ia", icon: Globe, disabled: true },
+  { label: "Sugerencias IA", href: "/dashboard/sugerencias-ia", icon: Cpu },
+  { label: "Multi-Idioma IA", href: "/dashboard/idiomas-ia", icon: Globe, badge: "NUEVO" },
   { label: "Búsqueda por Voz", href: "/dashboard/busqueda-voz", icon: Mic, disabled: true },
   { label: "Vendedor Virtual IA", href: "/dashboard/vendedor-ia", icon: Bot, disabled: true },
 ];
@@ -433,4 +433,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-        }
+            }
