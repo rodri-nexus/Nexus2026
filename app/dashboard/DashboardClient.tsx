@@ -170,7 +170,7 @@ export default function DashboardClient({
     };
   }, [hasStore]);
 
-  // Métricas con fallback inteligente cuando recién instala
+  // SANEADO: Datos 100% Reales. Si no hay eventos, muestra $0. Sin invenciones.
   const analyticsData = useMemo(() => {
     if (!hasStore) return null;
 
@@ -186,29 +186,16 @@ export default function DashboardClient({
       };
     }
 
-    // Baseline de inicio mientras se registran las primeras visitas
-    const seed = store?.store_id || 12345;
-    const factorWidgets = activeWidgetsCount > 0 ? activeWidgetsCount : 1;
-    const bundlesRevenue = Math.round((seed % 10 + 3) * factorWidgets * 18450);
-    const ruletaLeads = Math.round((seed % 15 + 12) * factorWidgets * 4.2);
-    const tallesClicks = Math.round((seed % 20 + 18) * factorWidgets * 3.1);
-    const cuponesCopied = Math.round((seed % 12 + 6) * factorWidgets * 1.8);
-    
-    const ruletaValue = ruletaLeads * 1450;
-    const tallesValue = tallesClicks * 2600;
-    const totalExtraRevenue = bundlesRevenue + ruletaValue + tallesValue;
-    const roiMultiplier = Math.max(1.2, totalExtraRevenue / 30000);
-
     return {
       isRealData: false,
-      bundlesRevenue,
-      ruletaLeads,
-      tallesClicks,
-      cuponesCopied,
-      totalExtraRevenue,
-      roiMultiplier,
+      bundlesRevenue: 0,
+      ruletaLeads: 0,
+      tallesClicks: 0,
+      cuponesCopied: 0,
+      totalExtraRevenue: 0,
+      roiMultiplier: 1.0,
     };
-  }, [store, activeWidgetsCount, hasStore, realStats]);
+  }, [hasStore, realStats]);
 
   // Guardar Nombre y Apellido desde el Gatekeeper
   const handleSaveName = async (e: React.FormEvent) => {
@@ -670,7 +657,7 @@ export default function DashboardClient({
                 border: "1px solid #a7f3d0",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                justify { "center" },
                 flexShrink: 0,
               }}
             >
@@ -892,7 +879,7 @@ export default function DashboardClient({
             }}
           >
             {/* Header del Tracker */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justify: "space-between", flexWrap: "wrap", gap: "10px", marginBottom: "1.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <div style={{ background: "rgba(16, 185, 129, 0.2)", border: "1px solid #10B981", color: "#10B981", padding: "6px", borderRadius: "8px" }}>
                   <TrendingUp size={20} />
@@ -969,12 +956,34 @@ export default function DashboardClient({
                 <div style={{ fontSize: "13px", fontWeight: 800, color: "#ffffff" }}>{analyticsData.cuponesCopied} clics</div>
               </div>
             </div>
+
+            {/* SANEADO: Si no hay datos reales, mostramos un estado vacío súper profesional sin inventar nada */}
+            {!analyticsData.isRealData && (
+              <div
+                style={{
+                  marginTop: "1.25rem",
+                  padding: "0.85rem 1rem",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1.5px dashed rgba(16, 185, 129, 0.3)",
+                  borderRadius: "12px",
+                  fontSize: "0.82rem",
+                  color: "#a7f3d0",
+                  lineHeight: 1.45,
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "0.65rem",
+                }}
+              >
+                <AlertCircle size={16} style={{ flexShrink: 0, marginTop: "1px" }} />
+                <span>
+                  <b>Esperando actividad:</b> Todavía no registramos interacciones en tus widgets activos. Los datos de facturación extra y ROI se actualizarán automáticamente en vivo a medida que tus clientes interactúen con la tienda.
+                </span>
+              </div>
+            )}
           </motion.div>
         )}
 
-        {/* ═══════════════════════════════════════════
-            NOVEDAD FASE 3: MODO BLACK FRIDAY / FECHAS ESPECIALES (1 CLICK)
-        ═══════════════════════════════════════════ */}
+        {/* NOVEDAD FASE 3: MODO BLACK FRIDAY / FECHAS ESPECIALES (1 CLICK) */}
         {hasStore && store && (
           <CampaignActivator storeId={store.store_id} />
         )}
@@ -1073,7 +1082,7 @@ export default function DashboardClient({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
+                  justify: "space-between",
                   padding: "0.75rem 1.25rem 1rem",
                   borderBottom: "1px solid #f3f4f6",
                 }}
