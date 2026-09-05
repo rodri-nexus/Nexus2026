@@ -19,16 +19,6 @@ interface CrossSellSettingsPayload {
   custom_pairings?: unknown[];
 }
 
-interface RawProduct {
-  id: number;
-  name: string | { es?: string; pt?: string };
-  price?: string | number;
-  promotional_price?: string | number;
-  images?: { src: string }[];
-  image_url?: string;
-  categories?: { id: number; name?: string | { es?: string } }[];
-}
-
 export interface SmartPairing {
   mainProductId: number;
   mainProductName: string;
@@ -69,13 +59,17 @@ export async function OPTIONS() {
 /* ═══════════════════════════════════════════
    HELPERS DEL MOTOR DE IA (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-function parseProductName(raw: string | { es?: string; pt?: string } | undefined): string {
+function parseProductName(raw: unknown): string {
   if (!raw) return "Producto";
   if (typeof raw === "string") return raw;
-  return raw.es || raw.pt || Object.values(raw)[0] || "Producto";
+  if (typeof raw === "object" && raw !== null) {
+    const obj = raw as Record<string, unknown>;
+    return String(obj.es || obj.pt || Object.values(obj)[0] || "Producto");
+  }
+  return "Producto";
 }
 
-function parseProductPrice(price: string | number | undefined): number {
+function parseProductPrice(price: unknown): number {
   if (typeof price === "number") return price;
   if (!price) return 0;
   const cleaned = String(price).replace(/[^0-9.]/g, "");
@@ -83,8 +77,16 @@ function parseProductPrice(price: string | number | undefined): number {
   return isNaN(num) ? 0 : num;
 }
 
-function getProductImageUrl(p: RawProduct): string {
-  return p.image_url || p.images?.[0]?.src || "";
+function getProductImageUrl(p: Record<string, unknown>): string {
+  if (typeof p.image_url === "string") return p.image_url;
+  if (Array.isArray(p.images) && p.images.length > 0) {
+    const first = p.images[0];
+    if (typeof first === "string") return first;
+    if (typeof first === "object" && first !== null && "src" in first) {
+      return String((first as { src: unknown }).src || "");
+    }
+  }
+  return "";
 }
 
 /**
@@ -93,23 +95,27 @@ function getProductImageUrl(p: RawProduct): string {
  * análisis semántico de palabras clave y rotación inteligente.
  */
 function generateSmartPairings(
-  products: RawProduct[],
+  products: unknown[],
   discountPercentage = 15
 ): SmartPairing[] {
-  if (!products || products.length < 2) return [];
+  if (!Array.isArray(products) || products.length < 2) return [];
 
-  const parsedProducts = products.map((p) => ({
-    id: p.id,
-    name: parseProductName(p.name),
-    price: parseProductPrice(p.price || p.promotional_price),
-    image: getProductImageUrl(p),
-  }));
+  const parsedProducts = products.map((item) => {
+    const p = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+    return {
+      id: Number(p.id) || 0,
+      name: parseProductName(p.name),
+      price: parseProductPrice(p.price || p.promotional_price),
+      image: getProductImageUrl(p),
+    };
+  }).filter((p) => p.id > 0 && p.price > 0);
+
+  if (parsedProducts.length < 2) return [];
 
   const pairings: SmartPairing[] = [];
 
   for (let i = 0; i < parsedProducts.length; i++) {
     const main = parsedProducts[i];
-    if (main.price <= 0) continue;
 
     // Buscar el mejor candidato complementario (distinto al principal)
     let bestCandidate = parsedProducts[(i + 1) % parsedProducts.length];
@@ -119,7 +125,6 @@ function generateSmartPairings(
     for (let j = 0; j < parsedProducts.length; j++) {
       if (i === j) continue;
       const candidate = parsedProducts[j];
-      if (candidate.price <= 0) continue;
 
       let currentScore = 50; // Base score
 
@@ -236,7 +241,7 @@ export async function GET(req: NextRequest) {
           const rawProducts = await getProducts(store.store_id, store.access_token);
           const productList = Array.isArray(rawProducts)
             ? rawProducts
-            : (rawProducts as { products?: RawProduct[] })?.products || [];
+            : (rawProducts as { products?: unknown[] })?.products || [];
 
           pairings = generateSmartPairings(
             productList,
@@ -338,4 +343,4 @@ export async function POST(req: NextRequest) {
     const msg = error instanceof Error ? error.message : "Error interno";
     return jsonResponse({ error: msg }, 500);
   }
-  }
+}
