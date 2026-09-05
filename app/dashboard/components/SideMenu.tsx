@@ -13,10 +13,19 @@ import {
   Store,
   User,
   X,
+  TrendingUp,
+  Flame,
+  Palette,
+  Cpu,
+  Globe,
+  Mic,
   type LucideIcon,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,6 +39,9 @@ interface MenuItem {
   badge?: string;
 }
 
+/* ═══════════════════════════════════════════
+   LISTA DE ITEMS DEL MENÚ
+═══════════════════════════════════════════ */
 const menuItems: MenuItem[] = [
   { label: "Inicio", href: "/dashboard", icon: Home },
   { label: "Widgets", href: "/widgets", icon: Puzzle },
@@ -39,6 +51,19 @@ const menuItems: MenuItem[] = [
   { label: "Mi Cuenta", href: "/mi-cuenta", icon: User },
 ];
 
+const proMenuItems: MenuItem[] = [
+  { label: "Live Analytics", href: "/dashboard/analytics", icon: TrendingUp },
+  { label: "Fechas Especiales", href: "/dashboard/campanas", icon: Flame },
+  { label: "Estilo Marca", href: "/dashboard/estilo-marca", icon: Palette, disabled: true },
+  { label: "Sugerencias IA", href: "/dashboard/sugerencias-ia", icon: Cpu, disabled: true },
+  { label: "Multi-Idioma IA", href: "/dashboard/idiomas-ia", icon: Globe, disabled: true },
+  { label: "Búsqueda por Voz", href: "/dashboard/busqueda-voz", icon: Mic, disabled: true },
+  { label: "Vendedor Virtual IA", href: "/dashboard/vendedor-ia", icon: Bot, disabled: true },
+];
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
   const pathname = usePathname();
 
@@ -146,146 +171,223 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
             </div>
 
             {/* Navegación */}
-            <nav
+            <div
               style={{
                 flex: 1,
                 padding: "1rem 0.75rem",
                 display: "flex",
                 flexDirection: "column",
-                gap: "0.25rem",
+                gap: "1.25rem",
               }}
             >
-              <div
-                style={{
-                  fontSize: "0.7rem",
-                  fontWeight: 700,
-                  color: "#000000",
-                  opacity: 0.5,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  padding: "0.5rem 0.75rem 0.5rem",
-                }}
-              >
-                Menú principal
-              </div>
+              {/* SECCIÓN 1: MENÚ PRINCIPAL */}
+              <nav style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    color: "#000000",
+                    opacity: 0.5,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    padding: "0.5rem 0.75rem",
+                  }}
+                >
+                  Menú principal
+                </div>
 
-              {menuItems.map((item) => {
-                const isActive = pathname === item.href;
-                const Icon = item.icon;
+                {menuItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
 
-                if (item.disabled) {
                   return (
-                    <div
+                    <Link
                       key={item.href}
+                      href={item.href}
+                      onClick={onClose}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: "0.75rem",
                         padding: "0.75rem",
                         borderRadius: "10px",
-                        color: "#000000",
-                        opacity: 0.4,
-                        cursor: "not-allowed",
+                        textDecoration: "none",
+                        color: isActive ? "#059669" : "#000000",
+                        background: isActive ? "#ecfdf5" : "transparent",
                         fontSize: "0.9rem",
-                        fontWeight: 500,
+                        fontWeight: isActive ? 700 : 500,
+                        transition: "background 0.15s, color 0.15s",
                         position: "relative",
                       }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = "#f9fafb";
+                          e.currentTarget.style.color = "#10B981";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.color = "#000000";
+                        }
+                      }}
                     >
-                      <Icon size={18} color="#000000" />
-                      <span>{item.label}</span>
-                      <span
-                        style={{
-                          marginLeft: "auto",
-                          fontSize: "0.65rem",
-                          fontWeight: 700,
-                          background: "#f3f4f6",
-                          color: "#000000",
-                          padding: "0.15rem 0.5rem",
-                          borderRadius: "999px",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.03em",
-                          opacity: 0.7,
-                        }}
-                      >
-                        Pronto
-                      </span>
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.75rem",
-                      padding: "0.75rem",
-                      borderRadius: "10px",
-                      textDecoration: "none",
-                      color: isActive ? "#059669" : "#000000",
-                      background: isActive ? "#ecfdf5" : "transparent",
-                      fontSize: "0.9rem",
-                      fontWeight: isActive ? 700 : 500,
-                      transition: "background 0.15s, color 0.15s",
-                      position: "relative",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = "#f9fafb";
-                        e.currentTarget.style.color = "#10B981";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.color = "#000000";
-                      }
-                    }}
-                  >
-                    {isActive && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          left: 0,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          width: "3px",
-                          height: "60%",
-                          background: "#10B981",
-                          borderRadius: "0 3px 3px 0",
-                        }}
+                      {isActive && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            left: 0,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            width: "3px",
+                            height: "60%",
+                            background: "#10B981",
+                            borderRadius: "0 3px 3px 0",
+                          }}
+                        />
+                      )}
+                      <Icon
+                        size={18}
+                        color={isActive ? "#059669" : "#000000"}
                       />
-                    )}
-                    <Icon
-                      size={18}
-                      color={isActive ? "#059669" : "#000000"}
-                    />
-                    <span>{item.label}</span>
+                      <span>{item.label}</span>
 
-                    {item.badge && (
-                      <span
+                      {item.badge && (
+                        <span
+                          style={{
+                            marginLeft: "auto",
+                            fontSize: "0.62rem",
+                            fontWeight: 800,
+                            background: "#10B981",
+                            color: "#ffffff",
+                            padding: "0.15rem 0.55rem",
+                            borderRadius: "999px",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.03em",
+                          }}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* SECCIÓN 2: HERRAMIENTAS PRO */}
+              <nav style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    color: "#000000",
+                    opacity: 0.5,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    padding: "0.5rem 0.75rem",
+                  }}
+                >
+                  ⚡ Herramientas Pro
+                </div>
+
+                {proMenuItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
+
+                  if (item.disabled) {
+                    return (
+                      <div
+                        key={item.href}
                         style={{
-                          marginLeft: "auto",
-                          fontSize: "0.62rem",
-                          fontWeight: 800,
-                          background: "#10B981",
-                          color: "#ffffff",
-                          padding: "0.15rem 0.55rem",
-                          borderRadius: "999px",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.03em",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.75rem",
+                          padding: "0.75rem",
+                          borderRadius: "10px",
+                          color: "#9ca3af",
+                          fontSize: "0.9rem",
+                          fontWeight: 500,
+                          position: "relative",
+                          cursor: "not-allowed",
                         }}
                       >
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
+                        <Icon size={18} color="#9ca3af" />
+                        <span>{item.label}</span>
+                        <span
+                          style={{
+                            marginLeft: "auto",
+                            fontSize: "0.6rem",
+                            fontWeight: 700,
+                            background: "#f3f4f6",
+                            color: "#6b7280",
+                            padding: "0.15rem 0.45rem",
+                            borderRadius: "999px",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.03em",
+                          }}
+                        >
+                          Pronto
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onClose}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.75rem",
+                        padding: "0.75rem",
+                        borderRadius: "10px",
+                        textDecoration: "none",
+                        color: isActive ? "#059669" : "#000000",
+                        background: isActive ? "#ecfdf5" : "transparent",
+                        fontSize: "0.9rem",
+                        fontWeight: isActive ? 700 : 500,
+                        transition: "background 0.15s, color 0.15s",
+                        position: "relative",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = "#f9fafb";
+                          e.currentTarget.style.color = "#10B981";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.color = "#000000";
+                        }
+                      }}
+                    >
+                      {isActive && (
+                        <span
+                          style={{
+                            position: "absolute",
+                            left: 0,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            width: "3px",
+                            height: "60%",
+                            background: "#10B981",
+                            borderRadius: "0 3px 3px 0",
+                          }}
+                        />
+                      )}
+                      <Icon
+                        size={18}
+                        color={isActive ? "#059669" : "#000000"}
+                      />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
 
             {/* Footer del drawer */}
             <div
@@ -313,4 +415,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-        }
+            }
