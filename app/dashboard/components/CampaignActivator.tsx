@@ -76,6 +76,28 @@ function ConfirmCampaignModal({
 }) {
   if (!isOpen || !preset) return null;
 
+  // Renderizador dinámico de efectos en el texto descriptivo
+  const getEffectText = (effect: string) => {
+    switch (effect) {
+      case 'snow':
+        return 'Copos de nieve tridimensionales cayendo y trineo navideño de Papá Noel cruzando el cielo 🎅❄️';
+      case 'fire-embers':
+        return 'Brasas calientes y ráfagas de fuego animadas flotando en pantalla 🔥';
+      case 'neon-sparkles':
+        return 'Destellos de neón y chispas cibernéticas de alta tecnología ✨💻';
+      case 'hearts':
+        return 'Corazones rosados y magentas flotando suavemente con animación de amor 💖🌸';
+      case 'confetti':
+        return 'Lluvia de confeti corporativo festivo en azul y plata cayendo con rotación 3D 🎉👔';
+      case 'balloons':
+        return 'Globos festivos multicolores y estrellas flotando suavemente hacia arriba 🎈🎈';
+      case 'sale-tags':
+        return 'Etiquetas y carteles colgantes de SALE/LIQUIDA cayendo por gravedad de forma elegante 🏷️🔥';
+      default:
+        return 'Efectos ambientales inmersivos especiales decorando la tienda.';
+    }
+  };
+
   return (
     <div
       style={{
@@ -101,9 +123,9 @@ function ConfirmCampaignModal({
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         style={{
           width: '100%',
-          maxWidth: '460px',
+          maxWidth: '520px',
           background: '#ffffff',
-          borderRadius: '22px',
+          borderRadius: '24px',
           padding: '1.8rem',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           border: '1px solid #e5e7eb',
@@ -139,8 +161,8 @@ function ConfirmCampaignModal({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
           <div
             style={{
-              width: '46px',
-              height: '46px',
+              width: '48px',
+              height: '48px',
               borderRadius: '14px',
               background: preset.bgGradient,
               display: 'flex',
@@ -154,38 +176,56 @@ function ConfirmCampaignModal({
             {preset.emoji}
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#000000' }}>
+            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#000000', letterSpacing: '-0.02em' }}>
               Activar Modo {preset.name}
             </h3>
-            <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 600 }}>
-              Configuración en 1 Clic para toda tu tienda
+            <span style={{ fontSize: '0.8rem', color: '#10B981', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+              Transformación Absoluta 1-Clic
             </span>
           </div>
         </div>
 
-        <p style={{ fontSize: '0.88rem', color: '#374151', lineHeight: 1.5, margin: '0 0 1.25rem 0' }}>
+        <p style={{ fontSize: '0.88rem', color: '#4b5563', lineHeight: 1.5, margin: '0 0 1.25rem 0' }}>
           {preset.description}
         </p>
 
-        {/* Resumen de cambios automáticos */}
+        {/* Resumen de cambios automáticos con scrollbar premium */}
         <div
           style={{
-            background: '#f9fafb',
-            border: '1px solid #e5e7eb',
-            borderRadius: '14px',
-            padding: '1rem',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '1.15rem',
             marginBottom: '1.25rem',
+            maxHeight: '250px',
+            overflowY: 'auto',
           }}
         >
-          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6b7280', textTransform: 'uppercase', marginBottom: '0.65rem' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.04em', position: 'sticky', top: 0, background: '#f8fafc', paddingBottom: '4px' }}>
             ⚡ Qué se actualizará automáticamente:
           </div>
-          <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.82rem', color: '#1f2937', lineHeight: 1.6 }}>
-            <li><b>Cuenta Regresiva:</b> Seteada con fin del evento y colores temáticos.</li>
-            <li><b>Banner Deslizante:</b> Textos especiales y llamados a la acción.</li>
-            <li><b>Badge Cupón:</b> Código <code style={{ background: '#e5e7eb', padding: '1px 5px', borderRadius: 4 }}>{preset.couponCode}</code> con {preset.couponDiscount}.</li>
-            <li><b>Ruleta de Descuentos:</b> Premios y porciones adaptadas al evento.</li>
-            <li><b>Barra de Progreso:</b> Mensajes y colores festivos.</li>
+          <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.82rem', color: '#1e293b', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <li>
+              <b>🌌 Efectos Atmosféricos:</b> {getEffectText(preset.effect)}
+            </li>
+            <li>
+              <b>🎨 Armonización de los 27 Widgets:</b> Se sincronizarán los colores y bordes de la Caja de Opiniones, Comparador de Marca, Medios de Pago, Mensajes de Garantía y toda la suite activa a la estética de {preset.name}.
+            </li>
+            <li>
+              <b>⏳ Cuenta Regresiva:</b> Se encenderá con la fecha límite real del evento y colores contrastantes de alta urgencia.
+            </li>
+            <li>
+              <b>🚀 Banner Deslizante Promocional:</b> Textos temáticos de alta conversión y llamados a la acción dinámicos en toda la tienda.
+            </li>
+            <li>
+              <b>🎫 Badge Cupón Oficial:</b> Habilitación del código <code style={{ background: '#e2e8f0', color: '#0f172a', padding: '2px 6px', borderRadius: 6, fontWeight: 800 }}>{preset.couponCode}</code> para dar un descuento directo del {preset.couponDiscount}.
+            </li>
+            <li>
+              <b>🎡 Ruleta de Descuentos:</b> Configuración de premios, porciones, colores festivos y cupones sincronizados en vivo.
+            </li>
+            <li>
+              <b>📈 Barra de Progreso Booster:</b> Montos y objetivos decorados ("Te faltan... para tu regalo de {preset.name}") con barra de llenado corporativa.
+            </li>
           </ul>
         </div>
 
@@ -204,7 +244,7 @@ function ConfirmCampaignModal({
         >
           <ShieldCheck size={20} color="#059669" style={{ flexShrink: 0 }} />
           <span style={{ fontSize: '0.78rem', color: '#065f46', lineHeight: 1.4, fontWeight: 600 }}>
-            <b>100% Reversible:</b> Nevux guarda un respaldo de tus configuraciones. Podés volver a tu diseño original en cualquier momento.
+            <b>100% Reversible:</b> Nevux guarda un snapshot de seguridad. Podés desactivar el evento y volver a tu diseño original en un clic.
           </span>
         </div>
 
@@ -532,7 +572,7 @@ export default function CampaignActivator({
                 </span>
               </div>
               <p style={{ margin: 0, fontSize: '0.82rem', opacity: 0.85 }}>
-                Tus widgets están sincronizados con la temática y los cupones de {activePreset.name}.
+                Tus widgets están sincronizados con la temática, efectos e identidad visual de {activePreset.name}.
               </p>
             </div>
           </div>
@@ -723,4 +763,4 @@ export default function CampaignActivator({
       </AnimatePresence>
     </div>
   );
-    }
+      }
