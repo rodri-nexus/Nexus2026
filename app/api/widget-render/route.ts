@@ -1,10 +1,15 @@
+// app/api/widget-render/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isStorePlanActive } from '@/lib/plan'
+import { getCampaignPreset } from '@/lib/campaignPresets'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+/* ═══════════════════════════════════════════
+   FUNCIONES AUXILIARES Y TIPOS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -12,10 +17,46 @@ const corsHeaders = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
 }
 
+function defaultStats() {
+  return {
+    total: 0,
+    promedio: 0,
+    distribucion: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 },
+  }
+}
+
+function calcularStats(reviews: any[]) {
+  const total = reviews.length
+  if (total === 0) return defaultStats()
+
+  const distribucion: Record<string, number> = {
+    '5': 0,
+    '4': 0,
+    '3': 0,
+    '2': 0,
+    '1': 0,
+  }
+
+  let suma = 0
+  for (const r of reviews) {
+    suma += r.estrellas || 0
+    const key = String(r.estrellas)
+    if (distribucion[key] !== undefined) {
+      distribucion[key]++
+    }
+  }
+
+  const promedio = parseFloat((suma / total).toFixed(2))
+  return { total, promedio, distribucion }
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
 
+/* ═══════════════════════════════════════════
+   ENDPOINT PRINCIPAL GET
+═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -24,7 +65,7 @@ export async function GET(req: NextRequest) {
 
     if (!storeIdParam) {
       return NextResponse.json(
-        { error: 'store_id es requerido', widgets: [] },
+        { error: 'store_id es requerido', widgets: [], activeCampaign: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -32,7 +73,7 @@ export async function GET(req: NextRequest) {
     const storeId = parseInt(storeIdParam, 10)
     if (isNaN(storeId)) {
       return NextResponse.json(
-        { error: 'store_id inválido', widgets: [] },
+        { error: 'store_id inválido', widgets: [], activeCampaign: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -43,7 +84,7 @@ export async function GET(req: NextRequest) {
     const isActivePlan = await isStorePlanActive(storeId)
     if (!isActivePlan) {
       return NextResponse.json(
-        { widgets: [], message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { widgets: [], activeCampaign: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
         { status: 200, headers: corsHeaders }
       )
     }
@@ -57,7 +98,35 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
+    // 1. Consultar campaña activa de la tienda para efectos visuales
+    let activeCampaignData: {
+      slug: string
+      name: string
+      effect: string
+      themeColor: string
+      accentColor: string
+    } | null = null
+
+    const { data: campaignRow } = await supabase
+      .from('active_campaigns')
+      .select('campaign_slug')
+      .eq('store_id', storeId)
+      .maybeSingle()
+
+    if (campaignRow && campaignRow.campaign_slug) {
+      const preset = getCampaignPreset(campaignRow.campaign_slug)
+      if (preset) {
+        activeCampaignData = {
+          slug: preset.slug,
+          name: preset.name,
+          effect: preset.effect,
+          themeColor: preset.themeColor,
+          accentColor: preset.accentColor,
+        }
+      }
+    }
+
+    // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
     let query = supabase
       .from('widgets')
       .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
@@ -78,7 +147,7 @@ export async function GET(req: NextRequest) {
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
       return NextResponse.json(
-        { error: widgetsError.message, widgets: [] },
+        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData },
         { status: 500, headers: corsHeaders }
       )
     }
@@ -157,47 +226,18 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { widgets: enrichedWidgets, ts: Date.now() },
+      { 
+        widgets: enrichedWidgets, 
+        activeCampaign: activeCampaignData,
+        ts: Date.now() 
+      },
       { status: 200, headers: corsHeaders }
     )
   } catch (error: any) {
     console.error('Error en GET /api/widget-render:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message, widgets: [] },
+      { error: 'Error interno del servidor', details: error?.message, widgets: [], activeCampaign: null },
       { status: 500, headers: corsHeaders }
     )
   }
-}
-
-function calcularStats(reviews: any[]) {
-  const total = reviews.length
-  if (total === 0) return defaultStats()
-
-  const distribucion: Record<string, number> = {
-    '5': 0,
-    '4': 0,
-    '3': 0,
-    '2': 0,
-    '1': 0,
-  }
-
-  let suma = 0
-  for (const r of reviews) {
-    suma += r.estrellas || 0
-    const key = String(r.estrellas)
-    if (distribucion[key] !== undefined) {
-      distribucion[key]++
-    }
-  }
-
-  const promedio = parseFloat((suma / total).toFixed(2))
-  return { total, promedio, distribucion }
-}
-
-function defaultStats() {
-  return {
-    total: 0,
-    promedio: 0,
-    distribucion: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 },
-  }
-        }
+      }
