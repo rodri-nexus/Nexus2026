@@ -118,12 +118,18 @@ export async function POST(req: NextRequest) {
     const endDateIso = calculateCampaignEndDate(preset.durationDays);
     const nowIso = new Date().toISOString();
 
+    // Soportamos la inyección masiva de 10 widgets temáticos
     const targetSlugs = [
       "cuenta-regresiva",
       "banner-deslizante",
       "badge-cupon",
       "ruleta-descuentos",
       "barra-progreso",
+      "comparador-marca",
+      "medios-pago",
+      "caja-opiniones",
+      "mensaje-garantia",
+      "mensaje-alerta"
     ] as const;
 
     let widgetsUpdated = 0;
@@ -135,7 +141,7 @@ export async function POST(req: NextRequest) {
       if (slug === "cuenta-regresiva") {
         patchConfig = preset.patches["cuenta-regresiva"](endDateIso);
       } else {
-        patchConfig = preset.patches[slug];
+        patchConfig = (preset.patches as any)[slug] || {};
       }
 
       // Buscar si el widget ya existe en la tienda (priorizar el global 'all')
@@ -206,4 +212,4 @@ export async function POST(req: NextRequest) {
     const message = error instanceof Error ? error.message : "Error interno";
     return jsonResponse({ error: message }, 500);
   }
-  }
+         }
