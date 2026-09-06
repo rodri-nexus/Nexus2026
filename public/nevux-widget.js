@@ -6612,12 +6612,11 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       }
     }
                                               }
-
-    /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER MEDIOS DE PAGO
   ═══════════════════════════════════════════ */
   function renderMediosPago(w) {
-    if (pageType !== "product") return;
+    if (pageType !== "product" && pageType !== "home") return;
 
     var exist = document.getElementById("nvx-mediospago-" + w.id);
     if (exist) return;
@@ -6647,14 +6646,6 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 14) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 16) + "px";
 
-    var target = document.querySelector("form[action*='/cart/add']") || 
-                 document.querySelector(".js-product-buy-container") ||
-                 document.querySelector(".product-buy-panel") ||
-                 document.querySelector(".js-product-form") ||
-                 document.querySelector(".product-form");
-
-    if (!target) return;
-
     var styleId = "nvx-mediospago-styles-" + w.id;
     if (!document.getElementById(styleId)) {
       var styleEl = document.createElement("style");
@@ -6664,8 +6655,9 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           background: ${bgColor} !important;
           border: 1.5px solid ${borderColor} !important;
           border-radius: ${borderRad} !important;
-          padding: ${padInt} !important;
-          margin: 16px 0 !important;
+          padding: ${pageType === "home" ? "20px 18px" : padInt} !important;
+          margin: ${pageType === "home" ? "28px auto" : "16px 0"} !important;
+          max-width: ${pageType === "home" ? "1100px" : "100%"} !important;
           box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
           font-family: system-ui, -apple-system, sans-serif !important;
           box-sizing: border-box !important;
@@ -6673,7 +6665,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           text-align: center !important;
         }
         #nvx-mediospago-${w.id} .nvx-mp-title {
-          font-size: 13px !important;
+          font-size: ${pageType === "home" ? "14px" : "13px"} !important;
           font-weight: 800 !important;
           color: ${textColor} !important;
           letter-spacing: -0.01em !important;
@@ -6721,6 +6713,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
 
     var div = document.createElement("div");
     div.id = "nvx-mediospago-" + w.id;
+    div.className = "nvx-root-mediospago";
 
     var badgesHtml = "";
     if (mostrarVisa) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#1a1f71;">VISA</span>';
@@ -6744,13 +6737,60 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       </div>
     `;
 
-    // Se inyecta justo debajo del formulario de compra
-    if (target.nextSibling) {
-      target.parentNode.insertBefore(div, target.nextSibling);
-    } else {
-      target.parentNode.appendChild(div);
+    // 1. INYECCIÓN EN PÁGINA DE PRODUCTO
+    if (pageType === "product") {
+      var targetProduct = document.querySelector("form[action*='/cart/add']") || 
+                          document.querySelector(".js-product-buy-container") ||
+                          document.querySelector(".product-buy-panel") ||
+                          document.querySelector(".js-product-form") ||
+                          document.querySelector(".product-form");
+      if (!targetProduct) return;
+      if (targetProduct.nextSibling) {
+        targetProduct.parentNode.insertBefore(div, targetProduct.nextSibling);
+      } else {
+        targetProduct.parentNode.appendChild(div);
+      }
+    } 
+    // 2. INYECCIÓN EN PÁGINA DE INICIO (HOME)
+    else if (pageType === "home") {
+      // Prioridad A: Justo DESPUÉS del Newsletter
+      var newsletterSelectors = [
+        "[data-store='home-newsletter']",
+        ".section-newsletter",
+        ".section-newsletter-home",
+        ".newsletter-home",
+        ".js-newsletter-home",
+        "#newsletter",
+        ".js-newsletter-container"
+      ];
+      var newsEl = null;
+      for (var i = 0; i < newsletterSelectors.length; i++) {
+        var el = document.querySelector(newsletterSelectors[i]);
+        if (el) { newsEl = el; break; }
+      }
+
+      if (newsEl && newsEl.parentNode) {
+        if (newsEl.nextSibling) {
+          newsEl.parentNode.insertBefore(div, newsEl.nextSibling);
+        } else {
+          newsEl.parentNode.appendChild(div);
+        }
+      } else {
+        // Prioridad B: Justo ANTES del Footer
+        var footerSelectors = ["footer", "#footer", ".js-footer", ".footer-container", ".site-footer"];
+        var footerEl = null;
+        for (var j = 0; j < footerSelectors.length; j++) {
+          var f = document.querySelector(footerSelectors[j]);
+          if (f) { footerEl = f; break; }
+        }
+        if (footerEl && footerEl.parentNode) {
+          footerEl.parentNode.insertBefore(div, footerEl);
+        } else {
+          document.body.appendChild(div);
+        }
+      }
     }
-                                             }
+      }
 
     /* ═══════════════════════════════════════════
      RENDER TABLA DE TALLES (CON TELEMETRÍA REAL)
