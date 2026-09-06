@@ -6967,19 +6967,23 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       }
     }
                                               }
-  /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
      RENDER MEDIOS DE PAGO
   ═══════════════════════════════════════════ */
   function renderMediosPago(w) {
-    if (pageType !== "product" && pageType !== "home") return;
-
-    var exist = document.getElementById("nvx-mediospago-" + w.id);
-    if (exist) return;
-
     var cfg = w.config || {};
     if (typeof cfg === "string") {
       try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
     }
+
+    // Ubicaciones soportadas: "product" (por defecto), "home", "ambas"
+    var ubicacion = cfg.ubicacion || "product"; 
+    if (ubicacion === "product" && pageType !== "product") return;
+    if (ubicacion === "home" && pageType !== "home") return;
+    if (ubicacion === "ambas" && pageType !== "product" && pageType !== "home") return;
+
+    var exist = document.getElementById("nvx-mediospago-" + w.id);
+    if (exist) return;
 
     var titulo = cfg.titulo || "MEDIOS DE PAGO ACEPTADOS";
     var subtexto = cfg.subtexto || "Comprá de forma 100% segura con tus tarjetas o efectivo";
@@ -7092,7 +7096,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       </div>
     `;
 
-    // 1. INYECCIÓN EN PÁGINA DE PRODUCTO
+    // INYECCIÓN BASADA EN LA UBICACIÓN DETECTADA
     if (pageType === "product") {
       var targetProduct = document.querySelector("form[action*='/cart/add']") || 
                           document.querySelector(".js-product-buy-container") ||
@@ -7105,10 +7109,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
       } else {
         targetProduct.parentNode.appendChild(div);
       }
-    } 
-    // 2. INYECCIÓN EN PÁGINA DE INICIO (HOME)
-    else if (pageType === "home") {
-      // Prioridad A: Justo DESPUÉS del Newsletter
+    } else if (pageType === "home") {
       var newsletterSelectors = [
         "[data-store='home-newsletter']",
         ".section-newsletter",
@@ -7123,7 +7124,6 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         var el = document.querySelector(newsletterSelectors[i]);
         if (el) { newsEl = el; break; }
       }
-
       if (newsEl && newsEl.parentNode) {
         if (newsEl.nextSibling) {
           newsEl.parentNode.insertBefore(div, newsEl.nextSibling);
@@ -7131,7 +7131,6 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           newsEl.parentNode.appendChild(div);
         }
       } else {
-        // Prioridad B: Justo ANTES del Footer
         var footerSelectors = ["footer", "#footer", ".js-footer", ".footer-container", ".site-footer"];
         var footerEl = null;
         for (var j = 0; j < footerSelectors.length; j++) {
@@ -7145,8 +7144,7 @@ if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
         }
       }
     }
-      }
-
+                                                      }
     /* ═══════════════════════════════════════════
      RENDER TABLA DE TALLES (CON TELEMETRÍA REAL)
   ═══════════════════════════════════════════ */
