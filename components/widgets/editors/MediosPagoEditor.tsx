@@ -66,6 +66,7 @@ interface MediosPagoConfig {
   textColor: string;
   bordesRedondeados: number;
   paddingInterno: number;
+  ubicacion: 'product' | 'home' | 'ambas';
 }
 
 /* ═══════════════════════════════════════════
@@ -88,6 +89,7 @@ const DEFAULT_CONFIG: MediosPagoConfig = {
   textColor: '#000000',
   bordesRedondeados: 14,
   paddingInterno: 16,
+  ubicacion: 'product',
 };
 
 /* ═══════════════════════════════════════════
@@ -341,6 +343,72 @@ export default function MediosPagoEditor({
   /* ─── TAB GENERAL ─── */
   const tabGeneral = (
     <div>
+      {/* SELECTOR PREMIUM DE UBICACIÓN */}
+      <div
+        style={{
+          background: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+        }}
+      >
+        <label
+          style={{
+            display: 'block',
+            fontSize: 13,
+            fontWeight: 800,
+            color: '#0f172a',
+            marginBottom: 4,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          📍 UBICACIÓN EN LA TIENDA
+        </label>
+        <span style={{ display: 'block', fontSize: 11, color: '#64748b', marginBottom: 12, lineHeight: 1.3 }}>
+          Elegí en qué sección querés que se muestren automáticamente los sellos de medios de pago.
+        </span>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          {[
+            { id: 'product', label: 'Solo Producto', desc: 'Abajo del botón', icon: '🛍️' },
+            { id: 'home', label: 'Solo Inicio', desc: 'Sello final en Home', icon: '🏠' },
+            { id: 'ambas', label: 'Ambas Páginas', desc: 'Producto e Inicio', icon: '✨' },
+          ].map((item) => {
+            const isSelected = (config.ubicacion || 'product') === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => updateCfg('ubicacion', item.id as any)}
+                style={{
+                  background: isSelected ? '#ecfdf5' : '#ffffff',
+                  border: isSelected ? '2px solid #10B981' : '1px solid #cbd5e1',
+                  borderRadius: 12,
+                  padding: '12px 6px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 4,
+                  boxShadow: isSelected ? '0 4px 12px rgba(16,185,129,0.08)' : 'none',
+                }}
+              >
+                <span style={{ fontSize: 20, marginBottom: 2 }}>{item.icon}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: isSelected ? '#047857' : '#1e293b' }}>
+                  {item.label}
+                </span>
+                <span style={{ fontSize: 9, color: isSelected ? '#059669' : '#64748b', fontWeight: 500 }}>
+                  {item.desc}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <FieldInput
         label="Título del bloque"
         value={config.titulo}
@@ -684,4 +752,4 @@ export default function MediosPagoEditor({
       </div>
     </div>
   );
-}
+    }
