@@ -112,6 +112,25 @@ function applyBrandColorsToConfig(
       updated.colorFondo = brand.background;
       break;
 
+    case "comparador-marca":
+      updated.bgColor = brand.background;
+      updated.borderColor = brand.primary;
+      updated.textColor = brand.text;
+      // Opacidad inteligente del color primario (~8%) para el fondo de tu columna destacada
+      updated.destacadoBgColor = brand.primary + "15";
+      updated.destacadoTextColor = brand.primary;
+      updated.checkColor = brand.primary;
+      updated.crossColor = "#9ca3af"; // Cruz neutra gris para balance visual elegante
+      updated.bordesRedondeados = brand.radiusNum;
+      break;
+
+    case "medios-pago":
+      updated.bgColor = brand.background;
+      updated.borderColor = brand.primary;
+      updated.textColor = brand.text;
+      updated.bordesRedondeados = brand.radiusNum;
+      break;
+
     default:
       // Adaptación universal para otros widgets
       if ("colorFondo" in updated) updated.colorFondo = brand.background;
