@@ -9,6 +9,15 @@ export interface CampaignWidgetPatch {
   configPatch: Record<string, unknown>;
 }
 
+export type VisualEffectType = 
+  | 'fire-embers' 
+  | 'neon-sparkles' 
+  | 'snow' 
+  | 'hearts' 
+  | 'confetti' 
+  | 'balloons' 
+  | 'sale-tags';
+
 export interface CampaignPreset {
   slug: string;
   name: string;
@@ -22,12 +31,18 @@ export interface CampaignPreset {
   couponCode: string;
   couponDiscount: string;
   durationDays: number;
+  effect: VisualEffectType;
   patches: {
     'cuenta-regresiva': (endDateIso: string) => Record<string, unknown>;
     'banner-deslizante': Record<string, unknown>;
     'badge-cupon': Record<string, unknown>;
     'ruleta-descuentos': Record<string, unknown>;
     'barra-progreso': Record<string, unknown>;
+    'comparador-marca': Record<string, unknown>;
+    'medios-pago': Record<string, unknown>;
+    'caja-opiniones': Record<string, unknown>;
+    'mensaje-garantia': Record<string, unknown>;
+    'mensaje-alerta': Record<string, unknown>;
   };
 }
 
@@ -50,7 +65,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Black Friday',
     emoji: '🔥',
     badge: 'Hasta 50% OFF',
-    description: 'Estética Dark Premium con alto contraste para maximizar compras de impulso.',
+    description: 'Estética Dark Premium con atmósfera inmersiva de llamas y ofertas bomba.',
     themeColor: '#000000',
     accentColor: '#e11d48',
     bgGradient: 'linear-gradient(135deg, #09090b 0%, #18181b 100%)',
@@ -58,6 +73,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'BLACKFRIDAY',
     couponDiscount: '20% OFF',
     durationDays: 4,
+    effect: 'fire-embers',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '🔥 OFERTAS BLACK FRIDAY',
@@ -113,6 +129,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '🔥 Te faltan {x} para desbloquear {objetivo} en Black Friday',
         textoCumplido: '🎉 ¡{objetivo} DESBLOQUEADO EN BLACK FRIDAY!',
       },
+      'comparador-marca': {
+        bgColor: '#09090b',
+        borderColor: '#e11d48',
+        textColor: '#ffffff',
+        destacadoBgColor: '#e11d4825',
+        destacadoTextColor: '#fda4af',
+        checkColor: '#e11d48',
+        crossColor: '#4b5563',
+      },
+      'medios-pago': {
+        bgColor: '#09090b',
+        borderColor: '#e11d48',
+        textColor: '#ffffff',
+      },
+      'caja-opiniones': {
+        colorFondo: '#18181b',
+        colorTexto: '#ffffff',
+        colorEstrellas: '#fbbf24',
+        colorBorde: '#e11d48',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#09090b',
+        colorTexto: '#ffffff',
+        colorBorde: '#e11d48',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#e11d48',
+        colorTexto: '#ffffff',
+      },
     },
   },
 
@@ -121,7 +167,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Hot Sale',
     emoji: '⚡',
     badge: 'Mega Ofertas',
-    description: 'Estética ardiente en rojo y naranja con máxima urgencia visual.',
+    description: 'Estética ardiente en rojo y naranja con chispas de fuego hiper-persuasivas.',
     themeColor: '#ea580c',
     accentColor: '#dc2626',
     bgGradient: 'linear-gradient(135deg, #7c2d12 0%, #c2410c 100%)',
@@ -129,6 +175,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'HOTSALE',
     couponDiscount: '15% OFF',
     durationDays: 3,
+    effect: 'fire-embers',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '⚡ OFERTAS BOMBA HOT SALE',
@@ -184,6 +231,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '⚡ Sumá {x} más para obtener {objetivo} en este Hot Sale',
         textoCumplido: '🎉 ¡Felicitaciones! {objetivo} conseguido en Hot Sale',
       },
+      'comparador-marca': {
+        bgColor: '#ffffff',
+        borderColor: '#ea580c',
+        textColor: '#1c1917',
+        destacadoBgColor: '#ffedd5',
+        destacadoTextColor: '#c2410c',
+        checkColor: '#ea580c',
+        crossColor: '#9ca3af',
+      },
+      'medios-pago': {
+        bgColor: '#ffffff',
+        borderColor: '#ea580c',
+        textColor: '#1c1917',
+      },
+      'caja-opiniones': {
+        colorFondo: '#fffbeb',
+        colorTexto: '#1c1917',
+        colorEstrellas: '#ea580c',
+        colorBorde: '#fdba74',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#ffffff',
+        colorTexto: '#1c1917',
+        colorBorde: '#ea580c',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#ea580c',
+        colorTexto: '#ffffff',
+      },
     },
   },
 
@@ -192,7 +269,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Cyber Monday',
     emoji: '💻',
     badge: 'Tecno & Web',
-    description: 'Estética futurista en tonos violeta y cian brillante.',
+    description: 'Estética futurista en tonos violeta y cian con chispas de luz de neón digital.',
     themeColor: '#7c3aed',
     accentColor: '#06b6d4',
     bgGradient: 'linear-gradient(135deg, #2e1065 0%, #4c1d95 100%)',
@@ -200,6 +277,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'CYBERMONDAY',
     couponDiscount: '15% OFF',
     durationDays: 3,
+    effect: 'neon-sparkles',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '💻 CYBER MONDAY EXCLUSIVO',
@@ -255,6 +333,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '💻 Te faltan {x} para alcanzar {objetivo}',
         textoCumplido: '🎉 ¡Meta Cyber lograda: {objetivo}!',
       },
+      'comparador-marca': {
+        bgColor: '#0f172a',
+        borderColor: '#7c3aed',
+        textColor: '#ffffff',
+        destacadoBgColor: '#7c3aed25',
+        destacadoTextColor: '#a5f3fc',
+        checkColor: '#06b6d4',
+        crossColor: '#475569',
+      },
+      'medios-pago': {
+        bgColor: '#0f172a',
+        borderColor: '#7c3aed',
+        textColor: '#ffffff',
+      },
+      'caja-opiniones': {
+        colorFondo: '#1e293b',
+        colorTexto: '#ffffff',
+        colorEstrellas: '#06b6d4',
+        colorBorde: '#7c3aed',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#0f172a',
+        colorTexto: '#ffffff',
+        colorBorde: '#7c3aed',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#7c3aed',
+        colorTexto: '#ffffff',
+      },
     },
   },
 
@@ -263,7 +371,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Especial Navidad',
     emoji: '🎄',
     badge: 'Regalos & Fiestas',
-    description: 'Estética festiva en rojo navideño, verde pino y detalles dorados.',
+    description: 'Estética festiva tradicional con copos de nieve animados cayendo en vivo.',
     themeColor: '#b91c1c',
     accentColor: '#15803d',
     bgGradient: 'linear-gradient(135deg, #7f1d1d 0%, #14532d 100%)',
@@ -271,6 +379,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'NAVIDAD',
     couponDiscount: '15% OFF',
     durationDays: 10,
+    effect: 'snow',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '🎄 OFERTAS NAVIDEÑAS',
@@ -326,6 +435,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '🎄 Te faltan {x} para llevarte {objetivo} de regalo',
         textoCumplido: '🎁 ¡{objetivo} desbloqueado para tu arbolito!',
       },
+      'comparador-marca': {
+        bgColor: '#fffcfc',
+        borderColor: '#b91c1c',
+        textColor: '#064e3b',
+        destacadoBgColor: '#fee2e2',
+        destacadoTextColor: '#b91c1c',
+        checkColor: '#15803d',
+        crossColor: '#9ca3af',
+      },
+      'medios-pago': {
+        bgColor: '#fffcfc',
+        borderColor: '#15803d',
+        textColor: '#064e3b',
+      },
+      'caja-opiniones': {
+        colorFondo: '#f0fdf4',
+        colorTexto: '#064e3b',
+        colorEstrellas: '#fbbf24',
+        colorBorde: '#b91c1c',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#fffcfc',
+        colorTexto: '#064e3b',
+        colorBorde: '#b91c1c',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#b91c1c',
+        colorTexto: '#ffffff',
+      },
     },
   },
 
@@ -334,7 +473,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Día de la Madre',
     emoji: '🌸',
     badge: 'Regalos para Mamá',
-    description: 'Estética delicada y cálida en tonos rosa elegante y magenta.',
+    description: 'Estética delicada en tonos rosa y magenta con corazones flotando con amor.',
     themeColor: '#db2777',
     accentColor: '#9d174d',
     bgGradient: 'linear-gradient(135deg, #831843 0%, #be185d 100%)',
@@ -342,6 +481,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'PARAMAMA',
     couponDiscount: '15% OFF',
     durationDays: 7,
+    effect: 'hearts',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '🌸 ESPECIAL DÍA DE LA MADRE',
@@ -397,6 +537,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '🌸 Te faltan {x} para sumar {objetivo} al regalo de mamá',
         textoCumplido: '💖 ¡{objetivo} listo para enviar!',
       },
+      'comparador-marca': {
+        bgColor: '#ffffff',
+        borderColor: '#db2777',
+        textColor: '#500724',
+        destacadoBgColor: '#fce7f3',
+        destacadoTextColor: '#db2777',
+        checkColor: '#db2777',
+        crossColor: '#9ca3af',
+      },
+      'medios-pago': {
+        bgColor: '#ffffff',
+        borderColor: '#db2777',
+        textColor: '#500724',
+      },
+      'caja-opiniones': {
+        colorFondo: '#fff5f7',
+        colorTexto: '#500724',
+        colorEstrellas: '#db2777',
+        colorBorde: '#fbcfe8',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#ffffff',
+        colorTexto: '#500724',
+        colorBorde: '#db2777',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#db2777',
+        colorTexto: '#ffffff',
+      },
     },
   },
 
@@ -405,7 +575,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Día del Padre',
     emoji: '👔',
     badge: 'Regalos para Papá',
-    description: 'Estética sobria y sofisticada en azul marino y acero.',
+    description: 'Estética de gran elegancia en azul marino con confeti festivo azul flotante.',
     themeColor: '#1e40af',
     accentColor: '#0f172a',
     bgGradient: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
@@ -413,6 +583,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'PARAPAPA',
     couponDiscount: '15% OFF',
     durationDays: 7,
+    effect: 'confetti',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '👔 ESPECIAL DÍA DEL PADRE',
@@ -468,6 +639,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '👔 Sumá {x} para obtener {objetivo} en el regalo de papá',
         textoCumplido: '🎉 ¡{objetivo} desbloqueado con éxito!',
       },
+      'comparador-marca': {
+        bgColor: '#ffffff',
+        borderColor: '#1e40af',
+        textColor: '#0f172a',
+        destacadoBgColor: '#dbeafe',
+        destacadoTextColor: '#1e40af',
+        checkColor: '#1e40af',
+        crossColor: '#9ca3af',
+      },
+      'medios-pago': {
+        bgColor: '#ffffff',
+        borderColor: '#1e40af',
+        textColor: '#0f172a',
+      },
+      'caja-opiniones': {
+        colorFondo: '#f8fafc',
+        colorTexto: '#0f172a',
+        colorEstrellas: '#1e40af',
+        colorBorde: '#cbd5e1',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#ffffff',
+        colorTexto: '#0f172a',
+        colorBorde: '#1e40af',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#1e40af',
+        colorTexto: '#ffffff',
+      },
     },
   },
 
@@ -476,7 +677,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Día del Niño',
     emoji: '🎈',
     badge: 'Juegos & Alegría',
-    description: 'Estética colorida, divertida y alegre en amarillo y violeta.',
+    description: 'Estética súper lúdica y colorida con globos inflados subiendo flotando.',
     themeColor: '#eab308',
     accentColor: '#9333ea',
     bgGradient: 'linear-gradient(135deg, #581c87 0%, #ca8a04 100%)',
@@ -484,6 +685,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'INFANCIAS',
     couponDiscount: '15% OFF',
     durationDays: 7,
+    effect: 'balloons',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '🎈 OFERTAS DÍA DEL NIÑO',
@@ -539,6 +741,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '🎈 Te faltan {x} para ganar {objetivo}',
         textoCumplido: '🎉 ¡{objetivo} desbloqueado para festejar!',
       },
+      'comparador-marca': {
+        bgColor: '#ffffff',
+        borderColor: '#9333ea',
+        textColor: '#3b0764',
+        destacadoBgColor: '#f3e8ff',
+        destacadoTextColor: '#7e22ce',
+        checkColor: '#eab308',
+        crossColor: '#9ca3af',
+      },
+      'medios-pago': {
+        bgColor: '#ffffff',
+        borderColor: '#eab308',
+        textColor: '#3b0764',
+      },
+      'caja-opiniones': {
+        colorFondo: '#faf5ff',
+        colorTexto: '#3b0764',
+        colorEstrellas: '#eab308',
+        colorBorde: '#d8b4fe',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#ffffff',
+        colorTexto: '#3b0764',
+        colorBorde: '#9333ea',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#9333ea',
+        colorTexto: '#ffffff',
+      },
     },
   },
 
@@ -547,7 +779,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     name: 'Liquidación Total',
     emoji: '🏷️',
     badge: 'Últimas Unidades',
-    description: 'Estética de clearance / sale con alto impacto en amarillo y rojo.',
+    description: 'Estética agresiva de clearance y sale con carteles retro de SALE cayendo suavemente.',
     themeColor: '#dc2626',
     accentColor: '#eab308',
     bgGradient: 'linear-gradient(135deg, #450a0a 0%, #991b1b 100%)',
@@ -555,6 +787,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     couponCode: 'LIQUIDA',
     couponDiscount: '25% OFF',
     durationDays: 5,
+    effect: 'sale-tags',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
         title: '🏷️ LIQUIDACIÓN DE TEMPORADA',
@@ -610,6 +843,36 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         textoFaltante: '🏷️ Te faltan {x} para desbloquear {objetivo}',
         textoCumplido: '🔥 ¡{objetivo} alcanzado en Liquidación!',
       },
+      'comparador-marca': {
+        bgColor: '#ffffff',
+        borderColor: '#dc2626',
+        textColor: '#18181b',
+        destacadoBgColor: '#fee2e2',
+        destacadoTextColor: '#dc2626',
+        checkColor: '#dc2626',
+        crossColor: '#9ca3af',
+      },
+      'medios-pago': {
+        bgColor: '#ffffff',
+        borderColor: '#dc2626',
+        textColor: '#18181b',
+      },
+      'caja-opiniones': {
+        colorFondo: '#fffbeb',
+        colorTexto: '#18181b',
+        colorEstrellas: '#dc2626',
+        colorBorde: '#fef08a',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#ffffff',
+        colorTexto: '#18181b',
+        colorBorde: '#dc2626',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#dc2626',
+        colorTexto: '#ffffff',
+      },
     },
   },
 };
@@ -623,4 +886,4 @@ export function getCampaignPreset(slug: string): CampaignPreset | null {
 
 export function getAllCampaignPresets(): CampaignPreset[] {
   return Object.values(CAMPAIGN_PRESETS);
-      }
+       }
