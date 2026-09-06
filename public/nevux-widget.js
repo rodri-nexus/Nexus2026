@@ -1530,6 +1530,228 @@
     document.head.appendChild(style);
         }
   /* ═══════════════════════════════════════════
+     MOTOR DE EFECTOS ATMOSFÉRICOS TEMÁTICOS
+  ═══════════════════════════════════════════ */
+  function renderAtmosphericEffects(campaign) {
+    if (!campaign || !campaign.effect) return;
+
+    var existingLayer = document.getElementById("nvx-atmospheric-layer");
+    if (existingLayer) existingLayer.remove();
+
+    var styleId = "nvx-atmospheric-styles";
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.innerHTML = `
+        #nvx-atmospheric-layer {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          pointer-events: none !important;
+          z-index: 999980 !important;
+          overflow: hidden !important;
+        }
+
+        /* ❄️ NIEVE & NAVIDAD */
+        @keyframes nvxSnowFall {
+          0% { transform: translate3d(0, -10vh, 0); opacity: 0; }
+          15% { opacity: 0.9; }
+          90% { opacity: 0.8; }
+          100% { transform: translate3d(25px, 105vh, 0); opacity: 0; }
+        }
+        @keyframes nvxSantaFly {
+          0% { transform: translate3d(-300px, 15px, 0) scale(0.9); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translate3d(105vw, 40px, 0) scale(1.1); opacity: 0; }
+        }
+
+        /* 🔥 FUEGO / BRASAS (Black Friday & Hot Sale) */
+        @keyframes nvxFireRise {
+          0% { transform: translate3d(0, 105vh, 0) scale(0.6); opacity: 0; }
+          20% { opacity: 0.85; }
+          80% { opacity: 0.7; }
+          100% { transform: translate3d(-20px, -10vh, 0) scale(1.2); opacity: 0; }
+        }
+
+        /* 💖 CORAZONES (Día de la Madre) */
+        @keyframes nvxHeartsFloat {
+          0% { transform: translate3d(0, 105vh, 0) scale(0.5) rotate(-10deg); opacity: 0; }
+          20% { opacity: 0.9; }
+          80% { opacity: 0.8; }
+          100% { transform: translate3d(30px, -10vh, 0) scale(1.1) rotate(15deg); opacity: 0; }
+        }
+
+        /* 🎉 CONFETI (Día del Padre) */
+        @keyframes nvxConfettiFall {
+          0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+          15% { opacity: 1; }
+          100% { transform: translate3d(40px, 105vh, 0) rotate(720deg); opacity: 0; }
+        }
+
+        /* 🎈 GLOBOS (Día del Niño) */
+        @keyframes nvxBalloonsFloat {
+          0% { transform: translate3d(0, 105vh, 0) scale(0.7); opacity: 0; }
+          15% { opacity: 0.95; }
+          85% { opacity: 0.95; }
+          100% { transform: translate3d(20px, -15vh, 0) scale(1); opacity: 0; }
+        }
+
+        /* 💻 DESTELLOS NEÓN (Cyber Monday) */
+        @keyframes nvxNeonGlow {
+          0% { transform: scale(0.2); opacity: 0; }
+          50% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 8px #06b6d4); }
+          100% { transform: scale(0.4); opacity: 0; }
+        }
+
+        /* 🏷️ SALE TAGS (Liquidación) */
+        @keyframes nvxTagsFall {
+          0% { transform: translate3d(0, -10vh, 0) rotate(-15deg); opacity: 0; }
+          20% { opacity: 0.9; }
+          80% { opacity: 0.8; }
+          100% { transform: translate3d(15px, 105vh, 0) rotate(20deg); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    var layer = document.createElement("div");
+    layer.id = "nvx-atmospheric-layer";
+
+    var effectType = campaign.effect;
+
+    // 1. EFECTO: NAVIDAD (Nieve + Trineo Santa)
+    if (effectType === "snow") {
+      var snowChars = ["❄", "❅", "•", "❄", "❅"];
+      for (var i = 0; i < 24; i++) {
+        var flake = document.createElement("div");
+        var left = Math.random() * 98;
+        var size = 10 + Math.random() * 16;
+        var duration = 4 + Math.random() * 6;
+        var delay = Math.random() * 7;
+        var char = snowChars[Math.floor(Math.random() * snowChars.length)];
+
+        flake.innerText = char;
+        flake.style.cssText = "position:absolute; top:0; left:" + left + "vw; font-size:" + size + "px; color:#ffffff; text-shadow:0 0 5px rgba(255,255,255,0.8); animation: nvxSnowFall " + duration + "s linear infinite; animation-delay:" + delay + "s; opacity:0;";
+        layer.appendChild(flake);
+      }
+
+      // Trineo de Papá Noel cruzando el cielo
+      var santa = document.createElement("div");
+      santa.innerHTML = "🎅🛷🦌🦌🦌";
+      santa.style.cssText = "position:absolute; top:12px; font-size:26px; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.3)); animation: nvxSantaFly 22s ease-in-out infinite; animation-delay: 2s; opacity:0;";
+      layer.appendChild(santa);
+    }
+
+    // 2. EFECTO: BRASAS / FUEGO (Black Friday & Hot Sale)
+    else if (effectType === "fire-embers") {
+      var emberIcons = ["🔥", "✨", "⚡", "🔥"];
+      for (var j = 0; j < 20; j++) {
+        var ember = document.createElement("div");
+        var eLeft = Math.random() * 98;
+        var eSize = 12 + Math.random() * 14;
+        var eDur = 3.5 + Math.random() * 4.5;
+        var eDel = Math.random() * 5;
+        var eIcon = emberIcons[Math.floor(Math.random() * emberIcons.length)];
+
+        ember.innerText = eIcon;
+        ember.style.cssText = "position:absolute; bottom:0; left:" + eLeft + "vw; font-size:" + eSize + "px; animation: nvxFireRise " + eDur + "s ease-out infinite; animation-delay:" + eDel + "s; opacity:0; filter: drop-shadow(0 0 6px rgba(225,29,72,0.8));";
+        layer.appendChild(ember);
+      }
+    }
+
+    // 3. EFECTO: CORAZONES (Día de la Madre)
+    else if (effectType === "hearts") {
+      var hearts = ["💖", "🌸", "💕", "✨", "💗"];
+      for (var h = 0; h < 18; h++) {
+        var heart = document.createElement("div");
+        var hLeft = Math.random() * 98;
+        var hSize = 14 + Math.random() * 16;
+        var hDur = 4.5 + Math.random() * 5;
+        var hDel = Math.random() * 6;
+        var hIcon = hearts[Math.floor(Math.random() * hearts.length)];
+
+        heart.innerText = hIcon;
+        heart.style.cssText = "position:absolute; bottom:0; left:" + hLeft + "vw; font-size:" + hSize + "px; animation: nvxHeartsFloat " + hDur + "s ease-in-out infinite; animation-delay:" + hDel + "s; opacity:0;";
+        layer.appendChild(heart);
+      }
+    }
+
+    // 4. EFECTO: CONFETI (Día del Padre)
+    else if (effectType === "confetti") {
+      var confColors = ["#1e40af", "#3b82f6", "#60a5fa", "#e2e8f0", "#fbbf24"];
+      for (var c = 0; c < 26; c++) {
+        var conf = document.createElement("div");
+        var cLeft = Math.random() * 98;
+        var cW = 6 + Math.random() * 6;
+        var cH = 10 + Math.random() * 8;
+        var cDur = 3.5 + Math.random() * 4;
+        var cDel = Math.random() * 5;
+        var cBg = confColors[Math.floor(Math.random() * confColors.length)];
+
+        conf.style.cssText = "position:absolute; top:0; left:" + cLeft + "vw; width:" + cW + "px; height:" + cH + "px; background:" + cBg + "; border-radius:2px; animation: nvxConfettiFall " + cDur + "s linear infinite; animation-delay:" + cDel + "s; opacity:0;";
+        layer.appendChild(conf);
+      }
+    }
+
+    // 5. EFECTO: GLOBOS (Día del Niño)
+    else if (effectType === "balloons") {
+      var balloons = ["🎈", "🎉", "⭐", "🎈", "✨"];
+      for (var b = 0; b < 16; b++) {
+        var balloon = document.createElement("div");
+        var bLeft = Math.random() * 98;
+        var bSize = 18 + Math.random() * 16;
+        var bDur = 6 + Math.random() * 5;
+        var bDel = Math.random() * 7;
+        var bIcon = balloons[Math.floor(Math.random() * balloons.length)];
+
+        balloon.innerText = bIcon;
+        balloon.style.cssText = "position:absolute; bottom:0; left:" + bLeft + "vw; font-size:" + bSize + "px; animation: nvxBalloonsFloat " + bDur + "s ease-in-out infinite; animation-delay:" + bDel + "s; opacity:0;";
+        layer.appendChild(balloon);
+      }
+    }
+
+    // 6. EFECTO: DESTELLOS NEÓN (Cyber Monday)
+    else if (effectType === "neon-sparkles") {
+      var sparkles = ["✨", "💎", "⚡", "💠"];
+      for (var s = 0; s < 18; s++) {
+        var spark = document.createElement("div");
+        var sLeft = Math.random() * 95;
+        var sTop = Math.random() * 95;
+        var sSize = 14 + Math.random() * 14;
+        var sDur = 2 + Math.random() * 3;
+        var sDel = Math.random() * 4;
+        var sIcon = sparkles[Math.floor(Math.random() * sparkles.length)];
+
+        spark.innerText = sIcon;
+        spark.style.cssText = "position:absolute; top:" + sTop + "vh; left:" + sLeft + "vw; font-size:" + sSize + "px; animation: nvxNeonGlow " + sDur + "s ease-in-out infinite; animation-delay:" + sDel + "s; opacity:0;";
+        layer.appendChild(spark);
+      }
+    }
+
+    // 7. EFECTO: SALE TAGS (Liquidación)
+    else if (effectType === "sale-tags") {
+      var tags = ["🏷️", "🔥", "💥", "🏷️"];
+      for (var t = 0; t < 15; t++) {
+        var tag = document.createElement("div");
+        var tLeft = Math.random() * 98;
+        var tSize = 16 + Math.random() * 12;
+        var tDur = 4.5 + Math.random() * 4;
+        var tDel = Math.random() * 5;
+        var tIcon = tags[Math.floor(Math.random() * tags.length)];
+
+        tag.innerText = tIcon;
+        tag.style.cssText = "position:absolute; top:0; left:" + tLeft + "vw; font-size:" + tSize + "px; animation: nvxTagsFall " + tDur + "s ease-in-out infinite; animation-delay:" + tDel + "s; opacity:0;";
+        layer.appendChild(tag);
+      }
+    }
+
+    document.body.appendChild(layer);
+  }
+
+  /* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
   const storeId = detectStoreId();
@@ -1544,13 +1766,18 @@
   }
 
   injectGlobalStyles();
-const url = API_BASE + "/api/widget-render?store_id=" + storeId +
-  (productId ? "&product_id=" + productId : "") +
-  "&_t=" + Date.now();
+  const url = API_BASE + "/api/widget-render?store_id=" + storeId +
+    (productId ? "&product_id=" + productId : "") +
+    "&_t=" + Date.now();
 
   fetch(url)
     .then(function (r) { return r.json(); })
     .then(function (data) {
+      // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
+      if (data.activeCampaign) {
+        renderAtmosphericEffects(data.activeCampaign);
+      }
+
       if (!data.widgets || data.widgets.length === 0) {
         console.log("[Nevux] No hay widgets activos");
         return;
@@ -1574,35 +1801,17 @@ const url = API_BASE + "/api/widget-render?store_id=" + storeId +
           if (w.widget_slug === "resenas-clientes") renderResenasClientes(w);
           if (w.widget_slug === "slider-video") renderSliderVideo(w);
           if (w.widget_slug === "extras-interruptor") renderExtrasInterruptor(w);
-if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
+          if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
           if (w.widget_slug === "info-compra") renderInfoCompra(w);
-          if (w.widget_slug === "badge-cupon") {
-  renderBadgeCupon(w);
-          }
-              if (w.widget_slug === "comparador-marca") {
-      renderComparadorMarca(w);
-              }
-              if (w.widget_slug === "medios-pago") {
-      renderMediosPago(w);
-              }
-                  if (w.widget_slug === "tabla-talles") {
-      renderTablaTalles(w);
-                  }
-              if (w.widget_slug === "pack-complementarios") {
-      renderPackComplementarios(w);
-              }
-              if (w.widget_slug === "menu-circulos") {
-      renderMenuCirculos(w);
-              }
-              if (w.widget_slug === "slider-categorias") {
-      renderSliderCategorias(w);
-              }
-                    if (w.widget_slug === "resenas-foto") {
-            renderResenasFoto(w);
-                    }
-                    if (w.widget_slug === "ruleta-descuentos") {
-            renderRuletaDescuentos(w);
-                    }
+          if (w.widget_slug === "badge-cupon") renderBadgeCupon(w);
+          if (w.widget_slug === "comparador-marca") renderComparadorMarca(w);
+          if (w.widget_slug === "medios-pago") renderMediosPago(w);
+          if (w.widget_slug === "tabla-talles") renderTablaTalles(w);
+          if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
+          if (w.widget_slug === "menu-circulos") renderMenuCirculos(w);
+          if (w.widget_slug === "slider-categorias") renderSliderCategorias(w);
+          if (w.widget_slug === "resenas-foto") renderResenasFoto(w);
+          if (w.widget_slug === "ruleta-descuentos") renderRuletaDescuentos(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
