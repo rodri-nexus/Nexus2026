@@ -1766,8 +1766,13 @@
   }
 
   injectGlobalStyles();
+
+  // Detectar idioma del comprador (desde la etiqueta <html lang="..."> o configuración del navegador)
+  var clientLang = document.documentElement.lang || navigator.language || "es";
+
   const url = API_BASE + "/api/widget-render?store_id=" + storeId +
     (productId ? "&product_id=" + productId : "") +
+    "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
   fetch(url)
