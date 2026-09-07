@@ -468,10 +468,10 @@ function BlurBubble({ text, isLeft }: { text: string; isLeft: boolean }) {
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("appstore5"); // Por defecto en la nueva función estrella
+  const [activeTab, setActiveTab] = useState<TabId>("appstore5");
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("vendedor");
-  const [appstoreZoom, setAppstoreZoom] = useState<number>(0.2); // Escala por defecto en celular (20% para que entre entero)
+  const [appstoreZoom, setAppstoreZoom] = useState<number>(0.2);
 
   const isPt = lang === "pt";
 
@@ -575,7 +575,7 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* 🌟 PESTAÑA: BANNER #5 APP STORE (1920x1080 CON ESCALADOR) */}
+      {/* 🌟 PESTAÑA: BANNER #5 APP STORE (1920x1080 CON ESCALADOR Y BILINGÜE) */}
       {activeTab === "appstore5" && (
         <div
           style={{
@@ -587,6 +587,51 @@ export default function BannersPage() {
             boxSizing: "border-box",
           }}
         >
+          {/* SELECTOR DE IDIOMA */}
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              background: "#0b2920",
+              padding: "6px",
+              borderRadius: "12px",
+              border: "1.5px solid rgba(16, 185, 129, 0.3)",
+            }}
+          >
+            <button
+              onClick={() => setLang("es")}
+              style={{
+                padding: "8px 20px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 800,
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: !isPt ? "#10B981" : "transparent",
+                color: !isPt ? "#ffffff" : "#a7f3d0",
+                transition: "all 0.2s ease",
+              }}
+            >
+              🇦🇷 Español (LATAM)
+            </button>
+            <button
+              onClick={() => setLang("pt")}
+              style={{
+                padding: "8px 20px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 800,
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: isPt ? "#10B981" : "transparent",
+                color: isPt ? "#ffffff" : "#a7f3d0",
+                transition: "all 0.2s ease",
+              }}
+            >
+              🇧🇷 Português (Brasil)
+            </button>
+          </div>
+
           {/* SLIDER DE CONTROL DE ZOOM PARA EL CELULAR */}
           <div
             style={{
@@ -604,7 +649,7 @@ export default function BannersPage() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: "12.5px", fontWeight: 800, color: "#a7f3d0" }}>
-                🔎 Control de Zoom (Ajustar a tu pantalla)
+                🔎 {isPt ? "Controle de Zoom" : "Control de Zoom"}
               </span>
               <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>
                 {Math.round(appstoreZoom * 100)}%
@@ -624,7 +669,9 @@ export default function BannersPage() {
               }}
             />
             <span style={{ fontSize: "11px", color: "#6ee7b7", textAlign: "center", marginTop: "2px" }}>
-              💡 Deslizá al <b>15%-25%</b> para ver todo en vertical. Subí al <b>40%-50%</b> en horizontal para sacar captura HD.
+              {isPt
+                ? "💡 Deslize para 15%-25% na vertical. Suba a 40%-50% na horizontal para capturar em HD."
+                : "💡 Deslizá al 15%-25% para ver todo en vertical. Subí al 40%-50% en horizontal para sacar captura HD."}
             </span>
           </div>
 
@@ -669,13 +716,17 @@ export default function BannersPage() {
                   </div>
                   <div>
                     <h2 style={{ margin: 0, fontSize: "38px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.04em" }}>NEVUX</h2>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#10B981", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>Powering Tiendanube</p>
+                    <p style={{ margin: 0, fontSize: "14px", color: "#10B981", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                      {isPt ? "Powering Nuvemshop" : "Powering Tiendanube"}
+                    </p>
                   </div>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(16, 185, 129, 0.15)", border: "2px solid #10B981", padding: "8px 24px", borderRadius: "999px" }}>
                   <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10B981" }} />
-                  <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.05em", textTransform: "uppercase" }}>App Store ID: 37382</span>
+                  <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    App Store ID: 37382
+                  </span>
                 </div>
               </div>
 
@@ -684,10 +735,14 @@ export default function BannersPage() {
                 {/* TÍTULO Y CONCEPTO */}
                 <div style={{ textAlign: "center" }}>
                   <h1 style={{ margin: "0 0 14px 0", fontSize: "68px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.1 }}>
-                    NEVUX NO ES CUALQUIER APLICACIÓN.
+                    {isPt ? "NEVUX NÃO É UMA APP COMUM." : "NEVUX NO ES CUALQUIER APLICACIÓN."}
                   </h1>
                   <p style={{ fontSize: "24px", color: "#9ca3af", maxWidth: "1300px", margin: "0 auto", lineHeight: 1.5, fontWeight: 500 }}>
-                    Es la única suite inteligente todo-en-uno que fusiona <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversión avanzada</span> con herramientas de IA para liquidar a tu competencia y disparar tu ticket promedio.
+                    {isPt ? (
+                      <>É a única suíte inteligente tudo-em-um que combina <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversão avançada</span> com ferramentas de IA para eliminar sua concorrência e disparar seu ticket médio.</>
+                    ) : (
+                      <>Es la única suite inteligente todo-en-uno que fusiona <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversión avanzada</span> con herramientas de IA para liquidar a tu competencia y disparar tu ticket promedio.</>
+                    )}
                   </p>
                 </div>
 
@@ -699,34 +754,48 @@ export default function BannersPage() {
                       <BarChart3 size={28} color="#10B981" />
                       <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Live Analytics</h3>
                     </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Facturación extra, pedidos recuperados y ROI exacto en tiempo real.</p>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
+                      {isPt ? "Faturamento extra, pedidos recuperados e ROI exato em tempo real." : "Facturación extra, pedidos recuperados y ROI exacto en tiempo real."}
+                    </p>
                   </div>
 
                   {/* TARJETA 2 */}
                   <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(245, 158, 11, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(245, 158, 11, 0.05)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                       <Flame size={28} color="#F59E0B" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Fechas Especiales</h3>
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
+                        {isPt ? "Datas Especiais" : "Fechas Especiales"}
+                      </h3>
                     </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Modos Black Friday, Hot Sale y Navidad activables en 1 clic.</p>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
+                      {isPt ? "Modos Black Friday, Cyber Monday e Natal ativáveis com 1 clique." : "Modos Black Friday, Hot Sale y Navidad activables en 1 clic."}
+                    </p>
                   </div>
 
                   {/* TARJETA 3 */}
                   <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(139, 92, 246, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(139, 92, 246, 0.05)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                       <Palette size={28} color="#8B5CF6" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Estilo Marca</h3>
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
+                        {isPt ? "Estilo Marca" : "Estilo Marca"}
+                      </h3>
                     </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Regla cromática inteligente que adapta los widgets a tu branding.</p>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
+                      {isPt ? "Regra cromática inteligente que adapta os widgets à sua identidade visual." : "Regla cromática inteligente que adapta los widgets a tu branding."}
+                    </p>
                   </div>
 
                   {/* TARJETA 4 */}
                   <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(59, 130, 246, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(59, 130, 246, 0.05)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                       <Brain size={28} color="#3B82F6" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Sugerencias IA</h3>
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
+                        {isPt ? "Sugestões IA" : "Sugerencias IA"}
+                      </h3>
                     </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Cross-selling predictivo dinámico basado en afinidad de precios.</p>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
+                      {isPt ? "Cross-selling preditivo dinâmico baseado em afinidade de preços." : "Cross-selling predictivo dinámico basado en afinidad de precios."}
+                    </p>
                   </div>
                 </div>
 
@@ -736,35 +805,51 @@ export default function BannersPage() {
                   <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(6, 182, 212, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(6, 182, 212, 0.05)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                       <Globe size={28} color="#06B6D4" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Multi-Idioma IA</h3>
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
+                        {isPt ? "Multi-Idioma IA" : "Multi-Idioma IA"}
+                      </h3>
                     </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Traducción contextual en tiempo real para ES / PT-BR / EN.</p>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
+                      {isPt ? "Tradução contextual em tempo real para PT-BR / ES / EN." : "Traducción contextual en tiempo real para ES / PT-BR / EN."}
+                    </p>
                   </div>
 
                   {/* TARJETA 6 */}
                   <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(236, 72, 153, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(236, 72, 153, 0.05)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                       <Mic size={28} color="#EC4899" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Búsqueda por Voz</h3>
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
+                        {isPt ? "Busca por Voz" : "Búsqueda por Voz"}
+                      </h3>
                     </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Micrófono flotante con transcripción neuronal para comprar hablando.</p>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
+                      {isPt ? "Microfone flutuante com transcrição neural para comprar falando." : "Micrófono flotante con transcripción neuronal para comprar hablando."}
+                    </p>
                   </div>
 
                   {/* TARJETA 7 */}
                   <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(16, 185, 129, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(16, 185, 129, 0.05)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                       <Bot size={28} color="#10B981" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Vendedor Virtual IA</h3>
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
+                        {isPt ? "Vendedor Virtual IA" : "Vendedor Virtual IA"}
+                      </h3>
                     </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Agente que asesora, resuelve dudas y deriva el pedido a WhatsApp.</p>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
+                      {isPt ? "Agente que orienta, resolve dúvidas e direciona o pedido ao WhatsApp." : "Agente que asesora, resuelve dudas y deriva el pedido a WhatsApp."}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* FOOTER DEL BANNER */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "2px solid rgba(16, 185, 129, 0.15)", paddingTop: "25px", zIndex: 10 }}>
-                <span style={{ fontSize: "18px", fontWeight: 850, color: "#10B981", letterSpacing: "0.03em" }}>🚀 UNETE A LA REVOLUCIÓN DEL COMMERCE EN LATAM</span>
-                <span style={{ fontSize: "16px", fontWeight: 700, color: "#6b7280" }}>© 2026 Nevux App. Todos los derechos reservados.</span>
+                <span style={{ fontSize: "18px", fontWeight: 850, color: "#10B981", letterSpacing: "0.03em" }}>
+                  {isPt ? "🚀 JUNTE-SE À REVOLUÇÃO DO COMMERCE NA AMÉRICA LATINA" : "🚀 UNETE A LA REVOLUCIÓN DEL COMMERCE EN LATAM"}
+                </span>
+                <span style={{ fontSize: "16px", fontWeight: 700, color: "#6b7280" }}>
+                  {isPt ? "© 2026 Nevux App. Todos os direitos reservados." : "© 2026 Nevux App. Todos los derechos reservados."}
+                </span>
               </div>
             </div>
           </div>
@@ -1174,10 +1259,10 @@ export default function BannersPage() {
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🧠</span></div><span style={coverLabelStyle}>8. Cross-Selling</span></div>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🌎</span></div><span style={coverLabelStyle}>9. Multi-Idioma</span></div>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🎙️</span></div><span style={coverLabelStyle}>10. Búsqueda Voz</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🤝</span></div><span style={coverLabelStyle}>11. Vendedor IA</span></div>
+            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>11. Vendedor IA</span></div></div>
           </div>
         </div>
       )}
     </div>
   );
-}
+  }
