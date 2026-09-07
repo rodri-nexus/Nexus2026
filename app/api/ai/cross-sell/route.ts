@@ -28,6 +28,7 @@ export interface SmartPairing {
   recommendedProductName: string;
   recommendedProductPrice: number;
   recommendedProductImage: string;
+  recommendedVariantId?: string;
   comboOriginalPrice: number;
   comboDiscountPrice: number;
   savingsAmount: number;
@@ -77,6 +78,21 @@ function parseProductPrice(price: unknown): number {
   return isNaN(num) ? 0 : num;
 }
 
+// Extracción profunda de precio compatible con Tiendanube
+function extractProductPrice(p: Record<string, unknown>): number {
+  if (p.price) return parseProductPrice(p.price);
+  if (p.promotional_price) return parseProductPrice(p.promotional_price);
+  if (Array.isArray(p.variants) && p.variants.length > 0) {
+    const v = p.variants[0];
+    if (typeof v === "object" && v !== null) {
+      const vObj = v as Record<string, unknown>;
+      const vPrice = vObj.promotional_price || vObj.price;
+      if (vPrice) return parseProductPrice(vPrice);
+    }
+  }
+  return 0;
+}
+
 function getProductImageUrl(p: Record<string, unknown>): string {
   if (typeof p.image_url === "string") return p.image_url;
   if (Array.isArray(p.images) && p.images.length > 0) {
@@ -87,6 +103,16 @@ function getProductImageUrl(p: Record<string, unknown>): string {
     }
   }
   return "";
+}
+
+function extractProductVariantId(p: Record<string, unknown>): string {
+  if (Array.isArray(p.variants) && p.variants.length > 0) {
+    const v = p.variants[0];
+    if (typeof v === "object" && v !== null && "id" in v) {
+      return String((v as Record<string, unknown>).id || "");
+    }
+  }
+  return String(p.id || "");
 }
 
 /**
@@ -100,15 +126,18 @@ function generateSmartPairings(
 ): SmartPairing[] {
   if (!Array.isArray(products) || products.length < 2) return [];
 
-  const parsedProducts = products.map((item) => {
-    const p = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
-    return {
-      id: Number(p.id) || 0,
-      name: parseProductName(p.name),
-      price: parseProductPrice(p.price || p.promotional_price),
-      image: getProductImageUrl(p),
-    };
-  }).filter((p) => p.id > 0 && p.price > 0);
+  const parsedProducts = products
+    .map((item) => {
+      const p = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+      return {
+        id: Number(p.id) || 0,
+        name: parseProductName(p.name),
+        price: extractProductPrice(p),
+        image: getProductImageUrl(p),
+        variantId: extractProductVariantId(p),
+      };
+    })
+    .filter((p) => p.id > 0 && p.price > 0);
 
   if (parsedProducts.length < 2) return [];
 
@@ -170,6 +199,7 @@ function generateSmartPairings(
       recommendedProductName: bestCandidate.name,
       recommendedProductPrice: bestCandidate.price,
       recommendedProductImage: bestCandidate.image,
+      recommendedVariantId: bestCandidate.variantId,
       comboOriginalPrice,
       comboDiscountPrice,
       savingsAmount,
@@ -226,7 +256,7 @@ export async function GET(req: NextRequest) {
 
     let pairings: SmartPairing[] = [];
 
-    // 2. Si se solicitan las parejas generadas, consultar catálogo real
+    // 2. Consultar catálogo real si se solicitan los emparejamientos
     if (includePairings) {
       const { data: store } = await supabase
         .from("stores")
@@ -343,4 +373,4 @@ export async function POST(req: NextRequest) {
     const msg = error instanceof Error ? error.message : "Error interno";
     return jsonResponse({ error: msg }, 500);
   }
-}
+      }
