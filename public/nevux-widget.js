@@ -1751,7 +1751,7 @@
     document.body.appendChild(layer);
   }
 
-   /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
   const storeId = detectStoreId();
@@ -1767,6 +1767,13 @@
 
   injectGlobalStyles();
 
+  // 🎙️ DISPARAR BÚSQUEDA POR VOZ DE FORMA INMEDIATA E INDEPENDIENTE
+  try {
+    initNevuxVoiceSearch(storeId);
+  } catch (voiceErr) {
+    console.warn("[Nevux Voice] Init warning:", voiceErr);
+  }
+
   // Detectar idioma del comprador (desde la etiqueta <html lang="..."> o configuración del navegador)
   var clientLang = document.documentElement.lang || navigator.language || "es";
 
@@ -1781,15 +1788,6 @@
       // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
       if (data.activeCampaign) {
         renderAtmosphericEffects(data.activeCampaign);
-      }
-
-      // 🎙️ INICIALIZAR BÚSQUEDA POR VOZ IA DESDE EL CICLO DE VIDA CENTRAL
-      try {
-        if (typeof initNevuxVoiceSearch === "function") {
-          initNevuxVoiceSearch(storeId);
-        }
-      } catch (voiceErr) {
-        console.error("[Nevux Voice] Error al inicializar:", voiceErr);
       }
 
       if (!data.widgets || data.widgets.length === 0) {
@@ -9219,19 +9217,27 @@
   }
 
   /* ═══════════════════════════════════════════
-     MOTOR DE BÚSQUEDA POR VOZ IA EN VIVO (?v=63)
+     MOTOR DE BÚSQUEDA POR VOZ IA EN VIVO (?v=65)
   ═══════════════════════════════════════════ */
   function initNevuxVoiceSearch(sId) {
     try {
       if (!sId || window.__nvxVoiceInit) return;
       window.__nvxVoiceInit = true;
 
-      var API_BASE = "https://nexus2026-gx7e.vercel.app";
-      fetch(API_BASE + "/api/ai/voice-search?store_id=" + encodeURIComponent(sId))
+      var API_VOICE = "https://nexus2026-gx7e.vercel.app/api/ai/voice-search?store_id=" + encodeURIComponent(sId);
+      fetch(API_VOICE)
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (!data || !data.settings || !data.settings.is_active) return;
-          renderNevuxVoiceUI(data.settings);
+          
+          // Blindaje: Asegurar que document.body exista antes de inyectar
+          if (document.body) {
+            renderNevuxVoiceUI(data.settings);
+          } else {
+            document.addEventListener("DOMContentLoaded", function() {
+              renderNevuxVoiceUI(data.settings);
+            });
+          }
         })
         .catch(function(err) {});
     } catch(e) {}
@@ -9240,6 +9246,7 @@
   function renderNevuxVoiceUI(st) {
     try {
       if (document.getElementById("nvx-voice-trigger-btn")) return;
+      if (!document.body) return;
 
       var color = st.button_color || "#10B981";
       var pos = st.position || "bottom-right";
@@ -9255,9 +9262,9 @@
       floatBtn.id = "nvx-voice-trigger-btn";
       floatBtn.setAttribute("type", "button");
       floatBtn.setAttribute("aria-label", "Búsqueda por Voz");
-      floatBtn.style.cssText = "position:fixed;" + posStyle + "z-index:2147483640;width:52px;height:52px;border-radius:50%;background:" + color + ";border:none;box-shadow:0 8px 24px " + color + "66,0 2px 6px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275),box-shadow 0.2s ease;outline:none;-webkit-tap-highlight-color:transparent;";
+      floatBtn.style.cssText = "position:fixed;" + posStyle + "z-index:2147483640;width:54px;height:54px;border-radius:50%;background:" + color + ";border:none;box-shadow:0 8px 24px " + color + "66,0 2px 6px rgba(0,0,0,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275),box-shadow 0.2s ease;outline:none;-webkit-tap-highlight-color:transparent;";
 
-      floatBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>';
+      floatBtn.innerHTML = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>';
 
       floatBtn.onmouseenter = function() { floatBtn.style.transform = (pos === "floating-center" ? "translateX(-50%) scale(1.08)" : "scale(1.08)"); };
       floatBtn.onmouseleave = function() { floatBtn.style.transform = (pos === "floating-center" ? "translateX(-50%) scale(1)" : "scale(1)"); };
@@ -9413,20 +9420,5 @@
       };
     } catch(e) {}
   }
-
-  // Auto-iniciar Búsqueda por Voz si hay store_id disponible
-  try {
-    var detectedStoreId = (typeof storeId !== "undefined" && storeId) ? storeId : ((typeof LS !== "undefined" && LS.store && LS.store.id) ? LS.store.id : null);
-    if (detectedStoreId) {
-      initNevuxVoiceSearch(detectedStoreId);
-    }
-  } catch(e) {}
-  // Auto-iniciar Búsqueda por Voz si hay store_id disponible
-  try {
-    var detectedStoreId = (typeof storeId !== "undefined" && storeId) ? storeId : ((typeof LS !== "undefined" && LS.store && LS.store.id) ? LS.store.id : null);
-    if (detectedStoreId) {
-      initNevuxVoiceSearch(detectedStoreId);
-    }
-  } catch(e) {}
 
 })();
