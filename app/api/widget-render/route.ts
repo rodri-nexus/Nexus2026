@@ -69,6 +69,20 @@ function parseProductPrice(price: any): number {
   return isNaN(num) ? 0 : num;
 }
 
+// Extracción profunda de precio compatible con Tiendanube
+function extractProductPrice(p: any): number {
+  if (p.price) return parseProductPrice(p.price);
+  if (p.promotional_price) return parseProductPrice(p.promotional_price);
+  if (Array.isArray(p.variants) && p.variants.length > 0) {
+    const v = p.variants[0];
+    if (typeof v === "object" && v !== null) {
+      const vPrice = v.promotional_price || v.price;
+      if (vPrice) return parseProductPrice(vPrice);
+    }
+  }
+  return 0;
+}
+
 function getProductImageUrl(p: any): string {
   if (typeof p.image_url === "string") return p.image_url;
   if (Array.isArray(p.images) && p.images.length > 0) {
@@ -98,7 +112,7 @@ function computeAiPairings(
   const parsed = products.map((p) => ({
     id: Number(p.id) || 0,
     name: parseProductName(p.name),
-    price: parseProductPrice(p.price || p.promotional_price),
+    price: extractProductPrice(p), // <-- Ahora usa el nuevo extractor con soporte para variantes
     image: getProductImageUrl(p),
     variantId: getProductVariantId(p),
   })).filter((p) => p.id > 0 && p.price > 0 && p.variantId !== "");
@@ -312,7 +326,7 @@ export async function GET(req: NextRequest) {
 
             const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
 
-            // Calcular complementarios óptimos de forma dinámica por IA
+            // Calcular complementarios óptimos de forma dinámica por IA (con el nuevo extractor de precios)
             const aiRecommendedItems = computeAiPairings(productList, productId, discount);
 
             if (aiRecommendedItems.length > 0) {
@@ -395,4 +409,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-     }
+       }
