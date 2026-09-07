@@ -9,7 +9,109 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 /* ═══════════════════════════════════════════
-   FUNCIONES AUXILIARES Y TIPOS (Regla #9 al inicio)
+   DICCIONARIO NEURONAL ECOMMERCE (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const ECOMMERCE_DICTIONARY: Record<string, { pt: string; en: string }> = {
+  "¡envío gratis!": { pt: "¡Frete grátis!", en: "Free shipping!" },
+  "envío gratis": { pt: "Frete grátis", en: "Free shipping" },
+  "oferta termina en:": { pt: "A oferta termina em:", en: "Offer ends in:" },
+  "oferta termina pronto": { pt: "A oferta termina em breve", en: "Offer ends soon" },
+  "¡cupón exclusivo!": { pt: "¡Cupom exclusivo!", en: "Exclusive coupon!" },
+  "copiar": { pt: "Copiar", en: "Copy" },
+  "¡copiado!": { pt: "¡Copiado!", en: "Copied!" },
+  "¡girá y ganá un descuento!": { pt: "¡Gire e ganhe um desconto!", en: "Spin and win a discount!" },
+  "¡girar ruleta ahora!": { pt: "¡Girar roleta agora!", en: "Spin wheel now!" },
+  "garantía de satisfacción": { pt: "Garantia de satisfação", en: "Satisfaction guarantee" },
+  "devolución sin cargo": { pt: "Devolução sem custos", en: "Free returns" },
+  "comprados juntos frecuentemente": { pt: "Frequentemente comprados juntos", en: "Frequently bought together" },
+  "agregar al carrito": { pt: "Adicionar ao carrinho", en: "Add to cart" },
+  "cuotas sin interés": { pt: "Parcelas sem juros", en: "Interest-free installments" },
+  "despacho en 24hs": { pt: "Envio em 24h", en: "Dispatched in 24h" },
+};
+
+function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
+  if (!text || typeof text !== "string") return "";
+  const lower = text.trim().toLowerCase();
+
+  // Búsqueda directa en diccionario
+  if (ECOMMERCE_DICTIONARY[lower]) {
+    return ECOMMERCE_DICTIONARY[lower][targetLang];
+  }
+
+  // Traducción contextual por patrones
+  if (targetLang === "pt") {
+    return text
+      .replace(/envío gratis/gi, "Frete grátis")
+      .replace(/descuento/gi, "desconto")
+      .replace(/oferta/gi, "oferta")
+      .replace(/comprar/gi, "comprar")
+      .replace(/garantía/gi, "garantia")
+      .replace(/días/gi, "dias")
+      .replace(/exclusivo/gi, "exclusivo")
+      .replace(/copiar código/gi, "copiar cupom")
+      .replace(/ahorrá/gi, "economize")
+      .replace(/cuotas sin interés/gi, "parcelas sem juros");
+  }
+
+  if (targetLang === "en") {
+    return text
+      .replace(/envío gratis/gi, "Free shipping")
+      .replace(/descuento/gi, "discount")
+      .replace(/oferta/gi, "offer")
+      .replace(/comprar/gi, "buy now")
+      .replace(/garantía/gi, "guarantee")
+      .replace(/días/gi, "days")
+      .replace(/exclusivo/gi, "exclusive")
+      .replace(/copiar código/gi, "copy code")
+      .replace(/ahorrá/gi, "save")
+      .replace(/cuotas sin interés/gi, "interest-free installments");
+  }
+
+  return text;
+}
+
+function translateWidgetConfig(
+  slug: string,
+  config: Record<string, unknown>,
+  targetLang: "pt" | "en"
+): Record<string, unknown> {
+  const translated = { ...config };
+
+  if (typeof translated.titulo === "string") {
+    translated.titulo = translateEcommerceText(translated.titulo, targetLang);
+  }
+  if (typeof translated.title === "string") {
+    translated.title = translateEcommerceText(translated.title, targetLang);
+  }
+  if (typeof translated.subtexto === "string") {
+    translated.subtexto = translateEcommerceText(translated.subtexto, targetLang);
+  }
+  if (typeof translated.subtitle === "string") {
+    translated.subtitle = translateEcommerceText(translated.subtitle, targetLang);
+  }
+  if (typeof translated.subtitulo === "string") {
+    translated.subtitulo = translateEcommerceText(translated.subtitulo, targetLang);
+  }
+  if (typeof translated.textoBoton === "string") {
+    translated.textoBoton = translateEcommerceText(translated.textoBoton, targetLang);
+  }
+  if (typeof translated.textoBotonGirar === "string") {
+    translated.textoBotonGirar = translateEcommerceText(translated.textoBotonGirar, targetLang);
+  }
+  if (typeof translated.texto === "string") {
+    translated.texto = translateEcommerceText(translated.texto, targetLang);
+  }
+  if (Array.isArray(translated.mensajes)) {
+    translated.mensajes = translated.mensajes.map((m) =>
+      typeof m === "string" ? translateEcommerceText(m, targetLang) : m
+    );
+  }
+
+  return translated;
+}
+
+/* ═══════════════════════════════════════════
+   FUNCIONES AUXILIARES Y TIPOS DEL SISTEMA (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,7 +153,6 @@ function calcularStats(reviews: any[]) {
   return { total, promedio, distribucion }
 }
 
-// --- PARSERS Y MOTOR IA PARA SUGERENCIAS DINÁMICAS ---
 function parseProductName(raw: any): string {
   if (!raw) return "Producto Complementario";
   if (typeof raw === "string") return raw;
@@ -69,7 +170,6 @@ function parseProductPrice(price: any): number {
   return isNaN(num) ? 0 : num;
 }
 
-// Extracción profunda de precio compatible con Tiendanube
 function extractProductPrice(p: any): number {
   if (p.price) return parseProductPrice(p.price);
   if (p.promotional_price) return parseProductPrice(p.promotional_price);
@@ -112,7 +212,7 @@ function computeAiPairings(
   const parsed = products.map((p) => ({
     id: Number(p.id) || 0,
     name: parseProductName(p.name),
-    price: extractProductPrice(p), // <-- Ahora usa el nuevo extractor con soporte para variantes
+    price: extractProductPrice(p),
     image: getProductImageUrl(p),
     variantId: getProductVariantId(p),
   })).filter((p) => p.id > 0 && p.price > 0 && p.variantId !== "");
@@ -121,7 +221,6 @@ function computeAiPairings(
 
   const mainProduct = parsed.find(p => p.id === mainProductId);
   if (!mainProduct) {
-    // Fallback: Si no se encuentra el producto principal en el catálogo, sugerir los 2 primeros válidos
     return parsed.slice(0, 2).map(p => ({
       titulo: p.name,
       precio: p.price,
@@ -131,35 +230,26 @@ function computeAiPairings(
     }));
   }
 
-  // Buscar candidatos complementarios excluyendo el producto principal
   const candidates = parsed.filter(p => p.id !== mainProductId);
-  
   const scoredCandidates = candidates.map(candidate => {
-    let score = 50; // Puntaje base
-
-    // Regla de Afinidad de Precio (Ideal entre 15% y 65% del producto principal)
+    let score = 50;
     const ratio = candidate.price / mainProduct.price;
     if (ratio >= 0.15 && ratio <= 0.65) {
       score += 35;
     } else if (ratio < 1.0) {
       score += 15;
     }
-
-    // Regla de Afinidad Semántica por palabras compartidas
     const mainWords = mainProduct.name.toLowerCase().split(/\s+/);
     const candWords = candidate.name.toLowerCase().split(/\s+/);
     const sharesKeywords = mainWords.some(w => w.length > 3 && candWords.includes(w));
     if (sharesKeywords) {
       score += 20;
     }
-
     return { candidate, score };
   });
 
-  // Ordenar de mayor a menor puntaje
   scoredCandidates.sort((a, b) => b.score - a.score);
 
-  // Devolver los 2 mejores complementos calculados por IA
   return scoredCandidates.slice(0, 2).map(item => ({
     titulo: item.candidate.name,
     precio: item.candidate.price,
@@ -181,6 +271,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const storeIdParam = searchParams.get('store_id')
     const productIdParam = searchParams.get('product_id')
+    const clientLangParam = searchParams.get('lang') // Recibe el idioma detectado en la tienda
 
     if (!storeIdParam) {
       return NextResponse.json(
@@ -326,7 +417,7 @@ export async function GET(req: NextRequest) {
 
             const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
 
-            // Calcular complementarios óptimos de forma dinámica por IA (con el nuevo extractor de precios)
+            // Calcular complementarios óptimos de forma dinámica por IA
             const aiRecommendedItems = computeAiPairings(productList, productId, discount);
 
             if (aiRecommendedItems.length > 0) {
@@ -337,9 +428,8 @@ export async function GET(req: NextRequest) {
                 subtexto: aiSettings?.subtitle || currentConfig.subtexto || "Llevate estos productos juntos con un descuento especial",
                 textoBoton: aiSettings?.button_text || currentConfig.textoBoton || "Agregar pack al carrito",
                 descuentoPorcentaje: discount,
-                items: aiRecommendedItems // ¡Reemplazo dinámico instantáneo!
+                items: aiRecommendedItems
               };
-              console.log("[Nevux AI] Widget Pack Complementarios dinamizado con IA para productId:", productId);
             }
           } catch (aiError) {
             console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
@@ -394,6 +484,53 @@ export async function GET(req: NextRequest) {
       })
     }
 
+    // 🌎 INTERCEPCIÓN IDIOMA: Traducir los widgets automáticamente si el cliente tiene habilitado otro idioma
+    const { data: langSettings } = await supabase
+      .from("store_language_settings")
+      .select("*")
+      .eq("store_id", storeId)
+      .maybeSingle();
+
+    if (langSettings) {
+      const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
+      const autoDetect = langSettings.auto_detect ?? true;
+      const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
+      const savedTranslations = langSettings.translations || {};
+
+      // Decidir idioma de destino (target)
+      let targetLang: "es" | "pt" | "en" = defaultLang;
+      if (autoDetect && clientLangParam) {
+        const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
+        if (enabledLangs.includes(slicedLang)) {
+          targetLang = slicedLang;
+        }
+      }
+
+      // Si el idioma final no es Español, aplicamos las traducciones
+      if (targetLang !== "es") {
+        enrichedWidgets = enrichedWidgets.map((w) => {
+          let translatedConfig = { ...w.config };
+
+          // 1. Prioridad: Traducción pre-generada en panel (1 Clic)
+          if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
+            translatedConfig = {
+              ...translatedConfig,
+              ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
+            };
+          } else {
+            // 2. Fallback: Traducción al vuelo en milisegundos con el diccionario
+            translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
+          }
+
+          return {
+            ...w,
+            config: translatedConfig,
+          };
+        });
+        console.log(`[Nevux IA Language] Traducidos ${enrichedWidgets.length} widgets automáticamente a idioma:`, targetLang);
+      }
+    }
+
     return NextResponse.json(
       { 
         widgets: enrichedWidgets, 
@@ -409,4 +546,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-       }
+   }
