@@ -9158,7 +9158,7 @@
       }, 4200);
     });
           }
-    /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      MOTOR DE TELEMETRÍA Y ANALYTICS EN VIVO (NEVUX TRACK)
   ═══════════════════════════════════════════ */
   var nvxSessionId = (function() {
@@ -9207,5 +9207,210 @@
         }).catch(function(){});
       }
     } catch(err) {}
+  }
+
+  /* ═══════════════════════════════════════════
+     MOTOR DE BÚSQUEDA POR VOZ IA EN VIVO (?v=63)
+  ═══════════════════════════════════════════ */
+  function initNevuxVoiceSearch(sId) {
+    try {
+      if (!sId || window.__nvxVoiceInit) return;
+      window.__nvxVoiceInit = true;
+
+      var API_BASE = "https://nexus2026-gx7e.vercel.app";
+      fetch(API_BASE + "/api/ai/voice-search?store_id=" + encodeURIComponent(sId))
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data || !data.settings || !data.settings.is_active) return;
+          renderNevuxVoiceUI(data.settings);
+        })
+        .catch(function(err) {});
+    } catch(e) {}
+  }
+
+  function renderNevuxVoiceUI(st) {
+    try {
+      if (document.getElementById("nvx-voice-trigger-btn")) return;
+
+      var color = st.button_color || "#10B981";
+      var pos = st.position || "bottom-right";
+      var lang = st.language || "es-AR";
+      var listeningText = st.listening_text || "Escuchando... Decí lo que buscás";
+
+      var posStyle = "bottom: 24px; right: 24px;";
+      if (pos === "bottom-left") posStyle = "bottom: 24px; left: 24px;";
+      if (pos === "floating-center") posStyle = "bottom: 24px; left: 50%; transform: translateX(-50%);";
+
+      // Botón flotante de Micrófono
+      var floatBtn = document.createElement("button");
+      floatBtn.id = "nvx-voice-trigger-btn";
+      floatBtn.setAttribute("type", "button");
+      floatBtn.setAttribute("aria-label", "Búsqueda por Voz");
+      floatBtn.style.cssText = "position:fixed;" + posStyle + "z-index:2147483640;width:52px;height:52px;border-radius:50%;background:" + color + ";border:none;box-shadow:0 8px 24px " + color + "66,0 2px 6px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275),box-shadow 0.2s ease;outline:none;-webkit-tap-highlight-color:transparent;";
+
+      floatBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>';
+
+      floatBtn.onmouseenter = function() { floatBtn.style.transform = (pos === "floating-center" ? "translateX(-50%) scale(1.08)" : "scale(1.08)"); };
+      floatBtn.onmouseleave = function() { floatBtn.style.transform = (pos === "floating-center" ? "translateX(-50%) scale(1)" : "scale(1)"); };
+
+      // Modal Frosted Glass
+      var modal = document.createElement("div");
+      modal.id = "nvx-voice-modal";
+      modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:2147483645;display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;";
+
+      modal.innerHTML = '<div style="background:#ffffff;border-radius:24px;width:100%;max-width:380px;padding:30px 22px;box-shadow:0 20px 50px rgba(0,0,0,0.3);text-align:center;position:relative;box-sizing:border-box;">'
+        + '<button id="nvx-voice-close" style="position:absolute;top:16px;right:16px;background:#f3f4f6;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:16px;font-weight:bold;transition:background 0.2s;">✕</button>'
+        + '<div style="margin-bottom:18px;font-size:11px;font-weight:800;letter-spacing:0.04em;color:' + color + ';text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;background:' + color + '18;padding:4px 12px;border-radius:999px;">'
+        + '<span style="width:7px;height:7px;border-radius:50%;background:' + color + ';display:inline-block;animation:nvxPulse 1.2s infinite;"></span> Búsqueda por Voz Nevux'
+        + '</div>'
+        + '<div style="position:relative;width:104px;height:104px;margin:0 auto 18px;">'
+        + '<div id="nvx-wave-1" style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;background:' + color + ';opacity:0.3;transform:scale(1);"></div>'
+        + '<div id="nvx-wave-2" style="position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;background:' + color + ';opacity:0.15;transform:scale(1);"></div>'
+        + '<button id="nvx-mic-circle" style="position:relative;z-index:2;width:100%;height:100%;border-radius:50%;background:' + color + ';border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 25px ' + color + '50;outline:none;">'
+        + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>'
+        + '</button>'
+        + '</div>'
+        + '<h3 id="nvx-voice-title" style="margin:0 0 6px 0;font-size:16px;font-weight:800;color:#111827;line-height:1.3;">' + listeningText + '</h3>'
+        + '<p style="margin:0 0 14px 0;font-size:13px;color:#6b7280;">Decí el nombre del producto que estás buscando</p>'
+        + '<div id="nvx-voice-result" style="background:#f9fafb;border:1.5px dashed #e5e7eb;border-radius:14px;padding:12px;min-height:50px;font-size:15px;font-weight:700;color:#9ca3af;display:flex;align-items:center;justify-content:center;word-break:break-word;">Esperando tu voz...</div>'
+        + '<div id="nvx-voice-error" style="display:none;margin-top:12px;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:12px;color:#991b1b;font-weight:600;"></div>'
+        + '</div>';
+
+      var styleEl = document.createElement("style");
+      styleEl.innerHTML = "@keyframes nvxPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.85);}}"
+        + "@keyframes nvxWaveExpand1{0%{transform:scale(1);opacity:0.5;}50%{transform:scale(1.35);opacity:0.2;}100%{transform:scale(1);opacity:0.5;}}"
+        + "@keyframes nvxWaveExpand2{0%{transform:scale(1);opacity:0.3;}50%{transform:scale(1.6);opacity:0.05;}100%{transform:scale(1);opacity:0.3;}}";
+      document.head.appendChild(styleEl);
+
+      document.body.appendChild(floatBtn);
+      document.body.appendChild(modal);
+
+      var closeBtn = modal.querySelector("#nvx-voice-close");
+      var wave1 = modal.querySelector("#nvx-wave-1");
+      var wave2 = modal.querySelector("#nvx-wave-2");
+      var titleEl = modal.querySelector("#nvx-voice-title");
+      var resultEl = modal.querySelector("#nvx-voice-result");
+      var errorEl = modal.querySelector("#nvx-voice-error");
+      var micCircle = modal.querySelector("#nvx-mic-circle");
+
+      var recognition = null;
+      var isListening = false;
+      var redirectTimer = null;
+
+      function startSpeech() {
+        errorEl.style.display = "none";
+        resultEl.style.color = "#9ca3af";
+        resultEl.innerText = "Escuchando...";
+        titleEl.innerText = listeningText;
+        wave1.style.animation = "nvxWaveExpand1 1.6s infinite ease-in-out";
+        wave2.style.animation = "nvxWaveExpand2 1.6s infinite 0.3s ease-in-out";
+
+        var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          errorEl.innerText = "Tu navegador no soporta búsqueda por voz nativa.";
+          errorEl.style.display = "block";
+          stopWaves();
+          return;
         }
+
+        try {
+          if (recognition) {
+            try { recognition.abort(); } catch(e) {}
+          }
+          recognition = new SpeechRec();
+          recognition.lang = lang;
+          recognition.continuous = false;
+          recognition.interimResults = true;
+
+          recognition.onresult = function(ev) {
+            var text = "";
+            for (var i = 0; i < ev.results.length; i++) {
+              text += ev.results[i][0].transcript;
+            }
+            if (text) {
+              resultEl.style.color = "#111827";
+              resultEl.innerText = '"' + text + '"';
+            }
+
+            if (ev.results[0] && ev.results[0].isFinal) {
+              titleEl.innerText = "¡Buscando en la tienda!";
+              stopWaves();
+              if (redirectTimer) clearTimeout(redirectTimer);
+              redirectTimer = setTimeout(function() {
+                window.location.href = "/search/?q=" + encodeURIComponent(text.trim());
+              }, 650);
+            }
+          };
+
+          recognition.onerror = function(ev) {
+            stopWaves();
+            isListening = false;
+            if (ev.error === "not-allowed") {
+              errorEl.innerText = "Permiso denegado. Habilitá el micrófono en tu navegador.";
+            } else if (ev.error === "no-speech") {
+              errorEl.innerText = "No se detectó audio. Tocá el micrófono e intentá de nuevo.";
+            } else {
+              errorEl.innerText = "Micrófono detenido o no disponible.";
+            }
+            errorEl.style.display = "block";
+          };
+
+          recognition.onend = function() {
+            isListening = false;
+            stopWaves();
+          };
+
+          recognition.start();
+          isListening = true;
+        } catch(err) {
+          stopWaves();
+          isListening = false;
+          errorEl.innerText = "No se pudo acceder al micrófono.";
+          errorEl.style.display = "block";
+        }
+      }
+
+      function stopWaves() {
+        if (wave1) wave1.style.animation = "none";
+        if (wave2) wave2.style.animation = "none";
+      }
+
+      function openModal() {
+        modal.style.display = "flex";
+        startSpeech();
+      }
+
+      function closeModal() {
+        if (redirectTimer) clearTimeout(redirectTimer);
+        if (recognition) {
+          try { recognition.abort(); } catch(e) {}
+        }
+        stopWaves();
+        modal.style.display = "none";
+      }
+
+      floatBtn.onclick = function() { openModal(); };
+      closeBtn.onclick = function() { closeModal(); };
+      modal.onclick = function(e) {
+        if (e.target === modal) closeModal();
+      };
+      micCircle.onclick = function() {
+        if (isListening) {
+          if (recognition) recognition.stop();
+          stopWaves();
+        } else {
+          startSpeech();
+        }
+      };
+    } catch(e) {}
+  }
+
+  // Auto-iniciar Búsqueda por Voz si hay store_id disponible
+  try {
+    var detectedStoreId = (typeof storeId !== "undefined" && storeId) ? storeId : ((typeof LS !== "undefined" && LS.store && LS.store.id) ? LS.store.id : null);
+    if (detectedStoreId) {
+      initNevuxVoiceSearch(detectedStoreId);
+    }
+  } catch(e) {}
+
 })();
