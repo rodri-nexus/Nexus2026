@@ -271,11 +271,11 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const storeIdParam = searchParams.get('store_id')
     const productIdParam = searchParams.get('product_id')
-    const clientLangParam = searchParams.get('lang') // Recibe el idioma detectado en la tienda
+    const clientLangParam = searchParams.get('lang')
 
     if (!storeIdParam) {
       return NextResponse.json(
-        { error: 'store_id es requerido', widgets: [], activeCampaign: null },
+        { error: 'store_id es requerido', widgets: [], activeCampaign: null, voiceSearch: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -283,7 +283,7 @@ export async function GET(req: NextRequest) {
     const storeId = parseInt(storeIdParam, 10)
     if (isNaN(storeId)) {
       return NextResponse.json(
-        { error: 'store_id inválido', widgets: [], activeCampaign: null },
+        { error: 'store_id inválido', widgets: [], activeCampaign: null, voiceSearch: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -294,7 +294,7 @@ export async function GET(req: NextRequest) {
     const isActivePlan = await isStorePlanActive(storeId)
     if (!isActivePlan) {
       return NextResponse.json(
-        { widgets: [], activeCampaign: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { widgets: [], activeCampaign: null, voiceSearch: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
         { status: 200, headers: corsHeaders }
       )
     }
@@ -307,6 +307,22 @@ export async function GET(req: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
+
+    // 🎙️ NUEVA INTEGRACIÓN DIRECTA: Obtener ajustes de Búsqueda por Voz
+    const { data: voiceRow } = await supabase
+      .from('store_voice_search_settings')
+      .select('is_active, position, button_color, listening_text, placeholder_text, language')
+      .eq('store_id', storeId)
+      .maybeSingle()
+
+    const voiceSearchData = voiceRow || {
+      is_active: false,
+      position: "bottom-right",
+      button_color: "#10B981",
+      listening_text: "Escuchando... Decí lo que buscás",
+      placeholder_text: "Buscá por voz en la tienda...",
+      language: "es-AR",
+    }
 
     // 1. Consultar campaña activa de la tienda para efectos visuales
     let activeCampaignData: {
@@ -357,7 +373,7 @@ export async function GET(req: NextRequest) {
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
       return NextResponse.json(
-        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData },
+        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData, voiceSearch: voiceSearchData },
         { status: 500, headers: corsHeaders }
       )
     }
@@ -535,6 +551,7 @@ export async function GET(req: NextRequest) {
       { 
         widgets: enrichedWidgets, 
         activeCampaign: activeCampaignData,
+        voiceSearch: voiceSearchData, // Retorno unificado
         ts: Date.now() 
       },
       { status: 200, headers: corsHeaders }
@@ -542,8 +559,8 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Error en GET /api/widget-render:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message, widgets: [], activeCampaign: null },
+      { error: 'Error interno del servidor', details: error?.message, widgets: [], activeCampaign: null, voiceSearch: null },
       { status: 500, headers: corsHeaders }
     )
   }
-   }
+               }
