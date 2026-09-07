@@ -345,6 +345,9 @@ export default function IdiomasIaPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al guardar");
 
+      // UX Booster: Sincronizar pestaña del simulador visual de inmediato
+      setSimTab(config.default_language);
+
       setFeedback({
         type: "success",
         message: "¡Ajustes de idioma guardados con éxito!",
@@ -375,6 +378,9 @@ export default function IdiomasIaPage() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al traducir");
+
+      // UX Booster: Sincronizar pestaña del simulador visual de inmediato al idioma base traducido
+      setSimTab(config.default_language);
 
       setFeedback({
         type: "success",
@@ -777,4 +783,4 @@ export default function IdiomasIaPage() {
       </main>
     </div>
   );
-  }
+        }
