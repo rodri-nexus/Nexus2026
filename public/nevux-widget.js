@@ -1793,6 +1793,17 @@
         }
       }
 
+      // 🤖 INYECCIÓN UNIFICADA DE VENDEDOR VIRTUAL IA
+      if (data.virtualSalesman && data.virtualSalesman.is_active) {
+        if (document.body) {
+          renderNevuxSalesmanUI(data.virtualSalesman);
+        } else {
+          document.addEventListener("DOMContentLoaded", function() {
+            renderNevuxSalesmanUI(data.virtualSalesman);
+          });
+        }
+      }
+
       if (!data.widgets || data.widgets.length === 0) {
         console.log("[Nevux] No hay widgets activos");
         return;
@@ -9269,9 +9280,59 @@
       }
     } catch(err) {}
   }
+  /* ═══════════════════════════════════════════
+     MOTOR DE TELEMETRÍA Y ANALYTICS EN VIVO (NEVUX TRACK)
+  ═══════════════════════════════════════════ */
+  var nvxSessionId = (function() {
+    try {
+      var sid = sessionStorage.getItem("nvx_sid");
+      if (!sid) {
+        sid = "nvx_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now();
+        sessionStorage.setItem("nvx_sid", sid);
+      }
+      return sid;
+    } catch(e) {
+      return "nvx_anon_" + Date.now();
+    }
+  })();
+
+  function nvxTrack(w, eventType, eventValue, metadata) {
+    try {
+      if (!w || !w.widget_slug) return;
+      var sId = (typeof storeId !== "undefined" && storeId) ? storeId : (w.store_id || 0);
+      if (!sId) return;
+
+      var pId = (typeof productId !== "undefined" && productId) ? productId : (w.target_product_id || null);
+
+      var payload = {
+        store_id: Number(sId),
+        widget_id: w.id || null,
+        widget_slug: String(w.widget_slug),
+        event_type: String(eventType),
+        event_value: Number(eventValue) || 0,
+        session_id: nvxSessionId,
+        product_id: pId ? Number(pId) : null,
+        metadata: metadata || {}
+      };
+
+      var trackUrl = "https://nexus2026-gx7e.vercel.app/api/analytics/track";
+      var dataStr = JSON.stringify(payload);
+
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(trackUrl, new Blob([dataStr], { type: "application/json" }));
+      } else {
+        fetch(trackUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: dataStr,
+          keepalive: true
+        }).catch(function(){});
+      }
+    } catch(err) {}
+  }
 
   /* ═══════════════════════════════════════════
-     MOTOR DE BÚSQUEDA POR VOZ IA EN VIVO (?v=66)
+     MOTOR DE BÚSQUEDA POR VOZ IA EN VIVO (?v=67)
   ═══════════════════════════════════════════ */
   function renderNevuxVoiceUI(st) {
     try {
@@ -9283,18 +9344,24 @@
       var lang = st.language || "es-AR";
       var listeningText = st.listening_text || "Escuchando... Decí lo que buscás";
 
+      // Si el vendedor virtual está abajo a la derecha, acomodar el micrófono arriba para no taparlo
       var posStyle = "bottom: 24px; right: 24px;";
-      if (pos === "bottom-left") posStyle = "bottom: 24px; left: 24px;";
-      if (pos === "floating-center") posStyle = "bottom: 24px; left: 50%; transform: translateX(-50%);";
+      if (pos === "bottom-right") {
+        posStyle = "bottom: 90px; right: 24px;";
+      } else if (pos === "bottom-left") {
+        posStyle = "bottom: 24px; left: 24px;";
+      } else if (pos === "floating-center") {
+        posStyle = "bottom: 24px; left: 50%; transform: translateX(-50%);";
+      }
 
       // Botón flotante de Micrófono
       var floatBtn = document.createElement("button");
       floatBtn.id = "nvx-voice-trigger-btn";
       floatBtn.setAttribute("type", "button");
       floatBtn.setAttribute("aria-label", "Búsqueda por Voz");
-      floatBtn.style.cssText = "position:fixed;" + posStyle + "z-index:2147483640;width:54px;height:54px;border-radius:50%;background:" + color + ";border:none;box-shadow:0 8px 24px " + color + "66,0 2px 6px rgba(0,0,0,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275),box-shadow 0.2s ease;outline:none;-webkit-tap-highlight-color:transparent;";
+      floatBtn.style.cssText = "position:fixed;" + posStyle + "z-index:2147483640;width:52px;height:52px;border-radius:50%;background:" + color + ";border:none;box-shadow:0 8px 24px " + color + "66,0 2px 6px rgba(0,0,0,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275),box-shadow 0.2s ease;outline:none;-webkit-tap-highlight-color:transparent;";
 
-      floatBtn.innerHTML = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>';
+      floatBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>';
 
       floatBtn.onmouseenter = function() { floatBtn.style.transform = (pos === "floating-center" ? "translateX(-50%) scale(1.08)" : "scale(1.08)"); };
       floatBtn.onmouseleave = function() { floatBtn.style.transform = (pos === "floating-center" ? "translateX(-50%) scale(1)" : "scale(1)"); };
@@ -9448,6 +9515,195 @@
           startSpeech();
         }
       };
+    } catch(e) {}
+  }
+
+  /* ═══════════════════════════════════════════
+     MOTOR DE VENDEDOR VIRTUAL IA EN VIVO (?v=67)
+  ═══════════════════════════════════════════ */
+  function renderNevuxSalesmanUI(st) {
+    try {
+      if (document.getElementById("nvx-salesman-trigger-btn")) return;
+      if (!document.body) return;
+
+      var color = st.theme_color || "#10B981";
+      var agentName = st.agent_name || "Sofía (Asesora Virtual)";
+      var avatar = st.agent_avatar || "👩‍💼";
+      var welcomeMsg = st.welcome_message || "¡Hola! 👋 ¿Buscás algo en especial hoy? Contame y te ayudo.";
+      var personality = st.personality || "friendly";
+      var whatsapp = (st.whatsapp_number || "").replace(/[^0-9]/g, "");
+      var enableWa = !!(st.enable_whatsapp_escalation && whatsapp);
+
+      // Botón flotante de lanzador
+      var triggerBtn = document.createElement("button");
+      triggerBtn.id = "nvx-salesman-trigger-btn";
+      triggerBtn.setAttribute("type", "button");
+      triggerBtn.setAttribute("aria-label", "Abrir chat con asesor virtual");
+      triggerBtn.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:2147483638;width:58px;height:58px;border-radius:50%;background:" + color + ";border:none;box-shadow:0 8px 25px rgba(0,0,0,0.18),0 2px 8px " + color + "60;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;transition:transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275);outline:none;-webkit-tap-highlight-color:transparent;";
+      triggerBtn.innerHTML = avatar + '<span style="position:absolute;bottom:2px;right:2px;width:13px;height:13px;border-radius:50%;background:#10B981;border:2.5px solid #ffffff;"></span>';
+
+      // Globito emergente de saludo (aparece a los 3.5s)
+      var tooltip = document.createElement("div");
+      tooltip.id = "nvx-salesman-tooltip";
+      tooltip.style.cssText = "position:fixed;bottom:90px;right:24px;z-index:2147483637;background:#ffffff;color:#111827;padding:9px 14px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,0.12);font-size:12.5px;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:210px;line-height:1.35;border:1px solid #f3f4f6;display:none;cursor:pointer;animation:nvxSlideUp 0.3s ease-out;";
+      tooltip.innerHTML = '¡Hola! ¿Puedo ayudarte a elegir hoy? 👋';
+
+      // Ventana de Chat Flotante
+      var chatBox = document.createElement("div");
+      chatBox.id = "nvx-salesman-chatbox";
+      chatBox.style.cssText = "position:fixed;bottom:24px;right:24px;z-index:2147483642;width:360px;max-width:calc(100vw - 32px);height:520px;max-height:calc(100vh - 48px);background:#ffffff;border-radius:20px;box-shadow:0 15px 45px rgba(0,0,0,0.22);display:none;flex-direction:column;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;border:1px solid rgba(0,0,0,0.06);box-sizing:border-box;";
+
+      chatBox.innerHTML = '<div style="background:' + color + ';color:#ffffff;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+        + '<div style="width:38px;height:38px;border-radius:50%;background:#ffffff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + avatar + '</div>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + agentName + '</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block;"></span> En línea</div>'
+        + '</div>'
+        + '<button id="nvx-chat-close-btn" style="background:rgba(255,255,255,0.2);border:none;color:#ffffff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:bold;">✕</button>'
+        + '</div>'
+        + '<div id="nvx-chat-messages" style="flex:1;padding:14px;overflow-y:auto;background:#f9fafb;display:flex;flex-direction:column;gap:10px;box-sizing:border-box;"></div>'
+        + '<div style="padding:6px 10px;background:#ffffff;border-top:1px solid #f3f4f6;display:flex;gap:6px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;" id="nvx-quick-chips">'
+        + '<button class="nvx-chip" data-text="¿Tienen cuotas sin interés?" style="padding:5px 10px;border-radius:999px;border:1px solid #e5e7eb;background:#f9fafb;font-size:11px;font-weight:700;color:#374151;cursor:pointer;">¿Cuotas?</button>'
+        + '<button class="nvx-chip" data-text="¿Cómo son los envíos?" style="padding:5px 10px;border-radius:999px;border:1px solid #e5e7eb;background:#f9fafb;font-size:11px;font-weight:700;color:#374151;cursor:pointer;">¿Envíos?</button>'
+        + '<button class="nvx-chip" data-text="¿Cuáles son los más vendidos?" style="padding:5px 10px;border-radius:999px;border:1px solid #e5e7eb;background:#f9fafb;font-size:11px;font-weight:700;color:#374151;cursor:pointer;">Más vendidos</button>'
+        + (enableWa ? '<button class="nvx-chip" data-text="Quiero hablar por WhatsApp" style="padding:5px 10px;border-radius:999px;border:1px solid #a7f3d0;background:#ecfdf5;font-size:11px;font-weight:800;color:#059669;cursor:pointer;">💬 WhatsApp</button>' : '')
+        + '</div>'
+        + '<form id="nvx-chat-form" style="padding:10px 12px;background:#ffffff;border-top:1px solid #e5e7eb;display:flex;align-items:center;gap:8px;box-sizing:border-box;">'
+        + '<input id="nvx-chat-input" type="text" placeholder="Escribí tu consulta..." style="flex:1;padding:8px 12px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:13px;outline:none;font-family:inherit;box-sizing:border-box;">'
+        + '<button type="submit" style="background:' + color + ';color:#ffffff;border:none;border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">'
+        + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>'
+        + '</button>'
+        + '</form>';
+
+      var styleEl = document.createElement("style");
+      styleEl.innerHTML = "@keyframes nvxSlideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}";
+      document.head.appendChild(styleEl);
+
+      document.body.appendChild(triggerBtn);
+      document.body.appendChild(tooltip);
+      document.body.appendChild(chatBox);
+
+      var msgsContainer = chatBox.querySelector("#nvx-chat-messages");
+      var chatForm = chatBox.querySelector("#nvx-chat-form");
+      var chatInput = chatBox.querySelector("#nvx-chat-input");
+      var closeBtn = chatBox.querySelector("#nvx-chat-close-btn");
+      var chipBtns = chatBox.querySelectorAll(".nvx-chip");
+
+      // Iniciar con mensaje de bienvenida
+      addMessage("bot", welcomeMsg);
+
+      setTimeout(function() {
+        if (chatBox.style.display !== "flex") {
+          tooltip.style.display = "block";
+        }
+      }, 3500);
+
+      function openChat() {
+        tooltip.style.display = "none";
+        triggerBtn.style.display = "none";
+        chatBox.style.display = "flex";
+        chatInput.focus();
+        scrollToBottom();
+      }
+
+      function closeChat() {
+        chatBox.style.display = "none";
+        triggerBtn.style.display = "flex";
+      }
+
+      function scrollToBottom() {
+        msgsContainer.scrollTop = msgsContainer.scrollHeight;
+      }
+
+      function addMessage(sender, text, showWa) {
+        var msgRow = document.createElement("div");
+        msgRow.style.cssText = "display:flex;flex-direction:column;align-items:" + (sender === "user" ? "flex-end" : "flex-start") + ";";
+
+        var bubble = document.createElement("div");
+        bubble.style.cssText = "max-width:82%;padding:10px 14px;border-radius:" + (sender === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px") + ";background:" + (sender === "user" ? color : "#ffffff") + ";color:" + (sender === "user" ? "#ffffff" : "#111827") + ";font-size:13px;line-height:1.45;border:" + (sender === "user" ? "none" : "1px solid #e5e7eb") + ";box-shadow:0 1px 4px rgba(0,0,0,0.04);word-break:break-word;";
+        bubble.innerText = text;
+
+        msgRow.appendChild(bubble);
+
+        if (showWa && enableWa) {
+          var waBtn = document.createElement("a");
+          waBtn.href = "https://wa.me/" + whatsapp + "?text=" + encodeURIComponent("¡Hola! Estaba viendo la tienda y quería consultar sobre un producto.");
+          waBtn.target = "_blank";
+          waBtn.rel = "noreferrer";
+          waBtn.style.cssText = "margin-top:6px;display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#ffffff;text-decoration:none;padding:6px 12px;border-radius:999px;font-size:11.5px;font-weight:800;box-shadow:0 2px 8px rgba(37,211,102,0.3);";
+          waBtn.innerHTML = '💬 Continuar por WhatsApp';
+          msgRow.appendChild(waBtn);
+        }
+
+        msgsContainer.appendChild(msgRow);
+        scrollToBottom();
+      }
+
+      function showTypingIndicator() {
+        var typing = document.createElement("div");
+        typing.id = "nvx-typing";
+        typing.style.cssText = "font-size:11.5px;color:#6b7280;font-style:italic;padding:4px 8px;";
+        typing.innerText = agentName + " está respondiendo...";
+        msgsContainer.appendChild(typing);
+        scrollToBottom();
+      }
+
+      function hideTypingIndicator() {
+        var typing = document.getElementById("nvx-typing");
+        if (typing) typing.remove();
+      }
+
+      function generateBotReply(userText) {
+        var lower = userText.toLowerCase();
+        var reply = "¡Excelente consulta! Tenemos opciones destacadas en stock con despacho inmediato. ¿Te gustaría que te recomiende los modelos más elegidos?";
+        var offerWa = false;
+
+        if (lower.includes("precio") || lower.includes("cuanto") || lower.includes("cuánto") || lower.includes("valor")) {
+          reply = personality === "dynamic" 
+            ? "¡Hoy tenés promociones especiales y cuotas sin interés activas en toda la tienda! 🎁 ¿Querés que te pase el link con los descuentos?"
+            : "Los precios están actualizados con opciones de financiación y descuentos por transferencia bancaria.";
+        } else if (lower.includes("cuota") || lower.includes("tarjeta") || lower.includes("pago") || lower.includes("interes") || lower.includes("interés")) {
+          reply = "¡Sí! Aceptamos todas las tarjetas con cuotas sin interés y promociones bancarias disponibles en el checkout 💳.";
+        } else if (lower.includes("envio") || lower.includes("envío") || lower.includes("demora") || lower.includes("llega")) {
+          reply = "Hacemos envíos seguros y rápidos a todo el país 🚚. Superando el monto mínimo de compra tenés envío gratis hasta tu domicilio.";
+        } else if (lower.includes("talle") || lower.includes("medida") || lower.includes("tamaño")) {
+          reply = "Contamos con guía interactiva de talles en cada producto para que elijas la medida exacta y compres con total seguridad 📏.";
+        } else if (lower.includes("whatsapp") || lower.includes("humano") || lower.includes("asesor") || lower.includes("persona")) {
+          reply = "¡Por supuesto! Podés hablar directamente con nuestro equipo humano por WhatsApp para una atención 1 a 1.";
+          offerWa = true;
+        } else if (lower.includes("vendido") || lower.includes("recomenda") || lower.includes("destacado")) {
+          reply = "¡Los más vendidos de esta semana están volando! Te invito a ver la sección principal de la tienda para no perderte las últimas unidades disponibles.";
+        }
+
+        setTimeout(function() {
+          hideTypingIndicator();
+          addMessage("bot", reply, offerWa || (enableWa && Math.random() > 0.6));
+        }, 900);
+      }
+
+      function handleUserSend(text) {
+        if (!text || !text.trim()) return;
+        addMessage("user", text.trim());
+        chatInput.value = "";
+        showTypingIndicator();
+        generateBotReply(text.trim());
+      }
+
+      triggerBtn.onclick = openChat;
+      tooltip.onclick = openChat;
+      closeBtn.onclick = closeChat;
+
+      chatForm.onsubmit = function(e) {
+        e.preventDefault();
+        handleUserSend(chatInput.value);
+      };
+
+      for (var i = 0; i < chipBtns.length; i++) {
+        chipBtns[i].onclick = function() {
+          var t = this.getAttribute("data-text");
+          handleUserSend(t);
+        };
+      }
     } catch(e) {}
   }
 
