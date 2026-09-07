@@ -39,20 +39,11 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT GET: CONSULTAR AJUSTES DE VOZ
+   ENDPOINT GET: CONSULTAR AJUSTES DE VOZ (PÚBLICO)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
     const supabase = createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return jsonResponse({ error: "No autorizado" }, 401);
-    }
-
     const { searchParams } = new URL(req.url);
     const storeIdParam = searchParams.get("store_id") || searchParams.get("storeId");
 
@@ -62,10 +53,10 @@ export async function GET(req: NextRequest) {
 
     const storeId = parseInt(storeIdParam, 10);
 
+    // Consulta pública de ajustes de voz por store_id (No requiere usuario logueado)
     const { data: settings, error } = await supabase
       .from("store_voice_search_settings")
       .select("*")
-      .eq("user_id", user.id)
       .eq("store_id", storeId)
       .maybeSingle();
 
@@ -75,7 +66,7 @@ export async function GET(req: NextRequest) {
 
     return jsonResponse({
       settings: settings || {
-        is_active: true,
+        is_active: false, // Por defecto inactivo hasta que el comerciante lo active
         position: "bottom-right",
         button_color: "#10B981",
         listening_text: "Escuchando... Decí lo que buscás",
@@ -90,7 +81,7 @@ export async function GET(req: NextRequest) {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT POST: GUARDAR AJUSTES DE VOZ
+   ENDPOINT POST: GUARDAR AJUSTES DE VOZ (BLINDADO CON AUTH)
 ═══════════════════════════════════════════ */
 export async function POST(req: NextRequest) {
   try {
@@ -119,7 +110,7 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ error: "Falta store_id obligatorio" }, 400);
     }
 
-    // Validar tienda
+    // Validar propiedad de la tienda para el usuario logueado
     const { data: store, error: storeError } = await supabase
       .from("stores")
       .select("id, store_id")
@@ -166,4 +157,4 @@ export async function POST(req: NextRequest) {
     const msg = error instanceof Error ? error.message : "Error interno";
     return jsonResponse({ error: msg }, 500);
   }
-}
+  }
