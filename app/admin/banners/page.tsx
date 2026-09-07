@@ -2,24 +2,22 @@
 
 import React, { useState } from "react";
 import {
-  CheckCheck,
+  ChevronLeft,
   MoreVertical,
   Phone,
   Video,
-  ChevronLeft,
-  Sparkles,
-  Bot,
   Flame,
   Palette,
   Brain,
   Globe,
   Mic,
   BarChart3,
-  CheckCircle2,
+  Bot,
+  Sparkles,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
-type TabId = "partners" | "stories" | "covers" | "appstore5";
+type TabId = "appstore5" | "partners" | "stories" | "covers";
 type StoryDestacada =
   | "problema"
   | "solucion"
@@ -473,7 +471,7 @@ export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("appstore5"); // Por defecto en la nueva función estrella
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("vendedor");
-  const [appstoreScale, setAppstoreScale] = useState<"fit" | "real">("fit"); // Ajustar o real 1920x1080
+  const [appstoreZoom, setAppstoreZoom] = useState<number>(0.2); // Escala por defecto en celular (20% para que entre entero)
 
   const isPt = lang === "pt";
 
@@ -577,189 +575,197 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* 🌟 PESTAÑA: BANNER #5 APP STORE (1920x1080) */}
+      {/* 🌟 PESTAÑA: BANNER #5 APP STORE (1920x1080 CON ESCALADOR) */}
       {activeTab === "appstore5" && (
         <div
           style={{
             width: "100%",
-            maxWidth: appstoreScale === "real" ? "1920px" : "1000px",
             display: "flex",
             flexDirection: "column",
-            gap: "20px",
+            gap: "24px",
             alignItems: "center",
             boxSizing: "border-box",
           }}
         >
-          {/* CONTROL DE ESCALA Y CAPTURA */}
+          {/* SLIDER DE CONTROL DE ZOOM PARA EL CELULAR */}
           <div
             style={{
               background: "#0b2920",
-              padding: "10px 18px",
-              borderRadius: "14px",
-              display: "flex",
-              alignItems: "center",
-              gap: "14px",
-              border: "1px solid rgba(16, 185, 129, 0.2)",
-            }}
-          >
-            <span style={{ fontSize: "12px", fontWeight: 700, color: "#a7f3d0" }}>Vista:</span>
-            <button
-              onClick={() => setAppstoreScale("fit")}
-              style={{
-                background: appstoreScale === "fit" ? "#10B981" : "transparent",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "6px 12px",
-                fontSize: "11px",
-                fontWeight: 800,
-                cursor: "pointer",
-              }}
-            >
-              📱 Ajustar a Celular
-            </button>
-            <button
-              onClick={() => setAppstoreScale("real")}
-              style={{
-                background: appstoreScale === "real" ? "#10B981" : "transparent",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "6px 12px",
-                fontSize: "11px",
-                fontWeight: 800,
-                cursor: "pointer",
-              }}
-            >
-              🖥️ Tamaño Real (1920x1080)
-            </button>
-          </div>
-
-          {/* CONTENEDOR DEL BANNER 5 */}
-          <div
-            style={{
-              width: appstoreScale === "real" ? "1920px" : "100%",
-              height: appstoreScale === "real" ? "1080px" : "auto",
-              aspectRatio: "16 / 9",
-              background: "radial-gradient(circle at top left, #052e16 0%, #020617 60%, #000000 100%)",
-              border: "6px solid #10B981",
-              borderRadius: "24px",
-              padding: "50px 60px",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.8), inset 0 0 100px rgba(16, 185, 129, 0.15)",
+              padding: "16px 20px",
+              borderRadius: "16px",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
+              gap: "8px",
+              width: "100%",
+              maxWidth: "500px",
+              border: "1.5px solid rgba(16, 185, 129, 0.3)",
               boxSizing: "border-box",
-              position: "relative",
-              overflow: "hidden",
             }}
           >
-            {/* RAYOS LED SUTILES DE FONDO */}
-            <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50%", height: "50%", background: "#10B981", filter: "blur(200px)", opacity: 0.12, pointerEvents: "none" }} />
-            <div style={{ position: "absolute", bottom: "-10%", right: "-10%", width: "40%", height: "40%", background: "#10B981", filter: "blur(180px)", opacity: 0.08, pointerEvents: "none" }} />
-
-            {/* HEADER DEL BANNER */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid rgba(16, 185, 129, 0.25)", paddingBottom: "24px", zIndex: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                <div style={{ background: "#10B981", color: "#ffffff", width: "48px", height: "48px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", fontWeight: 900, boxShadow: "0 0 20px rgba(16, 185, 129, 0.6)" }}>N</div>
-                <div>
-                  <h2 style={{ margin: 0, fontSize: "28px", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.04em" }}>NEVUX</h2>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#10B981", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>Powering Tiendanube</p>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(16, 185, 129, 0.15)", border: "1.5px solid #10B981", padding: "6px 16px", borderRadius: "999px" }}>
-                <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10B981", animation: "nvxPulse 1.2s infinite" }} />
-                <span style={{ fontSize: "11px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.05em", textTransform: "uppercase" }}>App Store ID: 37382</span>
-              </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "12.5px", fontWeight: 800, color: "#a7f3d0" }}>
+                🔎 Control de Zoom (Ajustar a tu pantalla)
+              </span>
+              <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>
+                {Math.round(appstoreZoom * 100)}%
+              </span>
             </div>
+            <input
+              type="range"
+              min="0.15"
+              max="1.0"
+              step="0.05"
+              value={appstoreZoom}
+              onChange={(e) => setAppstoreZoom(parseFloat(e.target.value))}
+              style={{
+                width: "100%",
+                accentColor: "#10B981",
+                cursor: "pointer",
+              }}
+            />
+            <span style={{ fontSize: "11px", color: "#6ee7b7", textAlign: "center", marginTop: "2px" }}>
+              💡 Deslizá al <b>15%-25%</b> para ver todo en vertical. Subí al <b>40%-50%</b> en horizontal para sacar captura HD.
+            </span>
+          </div>
 
-            {/* SECCIÓN CENTRAL: TÍTULO + GRILLA */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "30px", margin: "20px 0", zIndex: 10 }}>
-              {/* TÍTULO Y CONCEPTO */}
-              <div style={{ textAlign: "center" }}>
-                <h1 style={{ margin: "0 0 10px 0", fontSize: "44px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.1 }}>
-                  NEVUX NO ES CUALQUIER APLICACIÓN.
-                </h1>
-                <p style={{ fontSize: "17px", color: "#9ca3af", maxWidth: "850px", margin: "0 auto", lineHeight: 1.5, fontWeight: 500 }}>
-                  Es la única suite inteligente todo-en-uno que fusiona <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversión avanzada</span> con herramientas de IA para liquidar a tu competencia y disparar tu ticket promedio.
-                </p>
-              </div>
+          {/* CONTENEDOR DE ESCALADO MATEMÁTICO */}
+          <div
+            style={{
+              width: `${1920 * appstoreZoom}px`,
+              height: `${1080 * appstoreZoom}px`,
+              overflow: "hidden",
+              borderRadius: "24px",
+              border: "4px solid #10B981",
+              boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
+              transition: "width 0.1s ease, height 0.1s ease",
+              boxSizing: "border-box",
+            }}
+          >
+            {/* EL LIENZO REAL (MANTIENE SUS 1920x1080 PROPORCIONALES) */}
+            <div
+              style={{
+                width: "1920px",
+                height: "1080px",
+                transform: `scale(${appstoreZoom})`,
+                transformOrigin: "top left",
+                background: "radial-gradient(circle at top left, #042f1a 0%, #020617 60%, #000000 100%)",
+                padding: "60px 70px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                boxSizing: "border-box",
+                position: "relative",
+              }}
+            >
+              {/* DEGRADADOS DE LUZ PRO */}
+              <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50%", height: "50%", background: "#10B981", filter: "blur(200px)", opacity: 0.15, pointerEvents: "none" }} />
+              <div style={{ position: "absolute", bottom: "-10%", right: "-10%", width: "40%", height: "40%", background: "#10B981", filter: "blur(180px)", opacity: 0.1, pointerEvents: "none" }} />
 
-              {/* GRILLA DE LAS 7 FUNCIONES PRO */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", width: "100%", marginTop: "10px" }}>
-                {/* TARJETA 1 */}
-                <div style={{ background: "rgba(10, 10, 10, 0.65)", border: "1.5px solid rgba(16, 185, 129, 0.45)", borderRadius: "16px", padding: "18px", boxShadow: "0 8px 30px rgba(16, 185, 129, 0.05)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <BarChart3 size={20} color="#10B981" />
-                    <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#ffffff" }}>Live Analytics</h3>
+              {/* HEADER DEL BANNER */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "3px solid rgba(16, 185, 129, 0.25)", paddingBottom: "30px", zIndex: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ background: "#10B981", color: "#ffffff", width: "64px", height: "64px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", fontWeight: 950, boxShadow: "0 0 30px rgba(16, 185, 129, 0.6)" }}>
+                    N
                   </div>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>Facturación extra, pedidos recuperados y ROI exacto en tiempo real.</p>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: "38px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.04em" }}>NEVUX</h2>
+                    <p style={{ margin: 0, fontSize: "14px", color: "#10B981", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>Powering Tiendanube</p>
+                  </div>
                 </div>
 
-                {/* TARJETA 2 */}
-                <div style={{ background: "rgba(10, 10, 10, 0.65)", border: "1.5px solid rgba(245, 158, 11, 0.45)", borderRadius: "16px", padding: "18px", boxShadow: "0 8px 30px rgba(245, 158, 11, 0.05)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <Flame size={20} color="#F59E0B" />
-                    <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#ffffff" }}>Fechas Especiales</h3>
-                  </div>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>Modos Black Friday, Hot Sale y Navidad activables en 1 clic.</p>
-                </div>
-
-                {/* TARJETA 3 */}
-                <div style={{ background: "rgba(10, 10, 10, 0.65)", border: "1.5px solid rgba(139, 92, 246, 0.45)", borderRadius: "16px", padding: "18px", boxShadow: "0 8px 30px rgba(139, 92, 246, 0.05)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <Palette size={20} color="#8B5CF6" />
-                    <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#ffffff" }}>Estilo Marca</h3>
-                  </div>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>Regla cromática inteligente que adapta los widgets a tu branding.</p>
-                </div>
-
-                {/* TARJETA 4 */}
-                <div style={{ background: "rgba(10, 10, 10, 0.65)", border: "1.5px solid rgba(59, 130, 246, 0.45)", borderRadius: "16px", padding: "18px", boxShadow: "0 8px 30px rgba(59, 130, 246, 0.05)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <Brain size={20} color="#3B82F6" />
-                    <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#ffffff" }}>Sugerencias IA</h3>
-                  </div>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>Cross-selling predictivo dinámico basado en afinidad de precios.</p>
-                </div>
-              </div>
-
-              {/* FILA 2 DE LA GRILLA (CENTRADOS) */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", width: "80%", margin: "0 auto" }}>
-                {/* TARJETA 5 */}
-                <div style={{ background: "rgba(10, 10, 10, 0.65)", border: "1.5px solid rgba(6, 182, 212, 0.45)", borderRadius: "16px", padding: "18px", boxShadow: "0 8px 30px rgba(6, 182, 212, 0.05)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <Globe size={20} color="#06B6D4" />
-                    <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#ffffff" }}>Multi-Idioma IA</h3>
-                  </div>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>Traducción contextual en tiempo real para ES / PT-BR / EN.</p>
-                </div>
-
-                {/* TARJETA 6 */}
-                <div style={{ background: "rgba(10, 10, 10, 0.65)", border: "1.5px solid rgba(236, 72, 153, 0.45)", borderRadius: "16px", padding: "18px", boxShadow: "0 8px 30px rgba(236, 72, 153, 0.05)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <Mic size={20} color="#EC4899" />
-                    <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#ffffff" }}>Búsqueda por Voz</h3>
-                  </div>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>Micrófono flotante con transcripción neuronal para comprar hablando.</p>
-                </div>
-
-                {/* TARJETA 7 */}
-                <div style={{ background: "rgba(10, 10, 10, 0.65)", border: "1.5px solid rgba(16, 185, 129, 0.45)", borderRadius: "16px", padding: "18px", boxShadow: "0 8px 30px rgba(16, 185, 129, 0.05)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                    <Bot size={20} color="#10B981" />
-                    <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 850, color: "#ffffff" }}>Vendedor Virtual IA</h3>
-                  </div>
-                  <p style={{ margin: 0, fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>Agente que asesora, resuelve dudas y deriva el pedido a WhatsApp.</p>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(16, 185, 129, 0.15)", border: "2px solid #10B981", padding: "8px 24px", borderRadius: "999px" }}>
+                  <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10B981" }} />
+                  <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.05em", textTransform: "uppercase" }}>App Store ID: 37382</span>
                 </div>
               </div>
-            </div>
 
-            {/* FOOTER DEL BANNER */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1.5px solid rgba(16, 185, 129, 0.15)", paddingTop: "20px", zIndex: 10 }}>
-              <span style={{ fontSize: "13px", fontWeight: 800, color: "#10B981", letterSpacing: "0.03em" }}>🚀 UNETE A LA REVOLUCIÓN DEL COMMERCE</span>
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "#6b7280" }}>© 2026 Nevux App. Todos los derechos reservados.</span>
+              {/* SECCIÓN CENTRAL: TÍTULO + GRILLA */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "45px", margin: "20px 0", zIndex: 10 }}>
+                {/* TÍTULO Y CONCEPTO */}
+                <div style={{ textAlign: "center" }}>
+                  <h1 style={{ margin: "0 0 14px 0", fontSize: "68px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.1 }}>
+                    NEVUX NO ES CUALQUIER APLICACIÓN.
+                  </h1>
+                  <p style={{ fontSize: "24px", color: "#9ca3af", maxWidth: "1300px", margin: "0 auto", lineHeight: 1.5, fontWeight: 500 }}>
+                    Es la única suite inteligente todo-en-uno que fusiona <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversión avanzada</span> con herramientas de IA para liquidar a tu competencia y disparar tu ticket promedio.
+                  </p>
+                </div>
+
+                {/* GRILLA DE LAS 7 FUNCIONES PRO */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", width: "100%" }}>
+                  {/* TARJETA 1 */}
+                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(16, 185, 129, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(16, 185, 129, 0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                      <BarChart3 size={28} color="#10B981" />
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Live Analytics</h3>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Facturación extra, pedidos recuperados y ROI exacto en tiempo real.</p>
+                  </div>
+
+                  {/* TARJETA 2 */}
+                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(245, 158, 11, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(245, 158, 11, 0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                      <Flame size={28} color="#F59E0B" />
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Fechas Especiales</h3>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Modos Black Friday, Hot Sale y Navidad activables en 1 clic.</p>
+                  </div>
+
+                  {/* TARJETA 3 */}
+                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(139, 92, 246, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(139, 92, 246, 0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                      <Palette size={28} color="#8B5CF6" />
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Estilo Marca</h3>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Regla cromática inteligente que adapta los widgets a tu branding.</p>
+                  </div>
+
+                  {/* TARJETA 4 */}
+                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(59, 130, 246, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(59, 130, 246, 0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                      <Brain size={28} color="#3B82F6" />
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Sugerencias IA</h3>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Cross-selling predictivo dinámico basado en afinidad de precios.</p>
+                  </div>
+                </div>
+
+                {/* FILA 2 DE LA GRILLA (CENTRADOS) */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px", width: "80%", margin: "0 auto" }}>
+                  {/* TARJETA 5 */}
+                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(6, 182, 212, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(6, 182, 212, 0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                      <Globe size={28} color="#06B6D4" />
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Multi-Idioma IA</h3>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Traducción contextual en tiempo real para ES / PT-BR / EN.</p>
+                  </div>
+
+                  {/* TARJETA 6 */}
+                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(236, 72, 153, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(236, 72, 153, 0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                      <Mic size={28} color="#EC4899" />
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Búsqueda por Voz</h3>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Micrófono flotante con transcripción neuronal para comprar hablando.</p>
+                  </div>
+
+                  {/* TARJETA 7 */}
+                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(16, 185, 129, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(16, 185, 129, 0.05)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                      <Bot size={28} color="#10B981" />
+                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Vendedor Virtual IA</h3>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>Agente que asesora, resuelve dudas y deriva el pedido a WhatsApp.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* FOOTER DEL BANNER */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "2px solid rgba(16, 185, 129, 0.15)", paddingTop: "25px", zIndex: 10 }}>
+                <span style={{ fontSize: "18px", fontWeight: 850, color: "#10B981", letterSpacing: "0.03em" }}>🚀 UNETE A LA REVOLUCIÓN DEL COMMERCE EN LATAM</span>
+                <span style={{ fontSize: "16px", fontWeight: 700, color: "#6b7280" }}>© 2026 Nevux App. Todos los derechos reservados.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1174,4 +1180,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-  }
+}
