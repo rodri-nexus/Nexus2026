@@ -47,7 +47,7 @@ interface UserStore {
 }
 
 /* ═══════════════════════════════════════════
-   CONSTANTES Y OPCIONES (Regla #9 al inicio)
+   CONSTANTES E OPCIONES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const LANGUAGE_OPTIONS: LanguageOption[] = [
   {
@@ -198,7 +198,7 @@ function MultiLanguageSimulatorPreview({
             padding: "1rem",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.4rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", justifyContent: "space-between", marginBottom: "0.4rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
               <Ticket size={16} color="#10B981" />
               <span style={{ fontWeight: 800, fontSize: "0.85rem" }}>{content.cuponTitle}</span>
@@ -345,12 +345,11 @@ export default function IdiomasIaPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al guardar");
 
-      // UX Booster: Sincronizar pestaña del simulador visual de inmediato
       setSimTab(config.default_language);
 
       setFeedback({
         type: "success",
-        message: "¡Ajustes de idioma guardados con éxito!",
+        message: "¡Ajustes guardados con éxito! 🌎 Por favor, recargá o refrescá la pestaña de tu tienda online para ver los cambios reflejados.",
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error inesperado";
@@ -379,12 +378,11 @@ export default function IdiomasIaPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al traducir");
 
-      // UX Booster: Sincronizar pestaña del simulador visual de inmediato al idioma base traducido
       setSimTab(config.default_language);
 
       setFeedback({
         type: "success",
-        message: data.message || "¡Todos los widgets han sido traducidos automáticamente con IA!",
+        message: "¡Widgets traducidos y sincronizados con IA con éxito! 🚀 Acordate de recargar o refrescar la pestaña de tu tienda online para ver los cambios aplicados en vivo.",
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error inesperado";
@@ -506,9 +504,9 @@ export default function IdiomasIaPage() {
               }}
             >
               {feedback.type === "success" ? (
-                <CheckCircle2 size={18} color="#059669" />
+                <CheckCircle2 size={18} color="#059669" style={{ flexShrink: 0 }} />
               ) : (
-                <AlertCircle size={18} color="#dc2626" />
+                <AlertCircle size={18} color="#dc2626" style={{ flexShrink: 0 }} />
               )}
               <span>{feedback.message}</span>
             </motion.div>
@@ -783,4 +781,4 @@ export default function IdiomasIaPage() {
       </main>
     </div>
   );
-        }
+}
