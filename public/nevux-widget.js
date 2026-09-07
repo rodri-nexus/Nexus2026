@@ -1750,7 +1750,6 @@
 
     document.body.appendChild(layer);
   }
-
   /* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
@@ -1767,13 +1766,6 @@
 
   injectGlobalStyles();
 
-  // 🎙️ DISPARAR BÚSQUEDA POR VOZ DE FORMA INMEDIATA E INDEPENDIENTE
-  try {
-    initNevuxVoiceSearch(storeId);
-  } catch (voiceErr) {
-    console.warn("[Nevux Voice] Init warning:", voiceErr);
-  }
-
   // Detectar idioma del comprador (desde la etiqueta <html lang="..."> o configuración del navegador)
   var clientLang = document.documentElement.lang || navigator.language || "es";
 
@@ -1788,6 +1780,17 @@
       // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
       if (data.activeCampaign) {
         renderAtmosphericEffects(data.activeCampaign);
+      }
+
+      // 🎙️ INYECCIÓN UNIFICADA DE BÚSQUEDA POR VOZ
+      if (data.voiceSearch && data.voiceSearch.is_active) {
+        if (document.body) {
+          renderNevuxVoiceUI(data.voiceSearch);
+        } else {
+          document.addEventListener("DOMContentLoaded", function() {
+            renderNevuxVoiceUI(data.voiceSearch);
+          });
+        }
       }
 
       if (!data.widgets || data.widgets.length === 0) {
@@ -9216,33 +9219,60 @@
     } catch(err) {}
   }
 
-  /* ═══════════════════════════════════════════
-     MOTOR DE BÚSQUEDA POR VOZ IA EN VIVO (?v=65)
+   /* ═══════════════════════════════════════════
+     MOTOR DE TELEMETRÍA Y ANALYTICS EN VIVO (NEVUX TRACK)
   ═══════════════════════════════════════════ */
-  function initNevuxVoiceSearch(sId) {
+  var nvxSessionId = (function() {
     try {
-      if (!sId || window.__nvxVoiceInit) return;
-      window.__nvxVoiceInit = true;
+      var sid = sessionStorage.getItem("nvx_sid");
+      if (!sid) {
+        sid = "nvx_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now();
+        sessionStorage.setItem("nvx_sid", sid);
+      }
+      return sid;
+    } catch(e) {
+      return "nvx_anon_" + Date.now();
+    }
+  })();
 
-      var API_VOICE = "https://nexus2026-gx7e.vercel.app/api/ai/voice-search?store_id=" + encodeURIComponent(sId);
-      fetch(API_VOICE)
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-          if (!data || !data.settings || !data.settings.is_active) return;
-          
-          // Blindaje: Asegurar que document.body exista antes de inyectar
-          if (document.body) {
-            renderNevuxVoiceUI(data.settings);
-          } else {
-            document.addEventListener("DOMContentLoaded", function() {
-              renderNevuxVoiceUI(data.settings);
-            });
-          }
-        })
-        .catch(function(err) {});
-    } catch(e) {}
+  function nvxTrack(w, eventType, eventValue, metadata) {
+    try {
+      if (!w || !w.widget_slug) return;
+      var sId = (typeof storeId !== "undefined" && storeId) ? storeId : (w.store_id || 0);
+      if (!sId) return;
+
+      var pId = (typeof productId !== "undefined" && productId) ? productId : (w.target_product_id || null);
+
+      var payload = {
+        store_id: Number(sId),
+        widget_id: w.id || null,
+        widget_slug: String(w.widget_slug),
+        event_type: String(eventType),
+        event_value: Number(eventValue) || 0,
+        session_id: nvxSessionId,
+        product_id: pId ? Number(pId) : null,
+        metadata: metadata || {}
+      };
+
+      var trackUrl = "https://nexus2026-gx7e.vercel.app/api/analytics/track";
+      var dataStr = JSON.stringify(payload);
+
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(trackUrl, new Blob([dataStr], { type: "application/json" }));
+      } else {
+        fetch(trackUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: dataStr,
+          keepalive: true
+        }).catch(function(){});
+      }
+    } catch(err) {}
   }
 
+  /* ═══════════════════════════════════════════
+     MOTOR DE BÚSQUEDA POR VOZ IA EN VIVO (?v=66)
+  ═══════════════════════════════════════════ */
   function renderNevuxVoiceUI(st) {
     try {
       if (document.getElementById("nvx-voice-trigger-btn")) return;
