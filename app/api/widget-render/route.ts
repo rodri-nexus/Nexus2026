@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isStorePlanActive } from '@/lib/plan'
 import { getCampaignPreset } from '@/lib/campaignPresets'
+import { getProducts } from "@/lib/tiendanube"
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -48,6 +49,110 @@ function calcularStats(reviews: any[]) {
 
   const promedio = parseFloat((suma / total).toFixed(2))
   return { total, promedio, distribucion }
+}
+
+// --- PARSERS Y MOTOR IA PARA SUGERENCIAS DINÁMICAS ---
+function parseProductName(raw: any): string {
+  if (!raw) return "Producto Complementario";
+  if (typeof raw === "string") return raw;
+  if (typeof raw === "object" && raw !== null) {
+    return String(raw.es || raw.pt || Object.values(raw)[0] || "Producto Complementario");
+  }
+  return "Producto Complementario";
+}
+
+function parseProductPrice(price: any): number {
+  if (typeof price === "number") return price;
+  if (!price) return 0;
+  const cleaned = String(price).replace(/[^0-9.]/g, "");
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
+}
+
+function getProductImageUrl(p: any): string {
+  if (typeof p.image_url === "string") return p.image_url;
+  if (Array.isArray(p.images) && p.images.length > 0) {
+    const first = p.images[0];
+    if (typeof first === "string") return first;
+    if (typeof first === "object" && first !== null && "src" in first) {
+      return String(first.src || "");
+    }
+  }
+  return "";
+}
+
+function getProductVariantId(p: any): string {
+  if (Array.isArray(p.variants) && p.variants.length > 0) {
+    return String(p.variants[0].id || "");
+  }
+  return "";
+}
+
+function computeAiPairings(
+  products: any[],
+  mainProductId: number,
+  discountPercentage: number
+): any[] {
+  if (!Array.isArray(products) || products.length < 2) return [];
+
+  const parsed = products.map((p) => ({
+    id: Number(p.id) || 0,
+    name: parseProductName(p.name),
+    price: parseProductPrice(p.price || p.promotional_price),
+    image: getProductImageUrl(p),
+    variantId: getProductVariantId(p),
+  })).filter((p) => p.id > 0 && p.price > 0 && p.variantId !== "");
+
+  if (parsed.length < 2) return [];
+
+  const mainProduct = parsed.find(p => p.id === mainProductId);
+  if (!mainProduct) {
+    // Fallback: Si no se encuentra el producto principal en el catálogo, sugerir los 2 primeros válidos
+    return parsed.slice(0, 2).map(p => ({
+      titulo: p.name,
+      precio: p.price,
+      imagenUrl: p.image,
+      variantId: p.variantId,
+      incluidoPorDefecto: true
+    }));
+  }
+
+  // Buscar candidatos complementarios excluyendo el producto principal
+  const candidates = parsed.filter(p => p.id !== mainProductId);
+  
+  const scoredCandidates = candidates.map(candidate => {
+    let score = 50; // Puntaje base
+
+    // Regla de Afinidad de Precio (Ideal entre 15% y 65% del producto principal)
+    const ratio = candidate.price / mainProduct.price;
+    if (ratio >= 0.15 && ratio <= 0.65) {
+      score += 35;
+    } else if (ratio < 1.0) {
+      score += 15;
+    }
+
+    // Regla de Afinidad Semántica por palabras compartidas
+    const mainWords = mainProduct.name.toLowerCase().split(/\s+/);
+    const candWords = candidate.name.toLowerCase().split(/\s+/);
+    const sharesKeywords = mainWords.some(w => w.length > 3 && candWords.includes(w));
+    if (sharesKeywords) {
+      score += 20;
+    }
+
+    return { candidate, score };
+  });
+
+  // Ordenar de mayor a menor puntaje
+  scoredCandidates.sort((a, b) => b.score - a.score);
+
+  // Devolver los 2 mejores complementos calculados por IA
+  return scoredCandidates.slice(0, 2).map(item => ({
+    titulo: item.candidate.name,
+    precio: item.candidate.price,
+    imagenUrl: item.candidate.image,
+    variantId: item.candidate.variantId,
+    incluidoPorDefecto: true
+  }));
 }
 
 export async function OPTIONS() {
@@ -179,6 +284,56 @@ export async function GET(req: NextRequest) {
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
 
+    // 🧠 INTERCEPCIÓN IA: Dinamizar el widget pack-complementarios con Cross-Selling predictivo si está activo
+    const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
+
+    if (packWidgetIndex !== -1 && productId) {
+      const { data: aiSettings } = await supabase
+        .from('ai_cross_sell_settings')
+        .select('*')
+        .eq('store_id', storeId)
+        .maybeSingle();
+
+      const aiActive = aiSettings ? aiSettings.is_active : false;
+
+      if (aiActive) {
+        const { data: storeRow } = await supabase
+          .from('stores')
+          .select('access_token')
+          .eq('store_id', storeId)
+          .maybeSingle();
+
+        if (storeRow && storeRow.access_token) {
+          try {
+            const rawProducts = await getProducts(storeId, storeRow.access_token);
+            const productList = Array.isArray(rawProducts)
+              ? rawProducts
+              : (rawProducts as { products?: any[] })?.products || [];
+
+            const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
+
+            // Calcular complementarios óptimos de forma dinámica por IA
+            const aiRecommendedItems = computeAiPairings(productList, productId, discount);
+
+            if (aiRecommendedItems.length > 0) {
+              const currentConfig = enrichedWidgets[packWidgetIndex].config || {};
+              enrichedWidgets[packWidgetIndex].config = {
+                ...currentConfig,
+                titulo: aiSettings?.title || currentConfig.titulo || "🔥 COMBINÁ Y AHORRÁ EN TU PACK",
+                subtexto: aiSettings?.subtitle || currentConfig.subtexto || "Llevate estos productos juntos con un descuento especial",
+                textoBoton: aiSettings?.button_text || currentConfig.textoBoton || "Agregar pack al carrito",
+                descuentoPorcentaje: discount,
+                items: aiRecommendedItems // ¡Reemplazo dinámico instantáneo!
+              };
+              console.log("[Nevux AI] Widget Pack Complementarios dinamizado con IA para productId:", productId);
+            }
+          } catch (aiError) {
+            console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
+          }
+        }
+      }
+    }
+
     // Enriquecer widgets de reseñas si existen
     const widgetsResenas = enrichedWidgets.filter(
       (w) => w.widget_slug === 'resenas-clientes'
@@ -240,4 +395,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-  }
+     }
