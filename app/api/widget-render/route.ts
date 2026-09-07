@@ -34,7 +34,7 @@ function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
   const lower = text.trim().toLowerCase();
 
   // Búsqueda directa en diccionario
-  if (ECOOMERCE_DICTIONARY[lower]) {
+  if (ECOMMERCE_DICTIONARY[lower]) {
     return ECOMMERCE_DICTIONARY[lower][targetLang];
   }
 
@@ -324,7 +324,7 @@ export async function GET(req: NextRequest) {
       language: "es-AR",
     }
 
-    // 🤖 NUEVA INTEGRACIÓN DIRECTA: Obtener ajustes del Vendedor Virtual IA
+    // 🤖 Obtener ajustes del Vendedor Virtual IA
     const { data: salesmanRow } = await supabase
       .from('store_virtual_salesman_settings')
       .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
@@ -570,7 +570,7 @@ export async function GET(req: NextRequest) {
         widgets: enrichedWidgets, 
         activeCampaign: activeCampaignData,
         voiceSearch: voiceSearchData,
-        virtualSalesman: virtualSalesmanData, // Nueva devolución unificada
+        virtualSalesman: virtualSalesmanData,
         ts: Date.now() 
       },
       { status: 200, headers: corsHeaders }
@@ -582,4 +582,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-}
+               }
