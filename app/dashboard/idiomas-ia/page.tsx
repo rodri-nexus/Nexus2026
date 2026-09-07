@@ -166,7 +166,7 @@ function MultiLanguageSimulatorPreview({
                 textTransform: "uppercase",
               }}
             >
-              {lang}
+              <span>{lang}</span>
             </button>
           ))}
         </div>
@@ -186,7 +186,7 @@ function MultiLanguageSimulatorPreview({
             boxShadow: "0 2px 8px rgba(16, 185, 129, 0.2)",
           }}
         >
-          {content.banner}
+          <span>{content.banner}</span>
         </div>
 
         {/* Badge Cupón traducido */}
@@ -239,7 +239,7 @@ function MultiLanguageSimulatorPreview({
                 cursor: "pointer",
               }}
             >
-              {content.btn}
+              <span>{content.btn}</span>
             </button>
           </div>
         </div>
@@ -315,7 +315,7 @@ export default function IdiomasIaPage() {
   }, []);
 
   const toggleLanguage = (lang: SupportedLang) => {
-    if (lang === config.default_language) return; // No se puede deshabilitar el idioma por defecto
+    if (lang === config.default_language) return;
 
     setConfig((prev) => {
       const exists = prev.enabled_languages.includes(lang);
@@ -390,6 +390,8 @@ export default function IdiomasIaPage() {
 
   return (
     <div
+      translate="no"
+      className="notranslate"
       style={{
         minHeight: "100vh",
         background: "#ffffff",
@@ -428,7 +430,7 @@ export default function IdiomasIaPage() {
             }}
           >
             <ArrowLeft size={15} />
-            Volver al Dashboard
+            <span>Volver al Dashboard</span>
           </Link>
         </div>
 
@@ -457,7 +459,7 @@ export default function IdiomasIaPage() {
             }}
           >
             <Globe size={13} color="#10B981" />
-            Traducción Neuronal Inteligente
+            <span>Traducción Neuronal Inteligente</span>
           </div>
 
           <h1
@@ -720,15 +722,15 @@ export default function IdiomasIaPage() {
                   }}
                 >
                   {translating ? (
-                    <>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <Loader2 size={18} className="animate-spin" />
-                      Traduciendo widgets con IA...
-                    </>
+                      <span>Traduciendo widgets con IA...</span>
+                    </div>
                   ) : (
-                    <>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <Zap size={18} />
-                      Traducir y Sincronizar con IA (1 Clic)
-                    </>
+                      <span>Traducir y Sincronizar con IA (1 Clic)</span>
+                    </div>
                   )}
                 </button>
 
@@ -753,7 +755,7 @@ export default function IdiomasIaPage() {
                   }}
                 >
                   <Save size={16} />
-                  Guardar Ajustes
+                  <span>Guardar Ajustes</span>
                 </button>
               </div>
             </div>
@@ -775,4 +777,4 @@ export default function IdiomasIaPage() {
       </main>
     </div>
   );
-}
+  }
