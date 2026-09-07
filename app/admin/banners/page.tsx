@@ -577,7 +577,7 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* 🌟 NUEVA PESTAÑA: BANNER #5 APP STORE (1920x1080) */}
+      {/* 🌟 PESTAÑA: BANNER #5 APP STORE (1920x1080) */}
       {activeTab === "appstore5" && (
         <div
           style={{
@@ -681,7 +681,7 @@ export default function BannersPage() {
                 <h1 style={{ margin: "0 0 10px 0", fontSize: "44px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.1 }}>
                   NEVUX NO ES CUALQUIER APLICACIÓN.
                 </h1>
-                <p style={{ margin: 0, fontSize: "17px", color: "#9ca3af", maxWidth: "850px", margin: "0 auto", lineHeight: 1.5, fontWeight: 500 }}>
+                <p style={{ fontSize: "17px", color: "#9ca3af", maxWidth: "850px", margin: "0 auto", lineHeight: 1.5, fontWeight: 500 }}>
                   Es la única suite inteligente todo-en-uno que fusiona <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversión avanzada</span> con herramientas de IA para liquidar a tu competencia y disparar tu ticket promedio.
                 </p>
               </div>
