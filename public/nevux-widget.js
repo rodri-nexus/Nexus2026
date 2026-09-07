@@ -1751,7 +1751,7 @@
     document.body.appendChild(layer);
   }
 
-  /* ═══════════════════════════════════════════
+   /* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
   const storeId = detectStoreId();
@@ -1781,6 +1781,15 @@
       // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
       if (data.activeCampaign) {
         renderAtmosphericEffects(data.activeCampaign);
+      }
+
+      // 🎙️ INICIALIZAR BÚSQUEDA POR VOZ IA DESDE EL CICLO DE VIDA CENTRAL
+      try {
+        if (typeof initNevuxVoiceSearch === "function") {
+          initNevuxVoiceSearch(storeId);
+        }
+      } catch (voiceErr) {
+        console.error("[Nevux Voice] Error al inicializar:", voiceErr);
       }
 
       if (!data.widgets || data.widgets.length === 0) {
@@ -9405,6 +9414,13 @@
     } catch(e) {}
   }
 
+  // Auto-iniciar Búsqueda por Voz si hay store_id disponible
+  try {
+    var detectedStoreId = (typeof storeId !== "undefined" && storeId) ? storeId : ((typeof LS !== "undefined" && LS.store && LS.store.id) ? LS.store.id : null);
+    if (detectedStoreId) {
+      initNevuxVoiceSearch(detectedStoreId);
+    }
+  } catch(e) {}
   // Auto-iniciar Búsqueda por Voz si hay store_id disponible
   try {
     var detectedStoreId = (typeof storeId !== "undefined" && storeId) ? storeId : ((typeof LS !== "undefined" && LS.store && LS.store.id) ? LS.store.id : null);
