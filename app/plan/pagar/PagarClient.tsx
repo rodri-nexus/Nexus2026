@@ -24,6 +24,10 @@ import NevuxLogo from "@/app/components/landing/NevuxLogo";
 /* ═══════════════════════════════════════════
    1. TYPES, INTERFACES & LOCALIZED DATA (Regla #9)
    ═══════════════════════════════════════════ */
+interface PagarClientProps {
+  email: string;
+}
+
 interface PaymentField {
   label: string;
   value: string;
@@ -225,9 +229,7 @@ export default function PagarClient({ email }: PagarClientProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Estado del selector de país
   const [selectedCountry, setSelectedCountry] = useState<string>("AR");
-
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [reference, setReference] = useState("");
@@ -236,7 +238,6 @@ export default function PagarClient({ email }: PagarClientProps) {
   const [dragActive, setDragActive] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
 
-  // Obtener config activa según país seleccionado
   const activeConfig = COUNTRIES_CONFIG.find((c) => c.id === selectedCountry) || COUNTRIES_CONFIG[0];
 
   const handleCopy = useCallback(async (text: string, field: string) => {
@@ -311,7 +312,6 @@ export default function PagarClient({ email }: PagarClientProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      // Incluimos en la referencia qué país y moneda seleccionó para facilitar tu aprobación
       const cleanRef = `[${activeConfig.id}] ${reference.trim()}`.trim();
       formData.append("transfer_reference", cleanRef);
 
@@ -462,7 +462,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           </p>
         </motion.div>
 
-        {/* SELECTOR DE PAÍS PREMIUM (100% RESPONSIVE) */}
+        {/* SELECTOR DE PAÍS */}
         <div style={{ marginBottom: "1.5rem" }}>
           <div
             style={{
@@ -518,7 +518,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           </div>
         </div>
 
-        {/* PASO 1 — Datos de transferencia localizados */}
+        {/* PASO 1 — Datos de transferencia */}
         <motion.div
           key={activeConfig.id}
           initial={{ opacity: 0, y: 10 }}
@@ -572,7 +572,6 @@ export default function PagarClient({ email }: PagarClientProps) {
             </h2>
           </div>
 
-          {/* Monto destacado en su moneda local */}
           <div
             style={{
               background: "linear-gradient(135deg, #10B981, #059669)",
@@ -609,7 +608,6 @@ export default function PagarClient({ email }: PagarClientProps) {
             </div>
           </div>
 
-          {/* Renderización dinámica de coordenadas de pago */}
           {activeConfig.fields.map((f) => (
             <DataRow
               key={f.label}
@@ -704,7 +702,6 @@ export default function PagarClient({ email }: PagarClientProps) {
             </h2>
           </div>
 
-          {/* Uploader */}
           {!file ? (
             <div
               onDragEnter={handleDrag}
@@ -944,4 +941,4 @@ export default function PagarClient({ email }: PagarClientProps) {
       </div>
     </div>
   );
-    }
+}
