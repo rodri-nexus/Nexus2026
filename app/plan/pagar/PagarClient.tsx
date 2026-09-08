@@ -1,4 +1,3 @@
-// app/plan/pagar/PagarClient.tsx
 "use client";
 
 import { useState, useRef, useCallback } from "react";
@@ -18,23 +17,216 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
+  Globe,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
-interface PagarClientProps {
-  email: string;
+/* ═══════════════════════════════════════════
+   1. TYPES, INTERFACES & LOCALIZED DATA (Regla #9)
+   ═══════════════════════════════════════════ */
+interface PaymentField {
+  label: string;
+  value: string;
+  small?: boolean;
+  noCopy?: boolean;
 }
 
-const NARANJA_DATA = {
-  alias: "rodrigolazaro24",
-  cbu: "4530000800011686104856",
-  titular: "Rodrigo Lazaro Spehgt",
-  amount: "$30.000",
-};
+interface CountryPaymentConfig {
+  id: string;
+  flag: string;
+  name: string;
+  currency: string;
+  amount: string;
+  title: string;
+  instructions: string;
+  fields: PaymentField[];
+}
 
+const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
+  {
+    id: "AR",
+    flag: "🇦🇷",
+    name: "Argentina",
+    currency: "ARS",
+    amount: "$30.000",
+    title: "Transferencia local o Naranja X",
+    instructions: "Transferí el monto exacto en pesos argentinos por CBU o Alias.",
+    fields: [
+      { label: "Alias", value: "rodrigolazaro24" },
+      { label: "CBU", value: "4530000800011686104856", small: true },
+      { label: "Titular", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+    ],
+  },
+  {
+    id: "BR",
+    flag: "🇧🇷",
+    name: "Brasil",
+    currency: "BRL",
+    amount: "R$ 160",
+    title: "Transferência instantânea via PIX",
+    instructions: "Faça a transferência Pix usando a chave abaixo.",
+    fields: [
+      { label: "Chave Pix", value: "rodrigolazaro24@gmail.com" },
+      { label: "Beneficiário", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+    ],
+  },
+  {
+    id: "MX",
+    flag: "🇲🇽",
+    name: "México",
+    currency: "MXN",
+    amount: "$600 MXN",
+    title: "Transferencia SPEI o CLABE",
+    instructions: "Realiza tu transferencia SPEI interbancaria utilizando estos datos.",
+    fields: [
+      { label: "CLABE", value: "138180000116861048", small: true },
+      { label: "Banco", value: "Naranja X / STP", noCopy: true },
+      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+    ],
+  },
+  {
+    id: "CO",
+    flag: "🇨🇴",
+    name: "Colombia",
+    currency: "COP",
+    amount: "$120.000 COP",
+    title: "Transferencia Bancaria",
+    instructions: "Realiza tu transferencia desde Bancolombia, Nequi o tu banco local.",
+    fields: [
+      { label: "Cuenta de Ahorros", value: "116-861048-56" },
+      { label: "Banco", value: "Bancolombia", noCopy: true },
+      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+    ],
+  },
+  {
+    id: "CL",
+    flag: "🇨🇱",
+    name: "Chile",
+    currency: "CLP",
+    amount: "$28.000 CLP",
+    title: "Transferencia cuenta corriente o vista",
+    instructions: "Realiza la transferencia utilizando los datos de cuenta y tu RUT.",
+    fields: [
+      { label: "Cuenta Vista", value: "116861048" },
+      { label: "RUT", value: "11.686.104-8" },
+      { label: "Banco", value: "Banco Estado", noCopy: true },
+      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+    ],
+  },
+  {
+    id: "GL",
+    flag: "🌎",
+    name: "Internacional",
+    currency: "USD",
+    amount: "$30 USD",
+    title: "PayPal o Crypto USDT",
+    instructions: "Envía el pago por PayPal o mediante la red Tron (TRC20).",
+    fields: [
+      { label: "PayPal Email", value: "rodrigolazaro24@gmail.com" },
+      { label: "Dirección USDT (TRC20)", value: "TXS86104856NevuxCryptoAddress", small: true },
+      { label: "Destinatario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+    ],
+  },
+];
+
+/* ═══════════════════════════════════════════
+   2. STYLES & AUXILIARY COMPONENTS (Regla #9)
+   ═══════════════════════════════════════════ */
+function DataRow({
+  label,
+  value,
+  fieldKey,
+  copied,
+  onCopy,
+  small = false,
+  noCopy = false,
+}: {
+  label: string;
+  value: string;
+  fieldKey: string;
+  copied: boolean;
+  onCopy: (text: string, field: string) => void;
+  small?: boolean;
+  noCopy?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "0.75rem",
+        padding: "0.85rem 0.95rem",
+        background: "#f9fafb",
+        borderRadius: "10px",
+        marginBottom: "0.5rem",
+        border: "1px solid #f3f4f6",
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: "0.7rem",
+            color: "#000000",
+            opacity: 0.55,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            marginBottom: "0.15rem",
+          }}
+        >
+          {label}
+        </div>
+        <div
+          style={{
+            fontSize: small ? "0.82rem" : "0.95rem",
+            color: "#000000",
+            fontWeight: 700,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            fontFamily: small ? "'SF Mono', Monaco, Consolas, monospace" : "inherit",
+          }}
+        >
+          {value}
+        </div>
+      </div>
+      {!noCopy && (
+        <button
+          type="button"
+          onClick={() => onCopy(value, fieldKey)}
+          style={{
+            width: "38px",
+            height: "38px",
+            borderRadius: "10px",
+            border: "none",
+            background: copied ? "#10B981" : "white",
+            color: copied ? "white" : "#10B981",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            transition: "all 0.2s",
+            boxShadow: copied ? "0 4px 12px rgba(16, 185, 129, 0.25)" : "0 2px 6px rgba(0, 0, 0, 0.05)",
+          }}
+        >
+          {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   3. COMPONENTE PRINCIPAL (PagarClient)
+   ═══════════════════════════════════════════ */
 export default function PagarClient({ email }: PagarClientProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Estado del selector de país
+  const [selectedCountry, setSelectedCountry] = useState<string>("AR");
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -44,13 +236,15 @@ export default function PagarClient({ email }: PagarClientProps) {
   const [dragActive, setDragActive] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
 
+  // Obtener config activa según país seleccionado
+  const activeConfig = COUNTRIES_CONFIG.find((c) => c.id === selectedCountry) || COUNTRIES_CONFIG[0];
+
   const handleCopy = useCallback(async (text: string, field: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
     } catch {
-      // Fallback para navegadores antiguos o webviews móviles
       const textarea = document.createElement("textarea");
       textarea.value = text;
       document.body.appendChild(textarea);
@@ -71,12 +265,7 @@ export default function PagarClient({ email }: PagarClientProps) {
     if (!selectedFile) return;
 
     const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-    const ALLOWED = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "application/pdf",
-    ];
+    const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
     if (selectedFile.size > MAX_SIZE) {
       setError("El archivo supera los 5 MB. Elegí uno más chico.");
@@ -122,9 +311,9 @@ export default function PagarClient({ email }: PagarClientProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      if (reference.trim()) {
-        formData.append("transfer_reference", reference.trim());
-      }
+      // Incluimos en la referencia qué país y moneda seleccionó para facilitar tu aprobación
+      const cleanRef = `[${activeConfig.id}] ${reference.trim()}`.trim();
+      formData.append("transfer_reference", cleanRef);
 
       const res = await fetch("/api/plan/upload-receipt", {
         method: "POST",
@@ -137,7 +326,6 @@ export default function PagarClient({ email }: PagarClientProps) {
         throw new Error(data.error || "Error al subir el comprobante");
       }
 
-      // Redirigir a pantalla de aprobación pendiente
       router.push(data.redirect || "/plan/pendiente");
       router.refresh();
     } catch (err: unknown) {
@@ -156,8 +344,7 @@ export default function PagarClient({ email }: PagarClientProps) {
         width: "100%",
         maxWidth: "100vw",
         background: "linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         position: "relative",
         overflow: "hidden",
         boxSizing: "border-box",
@@ -171,8 +358,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           right: "-150px",
           width: "400px",
           height: "400px",
-          background:
-            "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -229,7 +415,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          style={{ textAlign: "center", marginBottom: "2rem" }}
+          style={{ textAlign: "center", marginBottom: "1.5rem" }}
         >
           <div
             style={{
@@ -261,8 +447,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.15,
             }}
           >
-            Activá tu cuenta en{" "}
-            <span style={{ color: "#10B981" }}>2 pasos</span>
+            Activá tu cuenta en <span style={{ color: "#10B981" }}>2 pasos</span>
           </h1>
           <p
             style={{
@@ -273,16 +458,72 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.5,
             }}
           >
-            Transferí <strong style={{ color: "#10B981" }}>{NARANJA_DATA.amount}</strong>{" "}
-            a Naranja X y subí el comprobante
+            Seleccioná tu país, transferí en tu moneda local y subí el comprobante.
           </p>
         </motion.div>
 
-        {/* PASO 1 — Datos de transferencia */}
+        {/* SELECTOR DE PAÍS PREMIUM (100% RESPONSIVE) */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              fontSize: "0.8rem",
+              fontWeight: 700,
+              color: "#4b5563",
+              marginBottom: "0.5rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            <Globe size={13} /> Seleccioná tu región o moneda:
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "0.5rem",
+            }}
+          >
+            {COUNTRIES_CONFIG.map((c) => {
+              const active = selectedCountry === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setSelectedCountry(c.id)}
+                  style={{
+                    padding: "0.6rem",
+                    border: active ? "2.5px solid #10B981" : "1.5px solid #e5e7eb",
+                    borderRadius: "12px",
+                    background: active ? "#ecfdf5" : "#ffffff",
+                    color: active ? "#059669" : "#4b5563",
+                    fontSize: "0.85rem",
+                    fontWeight: active ? 800 : 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.35rem",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <span style={{ fontSize: "1.1rem" }}>{c.flag}</span>
+                  <span>{c.id}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* PASO 1 — Datos de transferencia localizados */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          key={activeConfig.id}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
+          transition={{ duration: 0.3 }}
           style={{
             background: "white",
             borderRadius: "20px",
@@ -327,19 +568,19 @@ export default function PagarClient({ email }: PagarClientProps) {
                 letterSpacing: "-0.01em",
               }}
             >
-              Transferí a Naranja X
+              {activeConfig.title}
             </h2>
           </div>
 
-          {/* Monto destacado */}
+          {/* Monto destacado en su moneda local */}
           <div
             style={{
               background: "linear-gradient(135deg, #10B981, #059669)",
               borderRadius: "14px",
               padding: "1.25rem",
-              marginBottom: "1rem",
+              marginBottom: "1.25rem",
               textAlign: "center",
-              boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)",
+              boxShadow: "0 8px 20px rgba(16, 185, 129, 0.2)",
             }}
           >
             <div
@@ -353,7 +594,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 marginBottom: "0.35rem",
               }}
             >
-              Monto a transferir
+              Monto a transferir ({activeConfig.currency})
             </div>
             <div
               style={{
@@ -364,38 +605,27 @@ export default function PagarClient({ email }: PagarClientProps) {
                 lineHeight: 1,
               }}
             >
-              {NARANJA_DATA.amount}
+              {activeConfig.amount}
             </div>
           </div>
 
-          {/* Datos con copiar */}
-          <DataRow
-            label="Alias"
-            value={NARANJA_DATA.alias}
-            fieldKey="alias"
-            copied={copiedField === "alias"}
-            onCopy={handleCopy}
-          />
-          <DataRow
-            label="CBU"
-            value={NARANJA_DATA.cbu}
-            fieldKey="cbu"
-            copied={copiedField === "cbu"}
-            onCopy={handleCopy}
-            small
-          />
-          <DataRow
-            label="Titular"
-            value={NARANJA_DATA.titular}
-            fieldKey="titular"
-            copied={copiedField === "titular"}
-            onCopy={handleCopy}
-            noCopy
-          />
+          {/* Renderización dinámica de coordenadas de pago */}
+          {activeConfig.fields.map((f) => (
+            <DataRow
+              key={f.label}
+              label={f.label}
+              value={f.value}
+              fieldKey={f.label.toLowerCase()}
+              copied={copiedField === f.label.toLowerCase()}
+              onCopy={handleCopy}
+              small={f.small}
+              noCopy={f.noCopy}
+            />
+          ))}
 
           <div
             style={{
-              marginTop: "1rem",
+              marginTop: "1.25rem",
               padding: "0.85rem 1rem",
               background: "#ecfdf5",
               borderRadius: "10px",
@@ -405,11 +635,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               alignItems: "flex-start",
             }}
           >
-            <AlertCircle
-              size={16}
-              color="#10B981"
-              style={{ flexShrink: 0, marginTop: "2px" }}
-            />
+            <AlertCircle size={16} color="#10B981" style={{ flexShrink: 0, marginTop: "2px" }} />
             <p
               style={{
                 fontSize: "0.8rem",
@@ -417,10 +643,10 @@ export default function PagarClient({ email }: PagarClientProps) {
                 opacity: 0.75,
                 margin: 0,
                 lineHeight: 1.45,
+                textAlign: "left",
               }}
             >
-              Transferí el monto <strong>exacto</strong> desde tu app de Naranja X,
-              MercadoPago o el banco. Tocá los botones para copiar cada dato.
+              {activeConfig.instructions} Copiá los datos de arriba para transferir de forma segura.
             </p>
           </div>
         </motion.div>
@@ -518,25 +744,10 @@ export default function PagarClient({ email }: PagarClientProps) {
               >
                 <Upload size={24} color="white" strokeWidth={2.5} />
               </div>
-              <p
-                style={{
-                  fontSize: "0.95rem",
-                  fontWeight: 700,
-                  color: "#000000",
-                  margin: "0 0 0.35rem 0",
-                }}
-              >
+              <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#000000", margin: "0 0 0.35rem 0" }}>
                 Tocá para subir el comprobante
               </p>
-              <p
-                style={{
-                  fontSize: "0.78rem",
-                  color: "#000000",
-                  opacity: 0.55,
-                  margin: 0,
-                  lineHeight: 1.5,
-                }}
-              >
+              <p style={{ fontSize: "0.78rem", color: "#000000", opacity: 0.55, margin: 0, lineHeight: 1.5 }}>
                 Foto o PDF · Máximo 5 MB
                 <br />
                 JPG · PNG · WebP · PDF
@@ -566,13 +777,9 @@ export default function PagarClient({ email }: PagarClientProps) {
                   flexShrink: 0,
                 }}
               >
-                {isPdf ? (
-                  <FileText size={22} color="#10B981" />
-                ) : (
-                  <ImageIcon size={22} color="#10B981" />
-                )}
+                {isPdf ? <FileText size={22} color="#10B981" /> : <ImageIcon size={22} color="#10B981" />}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
                 <p
                   style={{
                     fontSize: "0.9rem",
@@ -586,14 +793,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 >
                   {file.name}
                 </p>
-                <p
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "#000000",
-                    opacity: 0.6,
-                    margin: 0,
-                  }}
-                >
+                <p style={{ fontSize: "0.75rem", color: "#000000", opacity: 0.6, margin: 0 }}>
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
@@ -622,7 +822,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           )}
 
           {/* Referencia opcional */}
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "1rem", textAlign: "left" }}>
             <label
               style={{
                 display: "block",
@@ -633,7 +833,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 marginBottom: "0.4rem",
               }}
             >
-              Número de operación (opcional)
+              Número de operación o Email de pago
             </label>
             <input
               type="text"
@@ -641,16 +841,14 @@ export default function PagarClient({ email }: PagarClientProps) {
               onChange={(e) => setReference(e.target.value)}
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
-              placeholder="Ej: 123456789"
+              placeholder="Ej: Id de transacción o cuenta origen"
               maxLength={100}
               disabled={uploading}
               style={{
                 width: "100%",
                 padding: "0.75rem 0.9rem",
                 borderRadius: "10px",
-                border: inputFocused
-                  ? "1.5px solid #10B981"
-                  : "1px solid #e5e7eb",
+                border: inputFocused ? "1.5px solid #10B981" : "1px solid #e5e7eb",
                 fontSize: "0.9rem",
                 color: "#000000",
                 background: uploading ? "#f9fafb" : "white",
@@ -680,32 +878,15 @@ export default function PagarClient({ email }: PagarClientProps) {
                   gap: "0.5rem",
                 }}
               >
-                <AlertCircle
-                  size={16}
-                  color="#dc2626"
-                  style={{ flexShrink: 0, marginTop: "1px" }}
-                />
-                <p
-                  style={{
-                    fontSize: "0.82rem",
-                    color: "#dc2626",
-                    margin: 0,
-                    lineHeight: 1.45,
-                  }}
-                >
-                  {error}
-                </p>
+                <AlertCircle size={16} color="#dc2626" style={{ flexShrink: 0, marginTop: "1px" }} />
+                <p style={{ fontSize: "0.82rem", color: "#dc2626", margin: 0, lineHeight: 1.45, textAlign: "left" }}>{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
 
         {/* Botón enviar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
           <button
             type="button"
             onClick={handleSubmit}
@@ -725,40 +906,16 @@ export default function PagarClient({ email }: PagarClientProps) {
               justifyContent: "center",
               gap: "0.5rem",
               fontFamily: "inherit",
-              boxShadow:
-                !file || uploading
-                  ? "none"
-                  : "0 10px 25px rgba(16, 185, 129, 0.3)",
+              boxShadow: !file || uploading ? "none" : "0 10px 25px rgba(16, 185, 129, 0.3)",
               opacity: !file || uploading ? 0.6 : 1,
               transition: "background 0.2s, transform 0.15s",
               boxSizing: "border-box",
             }}
-            onMouseEnter={(e) => {
-              if (file && !uploading) {
-                e.currentTarget.style.background = "#059669";
-                e.currentTarget.style.transform = "translateY(-1px)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (file && !uploading) {
-                e.currentTarget.style.background = "#10B981";
-                e.currentTarget.style.transform = "translateY(0)";
-              }
-            }}
           >
             {uploading ? (
-              <>
-                <Loader2
-                  size={18}
-                  className="animate-spin"
-                />
-                Enviando...
-              </>
+              <><Loader2 size={18} className="animate-spin" /> Enviando...</>
             ) : (
-              <>
-                <CheckCircle2 size={18} />
-                Ya pagué, enviar comprobante
-              </>
+              <><CheckCircle2 size={18} /> Ya pagué, enviar comprobante</>
             )}
           </button>
 
@@ -781,110 +938,10 @@ export default function PagarClient({ email }: PagarClientProps) {
         </motion.div>
 
         {/* Footer */}
-        <div
-          style={{
-            marginTop: "2rem",
-            textAlign: "center",
-            fontSize: "0.78rem",
-            color: "#000000",
-            opacity: 0.5,
-          }}
-        >
+        <div style={{ marginTop: "2rem", textAlign: "center", fontSize: "0.78rem", color: "#000000", opacity: 0.5 }}>
           Conectado como {email}
         </div>
       </div>
     </div>
   );
-}
-
-// ─── Componente auxiliar ───────────────
-
-function DataRow({
-  label,
-  value,
-  fieldKey,
-  copied,
-  onCopy,
-  small = false,
-  noCopy = false,
-}: {
-  label: string;
-  value: string;
-  fieldKey: string;
-  copied: boolean;
-  onCopy: (text: string, field: string) => void;
-  small?: boolean;
-  noCopy?: boolean;
-}) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "0.75rem",
-        padding: "0.85rem 0.95rem",
-        background: "#f9fafb",
-        borderRadius: "10px",
-        marginBottom: "0.5rem",
-        border: "1px solid #f3f4f6",
-      }}
-    >
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: "0.7rem",
-            color: "#000000",
-            opacity: 0.55,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: "0.15rem",
-          }}
-        >
-          {label}
-        </div>
-        <div
-          style={{
-            fontSize: small ? "0.82rem" : "0.95rem",
-            color: "#000000",
-            fontWeight: 700,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            fontFamily: small
-              ? "'SF Mono', Monaco, Consolas, monospace"
-              : "inherit",
-          }}
-        >
-          {value}
-        </div>
-      </div>
-      {!noCopy && (
-        <button
-          type="button"
-          onClick={() => onCopy(value, fieldKey)}
-          style={{
-            width: "38px",
-            height: "38px",
-            borderRadius: "10px",
-            border: "none",
-            background: copied ? "#10B981" : "white",
-            color: copied ? "white" : "#10B981",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            transition: "all 0.2s",
-            boxShadow: copied
-              ? "0 4px 12px rgba(16, 185, 129, 0.25)"
-              : "0 2px 6px rgba(0, 0, 0, 0.05)",
-          }}
-        >
-          {copied ? <Check size={16} strokeWidth={3} /> : <Copy size={16} />}
-        </button>
-      )}
-    </div>
-  );
-                                                }
+    }
