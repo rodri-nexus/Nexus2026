@@ -4629,6 +4629,7 @@
       tamanoTexto: raw.tamanoTexto || "16px",
       bordesRedondeados: n(raw.bordesRedondeados, 5),
       paddingInterno: n(raw.paddingInterno, 20),
+      ubicacion: raw.ubicacion || "under-cart"
     };
   }
 
@@ -4678,28 +4679,90 @@
     return out;
   }
 
+  function findProductEndTarget() {
+    // Selectores del contenedor de descripción y detalles del producto
+    var selectors = [
+      "[data-store='product-description-container']",
+      ".js-product-description",
+      ".product-description",
+      "#product-description",
+      ".js-product-detail",
+      ".product-detail",
+      ".js-description-col",
+      ".product-col-description",
+      ".product-description-container"
+    ];
+
+    for (var i = 0; i < selectors.length; i++) {
+      var el = qs(selectors[i]);
+      if (el) {
+        return { node: el, action: "append" };
+      }
+    }
+
+    // Selectores alternativos: justo antes de productos relacionados o comentarios
+    var fallbackSelectors = [
+      ".js-related-products",
+      "#related-products",
+      ".related-products",
+      ".product-related",
+      "#reviews-container",
+      ".js-reviews-container",
+      ".product-reviews"
+    ];
+
+    for (var j = 0; j < fallbackSelectors.length; j++) {
+      var elF = qs(fallbackSelectors[j]);
+      if (elF && elF.parentNode) {
+        return { node: elF, action: "before" };
+      }
+    }
+
+    // Último recurso: al fondo del contenedor principal de producto
+    var mainContainer = qs(".js-product-container") || qs("#single-product") || qs(".product-container");
+    if (mainContainer) {
+      return { node: mainContainer, action: "append" };
+    }
+
+    return null;
+  }
+
   function mountMensajeGarantia(widget, cfg) {
     var uniqueId = NS + "-garantia-" + widget.id;
     if (qs("#" + uniqueId)) return;
 
-    var target = findProductTarget("before-button");
+    var ubicacion = cfg.ubicacion || "under-cart";
+    var target = null;
+
+    if (ubicacion === "product-end") {
+      target = findProductEndTarget();
+    } else {
+      target = findProductTarget("before-button");
+    }
+
     if (!target) {
-      console.warn("[Nevux] No se encontró target para mensaje garantía en producto");
+      console.warn("[Nevux] No se encontró target para mensaje garantía en producto (" + ubicacion + ")");
       return;
     }
 
     var container = document.createElement("div");
     container.id = uniqueId;
     container.className = NS + "-root";
+    container.style.marginTop = "20px";
+    container.style.marginBottom = "20px";
 
-    if (target.node.parentNode) {
+    if (ubicacion === "product-end" && target.action === "append") {
+      target.node.appendChild(container);
+    } else if (ubicacion === "product-end" && target.action === "before" && target.node.parentNode) {
+      target.node.parentNode.insertBefore(container, target.node);
+    } else if (target.node.parentNode) {
       target.node.parentNode.insertBefore(container, target.node.nextSibling);
     } else {
       return;
     }
 
     container.innerHTML = buildMensajeGarantiaHtml(cfg);
-    console.log("[Nevux] Mensaje garantía montado");
+    console.log("[Nevux] Mensaje garantía montado (" + ubicacion + ")");
   }
 
   function buildMensajeGarantiaHtml(cfg) {
@@ -4710,7 +4773,7 @@
     var imgHtml = "";
     if (tieneImagen) {
       imgHtml = '<div class="' + NS + '-garantia-img-wrap">' +
-        '<img src="' + cfg.imagenBase64 + '" alt="" />' +
+        '<img src="' + cfg.imagenBase64 + '" alt="" style="max-width: 80px; height: auto;" />' +
       '</div>';
     }
 
@@ -4738,14 +4801,17 @@
         'border:1px solid ' + cfg.colorBorde + ';' +
         'border-radius:' + cfg.bordesRedondeados + 'px;' +
         'padding:' + cfg.paddingInterno + 'px;' +
+        'display: flex;' +
+        'align-items: center;' +
+        'gap: 16px;' +
       '">' +
         imgHtml +
-        '<div class="' + NS + '-garantia-content">' +
+        '<div class="' + NS + '-garantia-content" style="flex: 1;">' +
           tituloHtml +
           textoHtml +
         '</div>' +
       '</div>';
-      }
+}
     /* ═══════════════════════════════════════════
      RENDER RESEÑAS DE CLIENTES (Widget 14)
   ═══════════════════════════════════════════ */
