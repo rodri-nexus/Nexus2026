@@ -6,8 +6,6 @@ import {
   Play,
   Pause,
   RotateCcw,
-  Volume2,
-  VolumeX,
   Smartphone,
   Sparkles,
   ChevronRight,
@@ -29,12 +27,9 @@ interface Caption {
 
 interface Scene {
   id: number;
+  duration: number; // Duración en milisegundos
   title: string;
   captions: Caption;
-  voiceScript: {
-    es: string;
-    pt: string;
-  };
   cursor: {
     x: string;
     y: string;
@@ -43,71 +38,56 @@ interface Scene {
 }
 
 /* ═══════════════════════════════════════════
-   2. ESCENAS CON GUIÓN PROFESIONAL DE VOZ
+   2. ESCENAS DEL REEL (FLUJO REAL DE NEVUX)
    ═══════════════════════════════════════════ */
 const SCENES: Scene[] = [
   {
     id: 1,
+    duration: 4000,
     title: "1. Dashboard Nevux",
     captions: {
       es: "🔥 ¿Querés duplicar las ventas de tu Tiendanube? Mirá esto...",
       pt: "🔥 Quer duplicar as vendas da sua Nuvemshop? Olha só...",
     },
-    voiceScript: {
-      es: "Aumentar las ventas de tu tienda online nunca fue tan sencillo. Te presento Nevux, la herramienta definitiva para multiplicar tus ingresos.",
-      pt: "Aumentar as vendas da sua loja online nunca foi tão simples. Apresento a Nevux, a ferramenta definitiva para multiplicar os seus ganhos.",
-    },
     cursor: { x: "72%", y: "46%", click: true },
   },
   {
     id: 2,
+    duration: 4000,
     title: "2. Modal de Creación",
     captions: {
       es: "1️⃣ Tocá en Crear Widget y elegí aplicarlo a Todos tus Productos",
       pt: "1️⃣ Toque em Criar Widget e escolha Todos os Produtos",
     },
-    voiceScript: {
-      es: "Paso uno. Hacé clic en crear widget, y elegí la opción para aplicarlo automáticamente a todos tus productos.",
-      pt: "Passo um. Clique em criar widget e escolha a opção para aplicá-lo automaticamente a todos os seus produtos.",
-    },
     cursor: { x: "50%", y: "62%", click: true },
   },
   {
     id: 3,
+    duration: 3800,
     title: "3. Elegir Widget",
     captions: {
       es: "2️⃣ Elegí la Cuenta Regresiva para activar máxima urgencia ⏰",
       pt: "2️⃣ Escolha o Contador Regressivo para ativar urgência máxima ⏰",
     },
-    voiceScript: {
-      es: "Paso dos. Seleccioná el optimizador de cuenta regresiva, diseñado con gatillos mentales para acelerar la decisión de compra.",
-      pt: "Passo dois. Selecione o otimizador de contador regressivo, desenhado com gatilhos mentais para acelerar a compra.",
-    },
     cursor: { x: "28%", y: "24%", click: true },
   },
   {
     id: 4,
+    duration: 5200,
     title: "4. Editor de Estilos y Ubicación",
     captions: {
       es: "3️⃣ Personalizá el estilo, activá el Modo Urgencia y guardá cambios 🎨",
       pt: "3️⃣ Customize o estilo, ative o Modo Urgência e salve 🎨",
     },
-    voiceScript: {
-      es: "Paso tres. Ubicalo estratégicamente arriba del botón de compra, activá el modo urgencia inteligente y guardá los cambios.",
-      pt: "Passo três. Coloque estrategicamente acima do botão de compra, ative o modo urgência inteligente e salve as alterações.",
-    },
     cursor: { x: "78%", y: "89%", click: true },
   },
   {
     id: 5,
+    duration: 6500,
     title: "5. Widget en Tienda Real",
     captions: {
       es: "🚀 ¡Listo! El widget ya está vendiendo por vos en vivo. ¡Aumentá tu ticket ya!",
       pt: "🚀 Pronto! O widget já está vendendo ao vivo por você. Fature mais hoje!",
-    },
-    voiceScript: {
-      es: "Listo. Tu contador ya está activo en tu tienda, despertando un deseo de compra inmediato en cada uno de tus visitantes. ¡Duplicá tus ingresos hoy mismo con Nevux!",
-      pt: "Pronto. Seu contador já está ativo e vendendo ao vivo, despertando o desejo de compra imediato em cada cliente.",
     },
     cursor: { x: "50%", y: "78%", click: false },
   },
@@ -198,147 +178,55 @@ export default function MarketingReelsPage() {
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [progress, setProgress] = useState(0); // Progreso de 0 a 100
+  const [elapsedTime, setElapsedTime] = useState(0); // Tiempo transcurrido en la escena actual
   const [zoom, setZoom] = useState(85);
-  const [soundActive, setSoundActive] = useState(true);
 
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const estimatedDurationRef = useRef<number>(5000);
-  const progressTimerRef = useRef<number>(0);
-
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const currentScene = SCENES[currentSceneIdx];
 
-  // Estimación de duración de voz basada en palabras
-  const getEstimatedDuration = (text: string) => {
-    const words = text.split(" ").length;
-    const durationMs = (words / 130) * 60 * 1000;
-    return Math.max(durationMs, 4200);
-  };
-
-  // Función que maneja la locución sincronizada
-  const handleSceneStart = (sceneIdx: number) => {
-    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-    setProgress(0);
-    progressTimerRef.current = 0;
-
-    const script = SCENES[sceneIdx].voiceScript[lang];
-    const estimatedDuration = getEstimatedDuration(script);
-    estimatedDurationRef.current = estimatedDuration;
-
-    if (!soundActive || typeof window === "undefined" || !window.speechSynthesis) {
-      startFallbackTimer(estimatedDuration);
+  // Control temporal automático para avanzar de escena
+  useEffect(() => {
+    if (!isPlaying) {
+      if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
 
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(script);
-    utterance.lang = lang === "es" ? "es-ES" : "pt-BR";
-
-    const voices = window.speechSynthesis.getVoices();
-    const premiumVoice = voices.find(
-      (v) =>
-        v.lang.startsWith(utterance.lang) &&
-        (v.name.toLowerCase().includes("google") ||
-          v.name.toLowerCase().includes("natural") ||
-          v.name.toLowerCase().includes("premium") ||
-          v.name.toLowerCase().includes("neural") ||
-          v.name.toLowerCase().includes("sabina") ||
-          v.name.toLowerCase().includes("helena"))
-    );
-
-    if (premiumVoice) {
-      utterance.voice = premiumVoice;
-    }
-
-    utterance.rate = 0.96;
-    utterance.pitch = 1.0;
-
-    currentUtteranceRef.current = utterance;
-
-    // EVENTO CLAVE: Cuando la voz termina de hablar
-    utterance.onend = () => {
-      setProgress(100);
-      setTimeout(() => {
-        if (isPlaying) {
-          setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
+    const stepTime = 100;
+    timerRef.current = setInterval(() => {
+      setElapsedTime((prev) => {
+        const nextTime = prev + stepTime;
+        if (nextTime >= currentScene.duration) {
+          // Cambiar a la siguiente escena
+          setCurrentSceneIdx((prevIdx) => (prevIdx + 1) % SCENES.length);
+          return 0;
         }
-      }, 500);
-    };
-
-    utterance.onerror = () => {
-      startFallbackTimer(estimatedDuration);
-    };
-
-    const stepTime = 100;
-    progressIntervalRef.current = setInterval(() => {
-      progressTimerRef.current += stepTime;
-      const calculatedProgress = Math.min((progressTimerRef.current / estimatedDuration) * 100, 95);
-      setProgress(calculatedProgress);
+        return nextTime;
+      });
     }, stepTime);
-
-    window.speechSynthesis.speak(utterance);
-  };
-
-  // Temporizador de respaldo si no hay voz activa
-  const startFallbackTimer = (duration: number) => {
-    const stepTime = 100;
-    progressIntervalRef.current = setInterval(() => {
-      progressTimerRef.current += stepTime;
-      const calculatedProgress = (progressTimerRef.current / duration) * 100;
-      if (calculatedProgress >= 100) {
-        clearInterval(progressIntervalRef.current!);
-        setProgress(100);
-        setTimeout(() => {
-          if (isPlaying) {
-            setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
-          }
-        }, 500);
-      } else {
-        setProgress(calculatedProgress);
-      }
-    }, stepTime);
-  };
-
-  // Efecto central del reproductor
-  useEffect(() => {
-    if (isPlaying) {
-      handleSceneStart(currentSceneIdx);
-    } else {
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    }
 
     return () => {
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPlaying, currentSceneIdx, lang, soundActive]);
+  }, [isPlaying, currentSceneIdx, currentScene]);
 
   const handleNext = () => {
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
+    setElapsedTime(0);
     setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
   };
 
   const handlePrev = () => {
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
+    setElapsedTime(0);
     setCurrentSceneIdx((prev) => (prev === 0 ? SCENES.length - 1 : prev - 1));
   };
 
   const handleReset = () => {
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
+    setElapsedTime(0);
     setCurrentSceneIdx(0);
-    setProgress(0);
     setIsPlaying(true);
   };
+
+  // Cálculo del progreso porcentual de la barra de carga (0 a 100)
+  const progressPercent = Math.min((elapsedTime / currentScene.duration) * 100, 100);
 
   return (
     <div
@@ -388,7 +276,7 @@ export default function MarketingReelsPage() {
           </div>
           <div>
             <div style={{ fontSize: "16px", fontWeight: "800", color: "#ffffff" }}>Nevux Studio</div>
-            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700" }}>VIDEO & VOICE SYNC ENGINE</div>
+            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700" }}>GENERADOR DE REELS</div>
           </div>
         </div>
 
@@ -443,25 +331,6 @@ export default function MarketingReelsPage() {
             />
             <span style={{ fontSize: "11px", fontFamily: "monospace", minWidth: "32px" }}>{zoom}%</span>
           </div>
-
-          <div style={{ width: "1px", height: "20px", background: "#374151" }} />
-
-          {/* Audio toggle */}
-          <button
-            onClick={() => setSoundActive(!soundActive)}
-            style={{
-              background: soundActive ? "rgba(16, 185, 129, 0.15)" : "transparent",
-              border: "none",
-              color: soundActive ? "#10B981" : "#6b7280",
-              padding: "6px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {soundActive ? <Volume2 size={16} /> : <VolumeX size={16} />}
-          </button>
         </div>
       </div>
 
@@ -514,7 +383,7 @@ export default function MarketingReelsPage() {
             <SimulatedPointer
               x={currentScene.cursor.x}
               y={currentScene.cursor.y}
-              active={progress > 30 && progress < 75 && currentScene.cursor.click}
+              active={elapsedTime > 1200 && elapsedTime < 2400 && currentScene.cursor.click}
             />
 
             {/* BARRA DE HISTORIAS / PROGRESO SUPERIOR SINCRONIZADA */}
@@ -532,7 +401,7 @@ export default function MarketingReelsPage() {
               {SCENES.map((sc, idx) => {
                 let p = 0;
                 if (idx < currentSceneIdx) p = 100;
-                if (idx === currentSceneIdx) p = progress;
+                if (idx === currentSceneIdx) p = progressPercent;
                 return (
                   <div key={sc.id} style={{ flex: 1, height: "3px", background: "rgba(255,255,255,0.25)", borderRadius: "999px", overflow: "hidden" }}>
                     <div style={{ width: `${p}%`, height: "100%", background: "#10B981" }} />
@@ -540,28 +409,6 @@ export default function MarketingReelsPage() {
                 );
               })}
             </div>
-
-            {/* INDICADOR DE VOZ ACTIVA */}
-            {soundActive && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "40px",
-                  right: "18px",
-                  zIndex: 85,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  background: "rgba(0,0,0,0.6)",
-                  padding: "4px 8px",
-                  borderRadius: "999px",
-                  border: "1px solid rgba(16,185,129,0.3)",
-                }}
-              >
-                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981" }} />
-                <span style={{ fontSize: "8px", fontWeight: "800", color: "#10B981" }}>VOZ ON</span>
-              </div>
-            )}
 
             {/* SUBTÍTULOS ESTILO TIKTOK / INSTAGRAM (ZONA MEDIA-BAJA) */}
             <div
@@ -652,7 +499,7 @@ export default function MarketingReelsPage() {
                     {/* BOTÓN + CREAR WIDGET */}
                     <div
                       style={{
-                        background: progress > 50 ? "#059669" : "#10B981",
+                        background: elapsedTime > 1400 ? "#059669" : "#10B981",
                         color: "#000000",
                         padding: "8px 16px",
                         borderRadius: "10px",
@@ -662,7 +509,7 @@ export default function MarketingReelsPage() {
                         alignItems: "center",
                         gap: "6px",
                         boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
-                        transform: progress > 50 ? "scale(0.96)" : "scale(1)",
+                        transform: elapsedTime > 1400 ? "scale(0.96)" : "scale(1)",
                         transition: "all 0.15s",
                       }}
                     >
@@ -696,14 +543,14 @@ export default function MarketingReelsPage() {
                       {/* Opción 2: SELECCIONADA */}
                       <div
                         style={{
-                          border: progress > 50 ? "2px solid #10B981" : "1.5px solid #e5e7eb",
-                          background: progress > 50 ? "#ecfdf5" : "#ffffff",
+                          border: elapsedTime > 1400 ? "2px solid #10B981" : "1.5px solid #e5e7eb",
+                          background: elapsedTime > 1400 ? "#ecfdf5" : "#ffffff",
                           borderRadius: "12px",
                           padding: "10px",
                           display: "flex",
                           alignItems: "center",
                           gap: "8px",
-                          boxShadow: progress > 50 ? "0 0 0 3px rgba(16, 185, 129, 0.15)" : "none",
+                          boxShadow: elapsedTime > 1400 ? "0 0 0 3px rgba(16, 185, 129, 0.15)" : "none",
                           transition: "all 0.2s",
                         }}
                       >
@@ -736,8 +583,8 @@ export default function MarketingReelsPage() {
                     {/* Widget Seleccionado: Cuenta Regresiva */}
                     <div
                       style={{
-                        background: progress > 45 ? "rgba(16, 185, 129, 0.15)" : "#161b22",
-                        border: progress > 45 ? "2px solid #10B981" : "1px solid #30363d",
+                        background: elapsedTime > 1200 ? "rgba(16, 185, 129, 0.15)" : "#161b22",
+                        border: elapsedTime > 1200 ? "2px solid #10B981" : "1px solid #30363d",
                         borderRadius: "12px",
                         padding: "10px",
                         textAlign: "left",
@@ -826,8 +673,8 @@ export default function MarketingReelsPage() {
                   <div
                     style={{
                       marginTop: "6px",
-                      background: progress > 80 ? "#059669" : "#10B981",
-                      color: progress > 80 ? "#ffffff" : "#000000",
+                      background: elapsedTime > 4200 ? "#059669" : "#10B981",
+                      color: elapsedTime > 4200 ? "#ffffff" : "#000000",
                       padding: "8px",
                       borderRadius: "10px",
                       fontSize: "11px",
@@ -836,7 +683,7 @@ export default function MarketingReelsPage() {
                       transition: "all 0.2s",
                     }}
                   >
-                    {progress > 80 ? "✓ Cambios Guardados" : "Guardar cambios"}
+                    {elapsedTime > 4200 ? "✓ Cambios Guardados" : "Guardar cambios"}
                   </div>
                 </div>
               )}
@@ -974,17 +821,17 @@ export default function MarketingReelsPage() {
             {/* Barra de progreso de la escena */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#9ca3af", marginBottom: "6px" }}>
               <span>Escena {currentSceneIdx + 1} de {SCENES.length}</span>
-              <span>Progreso Locución: {Math.round(progress)}%</span>
+              <span>Progreso: {Math.round(progressPercent)}%</span>
             </div>
             <div style={{ width: "100%", height: "6px", background: "#1f2937", borderRadius: "999px", overflow: "hidden" }}>
-              <div style={{ width: `${progress}%`, height: "100%", background: "#10B981", transition: "width 0.1s linear" }} />
+              <div style={{ width: `${progressPercent}%`, height: "100%", background: "#10B981", transition: "width 0.1s linear" }} />
             </div>
           </div>
 
           {/* GUION TÉCNICO CLICKABLE */}
           <div style={{ background: "#111827", padding: "20px", borderRadius: "20px", border: "1px solid #1f2937" }}>
             <div style={{ fontSize: "12px", fontWeight: "800", color: "#9ca3af", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.05em" }}>
-              Guión Narrativo (Texto de la Voz)
+              Escenas del Reel
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -995,7 +842,7 @@ export default function MarketingReelsPage() {
                     key={sc.id}
                     onClick={() => {
                       setCurrentSceneIdx(idx);
-                      setProgress(0);
+                      setElapsedTime(0);
                     }}
                     style={{
                       background: isAct ? "rgba(16, 185, 129, 0.12)" : "rgba(0,0,0,0.3)",
@@ -1029,8 +876,8 @@ export default function MarketingReelsPage() {
                       <div style={{ fontSize: "12px", fontWeight: "800", color: isAct ? "#10B981" : "#ffffff", marginBottom: "2px" }}>
                         {sc.title}
                       </div>
-                      <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700", marginBottom: "4px" }}>
-                        🗣️ Voz: &quot;{lang === "es" ? sc.voiceScript.es : sc.voiceScript.pt}&quot;
+                      <div style={{ fontSize: "11px", color: "#9ca3af", lineHeight: "1.3" }}>
+                        {lang === "es" ? sc.captions.es : sc.captions.pt}
                       </div>
                     </div>
                   </div>
@@ -1043,4 +890,4 @@ export default function MarketingReelsPage() {
       </div>
     </div>
   );
-        }
+      }
