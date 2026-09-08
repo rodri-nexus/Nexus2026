@@ -2,12 +2,24 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Play, Pause, RotateCcw, Volume2, VolumeX, Smartphone, 
-  Sparkles, CheckCircle2, ChevronRight, Store, ArrowLeft,
-  MousePointer, Percent, Flame, Calendar, Clock, ShoppingCart
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Smartphone,
+  Sparkles,
+  ChevronRight,
+  Store,
+  ArrowLeft,
+  MousePointer,
+  Percent,
+  Clock,
+  ShoppingCart,
+  CheckCircle2,
+  Zap,
 } from "lucide-react";
-import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 /* ═══════════════════════════════════════════
    1. TYPES & INTERFACES (Regla #9)
@@ -19,79 +31,79 @@ interface Caption {
 
 interface Scene {
   id: number;
-  duration: number; // en milisegundos
+  duration: number;
   title: string;
   captions: Caption;
   cursor: {
-    x: string; // % en horizontal
-    y: string; // % en vertical
+    x: string;
+    y: string;
     click: boolean;
   };
 }
 
 /* ═══════════════════════════════════════════
-   2. CONSTANTES DE ESCENAS & CAPTIONS (TikTok Style)
+   2. ESCENAS DEL FLUJO REAL DE NEVUX
    ═══════════════════════════════════════════ */
 const SCENES: Scene[] = [
   {
     id: 1,
-    duration: 3800,
-    title: "Dashboard Nevux",
+    duration: 4000,
+    title: "1. Dashboard Nevux",
     captions: {
       es: "🔥 ¿Querés duplicar las ventas de tu Tiendanube? Mirá esto...",
-      pt: "🔥 Quer duplicar as vendas da sua Nuvemshop? Olha só..."
+      pt: "🔥 Quer duplicar as vendas da sua Nuvemshop? Olha só...",
     },
-    cursor: { x: "82%", y: "24%", click: true }
+    cursor: { x: "72%", y: "46%", click: true },
   },
   {
     id: 2,
-    duration: 3800,
-    title: "Modal de Creación",
+    duration: 4000,
+    title: "2. Modal de Creación",
     captions: {
       es: "1️⃣ Tocá en Crear Widget y elegí aplicarlo a Todos tus Productos",
-      pt: "1️⃣ Toque em Criar Widget e escolha Todos os Produtos"
+      pt: "1️⃣ Toque em Criar Widget e escolha Todos os Produtos",
     },
-    cursor: { x: "50%", y: "65%", click: true }
+    cursor: { x: "50%", y: "62%", click: true },
   },
   {
     id: 3,
-    duration: 3500,
-    title: "Selección de Widget",
+    duration: 3800,
+    title: "3. Elegir Widget",
     captions: {
       es: "2️⃣ Elegí la Cuenta Regresiva para activar máxima urgencia ⏰",
-      pt: "2️⃣ Escolha o Contador Regressivo para ativar urgência máxima ⏰"
+      pt: "2️⃣ Escolha o Contador Regressivo para ativar urgência máxima ⏰",
     },
-    cursor: { x: "32%", y: "30%", click: true }
+    cursor: { x: "28%", y: "24%", click: true },
   },
   {
     id: 4,
-    duration: 5000,
-    title: "Editor de Widget",
+    duration: 5200,
+    title: "4. Editor de Estilos y Ubicación",
     captions: {
       es: "3️⃣ Personalizá el estilo, activá el Modo Urgencia y guardá cambios 🎨",
-      pt: "3️⃣ Customize o estilo, ative o Modo Urgência e salve 🎨"
+      pt: "3️⃣ Customize o estilo, ative o Modo Urgência e salve 🎨",
     },
-    cursor: { x: "85%", y: "93%", click: true }
+    cursor: { x: "78%", y: "89%", click: true },
   },
   {
     id: 5,
-    duration: 6000,
-    title: "Render en Tienda Real",
+    duration: 6500,
+    title: "5. Widget en Tienda Real",
     captions: {
       es: "🚀 ¡Listo! El widget ya está vendiendo por vos en vivo. ¡Aumentá tu ticket ya!",
-      pt: "🚀 Pronto! O widget já está vendendo ao vivo por você. Fature mais hoje!"
+      pt: "🚀 Pronto! O widget já está vendendo ao vivo por você. Fature mais hoje!",
     },
-    cursor: { x: "50%", y: "85%", click: false }
-  }
+    cursor: { x: "50%", y: "78%", click: false },
+  },
 ];
 
 /* ═══════════════════════════════════════════
-   3. SUB-COMPONENTES AUXILIARES DE RENDERIZADO (Regla #9)
+   3. SUB-COMPONENTES AUXILIARES (Regla #9)
    ═══════════════════════════════════════════ */
 
-// Simulación de Ticking para la Cuenta Regresiva Real
+// Reloj dinámico con Ticking en tiempo real
 const MockTimer = () => {
-  const [seconds, setSeconds] = useState(59);
+  const [seconds, setSeconds] = useState(48);
   const [minutes, setMinutes] = useState(14);
 
   useEffect(() => {
@@ -110,48 +122,74 @@ const MockTimer = () => {
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <div className="flex gap-1 items-center font-mono">
-      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm">00d</div>
-      <span className="text-white text-xs font-bold">:</span>
-      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm">12h</div>
-      <span className="text-white text-xs font-bold">:</span>
-      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm">{pad(minutes)}m</div>
-      <span className="text-white text-xs font-bold">:</span>
-      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm animate-pulse">{pad(seconds)}s</div>
+    <div style={{ display: "flex", gap: "4px", alignItems: "center", fontFamily: "monospace" }}>
+      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
+        00d
+      </div>
+      <span style={{ color: "#ffffff", fontSize: "10px", fontWeight: "bold" }}>:</span>
+      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
+        12h
+      </div>
+      <span style={{ color: "#ffffff", fontSize: "10px", fontWeight: "bold" }}>:</span>
+      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
+        {pad(minutes)}m
+      </div>
+      <span style={{ color: "#ffffff", fontSize: "10px", fontWeight: "bold" }}>:</span>
+      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
+        {pad(seconds)}s
+      </div>
     </div>
   );
 };
 
-// Cursor Virtual con click y pulsación animada
+// Cursor Virtual Animado
 const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: boolean }) => (
   <motion.div
-    animate={{ x, y }}
-    transition={{ type: "spring", stiffness: 70, damping: 15 }}
-    className="absolute pointer-events-none z-50 transform -translate-x-2 -translate-y-2"
-    style={{ left: 0, top: 0 }}
+    animate={{ left: x, top: y }}
+    transition={{ type: "spring", stiffness: 80, damping: 18 }}
+    style={{
+      position: "absolute",
+      pointerEvents: "none",
+      zIndex: 100,
+      transform: "translate(-8px, -8px)",
+    }}
   >
-    <MousePointer className="text-black fill-white filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" size={24} />
-    {active && (
-      <span className="absolute top-0 left-0 w-8 h-8 bg-[#10B981]/40 rounded-full -translate-x-1/3 -translate-y-1/3 animate-ping" />
-    )}
+    <div style={{ position: "relative" }}>
+      <MousePointer size={26} color="#000000" fill="#ffffff" style={{ filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.5))" }} />
+      {active && (
+        <span
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "32px",
+            height: "32px",
+            background: "rgba(16, 185, 129, 0.45)",
+            borderRadius: "50%",
+            transform: "translate(-30%, -30%)",
+            animation: "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite",
+          }}
+        />
+      )}
+    </div>
   </motion.div>
 );
 
 /* ═══════════════════════════════════════════
-   4. COMPONENTE PRINCIPAL (ReelsPage)
+   4. COMPONENTE PRINCIPAL
    ═══════════════════════════════════════════ */
-export default function ReelsPage() {
+export default function MarketingReelsPage() {
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
-  const [zoom, setZoom] = useState(90); // Control de zoom para captura móvil
-  const [soundActive, setSoundActive] = useState(false);
+  const [zoom, setZoom] = useState(85);
+  const [soundActive, setSoundActive] = useState(true);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const currentScene = SCENES[currentSceneIdx];
 
-  // Reproducción de Escenas secuenciales
+  // Control de avance automático de escenas
   useEffect(() => {
     if (!isPlaying) {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -163,7 +201,6 @@ export default function ReelsPage() {
       setCurrentTime((prev) => {
         const nextTime = prev + intervalStep;
         if (nextTime >= currentScene.duration) {
-          // Saltar a la siguiente escena
           setCurrentSceneIdx((prevIdx) => (prevIdx + 1) % SCENES.length);
           return 0;
         }
@@ -193,394 +230,553 @@ export default function ReelsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-white flex flex-col items-center p-4 lg:p-8 select-none">
-      
-      {/* HEADER CONTROL CENTRAL */}
-      <div className="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center gap-4 mb-6 pb-6 border-b border-gray-800">
-        <div className="flex items-center gap-3">
-          <NevuxLogo size="medium" />
-          <span className="bg-gradient-to-r from-[#10B981] to-emerald-400 text-black text-xs font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Reel Studio v2
-          </span>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#0b0f19",
+        color: "#ffffff",
+        padding: "24px 16px 80px",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      {/* ═══ HEADER SUPERIOR DE CONTROL ═══ */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1100px",
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "16px",
+          marginBottom: "24px",
+          paddingBottom: "16px",
+          borderBottom: "1px solid #1f2937",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div
+            style={{
+              width: "34px",
+              height: "34px",
+              borderRadius: "10px",
+              background: "#10B981",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 900,
+              color: "#000000",
+              fontSize: "18px",
+            }}
+          >
+            N
+          </div>
+          <div>
+            <div style={{ fontSize: "16px", fontWeight: "800", color: "#ffffff" }}>Nevux Studio</div>
+            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700" }}>REELS & TIKTOK GENERATOR</div>
+          </div>
         </div>
 
-        {/* CONTROLES GLOBALES */}
-        <div className="flex flex-wrap items-center gap-3 bg-gray-900/95 p-2 rounded-xl border border-gray-800">
+        {/* CONTROLES RÁPIDOS */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#111827", padding: "6px 12px", borderRadius: "12px", border: "1px solid #374151" }}>
           {/* Idioma */}
-          <div className="flex gap-1 border-r border-gray-800 pr-3">
+          <div style={{ display: "flex", gap: "4px" }}>
             <button
               onClick={() => setLang("es")}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
-                lang === "es" ? "bg-[#10B981] text-black" : "hover:bg-gray-800 text-gray-400"
-              }`}
+              style={{
+                background: lang === "es" ? "#10B981" : "transparent",
+                color: lang === "es" ? "#000000" : "#9ca3af",
+                border: "none",
+                borderRadius: "8px",
+                padding: "6px 12px",
+                fontSize: "12px",
+                fontWeight: "800",
+                cursor: "pointer",
+              }}
             >
               ES
             </button>
             <button
               onClick={() => setLang("pt")}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
-                lang === "pt" ? "bg-[#10B981] text-black" : "hover:bg-gray-800 text-gray-400"
-              }`}
+              style={{
+                background: lang === "pt" ? "#10B981" : "transparent",
+                color: lang === "pt" ? "#000000" : "#9ca3af",
+                border: "none",
+                borderRadius: "8px",
+                padding: "6px 12px",
+                fontSize: "12px",
+                fontWeight: "800",
+                cursor: "pointer",
+              }}
             >
               PT-BR
             </button>
           </div>
 
-          {/* Zoom Control */}
-          <div className="flex items-center gap-2 border-r border-gray-800 pr-3">
-            <span className="text-xs text-gray-400">Zoom:</span>
+          <div style={{ width: "1px", height: "20px", background: "#374151" }} />
+
+          {/* Zoom Slider */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "12px", color: "#9ca3af" }}>Zoom:</span>
             <input
               type="range"
               min="50"
               max="100"
               value={zoom}
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-20 accent-[#10B981]"
+              style={{ width: "80px", accentColor: "#10B981" }}
             />
-            <span className="text-xs font-mono">{zoom}%</span>
+            <span style={{ fontSize: "11px", fontFamily: "monospace", minWidth: "32px" }}>{zoom}%</span>
           </div>
 
-          {/* Audio Simulator */}
+          <div style={{ width: "1px", height: "20px", background: "#374151" }} />
+
+          {/* Audio toggle */}
           <button
             onClick={() => setSoundActive(!soundActive)}
-            className={`p-1.5 rounded-lg transition-colors ${
-              soundActive ? "text-[#10B981] bg-[#10B981]/10" : "text-gray-500 hover:bg-gray-800"
-            }`}
+            style={{
+              background: soundActive ? "rgba(16, 185, 129, 0.15)" : "transparent",
+              border: "none",
+              color: soundActive ? "#10B981" : "#6b7280",
+              padding: "6px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+            }}
           >
-            {soundActive ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            {soundActive ? <Volume2 size={16} /> : <VolumeX size={16} />}
           </button>
         </div>
       </div>
 
-      {/* DISEÑO EN DOS COLUMNAS (REEL PREVIEW & TIMELINE CONTROLS) */}
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* COLUMNA IZQUIERDA: INSTAGRAM REEL PREVIEW FRAME (9:16) */}
-        <div className="lg:col-span-5 flex justify-center">
-          <div 
-            style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center" }}
-            className="relative w-[360px] h-[640px] bg-black rounded-[40px] border-8 border-gray-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden transition-transform duration-300"
+      {/* ═══ CONTENEDOR PRINCIPAL (2 COLUMNAS) ═══ */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1100px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+          gap: "32px",
+          alignItems: "start",
+          justifyItems: "center",
+        }}
+      >
+        {/* COLUMNA 1: SMARTPHONE FRAME 9:16 (MOCKUP DEL REEL) */}
+        <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center", transition: "transform 0.2s" }}>
+          <div
+            style={{
+              width: "360px",
+              height: "640px",
+              background: "#000000",
+              borderRadius: "44px",
+              border: "10px solid #1f2937",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(16, 185, 129, 0.15)",
+              overflow: "hidden",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              boxSizing: "border-box",
+            }}
           >
-            
-            {/* BARRA SUPERIOR DE LA PANTALLA MÓVIL */}
-            <div className="absolute top-0 inset-x-0 h-7 bg-black/40 backdrop-blur-md z-40 flex justify-between items-center px-6">
-              <span className="text-[10px] font-bold">9:41</span>
-              <div className="w-20 h-4 bg-black rounded-full" /> {/* Notch */}
-              <div className="flex gap-1 items-center">
-                <div className="w-2.5 h-2.5 bg-white rounded-full scale-75" />
-                <div className="w-3.5 h-2.5 bg-white rounded-sm scale-75" />
-              </div>
-            </div>
-
-            {/* CURSOR VIRTUAL ANIMADO */}
-            <SimulatedPointer 
-              x={currentScene.cursor.x} 
-              y={currentScene.cursor.y} 
-              active={currentTime > 1000 && currentTime < 2200 && currentScene.cursor.click} 
+            {/* NOTCH SUPERIOR IPHONE */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "140px",
+                height: "22px",
+                background: "#1f2937",
+                borderBottomLeftRadius: "14px",
+                borderBottomRightRadius: "14px",
+                zIndex: 90,
+              }}
             />
 
-            {/* CAPTIONS FLOTANTES ESTILO TIKTOK (Ubicación visual central-baja) */}
-            <div className="absolute bottom-16 inset-x-4 z-40 pointer-events-none flex flex-col gap-2">
-              <div className="bg-[#10B981] text-black text-xs font-black px-3 py-1 rounded-md self-start uppercase tracking-wider shadow-lg">
-                Nevux App
-              </div>
-              <div className="bg-black/85 border border-emerald-500/30 text-white font-extrabold text-sm p-3.5 rounded-2xl shadow-2xl backdrop-blur-sm leading-snug">
-                {lang === "es" ? currentScene.captions.es : currentScene.captions.pt}
-              </div>
-            </div>
+            {/* CURSOR VIRTUAL ANIMADO */}
+            <SimulatedPointer
+              x={currentScene.cursor.x}
+              y={currentScene.cursor.y}
+              active={currentTime > 1200 && currentTime < 2400 && currentScene.cursor.click}
+            />
 
-            {/* BARRA DE PROGRESO DE LA ESCENA ACTUAL (SUPERIOR) */}
-            <div className="absolute top-8 inset-x-4 z-40 flex gap-1">
+            {/* BARRA DE HISTORIAS / PROGRESO SUPERIOR */}
+            <div
+              style={{
+                position: "absolute",
+                top: "28px",
+                left: "14px",
+                right: "14px",
+                zIndex: 80,
+                display: "flex",
+                gap: "4px",
+              }}
+            >
               {SCENES.map((sc, idx) => {
-                let progress = 0;
-                if (idx < currentSceneIdx) progress = 100;
-                if (idx === currentSceneIdx) progress = (currentTime / sc.duration) * 100;
+                let p = 0;
+                if (idx < currentSceneIdx) p = 100;
+                if (idx === currentSceneIdx) p = (currentTime / sc.duration) * 100;
                 return (
-                  <div key={sc.id} className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#10B981]" 
-                      style={{ width: `${progress}%` }} 
-                    />
+                  <div key={sc.id} style={{ flex: 1, height: "3px", background: "rgba(255,255,255,0.25)", borderRadius: "999px", overflow: "hidden" }}>
+                    <div style={{ width: `${p}%`, height: "100%", background: "#10B981" }} />
                   </div>
                 );
               })}
             </div>
 
-            {/* ONDAS DE SONIDO ESTILO MÚSICA TIKTOK CORRIENDO */}
-            {soundActive && (
-              <div className="absolute top-12 right-4 z-40 flex items-end gap-0.5 h-4">
-                {[...Array(5)].map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="w-0.5 bg-[#10B981] rounded-full animate-bounce" 
-                    style={{ 
-                      height: `${Math.random() * 100}%`,
-                      animationDelay: `${i * 0.15}s`,
-                      animationDuration: "0.6s"
-                    }} 
-                  />
-                ))}
+            {/* SUBTÍTULOS ESTILO TIKTOK / INSTAGRAM (ZONA MEDIA-BAJA) */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "32px",
+                left: "14px",
+                right: "14px",
+                zIndex: 85,
+                pointerEvents: "none",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              <div
+                style={{
+                  alignSelf: "flex-start",
+                  background: "#10B981",
+                  color: "#000000",
+                  fontSize: "11px",
+                  fontWeight: "900",
+                  padding: "4px 10px",
+                  borderRadius: "8px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                }}
+              >
+                Nevux App
               </div>
-            )}
+              <div
+                style={{
+                  background: "rgba(0, 0, 0, 0.88)",
+                  border: "1.5px solid rgba(16, 185, 129, 0.4)",
+                  color: "#ffffff",
+                  fontSize: "13px",
+                  fontWeight: "800",
+                  padding: "12px 14px",
+                  borderRadius: "16px",
+                  lineHeight: "1.4",
+                  backdropFilter: "blur(8px)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.8)",
+                }}
+              >
+                {lang === "es" ? currentScene.captions.es : currentScene.captions.pt}
+              </div>
+            </div>
 
-            {/* CONTENIDOS DINÁMICOS DE LAS ESCENAS (FLUJO REAL) */}
-            <div className="w-full h-full pt-8 pb-4 px-4 bg-[#0d1117] flex flex-col relative">
-
-              {/* ESCENA 1: EL DASHBOARD DE NEVUX COMPLETO */}
+            {/* ═══ ESCENAS DEL FLUJO ═══ */}
+            <div style={{ flex: 1, paddingTop: "44px", paddingBottom: "120px", paddingLeft: "14px", paddingRight: "14px", background: "#0d1117", display: "flex", flexDirection: "column" }}>
+              
+              {/* ESCENA 1: DASHBOARD REAL */}
               {currentSceneIdx === 0 && (
-                <div className="flex-1 flex flex-col pt-4">
-                  {/* Navbar Nevux */}
-                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
-                    <span className="text-[#10B981] font-black text-sm">NEVUX</span>
-                    <span className="text-[10px] bg-emerald-500/10 text-[#10B981] px-2 py-0.5 rounded-full font-bold">Store Active</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {/* Nav Dashboard */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "8px", borderBottom: "1px solid #21262d" }}>
+                    <span style={{ color: "#10B981", fontWeight: "900", fontSize: "14px" }}>NEVUX</span>
+                    <span style={{ fontSize: "10px", background: "rgba(16,185,129,0.15)", color: "#10B981", padding: "2px 8px", borderRadius: "999px", fontWeight: "700" }}>Tienda Conectada</span>
                   </div>
 
-                  {/* Panel de Bienvenida */}
-                  <div className="mt-4 p-3 bg-gray-900 border border-gray-800 rounded-xl">
-                    <span className="text-[10px] text-gray-400 block">Hola Rodrigo,</span>
-                    <span className="text-xs font-bold text-white">¡Tu tienda está despegando! 🚀</span>
+                  {/* Saludo */}
+                  <div style={{ background: "#161b22", padding: "10px 12px", borderRadius: "12px", border: "1px solid #30363d" }}>
+                    <div style={{ fontSize: "10px", color: "#8b949e" }}>Hola Rodrigo,</div>
+                    <div style={{ fontSize: "12px", fontWeight: "800", color: "#ffffff" }}>¡Tu tienda está lista para despegar! 🚀</div>
                   </div>
 
                   {/* Estadísticas */}
-                  <div className="grid grid-cols-2 gap-2 mt-3">
-                    <div className="bg-gray-900 p-2.5 rounded-xl border border-gray-800">
-                      <span className="text-[9px] text-gray-400 block">Widgets Activos</span>
-                      <span className="text-sm font-bold text-[#10B981]">0 widgets</span>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    <div style={{ background: "#161b22", padding: "10px", borderRadius: "12px", border: "1px solid #30363d" }}>
+                      <div style={{ fontSize: "9px", color: "#8b949e" }}>Widgets Activos</div>
+                      <div style={{ fontSize: "14px", fontWeight: "800", color: "#10B981" }}>0 widgets</div>
                     </div>
-                    <div className="bg-gray-900 p-2.5 rounded-xl border border-[#10B981]/20">
-                      <span className="text-[9px] text-gray-400 block">Facturado Extra</span>
-                      <span className="text-sm font-extrabold text-white">$0.00</span>
+                    <div style={{ background: "#161b22", padding: "10px", borderRadius: "12px", border: "1px solid #30363d" }}>
+                      <div style={{ fontSize: "9px", color: "#8b949e" }}>Facturación Extra</div>
+                      <div style={{ fontSize: "14px", fontWeight: "800", color: "#ffffff" }}>$0.00</div>
                     </div>
                   </div>
 
-                  {/* Estado vacío con CTA Brillante */}
-                  <div className="mt-4 flex-1 bg-gray-900/50 rounded-2xl border border-dashed border-gray-800 flex flex-col items-center justify-center p-4 text-center">
-                    <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center mb-2">
-                      <Store className="text-[#10B981]" size={18} />
+                  {/* Tarjeta Empty State con Botón "+ Crear widget" */}
+                  <div style={{ background: "rgba(22, 27, 34, 0.6)", border: "1.5px dashed #30363d", borderRadius: "16px", padding: "18px 12px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", marginTop: "6px" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(16, 185, 129, 0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px" }}>
+                      <Store size={18} color="#10B981" />
                     </div>
-                    <span className="text-[11px] font-bold text-white mb-1">No tenés widgets activos</span>
-                    <p className="text-[9px] text-gray-400 mb-4 max-w-[180px]">Activá tu primer optimizador y mirá las conversiones subir.</p>
+                    <div style={{ fontSize: "11px", fontWeight: "800", color: "#ffffff", marginBottom: "2px" }}>No tenés widgets activos</div>
+                    <div style={{ fontSize: "9px", color: "#8b949e", marginBottom: "12px" }}>Activá tu primer optimizador de conversión</div>
                     
-                    {/* BOTÓN REAL "+ CREAR WIDGET" */}
-                    <div className={`w-full max-w-[200px] bg-[#10B981] text-black text-xs font-extrabold py-2 px-3 rounded-xl flex items-center justify-center gap-1 shadow-lg transition-all ${currentTime > 1500 ? 'scale-95 bg-emerald-400 shadow-none' : ''}`}>
-                      <Sparkles size={12} />
-                      Crear widget
+                    {/* BOTÓN + CREAR WIDGET */}
+                    <div
+                      style={{
+                        background: currentTime > 1400 ? "#059669" : "#10B981",
+                        color: "#000000",
+                        padding: "8px 16px",
+                        borderRadius: "10px",
+                        fontSize: "11px",
+                        fontWeight: "800",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
+                        transform: currentTime > 1400 ? "scale(0.96)" : "scale(1)",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <Sparkles size={13} />
+                      + Crear widget
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* ESCENA 2: MODAL "CREAR NUEVO WIDGET" DESPLEGADO */}
+              {/* ESCENA 2: MODAL "CREAR NUEVO WIDGET" */}
               {currentSceneIdx === 1 && (
-                <div className="flex-1 flex flex-col justify-end pt-4 bg-black/60 -mx-4 px-4 pb-4">
-                  
-                  {/* Contenido Simulado de Fondo del Dashboard */}
-                  <div className="absolute inset-x-4 top-12 opacity-20 pointer-events-none">
-                    <div className="h-10 bg-gray-800 rounded-md mb-2" />
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="h-12 bg-gray-800 rounded-md" />
-                      <div className="h-12 bg-gray-800 rounded-md" />
+                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "100%", paddingBottom: "20px" }}>
+                  <div style={{ background: "#ffffff", borderRadius: "20px", padding: "16px", color: "#000000", boxShadow: "0 20px 40px rgba(0,0,0,0.8)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: "900", color: "#000000" }}>Crear nuevo widget</div>
+                      <span style={{ fontSize: "10px", color: "#9ca3af" }}>✕</span>
                     </div>
-                  </div>
+                    <div style={{ fontSize: "10px", color: "#6b7280", marginBottom: "12px" }}>¿Qué tipo de widget querés crear?</div>
 
-                  {/* EL MODAL REAL DE NEVUX */}
-                  <div className="bg-white rounded-3xl p-4 shadow-2xl relative">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-black text-black">Crear nuevo widget</span>
-                      <span className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-black text-[9px]">✕</span>
-                    </div>
-                    <p className="text-[10px] text-gray-500 mb-3">¿Qué tipo de widget querés crear?</p>
-
-                    <div className="flex flex-col gap-2">
-                      {/* Opción A */}
-                      <div className="p-2.5 bg-white border border-gray-200 rounded-xl flex items-center gap-2 opacity-50">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                          <Percent className="text-emerald-500" size={14} />
+                    {/* Opciones */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {/* Opción 1 */}
+                      <div style={{ border: "1px solid #e5e7eb", borderRadius: "12px", padding: "8px 10px", display: "flex", alignItems: "center", gap: "8px", opacity: 0.5 }}>
+                        <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Percent size={14} color="#000" />
                         </div>
-                        <div className="text-left flex-1">
-                          <div className="text-[10px] font-bold text-black">Widget para un producto</div>
-                        </div>
+                        <div style={{ fontSize: "10px", fontWeight: "700", color: "#000" }}>Widget para un producto específico</div>
                       </div>
 
-                      {/* Opción B: Todos los productos (Seleccionado por Pointer) */}
-                      <div className={`p-2.5 rounded-xl flex items-center gap-2 border-2 transition-all ${
-                        currentTime > 1500 ? "bg-emerald-50 border-[#10B981]" : "bg-white border-gray-200"
-                      }`}>
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                          currentTime > 1500 ? "bg-[#10B981] text-white" : "bg-black text-white"
-                        }`}>
-                          <Store size={14} />
+                      {/* Opción 2: SELECCIONADA */}
+                      <div
+                        style={{
+                          border: currentTime > 1400 ? "2px solid #10B981" : "1.5px solid #e5e7eb",
+                          background: currentTime > 1400 ? "#ecfdf5" : "#ffffff",
+                          borderRadius: "12px",
+                          padding: "10px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          boxShadow: currentTime > 1400 ? "0 0 0 3px rgba(16, 185, 129, 0.15)" : "none",
+                          transition: "all 0.2s",
+                        }}
+                      >
+                        <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#000000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Store size={14} color="#ffffff" />
                         </div>
-                        <div className="text-left flex-1">
-                          <div className="text-[10px] font-bold text-black">Widget para todos los productos</div>
-                          <div className="text-[8px] text-gray-500">Aparece en toda tu tienda</div>
+                        <div style={{ flex: 1, textAlign: "left" }}>
+                          <div style={{ fontSize: "10px", fontWeight: "800", color: "#000000" }}>Widget para todos los productos</div>
+                          <div style={{ fontSize: "8px", color: "#6b7280" }}>Aparece en toda la tienda e inicio</div>
                         </div>
-                        <ChevronRight className="text-gray-400" size={12} />
+                        <ChevronRight size={14} color="#10B981" />
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* ESCENA 3: SELECCIÓN DE "CUENTA REGRESIVA" */}
+              {/* ESCENA 3: LISTA DE 27 WIDGETS (SELECCIÓN CUENTA REGRESIVA) */}
               {currentSceneIdx === 2 && (
-                <div className="flex-1 flex flex-col pt-4">
-                  <div className="flex items-center gap-1.5 py-2 border-b border-gray-800 text-gray-400">
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#8b949e", fontSize: "10px" }}>
                     <ArrowLeft size={12} />
-                    <span className="text-[10px] font-bold uppercase">Volver al dashboard</span>
+                    <span>Volver</span>
                   </div>
+                  <div style={{ fontSize: "12px", fontWeight: "800", color: "#ffffff" }}>Seleccioná el widget a activar:</div>
 
-                  <h3 className="text-xs font-extrabold mt-3 text-white">Elegí tu Widget de Conversión:</h3>
-                  
-                  {/* Grid de Widgets de Nevux */}
-                  <div className="grid grid-cols-2 gap-2 mt-3 overflow-y-auto max-h-[360px] pr-1">
+                  {/* Grid de Widgets */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                     
-                    {/* Widget 1: Cuenta Regresiva (En Foco) */}
-                    <div className={`p-2.5 rounded-xl border transition-all text-left flex flex-col gap-1.5 ${
-                      currentTime > 1200 ? "border-[#10B981] bg-[#10B981]/10" : "border-gray-800 bg-gray-900"
-                    }`}>
-                      <div className="w-7 h-7 rounded-lg bg-[#10B981]/20 flex items-center justify-center">
-                        <Clock className="text-[#10B981]" size={14} />
+                    {/* Widget Seleccionado: Cuenta Regresiva */}
+                    <div
+                      style={{
+                        background: currentTime > 1200 ? "rgba(16, 185, 129, 0.15)" : "#161b22",
+                        border: currentTime > 1200 ? "2px solid #10B981" : "1px solid #30363d",
+                        borderRadius: "12px",
+                        padding: "10px",
+                        textAlign: "left",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "rgba(16, 185, 129, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
+                        <Clock size={14} color="#10B981" />
                       </div>
-                      <div>
-                        <div className="text-[10px] font-bold text-white">Cuenta Regresiva</div>
-                        <span className="text-[8px] text-[#10B981] block">Urgencia Máxima 🔥</span>
-                      </div>
+                      <div style={{ fontSize: "10px", fontWeight: "800", color: "#ffffff" }}>Cuenta Regresiva</div>
+                      <div style={{ fontSize: "8px", color: "#10B981" }}>🔥 Alta Urgencia</div>
                     </div>
 
-                    {/* Otros widgets desvanecidos */}
-                    <div className="p-2.5 rounded-xl border border-gray-800 bg-gray-900 opacity-40 text-left">
-                      <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center mb-1.5">
-                        <Percent size={14} />
+                    {/* Otros Widgets */}
+                    <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: "12px", padding: "10px", opacity: 0.4 }}>
+                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "#21262d", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
+                        <Percent size={14} color="#8b949e" />
                       </div>
-                      <div className="text-[10px] font-bold">Badge Cuotas</div>
+                      <div style={{ fontSize: "10px", fontWeight: "700", color: "#ffffff" }}>Badge Cuotas</div>
                     </div>
 
-                    <div className="p-2.5 rounded-xl border border-gray-800 bg-gray-900 opacity-40 text-left">
-                      <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center mb-1.5">
-                        <Store size={14} />
+                    <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: "12px", padding: "10px", opacity: 0.4 }}>
+                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "#21262d", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
+                        <Store size={14} color="#8b949e" />
                       </div>
-                      <div className="text-[10px] font-bold">Banner Deslizante</div>
+                      <div style={{ fontSize: "10px", fontWeight: "700", color: "#ffffff" }}>Banner Deslizante</div>
                     </div>
 
-                    <div className="p-2.5 rounded-xl border border-gray-800 bg-gray-900 opacity-40 text-left">
-                      <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center mb-1.5">
-                        <Sparkles size={14} />
+                    <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: "12px", padding: "10px", opacity: 0.4 }}>
+                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "#21262d", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
+                        <Sparkles size={14} color="#8b949e" />
                       </div>
-                      <div className="text-[10px] font-bold">Vendedor IA</div>
+                      <div style={{ fontSize: "10px", fontWeight: "700", color: "#ffffff" }}>Vendedor IA</div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* ESCENA 4: EL EDITOR REAL CON SECCIONES GENERAL, UBICACIÓN Y ESTILOS */}
+              {/* ESCENA 4: EDITOR REAL DEL WIDGET (UBICACIÓN, ESTILOS, MODO URGENCIA) */}
               {currentSceneIdx === 3 && (
-                <div className="flex-1 flex flex-col pt-4 text-left overflow-hidden">
-                  <div className="flex items-center justify-between py-1 border-b border-gray-800">
-                    <span className="text-[10px] font-bold text-gray-400">Editor: Cuenta Regresiva</span>
-                    <span className="text-[9px] bg-emerald-500/20 text-[#10B981] px-1.5 py-0.5 rounded font-bold">Activo</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", textAlign: "left" }}>
+                  <div style={{ fontSize: "11px", fontWeight: "800", color: "#ffffff", paddingBottom: "4px", borderBottom: "1px solid #21262d" }}>
+                    Editor: Cuenta Regresiva
                   </div>
 
                   {/* Tabs */}
-                  <div className="flex border-b border-gray-800 mt-2 text-center">
-                    <span className="flex-1 text-[9px] font-bold text-[#10B981] border-b-2 border-[#10B981] pb-1">Ubicación</span>
-                    <span className="flex-1 text-[9px] text-gray-500 pb-1">Estilos</span>
-                    <span className="flex-1 text-[9px] text-gray-500 pb-1">General</span>
+                  <div style={{ display: "flex", borderBottom: "1px solid #21262d", textAlign: "center" }}>
+                    <div style={{ flex: 1, fontSize: "9px", fontWeight: "800", color: "#10B981", borderBottom: "2px solid #10B981", paddingBottom: "4px" }}>
+                      Ubicación
+                    </div>
+                    <div style={{ flex: 1, fontSize: "9px", color: "#8b949e", paddingBottom: "4px" }}>Estilos</div>
+                    <div style={{ flex: 1, fontSize: "9px", color: "#8b949e", paddingBottom: "4px" }}>General</div>
                   </div>
 
-                  {/* Campos de Input Simulados */}
-                  <div className="mt-3 space-y-2.5 flex-1">
+                  {/* Campos Reales */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "2px" }}>
                     <div>
-                      <span className="text-[8px] font-bold text-gray-400 block mb-1">Título de Urgencia:</span>
-                      <input 
-                        type="text" 
-                        readOnly 
-                        value="¡Oferta de Lanzamiento termina en! 🔥" 
-                        className="w-full bg-gray-900 border border-gray-800 rounded px-2 py-1 text-[10px] text-white" 
-                      />
+                      <div style={{ fontSize: "8px", fontWeight: "700", color: "#8b949e", marginBottom: "2px" }}>Título del contador:</div>
+                      <div style={{ background: "#161b22", border: "1px solid #30363d", padding: "5px 8px", borderRadius: "6px", fontSize: "9px", color: "#ffffff" }}>
+                        ¡Oferta Flash termina en! 🔥
+                      </div>
                     </div>
 
-                    {/* Ubicaciones */}
-                    <div className="space-y-1">
-                      <span className="text-[8px] font-bold text-gray-400 block">Posición en Ficha de Producto:</span>
-                      <label className="flex items-center gap-1.5 p-1.5 rounded bg-gray-900 border border-gray-800">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#10B981] flex items-center justify-center scale-90" />
-                        <span className="text-[9px] text-white">Antes del Botón de Compra</span>
-                      </label>
-                      <label className="flex items-center gap-1.5 p-1.5 rounded opacity-40">
-                        <div className="w-2.5 h-2.5 rounded-full border border-gray-600" />
-                        <span className="text-[9px]">Antes del Título</span>
-                      </label>
+                    {/* Selector de Ubicación */}
+                    <div>
+                      <div style={{ fontSize: "8px", fontWeight: "700", color: "#8b949e", marginBottom: "3px" }}>Ubicación en Producto:</div>
+                      <div style={{ background: "#161b22", border: "1px solid #10B981", padding: "6px 8px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10B981" }} />
+                        <span style={{ fontSize: "8px", fontWeight: "700", color: "#ffffff" }}>Antes del botón &quot;Agregar al carrito&quot;</span>
+                      </div>
                     </div>
 
                     {/* Switch Modo Urgencia */}
-                    <div className="flex items-center justify-between p-2 bg-[#10B981]/10 rounded-lg border border-[#10B981]/30">
+                    <div style={{ background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "8px", padding: "6px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div>
-                        <span className="text-[9px] font-bold text-white block">Activar Modo Urgencia ⚡</span>
-                        <span className="text-[7px] text-gray-400">Color cambia dinámicamente</span>
+                        <div style={{ fontSize: "8px", fontWeight: "800", color: "#ffffff" }}>Modo Urgencia 🔥</div>
+                        <div style={{ fontSize: "7px", color: "#8b949e" }}>Cambia a color rojo en los últimos minutos</div>
                       </div>
-                      <div className="w-7 h-4 bg-[#10B981] rounded-full p-0.5 flex justify-end">
-                        <div className="w-3 h-3 bg-white rounded-full" />
+                      <div style={{ width: "24px", height: "14px", background: "#10B981", borderRadius: "999px", position: "relative" }}>
+                        <div style={{ width: "10px", height: "10px", background: "#ffffff", borderRadius: "50%", position: "absolute", right: "2px", top: "2px" }} />
                       </div>
                     </div>
                   </div>
 
-                  {/* BOTÓN GUARDAR CAMBIOS */}
-                  <div className={`mt-auto w-full text-center text-xs font-black py-2 rounded-xl transition-all ${
-                    currentTime > 3000 ? "bg-[#059669] text-white" : "bg-[#10B981] text-black"
-                  }`}>
-                    {currentTime > 3000 ? "✓ Guardado Exitosamente" : "Guardar cambios"}
+                  {/* Botón Guardar Cambios */}
+                  <div
+                    style={{
+                      marginTop: "6px",
+                      background: currentTime > 3200 ? "#059669" : "#10B981",
+                      color: currentTime > 3200 ? "#ffffff" : "#000000",
+                      padding: "8px",
+                      borderRadius: "10px",
+                      fontSize: "11px",
+                      fontWeight: "900",
+                      textAlign: "center",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {currentTime > 3200 ? "✓ Cambios Guardados" : "Guardar cambios"}
                   </div>
                 </div>
               )}
 
-              {/* ESCENA 5: RENDER EN TIENDA DE COMERCIANTE REAL */}
+              {/* ESCENA 5: TIENDA REAL CON EL WIDGET RENDERIZADO */}
               {currentSceneIdx === 4 && (
-                <div className="flex-1 flex flex-col pt-4 text-left">
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", textAlign: "left" }}>
                   {/* Header Tienda */}
-                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
-                    <span className="text-xs font-bold tracking-wider">CHROME CLONE STORE</span>
-                    <span className="text-[10px] text-gray-400">🛒 (2)</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "4px", borderBottom: "1px solid #21262d" }}>
+                    <span style={{ fontSize: "10px", fontWeight: "900", letterSpacing: "0.05em" }}>TIENDA STREETWEAR</span>
+                    <span style={{ fontSize: "9px", color: "#8b949e" }}>🛒 (1)</span>
                   </div>
 
-                  {/* Imagen y Detalle de Producto */}
-                  <div className="mt-3 flex gap-3 items-start">
-                    <div className="w-20 h-24 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-800 flex items-center justify-center text-gray-600 relative overflow-hidden">
-                      <ShoppingCart size={24} />
-                      <div className="absolute top-1 left-1 bg-red-500 text-[6px] font-bold text-white px-1.5 py-0.5 rounded-full uppercase">
-                        -40% OFF
-                      </div>
+                  {/* Ficha Producto */}
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "2px" }}>
+                    <div style={{ width: "60px", height: "70px", background: "#161b22", borderRadius: "8px", border: "1px solid #30363d", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <ShoppingCart size={20} color="#8b949e" />
                     </div>
-                    
-                    <div className="flex-1">
-                      <span className="text-[8px] text-gray-400 block">REMERAS PREMIUM</span>
-                      <h4 className="text-xs font-bold text-white leading-tight">Remera Oversized Hoodie Premium</h4>
-                      <div className="mt-1 flex items-baseline gap-1.5">
-                        <span className="text-xs font-black text-[#10B981]">$14.999</span>
-                        <span className="text-[9px] text-gray-500 line-through">$24.999</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: "7px", color: "#10B981", fontWeight: "800" }}>HOT SALE 🔥</div>
+                      <div style={{ fontSize: "10px", fontWeight: "800", color: "#ffffff", lineHeight: "1.2" }}>Hoodie Oversized Nevux Black</div>
+                      <div style={{ display: "flex", gap: "6px", alignItems: "baseline", marginTop: "2px" }}>
+                        <span style={{ fontSize: "12px", fontWeight: "900", color: "#10B981" }}>$18.990</span>
+                        <span style={{ fontSize: "9px", color: "#6b7280", textDecoration: "line-through" }}>$29.990</span>
                       </div>
-                      <span className="text-[8px] text-gray-400 block mt-1">💳 3 Cuotas sin interés de $4.999</span>
                     </div>
                   </div>
 
-                  {/* EL WIDGET DE NEVUX RENDERIZADO EN VIVO (Ubicación: Antes del Botón) */}
-                  <div className="mt-4 p-3 bg-black border border-[#10B981]/40 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.15)] flex flex-col gap-1.5 items-center text-center relative overflow-hidden animate-pulse">
-                    <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#10B981] to-transparent" />
-                    <span className="text-[10px] font-black text-white tracking-wide uppercase flex items-center gap-1 animate-bounce">
-                      ⚡ ¡Oferta por tiempo limitado! termina en:
-                    </span>
-                    
-                    {/* Reloj dinámico ticking */}
+                  {/* EL WIDGET DE NEVUX RENDERIZADO EN VIVO */}
+                  <div
+                    style={{
+                      background: "#000000",
+                      border: "1.5px solid #10B981",
+                      borderRadius: "10px",
+                      padding: "8px",
+                      textAlign: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "4px",
+                      boxShadow: "0 0 15px rgba(16, 185, 129, 0.25)",
+                    }}
+                  >
+                    <div style={{ fontSize: "9px", fontWeight: "800", color: "#ffffff", textTransform: "uppercase" }}>
+                      ⚡ ¡OFERTA FLASH TERMINA EN:
+                    </div>
                     <MockTimer />
                   </div>
 
-                  {/* Botón Comprar Real */}
-                  <div className="mt-3 w-full bg-[#10B981] hover:bg-emerald-400 text-black text-center py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wide flex items-center justify-center gap-1.5">
-                    <ShoppingCart size={13} />
+                  {/* Botón Comprar de la Tienda */}
+                  <div
+                    style={{
+                      background: "#10B981",
+                      color: "#000000",
+                      padding: "8px",
+                      borderRadius: "10px",
+                      fontSize: "10px",
+                      fontWeight: "900",
+                      textAlign: "center",
+                      textTransform: "uppercase",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <ShoppingCart size={12} />
                     Agregar al carrito
                   </div>
 
-                  <span className="text-[7px] text-center text-gray-500 mt-2 block">🔒 Compra 100% segura provista por Tiendanube</span>
+                  <div style={{ fontSize: "7px", textAlign: "center", color: "#6b7280" }}>
+                    🔒 Compra segura procesada por Tiendanube
+                  </div>
                 </div>
               )}
 
@@ -588,127 +784,133 @@ export default function ReelsPage() {
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: PANALES DE CONTROL DE LA REPRODUCCIÓN */}
-        <div className="lg:col-span-7 space-y-6">
+        {/* COLUMNA 2: CONTROLES DE LA SIMULACIÓN Y GUION */}
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          {/* CONTROLADOR DE REPRODUCCIÓN */}
-          <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">
-            <h2 className="text-lg font-extrabold mb-4 flex items-center gap-2 text-[#10B981]">
-              <Smartphone size={20} />
-              Controles del Simulador
-            </h2>
+          {/* CONTROLADOR PRINCIPAL */}
+          <div style={{ background: "#111827", padding: "20px", borderRadius: "20px", border: "1px solid #1f2937", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#10B981", fontSize: "14px", fontWeight: "800", marginBottom: "16px" }}>
+              <Smartphone size={18} />
+              Controles del Reproductor
+            </div>
 
-            <div className="flex items-center gap-4 mb-6">
+            <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
               <button
                 onClick={handlePrev}
-                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors"
-                title="Escena Anterior"
+                style={{ background: "#1f2937", border: "none", color: "#ffffff", padding: "12px", borderRadius: "12px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                <ChevronRight className="rotate-180" size={20} />
+                <ChevronRight size={18} style={{ transform: "rotate(180deg)" }} />
               </button>
 
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className={`flex-1 py-3 px-6 rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all ${
-                  isPlaying ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-[#10B981] text-black hover:bg-emerald-400"
-                }`}
+                style={{
+                  flex: 1,
+                  background: isPlaying ? "#f59e0b" : "#10B981",
+                  color: "#000000",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontWeight: "800",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
               >
-                {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-                {isPlaying ? "Pausar Simulación" : "Reproducir Automático"}
+                {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+                {isPlaying ? "Pausar Reel" : "Reproducir Continuo"}
               </button>
 
               <button
                 onClick={handleNext}
-                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors"
-                title="Siguiente Escena"
+                style={{ background: "#1f2937", border: "none", color: "#ffffff", padding: "12px", borderRadius: "12px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={18} />
               </button>
 
               <button
                 onClick={handleReset}
-                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors"
-                title="Reiniciar Reel"
+                style={{ background: "#1f2937", border: "none", color: "#ffffff", padding: "12px", borderRadius: "12px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
-                <RotateCcw size={18} />
+                <RotateCcw size={16} />
               </button>
             </div>
 
-            {/* BARRA DE TIEMPO / LÍNEA DE TIEMPO SENSORIAL */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-400">
-                <span>Escena Activa: {currentSceneIdx + 1} / {SCENES.length}</span>
-                <span>{(currentTime / 1000).toFixed(1)}s / {(currentScene.duration / 1000).toFixed(1)}s</span>
-              </div>
-              <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-[#10B981] to-emerald-400" 
-                  style={{ width: `${(currentTime / currentScene.duration) * 100}%` }}
-                />
-              </div>
+            {/* Barra de progreso de la escena */}
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#9ca3af", marginBottom: "6px" }}>
+              <span>Escena {currentSceneIdx + 1} de {SCENES.length}</span>
+              <span>{(currentTime / 1000).toFixed(1)}s / {(currentScene.duration / 1000).toFixed(1)}s</span>
+            </div>
+            <div style={{ width: "100%", height: "6px", background: "#1f2937", borderRadius: "999px", overflow: "hidden" }}>
+              <div style={{ width: `${(currentTime / currentScene.duration) * 100}%`, height: "100%", background: "#10B981" }} />
             </div>
           </div>
 
-          {/* LISTA DE PASOS DE ESCENAS (TIMELINE SENSORIAL CLICKABLE) */}
-          <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl space-y-4">
-            <h3 className="text-sm font-black text-gray-400 uppercase tracking-wider">
-              Flujo del Reel / Guión Técnico
-            </h3>
+          {/* GUION TÉCNICO CLICKABLE */}
+          <div style={{ background: "#111827", padding: "20px", borderRadius: "20px", border: "1px solid #1f2937" }}>
+            <div style={{ fontSize: "12px", fontWeight: "800", color: "#9ca3af", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.05em" }}>
+              Escenas del Reel (Tocá para saltar)
+            </div>
 
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {SCENES.map((sc, idx) => {
-                const isActive = idx === currentSceneIdx;
+                const isAct = idx === currentSceneIdx;
                 return (
-                  <button
+                  <div
                     key={sc.id}
                     onClick={() => {
                       setCurrentSceneIdx(idx);
                       setCurrentTime(0);
                     }}
-                    className={`w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 ${
-                      isActive 
-                        ? "bg-[#10B981]/10 border-[#10B981] shadow-[0_0_15px_rgba(16,185,129,0.05)]" 
-                        : "bg-gray-950/40 border-transparent hover:border-gray-800"
-                    }`}
+                    style={{
+                      background: isAct ? "rgba(16, 185, 129, 0.12)" : "rgba(0,0,0,0.3)",
+                      border: isAct ? "1.5px solid #10B981" : "1px solid #1f2937",
+                      borderRadius: "12px",
+                      padding: "10px 12px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "10px",
+                    }}
                   >
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      isActive ? "bg-[#10B981] text-black" : "bg-gray-800 text-gray-400"
-                    }`}>
+                    <div
+                      style={{
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "50%",
+                        background: isAct ? "#10B981" : "#1f2937",
+                        color: isAct ? "#000000" : "#9ca3af",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "11px",
+                        fontWeight: "800",
+                        flexShrink: 0,
+                      }}
+                    >
                       {sc.id}
                     </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex justify-between items-baseline mb-1">
-                        <span className={`text-xs font-bold ${isActive ? "text-white" : "text-gray-300"}`}>
-                          {sc.title}
-                        </span>
-                        <span className="text-[10px] text-gray-500 font-mono">
-                          {(sc.duration / 1000).toFixed(1)}s
-                        </span>
+                    <div style={{ flex: 1, textAlign: "left" }}>
+                      <div style={{ fontSize: "12px", fontWeight: "800", color: isAct ? "#10B981" : "#ffffff", marginBottom: "2px" }}>
+                        {sc.title}
                       </div>
-                      <p className="text-[11px] text-gray-400 leading-normal">
+                      <div style={{ fontSize: "11px", color: "#9ca3af", lineHeight: "1.3" }}>
                         {lang === "es" ? sc.captions.es : sc.captions.pt}
-                      </p>
+                      </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
           </div>
 
-          {/* INSTRUCCIONES PARA CAPTURAR DESDE EL CELULAR */}
-          <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4 items-start">
-            <div className="p-2.5 bg-[#10B981]/10 rounded-xl text-[#10B981] shrink-0">
-              <Sparkles size={24} />
-            </div>
-            <div className="text-left space-y-1">
-              <h4 className="text-sm font-extrabold text-[#10B981]">💡 ¿Cómo capturar este Reel para tus Redes?</h4>
-              <p className="text-xs text-gray-300 leading-relaxed">
-                1. Seleccioná el idioma deseado (**ES** o **PT**).<br />
-                2. Ajustá el **Zoom** en los controles superiores para que encaje perfecto en la pantalla de tu celular.<br />
-                3. Activá el grabador de pantalla nativo de tu teléfono.<br />
-                4. Dale play en la simulación y grabá la pantalla limpia. ¡Listo para subir a Instagram Reels o TikTok! 🚀
-              </p>
+          {/* TIPS DE GRABACIÓN */}
+          <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.25)", borderRadius: "16px", padding: "16px", display: "flex", gap: "12px" }}>
+            <Sparkles size={20} color="#10B981" style={{ flexShrink: 0, marginTop: "2px" }} />
+            <div style={{ textAlign: "left", fontSize: "12px", color: "#d1d5db", lineHeight: "1.4" }}>
+              <strong style={{ color: "#10B981" }}>Tip de Grabación para Redes:</strong> Activá el grabador de pantalla nativo de tu celular, ajustá el Zoom para que el marco ocupe toda la pantalla y dale a <strong>&quot;Reproducir Continuo&quot;</strong>.
             </div>
           </div>
 
