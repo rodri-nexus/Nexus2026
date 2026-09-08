@@ -53,6 +53,7 @@ interface MensajeGarantiaConfig {
   tamanoTexto: string;
   bordesRedondeados: number;
   paddingInterno: number;
+  ubicacion?: 'under-cart' | 'product-end';
 }
 
 /* ═══════════════════════════════════════════
@@ -71,6 +72,7 @@ const DEFAULT_CONFIG: MensajeGarantiaConfig = {
   tamanoTexto: '16px',
   bordesRedondeados: 5,
   paddingInterno: 20,
+  ubicacion: 'under-cart',
 };
 
 const TAMANO_OPTIONS = [
@@ -85,6 +87,11 @@ const TAMANO_OPTIONS = [
   { value: '24px', label: '24px' },
   { value: '28px', label: '28px' },
   { value: '32px', label: '32px' },
+];
+
+const UBICACION_OPTIONS = [
+  { value: 'under-cart', label: 'Debajo del botón "Agregar al carrito"' },
+  { value: 'product-end', label: 'Al final del detalle del producto' },
 ];
 
 /* ═══════════════════════════════════════════
@@ -216,6 +223,7 @@ function RichTextArea({
           borderRadius: 10,
           background: '#fafafa',
           overflow: 'hidden',
+ drilldown: 'none',
         }}
       >
         <div
@@ -537,6 +545,16 @@ export default function MensajeGarantiaEditor({
   /* ─── TAB GENERAL ─── */
   const tabGeneral = (
     <div>
+      <FieldSelect
+        label="Ubicación en la tienda"
+        value={config.ubicacion || 'under-cart'}
+        options={UBICACION_OPTIONS}
+        onChange={(v) => updateCfg('ubicacion', v as any)}
+      />
+      <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, marginTop: -10, marginBottom: 20 }}>
+        Seleccioná si querés mostrar el widget bajo el botón de compra o al final de la página del producto.
+      </div>
+
       <FieldInput
         label="Título (opcional)"
         value={config.titulo}
@@ -571,7 +589,6 @@ export default function MensajeGarantiaEditor({
         title="Colores principales"
         description="Personalizá los colores de fondo, título, texto y borde."
       >
-        {/* Organización vertical para cel: 1 color por fila sin desbordes */}
         <div
           style={{
             display: 'flex',
@@ -774,7 +791,9 @@ export default function MensajeGarantiaEditor({
           >
             <span style={{ color: '#10B981', flexShrink: 0 }}>ⓘ</span>
             <span>
-              El mensaje aparecerá debajo del botón &quot;Agregar al carrito&quot;.
+              {config.ubicacion === 'product-end' 
+                ? 'El mensaje aparecerá al final del detalle o descripción de tu producto.' 
+                : 'El mensaje aparecerá debajo del botón "Agregar al carrito".'}
             </span>
           </div>
         </div>
@@ -903,4 +922,4 @@ export default function MensajeGarantiaEditor({
       </div>
     </div>
   );
-}
+          }
