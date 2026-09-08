@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Play,
   Pause,
@@ -30,7 +30,6 @@ interface Caption {
 
 interface Scene {
   id: number;
-  duration: number;
   title: string;
   captions: Caption;
   voiceScript: {
@@ -45,12 +44,11 @@ interface Scene {
 }
 
 /* ═══════════════════════════════════════════
-   2. ESCENAS CON GUIÓN CINEMÁTICO DE VOZ
+   2. ESCENAS CON GUIÓN PROFESIONAL DE VOZ
    ═══════════════════════════════════════════ */
 const SCENES: Scene[] = [
   {
     id: 1,
-    duration: 5000,
     title: "1. Dashboard Nevux",
     captions: {
       es: "🔥 ¿Querés duplicar las ventas de tu Tiendanube? Mirá esto...",
@@ -64,35 +62,32 @@ const SCENES: Scene[] = [
   },
   {
     id: 2,
-    duration: 4800,
     title: "2. Modal de Creación",
     captions: {
       es: "1️⃣ Tocá en Crear Widget y elegí aplicarlo a Todos tus Productos",
       pt: "1️⃣ Toque em Criar Widget e escolha Todos os Produtos",
     },
     voiceScript: {
-      es: "Paso uno. Hacé clic en crear widget y elegí la opción para aplicarlo automáticamente a todos tus productos.",
+      es: "Paso uno. Hacé clic en crear widget, y elegí la opción para aplicarlo automáticamente a todos tus productos.",
       pt: "Passo um. Clique em criar widget e escolha a opção para aplicá-lo automaticamente a todos os seus produtos.",
     },
     cursor: { x: "50%", y: "62%", click: true },
   },
   {
     id: 3,
-    duration: 4500,
     title: "3. Elegir Widget",
     captions: {
       es: "2️⃣ Elegí la Cuenta Regresiva para activar máxima urgencia ⏰",
       pt: "2️⃣ Escolha o Contador Regressivo para ativar urgência máxima ⏰",
     },
     voiceScript: {
-      es: "Paso dos. Seleccioná el optimizador de cuenta regresiva, diseñado con gatillos mentales para acelerar la compra.",
+      es: "Paso dos. Seleccioná el optimizador de cuenta regresiva, diseñado con gatillos mentales para acelerar la decisión de compra.",
       pt: "Passo dois. Selecione o otimizador de contador regressivo, desenhado com gatilhos mentais para acelerar a compra.",
     },
     cursor: { x: "28%", y: "24%", click: true },
   },
   {
     id: 4,
-    duration: 5800,
     title: "4. Editor de Estilos y Ubicación",
     captions: {
       es: "3️⃣ Personalizá el estilo, activá el Modo Urgencia y guardá cambios 🎨",
@@ -106,14 +101,13 @@ const SCENES: Scene[] = [
   },
   {
     id: 5,
-    duration: 7000,
     title: "5. Widget en Tienda Real",
     captions: {
       es: "🚀 ¡Listo! El widget ya está vendiendo por vos en vivo. ¡Aumentá tu ticket ya!",
       pt: "🚀 Pronto! O widget já está vendendo ao vivo por você. Fature mais hoje!",
     },
     voiceScript: {
-      es: "Listo. Tu contador ya está activo y vendiendo en vivo, despertando el deseo de compra inmediato en cada cliente.",
+      es: "Listo. Tu contador ya está activo en tu tienda, despertando un deseo de compra inmediato en cada uno de tus visitantes. ¡Duplicá tus ingresos hoy mismo con Nevux!",
       pt: "Pronto. Seu contador já está ativo e vendendo ao vivo, despertando o desejo de compra imediato em cada cliente.",
     },
     cursor: { x: "50%", y: "78%", click: false },
@@ -169,7 +163,7 @@ const MockTimer = () => {
 const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: boolean }) => (
   <motion.div
     animate={{ left: x, top: y }}
-    transition={{ type: "spring", stiffness: 85, damping: 19 }}
+    transition={{ type: "spring", stiffness: 90, damping: 20 }}
     style={{
       position: "absolute",
       pointerEvents: "none",
@@ -205,52 +199,48 @@ export default function MarketingReelsPage() {
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [progress, setProgress] = useState(0); // Progreso de 0 a 100 de la escena activa
   const [zoom, setZoom] = useState(85);
   const [soundActive, setSoundActive] = useState(true);
-  
-  // Nuevo Estado: Tipo de Locución ("cinematic" o "professional_mp3")
-  const [voiceType, setVoiceType] = useState<"cinematic" | "professional_mp3">("cinematic");
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const estimatedDurationRef = useRef<number>(5000); // Estimado por si falla SpeechSynthesis
+  const progressTimerRef = useRef<number>(0);
+
   const currentScene = SCENES[currentSceneIdx];
 
-  // Motor de Voz (SpeechSynthesis o Audio MP3)
-  const speakCurrentScene = (sceneIdx: number) => {
-    if (!soundActive) return;
-
-    const targetScript = SCENES[sceneIdx].voiceScript[lang];
-
-    if (voiceType === "professional_mp3") {
-      // Intenta reproducir el archivo de locución real si existe en el public folder
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      const audioPath = `/audio/reels/${lang}_scene_${sceneIdx + 1}.mp3`;
-      const newAudio = new Audio(audioPath);
-      newAudio.play().catch((err) => {
-        console.warn("No se encontró el MP3 profesional. Usando voz cinemática alternativa.", err);
-        // Fallback a voz de sistema
-        speakWithSystemVoice(targetScript);
-      });
-      audioRef.current = newAudio;
-    } else {
-      // Ejecuta la voz cinemática optimizada
-      speakWithSystemVoice(targetScript);
-    }
+  // Función para obtener una estimación de duración en base a la cantidad de palabras
+  const getEstimatedDuration = (text: string) => {
+    const words = text.split(" ").length;
+    // Promedio de lectura natural: 130 palabras por minuto
+    const durationMs = (words / 130) * 60 * 1000;
+    return Math.max(durationMs, 4000); // Mínimo 4 segundos por escena
   };
 
-  // Configuración de la voz cinemática (Slower rate + lower pitch)
-  const speakWithSystemVoice = (text: string) => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
+  // Función que maneja la locución y sincroniza la escena
+  const handleSceneStart = (sceneIdx: number) => {
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    setProgress(0);
+    progressTimerRef.current = 0;
 
-    window.speechSynthesis.cancel(); // Cancela locuciones anteriores
+    const script = SCENES[sceneIdx].voiceScript[lang];
+    const estimatedDuration = getEstimatedDuration(script);
+    estimatedDurationRef.current = estimatedDuration;
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Si el sonido está apagado o SpeechSynthesis no está disponible, avanzamos por puro tiempo estimado
+    if (!soundActive || typeof window === "undefined" || !window.speechSynthesis) {
+      startFallbackTimer(estimatedDuration);
+      return;
+    }
+
+    // Cancelar cualquier voz activa anterior
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(script);
     utterance.lang = lang === "es" ? "es-ES" : "pt-BR";
 
-    // Intentamos buscar una voz neural de alta calidad en el dispositivo
+    // Intentamos buscar una voz premium y humana en el dispositivo del usuario
     const voices = window.speechSynthesis.getVoices();
     const premiumVoice = voices.find(
       (v) =>
@@ -258,67 +248,103 @@ export default function MarketingReelsPage() {
         (v.name.toLowerCase().includes("google") ||
           v.name.toLowerCase().includes("natural") ||
           v.name.toLowerCase().includes("premium") ||
-          v.name.toLowerCase().includes("neural"))
+          v.name.toLowerCase().includes("neural") ||
+          v.name.toLowerCase().includes("sabina") ||
+          v.name.toLowerCase().includes("helena"))
     );
 
     if (premiumVoice) {
       utterance.voice = premiumVoice;
     }
 
-    // Configuración para simular locución cinematográfica/documental
-    utterance.rate = 0.92;  // Pausado, elegante
-    utterance.pitch = 0.88; // Tono más grave, profundo y profesional
+    // Ajustes para voz natural, pausada y cinemática
+    utterance.rate = 0.96; // Velocidad conversacional perfecta, cero robotización
+    utterance.pitch = 1.0; // Tono natural
+
+    currentUtteranceRef.current = utterance;
+
+    // EVENTO CLAVE: Cuando la voz termina de hablar REALMENTE, avanzamos al siguiente paso
+    utterance.onend = () => {
+      setProgress(100);
+      setTimeout(() => {
+        if (isPlaying) {
+          setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
+        }
+      }, 600); // Pequeña pausa dramática antes de la siguiente escena
+    };
+
+    utterance.onerror = () => {
+      // Si la API de voz da error, usamos el fallback de tiempo para no trabar la app
+      startFallbackTimer(estimatedDuration);
+    };
+
+    // Iniciar animación de la barra de progreso mientras habla
+    const stepTime = 100;
+    progressIntervalRef.current = setInterval(() => {
+      progressTimerRef.current += stepTime;
+      const calculatedProgress = Math.min((progressTimerRef.current / estimatedDuration) * 100, 95); // Se queda en 95% hasta que onend dispare el 100%
+      setProgress(calculatedProgress);
+    }, stepTime);
 
     window.speechSynthesis.speak(utterance);
   };
 
-  // Control del reproductor y trigger de locución por cada cambio de escena
+  // Temporizador de respaldo si no hay voz activa
+  const startFallbackTimer = (duration: number) => {
+    const stepTime = 100;
+    progressIntervalRef.current = setInterval(() => {
+      progressTimerRef.current += stepTime;
+      const calculatedProgress = (progressTimerRef.current / duration) * 100;
+      if (calculatedProgress >= 100) {
+        clearInterval(progressIntervalRef.current!);
+        setProgress(100);
+        setTimeout(() => {
+          if (isPlaying) {
+            setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
+          }
+        }, 500);
+      } else {
+        setProgress(calculatedProgress);
+      }
+    }, stepTime);
+  };
+
+  // Escuchar cambios de escena o play/pause
   useEffect(() => {
-    if (!isPlaying) {
-      if (timerRef.current) clearInterval(timerRef.current);
+    if (isPlaying) {
+      handleSceneStart(currentSceneIdx);
+    } else {
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
       if (typeof window !== "undefined" && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
-      return;
     }
 
-    // Al iniciar la escena, se reproduce la voz
-    speakCurrentScene(currentSceneIdx);
-
-    const intervalStep = 100;
-    timerRef.current = setInterval(() => {
-      setCurrentTime((prev) => {
-        const nextTime = prev + intervalStep;
-        if (nextTime >= currentScene.duration) {
-          // Cambiar a la siguiente escena
-          setCurrentSceneIdx((prevIdx) => {
-            const nextIdx = (prevIdx + 1) % SCENES.length;
-            return nextIdx;
-          });
-          return 0;
-        }
-        return nextTime;
-      });
-    }, intervalStep);
-
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     };
-  }, [isPlaying, currentSceneIdx, lang, soundActive, voiceType]);
+  }, [isPlaying, currentSceneIdx, lang, soundActive]);
 
   const handleNext = () => {
-    setCurrentTime(0);
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
   };
 
   const handlePrev = () => {
-    setCurrentTime(0);
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     setCurrentSceneIdx((prev) => (prev === 0 ? SCENES.length - 1 : prev - 1));
   };
 
   const handleReset = () => {
-    setCurrentTime(0);
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     setCurrentSceneIdx(0);
+    setProgress(0);
     setIsPlaying(true);
   };
 
@@ -370,7 +396,7 @@ export default function MarketingReelsPage() {
           </div>
           <div>
             <div style={{ fontSize: "16px", fontWeight: "800", color: "#ffffff" }}>Nevux Studio</div>
-            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700" }}>REELS VOICE GENERATOR</div>
+            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700" }}>VIDEO & VOICE SYNC ENGINE</div>
           </div>
         </div>
 
@@ -407,52 +433,6 @@ export default function MarketingReelsPage() {
               }}
             >
               PT-BR
-            </button>
-          </div>
-
-          <div style={{ width: "1px", height: "20px", background: "#374151" }} />
-
-          {/* Selector de Modo de Voz */}
-          <div style={{ display: "flex", gap: "4px" }}>
-            <button
-              onClick={() => setVoiceType("cinematic")}
-              style={{
-                background: voiceType === "cinematic" ? "rgba(16, 185, 129, 0.2)" : "transparent",
-                border: "1px solid",
-                borderColor: voiceType === "cinematic" ? "#10B981" : "transparent",
-                color: voiceType === "cinematic" ? "#10B981" : "#9ca3af",
-                borderRadius: "8px",
-                padding: "4px 10px",
-                fontSize: "11px",
-                fontWeight: "700",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <Mic size={12} />
-              Voz Cinemática
-            </button>
-            <button
-              onClick={() => setVoiceType("professional_mp3")}
-              style={{
-                background: voiceType === "professional_mp3" ? "rgba(16, 185, 129, 0.2)" : "transparent",
-                border: "1px solid",
-                borderColor: voiceType === "professional_mp3" ? "#10B981" : "transparent",
-                color: voiceType === "professional_mp3" ? "#10B981" : "#9ca3af",
-                borderRadius: "8px",
-                padding: "4px 10px",
-                fontSize: "11px",
-                fontWeight: "700",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <Sparkles size={12} />
-              Locutor MP3
             </button>
           </div>
 
@@ -538,14 +518,14 @@ export default function MarketingReelsPage() {
               }}
             />
 
-            {/* CURSOR VIRTUAL ANIMADO */}
+            {/* CURSUR VIRTUAL ANIMADO */}
             <SimulatedPointer
               x={currentScene.cursor.x}
               y={currentScene.cursor.y}
-              active={currentTime > 1200 && currentTime < 2400 && currentScene.cursor.click}
+              active={currentTime > 1200 && currentScene.cursor.click}
             />
 
-            {/* BARRA DE HISTORIAS / PROGRESO SUPERIOR */}
+            {/* BARRA DE HISTORIAS / PROGRESO SUPERIOR SINCRONIZADA */}
             <div
               style={{
                 position: "absolute",
@@ -560,7 +540,7 @@ export default function MarketingReelsPage() {
               {SCENES.map((sc, idx) => {
                 let p = 0;
                 if (idx < currentSceneIdx) p = 100;
-                if (idx === currentSceneIdx) p = (currentTime / sc.duration) * 100;
+                if (idx === currentSceneIdx) p = progress;
                 return (
                   <div key={sc.id} style={{ flex: 1, height: "3px", background: "rgba(255,255,255,0.25)", borderRadius: "999px", overflow: "hidden" }}>
                     <div style={{ width: `${p}%`, height: "100%", background: "#10B981" }} />
@@ -569,7 +549,7 @@ export default function MarketingReelsPage() {
               })}
             </div>
 
-            {/* INDICADOR DE LOCUTOR EN VIVO */}
+            {/* INDICADOR DE VOZ ACTIVA */}
             {soundActive && (
               <div
                 style={{
@@ -586,8 +566,8 @@ export default function MarketingReelsPage() {
                   border: "1px solid rgba(16,185,129,0.3)",
                 }}
               >
-                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981", animation: "pulse 1.2s infinite" }} />
-                <span style={{ fontSize: "8px", fontWeight: "800", color: "#10B981" }}>LOCUCIÓN ON</span>
+                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981", animation: "pulse 1s infinite" }} />
+                <span style={{ fontSize: "8px", fontWeight: "800", color: "#10B981" }}>VOICE PLAYING</span>
               </div>
             )}
 
@@ -680,7 +660,7 @@ export default function MarketingReelsPage() {
                     {/* BOTÓN + CREAR WIDGET */}
                     <div
                       style={{
-                        background: currentTime > 1400 ? "#059669" : "#10B981",
+                        background: progress > 50 ? "#059669" : "#10B981",
                         color: "#000000",
                         padding: "8px 16px",
                         borderRadius: "10px",
@@ -690,7 +670,7 @@ export default function MarketingReelsPage() {
                         alignItems: "center",
                         gap: "6px",
                         boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
-                        transform: currentTime > 1400 ? "scale(0.96)" : "scale(1)",
+                        transform: progress > 50 ? "scale(0.96)" : "scale(1)",
                         transition: "all 0.15s",
                       }}
                     >
@@ -724,18 +704,18 @@ export default function MarketingReelsPage() {
                       {/* Opción 2: SELECCIONADA */}
                       <div
                         style={{
-                          border: currentTime > 1400 ? "2px solid #10B981" : "1.5px solid #e5e7eb",
-                          background: currentTime > 1400 ? "#ecfdf5" : "#ffffff",
+                          border: progress > 50 ? "2px solid #10B981" : "1.5px solid #e5e7eb",
+                          background: progress > 50 ? "#ecfdf5" : "#ffffff",
                           borderRadius: "12px",
                           padding: "10px",
                           display: "flex",
                           alignItems: "center",
                           gap: "8px",
-                          boxShadow: currentTime > 1400 ? "0 0 0 3px rgba(16, 185, 129, 0.15)" : "none",
+                          boxShadow: progress > 50 ? "0 0 0 3px rgba(16, 185, 129, 0.15)" : "none",
                           transition: "all 0.2s",
                         }}
                       >
-                        <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#000000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#000000", display: "flex", alignItems: "center", justifyBox: "center" }}>
                           <Store size={14} color="#ffffff" />
                         </div>
                         <div style={{ flex: 1, textAlign: "left" }}>
@@ -764,8 +744,8 @@ export default function MarketingReelsPage() {
                     {/* Widget Seleccionado: Cuenta Regresiva */}
                     <div
                       style={{
-                        background: currentTime > 1200 ? "rgba(16, 185, 129, 0.15)" : "#161b22",
-                        border: currentTime > 1200 ? "2px solid #10B981" : "1px solid #30363d",
+                        background: progress > 45 ? "rgba(16, 185, 129, 0.15)" : "#161b22",
+                        border: progress > 45 ? "2px solid #10B981" : "1px solid #30363d",
                         borderRadius: "12px",
                         padding: "10px",
                         textAlign: "left",
@@ -854,8 +834,8 @@ export default function MarketingReelsPage() {
                   <div
                     style={{
                       marginTop: "6px",
-                      background: currentTime > 3200 ? "#059669" : "#10B981",
-                      color: currentTime > 3200 ? "#ffffff" : "#000000",
+                      background: progress > 80 ? "#059669" : "#10B981",
+                      color: progress > 80 ? "#ffffff" : "#000000",
                       padding: "8px",
                       borderRadius: "10px",
                       fontSize: "11px",
@@ -864,7 +844,7 @@ export default function MarketingReelsPage() {
                       transition: "all 0.2s",
                     }}
                   >
-                    {currentTime > 3200 ? "✓ Cambios Guardados" : "Guardar cambios"}
+                    {progress > 80 ? "✓ Cambios Guardados" : "Guardar cambios"}
                   </div>
                 </div>
               )}
@@ -945,7 +925,7 @@ export default function MarketingReelsPage() {
           </div>
         </div>
 
-        {/* COLUMNA 2: CONTROLES DE LA SIMULACIÓN Y GUON */}
+        {/* COLUMNA 2: CONTROLES DE LA SIMULACIÓN Y GUION */}
         <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
           
           {/* CONTROLADOR PRINCIPAL */}
@@ -1002,10 +982,10 @@ export default function MarketingReelsPage() {
             {/* Barra de progreso de la escena */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#9ca3af", marginBottom: "6px" }}>
               <span>Escena {currentSceneIdx + 1} de {SCENES.length}</span>
-              <span>{(currentTime / 1000).toFixed(1)}s / {(currentScene.duration / 1000).toFixed(1)}s</span>
+              <span>Progreso Locución: {Math.round(progress)}%</span>
             </div>
             <div style={{ width: "100%", height: "6px", background: "#1f2937", borderRadius: "999px", overflow: "hidden" }}>
-              <div style={{ width: `${(currentTime / currentScene.duration) * 100}%`, height: "100%", background: "#10B981" }} />
+              <div style={{ width: `${progress}%`, height: "100%", background: "#10B981", transition: "width 0.1s linear" }} />
             </div>
           </div>
 
@@ -1023,7 +1003,7 @@ export default function MarketingReelsPage() {
                     key={sc.id}
                     onClick={() => {
                       setCurrentSceneIdx(idx);
-                      setCurrentTime(0);
+                      setProgress(0);
                     }}
                     style={{
                       background: isAct ? "rgba(16, 185, 129, 0.12)" : "rgba(0,0,0,0.3)",
@@ -1064,20 +1044,6 @@ export default function MarketingReelsPage() {
                   </div>
                 );
               })}
-            </div>
-          </div>
-
-          {/* INSTRUCCIONES PARA MP3 PREMIUM */}
-          <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.25)", borderRadius: "16px", padding: "16px", display: "flex", gap: "12px" }}>
-            <Sparkles size={20} color="#10B981" style={{ flexShrink: 0, marginTop: "2px" }} />
-            <div style={{ textAlign: "left", fontSize: "12px", color: "#d1d5db", lineHeight: "1.4" }}>
-              <strong style={{ color: "#10B981" }}>🎙️ Cómo añadir voces profesionales reales (Opcional):</strong><br />
-              Si querés usar la locución grabada por un profesional en MP3, simplemente creá la carpeta `public/audio/reels` y subí tus audios nombrados exactamente como:
-              <ul style={{ margin: "4px 0", paddingLeft: "16px" }}>
-                <li>`es_scene_1.mp3` hasta `es_scene_5.mp3`</li>
-                <li>`pt_scene_1.mp3` hasta `pt_scene_5.mp3`</li>
-              </ul>
-              Luego marcá la opción de <strong>&quot;Locutor MP3&quot;</strong> arriba y se reproducirán de forma prioritaria.
             </div>
           </div>
 
