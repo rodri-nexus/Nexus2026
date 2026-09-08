@@ -18,11 +18,12 @@ import {
   CheckCircle2,
   Loader2,
   Globe,
+  ExternalLink,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 /* ═══════════════════════════════════════════
-   1. TYPES, INTERFACES & LOCALIZED DATA (Regla #9)
+   1. TYPES, INTERFACES & REAL PAYMENT DATA (Regla #9)
    ═══════════════════════════════════════════ */
 interface PagarClientProps {
   email: string;
@@ -31,6 +32,7 @@ interface PagarClientProps {
 interface PaymentField {
   label: string;
   value: string;
+  link?: string;
   small?: boolean;
   noCopy?: boolean;
 }
@@ -43,6 +45,8 @@ interface CountryPaymentConfig {
   amount: string;
   title: string;
   instructions: string;
+  directPayLink?: string;
+  directPayLabel?: string;
   fields: PaymentField[];
 }
 
@@ -67,10 +71,12 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     name: "Brasil",
     currency: "BRL",
     amount: "R$ 160",
-    title: "Transferência instantânea via PIX",
-    instructions: "Faça a transferência Pix usando a chave abaixo.",
+    title: "Pagamento instantâneo via PIX",
+    instructions: "Toque no botão abaixo para pagar via Pix pelo Belo ou copie a chave.",
+    directPayLink: "https://pay.belo.app/checkout?id=6a9f83282534a474802c1467",
+    directPayLabel: "Pagar via PIX com Belo →",
     fields: [
-      { label: "Chave Pix", value: "rodrigolazaro24@gmail.com" },
+      { label: "Link de Pagamento Pix", value: "https://pay.belo.app/checkout?id=6a9f83282534a474802c1467", small: true },
       { label: "Beneficiário", value: "Rodrigo Lazaro Spehgt", noCopy: true },
     ],
   },
@@ -80,11 +86,11 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     name: "México",
     currency: "MXN",
     amount: "$600 MXN",
-    title: "Transferencia SPEI o CLABE",
-    instructions: "Realiza tu transferencia SPEI interbancaria utilizando estos datos.",
+    title: "Pago por DolarApp o PayPal",
+    instructions: "Envía el pago a través de DolarApp o PayPal en pesos mexicanos o USD.",
     fields: [
-      { label: "CLABE", value: "138180000116861048", small: true },
-      { label: "Banco", value: "Naranja X / STP", noCopy: true },
+      { label: "DolarApp Tag", value: "$rodrigospehgt" },
+      { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
       { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
     ],
   },
@@ -94,11 +100,11 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     name: "Colombia",
     currency: "COP",
     amount: "$120.000 COP",
-    title: "Transferencia Bancaria",
-    instructions: "Realiza tu transferencia desde Bancolombia, Nequi o tu banco local.",
+    title: "Pago con PayPal o DolarApp",
+    instructions: "Paga con tarjeta internacional mediante PayPal o transferí a DolarApp.",
     fields: [
-      { label: "Cuenta de Ahorros", value: "116-861048-56" },
-      { label: "Banco", value: "Bancolombia", noCopy: true },
+      { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
+      { label: "DolarApp Tag", value: "$rodrigospehgt" },
       { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
     ],
   },
@@ -108,12 +114,11 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     name: "Chile",
     currency: "CLP",
     amount: "$28.000 CLP",
-    title: "Transferencia cuenta corriente o vista",
-    instructions: "Realiza la transferencia utilizando los datos de cuenta y tu RUT.",
+    title: "Pago con PayPal o DolarApp",
+    instructions: "Paga en línea con tarjeta vía PayPal o transferí a DolarApp.",
     fields: [
-      { label: "Cuenta Vista", value: "116861048" },
-      { label: "RUT", value: "11.686.104-8" },
-      { label: "Banco", value: "Banco Estado", noCopy: true },
+      { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
+      { label: "DolarApp Tag", value: "$rodrigospehgt" },
       { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
     ],
   },
@@ -123,12 +128,12 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     name: "Internacional",
     currency: "USD",
     amount: "$30 USD",
-    title: "PayPal o Crypto USDT",
-    instructions: "Envía el pago por PayPal o mediante la red Tron (TRC20).",
+    title: "PayPal o DolarApp Global",
+    instructions: "Paga con tarjeta de crédito o débito internacional vía PayPal.",
     fields: [
-      { label: "PayPal Email", value: "rodrigolazaro24@gmail.com" },
-      { label: "Dirección USDT (TRC20)", value: "TXS86104856NevuxCryptoAddress", small: true },
-      { label: "Destinatario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
+      { label: "PayPal Email", value: "rodrigospehgt@gmail.com" },
+      { label: "DolarApp Tag", value: "$rodrigospehgt" },
+      { label: "Beneficiario", value: "Rodrigo Lazaro Spehgt", noCopy: true },
     ],
   },
 ];
@@ -458,7 +463,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               lineHeight: 1.5,
             }}
           >
-            Seleccioná tu país, transferí en tu moneda local y subí el comprobante.
+            Seleccioná tu país, pagá en tu moneda local y subí el comprobante.
           </p>
         </motion.div>
 
@@ -477,7 +482,7 @@ export default function PagarClient({ email }: PagarClientProps) {
               letterSpacing: "0.05em",
             }}
           >
-            <Globe size={13} /> Seleccioná tu región o moneda:
+            <Globe size={13} /> Seleccioná tu país o región:
           </div>
 
           <div
@@ -495,7 +500,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                   type="button"
                   onClick={() => setSelectedCountry(c.id)}
                   style={{
-                    padding: "0.6rem",
+                    padding: "0.65rem 0.5rem",
                     border: active ? "2.5px solid #10B981" : "1.5px solid #e5e7eb",
                     borderRadius: "12px",
                     background: active ? "#ecfdf5" : "#ffffff",
@@ -518,7 +523,7 @@ export default function PagarClient({ email }: PagarClientProps) {
           </div>
         </div>
 
-        {/* PASO 1 — Datos de transferencia */}
+        {/* PASO 1 — Datos de transferencia y botón directo */}
         <motion.div
           key={activeConfig.id}
           initial={{ opacity: 0, y: 10 }}
@@ -593,7 +598,7 @@ export default function PagarClient({ email }: PagarClientProps) {
                 marginBottom: "0.35rem",
               }}
             >
-              Monto a transferir ({activeConfig.currency})
+              Monto del plan mensual ({activeConfig.currency})
             </div>
             <div
               style={{
@@ -607,6 +612,35 @@ export default function PagarClient({ email }: PagarClientProps) {
               {activeConfig.amount}
             </div>
           </div>
+
+          {/* Botón de Pago Directo si existe (ej: Belo Pix Brasil) */}
+          {activeConfig.directPayLink && (
+            <a
+              href={activeConfig.directPayLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                width: "100%",
+                padding: "0.95rem 1rem",
+                background: "#000000",
+                color: "#ffffff",
+                borderRadius: "12px",
+                fontSize: "0.95rem",
+                fontWeight: 800,
+                textDecoration: "none",
+                marginBottom: "1rem",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                boxSizing: "border-box",
+              }}
+            >
+              <span>{activeConfig.directPayLabel || "Abrir pasarela de pago"}</span>
+              <ExternalLink size={16} />
+            </a>
+          )}
 
           {activeConfig.fields.map((f) => (
             <DataRow
@@ -941,4 +975,4 @@ export default function PagarClient({ email }: PagarClientProps) {
       </div>
     </div>
   );
-}
+  }
