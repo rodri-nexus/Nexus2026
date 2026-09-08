@@ -223,7 +223,6 @@ function RichTextArea({
           borderRadius: 10,
           background: '#fafafa',
           overflow: 'hidden',
- drilldown: 'none',
         }}
       >
         <div
@@ -922,4 +921,4 @@ export default function MensajeGarantiaEditor({
       </div>
     </div>
   );
-          }
+  }
