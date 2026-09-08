@@ -1,1053 +1,719 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  Play,
-  Pause,
-  RotateCcw,
-  Film,
-  Sparkles,
-  BarChart3,
-  Bot,
-  Mic,
-  Globe,
-  Palette,
-  Brain,
-  Flame,
-  Zap,
-  TrendingUp,
-  CheckCircle2,
-  Rocket,
-  Star,
+import { 
+  Play, Pause, RotateCcw, Volume2, VolumeX, Smartphone, 
+  Sparkles, CheckCircle2, ChevronRight, Store, ArrowLeft,
+  MousePointer, Percent, Flame, Calendar, Clock, ShoppingCart
 } from "lucide-react";
+import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 /* ═══════════════════════════════════════════
-   TIPOS E INTERFACES (Regla #9 al inicio)
-═══════════════════════════════════════════ */
-type LangKey = "es" | "pt";
-type FeatureKey =
-  | "voz"
-  | "vendedor-ia"
-  | "analytics"
-  | "fechas-especiales"
-  | "estilo-marca"
-  | "sugerencias-ia"
-  | "multi-idioma"
-  | "ruleta-descuentos"
-  | "tabla-talles"
-  | "bundle-promociones";
+   1. TYPES & INTERFACES (Regla #9)
+   ═══════════════════════════════════════════ */
+interface Caption {
+  es: string;
+  pt: string;
+}
 
 interface Scene {
-  duration: number;
-  bg: string;
-  emoji?: string;
-  title?: string;
-  subtitle?: string;
-  stat?: string;
-  cta?: string;
-}
-
-interface FeatureConfig {
-  id: FeatureKey;
-  label: { es: string; pt: string };
-  icon: React.ReactNode;
-  color: string;
-  scenes: (lang: LangKey) => Scene[];
+  id: number;
+  duration: number; // en milisegundos
+  title: string;
+  captions: Caption;
+  cursor: {
+    x: string; // % en horizontal
+    y: string; // % en vertical
+    click: boolean;
+  };
 }
 
 /* ═══════════════════════════════════════════
-   ESTILOS BASE (Regla #9 al inicio)
-═══════════════════════════════════════════ */
-const CANVAS_WIDTH = 360;
-const CANVAS_HEIGHT = 640;
-
-const canvasFrameStyle: React.CSSProperties = {
-  width: `${CANVAS_WIDTH}px`,
-  height: `${CANVAS_HEIGHT}px`,
-  borderRadius: "32px",
-  overflow: "hidden",
-  position: "relative",
-  boxShadow: "0 25px 60px rgba(0,0,0,0.5), 0 0 0 6px #1a1a1a, 0 0 0 8px #10B981",
-  background: "#000000",
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-};
-
-const sceneContainerStyle: React.CSSProperties = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "48px 24px 32px",
-  boxSizing: "border-box",
-  textAlign: "center",
-};
-
-const progressBarContainerStyle: React.CSSProperties = {
-  position: "absolute",
-  top: "16px",
-  left: "16px",
-  right: "16px",
-  display: "flex",
-  gap: "4px",
-  zIndex: 10,
-};
-
-const progressSegmentStyle: React.CSSProperties = {
-  flex: 1,
-  height: "3px",
-  background: "rgba(255,255,255,0.35)",
-  borderRadius: "2px",
-  overflow: "hidden",
-};
-
-const brandBadgeStyle: React.CSSProperties = {
-  position: "absolute",
-  top: "32px",
-  left: "50%",
-  transform: "translateX(-50%)",
-  zIndex: 10,
-  background: "rgba(255,255,255,0.15)",
-  backdropFilter: "blur(12px)",
-  padding: "6px 14px",
-  borderRadius: "999px",
-  fontSize: "11px",
-  fontWeight: 800,
-  color: "#ffffff",
-  letterSpacing: "0.1em",
-  border: "1px solid rgba(255,255,255,0.25)",
-};
-
-const buttonPrimaryStyle: React.CSSProperties = {
-  padding: "14px 28px",
-  borderRadius: "14px",
-  border: "none",
-  background: "#10B981",
-  color: "#ffffff",
-  fontWeight: 900,
-  fontSize: "14px",
-  cursor: "pointer",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  boxShadow: "0 8px 22px rgba(16, 185, 129, 0.35)",
-  transition: "transform 0.15s ease",
-};
-
-const buttonSecondaryStyle: React.CSSProperties = {
-  padding: "12px 22px",
-  borderRadius: "14px",
-  border: "1.5px solid rgba(16, 185, 129, 0.4)",
-  background: "rgba(16, 185, 129, 0.1)",
-  color: "#a7f3d0",
-  fontWeight: 800,
-  fontSize: "13px",
-  cursor: "pointer",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-};
-
-const featureButtonStyle = (isActive: boolean): React.CSSProperties => ({
-  padding: "10px 14px",
-  borderRadius: "12px",
-  border: isActive ? "2px solid #10B981" : "1.5px solid rgba(16, 185, 129, 0.25)",
-  background: isActive ? "rgba(16, 185, 129, 0.2)" : "#0b2920",
-  color: isActive ? "#ffffff" : "#a7f3d0",
-  fontSize: "12px",
-  fontWeight: 700,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  whiteSpace: "nowrap",
-  transition: "all 0.2s ease",
-});
-
-/* ═══════════════════════════════════════════
-   BIBLIOTECA DE GUIONES POR FUNCIÓN
-═══════════════════════════════════════════ */
-const FEATURES_LIBRARY: FeatureConfig[] = [
+   2. CONSTANTES DE ESCENAS & CAPTIONS (TikTok Style)
+   ═══════════════════════════════════════════ */
+const SCENES: Scene[] = [
   {
-    id: "voz",
-    label: { es: "🎙️ Búsqueda por Voz", pt: "🎙️ Busca por Voz" },
-    icon: <Mic size={16} />,
-    color: "#EC4899",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "😩",
-        title: lang === "es" ? "¿Te cansaste de escribir en pantallas chicas?" : "Cansado de digitar em telas pequenas?",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #EC4899 0%, #9333EA 100%)",
-        emoji: "🎙️",
-        title: lang === "es" ? "Nevux te trae Búsqueda por Voz" : "Nevux traz Busca por Voz",
-        subtitle: lang === "es" ? "Comprá hablando desde tu celu" : "Compre falando do celular",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
-        emoji: "⚡",
-        title: lang === "es" ? "¡En 1 clic queda listo!" : "Em 1 clique fica pronto!",
-        subtitle: lang === "es" ? "Sin editar tu tienda" : "Sem editar sua loja",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "📈",
-        stat: "+38%",
-        title: lang === "es" ? "Más conversiones móviles" : "Mais conversões mobile",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🚀",
-        cta: lang === "es" ? "Instalá Nevux hoy" : "Instale Nevux hoje",
-      },
-    ],
+    id: 1,
+    duration: 3800,
+    title: "Dashboard Nevux",
+    captions: {
+      es: "🔥 ¿Querés duplicar las ventas de tu Tiendanube? Mirá esto...",
+      pt: "🔥 Quer duplicar as vendas da sua Nuvemshop? Olha só..."
+    },
+    cursor: { x: "82%", y: "24%", click: true }
   },
   {
-    id: "vendedor-ia",
-    label: { es: "🤖 Vendedor Virtual IA", pt: "🤖 Vendedor Virtual IA" },
-    icon: <Bot size={16} />,
-    color: "#10B981",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "⏰",
-        title: lang === "es" ? "Son las 2 AM y tu cliente pregunta..." : "São 2h da manhã e seu cliente pergunta...",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
-        emoji: "🤖",
-        title: lang === "es" ? "Tu Vendedor IA responde por vos" : "Seu Vendedor IA responde por você",
-        subtitle: lang === "es" ? "24 horas los 7 días" : "24 horas por dia",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #3B82F6 0%, #1E40AF 100%)",
-        emoji: "💬",
-        title: lang === "es" ? "Cierra la venta en WhatsApp" : "Fecha a venda no WhatsApp",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "📊",
-        stat: "85%",
-        title: lang === "es" ? "de consultas resueltas solas" : "das consultas resolvidas sozinhas",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🎯",
-        cta: lang === "es" ? "Probá 7 días gratis" : "Teste 7 dias grátis",
-      },
-    ],
+    id: 2,
+    duration: 3800,
+    title: "Modal de Creación",
+    captions: {
+      es: "1️⃣ Tocá en Crear Widget y elegí aplicarlo a Todos tus Productos",
+      pt: "1️⃣ Toque em Criar Widget e escolha Todos os Produtos"
+    },
+    cursor: { x: "50%", y: "65%", click: true }
   },
   {
-    id: "analytics",
-    label: { es: "📊 Live Analytics", pt: "📊 Live Analytics" },
-    icon: <BarChart3 size={16} />,
-    color: "#10B981",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "🤔",
-        title: lang === "es" ? "¿No sabés cuánto te renta Nevux?" : "Não sabe quanto Nevux te rende?",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
-        emoji: "📊",
-        title: lang === "es" ? "Analytics en vivo" : "Analytics ao vivo",
-        subtitle: lang === "es" ? "Facturación extra minuto a minuto" : "Faturamento extra minuto a minuto",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "💰",
-        stat: "$127.500",
-        title: lang === "es" ? "Extra este mes" : "Extra neste mês",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #F59E0B 0%, #D97706 100%)",
-        emoji: "🏆",
-        title: lang === "es" ? "ROI Tracker exacto" : "ROI Tracker exato",
-        subtitle: lang === "es" ? "Cero magia, todo comprobable" : "Zero mágica, tudo comprovado",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🚀",
-        cta: lang === "es" ? "Dashboard incluido" : "Dashboard incluído",
-      },
-    ],
+    id: 3,
+    duration: 3500,
+    title: "Selección de Widget",
+    captions: {
+      es: "2️⃣ Elegí la Cuenta Regresiva para activar máxima urgencia ⏰",
+      pt: "2️⃣ Escolha o Contador Regressivo para ativar urgência máxima ⏰"
+    },
+    cursor: { x: "32%", y: "30%", click: true }
   },
   {
-    id: "fechas-especiales",
-    label: { es: "🔥 Fechas Especiales", pt: "🔥 Datas Especiais" },
-    icon: <Flame size={16} />,
-    color: "#F59E0B",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "😱",
-        title: lang === "es" ? "Se viene el Black Friday..." : "Vem aí a Black Friday...",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #F59E0B 0%, #B45309 100%)",
-        emoji: "🔥",
-        title: lang === "es" ? "Activá el modo en 1 clic" : "Ative o modo com 1 clique",
-        subtitle: lang === "es" ? "Nevux transforma tu tienda" : "Nevux transforma sua loja",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #EF4444 0%, #991B1B 100%)",
-        emoji: "🎁",
-        title: lang === "es" ? "10 widgets se sincronizan" : "10 widgets se sincronizam",
-        subtitle: lang === "es" ? "Cuenta regresiva, badges, cupones" : "Contagem regressiva, badges, cupons",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "📈",
-        stat: "+180%",
-        title: lang === "es" ? "Ventas vs día normal" : "Vendas vs dia normal",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🎯",
-        cta: lang === "es" ? "8 presets listos" : "8 presets prontos",
-      },
-    ],
+    id: 4,
+    duration: 5000,
+    title: "Editor de Widget",
+    captions: {
+      es: "3️⃣ Personalizá el estilo, activá el Modo Urgencia y guardá cambios 🎨",
+      pt: "3️⃣ Customize o estilo, ative o Modo Urgência e salve 🎨"
+    },
+    cursor: { x: "85%", y: "93%", click: true }
   },
   {
-    id: "estilo-marca",
-    label: { es: "🎨 Estilo Marca", pt: "🎨 Estilo Marca" },
-    icon: <Palette size={16} />,
-    color: "#8B5CF6",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "😐",
-        title: lang === "es" ? "¿Widgets que rompen tu diseño?" : "Widgets que quebram seu design?",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #8B5CF6 0%, #6D28D9 100%)",
-        emoji: "🎨",
-        title: lang === "es" ? "Editor Estilo Marca" : "Editor Estilo Marca",
-        subtitle: lang === "es" ? "27 widgets con TUS colores" : "27 widgets com SUAS cores",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #EC4899 0%, #9F1239 100%)",
-        emoji: "✨",
-        title: lang === "es" ? "Regla cromática inteligente" : "Regra cromática inteligente",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "🏆",
-        stat: "100%",
-        title: lang === "es" ? "Coherencia visual" : "Coerência visual",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🎯",
-        cta: lang === "es" ? "Diseño Pro sin diseñador" : "Design Pro sem designer",
-      },
-    ],
-  },
-  {
-    id: "sugerencias-ia",
-    label: { es: "🧠 Sugerencias IA", pt: "🧠 Sugestões IA" },
-    icon: <Brain size={16} />,
-    color: "#3B82F6",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "🤨",
-        title: lang === "es" ? "¿Ticket promedio bajo?" : "Ticket médio baixo?",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #3B82F6 0%, #1E40AF 100%)",
-        emoji: "🧠",
-        title: lang === "es" ? "Cross-Selling con IA" : "Cross-Selling com IA",
-        subtitle: lang === "es" ? "Sugerencias dinámicas por producto" : "Sugestões dinâmicas por produto",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #8B5CF6 0%, #6D28D9 100%)",
-        emoji: "🎯",
-        title: lang === "es" ? "Afinidad de precios inteligente" : "Afinidade de preços inteligente",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "💰",
-        stat: "+42%",
-        title: lang === "es" ? "Aumento del ticket promedio" : "Aumento do ticket médio",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🚀",
-        cta: lang === "es" ? "IA que vende por vos" : "IA que vende por você",
-      },
-    ],
-  },
-  {
-    id: "multi-idioma",
-    label: { es: "🌎 Multi-Idioma IA", pt: "🌎 Multi-Idioma IA" },
-    icon: <Globe size={16} />,
-    color: "#06B6D4",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "🇦🇷🇧🇷🇺🇸",
-        title: lang === "es" ? "Tus clientes hablan varios idiomas" : "Seus clientes falam vários idiomas",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #06B6D4 0%, #0E7490 100%)",
-        emoji: "🌎",
-        title: lang === "es" ? "Traducción automática con IA" : "Tradução automática com IA",
-        subtitle: "ES / PT-BR / EN",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
-        emoji: "⚡",
-        title: lang === "es" ? "Detecta idioma del comprador" : "Detecta idioma do comprador",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "📈",
-        stat: "3X",
-        title: lang === "es" ? "Alcance internacional" : "Alcance internacional",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🎯",
-        cta: lang === "es" ? "Vendé sin fronteras" : "Venda sem fronteiras",
-      },
-    ],
-  },
-  {
-    id: "ruleta-descuentos",
-    label: { es: "🎡 Ruleta de Descuentos", pt: "🎡 Roleta de Descontos" },
-    icon: <Sparkles size={16} />,
-    color: "#F59E0B",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "👀",
-        title: lang === "es" ? "¿Visitas que no compran?" : "Visitas que não compram?",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #F59E0B 0%, #B45309 100%)",
-        emoji: "🎡",
-        title: lang === "es" ? "Ruleta gamificada" : "Roleta gamificada",
-        subtitle: lang === "es" ? "Enganchá al 100%" : "Engaje 100%",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
-        emoji: "🎁",
-        title: lang === "es" ? "Cupones automáticos por email" : "Cupons automáticos por email",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "📊",
-        stat: "+65%",
-        title: lang === "es" ? "Conversión con ruleta" : "Conversão com roleta",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🎯",
-        cta: lang === "es" ? "Diversión que vende" : "Diversão que vende",
-      },
-    ],
-  },
-  {
-    id: "tabla-talles",
-    label: { es: "📏 Tabla de Talles", pt: "📏 Tabela de Tamanhos" },
-    icon: <Zap size={16} />,
-    color: "#8B5CF6",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "😰",
-        title: lang === "es" ? "¿Devoluciones por talle equivocado?" : "Devoluções por tamanho errado?",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #8B5CF6 0%, #6D28D9 100%)",
-        emoji: "📏",
-        title: lang === "es" ? "Tabla Interactiva" : "Tabela Interativa",
-        subtitle: lang === "es" ? "Calcula el talle exacto" : "Calcula o tamanho exato",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #10B981 0%, #059669 100%)",
-        emoji: "✅",
-        title: lang === "es" ? "Menos cambios y devoluciones" : "Menos trocas e devoluções",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "📉",
-        stat: "-72%",
-        title: lang === "es" ? "Reducción de devoluciones" : "Redução de devoluções",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🚀",
-        cta: lang === "es" ? "Ahorrás plata y tiempo" : "Economize dinheiro e tempo",
-      },
-    ],
-  },
-  {
-    id: "bundle-promociones",
-    label: { es: "🎁 Bundle Promociones", pt: "🎁 Bundle Promoções" },
-    icon: <TrendingUp size={16} />,
-    color: "#EF4444",
-    scenes: (lang) => [
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)",
-        emoji: "😐",
-        title: lang === "es" ? "¿Solo vendés 1 producto por compra?" : "Só vende 1 produto por compra?",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #EF4444 0%, #991B1B 100%)",
-        emoji: "🎁",
-        title: lang === "es" ? "Packs Bundle Nevux" : "Packs Bundle Nevux",
-        subtitle: lang === "es" ? "Combos irresistibles" : "Combos irresistíveis",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #F59E0B 0%, #B45309 100%)",
-        emoji: "💥",
-        title: lang === "es" ? "Descuentos por cantidad" : "Descontos por quantidade",
-      },
-      {
-        duration: 4000,
-        bg: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-        emoji: "🚀",
-        stat: "+55%",
-        title: lang === "es" ? "Aumento del ticket" : "Aumento do ticket",
-      },
-      {
-        duration: 3000,
-        bg: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-        emoji: "🎯",
-        cta: lang === "es" ? "Vendé más por venta" : "Venda mais por venda",
-      },
-    ],
-  },
+    id: 5,
+    duration: 6000,
+    title: "Render en Tienda Real",
+    captions: {
+      es: "🚀 ¡Listo! El widget ya está vendiendo por vos en vivo. ¡Aumentá tu ticket ya!",
+      pt: "🚀 Pronto! O widget já está vendendo ao vivo por você. Fature mais hoje!"
+    },
+    cursor: { x: "50%", y: "85%", click: false }
+  }
 ];
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTE: REEL PLAYER (Escena animada)
-═══════════════════════════════════════════ */
-function ReelPlayer({
-  scenes,
-  isPlaying,
-  currentSceneIndex,
-  onFinishScene,
-  brandLabel,
-}: {
-  scenes: Scene[];
-  isPlaying: boolean;
-  currentSceneIndex: number;
-  onFinishScene: () => void;
-  brandLabel: string;
-}) {
-  const currentScene = scenes[currentSceneIndex];
+   3. SUB-COMPONENTES AUXILIARES DE RENDERIZADO (Regla #9)
+   ═══════════════════════════════════════════ */
+
+// Simulación de Ticking para la Cuenta Regresiva Real
+const MockTimer = () => {
+  const [seconds, setSeconds] = useState(59);
+  const [minutes, setMinutes] = useState(14);
 
   useEffect(() => {
-    if (!isPlaying || !currentScene) return;
-    const timer = setTimeout(() => {
-      onFinishScene();
-    }, currentScene.duration);
-    return () => clearTimeout(timer);
-  }, [isPlaying, currentSceneIndex]);
+    const interval = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev === 0) {
+          setMinutes((m) => (m === 0 ? 14 : m - 1));
+          return 59;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-  if (!currentScene) return null;
+  const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <div style={canvasFrameStyle}>
-      {/* Barra de progreso segmentada estilo Instagram */}
-      <div style={progressBarContainerStyle}>
-        {scenes.map((s, idx) => (
-          <div key={idx} style={progressSegmentStyle}>
-            <motion.div
-              initial={{ width: idx < currentSceneIndex ? "100%" : "0%" }}
-              animate={{
-                width:
-                  idx < currentSceneIndex
-                    ? "100%"
-                    : idx === currentSceneIndex && isPlaying
-                    ? "100%"
-                    : idx === currentSceneIndex
-                    ? "0%"
-                    : "0%",
-              }}
-              transition={{
-                duration: idx === currentSceneIndex && isPlaying ? s.duration / 1000 : 0,
-                ease: "linear",
-              }}
-              style={{ height: "100%", background: "#ffffff", borderRadius: "2px" }}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Marca Nevux */}
-      <div style={brandBadgeStyle}>{brandLabel}</div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSceneIndex}
-          initial={{ opacity: 0, scale: 1.08 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          style={{ ...sceneContainerStyle, background: currentScene.bg }}
-        >
-          {currentScene.emoji && (
-            <motion.div
-              initial={{ scale: 0, rotate: -30 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 220, damping: 14, delay: 0.15 }}
-              style={{
-                fontSize: currentScene.stat ? "80px" : "120px",
-                marginBottom: "20px",
-                filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.4))",
-              }}
-            >
-              {currentScene.emoji}
-            </motion.div>
-          )}
-
-          {currentScene.stat && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              style={{
-                fontSize: "72px",
-                fontWeight: 950,
-                color: "#ffffff",
-                letterSpacing: "-0.04em",
-                marginBottom: "12px",
-                textShadow: "0 6px 20px rgba(0,0,0,0.4)",
-                lineHeight: 1,
-              }}
-            >
-              {currentScene.stat}
-            </motion.div>
-          )}
-
-          {currentScene.title && (
-            <motion.h1
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.25 }}
-              style={{
-                fontSize: currentScene.stat ? "22px" : "30px",
-                fontWeight: 900,
-                color: "#ffffff",
-                margin: "0 0 12px 0",
-                letterSpacing: "-0.03em",
-                lineHeight: 1.15,
-                textShadow: "0 4px 15px rgba(0,0,0,0.5)",
-              }}
-            >
-              {currentScene.title}
-            </motion.h1>
-          )}
-
-          {currentScene.subtitle && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.5 }}
-              style={{
-                fontSize: "16px",
-                color: "rgba(255,255,255,0.95)",
-                margin: 0,
-                fontWeight: 600,
-                lineHeight: 1.4,
-                textShadow: "0 2px 8px rgba(0,0,0,0.35)",
-              }}
-            >
-              {currentScene.subtitle}
-            </motion.p>
-          )}
-
-          {currentScene.cta && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 250, damping: 15, delay: 0.3 }}
-              style={{
-                marginTop: "20px",
-                padding: "16px 32px",
-                background: "#ffffff",
-                color: "#059669",
-                borderRadius: "999px",
-                fontSize: "18px",
-                fontWeight: 950,
-                boxShadow: "0 15px 40px rgba(0,0,0,0.35)",
-              }}
-            >
-              {currentScene.cta} →
-            </motion.div>
-          )}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Handle inferior estilo iOS */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "10px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "120px",
-          height: "4px",
-          background: "rgba(255,255,255,0.4)",
-          borderRadius: "3px",
-        }}
-      />
+    <div className="flex gap-1 items-center font-mono">
+      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm">00d</div>
+      <span className="text-white text-xs font-bold">:</span>
+      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm">12h</div>
+      <span className="text-white text-xs font-bold">:</span>
+      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm">{pad(minutes)}m</div>
+      <span className="text-white text-xs font-bold">:</span>
+      <div className="bg-[#10B981] text-white px-2 py-1 rounded text-sm font-bold shadow-sm animate-pulse">{pad(seconds)}s</div>
     </div>
   );
-}
+};
+
+// Cursor Virtual con click y pulsación animada
+const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: boolean }) => (
+  <motion.div
+    animate={{ x, y }}
+    transition={{ type: "spring", stiffness: 70, damping: 15 }}
+    className="absolute pointer-events-none z-50 transform -translate-x-2 -translate-y-2"
+    style={{ left: 0, top: 0 }}
+  >
+    <MousePointer className="text-black fill-white filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" size={24} />
+    {active && (
+      <span className="absolute top-0 left-0 w-8 h-8 bg-[#10B981]/40 rounded-full -translate-x-1/3 -translate-y-1/3 animate-ping" />
+    )}
+  </motion.div>
+);
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
-═══════════════════════════════════════════ */
-export default function MarketingReelsPage() {
-  const [lang, setLang] = useState<LangKey>("es");
-  const [selectedFeature, setSelectedFeature] = useState<FeatureKey>("voz");
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
-  const [countdown, setCountdown] = useState(0);
+   4. COMPONENTE PRINCIPAL (ReelsPage)
+   ═══════════════════════════════════════════ */
+export default function ReelsPage() {
+  const [lang, setLang] = useState<"es" | "pt">("es");
+  const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [zoom, setZoom] = useState(90); // Control de zoom para captura móvil
+  const [soundActive, setSoundActive] = useState(false);
 
-  const selectedConfig = FEATURES_LIBRARY.find((f) => f.id === selectedFeature)!;
-  const scenes = selectedConfig.scenes(lang);
-  const totalDuration = scenes.reduce((sum, s) => sum + s.duration, 0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const currentScene = SCENES[currentSceneIdx];
 
-  const handlePlay = () => {
-    setCurrentSceneIndex(0);
-    setCountdown(3);
+  // Reproducción de Escenas secuenciales
+  useEffect(() => {
+    if (!isPlaying) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    const intervalStep = 100;
+    timerRef.current = setInterval(() => {
+      setCurrentTime((prev) => {
+        const nextTime = prev + intervalStep;
+        if (nextTime >= currentScene.duration) {
+          // Saltar a la siguiente escena
+          setCurrentSceneIdx((prevIdx) => (prevIdx + 1) % SCENES.length);
+          return 0;
+        }
+        return nextTime;
+      });
+    }, intervalStep);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPlaying, currentSceneIdx, currentScene]);
+
+  const handleNext = () => {
+    setCurrentTime(0);
+    setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
   };
 
-  useEffect(() => {
-    if (countdown <= 0) return;
-    if (countdown === 1) {
-      const t = setTimeout(() => {
-        setCountdown(0);
-        setIsPlaying(true);
-      }, 1000);
-      return () => clearTimeout(t);
-    }
-    const t = setTimeout(() => {
-      setCountdown((c) => c - 1);
-    }, 1000);
-    return () => clearTimeout(t);
-  }, [countdown]);
-
-  const handleFinishScene = () => {
-    if (currentSceneIndex < scenes.length - 1) {
-      setCurrentSceneIndex((i) => i + 1);
-    } else {
-      setIsPlaying(false);
-    }
+  const handlePrev = () => {
+    setCurrentTime(0);
+    setCurrentSceneIdx((prev) => (prev === 0 ? SCENES.length - 1 : prev - 1));
   };
 
   const handleReset = () => {
-    setIsPlaying(false);
-    setCurrentSceneIndex(0);
-    setCountdown(0);
+    setCurrentTime(0);
+    setCurrentSceneIdx(0);
+    setIsPlaying(true);
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#061a14",
-        color: "#ffffff",
-        padding: "20px 16px 80px",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "24px",
-      }}
-    >
-      {/* BREADCRUMB */}
-      <div style={{ width: "100%", maxWidth: "800px" }}>
-        <Link
-          href="/dashboard"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "13px",
-            fontWeight: 700,
-            color: "#a7f3d0",
-            textDecoration: "none",
-            padding: "8px 14px",
-            borderRadius: "10px",
-            background: "#0b2920",
-            border: "1px solid rgba(16, 185, 129, 0.25)",
-          }}
-        >
-          <ArrowLeft size={15} />
-          Volver al Dashboard
-        </Link>
-      </div>
-
-      {/* HEADER */}
-      <div
-        style={{
-          maxWidth: "800px",
-          width: "100%",
-          textAlign: "center",
-          background: "linear-gradient(135deg, #0b2920 0%, #061a14 100%)",
-          padding: "26px 20px",
-          borderRadius: "22px",
-          border: "1.5px solid rgba(16, 185, 129, 0.3)",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
-        }}
-      >
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "6px 14px",
-            borderRadius: "999px",
-            background: "rgba(16, 185, 129, 0.15)",
-            border: "1px solid rgba(16, 185, 129, 0.35)",
-            marginBottom: "14px",
-            fontSize: "11px",
-            fontWeight: 800,
-            color: "#10B981",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
-          <Film size={13} />
-          Estudio de Marketing Nevux
+    <div className="min-h-screen bg-[#0b0f19] text-white flex flex-col items-center p-4 lg:p-8 select-none">
+      
+      {/* HEADER CONTROL CENTRAL */}
+      <div className="w-full max-w-6xl flex flex-col md:flex-row justify-between items-center gap-4 mb-6 pb-6 border-b border-gray-800">
+        <div className="flex items-center gap-3">
+          <NevuxLogo size="medium" />
+          <span className="bg-gradient-to-r from-[#10B981] to-emerald-400 text-black text-xs font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+            Reel Studio v2
+          </span>
         </div>
-        <h1
-          style={{
-            fontSize: "24px",
-            fontWeight: 950,
-            color: "#ffffff",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.03em",
-          }}
-        >
-          🎬 Generador de Reels 9:16
-        </h1>
-        <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, lineHeight: 1.5 }}>
-          Elegí la función, tocá <b>▶ Iniciar</b> y grabá tu pantalla. En 20 segundos tenés un Reel profesional listo para Instagram, TikTok o Shorts.
-        </p>
-      </div>
 
-      {/* SELECTOR DE IDIOMA */}
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          background: "#0b2920",
-          padding: "5px",
-          borderRadius: "12px",
-          border: "1px solid rgba(16, 185, 129, 0.25)",
-        }}
-      >
-        <button
-          onClick={() => setLang("es")}
-          style={{
-            padding: "8px 20px",
-            borderRadius: "9px",
-            border: "none",
-            background: lang === "es" ? "#10B981" : "transparent",
-            color: lang === "es" ? "#ffffff" : "#a7f3d0",
-            fontSize: "12px",
-            fontWeight: 800,
-            cursor: "pointer",
-          }}
-        >
-          🇦🇷 Español
-        </button>
-        <button
-          onClick={() => setLang("pt")}
-          style={{
-            padding: "8px 20px",
-            borderRadius: "9px",
-            border: "none",
-            background: lang === "pt" ? "#10B981" : "transparent",
-            color: lang === "pt" ? "#ffffff" : "#a7f3d0",
-            fontSize: "12px",
-            fontWeight: 800,
-            cursor: "pointer",
-          }}
-        >
-          🇧🇷 Português
-        </button>
-      </div>
-
-      {/* SELECTOR DE FUNCIÓN */}
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "800px",
-          background: "#0b2920",
-          padding: "14px 12px",
-          borderRadius: "16px",
-          border: "1px solid rgba(16, 185, 129, 0.25)",
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch",
-          boxSizing: "border-box",
-        }}
-      >
-        <div style={{ fontSize: "11px", fontWeight: 800, color: "#a7f3d0", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-          🎯 Elegí la función a promocionar
-        </div>
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-          {FEATURES_LIBRARY.map((f) => (
+        {/* CONTROLES GLOBALES */}
+        <div className="flex flex-wrap items-center gap-3 bg-gray-900/95 p-2 rounded-xl border border-gray-800">
+          {/* Idioma */}
+          <div className="flex gap-1 border-r border-gray-800 pr-3">
             <button
-              key={f.id}
-              onClick={() => {
-                setSelectedFeature(f.id);
-                handleReset();
-              }}
-              style={featureButtonStyle(selectedFeature === f.id)}
+              onClick={() => setLang("es")}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                lang === "es" ? "bg-[#10B981] text-black" : "hover:bg-gray-800 text-gray-400"
+              }`}
             >
-              {f.icon}
-              {f.label[lang]}
+              ES
             </button>
-          ))}
+            <button
+              onClick={() => setLang("pt")}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                lang === "pt" ? "bg-[#10B981] text-black" : "hover:bg-gray-800 text-gray-400"
+              }`}
+            >
+              PT-BR
+            </button>
+          </div>
+
+          {/* Zoom Control */}
+          <div className="flex items-center gap-2 border-r border-gray-800 pr-3">
+            <span className="text-xs text-gray-400">Zoom:</span>
+            <input
+              type="range"
+              min="50"
+              max="100"
+              value={zoom}
+              onChange={(e) => setZoom(Number(e.target.value))}
+              className="w-20 accent-[#10B981]"
+            />
+            <span className="text-xs font-mono">{zoom}%</span>
+          </div>
+
+          {/* Audio Simulator */}
+          <button
+            onClick={() => setSoundActive(!soundActive)}
+            className={`p-1.5 rounded-lg transition-colors ${
+              soundActive ? "text-[#10B981] bg-[#10B981]/10" : "text-gray-500 hover:bg-gray-800"
+            }`}
+          >
+            {soundActive ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
         </div>
       </div>
 
-      {/* PLAYER PRINCIPAL */}
-      <div style={{ position: "relative", padding: "10px 0" }}>
-        {countdown > 0 ? (
-          <div
-            style={{
-              ...canvasFrameStyle,
-              background: "linear-gradient(180deg, #10B981 0%, #047857 100%)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+      {/* DISEÑO EN DOS COLUMNAS (REEL PREVIEW & TIMELINE CONTROLS) */}
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* COLUMNA IZQUIERDA: INSTAGRAM REEL PREVIEW FRAME (9:16) */}
+        <div className="lg:col-span-5 flex justify-center">
+          <div 
+            style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center" }}
+            className="relative w-[360px] h-[640px] bg-black rounded-[40px] border-8 border-gray-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden transition-transform duration-300"
           >
-            <div style={{ fontSize: "16px", color: "rgba(255,255,255,0.9)", fontWeight: 800, marginBottom: "20px" }}>
-              🎥 {lang === "es" ? "Grabá pantalla ahora" : "Grave a tela agora"}
+            
+            {/* BARRA SUPERIOR DE LA PANTALLA MÓVIL */}
+            <div className="absolute top-0 inset-x-0 h-7 bg-black/40 backdrop-blur-md z-40 flex justify-between items-center px-6">
+              <span className="text-[10px] font-bold">9:41</span>
+              <div className="w-20 h-4 bg-black rounded-full" /> {/* Notch */}
+              <div className="flex gap-1 items-center">
+                <div className="w-2.5 h-2.5 bg-white rounded-full scale-75" />
+                <div className="w-3.5 h-2.5 bg-white rounded-sm scale-75" />
+              </div>
             </div>
-            <motion.div
-              key={countdown}
-              initial={{ scale: 0.3, opacity: 0 }}
-              animate={{ scale: 1.2, opacity: 1 }}
-              exit={{ scale: 2, opacity: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              style={{
-                fontSize: "200px",
-                fontWeight: 950,
-                color: "#ffffff",
-                textShadow: "0 15px 40px rgba(0,0,0,0.4)",
-                lineHeight: 1,
-              }}
-            >
-              {countdown}
-            </motion.div>
+
+            {/* CURSOR VIRTUAL ANIMADO */}
+            <SimulatedPointer 
+              x={currentScene.cursor.x} 
+              y={currentScene.cursor.y} 
+              active={currentTime > 1000 && currentTime < 2200 && currentScene.cursor.click} 
+            />
+
+            {/* CAPTIONS FLOTANTES ESTILO TIKTOK (Ubicación visual central-baja) */}
+            <div className="absolute bottom-16 inset-x-4 z-40 pointer-events-none flex flex-col gap-2">
+              <div className="bg-[#10B981] text-black text-xs font-black px-3 py-1 rounded-md self-start uppercase tracking-wider shadow-lg">
+                Nevux App
+              </div>
+              <div className="bg-black/85 border border-emerald-500/30 text-white font-extrabold text-sm p-3.5 rounded-2xl shadow-2xl backdrop-blur-sm leading-snug">
+                {lang === "es" ? currentScene.captions.es : currentScene.captions.pt}
+              </div>
+            </div>
+
+            {/* BARRA DE PROGRESO DE LA ESCENA ACTUAL (SUPERIOR) */}
+            <div className="absolute top-8 inset-x-4 z-40 flex gap-1">
+              {SCENES.map((sc, idx) => {
+                let progress = 0;
+                if (idx < currentSceneIdx) progress = 100;
+                if (idx === currentSceneIdx) progress = (currentTime / sc.duration) * 100;
+                return (
+                  <div key={sc.id} className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#10B981]" 
+                      style={{ width: `${progress}%` }} 
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ONDAS DE SONIDO ESTILO MÚSICA TIKTOK CORRIENDO */}
+            {soundActive && (
+              <div className="absolute top-12 right-4 z-40 flex items-end gap-0.5 h-4">
+                {[...Array(5)].map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="w-0.5 bg-[#10B981] rounded-full animate-bounce" 
+                    style={{ 
+                      height: `${Math.random() * 100}%`,
+                      animationDelay: `${i * 0.15}s`,
+                      animationDuration: "0.6s"
+                    }} 
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* CONTENIDOS DINÁMICOS DE LAS ESCENAS (FLUJO REAL) */}
+            <div className="w-full h-full pt-8 pb-4 px-4 bg-[#0d1117] flex flex-col relative">
+
+              {/* ESCENA 1: EL DASHBOARD DE NEVUX COMPLETO */}
+              {currentSceneIdx === 0 && (
+                <div className="flex-1 flex flex-col pt-4">
+                  {/* Navbar Nevux */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                    <span className="text-[#10B981] font-black text-sm">NEVUX</span>
+                    <span className="text-[10px] bg-emerald-500/10 text-[#10B981] px-2 py-0.5 rounded-full font-bold">Store Active</span>
+                  </div>
+
+                  {/* Panel de Bienvenida */}
+                  <div className="mt-4 p-3 bg-gray-900 border border-gray-800 rounded-xl">
+                    <span className="text-[10px] text-gray-400 block">Hola Rodrigo,</span>
+                    <span className="text-xs font-bold text-white">¡Tu tienda está despegando! 🚀</span>
+                  </div>
+
+                  {/* Estadísticas */}
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    <div className="bg-gray-900 p-2.5 rounded-xl border border-gray-800">
+                      <span className="text-[9px] text-gray-400 block">Widgets Activos</span>
+                      <span className="text-sm font-bold text-[#10B981]">0 widgets</span>
+                    </div>
+                    <div className="bg-gray-900 p-2.5 rounded-xl border border-[#10B981]/20">
+                      <span className="text-[9px] text-gray-400 block">Facturado Extra</span>
+                      <span className="text-sm font-extrabold text-white">$0.00</span>
+                    </div>
+                  </div>
+
+                  {/* Estado vacío con CTA Brillante */}
+                  <div className="mt-4 flex-1 bg-gray-900/50 rounded-2xl border border-dashed border-gray-800 flex flex-col items-center justify-center p-4 text-center">
+                    <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center mb-2">
+                      <Store className="text-[#10B981]" size={18} />
+                    </div>
+                    <span className="text-[11px] font-bold text-white mb-1">No tenés widgets activos</span>
+                    <p className="text-[9px] text-gray-400 mb-4 max-w-[180px]">Activá tu primer optimizador y mirá las conversiones subir.</p>
+                    
+                    {/* BOTÓN REAL "+ CREAR WIDGET" */}
+                    <div className={`w-full max-w-[200px] bg-[#10B981] text-black text-xs font-extrabold py-2 px-3 rounded-xl flex items-center justify-center gap-1 shadow-lg transition-all ${currentTime > 1500 ? 'scale-95 bg-emerald-400 shadow-none' : ''}`}>
+                      <Sparkles size={12} />
+                      Crear widget
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ESCENA 2: MODAL "CREAR NUEVO WIDGET" DESPLEGADO */}
+              {currentSceneIdx === 1 && (
+                <div className="flex-1 flex flex-col justify-end pt-4 bg-black/60 -mx-4 px-4 pb-4">
+                  
+                  {/* Contenido Simulado de Fondo del Dashboard */}
+                  <div className="absolute inset-x-4 top-12 opacity-20 pointer-events-none">
+                    <div className="h-10 bg-gray-800 rounded-md mb-2" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="h-12 bg-gray-800 rounded-md" />
+                      <div className="h-12 bg-gray-800 rounded-md" />
+                    </div>
+                  </div>
+
+                  {/* EL MODAL REAL DE NEVUX */}
+                  <div className="bg-white rounded-3xl p-4 shadow-2xl relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-black text-black">Crear nuevo widget</span>
+                      <span className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-black text-[9px]">✕</span>
+                    </div>
+                    <p className="text-[10px] text-gray-500 mb-3">¿Qué tipo de widget querés crear?</p>
+
+                    <div className="flex flex-col gap-2">
+                      {/* Opción A */}
+                      <div className="p-2.5 bg-white border border-gray-200 rounded-xl flex items-center gap-2 opacity-50">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                          <Percent className="text-emerald-500" size={14} />
+                        </div>
+                        <div className="text-left flex-1">
+                          <div className="text-[10px] font-bold text-black">Widget para un producto</div>
+                        </div>
+                      </div>
+
+                      {/* Opción B: Todos los productos (Seleccionado por Pointer) */}
+                      <div className={`p-2.5 rounded-xl flex items-center gap-2 border-2 transition-all ${
+                        currentTime > 1500 ? "bg-emerald-50 border-[#10B981]" : "bg-white border-gray-200"
+                      }`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                          currentTime > 1500 ? "bg-[#10B981] text-white" : "bg-black text-white"
+                        }`}>
+                          <Store size={14} />
+                        </div>
+                        <div className="text-left flex-1">
+                          <div className="text-[10px] font-bold text-black">Widget para todos los productos</div>
+                          <div className="text-[8px] text-gray-500">Aparece en toda tu tienda</div>
+                        </div>
+                        <ChevronRight className="text-gray-400" size={12} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ESCENA 3: SELECCIÓN DE "CUENTA REGRESIVA" */}
+              {currentSceneIdx === 2 && (
+                <div className="flex-1 flex flex-col pt-4">
+                  <div className="flex items-center gap-1.5 py-2 border-b border-gray-800 text-gray-400">
+                    <ArrowLeft size={12} />
+                    <span className="text-[10px] font-bold uppercase">Volver al dashboard</span>
+                  </div>
+
+                  <h3 className="text-xs font-extrabold mt-3 text-white">Elegí tu Widget de Conversión:</h3>
+                  
+                  {/* Grid de Widgets de Nevux */}
+                  <div className="grid grid-cols-2 gap-2 mt-3 overflow-y-auto max-h-[360px] pr-1">
+                    
+                    {/* Widget 1: Cuenta Regresiva (En Foco) */}
+                    <div className={`p-2.5 rounded-xl border transition-all text-left flex flex-col gap-1.5 ${
+                      currentTime > 1200 ? "border-[#10B981] bg-[#10B981]/10" : "border-gray-800 bg-gray-900"
+                    }`}>
+                      <div className="w-7 h-7 rounded-lg bg-[#10B981]/20 flex items-center justify-center">
+                        <Clock className="text-[#10B981]" size={14} />
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-white">Cuenta Regresiva</div>
+                        <span className="text-[8px] text-[#10B981] block">Urgencia Máxima 🔥</span>
+                      </div>
+                    </div>
+
+                    {/* Otros widgets desvanecidos */}
+                    <div className="p-2.5 rounded-xl border border-gray-800 bg-gray-900 opacity-40 text-left">
+                      <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center mb-1.5">
+                        <Percent size={14} />
+                      </div>
+                      <div className="text-[10px] font-bold">Badge Cuotas</div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl border border-gray-800 bg-gray-900 opacity-40 text-left">
+                      <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center mb-1.5">
+                        <Store size={14} />
+                      </div>
+                      <div className="text-[10px] font-bold">Banner Deslizante</div>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl border border-gray-800 bg-gray-900 opacity-40 text-left">
+                      <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center mb-1.5">
+                        <Sparkles size={14} />
+                      </div>
+                      <div className="text-[10px] font-bold">Vendedor IA</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ESCENA 4: EL EDITOR REAL CON SECCIONES GENERAL, UBICACIÓN Y ESTILOS */}
+              {currentSceneIdx === 3 && (
+                <div className="flex-1 flex flex-col pt-4 text-left overflow-hidden">
+                  <div className="flex items-center justify-between py-1 border-b border-gray-800">
+                    <span className="text-[10px] font-bold text-gray-400">Editor: Cuenta Regresiva</span>
+                    <span className="text-[9px] bg-emerald-500/20 text-[#10B981] px-1.5 py-0.5 rounded font-bold">Activo</span>
+                  </div>
+
+                  {/* Tabs */}
+                  <div className="flex border-b border-gray-800 mt-2 text-center">
+                    <span className="flex-1 text-[9px] font-bold text-[#10B981] border-b-2 border-[#10B981] pb-1">Ubicación</span>
+                    <span className="flex-1 text-[9px] text-gray-500 pb-1">Estilos</span>
+                    <span className="flex-1 text-[9px] text-gray-500 pb-1">General</span>
+                  </div>
+
+                  {/* Campos de Input Simulados */}
+                  <div className="mt-3 space-y-2.5 flex-1">
+                    <div>
+                      <span className="text-[8px] font-bold text-gray-400 block mb-1">Título de Urgencia:</span>
+                      <input 
+                        type="text" 
+                        readOnly 
+                        value="¡Oferta de Lanzamiento termina en! 🔥" 
+                        className="w-full bg-gray-900 border border-gray-800 rounded px-2 py-1 text-[10px] text-white" 
+                      />
+                    </div>
+
+                    {/* Ubicaciones */}
+                    <div className="space-y-1">
+                      <span className="text-[8px] font-bold text-gray-400 block">Posición en Ficha de Producto:</span>
+                      <label className="flex items-center gap-1.5 p-1.5 rounded bg-gray-900 border border-gray-800">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#10B981] flex items-center justify-center scale-90" />
+                        <span className="text-[9px] text-white">Antes del Botón de Compra</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 p-1.5 rounded opacity-40">
+                        <div className="w-2.5 h-2.5 rounded-full border border-gray-600" />
+                        <span className="text-[9px]">Antes del Título</span>
+                      </label>
+                    </div>
+
+                    {/* Switch Modo Urgencia */}
+                    <div className="flex items-center justify-between p-2 bg-[#10B981]/10 rounded-lg border border-[#10B981]/30">
+                      <div>
+                        <span className="text-[9px] font-bold text-white block">Activar Modo Urgencia ⚡</span>
+                        <span className="text-[7px] text-gray-400">Color cambia dinámicamente</span>
+                      </div>
+                      <div className="w-7 h-4 bg-[#10B981] rounded-full p-0.5 flex justify-end">
+                        <div className="w-3 h-3 bg-white rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* BOTÓN GUARDAR CAMBIOS */}
+                  <div className={`mt-auto w-full text-center text-xs font-black py-2 rounded-xl transition-all ${
+                    currentTime > 3000 ? "bg-[#059669] text-white" : "bg-[#10B981] text-black"
+                  }`}>
+                    {currentTime > 3000 ? "✓ Guardado Exitosamente" : "Guardar cambios"}
+                  </div>
+                </div>
+              )}
+
+              {/* ESCENA 5: RENDER EN TIENDA DE COMERCIANTE REAL */}
+              {currentSceneIdx === 4 && (
+                <div className="flex-1 flex flex-col pt-4 text-left">
+                  {/* Header Tienda */}
+                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                    <span className="text-xs font-bold tracking-wider">CHROME CLONE STORE</span>
+                    <span className="text-[10px] text-gray-400">🛒 (2)</span>
+                  </div>
+
+                  {/* Imagen y Detalle de Producto */}
+                  <div className="mt-3 flex gap-3 items-start">
+                    <div className="w-20 h-24 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg border border-gray-800 flex items-center justify-center text-gray-600 relative overflow-hidden">
+                      <ShoppingCart size={24} />
+                      <div className="absolute top-1 left-1 bg-red-500 text-[6px] font-bold text-white px-1.5 py-0.5 rounded-full uppercase">
+                        -40% OFF
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <span className="text-[8px] text-gray-400 block">REMERAS PREMIUM</span>
+                      <h4 className="text-xs font-bold text-white leading-tight">Remera Oversized Hoodie Premium</h4>
+                      <div className="mt-1 flex items-baseline gap-1.5">
+                        <span className="text-xs font-black text-[#10B981]">$14.999</span>
+                        <span className="text-[9px] text-gray-500 line-through">$24.999</span>
+                      </div>
+                      <span className="text-[8px] text-gray-400 block mt-1">💳 3 Cuotas sin interés de $4.999</span>
+                    </div>
+                  </div>
+
+                  {/* EL WIDGET DE NEVUX RENDERIZADO EN VIVO (Ubicación: Antes del Botón) */}
+                  <div className="mt-4 p-3 bg-black border border-[#10B981]/40 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.15)] flex flex-col gap-1.5 items-center text-center relative overflow-hidden animate-pulse">
+                    <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#10B981] to-transparent" />
+                    <span className="text-[10px] font-black text-white tracking-wide uppercase flex items-center gap-1 animate-bounce">
+                      ⚡ ¡Oferta por tiempo limitado! termina en:
+                    </span>
+                    
+                    {/* Reloj dinámico ticking */}
+                    <MockTimer />
+                  </div>
+
+                  {/* Botón Comprar Real */}
+                  <div className="mt-3 w-full bg-[#10B981] hover:bg-emerald-400 text-black text-center py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wide flex items-center justify-center gap-1.5">
+                    <ShoppingCart size={13} />
+                    Agregar al carrito
+                  </div>
+
+                  <span className="text-[7px] text-center text-gray-500 mt-2 block">🔒 Compra 100% segura provista por Tiendanube</span>
+                </div>
+              )}
+
+            </div>
           </div>
-        ) : (
-          <ReelPlayer
-            scenes={scenes}
-            isPlaying={isPlaying}
-            currentSceneIndex={currentSceneIndex}
-            onFinishScene={handleFinishScene}
-            brandLabel={lang === "es" ? "NEVUX • TIENDANUBE" : "NEVUX • NUVEMSHOP"}
-          />
-        )}
-      </div>
+        </div>
 
-      {/* CONTROLES */}
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
-        {!isPlaying && countdown === 0 && (
-          <button onClick={handlePlay} style={buttonPrimaryStyle}>
-            <Play size={17} fill="#ffffff" />
-            {lang === "es" ? "Iniciar Presentación" : "Iniciar Apresentação"}
-          </button>
-        )}
-        {(isPlaying || countdown > 0) && (
-          <button onClick={handleReset} style={buttonSecondaryStyle}>
-            <RotateCcw size={15} />
-            {lang === "es" ? "Reiniciar" : "Reiniciar"}
-          </button>
-        )}
-      </div>
+        {/* COLUMNA DERECHA: PANALES DE CONTROL DE LA REPRODUCCIÓN */}
+        <div className="lg:col-span-7 space-y-6">
+          
+          {/* CONTROLADOR DE REPRODUCCIÓN */}
+          <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl">
+            <h2 className="text-lg font-extrabold mb-4 flex items-center gap-2 text-[#10B981]">
+              <Smartphone size={20} />
+              Controles del Simulador
+            </h2>
 
-      {/* TIP DE GRABACIÓN */}
-      <div
-        style={{
-          maxWidth: "500px",
-          width: "100%",
-          padding: "14px 16px",
-          background: "rgba(16, 185, 129, 0.08)",
-          border: "1px solid rgba(16, 185, 129, 0.3)",
-          borderRadius: "14px",
-          fontSize: "12px",
-          color: "#a7f3d0",
-          lineHeight: 1.5,
-          textAlign: "center",
-        }}
-      >
-        💡 <b>Tip Pro:</b> Antes de tocar <b>▶ Iniciar</b>, activá la <b>grabación de pantalla</b> nativa de tu celular (Android: Barra rápida / iPhone: Centro de Control). Duración total: <b>~{Math.round(totalDuration / 1000)} segundos</b>. Después subilo directo a Instagram Reels, TikTok o YouTube Shorts.
+            <div className="flex items-center gap-4 mb-6">
+              <button
+                onClick={handlePrev}
+                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors"
+                title="Escena Anterior"
+              >
+                <ChevronRight className="rotate-180" size={20} />
+              </button>
+
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                className={`flex-1 py-3 px-6 rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all ${
+                  isPlaying ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-[#10B981] text-black hover:bg-emerald-400"
+                }`}
+              >
+                {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                {isPlaying ? "Pausar Simulación" : "Reproducir Automático"}
+              </button>
+
+              <button
+                onClick={handleNext}
+                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors"
+                title="Siguiente Escena"
+              >
+                <ChevronRight size={20} />
+              </button>
+
+              <button
+                onClick={handleReset}
+                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors"
+                title="Reiniciar Reel"
+              >
+                <RotateCcw size={18} />
+              </button>
+            </div>
+
+            {/* BARRA DE TIEMPO / LÍNEA DE TIEMPO SENSORIAL */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>Escena Activa: {currentSceneIdx + 1} / {SCENES.length}</span>
+                <span>{(currentTime / 1000).toFixed(1)}s / {(currentScene.duration / 1000).toFixed(1)}s</span>
+              </div>
+              <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-[#10B981] to-emerald-400" 
+                  style={{ width: `${(currentTime / currentScene.duration) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* LISTA DE PASOS DE ESCENAS (TIMELINE SENSORIAL CLICKABLE) */}
+          <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-xl space-y-4">
+            <h3 className="text-sm font-black text-gray-400 uppercase tracking-wider">
+              Flujo del Reel / Guión Técnico
+            </h3>
+
+            <div className="space-y-3">
+              {SCENES.map((sc, idx) => {
+                const isActive = idx === currentSceneIdx;
+                return (
+                  <button
+                    key={sc.id}
+                    onClick={() => {
+                      setCurrentSceneIdx(idx);
+                      setCurrentTime(0);
+                    }}
+                    className={`w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 ${
+                      isActive 
+                        ? "bg-[#10B981]/10 border-[#10B981] shadow-[0_0_15px_rgba(16,185,129,0.05)]" 
+                        : "bg-gray-950/40 border-transparent hover:border-gray-800"
+                    }`}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      isActive ? "bg-[#10B981] text-black" : "bg-gray-800 text-gray-400"
+                    }`}>
+                      {sc.id}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <span className={`text-xs font-bold ${isActive ? "text-white" : "text-gray-300"}`}>
+                          {sc.title}
+                        </span>
+                        <span className="text-[10px] text-gray-500 font-mono">
+                          {(sc.duration / 1000).toFixed(1)}s
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 leading-normal">
+                        {lang === "es" ? sc.captions.es : sc.captions.pt}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* INSTRUCCIONES PARA CAPTURAR DESDE EL CELULAR */}
+          <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl flex gap-4 items-start">
+            <div className="p-2.5 bg-[#10B981]/10 rounded-xl text-[#10B981] shrink-0">
+              <Sparkles size={24} />
+            </div>
+            <div className="text-left space-y-1">
+              <h4 className="text-sm font-extrabold text-[#10B981]">💡 ¿Cómo capturar este Reel para tus Redes?</h4>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                1. Seleccioná el idioma deseado (**ES** o **PT**).<br />
+                2. Ajustá el **Zoom** en los controles superiores para que encaje perfecto en la pantalla de tu celular.<br />
+                3. Activá el grabador de pantalla nativo de tu teléfono.<br />
+                4. Dale play en la simulación y grabá la pantalla limpia. ¡Listo para subir a Instagram Reels o TikTok! 🚀
+              </p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );
-}
+      }
