@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Play,
   Pause,
@@ -17,7 +17,6 @@ import {
   Percent,
   Clock,
   ShoppingCart,
-  Mic,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
@@ -199,26 +198,25 @@ export default function MarketingReelsPage() {
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [progress, setProgress] = useState(0); // Progreso de 0 a 100 de la escena activa
+  const [progress, setProgress] = useState(0); // Progreso de 0 a 100
   const [zoom, setZoom] = useState(85);
   const [soundActive, setSoundActive] = useState(true);
 
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const estimatedDurationRef = useRef<number>(5000); // Estimado por si falla SpeechSynthesis
+  const estimatedDurationRef = useRef<number>(5000);
   const progressTimerRef = useRef<number>(0);
 
   const currentScene = SCENES[currentSceneIdx];
 
-  // Función para obtener una estimación de duración en base a la cantidad de palabras
+  // Estimación de duración de voz basada en palabras
   const getEstimatedDuration = (text: string) => {
     const words = text.split(" ").length;
-    // Promedio de lectura natural: 130 palabras por minuto
     const durationMs = (words / 130) * 60 * 1000;
-    return Math.max(durationMs, 4000); // Mínimo 4 segundos por escena
+    return Math.max(durationMs, 4200);
   };
 
-  // Función que maneja la locución y sincroniza la escena
+  // Función que maneja la locución sincronizada
   const handleSceneStart = (sceneIdx: number) => {
     if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     setProgress(0);
@@ -228,19 +226,16 @@ export default function MarketingReelsPage() {
     const estimatedDuration = getEstimatedDuration(script);
     estimatedDurationRef.current = estimatedDuration;
 
-    // Si el sonido está apagado o SpeechSynthesis no está disponible, avanzamos por puro tiempo estimado
     if (!soundActive || typeof window === "undefined" || !window.speechSynthesis) {
       startFallbackTimer(estimatedDuration);
       return;
     }
 
-    // Cancelar cualquier voz activa anterior
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(script);
     utterance.lang = lang === "es" ? "es-ES" : "pt-BR";
 
-    // Intentamos buscar una voz premium y humana en el dispositivo del usuario
     const voices = window.speechSynthesis.getVoices();
     const premiumVoice = voices.find(
       (v) =>
@@ -257,32 +252,29 @@ export default function MarketingReelsPage() {
       utterance.voice = premiumVoice;
     }
 
-    // Ajustes para voz natural, pausada y cinemática
-    utterance.rate = 0.96; // Velocidad conversacional perfecta, cero robotización
-    utterance.pitch = 1.0; // Tono natural
+    utterance.rate = 0.96;
+    utterance.pitch = 1.0;
 
     currentUtteranceRef.current = utterance;
 
-    // EVENTO CLAVE: Cuando la voz termina de hablar REALMENTE, avanzamos al siguiente paso
+    // EVENTO CLAVE: Cuando la voz termina de hablar
     utterance.onend = () => {
       setProgress(100);
       setTimeout(() => {
         if (isPlaying) {
           setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
         }
-      }, 600); // Pequeña pausa dramática antes de la siguiente escena
+      }, 500);
     };
 
     utterance.onerror = () => {
-      // Si la API de voz da error, usamos el fallback de tiempo para no trabar la app
       startFallbackTimer(estimatedDuration);
     };
 
-    // Iniciar animación de la barra de progreso mientras habla
     const stepTime = 100;
     progressIntervalRef.current = setInterval(() => {
       progressTimerRef.current += stepTime;
-      const calculatedProgress = Math.min((progressTimerRef.current / estimatedDuration) * 100, 95); // Se queda en 95% hasta que onend dispare el 100%
+      const calculatedProgress = Math.min((progressTimerRef.current / estimatedDuration) * 100, 95);
       setProgress(calculatedProgress);
     }, stepTime);
 
@@ -309,7 +301,7 @@ export default function MarketingReelsPage() {
     }, stepTime);
   };
 
-  // Escuchar cambios de escena o play/pause
+  // Efecto central del reproductor
   useEffect(() => {
     if (isPlaying) {
       handleSceneStart(currentSceneIdx);
@@ -518,11 +510,11 @@ export default function MarketingReelsPage() {
               }}
             />
 
-            {/* CURSUR VIRTUAL ANIMADO */}
+            {/* CURSOR VIRTUAL ANIMADO */}
             <SimulatedPointer
               x={currentScene.cursor.x}
               y={currentScene.cursor.y}
-              active={currentTime > 1200 && currentScene.cursor.click}
+              active={progress > 30 && progress < 75 && currentScene.cursor.click}
             />
 
             {/* BARRA DE HISTORIAS / PROGRESO SUPERIOR SINCRONIZADA */}
@@ -566,8 +558,8 @@ export default function MarketingReelsPage() {
                   border: "1px solid rgba(16,185,129,0.3)",
                 }}
               >
-                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981", animation: "pulse 1s infinite" }} />
-                <span style={{ fontSize: "8px", fontWeight: "800", color: "#10B981" }}>VOICE PLAYING</span>
+                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981" }} />
+                <span style={{ fontSize: "8px", fontWeight: "800", color: "#10B981" }}>VOZ ON</span>
               </div>
             )}
 
@@ -715,7 +707,7 @@ export default function MarketingReelsPage() {
                           transition: "all 0.2s",
                         }}
                       >
-                        <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#000000", display: "flex", alignItems: "center", justifyBox: "center" }}>
+                        <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#000000", display: "flex", alignItems: "center", justifyContent: "center" }}>
                           <Store size={14} color="#ffffff" />
                         </div>
                         <div style={{ flex: 1, textAlign: "left" }}>
@@ -1051,4 +1043,4 @@ export default function MarketingReelsPage() {
       </div>
     </div>
   );
-      }
+        }
