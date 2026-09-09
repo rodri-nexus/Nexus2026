@@ -79,6 +79,8 @@ function ConfirmCampaignModal({
   // Renderizador dinámico de efectos en el texto descriptivo
   const getEffectText = (effect: string) => {
     switch (effect) {
+      case 'halloween':
+        return 'Murciélagos voladores 3D, calabazas iluminadas, fantasmas flotantes y destellos mágicos de ectoplasma 🦇🎃👻✨';
       case 'snow':
         return 'Copos de nieve tridimensionales cayendo y trineo navideño de Papá Noel cruzando el cielo 🎅❄️';
       case 'fire-embers':
@@ -763,4 +765,4 @@ export default function CampaignActivator({
       </AnimatePresence>
     </div>
   );
-      }
+  }
