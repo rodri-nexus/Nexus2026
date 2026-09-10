@@ -131,7 +131,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (BULLETPROOF & PARALELO)
+   ENDPOINT PRINCIPAL GET (SQL RESTRINCTION - ZERO TIMEOUT)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -166,7 +166,21 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA (Consulta limpia de la tabla widgets)
+    // 🎯 Consulta filtrada directamente en la base de datos (Lee 9 filas en vez de 100)
+    let dbQuery = supabase
+      .from('widgets')
+      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
+      .eq('store_id', storeId)
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false });
+
+    if (productId) {
+      dbQuery = dbQuery.or(`target_type.eq.all,target_product_id.eq.${productId}`);
+    } else {
+      dbQuery = dbQuery.eq('target_type', 'all');
+    }
+
+    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA (Máximo 20 widgets relevantes)
     const [
       isActivePlan,
       { data: voiceRows },
@@ -179,7 +193,7 @@ export async function GET(req: NextRequest) {
       supabase.from('store_voice_search_settings').select('is_active, position, button_color, listening_text, placeholder_text, language').eq('store_id', storeId).limit(1),
       supabase.from('store_virtual_salesman_settings').select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color').eq('store_id', storeId).limit(1),
       supabase.from('active_campaigns').select('campaign_slug').eq('store_id', storeId).order('activated_at', { ascending: false }).limit(1),
-      supabase.from('widgets').select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at').eq('store_id', storeId).eq('is_active', true).order('updated_at', { ascending: false }).limit(100),
+      dbQuery.limit(20),
       supabase.from('store_language_settings').select('*').eq('store_id', storeId).limit(1)
     ]);
 
@@ -240,19 +254,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 🎯 Filtrado infalible en memoria (Home vs Producto)
+    // Deduplicación por slug
     const allWidgets = rawWidgets || []
-    const matchingWidgets = allWidgets.filter((w) => {
-      if (!w.target_type || w.target_type === 'all') return true
-      if (productId && w.target_type === 'product' && Number(w.target_product_id) === productId) {
-        return true
-      }
-      return false
-    })
-
-    // Deduplicación estricta por slug
     const uniqueMap = new Map<string, any>()
-    for (const w of matchingWidgets) {
+    for (const w of allWidgets) {
       if (!uniqueMap.has(w.widget_slug)) {
         uniqueMap.set(w.widget_slug, w)
       }
@@ -294,4 +299,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-               }
+}
