@@ -1751,7 +1751,7 @@
     document.body.appendChild(layer);
   }
   /* ═══════════════════════════════════════════
-     INIT — EJECUCIÓN INSTANTÁNEA (v101)
+     INIT — EJECUCIÓN ULTRA RÁPIDA SIN EFECTOS (v102)
   ═══════════════════════════════════════════ */
   var initAttempts = 0;
   var isExecuted = false;
@@ -1764,17 +1764,16 @@
     const pageType = detectPageType();
 
     if (!storeId) {
-      if (initAttempts < 20) { // Reintentar cada 100ms durante 2 segundos máximo
+      if (initAttempts < 20) {
         initAttempts++;
-        setTimeout(runEngine, 100);
+        setTimeout(runEngine, 50);
         return;
       }
-      console.warn("[Nevux v101] No se pudo detectar store_id tras reintentos");
       return;
     }
 
     isExecuted = true;
-    console.log("[Nevux v101] Engine ejecutado instantáneamente — storeId:", storeId, "productId:", productId);
+    console.log("[Nevux v102] Fast Engine Executed — storeId:", storeId);
 
     injectGlobalStyles();
 
@@ -1790,12 +1789,7 @@
       .then(function (data) {
         if (!data) return;
 
-        // 🌟 1. INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
-        if (data.activeCampaign) {
-          renderAtmosphericEffects(data.activeCampaign);
-        }
-
-        // 🎙️ 2. INYECCIÓN UNIFICADA DE BÚSQUEDA POR VOZ
+        // 🎙️ 1. BÚSQUEDA POR VOZ
         if (data.voiceSearch && data.voiceSearch.is_active) {
           if (document.body) {
             renderNevuxVoiceUI(data.voiceSearch);
@@ -1806,7 +1800,7 @@
           }
         }
 
-        // 🤖 3. INYECCIÓN UNIFICADA DE VENDEDOR VIRTUAL IA
+        // 🤖 2. VENDEDOR VIRTUAL IA
         if (data.virtualSalesman && data.virtualSalesman.is_active) {
           if (document.body) {
             renderNevuxSalesmanUI(data.virtualSalesman);
@@ -1817,13 +1811,9 @@
           }
         }
 
-        // 🛍️ 4. RENDERIZADO DE WIDGETS
-        if (!data.widgets || data.widgets.length === 0) {
-          console.log("[Nevux] No hay widgets activos para esta página");
-          return;
-        }
+        // 🛍️ 3. RENDERIZADO INSTANTÁNEO DE WIDGETS
+        if (!data.widgets || data.widgets.length === 0) return;
 
-        console.log("[Nevux v101] Widgets recibidos:", data.widgets.length);
         data.widgets.forEach(function (w) {
           try {          
             if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
@@ -1863,14 +1853,14 @@
       });
   }
 
-  // Disparo triple instantáneo para garantizar carga de inmediato sin scroll
+  // Ejecución inmediata
   runEngine();
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", runEngine);
   } else {
     runEngine();
   }
-  window.addEventListener("load", runEngine);
+})();
   
       /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
