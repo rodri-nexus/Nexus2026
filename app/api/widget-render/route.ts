@@ -371,14 +371,21 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Traer los widgets activos optimizados con limite
-    const { data: rawWidgets, error: widgetsError } = await supabase
+    // 2. Traer los widgets activos filtrados con precisión por página (Home o Producto)
+    let widgetsQuery = supabase
       .from('widgets')
       .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
       .eq('store_id', storeId)
       .eq('is_active', true)
       .order('updated_at', { ascending: false })
-      .limit(50)
+
+    if (productId) {
+      widgetsQuery = widgetsQuery.or(`target_type.eq.all,and(target_type.eq.product,target_product_id.eq.${productId})`)
+    } else {
+      widgetsQuery = widgetsQuery.or('target_type.eq.all,target_type.is.null')
+    }
+
+    const { data: rawWidgets, error: widgetsError } = await widgetsQuery.limit(50)
 
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
@@ -388,19 +395,10 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 3. Filtrar según la página actual (Home o Producto específico)
+    // 3. Deduplicar por slug (tomando siempre el más reciente)
     const allWidgets = rawWidgets || []
-    const matchingWidgets = allWidgets.filter((w) => {
-      if (!w.target_type || w.target_type === 'all') return true
-      if (productId && w.target_type === 'product' && Number(w.target_product_id) === productId) {
-        return true
-      }
-      return false
-    })
-
-    // Deduplicación por slug
     const uniqueMap = new Map<string, any>()
-    for (const w of matchingWidgets) {
+    for (const w of allWidgets) {
       if (!uniqueMap.has(w.widget_slug)) {
         uniqueMap.set(w.widget_slug, w)
       }
@@ -581,4 +579,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-               }
+       }
