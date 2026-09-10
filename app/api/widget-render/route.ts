@@ -262,7 +262,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (ALTA VELOCIDAD)
+   ENDPOINT PRINCIPAL GET (ALTA VELOCIDAD Y BLINDADO)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -280,6 +280,7 @@ export async function GET(req: NextRequest) {
 
     const storeId = parseInt(storeIdParam, 10)
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
+    const safeStoreIdStr = String(storeIdParam).trim()
 
     // 🔒 Verificación de plan activo
     const isActivePlan = await isStorePlanActive(storeId)
@@ -293,47 +294,47 @@ export async function GET(req: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
     const supabase = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🚀 CONSULTAS EN PARALELO ULTRA-OPTIMIZADAS (Sin timeouts de Postgres)
+    // 🚀 CONSULTAS EN PARALELO ULTRA-OPTIMIZADAS Y BLINDADAS POR TIPO
     const [voiceRes, salesmanRes, campaignRes, widgetsRes, langRes] = await Promise.all([
       // 🎙️ Búsqueda por Voz
       supabase
         .from('store_voice_search_settings')
         .select('is_active, position, button_color, listening_text, placeholder_text, language')
-        .eq('store_id', storeId)
+        .eq('store_id', safeStoreIdStr)
         .limit(1),
 
       // 🤖 Vendedor Virtual IA
       supabase
         .from('store_virtual_salesman_settings')
         .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
-        .eq('store_id', storeId)
+        .eq('store_id', safeStoreIdStr)
         .limit(1),
 
-      // 🎃 Campaña activa
+      // 🎃 Campaña activa (búsqueda por string compatible)
       supabase
         .from('active_campaigns')
         .select('campaign_slug')
-        .eq('store_id', storeId)
+        .eq('store_id', safeStoreIdStr)
         .limit(1),
 
-      // 📦 Widgets activos indexados directos
+      // 📦 Widgets activos indexados directos (incluye activos e implícitos)
       supabase
         .from('widgets')
         .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
-        .eq('store_id', storeId)
-        .eq('is_active', true),
+        .eq('store_id', safeStoreIdStr)
+        .neq('is_active', false),
 
       // 🌎 Configuración de idioma
       supabase
         .from("store_language_settings")
         .select("*")
-        .eq('store_id', storeId)
+        .eq('store_id', safeStoreIdStr)
         .limit(1)
     ]);
 
@@ -383,7 +384,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Parsear Widgets
-    const rawWidgets = widgetsRes.data || []
+    let rawWidgets = widgetsRes.data || []
+
+    // Si por alguna razón la tienda tenía store_id como numérico en widgets, intentamos fallback rápido
+    if (rawWidgets.length === 0 && !isNaN(storeId)) {
+      const { data: fallbackWidgets } = await supabase
+        .from('widgets')
+        .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
+        .eq('store_id', storeId)
+        .neq('is_active', false);
+      if (fallbackWidgets && fallbackWidgets.length > 0) {
+        rawWidgets = fallbackWidgets;
+      }
+    }
 
     // Filtrar por producto / general en memoria
     const matchingWidgets = rawWidgets.filter((w) => {
@@ -428,7 +441,7 @@ export async function GET(req: NextRequest) {
       const { data: aiSettingsRows } = await supabase
         .from('ai_cross_sell_settings')
         .select('*')
-        .eq('store_id', storeId)
+        .eq('store_id', safeStoreIdStr)
         .limit(1);
 
       const aiSettings = aiSettingsRows?.[0] || null;
@@ -438,7 +451,7 @@ export async function GET(req: NextRequest) {
         const { data: storeRows } = await supabase
           .from('stores')
           .select('access_token')
-          .eq('store_id', storeId)
+          .eq('store_id', safeStoreIdStr)
           .limit(1);
 
         const storeRow = storeRows?.[0] || null;
@@ -570,4 +583,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-         }
+               }
