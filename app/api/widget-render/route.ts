@@ -290,7 +290,6 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Cliente con Service Role Key (comprobado en diagnóstico)
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
@@ -298,7 +297,7 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🚀 Consultas directas comprobadas
+    // 🚀 CONSULTAS EN PARALELO ULTRA-DIRECTAS CON COLUMNAS EXACTAS
     const [voiceRes, salesmanRes, campaignRes, widgetsRes, langRes] = await Promise.all([
       supabase
         .from('store_voice_search_settings')
@@ -321,12 +320,12 @@ export async function GET(req: NextRequest) {
 
       supabase
         .from('widgets')
-        .select('*')
+        .select('id, store_id, user_id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
         .eq('store_id', storeId),
 
       supabase
         .from("store_language_settings")
-        .select("*")
+        .select("default_language, auto_detect, enabled_languages, translations")
         .eq('store_id', storeId)
         .limit(1)
     ])
@@ -480,11 +479,7 @@ export async function GET(req: NextRequest) {
         widgetsResenas.map(async (w) => {
           let reviewsQuery = supabase
             .from('reviews')
-            .select(
-              'id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, ' +
-              'verificada, desde_calificar, respuesta_texto, respuesta_fecha, ' +
-              'fecha_resena, orden, product_id'
-            )
+            .select('id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, verificada, desde_calificar, respuesta_texto, respuesta_fecha, fecha_resena, orden, product_id')
             .eq('widget_id', w.id)
             .eq('estado', 'aprobada')
             .order('orden', { ascending: true })
@@ -521,7 +516,7 @@ export async function GET(req: NextRequest) {
       const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
       const autoDetect = langSettings.auto_detect ?? true;
       const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
-      const savedTranslations = langSettings.translations || {};
+      const savedTranslations = (langSettings.translations as Record<string, any>) || {};
 
       let targetLang: "es" | "pt" | "en" = defaultLang;
       if (autoDetect && clientLangParam) {
@@ -569,4 +564,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-               }
+}
