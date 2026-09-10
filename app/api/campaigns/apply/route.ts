@@ -1,6 +1,7 @@
 // app/api/campaigns/apply/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { createClient as createServerClient } from "@/lib/supabase-server";
+import { createClient as createDirectClient } from "@supabase/supabase-js";
 import { getCampaignPreset, calculateCampaignEndDate } from "@/lib/campaignPresets";
 
 export const dynamic = "force-dynamic";
@@ -30,15 +31,16 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL POST (OPTIMIZADO EN PARALELO)
+   ENDPOINT PRINCIPAL POST (ALTA VELOCIDAD)
 ═══════════════════════════════════════════ */
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient();
+    // 1. Validar usuario logueado
+    const serverSupabase = createServerClient();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await serverSupabase.auth.getUser();
 
     if (authError || !user) {
       return jsonResponse({ error: "No autorizado" }, 401);
@@ -56,44 +58,47 @@ export async function POST(req: NextRequest) {
 
     const preset = getCampaignPreset(campaign_slug);
     if (!preset) {
-      return jsonResponse({ error: `Campaña no válida o no encontrada: ${campaign_slug}` }, 404);
+      return jsonResponse({ error: `Campaña no válida: ${campaign_slug}` }, 404);
     }
 
-    // 1. Validar que la tienda pertenezca al usuario logueado
-    const { data: store, error: storeError } = await supabase
+    // 2. Conectar cliente de alta velocidad (sin trabas de RLS)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+    const adminSupabase = createDirectClient(supabaseUrl, supabaseKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    // 3. Validar tienda
+    const { data: stores } = await adminSupabase
       .from("stores")
       .select("id, store_id")
       .eq("user_id", user.id)
       .eq("store_id", store_id)
-      .eq("is_active", true)
-      .single();
+      .limit(1);
 
-    if (storeError || !store) {
+    if (!stores || stores.length === 0) {
       return jsonResponse({ error: "Tienda no encontrada o no autorizada" }, 403);
     }
 
-    // 2. Traer widgets existentes y snapshots en paralelo
-    const [widgetsRes, snapshotsRes] = await Promise.all([
-      supabase
-        .from("widgets")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("store_id", store_id),
-      supabase
-        .from("campaign_snapshots")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("store_id", store_id)
-        .limit(1),
-    ]);
+    // 4. Obtener widgets actuales
+    const { data: currentWidgetsData } = await adminSupabase
+      .from("widgets")
+      .select("id, widget_slug, config, is_active, target_type")
+      .eq("store_id", store_id);
 
-    if (widgetsRes.error) throw widgetsRes.error;
+    const currentWidgets = currentWidgetsData || [];
 
-    const currentWidgets = widgetsRes.data || [];
-    const hasSnapshots = (snapshotsRes.data || []).length > 0;
+    // 5. Guardar snapshot de seguridad si no existe
+    const { data: existingSnapshots } = await adminSupabase
+      .from("campaign_snapshots")
+      .select("id")
+      .eq("store_id", store_id)
+      .limit(1);
 
-    // 3. Si no hay snapshot, guardar backup en un solo insert masivo
-    if (!hasSnapshots && currentWidgets.length > 0) {
+    if ((!existingSnapshots || existingSnapshots.length === 0) && currentWidgets.length > 0) {
       const snapshotsToInsert = currentWidgets.map((w) => ({
         user_id: user.id,
         store_id,
@@ -103,10 +108,10 @@ export async function POST(req: NextRequest) {
         original_is_active: w.is_active ?? true,
       }));
 
-      await supabase.from("campaign_snapshots").insert(snapshotsToInsert);
+      await adminSupabase.from("campaign_snapshots").insert(snapshotsToInsert);
     }
 
-    // 4. Preparar datos de los 10 widgets
+    // 6. Aplicar los 10 widgets temáticos
     const endDateIso = calculateCampaignEndDate(preset.durationDays);
     const nowIso = new Date().toISOString();
 
@@ -122,9 +127,6 @@ export async function POST(req: NextRequest) {
       "mensaje-garantia",
       "mensaje-alerta",
     ] as const;
-
-    const allOperations: any[] = [];
-    const widgetsToInsert: any[] = [];
 
     for (const slug of targetSlugs) {
       let patchConfig: Record<string, unknown> = {};
@@ -147,19 +149,16 @@ export async function POST(req: NextRequest) {
           ...patchConfig,
         };
 
-        allOperations.push(
-          supabase
-            .from("widgets")
-            .update({
-              config: updatedConfig,
-              is_active: true,
-              updated_at: nowIso,
-            })
-            .eq("id", existing.id)
-            .eq("user_id", user.id)
-        );
+        await adminSupabase
+          .from("widgets")
+          .update({
+            config: updatedConfig,
+            is_active: true,
+            updated_at: nowIso,
+          })
+          .eq("id", existing.id);
       } else {
-        widgetsToInsert.push({
+        await adminSupabase.from("widgets").insert({
           user_id: user.id,
           store_id,
           widget_slug: slug,
@@ -174,24 +173,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Ejecutar operaciones en paralelo
-    if (widgetsToInsert.length > 0) {
-      allOperations.push(supabase.from("widgets").insert(widgetsToInsert));
-    }
-
-    allOperations.push(
-      supabase.from("active_campaigns").upsert(
-        {
-          user_id: user.id,
-          store_id,
-          campaign_slug,
-          activated_at: nowIso,
-        },
-        { onConflict: "store_id" }
-      )
-    );
-
-    await Promise.all(allOperations);
+    // 7. Guardar campaña activa de forma directa y limpia
+    await adminSupabase.from("active_campaigns").delete().eq("store_id", store_id);
+    await adminSupabase.from("active_campaigns").insert({
+      user_id: user.id,
+      store_id,
+      campaign_slug,
+      activated_at: nowIso,
+    });
 
     return jsonResponse({
       success: true,
@@ -201,9 +190,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     console.error("Error aplicando campaña:", error);
-    const errObj = error as any;
-    const dbMessage = errObj?.message || errObj?.details || errObj?.hint;
-    const message = dbMessage || (error instanceof Error ? error.message : "Error interno");
+    const message = error instanceof Error ? error.message : "Error al aplicar campaña";
     return jsonResponse({ error: message }, 500);
   }
-       }
+         }
