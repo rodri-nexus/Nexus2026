@@ -126,143 +126,12 @@ function defaultStats() {
   }
 }
 
-function calcularStats(reviews: any[]) {
-  const total = reviews.length
-  if (total === 0) return defaultStats()
-
-  const distribucion: Record<string, number> = {
-    '5': 0,
-    '4': 0,
-    '3': 0,
-    '2': 0,
-    '1': 0,
-  }
-
-  let suma = 0
-  for (const r of reviews) {
-    suma += r.estrellas || 0
-    const key = String(r.estrellas)
-    if (distribucion[key] !== undefined) {
-      distribucion[key]++
-    }
-  }
-
-  const promedio = parseFloat((suma / total).toFixed(2))
-  return { total, promedio, distribucion }
-}
-
-function parseProductName(raw: any): string {
-  if (!raw) return "Producto Complementario";
-  if (typeof raw === "string") return raw;
-  if (typeof raw === "object" && raw !== null) {
-    return String(raw.es || raw.pt || Object.values(raw)[0] || "Producto Complementario");
-  }
-  return "Producto Complementario";
-}
-
-function parseProductPrice(price: any): number {
-  if (typeof price === "number") return price;
-  if (!price) return 0;
-  const cleaned = String(price).replace(/[^0-9.]/g, "");
-  const num = parseFloat(cleaned);
-  return isNaN(num) ? 0 : num;
-}
-
-function extractProductPrice(p: any): number {
-  if (p.price) return parseProductPrice(p.price);
-  if (p.promotional_price) return parseProductPrice(p.promotional_price);
-  if (Array.isArray(p.variants) && p.variants.length > 0) {
-    const v = p.variants[0];
-    if (typeof v === "object" && v !== null) {
-      const vPrice = v.promotional_price || v.price;
-      if (vPrice) return parseProductPrice(vPrice);
-    }
-  }
-  return 0;
-}
-
-function getProductImageUrl(p: any): string {
-  if (typeof p.image_url === "string") return p.image_url;
-  if (Array.isArray(p.images) && p.images.length > 0) {
-    const first = p.images[0];
-    if (typeof first === "string") return first;
-    if (typeof first === "object" && first !== null && "src" in first) {
-      return String(first.src || "");
-    }
-  }
-  return "";
-}
-
-function getProductVariantId(p: any): string {
-  if (Array.isArray(p.variants) && p.variants.length > 0) {
-    return String(p.variants[0].id || "");
-  }
-  return "";
-}
-
-function computeAiPairings(
-  products: any[],
-  mainProductId: number,
-  discountPercentage: number
-): any[] {
-  if (!Array.isArray(products) || products.length < 2) return [];
-
-  const parsed = products.map((p) => ({
-    id: Number(p.id) || 0,
-    name: parseProductName(p.name),
-    price: extractProductPrice(p),
-    image: getProductImageUrl(p),
-    variantId: getProductVariantId(p),
-  })).filter((p) => p.id > 0 && p.price > 0 && p.variantId !== "");
-
-  if (parsed.length < 2) return [];
-
-  const mainProduct = parsed.find(p => p.id === mainProductId);
-  if (!mainProduct) {
-    return parsed.slice(0, 2).map(p => ({
-      titulo: p.name,
-      precio: p.price,
-      imagenUrl: p.image,
-      variantId: p.variantId,
-      incluidoPorDefecto: true
-    }));
-  }
-
-  const candidates = parsed.filter(p => p.id !== mainProductId);
-  const scoredCandidates = candidates.map(candidate => {
-    let score = 50;
-    const ratio = candidate.price / mainProduct.price;
-    if (ratio >= 0.15 && ratio <= 0.65) {
-      score += 35;
-    } else if (ratio < 1.0) {
-      score += 15;
-    }
-    const mainWords = mainProduct.name.toLowerCase().split(/\s+/);
-    const candWords = candidate.name.toLowerCase().split(/\s+/);
-    const sharesKeywords = mainWords.some(w => w.length > 3 && candWords.includes(w));
-    if (sharesKeywords) {
-      score += 20;
-    }
-    return { candidate, score };
-  });
-
-  scoredCandidates.sort((a, b) => b.score - a.score);
-
-  return scoredCandidates.slice(0, 2).map(item => ({
-    titulo: item.candidate.name,
-    precio: item.candidate.price,
-    imagenUrl: item.candidate.image,
-    variantId: item.candidate.variantId,
-    incluidoPorDefecto: true
-  }));
-}
-
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (ULTRA COMPACTO)
+   ENDPOINT PRINCIPAL GET (BULLETPROOF & PARALELO)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -297,7 +166,7 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA (Máximo 15 widgets en total)
+    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA (Consulta limpia de la tabla widgets)
     const [
       isActivePlan,
       { data: voiceRows },
@@ -310,7 +179,7 @@ export async function GET(req: NextRequest) {
       supabase.from('store_voice_search_settings').select('is_active, position, button_color, listening_text, placeholder_text, language').eq('store_id', storeId).limit(1),
       supabase.from('store_virtual_salesman_settings').select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color').eq('store_id', storeId).limit(1),
       supabase.from('active_campaigns').select('campaign_slug').eq('store_id', storeId).order('activated_at', { ascending: false }).limit(1),
-      supabase.from('widgets').select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at').eq('store_id', storeId).eq('is_active', true).order('updated_at', { ascending: false }).limit(15),
+      supabase.from('widgets').select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at').eq('store_id', storeId).eq('is_active', true).order('updated_at', { ascending: false }).limit(100),
       supabase.from('store_language_settings').select('*').eq('store_id', storeId).limit(1)
     ]);
 
@@ -371,7 +240,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Filtrado por página actual
+    // 🎯 Filtrado infalible en memoria (Home vs Producto)
     const allWidgets = rawWidgets || []
     const matchingWidgets = allWidgets.filter((w) => {
       if (!w.target_type || w.target_type === 'all') return true
@@ -425,4 +294,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-       }
+               }
