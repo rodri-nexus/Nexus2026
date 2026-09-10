@@ -306,7 +306,7 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🎙️ Búsqueda por Voz (Búsqueda limpia por número entero)
+    // 🎙️ Búsqueda por Voz
     const { data: voiceRows } = await supabase
       .from('store_voice_search_settings')
       .select('is_active, position, button_color, listening_text, placeholder_text, language')
@@ -322,7 +322,7 @@ export async function GET(req: NextRequest) {
       language: "es-AR",
     }
 
-    // 🤖 Vendedor Virtual IA (Búsqueda limpia por número entero)
+    // 🤖 Vendedor Virtual IA
     const { data: salesmanRows } = await supabase
       .from('store_virtual_salesman_settings')
       .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
@@ -340,7 +340,7 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 1. Consultar campaña activa (Búsqueda limpia por número entero)
+    // 1. Consultar campaña activa
     let activeCampaignData: {
       slug: string
       name: string
@@ -371,13 +371,14 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Traer todos los widgets activos de la tienda (Búsqueda limpia por número entero)
+    // 2. Traer los widgets activos optimizados con limite
     const { data: rawWidgets, error: widgetsError } = await supabase
       .from('widgets')
       .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
       .eq('store_id', storeId)
       .eq('is_active', true)
       .order('updated_at', { ascending: false })
+      .limit(50)
 
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
@@ -387,7 +388,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 3. Filtrar según la página actual (Home o Producto específico) de forma infalible
+    // 3. Filtrar según la página actual (Home o Producto específico)
     const allWidgets = rawWidgets || []
     const matchingWidgets = allWidgets.filter((w) => {
       if (!w.target_type || w.target_type === 'all') return true
