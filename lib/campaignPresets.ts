@@ -16,7 +16,8 @@ export type VisualEffectType =
   | 'hearts' 
   | 'confetti' 
   | 'balloons' 
-  | 'sale-tags';
+  | 'sale-tags'
+  | 'halloween'; // Agregado para el evento de Halloween 🎃
 
 export interface CampaignPreset {
   slug: string;
@@ -60,6 +61,108 @@ export function calculateCampaignEndDate(durationDays = 3): string {
    PRESETS DE FECHAS ESPECIALES
 ═══════════════════════════════════════════ */
 export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
+  'halloween': {
+    slug: 'halloween',
+    name: 'Halloween Spooky Fest',
+    emoji: '🎃',
+    badge: 'Descuentos de Terror',
+    description: 'Estética mística con atmósfera inmersiva de noche de brujas en naranja calabaza, morado y verde ectoplasma.',
+    themeColor: '#ff7700',
+    accentColor: '#8b5cf6',
+    bgGradient: 'linear-gradient(135deg, #0a0a0c 0%, #151026 100%)',
+    bannerMessage: '🎃 HALLOWEEN SPOOKY FEST: Descuentos escalofriantes + Regalos de terror',
+    couponCode: 'SPOOKY',
+    couponDiscount: '20% OFF',
+    durationDays: 5,
+    effect: 'halloween',
+    patches: {
+      'cuenta-regresiva': (endDateIso: string) => ({
+        title: '🎃 OFERTAS TERRORÍFICAS',
+        subtitle: '¡Termina pronto! Promociones que se desvanecen en:',
+        endDate: endDateIso,
+        colorClockBg: '#ff7700',
+        colorWidgetBg: '#0a0a0c',
+        colorTitle: '#ffffff',
+        colorSubtitle: '#a78bfa',
+        colorNumbers: '#ffffff',
+      }),
+      'banner-deslizante': {
+        mensajes: [
+          '🎃 HALLOWEEN SPOOKY FEST • DESCUENTOS ESCALOFRIANTES EN TODA LA TIENDA',
+          '🦇 ENVÍOS GRATIS EN COMPRAS SELECCIONADAS • DULCE O TRUCO',
+          '👻 CUOTAS SIN INTERÉS CON TARJETAS DE CRÉDITO',
+        ],
+        colorFondo: '#151026',
+        colorTexto: '#ff7700',
+        tipoFondo: 'solido',
+      },
+      'badge-cupon': {
+        titulo: '🎃 RECOMPENSA DE HALLOWEEN',
+        subtexto: 'Aplicá el cupón oficial para obtener un descuento mágico',
+        codigo: 'SPOOKY',
+        badge: '20% OFF',
+        bgColor: '#0a0a0c',
+        borderColor: '#ff7700',
+        textColor: '#ffffff',
+        badgeBgColor: '#ff7700',
+        badgeTextColor: '#ffffff',
+        botonBgColor: '#8b5cf6',
+        botonTextColor: '#ffffff',
+      },
+      'ruleta-descuentos': {
+        titulo: '🎃 ¡RULETA SPOOKY!',
+        subtitulo: 'Probá tu suerte en este caldero de ofertas y ganá',
+        colorBoton: '#ff7700',
+        colorRuletaPrincipal: '#8b5cf6',
+        colorRuletaSecundario: '#ff7700',
+        premios: [
+          { texto: '20% OFF', codigoCupon: 'SPOOKY20', esGanador: true },
+          { texto: '15% OFF', codigoCupon: 'SPOOKY15', esGanador: true },
+          { texto: '10% OFF', codigoCupon: 'SPOOKY10', esGanador: true },
+          { texto: 'Dulce o Truco 🕸️', codigoCupon: '', esGanador: false },
+          { texto: '25% OFF', codigoCupon: 'WITCH25', esGanador: true },
+          { texto: '5% OFF', codigoCupon: 'ECTO5', esGanador: true },
+        ],
+      },
+      'barra-progreso': {
+        colorBarraLlena: '#10b981',
+        colorMonto: '#ff7700',
+        textoFaltante: '🎃 Te faltan {x} para tu regalo especial de Halloween',
+        textoCumplido: '👻 ¡RECOMPENSA DE HALLOWEEN CONSEGUIDA!',
+      },
+      'comparador-marca': {
+        bgColor: '#0a0a0c',
+        borderColor: '#8b5cf6',
+        textColor: '#ffffff',
+        destacadoBgColor: '#8b5cf625',
+        destacadoTextColor: '#a78bfa',
+        checkColor: '#10b981',
+        crossColor: '#ff7700',
+      },
+      'medios-pago': {
+        bgColor: '#0a0a0c',
+        borderColor: '#ff7700',
+        textColor: '#ffffff',
+      },
+      'caja-opiniones': {
+        colorFondo: '#151026',
+        colorTexto: '#ffffff',
+        colorEstrellas: '#ff7700',
+        colorBorde: '#8b5cf6',
+        mostrarBorde: true,
+      },
+      'mensaje-garantia': {
+        colorFondo: '#0a0a0c',
+        colorTexto: '#ffffff',
+        colorBorde: '#ff7700',
+      },
+      'mensaje-alerta': {
+        colorFondo: '#8b5cf6',
+        colorTexto: '#ffffff',
+      },
+    },
+  },
+
   'black-friday': {
     slug: 'black-friday',
     name: 'Black Friday',
@@ -886,4 +989,4 @@ export function getCampaignPreset(slug: string): CampaignPreset | null {
 
 export function getAllCampaignPresets(): CampaignPreset[] {
   return Object.values(CAMPAIGN_PRESETS);
-       }
+}
