@@ -279,6 +279,13 @@ export async function GET(req: NextRequest) {
     }
 
     const storeId = parseInt(storeIdParam, 10)
+    if (isNaN(storeId)) {
+      return NextResponse.json(
+        { error: 'store_id inválido', widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
+        { status: 400, headers: corsHeaders }
+      )
+    }
+
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
 
     // 🔒 Verificación de plan activo
@@ -291,48 +298,22 @@ export async function GET(req: NextRequest) {
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    const supabaseKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-    const supabase = createClient(supabaseUrl, serviceKey, {
+    const supabase = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🚀 CONSULTAS EN PARALELO CON COLUMNAS 100% EXISTENTES
-    const [voiceRes, salesmanRes, campaignRes, widgetsRes, langRes] = await Promise.all([
-      supabase
-        .from('store_voice_search_settings')
-        .select('is_active, position, button_color, listening_text, placeholder_text, language')
-        .eq('store_id', storeId)
-        .limit(1),
+    // 🎙️ Búsqueda por Voz (Búsqueda limpia por número entero)
+    const { data: voiceRows } = await supabase
+      .from('store_voice_search_settings')
+      .select('is_active, position, button_color, listening_text, placeholder_text, language')
+      .eq('store_id', storeId)
+      .limit(1)
 
-      supabase
-        .from('store_virtual_salesman_settings')
-        .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
-        .eq('store_id', storeId)
-        .limit(1),
-
-      supabase
-        .from('active_campaigns')
-        .select('campaign_slug')
-        .eq('store_id', storeId)
-        .order('activated_at', { ascending: false })
-        .limit(1),
-
-      // 🎯 COLUMNAS EXACTAS QUE SÍ EXISTEN EN TU TABLA (PROBADAS EN DIAGNÓSTICO)
-      supabase
-        .from('widgets')
-        .select('id, store_id, user_id, widget_slug, config, is_active')
-        .eq('store_id', storeId),
-
-      supabase
-        .from("store_language_settings")
-        .select("default_language, auto_detect, enabled_languages, translations")
-        .eq('store_id', storeId)
-        .limit(1)
-    ])
-
-    // Parsear Búsqueda por Voz
-    const voiceSearchData = voiceRes.data?.[0] || {
+    const voiceSearchData = voiceRows?.[0] || {
       is_active: false,
       position: "bottom-right",
       button_color: "#10B981",
@@ -341,8 +322,14 @@ export async function GET(req: NextRequest) {
       language: "es-AR",
     }
 
-    // Parsear Vendedor Virtual IA
-    const virtualSalesmanData = salesmanRes.data?.[0] || {
+    // 🤖 Vendedor Virtual IA (Búsqueda limpia por número entero)
+    const { data: salesmanRows } = await supabase
+      .from('store_virtual_salesman_settings')
+      .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
+      .eq('store_id', storeId)
+      .limit(1)
+
+    const virtualSalesmanData = salesmanRows?.[0] || {
       is_active: false,
       agent_name: "Sofía (Asesora Virtual)",
       welcome_message: "¡Hola! 👋 ¿Buscás algo en especial hoy? Contame y te ayudo a encontrar el producto ideal.",
@@ -353,7 +340,7 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // Parsear Campaña Activa
+    // 1. Consultar campaña activa (Búsqueda limpia por número entero)
     let activeCampaignData: {
       slug: string
       name: string
@@ -362,7 +349,14 @@ export async function GET(req: NextRequest) {
       accentColor: string
     } | null = null
 
-    const activeCampaignSlug = campaignRes.data?.[0]?.campaign_slug
+    const { data: campaignRows } = await supabase
+      .from('active_campaigns')
+      .select('campaign_slug')
+      .eq('store_id', storeId)
+      .order('activated_at', { ascending: false })
+      .limit(1)
+
+    const activeCampaignSlug = campaignRows?.[0]?.campaign_slug
 
     if (activeCampaignSlug) {
       const preset = getCampaignPreset(activeCampaignSlug)
@@ -377,14 +371,38 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Parsear Widgets (filtrar sólo activos)
-    const allWidgets = widgetsRes.data || []
-    const activeWidgets = allWidgets.filter((w) => w.is_active !== false)
+    // 2. Traer todos los widgets activos de la tienda (Búsqueda limpia por número entero)
+    const { data: rawWidgets, error: widgetsError } = await supabase
+      .from('widgets')
+      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
+      .eq('store_id', storeId)
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false })
 
-    // Deduplicación por slug en memoria (deja el último guardado)
+    if (widgetsError) {
+      console.error('Error obteniendo widgets:', widgetsError)
+      return NextResponse.json(
+        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData, voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
+        { status: 500, headers: corsHeaders }
+      )
+    }
+
+    // 3. Filtrar según la página actual (Home o Producto específico) de forma infalible
+    const allWidgets = rawWidgets || []
+    const matchingWidgets = allWidgets.filter((w) => {
+      if (!w.target_type || w.target_type === 'all') return true
+      if (productId && w.target_type === 'product' && Number(w.target_product_id) === productId) {
+        return true
+      }
+      return false
+    })
+
+    // Deduplicación por slug
     const uniqueMap = new Map<string, any>()
-    for (const w of activeWidgets) {
-      uniqueMap.set(w.widget_slug, w)
+    for (const w of matchingWidgets) {
+      if (!uniqueMap.has(w.widget_slug)) {
+        uniqueMap.set(w.widget_slug, w)
+      }
     }
     const widgets = Array.from(uniqueMap.values())
 
@@ -393,15 +411,12 @@ export async function GET(req: NextRequest) {
     let definitions: any[] = []
 
     if (slugs.length > 0) {
-      try {
-        const { data: defs } = await supabase
-          .from('widget_definitions')
-          .select('*')
-          .in('slug', slugs)
-        definitions = defs || []
-      } catch (e) {
-        // Silencioso
-      }
+      const { data: defs } = await supabase
+        .from('widget_definitions')
+        .select('*')
+        .in('slug', slugs)
+
+      definitions = defs || []
     }
 
     let enrichedWidgets = widgets.map((w) => ({
@@ -413,26 +428,26 @@ export async function GET(req: NextRequest) {
     const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
 
     if (packWidgetIndex !== -1 && productId) {
-      try {
-        const { data: aiSettingsRows } = await supabase
-          .from('ai_cross_sell_settings')
-          .select('*')
+      const { data: aiSettingsRows } = await supabase
+        .from('ai_cross_sell_settings')
+        .select('*')
+        .eq('store_id', storeId)
+        .limit(1);
+
+      const aiSettings = aiSettingsRows?.[0] || null;
+      const aiActive = aiSettings ? aiSettings.is_active : false;
+
+      if (aiActive) {
+        const { data: storeRows } = await supabase
+          .from('stores')
+          .select('access_token')
           .eq('store_id', storeId)
           .limit(1);
 
-        const aiSettings = aiSettingsRows?.[0] || null;
-        const aiActive = aiSettings ? aiSettings.is_active : false;
+        const storeRow = storeRows?.[0] || null;
 
-        if (aiActive) {
-          const { data: storeRows } = await supabase
-            .from('stores')
-            .select('access_token')
-            .eq('store_id', storeId)
-            .limit(1);
-
-          const storeRow = storeRows?.[0] || null;
-
-          if (storeRow && storeRow.access_token) {
+        if (storeRow && storeRow.access_token) {
+          try {
             const rawProducts = await getProducts(storeId, storeRow.access_token);
             const productList = Array.isArray(rawProducts)
               ? rawProducts
@@ -452,52 +467,99 @@ export async function GET(req: NextRequest) {
                 items: aiRecommendedItems
               };
             }
+          } catch (aiError) {
+            console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
           }
         }
-      } catch (aiError) {
-        console.error("[Nevux AI] Error inyectando sugerencias:", aiError);
       }
     }
 
-    // Traducción multi-idioma
-    const langSettings = langRes.data?.[0] || null;
+    // Enriquecer reseñas si existen
+    const widgetsResenas = enrichedWidgets.filter(
+      (w) => w.widget_slug === 'resenas-clientes'
+    )
+
+    if (widgetsResenas.length > 0) {
+      const enriquecidos = await Promise.all(
+        widgetsResenas.map(async (w) => {
+          let reviewsQuery = supabase
+            .from('reviews')
+            .select(
+              'id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, ' +
+              'verificada, desde_calificar, respuesta_texto, respuesta_fecha, ' +
+              'fecha_resena, orden, product_id'
+            )
+            .eq('widget_id', w.id)
+            .eq('estado', 'aprobada')
+            .order('orden', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(100)
+
+          if (w.target_type === 'product' && w.target_product_id) {
+            reviewsQuery = reviewsQuery.eq('product_id', w.target_product_id)
+          }
+
+          const { data: reviews, error: reviewsError } = await reviewsQuery
+
+          if (reviewsError) {
+            return { ...w, reviews: [], stats: defaultStats() }
+          }
+
+          const aprobadas = reviews || []
+          const stats = calcularStats(aprobadas)
+
+          return { ...w, reviews: aprobadas, stats }
+        })
+      )
+
+      enrichedWidgets = enrichedWidgets.map((w) => {
+        if (w.widget_slug !== 'resenas-clientes') return w
+        const enriquecido = enriquecidos.find((e) => e.id === w.id)
+        return enriquecido ?? w
+      })
+    }
+
+    // Traducción multi-idioma automática
+    const { data: langSettingsRows } = await supabase
+      .from("store_language_settings")
+      .select("*")
+      .eq("store_id", storeId)
+      .limit(1);
+
+    const langSettings = langSettingsRows?.[0] || null;
 
     if (langSettings) {
-      try {
-        const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
-        const autoDetect = langSettings.auto_detect ?? true;
-        const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
-        const savedTranslations = (langSettings.translations as Record<string, any>) || {};
+      const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
+      const autoDetect = langSettings.auto_detect ?? true;
+      const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
+      const savedTranslations = langSettings.translations || {};
 
-        let targetLang: "es" | "pt" | "en" = defaultLang;
-        if (autoDetect && clientLangParam) {
-          const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
-          if (enabledLangs.includes(slicedLang)) {
-            targetLang = slicedLang;
-          }
+      let targetLang: "es" | "pt" | "en" = defaultLang;
+      if (autoDetect && clientLangParam) {
+        const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
+        if (enabledLangs.includes(slicedLang)) {
+          targetLang = slicedLang;
         }
+      }
 
-        if (targetLang !== "es") {
-          enrichedWidgets = enrichedWidgets.map((w) => {
-            let translatedConfig = { ...w.config };
+      if (targetLang !== "es") {
+        enrichedWidgets = enrichedWidgets.map((w) => {
+          let translatedConfig = { ...w.config };
 
-            if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
-              translatedConfig = {
-                ...translatedConfig,
-                ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
-              };
-            } else {
-              translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
-            }
-
-            return {
-              ...w,
-              config: translatedConfig,
+          if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
+            translatedConfig = {
+              ...translatedConfig,
+              ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
             };
-          });
-        }
-      } catch (langErr) {
-        // Silencioso
+          } else {
+            translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
+          }
+
+          return {
+            ...w,
+            config: translatedConfig,
+          };
+        });
       }
     }
 
