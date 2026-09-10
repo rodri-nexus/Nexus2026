@@ -1811,6 +1811,7 @@
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
         try {          
+     
           if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
           if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
           if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
@@ -1842,16 +1843,301 @@
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
       });
+    }
 
-      // 🎃 EFECTO ATMOSFÉRICO GLOBAL (Halloween, Nieve, Fuego, etc.)
-      if (data.activeCampaign) {
-        renderAtmosphericEffects(data.activeCampaign);
+    // 🎃 EFECTO ATMOSFÉRICO GLOBAL (Fuera del loop para ejecutarse una sola vez)
+    if (data.activeCampaign) {
+      renderAtmosphericEffects(data.activeCampaign);
+    }
+  })
+  .catch(function (err) {
+    console.error("[Nevux] Error cargando widgets:", err);
+  });
+
+  /* ═══════════════════════════════════════════
+     MOTOR DE EFECTOS ATMOSFÉRICOS INMERSIVOS
+  ═══════════════════════════════════════════ */
+  function injectAtmosphericStyles() {
+    if (qs("#nvx-atm-styles")) return;
+    var style = document.createElement("style");
+    style.id = "nvx-atm-styles";
+    style.textContent = "" +
+      "@keyframes nvxSnowFall {" +
+        "0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 1; }" +
+        "100% { transform: translateY(105vh) translateX(40px) rotate(360deg); opacity: 0.2; }" +
+      "}" +
+      "@keyframes nvxEmberRise {" +
+        "0% { transform: translateY(105vh) translateX(0) scale(0.6); opacity: 0.9; }" +
+        "50% { transform: translateY(50vh) translateX(-25px) scale(1.1); opacity: 0.7; }" +
+        "100% { transform: translateY(-10vh) translateX(25px) scale(0.3); opacity: 0; }" +
+      "}" +
+      "@keyframes nvxNeonSparkle {" +
+        "0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; }" +
+        "50% { transform: scale(1.2) rotate(180deg); opacity: 1; filter: drop-shadow(0 0 8px #06b6d4); }" +
+      "}" +
+      "@keyframes nvxHeartFloat {" +
+        "0% { transform: translateY(105vh) scale(0.5) rotate(-10deg); opacity: 0.9; }" +
+        "50% { transform: translateY(50vh) scale(1.1) rotate(10deg); opacity: 0.8; }" +
+        "100% { transform: translateY(-10vh) scale(0.7) rotate(-15deg); opacity: 0; }" +
+      "}" +
+      "@keyframes nvxConfettiFall {" +
+        "0% { transform: translateY(-10vh) rotateX(0deg) rotateZ(0deg); opacity: 1; }" +
+        "100% { transform: translateY(105vh) rotateX(720deg) rotateZ(360deg); opacity: 0.3; }" +
+      "}" +
+      "@keyframes nvxBalloonRise {" +
+        "0% { transform: translateY(105vh) translateX(0) rotate(0deg); opacity: 0.95; }" +
+        "50% { transform: translateY(50vh) translateX(30px) rotate(8deg); opacity: 0.9; }" +
+        "100% { transform: translateY(-15vh) translateX(-20px) rotate(-8deg); opacity: 0; }" +
+      "}" +
+      "@keyframes nvxTagFall {" +
+        "0% { transform: translateY(-10vh) rotate(-20deg); opacity: 0.9; }" +
+        "50% { transform: translateY(50vh) rotate(20deg); opacity: 1; }" +
+        "100% { transform: translateY(105vh) rotate(-10deg); opacity: 0.2; }" +
+      "}" +
+      /* 🎃 HALLOWEEN ANIMATIONS */
+      "@keyframes nvxBatFly {" +
+        "0% { transform: translate(-10vw, 80vh) scale(0.6) rotate(15deg); opacity: 0; }" +
+        "15% { opacity: 0.9; }" +
+        "50% { transform: translate(45vw, 35vh) scale(1.1) rotate(-10deg); opacity: 1; }" +
+        "85% { opacity: 0.9; }" +
+        "100% { transform: translate(110vw, -10vh) scale(0.8) rotate(20deg); opacity: 0; }" +
+      "}" +
+      "@keyframes nvxGhostFloat {" +
+        "0% { transform: translateY(105vh) translateX(0) scale(0.8); opacity: 0; }" +
+        "20% { opacity: 0.85; filter: drop-shadow(0 0 10px rgba(139,92,246,0.6)); }" +
+        "50% { transform: translateY(50vh) translateX(-40px) scale(1.15); opacity: 0.95; filter: drop-shadow(0 0 15px rgba(16,185,129,0.7)); }" +
+        "80% { opacity: 0.7; }" +
+        "100% { transform: translateY(-10vh) translateX(30px) scale(0.9); opacity: 0; }" +
+      "}" +
+      "@keyframes nvxPumpkinFloat {" +
+        "0% { transform: translateY(105vh) rotate(0deg) scale(0.7); opacity: 0; }" +
+        "25% { opacity: 1; filter: drop-shadow(0 0 8px #ff7700); }" +
+        "75% { opacity: 1; filter: drop-shadow(0 0 12px #ff7700); }" +
+        "100% { transform: translateY(-10vh) rotate(360deg) scale(0.8); opacity: 0; }" +
+      "}" +
+      "@keyframes nvxEctoSparkle {" +
+        "0%, 100% { transform: scale(0.3); opacity: 0; }" +
+        "50% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 10px #10b981); }" +
+      "}" +
+      /* 💎 GLASSMORPHISM UNIVERSAL */
+      "." + NS + "-glass {" +
+        "backdrop-filter: blur(12px) !important;" +
+        "-webkit-backdrop-filter: blur(12px) !important;" +
+      "}";
+    document.head.appendChild(style);
+  }
+
+  function renderAtmosphericEffects(campaign) {
+    if (!campaign || !campaign.effect) return;
+    if (qs("#" + NS + "-atmosphere-container")) return;
+
+    injectAtmosphericStyles();
+
+    var container = document.createElement("div");
+    container.id = NS + "-atmosphere-container";
+    container.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999990;overflow:hidden;";
+    document.body.appendChild(container);
+
+    var effect = campaign.effect;
+
+    if (effect === "halloween") {
+      renderHalloweenAtmosphere(container);
+    } else if (effect === "snow") {
+      renderSnowAtmosphere(container);
+    } else if (effect === "fire-embers") {
+      renderFireEmbersAtmosphere(container);
+    } else if (effect === "neon-sparkles") {
+      renderNeonSparklesAtmosphere(container);
+    } else if (effect === "hearts") {
+      renderHeartsAtmosphere(container);
+    } else if (effect === "confetti") {
+      renderConfettiAtmosphere(container);
+    } else if (effect === "balloons") {
+      renderBalloonsAtmosphere(container);
+    } else if (effect === "sale-tags") {
+      renderSaleTagsAtmosphere(container);
+    }
+  }
+
+  /* 🎃 ATMÓSFERA HALLOWEEN 🎃 */
+  function renderHalloweenAtmosphere(container) {
+    var items = ["🦇", "🎃", "👻", "✨", "🕸️"];
+    var count = 18;
+
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      var type = items[i % items.length];
+      el.textContent = type;
+      el.style.position = "absolute";
+      el.style.userSelect = "none";
+      el.style.pointerEvents = "none";
+
+      var leftPos = Math.random() * 95;
+      var topPos = Math.random() * 95;
+      var duration = 5 + Math.random() * 7;
+      var delay = Math.random() * 5;
+
+      if (type === "🦇") {
+        el.style.fontSize = (20 + Math.random() * 16) + "px";
+        el.style.left = "-5vw";
+        el.style.top = (20 + Math.random() * 60) + "vh";
+        el.style.animation = "nvxBatFly " + (6 + Math.random() * 6) + "s cubic-bezier(0.4, 0, 0.2, 1) infinite";
+        el.style.animationDelay = delay + "s";
+      } else if (type === "👻") {
+        el.style.fontSize = (22 + Math.random() * 18) + "px";
+        el.style.left = leftPos + "vw";
+        el.style.bottom = "-10vh";
+        el.style.animation = "nvxGhostFloat " + (8 + Math.random() * 6) + "s ease-in-out infinite";
+        el.style.animationDelay = delay + "s";
+      } else if (type === "🎃") {
+        el.style.fontSize = (22 + Math.random() * 14) + "px";
+        el.style.left = leftPos + "vw";
+        el.style.bottom = "-10vh";
+        el.style.animation = "nvxPumpkinFloat " + (9 + Math.random() * 7) + "s linear infinite";
+        el.style.animationDelay = delay + "s";
+      } else {
+        el.style.fontSize = (16 + Math.random() * 14) + "px";
+        el.style.left = leftPos + "vw";
+        el.style.top = topPos + "vh";
+        el.style.animation = "nvxEctoSparkle " + (2 + Math.random() * 3) + "s ease-in-out infinite";
+        el.style.animationDelay = delay + "s";
       }
-    })
-    .catch(function (err) {
-      console.error("[Nevux] Error cargando widgets:", err);
-    });
-  
+
+      container.appendChild(el);
+    }
+  }
+
+  /* ❄️ NIEVE NAVIDAD ❄️ */
+  function renderSnowAtmosphere(container) {
+    var flakes = ["❄", "❅", "❆", "•"];
+    var count = 28;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      el.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+      el.style.position = "absolute";
+      el.style.color = "#ffffff";
+      el.style.fontSize = (12 + Math.random() * 16) + "px";
+      el.style.left = (Math.random() * 100) + "vw";
+      el.style.top = "-5vh";
+      el.style.textShadow = "0 0 5px rgba(255,255,255,0.8)";
+      el.style.animation = "nvxSnowFall " + (4 + Math.random() * 6) + "s linear infinite";
+      el.style.animationDelay = (Math.random() * 5) + "s";
+      container.appendChild(el);
+    }
+  }
+
+  /* 🔥 BRASAS HOT SALE / BLACK FRIDAY 🔥 */
+  function renderFireEmbersAtmosphere(container) {
+    var count = 24;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      var isFire = Math.random() > 0.6;
+      if (isFire) {
+        el.textContent = "🔥";
+        el.style.fontSize = (14 + Math.random() * 14) + "px";
+      } else {
+        el.style.width = (4 + Math.random() * 8) + "px";
+        el.style.height = el.style.width;
+        el.style.borderRadius = "50%";
+        el.style.background = Math.random() > 0.5 ? "#ff4500" : "#ffcc00";
+        el.style.boxShadow = "0 0 10px #ff4500";
+      }
+      el.style.position = "absolute";
+      el.style.left = (Math.random() * 100) + "vw";
+      el.style.bottom = "-5vh";
+      el.style.animation = "nvxEmberRise " + (3 + Math.random() * 5) + "s ease-out infinite";
+      el.style.animationDelay = (Math.random() * 4) + "s";
+      container.appendChild(el);
+    }
+  }
+
+  /* 💻 NEON SPARKLES CYBER MONDAY 💻 */
+  function renderNeonSparklesAtmosphere(container) {
+    var count = 22;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      el.textContent = Math.random() > 0.5 ? "✦" : "★";
+      el.style.position = "absolute";
+      el.style.color = Math.random() > 0.5 ? "#06b6d4" : "#a855f7";
+      el.style.fontSize = (14 + Math.random() * 18) + "px";
+      el.style.left = (Math.random() * 95) + "vw";
+      el.style.top = (Math.random() * 95) + "vh";
+      el.style.animation = "nvxNeonSparkle " + (1.5 + Math.random() * 2.5) + "s ease-in-out infinite";
+      el.style.animationDelay = (Math.random() * 3) + "s";
+      container.appendChild(el);
+    }
+  }
+
+  /* 💖 CORAZONES DÍA DE LA MADRE 💖 */
+  function renderHeartsAtmosphere(container) {
+    var hearts = ["💖", "🌸", "💕", "✨"];
+    var count = 20;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      el.style.position = "absolute";
+      el.style.fontSize = (16 + Math.random() * 16) + "px";
+      el.style.left = (Math.random() * 95) + "vw";
+      el.style.bottom = "-5vh";
+      el.style.animation = "nvxHeartFloat " + (4 + Math.random() * 5) + "s ease-in-out infinite";
+      el.style.animationDelay = (Math.random() * 4) + "s";
+      container.appendChild(el);
+    }
+  }
+
+  /* 🎉 CONFETI DÍA DEL PADRE 🎉 */
+  function renderConfettiAtmosphere(container) {
+    var colors = ["#1e40af", "#3b82f6", "#93c5fd", "#f59e0b", "#ffffff"];
+    var count = 30;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      el.style.position = "absolute";
+      el.style.width = (6 + Math.random() * 8) + "px";
+      el.style.height = (10 + Math.random() * 12) + "px";
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.left = (Math.random() * 100) + "vw";
+      el.style.top = "-5vh";
+      el.style.borderRadius = "2px";
+      el.style.animation = "nvxConfettiFall " + (3 + Math.random() * 4) + "s linear infinite";
+      el.style.animationDelay = (Math.random() * 4) + "s";
+      container.appendChild(el);
+    }
+  }
+
+  /* 🎈 GLOBOS DÍA DEL NIÑO 🎈 */
+  function renderBalloonsAtmosphere(container) {
+    var balloons = ["🎈", "⭐", "🎉", "✨"];
+    var count = 18;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      el.textContent = balloons[Math.floor(Math.random() * balloons.length)];
+      el.style.position = "absolute";
+      el.style.fontSize = (20 + Math.random() * 18) + "px";
+      el.style.left = (Math.random() * 95) + "vw";
+      el.style.bottom = "-8vh";
+      el.style.animation = "nvxBalloonRise " + (6 + Math.random() * 6) + "s ease-in-out infinite";
+      el.style.animationDelay = (Math.random() * 5) + "s";
+      container.appendChild(el);
+    }
+  }
+
+  /* 🏷️ SALE TAGS LIQUIDACIÓN 🏷️ */
+  function renderSaleTagsAtmosphere(container) {
+    var tags = ["🏷️", "🔥", "💥", "⚡"];
+    var count = 18;
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement("div");
+      el.textContent = tags[Math.floor(Math.random() * tags.length)];
+      el.style.position = "absolute";
+      el.style.fontSize = (18 + Math.random() * 16) + "px";
+      el.style.left = (Math.random() * 95) + "vw";
+      el.style.top = "-6vh";
+      el.style.animation = "nvxTagFall " + (4 + Math.random() * 5) + "s ease-in infinite";
+      el.style.animationDelay = (Math.random() * 4) + "s";
+      container.appendChild(el);
+    }
+      }
+
       /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
   ═══════════════════════════════════════════ */
@@ -10012,287 +10298,5 @@
       }
     } catch(e) {}
   }
-  /* ═══════════════════════════════════════════
-     MOTOR DE EFECTOS ATMOSFÉRICOS INMERSIVOS
-  ═══════════════════════════════════════════ */
-  function injectAtmosphericStyles() {
-    if (qs("#nvx-atm-styles")) return;
-    var style = document.createElement("style");
-    style.id = "nvx-atm-styles";
-    style.textContent = "" +
-      "@keyframes nvxSnowFall {" +
-        "0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 1; }" +
-        "100% { transform: translateY(105vh) translateX(40px) rotate(360deg); opacity: 0.2; }" +
-      "}" +
-      "@keyframes nvxEmberRise {" +
-        "0% { transform: translateY(105vh) translateX(0) scale(0.6); opacity: 0.9; }" +
-        "50% { transform: translateY(50vh) translateX(-25px) scale(1.1); opacity: 0.7; }" +
-        "100% { transform: translateY(-10vh) translateX(25px) scale(0.3); opacity: 0; }" +
-      "}" +
-      "@keyframes nvxNeonSparkle {" +
-        "0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; }" +
-        "50% { transform: scale(1.2) rotate(180deg); opacity: 1; filter: drop-shadow(0 0 8px #06b6d4); }" +
-      "}" +
-      "@keyframes nvxHeartFloat {" +
-        "0% { transform: translateY(105vh) scale(0.5) rotate(-10deg); opacity: 0.9; }" +
-        "50% { transform: translateY(50vh) scale(1.1) rotate(10deg); opacity: 0.8; }" +
-        "100% { transform: translateY(-10vh) scale(0.7) rotate(-15deg); opacity: 0; }" +
-      "}" +
-      "@keyframes nvxConfettiFall {" +
-        "0% { transform: translateY(-10vh) rotateX(0deg) rotateZ(0deg); opacity: 1; }" +
-        "100% { transform: translateY(105vh) rotateX(720deg) rotateZ(360deg); opacity: 0.3; }" +
-      "}" +
-      "@keyframes nvxBalloonRise {" +
-        "0% { transform: translateY(105vh) translateX(0) rotate(0deg); opacity: 0.95; }" +
-        "50% { transform: translateY(50vh) translateX(30px) rotate(8deg); opacity: 0.9; }" +
-        "100% { transform: translateY(-15vh) translateX(-20px) rotate(-8deg); opacity: 0; }" +
-      "}" +
-      "@keyframes nvxTagFall {" +
-        "0% { transform: translateY(-10vh) rotate(-20deg); opacity: 0.9; }" +
-        "50% { transform: translateY(50vh) rotate(20deg); opacity: 1; }" +
-        "100% { transform: translateY(105vh) rotate(-10deg); opacity: 0.2; }" +
-      "}" +
-      /* 🎃 HALLOWEEN ANIMATIONS */
-      "@keyframes nvxBatFly {" +
-        "0% { transform: translate(-10vw, 80vh) scale(0.6) rotate(15deg); opacity: 0; }" +
-        "15% { opacity: 0.9; }" +
-        "50% { transform: translate(45vw, 35vh) scale(1.1) rotate(-10deg); opacity: 1; }" +
-        "85% { opacity: 0.9; }" +
-        "100% { transform: translate(110vw, -10vh) scale(0.8) rotate(20deg); opacity: 0; }" +
-      "}" +
-      "@keyframes nvxGhostFloat {" +
-        "0% { transform: translateY(105vh) translateX(0) scale(0.8); opacity: 0; }" +
-        "20% { opacity: 0.85; filter: drop-shadow(0 0 10px rgba(139,92,246,0.6)); }" +
-        "50% { transform: translateY(50vh) translateX(-40px) scale(1.15); opacity: 0.95; filter: drop-shadow(0 0 15px rgba(16,185,129,0.7)); }" +
-        "80% { opacity: 0.7; }" +
-        "100% { transform: translateY(-10vh) translateX(30px) scale(0.9); opacity: 0; }" +
-      "}" +
-      "@keyframes nvxPumpkinFloat {" +
-        "0% { transform: translateY(105vh) rotate(0deg) scale(0.7); opacity: 0; }" +
-        "25% { opacity: 1; filter: drop-shadow(0 0 8px #ff7700); }" +
-        "75% { opacity: 1; filter: drop-shadow(0 0 12px #ff7700); }" +
-        "100% { transform: translateY(-10vh) rotate(360deg) scale(0.8); opacity: 0; }" +
-      "}" +
-      "@keyframes nvxEctoSparkle {" +
-        "0%, 100% { transform: scale(0.3); opacity: 0; }" +
-        "50% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 10px #10b981); }" +
-      "}" +
-      /* 💎 GLASSMORPHISM UNIVERSAL */
-      "." + NS + "-glass {" +
-        "backdrop-filter: blur(12px) !important;" +
-        "-webkit-backdrop-filter: blur(12px) !important;" +
-      "}";
-    document.head.appendChild(style);
-  }
 
-  function renderAtmosphericEffects(campaign) {
-    if (!campaign || !campaign.effect) return;
-    if (qs("#" + NS + "-atmosphere-container")) return;
-
-    injectAtmosphericStyles();
-
-    var container = document.createElement("div");
-    container.id = NS + "-atmosphere-container";
-    container.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999990;overflow:hidden;";
-    document.body.appendChild(container);
-
-    var effect = campaign.effect;
-
-    if (effect === "halloween") {
-      renderHalloweenAtmosphere(container);
-    } else if (effect === "snow") {
-      renderSnowAtmosphere(container);
-    } else if (effect === "fire-embers") {
-      renderFireEmbersAtmosphere(container);
-    } else if (effect === "neon-sparkles") {
-      renderNeonSparklesAtmosphere(container);
-    } else if (effect === "hearts") {
-      renderHeartsAtmosphere(container);
-    } else if (effect === "confetti") {
-      renderConfettiAtmosphere(container);
-    } else if (effect === "balloons") {
-      renderBalloonsAtmosphere(container);
-    } else if (effect === "sale-tags") {
-      renderSaleTagsAtmosphere(container);
-    }
-  }
-
-  /* 🎃 ATMÓSFERA HALLOWEEN 🎃 */
-  function renderHalloweenAtmosphere(container) {
-    var items = ["🦇", "🎃", "👻", "✨", "🕸️"];
-    var count = 18;
-
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      var type = items[i % items.length];
-      el.textContent = type;
-      el.style.position = "absolute";
-      el.style.userSelect = "none";
-      el.style.pointerEvents = "none";
-
-      var leftPos = Math.random() * 95;
-      var topPos = Math.random() * 95;
-      var duration = 5 + Math.random() * 7;
-      var delay = Math.random() * 5;
-
-      if (type === "🦇") {
-        el.style.fontSize = (20 + Math.random() * 16) + "px";
-        el.style.left = "-5vw";
-        el.style.top = (20 + Math.random() * 60) + "vh";
-        el.style.animation = "nvxBatFly " + (6 + Math.random() * 6) + "s cubic-bezier(0.4, 0, 0.2, 1) infinite";
-        el.style.animationDelay = delay + "s";
-      } else if (type === "👻") {
-        el.style.fontSize = (22 + Math.random() * 18) + "px";
-        el.style.left = leftPos + "vw";
-        el.style.bottom = "-10vh";
-        el.style.animation = "nvxGhostFloat " + (8 + Math.random() * 6) + "s ease-in-out infinite";
-        el.style.animationDelay = delay + "s";
-      } else if (type === "🎃") {
-        el.style.fontSize = (22 + Math.random() * 14) + "px";
-        el.style.left = leftPos + "vw";
-        el.style.bottom = "-10vh";
-        el.style.animation = "nvxPumpkinFloat " + (9 + Math.random() * 7) + "s linear infinite";
-        el.style.animationDelay = delay + "s";
-      } else {
-        el.style.fontSize = (16 + Math.random() * 14) + "px";
-        el.style.left = leftPos + "vw";
-        el.style.top = topPos + "vh";
-        el.style.animation = "nvxEctoSparkle " + (2 + Math.random() * 3) + "s ease-in-out infinite";
-        el.style.animationDelay = delay + "s";
-      }
-
-      container.appendChild(el);
-    }
-  }
-
-  /* ❄️ NIEVE NAVIDAD ❄️ */
-  function renderSnowAtmosphere(container) {
-    var flakes = ["❄", "❅", "❆", "•"];
-    var count = 28;
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      el.textContent = flakes[Math.floor(Math.random() * flakes.length)];
-      el.style.position = "absolute";
-      el.style.color = "#ffffff";
-      el.style.fontSize = (12 + Math.random() * 16) + "px";
-      el.style.left = (Math.random() * 100) + "vw";
-      el.style.top = "-5vh";
-      el.style.textShadow = "0 0 5px rgba(255,255,255,0.8)";
-      el.style.animation = "nvxSnowFall " + (4 + Math.random() * 6) + "s linear infinite";
-      el.style.animationDelay = (Math.random() * 5) + "s";
-      container.appendChild(el);
-    }
-  }
-
-  /* 🔥 BRASAS HOT SALE / BLACK FRIDAY 🔥 */
-  function renderFireEmbersAtmosphere(container) {
-    var count = 24;
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      var isFire = Math.random() > 0.6;
-      if (isFire) {
-        el.textContent = "🔥";
-        el.style.fontSize = (14 + Math.random() * 14) + "px";
-      } else {
-        el.style.width = (4 + Math.random() * 8) + "px";
-        el.style.height = el.style.width;
-        el.style.borderRadius = "50%";
-        el.style.background = Math.random() > 0.5 ? "#ff4500" : "#ffcc00";
-        el.style.boxShadow = "0 0 10px #ff4500";
-      }
-      el.style.position = "absolute";
-      el.style.left = (Math.random() * 100) + "vw";
-      el.style.bottom = "-5vh";
-      el.style.animation = "nvxEmberRise " + (3 + Math.random() * 5) + "s ease-out infinite";
-      el.style.animationDelay = (Math.random() * 4) + "s";
-      container.appendChild(el);
-    }
-  }
-
-  /* 💻 NEON SPARKLES CYBER MONDAY 💻 */
-  function renderNeonSparklesAtmosphere(container) {
-    var count = 22;
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      el.textContent = Math.random() > 0.5 ? "✦" : "★";
-      el.style.position = "absolute";
-      el.style.color = Math.random() > 0.5 ? "#06b6d4" : "#a855f7";
-      el.style.fontSize = (14 + Math.random() * 18) + "px";
-      el.style.left = (Math.random() * 95) + "vw";
-      el.style.top = (Math.random() * 95) + "vh";
-      el.style.animation = "nvxNeonSparkle " + (1.5 + Math.random() * 2.5) + "s ease-in-out infinite";
-      el.style.animationDelay = (Math.random() * 3) + "s";
-      container.appendChild(el);
-    }
-  }
-
-  /* 💖 CORAZONES DÍA DE LA MADRE 💖 */
-  function renderHeartsAtmosphere(container) {
-    var hearts = ["💖", "🌸", "💕", "✨"];
-    var count = 20;
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-      el.style.position = "absolute";
-      el.style.fontSize = (16 + Math.random() * 16) + "px";
-      el.style.left = (Math.random() * 95) + "vw";
-      el.style.bottom = "-5vh";
-      el.style.animation = "nvxHeartFloat " + (4 + Math.random() * 5) + "s ease-in-out infinite";
-      el.style.animationDelay = (Math.random() * 4) + "s";
-      container.appendChild(el);
-    }
-  }
-
-  /* 🎉 CONFETI DÍA DEL PADRE 🎉 */
-  function renderConfettiAtmosphere(container) {
-    var colors = ["#1e40af", "#3b82f6", "#93c5fd", "#f59e0b", "#ffffff"];
-    var count = 30;
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      el.style.position = "absolute";
-      el.style.width = (6 + Math.random() * 8) + "px";
-      el.style.height = (10 + Math.random() * 12) + "px";
-      el.style.background = colors[Math.floor(Math.random() * colors.length)];
-      el.style.left = (Math.random() * 100) + "vw";
-      el.style.top = "-5vh";
-      el.style.borderRadius = "2px";
-      el.style.animation = "nvxConfettiFall " + (3 + Math.random() * 4) + "s linear infinite";
-      el.style.animationDelay = (Math.random() * 4) + "s";
-      container.appendChild(el);
-    }
-  }
-
-  /* 🎈 GLOBOS DÍA DEL NIÑO 🎈 */
-  function renderBalloonsAtmosphere(container) {
-    var balloons = ["🎈", "⭐", "🎉", "✨"];
-    var count = 18;
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      el.textContent = balloons[Math.floor(Math.random() * balloons.length)];
-      el.style.position = "absolute";
-      el.style.fontSize = (20 + Math.random() * 18) + "px";
-      el.style.left = (Math.random() * 95) + "vw";
-      el.style.bottom = "-8vh";
-      el.style.animation = "nvxBalloonRise " + (6 + Math.random() * 6) + "s ease-in-out infinite";
-      el.style.animationDelay = (Math.random() * 5) + "s";
-      container.appendChild(el);
-    }
-  }
-
-  /* 🏷️ SALE TAGS LIQUIDACIÓN 🏷️ */
-  function renderSaleTagsAtmosphere(container) {
-    var tags = ["🏷️", "🔥", "💥", "⚡"];
-    var count = 18;
-    for (var i = 0; i < count; i++) {
-      var el = document.createElement("div");
-      el.textContent = tags[Math.floor(Math.random() * tags.length)];
-      el.style.position = "absolute";
-      el.style.fontSize = (18 + Math.random() * 16) + "px";
-      el.style.left = (Math.random() * 95) + "vw";
-      el.style.top = "-6vh";
-      el.style.animation = "nvxTagFall " + (4 + Math.random() * 5) + "s ease-in infinite";
-      el.style.animationDelay = (Math.random() * 4) + "s";
-      container.appendChild(el);
-    }
- }
 })();
