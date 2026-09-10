@@ -30,7 +30,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL POST
+   ENDPOINT PRINCIPAL POST (OPTIMIZADO EN PARALELO)
 ═══════════════════════════════════════════ */
 export async function POST(req: NextRequest) {
   try {
@@ -72,33 +72,27 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ error: "Tienda no encontrada o no autorizada" }, 403);
     }
 
-    // 2. Obtener widgets actuales de la tienda
-    const { data: existingWidgets, error: widgetsError } = await supabase
-      .from("widgets")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("store_id", store_id);
+    // 2. Traer widgets existentes y snapshots en paralelo ultra rápido
+    const [widgetsRes, snapshotsRes] = await Promise.all([
+      supabase
+        .from("widgets")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("store_id", store_id),
+      supabase
+        .from("campaign_snapshots")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("store_id", store_id)
+        .limit(1),
+    ]);
 
-    if (widgetsError) {
-      throw widgetsError;
-    }
+    if (widgetsRes.error) throw widgetsRes.error;
 
-    const currentWidgets = existingWidgets || [];
+    const currentWidgets = widgetsRes.data || [];
+    const hasSnapshots = (snapshotsRes.data || []).length > 0;
 
-    // 3. Revisar si ya existen snapshots previos
-    const { data: existingSnapshots, error: snapError } = await supabase
-      .from("campaign_snapshots")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("store_id", store_id);
-
-    if (snapError) {
-      throw snapError;
-    }
-
-    const hasSnapshots = (existingSnapshots || []).length > 0;
-
-    // Si no hay snapshots guardados, capturamos el estado original de todos los widgets
+    // 3. Si no hay snapshot, guardar backup en un solo insert masivo
     if (!hasSnapshots && currentWidgets.length > 0) {
       const snapshotsToInsert = currentWidgets.map((w) => ({
         user_id: user.id,
@@ -109,16 +103,10 @@ export async function POST(req: NextRequest) {
         original_is_active: w.is_active ?? true,
       }));
 
-      const { error: snapInsertError } = await supabase
-        .from("campaign_snapshots")
-        .insert(snapshotsToInsert);
-
-      if (snapInsertError) {
-        throw snapInsertError;
-      }
+      await supabase.from("campaign_snapshots").insert(snapshotsToInsert);
     }
 
-    // 4. Preparar fecha de finalización calculada para la cuenta regresiva
+    // 4. Preparar datos de los 10 widgets
     const endDateIso = calculateCampaignEndDate(preset.durationDays);
     const nowIso = new Date().toISOString();
 
@@ -132,11 +120,11 @@ export async function POST(req: NextRequest) {
       "medios-pago",
       "caja-opiniones",
       "mensaje-garantia",
-      "mensaje-alerta"
+      "mensaje-alerta",
     ] as const;
 
-    let widgetsUpdated = 0;
-    let widgetsCreated = 0;
+    const updatePromises: Promise<any>[] = [];
+    const widgetsToInsert: any[] = [];
 
     for (const slug of targetSlugs) {
       let patchConfig: Record<string, unknown> = {};
@@ -147,9 +135,9 @@ export async function POST(req: NextRequest) {
         patchConfig = (preset.patches as any)[slug] || {};
       }
 
-      const existing = currentWidgets.find(
-        (w) => w.widget_slug === slug && w.target_type === "all"
-      ) || currentWidgets.find((w) => w.widget_slug === slug);
+      const existing =
+        currentWidgets.find((w) => w.widget_slug === slug && w.target_type === "all") ||
+        currentWidgets.find((w) => w.widget_slug === slug);
 
       if (existing) {
         const updatedConfig = {
@@ -159,23 +147,19 @@ export async function POST(req: NextRequest) {
           ...patchConfig,
         };
 
-        const { error: updateError } = await supabase
-          .from("widgets")
-          .update({
-            config: updatedConfig,
-            is_active: true,
-            updated_at: nowIso,
-          })
-          .eq("id", existing.id)
-          .eq("user_id", user.id);
-
-        if (updateError) {
-          throw updateError;
-        }
-
-        widgetsUpdated++;
+        updatePromises.push(
+          supabase
+            .from("widgets")
+            .update({
+              config: updatedConfig,
+              is_active: true,
+              updated_at: nowIso,
+            })
+            .eq("id", existing.id)
+            .eq("user_id", user.id)
+        );
       } else {
-        const { error: insertError } = await supabase.from("widgets").insert({
+        widgetsToInsert.push({
           user_id: user.id,
           store_id,
           widget_slug: slug,
@@ -187,46 +171,43 @@ export async function POST(req: NextRequest) {
           created_at: nowIso,
           updated_at: nowIso,
         });
-
-        if (insertError) {
-          throw insertError;
-        }
-
-        widgetsCreated++;
       }
     }
 
-    // 5. Registrar la campaña como activa en la tabla active_campaigns
-    const { error: upsertError } = await supabase.from("active_campaigns").upsert(
-      {
-        user_id: user.id,
-        store_id,
-        campaign_slug,
-        activated_at: nowIso,
-      },
-      { onConflict: "store_id" }
+    // 5. Ejecutar TODO en paralelo (cero demoras, cero timeouts)
+    const allOperations: Promise<any>[] = [...updatePromises];
+
+    if (widgetsToInsert.length > 0) {
+      allOperations.push(supabase.from("widgets").insert(widgetsToInsert));
+    }
+
+    allOperations.push(
+      supabase.from("active_campaigns").upsert(
+        {
+          user_id: user.id,
+          store_id,
+          campaign_slug,
+          activated_at: nowIso,
+        },
+        { onConflict: "store_id" }
+      )
     );
 
-    if (upsertError) {
-      throw upsertError;
-    }
+    await Promise.all(allOperations);
 
     return jsonResponse({
       success: true,
       campaignName: preset.name,
       campaignSlug: preset.slug,
-      widgetsUpdated,
-      widgetsCreated,
+      widgetsUpdated: updatePromises.length,
+      widgetsCreated: widgetsToInsert.length,
       message: `Modo ${preset.name} activado exitosamente en toda tu tienda`,
     });
   } catch (error: unknown) {
     console.error("Error aplicando campaña:", error);
-    
-    // Extractor dinámico de diagnósticos para errores complejos de Supabase/PostgreSQL
     const errObj = error as any;
     const dbMessage = errObj?.message || errObj?.details || errObj?.hint;
     const message = dbMessage || (error instanceof Error ? error.message : "Error interno");
-    
     return jsonResponse({ error: message }, 500);
   }
          }
