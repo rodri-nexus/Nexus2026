@@ -5953,42 +5953,49 @@ console.log("[Nevux v103] - Fast Engine Active");
   }
 
   /* ═══════════════════════════════════════════
-     RENDER CONTADOR DE VISITAS
+     RENDER CONTADOR DE VISITAS (100% COMPATIBLE CON EDITOR)
   ═══════════════════════════════════════════ */
   function renderContadorVisitas(w) {
-    if (pageType !== "product") return;
-
     var exist = document.getElementById("nvx-contador-" + w.id);
     if (exist) return;
 
     var cfg = w.config || {};
-    var textoAntes = cfg.textoAntes || cfg.texto || "personas mirando este producto ahora";
-    var min = parseInt(cfg.minVisitas, 10) || 8;
-    var max = parseInt(cfg.maxVisitas, 10) || 35;
+    var textoAntes = cfg.textoAntes || cfg.texto || "personas viendo esto ahora";
+    var min = parseInt(cfg.minVisitas, 10) || 60;
+    var max = parseInt(cfg.maxVisitas, 10) || 140;
 
     var colorFondo = cfg.colorFondo || "#ffffff";
-    var colorTexto = cfg.colorTexto || "#4b5563";
-    var colorNumero = cfg.colorNumero || cfg.colorNum || "#dc2626";
-    var colorBorde = cfg.colorBorde || "#f3f4f6";
-    var colorPunto = cfg.colorPunto || cfg.colorDot || cfg.colorIcono || "#dc2626";
+    var colorTexto = cfg.colorTexto || "#000000";
+    var colorBorde = cfg.colorBorde || "#e5e7eb";
+    var colorPunto = cfg.colorPunto || "#dc2626";
+    var tamanoTexto = cfg.tamanoTexto || "14px";
 
     var borderRad = cfg.bordesRedondeados !== undefined 
       ? cfg.bordesRedondeados + "px" 
-      : (cfg.bordes !== undefined ? cfg.bordes : "999px");
-    if (borderRad === "999") borderRad = "999px";
+      : "999px";
 
     var padInt = cfg.paddingInterno !== undefined 
       ? cfg.paddingInterno + "px" 
-      : (cfg.padding || "8px 14px");
+      : "12px";
 
+    // Contenedor de destino en Tiendanube con respaldo universal
     var targetPrice = document.querySelector(".js-price-display") || 
                       document.querySelector("#price_display") || 
                       document.querySelector(".product-price-container") ||
                       document.querySelector(".product-price") ||
                       document.querySelector(".js-product-price") ||
-                      document.querySelector("form[action*='/cart/add']");
+                      document.querySelector('[data-store="product-price"]') ||
+                      document.querySelector("form[action*='/cart/add']") ||
+                      document.querySelector(".js-product-container");
 
     if (!targetPrice) return;
+
+    // Helper interno seguro sin dependencias externas
+    var safeText = String(textoAntes)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
 
     var styleId = "nvx-contador-styles-" + w.id;
     if (!document.getElementById(styleId)) {
@@ -5998,24 +6005,25 @@ console.log("[Nevux v103] - Fast Engine Active");
         #nvx-contador-${w.id} {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           background: ${colorFondo} !important;
-          border: 1px solid ${colorBorde} !important;
+          border: 1.5px solid ${colorBorde} !important;
           border-radius: ${borderRad} !important;
-          padding: ${padInt} !important;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+          padding: 8px ${padInt} !important;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.04);
           font-family: system-ui, -apple-system, sans-serif;
-          margin: 10px 0;
+          margin: 12px 0;
           width: fit-content;
           box-sizing: border-box;
         }
         #nvx-contador-${w.id} .nvx-dot-pulse {
-          width: 8px;
-          height: 8px;
+          width: 10px;
+          height: 10px;
           background-color: ${colorPunto} !important;
           border-radius: 50%;
           position: relative;
           flex-shrink: 0;
+          box-shadow: 0 0 0 3px ${colorPunto}33;
         }
         #nvx-contador-${w.id} .nvx-dot-pulse::after {
           content: '';
@@ -6028,13 +6036,15 @@ console.log("[Nevux v103] - Fast Engine Active");
           top: 0; left: 0;
         }
         #nvx-contador-${w.id} .nvx-contador-text {
-          font-size: 12px;
+          font-size: ${tamanoTexto} !important;
           color: ${colorTexto} !important;
-          font-weight: 500;
+          font-weight: 800;
+          line-height: 1.2;
+          letter-spacing: -0.01em;
         }
         #nvx-contador-${w.id} .nvx-contador-num {
-          font-weight: 700;
-          color: ${colorNumero} !important;
+          font-weight: 900;
+          margin-right: 4px;
         }
         @keyframes nvxDotPulse {
           0% { transform: scale(1); opacity: 0.8; }
@@ -6057,13 +6067,16 @@ console.log("[Nevux v103] - Fast Engine Active");
     div.innerHTML = `
       <div class="nvx-dot-pulse"></div>
       <div class="nvx-contador-text">
-        🔥 <span class="nvx-contador-num">${visitas}</span> ${escapeHtml(textoAntes)}
+        <span class="nvx-contador-num">${visitas}</span> ${safeText}
       </div>
     `;
 
-    targetPrice.parentNode.insertBefore(div, targetPrice.nextSibling);
-  }
-
+    if (targetPrice.nextSibling) {
+      targetPrice.parentNode.insertBefore(div, targetPrice.nextSibling);
+    } else {
+      targetPrice.parentNode.appendChild(div);
+    }
+}
     /* ═══════════════════════════════════════════
      RENDER BADGE CUPÓN
   ═══════════════════════════════════════════ */
