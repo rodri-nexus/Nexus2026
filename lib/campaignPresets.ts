@@ -17,7 +17,7 @@ export type VisualEffectType =
   | 'confetti' 
   | 'balloons' 
   | 'sale-tags'
-  | 'halloween'; // Agregado para el evento de Halloween 🎃
+  | 'halloween';
 
 export interface CampaignPreset {
   slug: string;
@@ -54,7 +54,7 @@ export function calculateCampaignEndDate(durationDays = 3): string {
   const d = new Date();
   d.setDate(d.getDate() + durationDays);
   d.setHours(23, 59, 59, 999);
-  return d.toISOString().slice(0, 16); // Formato "YYYY-MM-DDTHH:mm"
+  return d.toISOString().slice(0, 16);
 }
 
 /* ═══════════════════════════════════════════
@@ -77,28 +77,35 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'halloween',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
-        title: '🎃 OFERTAS TERRORÍFICAS',
-        subtitle: '¡Termina pronto! Promociones que se desvanecen en:',
+        titulo: '🎃 OFERTAS TERRORÍFICAS DE HALLOWEEN',
+        title: '🎃 OFERTAS TERRORÍFICAS DE HALLOWEEN',
+        subtitulo: '¡Descuentos que se desvanecen! Termina en:',
+        subtitle: '¡Descuentos que se desvanecen! Termina en:',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#ff7700',
         colorWidgetBg: '#0a0a0c',
         colorTitle: '#ffffff',
         colorSubtitle: '#a78bfa',
         colorNumbers: '#ffffff',
+        colorFondo: '#0a0a0c',
+        colorReloj: '#ff7700',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
-          '🎃 HALLOWEEN SPOOKY FEST • DESCUENTOS ESCALOFRIANTES EN TODA LA TIENDA',
+          '🎃 HALLOWEEN SPOOKY FEST • HASTA 50% OFF EN TODA LA TIENDA',
           '🦇 ENVÍOS GRATIS EN COMPRAS SELECCIONADAS • DULCE O TRUCO',
-          '👻 CUOTAS SIN INTERÉS CON TARJETAS DE CRÉDITO',
+          '👻 CUOTAS SIN INTERÉS CON TODAS LAS TARJETAS DE CRÉDITO',
         ],
         colorFondo: '#151026',
         colorTexto: '#ff7700',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
-        titulo: '🎃 RECOMPENSA DE HALLOWEEN',
-        subtexto: 'Aplicá el cupón oficial para obtener un descuento mágico',
+        titulo: '🎃 CUPÓN MÁGICO DE HALLOWEEN',
+        subtexto: 'Aplicá el código oficial al finalizar tu compra',
         codigo: 'SPOOKY',
         badge: '20% OFF',
         bgColor: '#0a0a0c',
@@ -108,9 +115,12 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         badgeTextColor: '#ffffff',
         botonBgColor: '#8b5cf6',
         botonTextColor: '#ffffff',
+        colorFondo: '#0a0a0c',
+        colorBorde: '#ff7700',
+        colorTexto: '#ffffff',
       },
       'ruleta-descuentos': {
-        titulo: '🎃 ¡RULETA SPOOKY!',
+        titulo: '🎃 ¡RULETA SPOOKY DE HALLOWEEN!',
         subtitulo: 'Probá tu suerte en este caldero de ofertas y ganá',
         colorBoton: '#ff7700',
         colorRuletaPrincipal: '#8b5cf6',
@@ -125,12 +135,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#10b981',
         colorMonto: '#ff7700',
         textoFaltante: '🎃 Te faltan {x} para tu regalo especial de Halloween',
         textoCumplido: '👻 ¡RECOMPENSA DE HALLOWEEN CONSEGUIDA!',
       },
       'comparador-marca': {
+        titulo: '¿Por qué elegirnos este Halloween?',
+        subtitulo: 'Comprá seguro con beneficios exclusivos',
         bgColor: '#0a0a0c',
         borderColor: '#8b5cf6',
         textColor: '#ffffff',
@@ -140,11 +153,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#ff7700',
       },
       'medios-pago': {
+        titulo: 'Medios de Pago y Cuotas',
+        subtitulo: 'Aboná con todas las tarjetas en cuotas sin interés',
         bgColor: '#0a0a0c',
         borderColor: '#ff7700',
         textColor: '#ffffff',
       },
       'caja-opiniones': {
+        titulo: 'Opiniones de Clientes Satisfechos',
         colorFondo: '#151026',
         colorTexto: '#ffffff',
         colorEstrellas: '#ff7700',
@@ -152,13 +168,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía Mágica de Satisfacción',
+        texto: 'Comprá con total confianza. Si no te convence tu producto podés devolverlo y te reintegramos el 100% de tu dinero.',
         colorFondo: '#0a0a0c',
-        colorTexto: '#ffffff',
+        colorTitulo: '#ffffff',
+        colorTexto: '#a78bfa',
         colorBorde: '#ff7700',
+        ubicacion: 'under-cart',
       },
       'mensaje-alerta': {
+        titulo: '⚡ ¡Alta Demanda por Halloween!',
+        texto: 'Los productos vuelan rápido. Asegurá tu compra antes de que se agote el stock remanente.',
         colorFondo: '#8b5cf6',
         colorTexto: '#ffffff',
+        colorBorde: '#ff7700',
       },
     },
   },
@@ -179,14 +202,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'fire-embers',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '🔥 OFERTAS BLACK FRIDAY',
         title: '🔥 OFERTAS BLACK FRIDAY',
+        subtitulo: '¡Termina pronto! Descuentos por tiempo limitado',
         subtitle: '¡Termina pronto! Descuentos por tiempo limitado',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#e11d48',
         colorWidgetBg: '#09090b',
         colorTitle: '#ffffff',
         colorSubtitle: '#fda4af',
         colorNumbers: '#ffffff',
+        colorFondo: '#09090b',
+        colorReloj: '#e11d48',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -197,6 +226,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#09090b',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '🔥 CUPÓN ESPECIAL BLACK FRIDAY',
@@ -210,6 +240,9 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         badgeTextColor: '#ffffff',
         botonBgColor: '#e11d48',
         botonTextColor: '#ffffff',
+        colorFondo: '#09090b',
+        colorBorde: '#e11d48',
+        colorTexto: '#ffffff',
       },
       'ruleta-descuentos': {
         titulo: '🔥 ¡RULETA BLACK FRIDAY!',
@@ -227,12 +260,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#e11d48',
         colorMonto: '#e11d48',
         textoFaltante: '🔥 Te faltan {x} para desbloquear {objetivo} en Black Friday',
         textoCumplido: '🎉 ¡{objetivo} DESBLOQUEADO EN BLACK FRIDAY!',
       },
       'comparador-marca': {
+        titulo: 'Nuestras ventajas en Black Friday',
+        subtitulo: 'Calidad superior y envíos prioritarios',
         bgColor: '#09090b',
         borderColor: '#e11d48',
         textColor: '#ffffff',
@@ -242,11 +278,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#4b5563',
       },
       'medios-pago': {
+        titulo: 'Medios de Pago Oficiales',
+        subtitulo: 'Pagá en cuotas con las mejores promociones',
         bgColor: '#09090b',
         borderColor: '#e11d48',
         textColor: '#ffffff',
       },
       'caja-opiniones': {
+        titulo: 'Opiniones Destacadas',
         colorFondo: '#18181b',
         colorTexto: '#ffffff',
         colorEstrellas: '#fbbf24',
@@ -254,11 +293,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía Black Friday',
+        texto: 'Comprá seguro con garantía total de satisfacción o reembolso.',
         colorFondo: '#09090b',
+        colorTitulo: '#ffffff',
         colorTexto: '#ffffff',
         colorBorde: '#e11d48',
       },
       'mensaje-alerta': {
+        titulo: '⚡ ¡Stock Limitado!',
+        texto: 'Las promociones de Black Friday son válidas hasta agotar stock disponible.',
         colorFondo: '#e11d48',
         colorTexto: '#ffffff',
       },
@@ -281,14 +325,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'fire-embers',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '⚡ OFERTAS BOMBA HOT SALE',
         title: '⚡ OFERTAS BOMBA HOT SALE',
+        subtitulo: 'Precios especiales por tiempo limitado',
         subtitle: 'Precios especiales por tiempo limitado',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#dc2626',
         colorWidgetBg: '#1c1917',
         colorTitle: '#ffffff',
         colorSubtitle: '#fdba74',
         colorNumbers: '#ffffff',
+        colorFondo: '#1c1917',
+        colorReloj: '#dc2626',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -299,6 +349,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#c2410c',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '⚡ CUPÓN OFICIAL HOT SALE',
@@ -329,12 +380,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#ea580c',
         colorMonto: '#ea580c',
         textoFaltante: '⚡ Sumá {x} más para obtener {objetivo} en este Hot Sale',
         textoCumplido: '🎉 ¡Felicitaciones! {objetivo} conseguido en Hot Sale',
       },
       'comparador-marca': {
+        titulo: 'Beneficios Hot Sale',
+        subtitulo: 'La mejor experiencia de compra online',
         bgColor: '#ffffff',
         borderColor: '#ea580c',
         textColor: '#1c1917',
@@ -344,11 +398,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#9ca3af',
       },
       'medios-pago': {
+        titulo: 'Medios de Pago Disponibles',
+        subtitulo: 'Cuotas sin interés y pago protegido',
         bgColor: '#ffffff',
         borderColor: '#ea580c',
         textColor: '#1c1917',
       },
       'caja-opiniones': {
+        titulo: 'Clientes que ya compraron',
         colorFondo: '#fffbeb',
         colorTexto: '#1c1917',
         colorEstrellas: '#ea580c',
@@ -356,11 +413,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía Hot Sale',
+        texto: 'Tenés garantía oficial y cambio inmediato ante cualquier eventualidad.',
         colorFondo: '#ffffff',
+        colorTitulo: '#1c1917',
         colorTexto: '#1c1917',
         colorBorde: '#ea580c',
       },
       'mensaje-alerta': {
+        titulo: '🔥 ¡Oferta por tiempo limitado!',
+        texto: 'Los precios especiales de Hot Sale vencen en breve.',
         colorFondo: '#ea580c',
         colorTexto: '#ffffff',
       },
@@ -383,14 +445,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'neon-sparkles',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '💻 CYBER MONDAY EXCLUSIVO',
         title: '💻 CYBER MONDAY EXCLUSIVO',
+        subtitulo: 'Descuentos cibernéticos que terminan en:',
         subtitle: 'Descuentos cibernéticos que terminan en:',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#7c3aed',
         colorWidgetBg: '#0f172a',
         colorTitle: '#ffffff',
         colorSubtitle: '#a5f3fc',
         colorNumbers: '#ffffff',
+        colorFondo: '#0f172a',
+        colorReloj: '#7c3aed',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -401,6 +469,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#4c1d95',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '💻 CUPÓN CYBER MONDAY',
@@ -431,12 +500,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#7c3aed',
         colorMonto: '#7c3aed',
         textoFaltante: '💻 Te faltan {x} para alcanzar {objetivo}',
         textoCumplido: '🎉 ¡Meta Cyber lograda: {objetivo}!',
       },
       'comparador-marca': {
+        titulo: 'Ventajas Online',
+        subtitulo: 'Tecnología y respaldo garantizado',
         bgColor: '#0f172a',
         borderColor: '#7c3aed',
         textColor: '#ffffff',
@@ -446,11 +518,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#475569',
       },
       'medios-pago': {
+        titulo: 'Pagos Digitales',
+        subtitulo: 'Tarjetas, transferencias y billeteras',
         bgColor: '#0f172a',
         borderColor: '#7c3aed',
         textColor: '#ffffff',
       },
       'caja-opiniones': {
+        titulo: 'Opiniones Cyber',
         colorFondo: '#1e293b',
         colorTexto: '#ffffff',
         colorEstrellas: '#06b6d4',
@@ -458,11 +533,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía Digital',
+        texto: 'Compra 100% protegida y soporte postventa especializado.',
         colorFondo: '#0f172a',
+        colorTitulo: '#ffffff',
         colorTexto: '#ffffff',
         colorBorde: '#7c3aed',
       },
       'mensaje-alerta': {
+        titulo: '💻 ¡Últimas Horas Cyber!',
+        texto: 'Aprovechá los descuentos antes de que finalice la edición online.',
         colorFondo: '#7c3aed',
         colorTexto: '#ffffff',
       },
@@ -485,14 +565,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'snow',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '🎄 OFERTAS NAVIDEÑAS',
         title: '🎄 OFERTAS NAVIDEÑAS',
+        subtitulo: 'Pedí tus regalos hoy para recibirlos antes del 24',
         subtitle: 'Pedí tus regalos hoy para recibirlos antes del 24',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#b91c1c',
         colorWidgetBg: '#064e3b',
         colorTitle: '#ffffff',
         colorSubtitle: '#fef08a',
         colorNumbers: '#ffffff',
+        colorFondo: '#064e3b',
+        colorReloj: '#b91c1c',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -503,6 +589,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#b91c1c',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '🎁 CUPÓN REGALO DE NAVIDAD',
@@ -533,12 +620,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#15803d',
         colorMonto: '#b91c1c',
         textoFaltante: '🎄 Te faltan {x} para llevarte {objetivo} de regalo',
         textoCumplido: '🎁 ¡{objetivo} desbloqueado para tu arbolito!',
       },
       'comparador-marca': {
+        titulo: 'Beneficios Navideños',
+        subtitulo: 'Empaque para regalo y entrega puntual',
         bgColor: '#fffcfc',
         borderColor: '#b91c1c',
         textColor: '#064e3b',
@@ -548,11 +638,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#9ca3af',
       },
       'medios-pago': {
+        titulo: 'Medios de Pago Navideños',
+        subtitulo: 'Cuotas sin interés en tus compras navideñas',
         bgColor: '#fffcfc',
         borderColor: '#15803d',
         textColor: '#064e3b',
       },
       'caja-opiniones': {
+        titulo: 'Opiniones Navideñas',
         colorFondo: '#f0fdf4',
         colorTexto: '#064e3b',
         colorEstrellas: '#fbbf24',
@@ -560,11 +653,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía de Navidad',
+        texto: 'Cambios extendidos durante todo el mes de enero sin costo.',
         colorFondo: '#fffcfc',
+        colorTitulo: '#064e3b',
         colorTexto: '#064e3b',
         colorBorde: '#b91c1c',
       },
       'mensaje-alerta': {
+        titulo: '🎄 ¡Comprá con Anticipación!',
+        texto: 'Asegurá tus regalos antes de que colapsen los correos por las fiestas.',
         colorFondo: '#b91c1c',
         colorTexto: '#ffffff',
       },
@@ -587,14 +685,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'hearts',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '🌸 ESPECIAL DÍA DE LA MADRE',
         title: '🌸 ESPECIAL DÍA DE LA MADRE',
+        subtitulo: 'Comprá con tiempo y asegurá su sorpresa:',
         subtitle: 'Comprá con tiempo y asegurá su sorpresa:',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#db2777',
         colorWidgetBg: '#500724',
         colorTitle: '#ffffff',
         colorSubtitle: '#fbcfe8',
         colorNumbers: '#ffffff',
+        colorFondo: '#500724',
+        colorReloj: '#db2777',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -605,6 +709,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#db2777',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '🌸 CUPÓN DÍA DE LA MADRE',
@@ -635,12 +740,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#db2777',
         colorMonto: '#db2777',
         textoFaltante: '🌸 Te faltan {x} para sumar {objetivo} al regalo de mamá',
         textoCumplido: '💖 ¡{objetivo} listo para enviar!',
       },
       'comparador-marca': {
+        titulo: 'El Regalo Ideal',
+        subtitulo: 'Presentación premium y garantía de satisfacción',
         bgColor: '#ffffff',
         borderColor: '#db2777',
         textColor: '#500724',
@@ -650,11 +758,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#9ca3af',
       },
       'medios-pago': {
+        titulo: 'Opciones de Pago',
+        subtitulo: 'Cuotas sin interés en tu compra',
         bgColor: '#ffffff',
         borderColor: '#db2777',
         textColor: '#500724',
       },
       'caja-opiniones': {
+        titulo: 'Opiniones para Mamá',
         colorFondo: '#fff5f7',
         colorTexto: '#500724',
         colorEstrellas: '#db2777',
@@ -662,11 +773,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía de Amor',
+        texto: 'Cambios sin complicaciones para que mamá quede 100% feliz.',
         colorFondo: '#ffffff',
+        colorTitulo: '#500724',
         colorTexto: '#500724',
         colorBorde: '#db2777',
       },
       'mensaje-alerta': {
+        titulo: '🌸 ¡Pedí con Tiempo!',
+        texto: 'Asegurá la entrega puntual para el domingo del Día de la Madre.',
         colorFondo: '#db2777',
         colorTexto: '#ffffff',
       },
@@ -689,14 +805,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'confetti',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '👔 ESPECIAL DÍA DEL PADRE',
         title: '👔 ESPECIAL DÍA DEL PADRE',
+        subtitulo: 'Asegurá el envío para su día:',
         subtitle: 'Asegurá el envío para su día:',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#1e40af',
         colorWidgetBg: '#0f172a',
         colorTitle: '#ffffff',
         colorSubtitle: '#bfdbfe',
         colorNumbers: '#ffffff',
+        colorFondo: '#0f172a',
+        colorReloj: '#1e40af',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -707,6 +829,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#1e3a8a',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '👔 CUPÓN DÍA DEL PADRE',
@@ -737,12 +860,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#1e40af',
         colorMonto: '#1e40af',
         textoFaltante: '👔 Sumá {x} para obtener {objetivo} en el regalo de papá',
         textoCumplido: '🎉 ¡{objetivo} desbloqueado con éxito!',
       },
       'comparador-marca': {
+        titulo: 'Garantía y Calidad',
+        subtitulo: 'Materiales nobles y durabilidad asegurada',
         bgColor: '#ffffff',
         borderColor: '#1e40af',
         textColor: '#0f172a',
@@ -752,11 +878,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#9ca3af',
       },
       'medios-pago': {
+        titulo: 'Formas de Pago',
+        subtitulo: 'Cuotas y promociones bancarias',
         bgColor: '#ffffff',
         borderColor: '#1e40af',
         textColor: '#0f172a',
       },
       'caja-opiniones': {
+        titulo: 'Reseñas de Clientes',
         colorFondo: '#f8fafc',
         colorTexto: '#0f172a',
         colorEstrellas: '#1e40af',
@@ -764,11 +893,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía de Satisfacción',
+        texto: 'Devolución sin cargo y cambios rápidos.',
         colorFondo: '#ffffff',
+        colorTitulo: '#0f172a',
         colorTexto: '#0f172a',
         colorBorde: '#1e40af',
       },
       'mensaje-alerta': {
+        titulo: '👔 ¡Envío Prioritario!',
+        texto: 'Despachamos tu pedido en el día para que llegue a tiempo.',
         colorFondo: '#1e40af',
         colorTexto: '#ffffff',
       },
@@ -791,14 +925,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'balloons',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '🎈 OFERTAS DÍA DEL NIÑO',
         title: '🎈 OFERTAS DÍA DEL NIÑO',
+        subtitulo: 'Promos especiales por tiempo limitado:',
         subtitle: 'Promos especiales por tiempo limitado:',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#9333ea',
         colorWidgetBg: '#3b0764',
         colorTitle: '#ffffff',
         colorSubtitle: '#fef08a',
         colorNumbers: '#ffffff',
+        colorFondo: '#3b0764',
+        colorReloj: '#9333ea',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -809,6 +949,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#7e22ce',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '🎈 CUPÓN DÍA DEL NIÑO',
@@ -839,12 +980,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#9333ea',
         colorMonto: '#9333ea',
         textoFaltante: '🎈 Te faltan {x} para ganar {objetivo}',
         textoCumplido: '🎉 ¡{objetivo} desbloqueado para festejar!',
       },
       'comparador-marca': {
+        titulo: 'Diversión Garantizada',
+        subtitulo: 'Juguetes seguros y certificados',
         bgColor: '#ffffff',
         borderColor: '#9333ea',
         textColor: '#3b0764',
@@ -854,11 +998,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#9ca3af',
       },
       'medios-pago': {
+        titulo: 'Opciones de Pago',
+        subtitulo: 'Cuotas y medios de pago para regalar',
         bgColor: '#ffffff',
         borderColor: '#eab308',
         textColor: '#3b0764',
       },
       'caja-opiniones': {
+        titulo: 'Familias Felices',
         colorFondo: '#faf5ff',
         colorTexto: '#3b0764',
         colorEstrellas: '#eab308',
@@ -866,11 +1013,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía Infantil',
+        texto: 'Productos 100% seguros con cambio garantizado.',
         colorFondo: '#ffffff',
+        colorTitulo: '#3b0764',
         colorTexto: '#3b0764',
         colorBorde: '#9333ea',
       },
       'mensaje-alerta': {
+        titulo: '🎈 ¡Stock de Juguetes Limitado!',
+        texto: 'Elegí tus regalos antes de que se agoten los favoritos.',
         colorFondo: '#9333ea',
         colorTexto: '#ffffff',
       },
@@ -893,14 +1045,20 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
     effect: 'sale-tags',
     patches: {
       'cuenta-regresiva': (endDateIso: string) => ({
+        titulo: '🏷️ LIQUIDACIÓN DE TEMPORADA',
         title: '🏷️ LIQUIDACIÓN DE TEMPORADA',
+        subtitulo: 'Últimos días para aprovechar precios de liquidación:',
         subtitle: 'Últimos días para aprovechar precios de liquidación:',
+        fechaFin: endDateIso,
         endDate: endDateIso,
         colorClockBg: '#dc2626',
         colorWidgetBg: '#18181b',
         colorTitle: '#ffffff',
         colorSubtitle: '#fef08a',
         colorNumbers: '#ffffff',
+        colorFondo: '#18181b',
+        colorReloj: '#dc2626',
+        colorTexto: '#ffffff',
       }),
       'banner-deslizante': {
         mensajes: [
@@ -911,6 +1069,7 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         colorFondo: '#dc2626',
         colorTexto: '#ffffff',
         tipoFondo: 'solido',
+        velocidad: 30,
       },
       'badge-cupon': {
         titulo: '🏷️ CUPÓN EXTRA DE LIQUIDACIÓN',
@@ -941,12 +1100,15 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         ],
       },
       'barra-progreso': {
+        montoObjetivo: 50000,
         colorBarraLlena: '#dc2626',
         colorMonto: '#dc2626',
         textoFaltante: '🏷️ Te faltan {x} para desbloquear {objetivo}',
         textoCumplido: '🔥 ¡{objetivo} alcanzado en Liquidación!',
       },
       'comparador-marca': {
+        titulo: 'Precios de Liquidación',
+        subtitulo: 'Precios directos de fábrica',
         bgColor: '#ffffff',
         borderColor: '#dc2626',
         textColor: '#18181b',
@@ -956,11 +1118,14 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         crossColor: '#9ca3af',
       },
       'medios-pago': {
+        titulo: 'Medios de Pago Liquidación',
+        subtitulo: 'Aboná con todas las tarjetas',
         bgColor: '#ffffff',
         borderColor: '#dc2626',
         textColor: '#18181b',
       },
       'caja-opiniones': {
+        titulo: 'Opiniones de Compradores',
         colorFondo: '#fffbeb',
         colorTexto: '#18181b',
         colorEstrellas: '#dc2626',
@@ -968,11 +1133,16 @@ export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
         mostrarBorde: true,
       },
       'mensaje-garantia': {
+        titulo: '🛡️ Garantía de Liquidación',
+        texto: 'Productos nuevos con garantía oficial.',
         colorFondo: '#ffffff',
+        colorTitulo: '#18181b',
         colorTexto: '#18181b',
         colorBorde: '#dc2626',
       },
       'mensaje-alerta': {
+        titulo: '🏷️ ¡Últimas Unidades!',
+        texto: 'Liquidación final por recambio de temporada. Stock remanente.',
         colorFondo: '#dc2626',
         colorTexto: '#ffffff',
       },
@@ -989,4 +1159,4 @@ export function getCampaignPreset(slug: string): CampaignPreset | null {
 
 export function getAllCampaignPresets(): CampaignPreset[] {
   return Object.values(CAMPAIGN_PRESETS);
-}
+       }
