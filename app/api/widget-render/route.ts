@@ -33,12 +33,10 @@ function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
   if (!text || typeof text !== "string") return "";
   const lower = text.trim().toLowerCase();
 
-  // Búsqueda directa en diccionario
   if (ECOMMERCE_DICTIONARY[lower]) {
     return ECOMMERCE_DICTIONARY[lower][targetLang];
   }
 
-  // Traducción contextual por patrones
   if (targetLang === "pt") {
     return text
       .replace(/envío gratis/gi, "Frete grátis")
@@ -111,7 +109,7 @@ function translateWidgetConfig(
 }
 
 /* ═══════════════════════════════════════════
-   FUNCIONES AUXILIARES Y TIPOS DEL SISTEMA (Regla #9 al inicio)
+   FUNCIONES AUXILIARES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -308,14 +306,14 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🎙️ Obtener ajustes de Búsqueda por Voz
-    const { data: voiceRow } = await supabase
+    // 🎙️ Obtener ajustes de Búsqueda por Voz (blindado contra duplicados)
+    const { data: voiceRows } = await supabase
       .from('store_voice_search_settings')
       .select('is_active, position, button_color, listening_text, placeholder_text, language')
       .eq('store_id', storeId)
-      .maybeSingle()
+      .limit(1)
 
-    const voiceSearchData = voiceRow || {
+    const voiceSearchData = voiceRows?.[0] || {
       is_active: false,
       position: "bottom-right",
       button_color: "#10B981",
@@ -324,14 +322,14 @@ export async function GET(req: NextRequest) {
       language: "es-AR",
     }
 
-    // 🤖 Obtener ajustes del Vendedor Virtual IA
-    const { data: salesmanRow } = await supabase
+    // 🤖 Obtener ajustes del Vendedor Virtual IA (blindado contra duplicados)
+    const { data: salesmanRows } = await supabase
       .from('store_virtual_salesman_settings')
       .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
       .eq('store_id', storeId)
-      .maybeSingle()
+      .limit(1)
 
-    const virtualSalesmanData = salesmanRow || {
+    const virtualSalesmanData = salesmanRows?.[0] || {
       is_active: false,
       agent_name: "Sofía (Asesora Virtual)",
       welcome_message: "¡Hola! 👋 ¿Buscás algo en especial hoy? Contame y te ayudo a encontrar el producto ideal.",
@@ -342,7 +340,7 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 1. Consultar campaña activa de la tienda para efectos visuales
+    // 1. Consultar campaña activa (blindado con limit 1 ordenado por la más reciente)
     let activeCampaignData: {
       slug: string
       name: string
@@ -351,14 +349,17 @@ export async function GET(req: NextRequest) {
       accentColor: string
     } | null = null
 
-    const { data: campaignRow } = await supabase
+    const { data: campaignRows } = await supabase
       .from('active_campaigns')
       .select('campaign_slug')
       .eq('store_id', storeId)
-      .maybeSingle()
+      .order('activated_at', { ascending: false })
+      .limit(1)
 
-    if (campaignRow && campaignRow.campaign_slug) {
-      const preset = getCampaignPreset(campaignRow.campaign_slug)
+    const activeCampaignSlug = campaignRows?.[0]?.campaign_slug
+
+    if (activeCampaignSlug) {
+      const preset = getCampaignPreset(activeCampaignSlug)
       if (preset) {
         activeCampaignData = {
           slug: preset.slug,
@@ -370,7 +371,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
+    // 2. Buscar widgets activos
     let query = supabase
       .from('widgets')
       .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
@@ -396,7 +397,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 🧹 DEDUPLICACIÓN ESTRICTA: Conservar ÚNICAMENTE la configuración MÁS RECIENTE guardada para cada widget_slug
+    // Deduplicación estricta por slug
     const uniqueMap = new Map<string, any>()
     for (const w of rawWidgets || []) {
       if (!uniqueMap.has(w.widget_slug)) {
@@ -405,7 +406,7 @@ export async function GET(req: NextRequest) {
     }
     const widgets = Array.from(uniqueMap.values())
 
-    // Enriquecer widgets con sus definiciones
+    // Enriquecer con definiciones
     const slugs = widgets.map((w) => w.widget_slug)
     let definitions: any[] = []
 
@@ -423,24 +424,27 @@ export async function GET(req: NextRequest) {
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
 
-    // 🧠 INTERCEPCIÓN IA: Dinamizar el widget pack-complementarios con Cross-Selling predictivo si está activo
+    // Cross-Selling IA predictivo
     const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
 
     if (packWidgetIndex !== -1 && productId) {
-      const { data: aiSettings } = await supabase
+      const { data: aiSettingsRows } = await supabase
         .from('ai_cross_sell_settings')
         .select('*')
         .eq('store_id', storeId)
-        .maybeSingle();
+        .limit(1);
 
+      const aiSettings = aiSettingsRows?.[0] || null;
       const aiActive = aiSettings ? aiSettings.is_active : false;
 
       if (aiActive) {
-        const { data: storeRow } = await supabase
+        const { data: storeRows } = await supabase
           .from('stores')
           .select('access_token')
           .eq('store_id', storeId)
-          .maybeSingle();
+          .limit(1);
+
+        const storeRow = storeRows?.[0] || null;
 
         if (storeRow && storeRow.access_token) {
           try {
@@ -450,8 +454,6 @@ export async function GET(req: NextRequest) {
               : (rawProducts as { products?: any[] })?.products || [];
 
             const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
-
-            // Calcular complementarios óptimos de forma dinámica por IA
             const aiRecommendedItems = computeAiPairings(productList, productId, discount);
 
             if (aiRecommendedItems.length > 0) {
@@ -472,7 +474,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Enriquecer widgets de reseñas si existen
+    // Enriquecer reseñas si existen
     const widgetsResenas = enrichedWidgets.filter(
       (w) => w.widget_slug === 'resenas-clientes'
     )
@@ -500,7 +502,6 @@ export async function GET(req: NextRequest) {
           const { data: reviews, error: reviewsError } = await reviewsQuery
 
           if (reviewsError) {
-            console.error(`Error obteniendo reseñas para widget ${w.id}:`, reviewsError)
             return { ...w, reviews: [], stats: defaultStats() }
           }
 
@@ -518,12 +519,14 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // 🌎 INTERCEPCIÓN IDIOMA: Traducir los widgets automáticamente si el cliente tiene habilitado otro idioma
-    const { data: langSettings } = await supabase
+    // Traducción multi-idioma automática
+    const { data: langSettingsRows } = await supabase
       .from("store_language_settings")
       .select("*")
       .eq("store_id", storeId)
-      .maybeSingle();
+      .limit(1);
+
+    const langSettings = langSettingsRows?.[0] || null;
 
     if (langSettings) {
       const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
@@ -531,7 +534,6 @@ export async function GET(req: NextRequest) {
       const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
       const savedTranslations = langSettings.translations || {};
 
-      // Decidir idioma de destino (target)
       let targetLang: "es" | "pt" | "en" = defaultLang;
       if (autoDetect && clientLangParam) {
         const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
@@ -540,19 +542,16 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      // Si el idioma final no es Español, aplicamos las traducciones
       if (targetLang !== "es") {
         enrichedWidgets = enrichedWidgets.map((w) => {
           let translatedConfig = { ...w.config };
 
-          // 1. Prioridad: Traducción pre-generada en panel (1 Clic)
           if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
             translatedConfig = {
               ...translatedConfig,
               ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
             };
           } else {
-            // 2. Fallback: Traducción al vuelo en milisegundos con el diccionario
             translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
           }
 
@@ -561,7 +560,6 @@ export async function GET(req: NextRequest) {
             config: translatedConfig,
           };
         });
-        console.log(`[Nevux IA Language] Traducidos ${enrichedWidgets.length} widgets automáticamente a idioma:`, targetLang);
       }
     }
 
