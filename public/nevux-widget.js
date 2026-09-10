@@ -1766,7 +1766,7 @@
 
   injectGlobalStyles();
 
-  // Detectar idioma del comprador (desde la etiqueta <html lang="..."> o configuración del navegador)
+  // Detectar idioma del comprador
   var clientLang = document.documentElement.lang || navigator.language || "es";
 
   const url = API_BASE + "/api/widget-render?store_id=" + storeId +
@@ -1777,6 +1777,8 @@
   fetch(url)
     .then(function (r) { return r.json(); })
     .then(function (data) {
+      if (!data) return;
+
       // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
       if (data.activeCampaign) {
         renderAtmosphericEffects(data.activeCampaign);
@@ -1811,7 +1813,6 @@
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
         try {          
-     
           if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
           if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
           if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
@@ -1843,17 +1844,11 @@
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
       });
-    }
-
-    // 🎃 EFECTO ATMOSFÉRICO GLOBAL (Fuera del loop para ejecutarse una sola vez)
-    if (data.activeCampaign) {
-      renderAtmosphericEffects(data.activeCampaign);
-    }
-  })
-  .catch(function (err) {
-    console.error("[Nevux] Error cargando widgets:", err);
-  });
-
+    })
+    .catch(function (err) {
+      console.error("[Nevux] Error cargando widgets:", err);
+    });
+  
   /* ═══════════════════════════════════════════
      MOTOR DE EFECTOS ATMOSFÉRICOS INMERSIVOS (BLINDADO)
   ═══════════════════════════════════════════ */
