@@ -306,7 +306,7 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🎙️ Obtener ajustes de Búsqueda por Voz (blindado contra duplicados)
+    // 🎙️ Búsqueda por Voz
     const { data: voiceRows } = await supabase
       .from('store_voice_search_settings')
       .select('is_active, position, button_color, listening_text, placeholder_text, language')
@@ -322,7 +322,7 @@ export async function GET(req: NextRequest) {
       language: "es-AR",
     }
 
-    // 🤖 Obtener ajustes del Vendedor Virtual IA (blindado contra duplicados)
+    // 🤖 Vendedor Virtual IA
     const { data: salesmanRows } = await supabase
       .from('store_virtual_salesman_settings')
       .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
@@ -340,7 +340,7 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 1. Consultar campaña activa (blindado con limit 1 ordenado por la más reciente)
+    // 1. Consultar campaña activa
     let activeCampaignData: {
       slug: string
       name: string
@@ -371,23 +371,13 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Buscar widgets activos
-    let query = supabase
+    // 2. Traer todos los widgets activos de la tienda (consulta ultra limpia y segura)
+    const { data: rawWidgets, error: widgetsError } = await supabase
       .from('widgets')
       .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
       .eq('store_id', storeId)
       .eq('is_active', true)
       .order('updated_at', { ascending: false })
-
-    if (productId) {
-      query = query.or(
-        `target_type.eq.all,and(target_type.eq.product,target_product_id.eq.${productId})`
-      )
-    } else {
-      query = query.eq('target_type', 'all')
-    }
-
-    const { data: rawWidgets, error: widgetsError } = await query
 
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
@@ -397,9 +387,19 @@ export async function GET(req: NextRequest) {
       )
     }
 
+    // 3. Filtrar según la página actual (Home o Producto específico) de forma infalible
+    const allWidgets = rawWidgets || []
+    const matchingWidgets = allWidgets.filter((w) => {
+      if (w.target_type === 'all') return true
+      if (productId && w.target_type === 'product' && Number(w.target_product_id) === productId) {
+        return true
+      }
+      return false
+    })
+
     // Deduplicación estricta por slug
     const uniqueMap = new Map<string, any>()
-    for (const w of rawWidgets || []) {
+    for (const w of matchingWidgets) {
       if (!uniqueMap.has(w.widget_slug)) {
         uniqueMap.set(w.widget_slug, w)
       }
@@ -580,4 +580,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-               }
+                                              }
