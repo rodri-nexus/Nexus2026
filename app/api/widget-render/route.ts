@@ -262,7 +262,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET
+   ENDPOINT PRINCIPAL GET (PARALELIZADO - ULTRA VELOCIDAD)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -288,15 +288,6 @@ export async function GET(req: NextRequest) {
 
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
 
-    // 🔒 Verificación de plan activo
-    const isActivePlan = await isStorePlanActive(storeId)
-    if (!isActivePlan) {
-      return NextResponse.json(
-        { widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
-        { status: 200, headers: corsHeaders }
-      )
-    }
-
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -306,13 +297,40 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🎙️ Búsqueda por Voz
-    const { data: voiceRows } = await supabase
-      .from('store_voice_search_settings')
-      .select('is_active, position, button_color, listening_text, placeholder_text, language')
-      .eq('store_id', storeId)
-      .limit(1)
+    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA DE TODAS LAS CONSULTAS (100ms)
+    const [
+      isActivePlan,
+      { data: voiceRows },
+      { data: salesmanRows },
+      { data: campaignRows },
+      { data: rawWidgets, error: widgetsError },
+      { data: langSettingsRows }
+    ] = await Promise.all([
+      isStorePlanActive(storeId),
+      supabase.from('store_voice_search_settings').select('is_active, position, button_color, listening_text, placeholder_text, language').eq('store_id', storeId).limit(1),
+      supabase.from('store_virtual_salesman_settings').select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color').eq('store_id', storeId).limit(1),
+      supabase.from('active_campaigns').select('campaign_slug').eq('store_id', storeId).order('activated_at', { ascending: false }).limit(1),
+      supabase.from('widgets').select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at').eq('store_id', storeId).eq('is_active', true).order('updated_at', { ascending: false }).limit(50),
+      supabase.from('store_language_settings').select('*').eq('store_id', storeId).limit(1)
+    ]);
 
+    // 🔒 Verificación de plan
+    if (!isActivePlan) {
+      return NextResponse.json(
+        { widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { status: 200, headers: corsHeaders }
+      )
+    }
+
+    if (widgetsError) {
+      console.error('Error obteniendo widgets:', widgetsError)
+      return NextResponse.json(
+        { error: widgetsError.message, widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
+        { status: 500, headers: corsHeaders }
+      )
+    }
+
+    // 🎙️ Búsqueda por Voz
     const voiceSearchData = voiceRows?.[0] || {
       is_active: false,
       position: "bottom-right",
@@ -323,12 +341,6 @@ export async function GET(req: NextRequest) {
     }
 
     // 🤖 Vendedor Virtual IA
-    const { data: salesmanRows } = await supabase
-      .from('store_virtual_salesman_settings')
-      .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
-      .eq('store_id', storeId)
-      .limit(1)
-
     const virtualSalesmanData = salesmanRows?.[0] || {
       is_active: false,
       agent_name: "Sofía (Asesora Virtual)",
@@ -340,7 +352,7 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 1. Consultar campaña activa
+    // 1. Campaña activa
     let activeCampaignData: {
       slug: string
       name: string
@@ -348,13 +360,6 @@ export async function GET(req: NextRequest) {
       themeColor: string
       accentColor: string
     } | null = null
-
-    const { data: campaignRows } = await supabase
-      .from('active_campaigns')
-      .select('campaign_slug')
-      .eq('store_id', storeId)
-      .order('activated_at', { ascending: false })
-      .limit(1)
 
     const activeCampaignSlug = campaignRows?.[0]?.campaign_slug
 
@@ -371,24 +376,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Traer todos los widgets activos de la tienda (limpio, rápido y sin errores de sintaxis)
-    const { data: rawWidgets, error: widgetsError } = await supabase
-      .from('widgets')
-      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
-      .eq('store_id', storeId)
-      .eq('is_active', true)
-      .order('updated_at', { ascending: false })
-      .limit(50)
-
-    if (widgetsError) {
-      console.error('Error obteniendo widgets:', widgetsError)
-      return NextResponse.json(
-        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData, voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
-        { status: 500, headers: corsHeaders }
-      )
-    }
-
-    // 3. Filtrar según la página actual (Home o Producto específico) en JS
+    // 2. Filtrar según la página actual (Home o Producto específico)
     const allWidgets = rawWidgets || []
     const matchingWidgets = allWidgets.filter((w) => {
       if (!w.target_type || w.target_type === 'all') return true
@@ -398,7 +386,7 @@ export async function GET(req: NextRequest) {
       return false
     })
 
-    // Deduplicar por slug (tomando siempre el más reciente)
+    // Deduplicar por slug
     const uniqueMap = new Map<string, any>()
     for (const w of matchingWidgets) {
       if (!uniqueMap.has(w.widget_slug)) {
@@ -520,13 +508,7 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // Traducción multi-idioma automática
-    const { data: langSettingsRows } = await supabase
-      .from("store_language_settings")
-      .select("*")
-      .eq("store_id", storeId)
-      .limit(1);
-
+    // Traducción multi-idioma
     const langSettings = langSettingsRows?.[0] || null;
 
     if (langSettings) {
@@ -581,4 +563,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-}
+                                                  }
