@@ -262,7 +262,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (VINCULACIÓN DUAL ULTRA-RÁPIDA)
+   ENDPOINT PRINCIPAL GET
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -290,58 +290,43 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 🔍 1. Obtener datos maestros de la tienda (para enlazar store_id con user_id)
-    const { data: storeMasterList } = await supabaseAdmin
-      .from('stores')
-      .select('id, user_id, store_id, access_token')
-      .eq('store_id', storeId)
-      .limit(1)
-
-    const storeMaster = storeMasterList?.[0] || null
-    const ownerUserId = storeMaster?.user_id || null
-
-    // Construir filtro dual inteligente (busca por número de tienda o por UUID de usuario)
-    const storeFilter = ownerUserId
-      ? `store_id.eq.${storeId},user_id.eq.${ownerUserId}`
-      : `store_id.eq.${storeId}`
-
-    // 🚀 2. CONSULTAS EN PARALELO BLINDADAS
+    // 🚀 CONSULTAS EN PARALELO ULTRA-RÁPIDAS Y DIRECTAS
     const [voiceRes, salesmanRes, campaignRes, widgetsRes, langRes] = await Promise.all([
       // 🎙️ Búsqueda por Voz
       supabaseAdmin
         .from('store_voice_search_settings')
         .select('is_active, position, button_color, listening_text, placeholder_text, language')
-        .or(storeFilter)
+        .eq('store_id', storeId)
         .limit(1),
 
       // 🤖 Vendedor Virtual IA
       supabaseAdmin
         .from('store_virtual_salesman_settings')
         .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
-        .or(storeFilter)
+        .eq('store_id', storeId)
         .limit(1),
 
       // 🎃 Campaña activa
       supabaseAdmin
         .from('active_campaigns')
         .select('campaign_slug')
-        .or(storeFilter)
+        .eq('store_id', storeId)
         .order('activated_at', { ascending: false })
         .limit(1),
 
-      // 📦 Widgets activos indexados directos
+      // 📦 Widgets activos (igual que en /api/widgets)
       supabaseAdmin
         .from('widgets')
-        .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
-        .or(storeFilter)
-        .neq('is_active', false)
+        .select('*')
+        .eq('store_id', storeId)
+        .eq('is_active', true)
         .order('updated_at', { ascending: false }),
 
       // 🌎 Configuración de idioma
       supabaseAdmin
         .from("store_language_settings")
         .select("*")
-        .or(storeFilter)
+        .eq('store_id', storeId)
         .limit(1)
     ]);
 
@@ -392,7 +377,20 @@ export async function GET(req: NextRequest) {
     }
 
     // Parsear Widgets
-    const rawWidgets = widgetsRes.data || []
+    let rawWidgets = widgetsRes.data || []
+
+    // Fallback de seguridad si estuviera guardado como texto
+    if (rawWidgets.length === 0 && storeIdParam) {
+      const { data: fallbackW } = await supabaseAdmin
+        .from('widgets')
+        .select('*')
+        .eq('store_id', storeIdParam)
+        .eq('is_active', true)
+        .order('updated_at', { ascending: false });
+      if (fallbackW && fallbackW.length > 0) {
+        rawWidgets = fallbackW;
+      }
+    }
 
     // Filtrar por producto / general en memoria
     const matchingWidgets = rawWidgets.filter((w) => {
@@ -433,39 +431,49 @@ export async function GET(req: NextRequest) {
     // Cross-Selling IA predictivo
     const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
 
-    if (packWidgetIndex !== -1 && productId && storeMaster && storeMaster.access_token) {
+    if (packWidgetIndex !== -1 && productId) {
       const { data: aiSettingsRows } = await supabaseAdmin
         .from('ai_cross_sell_settings')
         .select('*')
-        .or(storeFilter)
+        .eq('store_id', storeId)
         .limit(1);
 
       const aiSettings = aiSettingsRows?.[0] || null;
       const aiActive = aiSettings ? aiSettings.is_active : false;
 
       if (aiActive) {
-        try {
-          const rawProducts = await getProducts(storeId, storeMaster.access_token);
-          const productList = Array.isArray(rawProducts)
-            ? rawProducts
-            : (rawProducts as { products?: any[] })?.products || [];
+        const { data: storeRows } = await supabaseAdmin
+          .from('stores')
+          .select('access_token')
+          .eq('store_id', storeId)
+          .limit(1);
 
-          const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
-          const aiRecommendedItems = computeAiPairings(productList, productId, discount);
+        const storeRow = storeRows?.[0] || null;
 
-          if (aiRecommendedItems.length > 0) {
-            const currentConfig = enrichedWidgets[packWidgetIndex].config || {};
-            enrichedWidgets[packWidgetIndex].config = {
-              ...currentConfig,
-              titulo: aiSettings?.title || currentConfig.titulo || "🔥 COMBINÁ Y AHORRÁ EN TU PACK",
-              subtexto: aiSettings?.subtitle || currentConfig.subtexto || "Llevate estos productos juntos con un descuento especial",
-              textoBoton: aiSettings?.button_text || currentConfig.textoBoton || "Agregar pack al carrito",
-              descuentoPorcentaje: discount,
-              items: aiRecommendedItems
-            };
+        if (storeRow && storeRow.access_token) {
+          try {
+            const rawProducts = await getProducts(storeId, storeRow.access_token);
+            const productList = Array.isArray(rawProducts)
+              ? rawProducts
+              : (rawProducts as { products?: any[] })?.products || [];
+
+            const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
+            const aiRecommendedItems = computeAiPairings(productList, productId, discount);
+
+            if (aiRecommendedItems.length > 0) {
+              const currentConfig = enrichedWidgets[packWidgetIndex].config || {};
+              enrichedWidgets[packWidgetIndex].config = {
+                ...currentConfig,
+                titulo: aiSettings?.title || currentConfig.titulo || "🔥 COMBINÁ Y AHORRÁ EN TU PACK",
+                subtexto: aiSettings?.subtitle || currentConfig.subtexto || "Llevate estos productos juntos con un descuento especial",
+                textoBoton: aiSettings?.button_text || currentConfig.textoBoton || "Agregar pack al carrito",
+                descuentoPorcentaje: discount,
+                items: aiRecommendedItems
+              };
+            }
+          } catch (aiError) {
+            console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
           }
-        } catch (aiError) {
-          console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
         }
       }
     }
@@ -569,4 +577,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-}
+       }
