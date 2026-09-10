@@ -1751,103 +1751,126 @@
     document.body.appendChild(layer);
   }
   /* ═══════════════════════════════════════════
-     INIT
+     INIT — EJECUCIÓN INSTANTÁNEA (v101)
   ═══════════════════════════════════════════ */
-  const storeId = detectStoreId();
-  const productId = detectProductId();
-  const pageType = detectPageType();
+  var initAttempts = 0;
+  var isExecuted = false;
 
-  console.log("[Nevux] storeId:", storeId, "productId:", productId, "pageType:", pageType);
+  function runEngine() {
+    if (isExecuted) return;
 
-  if (!storeId) {
-    console.warn("[Nevux] No se pudo detectar store_id");
-    return;
-  }
+    const storeId = detectStoreId();
+    const productId = detectProductId();
+    const pageType = detectPageType();
 
-  injectGlobalStyles();
-
-  // Detectar idioma del comprador
-  var clientLang = document.documentElement.lang || navigator.language || "es";
-
-  const url = API_BASE + "/api/widget-render?store_id=" + storeId +
-    (productId ? "&product_id=" + productId : "") +
-    "&lang=" + encodeURIComponent(clientLang) +
-    "&_t=" + Date.now();
-
-  fetch(url)
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (!data) return;
-
-      // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
-      if (data.activeCampaign) {
-        renderAtmosphericEffects(data.activeCampaign);
-      }
-
-      // 🎙️ INYECCIÓN UNIFICADA DE BÚSQUEDA POR VOZ
-      if (data.voiceSearch && data.voiceSearch.is_active) {
-        if (document.body) {
-          renderNevuxVoiceUI(data.voiceSearch);
-        } else {
-          document.addEventListener("DOMContentLoaded", function() {
-            renderNevuxVoiceUI(data.voiceSearch);
-          });
-        }
-      }
-
-      // 🤖 INYECCIÓN UNIFICADA DE VENDEDOR VIRTUAL IA
-      if (data.virtualSalesman && data.virtualSalesman.is_active) {
-        if (document.body) {
-          renderNevuxSalesmanUI(data.virtualSalesman);
-        } else {
-          document.addEventListener("DOMContentLoaded", function() {
-            renderNevuxSalesmanUI(data.virtualSalesman);
-          });
-        }
-      }
-
-      if (!data.widgets || data.widgets.length === 0) {
-        console.log("[Nevux] No hay widgets activos");
+    if (!storeId) {
+      if (initAttempts < 20) { // Reintentar cada 100ms durante 2 segundos máximo
+        initAttempts++;
+        setTimeout(runEngine, 100);
         return;
       }
-      console.log("[Nevux] Widgets recibidos:", data.widgets.length);
-      data.widgets.forEach(function (w) {
-        try {          
-          if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
-          if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
-          if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
-          if (w.widget_slug === "badge-transferencia") renderBadgeTransferencia(w);
-          if (w.widget_slug === "banner-deslizante") renderBannerDeslizante(w);
-          if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
-          if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
-          if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
-          if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
-          if (w.widget_slug === "info-despacho") renderInformacionDespacho(w);
-          if (w.widget_slug === "info-envio") renderInformacionEnvio(w);
-          if (w.widget_slug === "mensaje-alerta") renderMensajeAlerta(w);
-          if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
-          if (w.widget_slug === "resenas-clientes") renderResenasClientes(w);
-          if (w.widget_slug === "slider-video") renderSliderVideo(w);
-          if (w.widget_slug === "extras-interruptor") renderExtrasInterruptor(w);
-          if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
-          if (w.widget_slug === "info-compra") renderInfoCompra(w);
-          if (w.widget_slug === "badge-cupon") renderBadgeCupon(w);
-          if (w.widget_slug === "comparador-marca") renderComparadorMarca(w);
-          if (w.widget_slug === "medios-pago") renderMediosPago(w);
-          if (w.widget_slug === "tabla-talles") renderTablaTalles(w);
-          if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
-          if (w.widget_slug === "menu-circulos") renderMenuCirculos(w);
-          if (w.widget_slug === "slider-categorias") renderSliderCategorias(w);
-          if (w.widget_slug === "resenas-foto") renderResenasFoto(w);
-          if (w.widget_slug === "ruleta-descuentos") renderRuletaDescuentos(w);
-        } catch (err) {
-          console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
+      console.warn("[Nevux v101] No se pudo detectar store_id tras reintentos");
+      return;
+    }
+
+    isExecuted = true;
+    console.log("[Nevux v101] Engine ejecutado instantáneamente — storeId:", storeId, "productId:", productId);
+
+    injectGlobalStyles();
+
+    var clientLang = document.documentElement.lang || navigator.language || "es";
+
+    const url = API_BASE + "/api/widget-render?store_id=" + storeId +
+      (productId ? "&product_id=" + productId : "") +
+      "&lang=" + encodeURIComponent(clientLang) +
+      "&_t=" + Date.now();
+
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data) return;
+
+        // 🌟 1. INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
+        if (data.activeCampaign) {
+          renderAtmosphericEffects(data.activeCampaign);
         }
+
+        // 🎙️ 2. INYECCIÓN UNIFICADA DE BÚSQUEDA POR VOZ
+        if (data.voiceSearch && data.voiceSearch.is_active) {
+          if (document.body) {
+            renderNevuxVoiceUI(data.voiceSearch);
+          } else {
+            document.addEventListener("DOMContentLoaded", function() {
+              renderNevuxVoiceUI(data.voiceSearch);
+            });
+          }
+        }
+
+        // 🤖 3. INYECCIÓN UNIFICADA DE VENDEDOR VIRTUAL IA
+        if (data.virtualSalesman && data.virtualSalesman.is_active) {
+          if (document.body) {
+            renderNevuxSalesmanUI(data.virtualSalesman);
+          } else {
+            document.addEventListener("DOMContentLoaded", function() {
+              renderNevuxSalesmanUI(data.virtualSalesman);
+            });
+          }
+        }
+
+        // 🛍️ 4. RENDERIZADO DE WIDGETS
+        if (!data.widgets || data.widgets.length === 0) {
+          console.log("[Nevux] No hay widgets activos para esta página");
+          return;
+        }
+
+        console.log("[Nevux v101] Widgets recibidos:", data.widgets.length);
+        data.widgets.forEach(function (w) {
+          try {          
+            if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
+            if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
+            if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
+            if (w.widget_slug === "badge-transferencia") renderBadgeTransferencia(w);
+            if (w.widget_slug === "banner-deslizante") renderBannerDeslizante(w);
+            if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
+            if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
+            if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
+            if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
+            if (w.widget_slug === "info-despacho") renderInformacionDespacho(w);
+            if (w.widget_slug === "info-envio") renderInformacionEnvio(w);
+            if (w.widget_slug === "mensaje-alerta") renderMensajeAlerta(w);
+            if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
+            if (w.widget_slug === "resenas-clientes") renderResenasClientes(w);
+            if (w.widget_slug === "slider-video") renderSliderVideo(w);
+            if (w.widget_slug === "extras-interruptor") renderExtrasInterruptor(w);
+            if (w.widget_slug === "contador-visitas") renderContadorVisitas(w);
+            if (w.widget_slug === "info-compra") renderInfoCompra(w);
+            if (w.widget_slug === "badge-cupon") renderBadgeCupon(w);
+            if (w.widget_slug === "comparador-marca") renderComparadorMarca(w);
+            if (w.widget_slug === "medios-pago") renderMediosPago(w);
+            if (w.widget_slug === "tabla-talles") renderTablaTalles(w);
+            if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
+            if (w.widget_slug === "menu-circulos") renderMenuCirculos(w);
+            if (w.widget_slug === "slider-categorias") renderSliderCategorias(w);
+            if (w.widget_slug === "resenas-foto") renderResenasFoto(w);
+            if (w.widget_slug === "ruleta-descuentos") renderRuletaDescuentos(w);
+          } catch (err) {
+            console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
+          }
+        });
+      })
+      .catch(function (err) {
+        console.error("[Nevux] Error cargando widgets:", err);
       });
-    })
-    .catch(function (err) {
-      console.error("[Nevux] Error cargando widgets:", err);
-    });
+  }
+
+  // Disparo triple instantáneo para garantizar carga de inmediato sin scroll
+  runEngine();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runEngine);
+  } else {
+    runEngine();
+  }
+  window.addEventListener("load", runEngine);
   
       /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
