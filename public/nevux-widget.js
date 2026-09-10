@@ -4,8 +4,8 @@
 
   const API_BASE = "https://nexus2026-gx7e.vercel.app";
   const NS = "nevux-widget";
-
-  console.log("[Nevux] v28 - Multi-Widget Engine Active");
+  
+console.log("[Nevux v103] - Fast Engine Active");
 
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
@@ -69,7 +69,7 @@
     return { emoji: "", text: s };
   }
 
-  function detectStoreId() {
+    function detectStoreId() {
     if (window.NEVUX_STORE_ID) return window.NEVUX_STORE_ID;
     if (window.Store && (window.Store.id || window.Store.store_id))
       return window.Store.id || window.Store.store_id;
@@ -79,11 +79,6 @@
       return window.__NUVEMSHOP_STORE__.id;
     const meta = qs('meta[name="store-id"]');
     if (meta) return meta.content;
-    const html = document.documentElement.innerHTML;
-    let m = html.match(/"store_id":\s*(\d+)/);
-    if (m) return parseInt(m[1], 10);
-    m = html.match(/"storeId":\s*(\d+)/);
-    if (m) return parseInt(m[1], 10);
     const assetLink = qs('link[href*="/stores/"]');
     if (assetLink) {
       const cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
@@ -94,15 +89,12 @@
 
   function detectProductId() {
     if (window.NEVUX_PRODUCT_ID) return window.NEVUX_PRODUCT_ID;
-    if (window.Product) return window.Product.id;
+    if (window.Product && window.Product.id) return window.Product.id;
     if (window.LS && window.LS.product && window.LS.product.id) return window.LS.product.id;
     const meta = qs('meta[property="og:product:id"]');
     if (meta) return meta.content;
     const m = document.location.pathname.match(/\/productos\/[^/]+-(\d+)/);
     if (m) return parseInt(m[1], 10);
-    const html = document.documentElement.innerHTML;
-    const pm = html.match(/"product_id":\s*(\d+)/);
-    if (pm) return parseInt(pm[1], 10);
     return null;
   }
 
@@ -120,6 +112,8 @@
       const num = parseFloat(txt.replace(/[^\d,\.]/g, "").replace(/\./g, "").replace(",", "."));
       if (!isNaN(num)) return num;
     }
+    return null;
+  }
     return null;
   }
 
@@ -1531,7 +1525,7 @@
         }
 
   /* ═══════════════════════════════════════════
-     INIT — EJECUCIÓN ULTRA RÁPIDA SIN EFECTOS (v102)
+     INIT — EJECUCIÓN INSTANTÁNEA (v103)
   ═══════════════════════════════════════════ */
   var initAttempts = 0;
   var isExecuted = false;
@@ -1539,22 +1533,19 @@
   function runEngine() {
     if (isExecuted) return;
 
-    const storeId = detectStoreId();
-    const productId = detectProductId();
-    const pageType = detectPageType();
+    var storeId = detectStoreId();
+    var productId = detectProductId();
 
     if (!storeId) {
-      if (initAttempts < 20) {
+      if (initAttempts < 15) {
         initAttempts++;
-        setTimeout(runEngine, 50);
+        setTimeout(runEngine, 80);
         return;
       }
       return;
     }
 
     isExecuted = true;
-    console.log("[Nevux v102] Fast Engine Executed — storeId:", storeId);
-
     injectGlobalStyles();
 
     var clientLang = document.documentElement.lang || navigator.language || "es";
@@ -1567,33 +1558,19 @@
     fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (!data) return;
+        if (!data || !data.widgets || data.widgets.length === 0) return;
 
         // 🎙️ 1. BÚSQUEDA POR VOZ
-        if (data.voiceSearch && data.voiceSearch.is_active) {
-          if (document.body) {
-            renderNevuxVoiceUI(data.voiceSearch);
-          } else {
-            document.addEventListener("DOMContentLoaded", function() {
-              renderNevuxVoiceUI(data.voiceSearch);
-            });
-          }
+        if (data.voiceSearch && data.voiceSearch.is_active && document.body) {
+          renderNevuxVoiceUI(data.voiceSearch);
         }
 
         // 🤖 2. VENDEDOR VIRTUAL IA
-        if (data.virtualSalesman && data.virtualSalesman.is_active) {
-          if (document.body) {
-            renderNevuxSalesmanUI(data.virtualSalesman);
-          } else {
-            document.addEventListener("DOMContentLoaded", function() {
-              renderNevuxSalesmanUI(data.virtualSalesman);
-            });
-          }
+        if (data.virtualSalesman && data.virtualSalesman.is_active && document.body) {
+          renderNevuxSalesmanUI(data.virtualSalesman);
         }
 
         // 🛍️ 3. RENDERIZADO INSTANTÁNEO DE WIDGETS
-        if (!data.widgets || data.widgets.length === 0) return;
-
         data.widgets.forEach(function (w) {
           try {          
             if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
@@ -1633,14 +1610,10 @@
       });
   }
 
-  // Ejecución inmediata
   runEngine();
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", runEngine);
-  } else {
-    runEngine();
-  }
-})();
+             }
   
       /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
