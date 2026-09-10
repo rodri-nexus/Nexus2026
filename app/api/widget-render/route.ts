@@ -1,6 +1,6 @@
 // app/api/widget-render/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { supabaseAdmin } from '@/lib/supabase'
 import { isStorePlanActive } from '@/lib/plan'
 import { getCampaignPreset } from '@/lib/campaignPresets'
 import { getProducts } from "@/lib/tiendanube"
@@ -262,7 +262,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (ALTA VELOCIDAD Y BLINDADO)
+   ENDPOINT PRINCIPAL GET (SUPERADMIN BYPASS)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -291,50 +291,43 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseKey =
-      process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    })
-
-    // 🚀 CONSULTAS EN PARALELO ULTRA-OPTIMIZADAS Y BLINDADAS POR TIPO
+    // 🚀 CONSULTAS CON SUPABASE ADMIN (Sin bloqueo de RLS y en Paralelo)
     const [voiceRes, salesmanRes, campaignRes, widgetsRes, langRes] = await Promise.all([
       // 🎙️ Búsqueda por Voz
-      supabase
+      supabaseAdmin
         .from('store_voice_search_settings')
         .select('is_active, position, button_color, listening_text, placeholder_text, language')
-        .eq('store_id', safeStoreIdStr)
+        .eq('store_id', storeId)
         .limit(1),
 
       // 🤖 Vendedor Virtual IA
-      supabase
+      supabaseAdmin
         .from('store_virtual_salesman_settings')
         .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
-        .eq('store_id', safeStoreIdStr)
+        .eq('store_id', storeId)
         .limit(1),
 
-      // 🎃 Campaña activa (búsqueda por string compatible)
-      supabase
+      // 🎃 Campaña activa
+      supabaseAdmin
         .from('active_campaigns')
         .select('campaign_slug')
-        .eq('store_id', safeStoreIdStr)
+        .eq('store_id', storeId)
+        .order('activated_at', { ascending: false })
         .limit(1),
 
-      // 📦 Widgets activos indexados directos (incluye activos e implícitos)
-      supabase
+      // 📦 Widgets activos indexados directos
+      supabaseAdmin
         .from('widgets')
         .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
-        .eq('store_id', safeStoreIdStr)
-        .neq('is_active', false),
+        .eq('store_id', storeId)
+        .neq('is_active', false)
+        .order('updated_at', { ascending: false }),
 
       // 🌎 Configuración de idioma
-      supabase
+      supabaseAdmin
         .from("store_language_settings")
         .select("*")
-        .eq('store_id', safeStoreIdStr)
+        .eq('store_id', storeId)
         .limit(1)
     ]);
 
@@ -369,7 +362,19 @@ export async function GET(req: NextRequest) {
       accentColor: string
     } | null = null
 
-    const activeCampaignSlug = campaignRes.data?.[0]?.campaign_slug
+    let activeCampaignSlug = campaignRes.data?.[0]?.campaign_slug
+
+    // Fallback por string si fuera necesario
+    if (!activeCampaignSlug) {
+      const { data: campaignFallback } = await supabaseAdmin
+        .from('active_campaigns')
+        .select('campaign_slug')
+        .eq('store_id', safeStoreIdStr)
+        .order('activated_at', { ascending: false })
+        .limit(1)
+      activeCampaignSlug = campaignFallback?.[0]?.campaign_slug
+    }
+
     if (activeCampaignSlug) {
       const preset = getCampaignPreset(activeCampaignSlug)
       if (preset) {
@@ -386,15 +391,16 @@ export async function GET(req: NextRequest) {
     // Parsear Widgets
     let rawWidgets = widgetsRes.data || []
 
-    // Si por alguna razón la tienda tenía store_id como numérico en widgets, intentamos fallback rápido
-    if (rawWidgets.length === 0 && !isNaN(storeId)) {
-      const { data: fallbackWidgets } = await supabase
+    // Fallback por string si vinieran guardados como texto
+    if (rawWidgets.length === 0) {
+      const { data: stringWidgets } = await supabaseAdmin
         .from('widgets')
         .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
-        .eq('store_id', storeId)
-        .neq('is_active', false);
-      if (fallbackWidgets && fallbackWidgets.length > 0) {
-        rawWidgets = fallbackWidgets;
+        .eq('store_id', safeStoreIdStr)
+        .neq('is_active', false)
+        .order('updated_at', { ascending: false })
+      if (stringWidgets && stringWidgets.length > 0) {
+        rawWidgets = stringWidgets
       }
     }
 
@@ -421,7 +427,7 @@ export async function GET(req: NextRequest) {
     let definitions: any[] = []
 
     if (slugs.length > 0) {
-      const { data: defs } = await supabase
+      const { data: defs } = await supabaseAdmin
         .from('widget_definitions')
         .select('*')
         .in('slug', slugs)
@@ -438,20 +444,20 @@ export async function GET(req: NextRequest) {
     const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
 
     if (packWidgetIndex !== -1 && productId) {
-      const { data: aiSettingsRows } = await supabase
+      const { data: aiSettingsRows } = await supabaseAdmin
         .from('ai_cross_sell_settings')
         .select('*')
-        .eq('store_id', safeStoreIdStr)
+        .eq('store_id', storeId)
         .limit(1);
 
       const aiSettings = aiSettingsRows?.[0] || null;
       const aiActive = aiSettings ? aiSettings.is_active : false;
 
       if (aiActive) {
-        const { data: storeRows } = await supabase
+        const { data: storeRows } = await supabaseAdmin
           .from('stores')
           .select('access_token')
-          .eq('store_id', safeStoreIdStr)
+          .eq('store_id', storeId)
           .limit(1);
 
         const storeRow = storeRows?.[0] || null;
@@ -492,7 +498,7 @@ export async function GET(req: NextRequest) {
     if (widgetsResenas.length > 0) {
       const enriquecidos = await Promise.all(
         widgetsResenas.map(async (w) => {
-          let reviewsQuery = supabase
+          let reviewsQuery = supabaseAdmin
             .from('reviews')
             .select(
               'id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, ' +
