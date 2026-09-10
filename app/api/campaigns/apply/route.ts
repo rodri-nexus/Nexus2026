@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ error: "Tienda no encontrada o no autorizada" }, 403);
     }
 
-    // 2. Traer widgets existentes y snapshots en paralelo ultra rápido
+    // 2. Traer widgets existentes y snapshots en paralelo
     const [widgetsRes, snapshotsRes] = await Promise.all([
       supabase
         .from("widgets")
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       "mensaje-alerta",
     ] as const;
 
-    const updatePromises: Promise<any>[] = [];
+    const allOperations: any[] = [];
     const widgetsToInsert: any[] = [];
 
     for (const slug of targetSlugs) {
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
           ...patchConfig,
         };
 
-        updatePromises.push(
+        allOperations.push(
           supabase
             .from("widgets")
             .update({
@@ -174,9 +174,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Ejecutar TODO en paralelo (cero demoras, cero timeouts)
-    const allOperations: Promise<any>[] = [...updatePromises];
-
+    // 5. Ejecutar operaciones en paralelo
     if (widgetsToInsert.length > 0) {
       allOperations.push(supabase.from("widgets").insert(widgetsToInsert));
     }
@@ -199,8 +197,6 @@ export async function POST(req: NextRequest) {
       success: true,
       campaignName: preset.name,
       campaignSlug: preset.slug,
-      widgetsUpdated: updatePromises.length,
-      widgetsCreated: widgetsToInsert.length,
       message: `Modo ${preset.name} activado exitosamente en toda tu tienda`,
     });
   } catch (error: unknown) {
@@ -210,4 +206,4 @@ export async function POST(req: NextRequest) {
     const message = dbMessage || (error instanceof Error ? error.message : "Error interno");
     return jsonResponse({ error: message }, 500);
   }
-         }
+       }
