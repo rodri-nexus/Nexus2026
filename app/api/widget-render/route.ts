@@ -262,7 +262,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (PARALELIZADO - ULTRA VELOCIDAD)
+   ENDPOINT PRINCIPAL GET (ULTRA COMPACTO)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -297,7 +297,7 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA DE TODAS LAS CONSULTAS (100ms)
+    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA (Máximo 15 widgets en total)
     const [
       isActivePlan,
       { data: voiceRows },
@@ -310,11 +310,10 @@ export async function GET(req: NextRequest) {
       supabase.from('store_voice_search_settings').select('is_active, position, button_color, listening_text, placeholder_text, language').eq('store_id', storeId).limit(1),
       supabase.from('store_virtual_salesman_settings').select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color').eq('store_id', storeId).limit(1),
       supabase.from('active_campaigns').select('campaign_slug').eq('store_id', storeId).order('activated_at', { ascending: false }).limit(1),
-      supabase.from('widgets').select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at').eq('store_id', storeId).eq('is_active', true).order('updated_at', { ascending: false }).limit(50),
+      supabase.from('widgets').select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at').eq('store_id', storeId).eq('is_active', true).order('updated_at', { ascending: false }).limit(15),
       supabase.from('store_language_settings').select('*').eq('store_id', storeId).limit(1)
     ]);
 
-    // 🔒 Verificación de plan
     if (!isActivePlan) {
       return NextResponse.json(
         { widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
@@ -323,14 +322,12 @@ export async function GET(req: NextRequest) {
     }
 
     if (widgetsError) {
-      console.error('Error obteniendo widgets:', widgetsError)
       return NextResponse.json(
         { error: widgetsError.message, widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
         { status: 500, headers: corsHeaders }
       )
     }
 
-    // 🎙️ Búsqueda por Voz
     const voiceSearchData = voiceRows?.[0] || {
       is_active: false,
       position: "bottom-right",
@@ -340,7 +337,6 @@ export async function GET(req: NextRequest) {
       language: "es-AR",
     }
 
-    // 🤖 Vendedor Virtual IA
     const virtualSalesmanData = salesmanRows?.[0] || {
       is_active: false,
       agent_name: "Sofía (Asesora Virtual)",
@@ -352,7 +348,6 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 1. Campaña activa
     let activeCampaignData: {
       slug: string
       name: string
@@ -376,7 +371,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Filtrar según la página actual (Home o Producto específico)
+    // Filtrado por página actual
     const allWidgets = rawWidgets || []
     const matchingWidgets = allWidgets.filter((w) => {
       if (!w.target_type || w.target_type === 'all') return true
@@ -386,7 +381,7 @@ export async function GET(req: NextRequest) {
       return false
     })
 
-    // Deduplicar por slug
+    // Deduplicación estricta por slug
     const uniqueMap = new Map<string, any>()
     for (const w of matchingWidgets) {
       if (!uniqueMap.has(w.widget_slug)) {
@@ -402,7 +397,7 @@ export async function GET(req: NextRequest) {
     if (slugs.length > 0) {
       const { data: defs } = await supabase
         .from('widget_definitions')
-        .select('*')
+        .select('slug, name')
         .in('slug', slugs)
 
       definitions = defs || []
@@ -412,139 +407,6 @@ export async function GET(req: NextRequest) {
       ...w,
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
-
-    // Cross-Selling IA predictivo
-    const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
-
-    if (packWidgetIndex !== -1 && productId) {
-      const { data: aiSettingsRows } = await supabase
-        .from('ai_cross_sell_settings')
-        .select('*')
-        .eq('store_id', storeId)
-        .limit(1);
-
-      const aiSettings = aiSettingsRows?.[0] || null;
-      const aiActive = aiSettings ? aiSettings.is_active : false;
-
-      if (aiActive) {
-        const { data: storeRows } = await supabase
-          .from('stores')
-          .select('access_token')
-          .eq('store_id', storeId)
-          .limit(1);
-
-        const storeRow = storeRows?.[0] || null;
-
-        if (storeRow && storeRow.access_token) {
-          try {
-            const rawProducts = await getProducts(storeId, storeRow.access_token);
-            const productList = Array.isArray(rawProducts)
-              ? rawProducts
-              : (rawProducts as { products?: any[] })?.products || [];
-
-            const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
-            const aiRecommendedItems = computeAiPairings(productList, productId, discount);
-
-            if (aiRecommendedItems.length > 0) {
-              const currentConfig = enrichedWidgets[packWidgetIndex].config || {};
-              enrichedWidgets[packWidgetIndex].config = {
-                ...currentConfig,
-                titulo: aiSettings?.title || currentConfig.titulo || "🔥 COMBINÁ Y AHORRÁ EN TU PACK",
-                subtexto: aiSettings?.subtitle || currentConfig.subtexto || "Llevate estos productos juntos con un descuento especial",
-                textoBoton: aiSettings?.button_text || currentConfig.textoBoton || "Agregar pack al carrito",
-                descuentoPorcentaje: discount,
-                items: aiRecommendedItems
-              };
-            }
-          } catch (aiError) {
-            console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
-          }
-        }
-      }
-    }
-
-    // Enriquecer reseñas si existen
-    const widgetsResenas = enrichedWidgets.filter(
-      (w) => w.widget_slug === 'resenas-clientes'
-    )
-
-    if (widgetsResenas.length > 0) {
-      const enriquecidos = await Promise.all(
-        widgetsResenas.map(async (w) => {
-          let reviewsQuery = supabase
-            .from('reviews')
-            .select(
-              'id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, ' +
-              'verificada, desde_calificar, respuesta_texto, respuesta_fecha, ' +
-              'fecha_resena, orden, product_id'
-            )
-            .eq('widget_id', w.id)
-            .eq('estado', 'aprobada')
-            .order('orden', { ascending: true })
-            .order('created_at', { ascending: false })
-            .limit(100)
-
-          if (w.target_type === 'product' && w.target_product_id) {
-            reviewsQuery = reviewsQuery.eq('product_id', w.target_product_id)
-          }
-
-          const { data: reviews, error: reviewsError } = await reviewsQuery
-
-          if (reviewsError) {
-            return { ...w, reviews: [], stats: defaultStats() }
-          }
-
-          const aprobadas = reviews || []
-          const stats = calcularStats(aprobadas)
-
-          return { ...w, reviews: aprobadas, stats }
-        })
-      )
-
-      enrichedWidgets = enrichedWidgets.map((w) => {
-        if (w.widget_slug !== 'resenas-clientes') return w
-        const enriquecido = enriquecidos.find((e) => e.id === w.id)
-        return enriquecido ?? w
-      })
-    }
-
-    // Traducción multi-idioma
-    const langSettings = langSettingsRows?.[0] || null;
-
-    if (langSettings) {
-      const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
-      const autoDetect = langSettings.auto_detect ?? true;
-      const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
-      const savedTranslations = langSettings.translations || {};
-
-      let targetLang: "es" | "pt" | "en" = defaultLang;
-      if (autoDetect && clientLangParam) {
-        const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
-        if (enabledLangs.includes(slicedLang)) {
-          targetLang = slicedLang;
-        }
-      }
-
-      if (targetLang !== "es") {
-        enrichedWidgets = enrichedWidgets.map((w) => {
-          let translatedConfig = { ...w.config };
-
-          if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
-            translatedConfig = {
-              ...translatedConfig,
-              ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
-            };
-          } else {
-            translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
-          }
-
-          return {
-            ...w,
-            config: translatedConfig,
-          };
-        });
-      }
-    }
 
     return NextResponse.json(
       { 
@@ -563,4 +425,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-                                                  }
+       }
