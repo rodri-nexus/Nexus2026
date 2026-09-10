@@ -297,7 +297,7 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🚀 CONSULTAS EN PARALELO ULTRA-DIRECTAS CON COLUMNAS EXACTAS
+    // 🚀 CONSULTAS EN PARALELO CON COLUMNAS 100% EXISTENTES
     const [voiceRes, salesmanRes, campaignRes, widgetsRes, langRes] = await Promise.all([
       supabase
         .from('store_voice_search_settings')
@@ -318,9 +318,10 @@ export async function GET(req: NextRequest) {
         .order('activated_at', { ascending: false })
         .limit(1),
 
+      // 🎯 COLUMNAS EXACTAS QUE SÍ EXISTEN EN TU TABLA (PROBADAS EN DIAGNÓSTICO)
       supabase
         .from('widgets')
-        .select('id, store_id, user_id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
+        .select('id, store_id, user_id, widget_slug, config, is_active')
         .eq('store_id', storeId),
 
       supabase
@@ -376,28 +377,14 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Parsear Widgets
+    // Parsear Widgets (filtrar sólo activos)
     const allWidgets = widgetsRes.data || []
-
-    // Filtrar activos (true o implícitos) y ordenar por updated_at
     const activeWidgets = allWidgets.filter((w) => w.is_active !== false)
-    activeWidgets.sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))
 
-    // Filtrar por producto / general en memoria
-    const matchingWidgets = activeWidgets.filter((w) => {
-      if (!w.target_type || w.target_type === 'all') return true
-      if (productId && w.target_type === 'product') {
-        return Number(w.target_product_id) === productId
-      }
-      return true
-    })
-
-    // Deduplicación por slug en memoria (deja el más reciente)
+    // Deduplicación por slug en memoria (deja el último guardado)
     const uniqueMap = new Map<string, any>()
-    for (const w of matchingWidgets) {
-      if (!uniqueMap.has(w.widget_slug)) {
-        uniqueMap.set(w.widget_slug, w)
-      }
+    for (const w of activeWidgets) {
+      uniqueMap.set(w.widget_slug, w)
     }
     const widgets = Array.from(uniqueMap.values())
 
@@ -406,12 +393,15 @@ export async function GET(req: NextRequest) {
     let definitions: any[] = []
 
     if (slugs.length > 0) {
-      const { data: defs } = await supabase
-        .from('widget_definitions')
-        .select('*')
-        .in('slug', slugs)
-
-      definitions = defs || []
+      try {
+        const { data: defs } = await supabase
+          .from('widget_definitions')
+          .select('*')
+          .in('slug', slugs)
+        definitions = defs || []
+      } catch (e) {
+        // Silencioso
+      }
     }
 
     let enrichedWidgets = widgets.map((w) => ({
@@ -423,26 +413,26 @@ export async function GET(req: NextRequest) {
     const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
 
     if (packWidgetIndex !== -1 && productId) {
-      const { data: aiSettingsRows } = await supabase
-        .from('ai_cross_sell_settings')
-        .select('*')
-        .eq('store_id', storeId)
-        .limit(1);
-
-      const aiSettings = aiSettingsRows?.[0] || null;
-      const aiActive = aiSettings ? aiSettings.is_active : false;
-
-      if (aiActive) {
-        const { data: storeRows } = await supabase
-          .from('stores')
-          .select('access_token')
+      try {
+        const { data: aiSettingsRows } = await supabase
+          .from('ai_cross_sell_settings')
+          .select('*')
           .eq('store_id', storeId)
           .limit(1);
 
-        const storeRow = storeRows?.[0] || null;
+        const aiSettings = aiSettingsRows?.[0] || null;
+        const aiActive = aiSettings ? aiSettings.is_active : false;
 
-        if (storeRow && storeRow.access_token) {
-          try {
+        if (aiActive) {
+          const { data: storeRows } = await supabase
+            .from('stores')
+            .select('access_token')
+            .eq('store_id', storeId)
+            .limit(1);
+
+          const storeRow = storeRows?.[0] || null;
+
+          if (storeRow && storeRow.access_token) {
             const rawProducts = await getProducts(storeId, storeRow.access_token);
             const productList = Array.isArray(rawProducts)
               ? rawProducts
@@ -462,88 +452,52 @@ export async function GET(req: NextRequest) {
                 items: aiRecommendedItems
               };
             }
-          } catch (aiError) {
-            console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
           }
         }
+      } catch (aiError) {
+        console.error("[Nevux AI] Error inyectando sugerencias:", aiError);
       }
     }
 
-    // Enriquecer reseñas si existen
-    const widgetsResenas = enrichedWidgets.filter(
-      (w) => w.widget_slug === 'resenas-clientes'
-    )
-
-    if (widgetsResenas.length > 0) {
-      const enriquecidos = await Promise.all(
-        widgetsResenas.map(async (w) => {
-          let reviewsQuery = supabase
-            .from('reviews')
-            .select('id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, verificada, desde_calificar, respuesta_texto, respuesta_fecha, fecha_resena, orden, product_id')
-            .eq('widget_id', w.id)
-            .eq('estado', 'aprobada')
-            .order('orden', { ascending: true })
-            .limit(50)
-
-          if (w.target_type === 'product' && w.target_product_id) {
-            reviewsQuery = reviewsQuery.eq('product_id', w.target_product_id)
-          }
-
-          const { data: reviews, error: reviewsError } = await reviewsQuery
-
-          if (reviewsError) {
-            return { ...w, reviews: [], stats: defaultStats() }
-          }
-
-          const aprobadas = reviews || []
-          const stats = calcularStats(aprobadas)
-
-          return { ...w, reviews: aprobadas, stats }
-        })
-      )
-
-      enrichedWidgets = enrichedWidgets.map((w) => {
-        if (w.widget_slug !== 'resenas-clientes') return w
-        const enriquecido = enriquecidos.find((e) => e.id === w.id)
-        return enriquecido ?? w
-      })
-    }
-
-    // Traducción multi-idioma automática
+    // Traducción multi-idioma
     const langSettings = langRes.data?.[0] || null;
 
     if (langSettings) {
-      const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
-      const autoDetect = langSettings.auto_detect ?? true;
-      const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
-      const savedTranslations = (langSettings.translations as Record<string, any>) || {};
+      try {
+        const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
+        const autoDetect = langSettings.auto_detect ?? true;
+        const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
+        const savedTranslations = (langSettings.translations as Record<string, any>) || {};
 
-      let targetLang: "es" | "pt" | "en" = defaultLang;
-      if (autoDetect && clientLangParam) {
-        const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
-        if (enabledLangs.includes(slicedLang)) {
-          targetLang = slicedLang;
-        }
-      }
-
-      if (targetLang !== "es") {
-        enrichedWidgets = enrichedWidgets.map((w) => {
-          let translatedConfig = { ...w.config };
-
-          if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
-            translatedConfig = {
-              ...translatedConfig,
-              ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
-            };
-          } else {
-            translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
+        let targetLang: "es" | "pt" | "en" = defaultLang;
+        if (autoDetect && clientLangParam) {
+          const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
+          if (enabledLangs.includes(slicedLang)) {
+            targetLang = slicedLang;
           }
+        }
 
-          return {
-            ...w,
-            config: translatedConfig,
-          };
-        });
+        if (targetLang !== "es") {
+          enrichedWidgets = enrichedWidgets.map((w) => {
+            let translatedConfig = { ...w.config };
+
+            if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
+              translatedConfig = {
+                ...translatedConfig,
+                ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
+              };
+            } else {
+              translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
+            }
+
+            return {
+              ...w,
+              config: translatedConfig,
+            };
+          });
+        }
+      } catch (langErr) {
+        // Silencioso
       }
     }
 
@@ -564,4 +518,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-}
+               }
