@@ -1810,8 +1810,8 @@
       }
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
-        try {
-                    if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
+        try {          
+          if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
           if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
           if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
           if (w.widget_slug === "badge-transferencia") renderBadgeTransferencia(w);
@@ -1842,16 +1842,15 @@
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
       });
-    } // 👈 Este cierre que faltaba evita que se rompa el código
 
-    // 🎃 EFECTO ATMOSFÉRICO GLOBAL (Halloween, Nieve, Fuego, etc.)
-    if (data.activeCampaign) {
-      renderAtmosphericEffects(data.activeCampaign);
-    }
-  })
-  .catch(function (err) {
-    console.error("[Nevux] Error cargando widgets:", err);
-  });
+      // 🎃 EFECTO ATMOSFÉRICO GLOBAL (Halloween, Nieve, Fuego, etc.)
+      if (data.activeCampaign) {
+        renderAtmosphericEffects(data.activeCampaign);
+      }
+    })
+    .catch(function (err) {
+      console.error("[Nevux] Error cargando widgets:", err);
+    });
   
       /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
