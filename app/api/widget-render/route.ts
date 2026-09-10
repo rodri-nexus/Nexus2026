@@ -279,13 +279,6 @@ export async function GET(req: NextRequest) {
     }
 
     const storeId = parseInt(storeIdParam, 10)
-    if (isNaN(storeId)) {
-      return NextResponse.json(
-        { error: 'store_id inválido', widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
-        { status: 400, headers: corsHeaders }
-      )
-    }
-
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
 
     // 🔒 Verificación de plan activo
@@ -310,7 +303,7 @@ export async function GET(req: NextRequest) {
     const { data: voiceRows } = await supabase
       .from('store_voice_search_settings')
       .select('is_active, position, button_color, listening_text, placeholder_text, language')
-      .eq('store_id', storeId)
+      .or(`store_id.eq.${storeIdParam},store_id.eq.${storeId}`)
       .limit(1)
 
     const voiceSearchData = voiceRows?.[0] || {
@@ -326,7 +319,7 @@ export async function GET(req: NextRequest) {
     const { data: salesmanRows } = await supabase
       .from('store_virtual_salesman_settings')
       .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
-      .eq('store_id', storeId)
+      .or(`store_id.eq.${storeIdParam},store_id.eq.${storeId}`)
       .limit(1)
 
     const virtualSalesmanData = salesmanRows?.[0] || {
@@ -352,7 +345,7 @@ export async function GET(req: NextRequest) {
     const { data: campaignRows } = await supabase
       .from('active_campaigns')
       .select('campaign_slug')
-      .eq('store_id', storeId)
+      .or(`store_id.eq.${storeIdParam},store_id.eq.${storeId}`)
       .order('activated_at', { ascending: false })
       .limit(1)
 
@@ -371,11 +364,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Traer todos los widgets activos de la tienda (consulta ultra limpia y segura)
+    // 2. Traer widgets activos (Búsqueda dual por texto y número)
     const { data: rawWidgets, error: widgetsError } = await supabase
       .from('widgets')
       .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
-      .eq('store_id', storeId)
+      .or(`store_id.eq.${storeIdParam},store_id.eq.${storeId}`)
       .eq('is_active', true)
       .order('updated_at', { ascending: false })
 
@@ -387,17 +380,17 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 3. Filtrar según la página actual (Home o Producto específico) de forma infalible
+    // 3. Incluir todos los widgets activos
     const allWidgets = rawWidgets || []
     const matchingWidgets = allWidgets.filter((w) => {
-      if (w.target_type === 'all') return true
-      if (productId && w.target_type === 'product' && Number(w.target_product_id) === productId) {
-        return true
+      if (!w.target_type || w.target_type === 'all') return true
+      if (productId && w.target_type === 'product') {
+        return Number(w.target_product_id) === productId
       }
-      return false
+      return true
     })
 
-    // Deduplicación estricta por slug
+    // Deduplicación por slug
     const uniqueMap = new Map<string, any>()
     for (const w of matchingWidgets) {
       if (!uniqueMap.has(w.widget_slug)) {
@@ -431,7 +424,7 @@ export async function GET(req: NextRequest) {
       const { data: aiSettingsRows } = await supabase
         .from('ai_cross_sell_settings')
         .select('*')
-        .eq('store_id', storeId)
+        .or(`store_id.eq.${storeIdParam},store_id.eq.${storeId}`)
         .limit(1);
 
       const aiSettings = aiSettingsRows?.[0] || null;
@@ -441,7 +434,7 @@ export async function GET(req: NextRequest) {
         const { data: storeRows } = await supabase
           .from('stores')
           .select('access_token')
-          .eq('store_id', storeId)
+          .or(`store_id.eq.${storeIdParam},store_id.eq.${storeId}`)
           .limit(1);
 
         const storeRow = storeRows?.[0] || null;
@@ -523,7 +516,7 @@ export async function GET(req: NextRequest) {
     const { data: langSettingsRows } = await supabase
       .from("store_language_settings")
       .select("*")
-      .eq("store_id", storeId)
+      .or(`store_id.eq.${storeIdParam},store_id.eq.${storeId}`)
       .limit(1);
 
     const langSettings = langSettingsRows?.[0] || null;
@@ -580,4 +573,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-                                              }
+       }
