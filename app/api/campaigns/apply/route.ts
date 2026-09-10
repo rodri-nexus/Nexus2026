@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     const preset = getCampaignPreset(campaign_slug);
     if (!preset) {
-      return jsonResponse({ error: "Campaña no válida o no encontrada" }, 404);
+      return jsonResponse({ error: `Campaña no válida o no encontrada: ${campaign_slug}` }, 404);
     }
 
     // 1. Validar que la tienda pertenezca al usuario logueado
@@ -85,16 +85,20 @@ export async function POST(req: NextRequest) {
 
     const currentWidgets = existingWidgets || [];
 
-    // 3. Revisar si ya existen snapshots previos (para no sobreescribir la configuración original real)
-    const { data: existingSnapshots } = await supabase
+    // 3. Revisar si ya existen snapshots previos
+    const { data: existingSnapshots, error: snapError } = await supabase
       .from("campaign_snapshots")
       .select("id")
       .eq("user_id", user.id)
       .eq("store_id", store_id);
 
+    if (snapError) {
+      throw snapError;
+    }
+
     const hasSnapshots = (existingSnapshots || []).length > 0;
 
-    // Si no hay snapshots guardados, capturamos el estado original de todos los widgets existentes
+    // Si no hay snapshots guardados, capturamos el estado original de todos los widgets
     if (!hasSnapshots && currentWidgets.length > 0) {
       const snapshotsToInsert = currentWidgets.map((w) => ({
         user_id: user.id,
@@ -110,7 +114,7 @@ export async function POST(req: NextRequest) {
         .insert(snapshotsToInsert);
 
       if (snapInsertError) {
-        console.error("Error guardando snapshots:", snapInsertError);
+        throw snapInsertError;
       }
     }
 
@@ -118,7 +122,6 @@ export async function POST(req: NextRequest) {
     const endDateIso = calculateCampaignEndDate(preset.durationDays);
     const nowIso = new Date().toISOString();
 
-    // Soportamos la inyección masiva de 10 widgets temáticos
     const targetSlugs = [
       "cuenta-regresiva",
       "banner-deslizante",
@@ -144,13 +147,11 @@ export async function POST(req: NextRequest) {
         patchConfig = (preset.patches as any)[slug] || {};
       }
 
-      // Buscar si el widget ya existe en la tienda (priorizar el global 'all')
       const existing = currentWidgets.find(
         (w) => w.widget_slug === slug && w.target_type === "all"
       ) || currentWidgets.find((w) => w.widget_slug === slug);
 
       if (existing) {
-        // Actualizar widget existente fusionando la configuración previa con el preset
         const updatedConfig = {
           ...(typeof existing.config === "object" && existing.config !== null
             ? existing.config
@@ -158,7 +159,7 @@ export async function POST(req: NextRequest) {
           ...patchConfig,
         };
 
-        await supabase
+        const { error: updateError } = await supabase
           .from("widgets")
           .update({
             config: updatedConfig,
@@ -168,10 +169,13 @@ export async function POST(req: NextRequest) {
           .eq("id", existing.id)
           .eq("user_id", user.id);
 
+        if (updateError) {
+          throw updateError;
+        }
+
         widgetsUpdated++;
       } else {
-        // Si no existía, crearlo automáticamente para toda la tienda
-        await supabase.from("widgets").insert({
+        const { error: insertError } = await supabase.from("widgets").insert({
           user_id: user.id,
           store_id,
           widget_slug: slug,
@@ -184,12 +188,16 @@ export async function POST(req: NextRequest) {
           updated_at: nowIso,
         });
 
+        if (insertError) {
+          throw insertError;
+        }
+
         widgetsCreated++;
       }
     }
 
     // 5. Registrar la campaña como activa en la tabla active_campaigns
-    await supabase.from("active_campaigns").upsert(
+    const { error: upsertError } = await supabase.from("active_campaigns").upsert(
       {
         user_id: user.id,
         store_id,
@@ -198,6 +206,10 @@ export async function POST(req: NextRequest) {
       },
       { onConflict: "store_id" }
     );
+
+    if (upsertError) {
+      throw upsertError;
+    }
 
     return jsonResponse({
       success: true,
@@ -209,7 +221,12 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     console.error("Error aplicando campaña:", error);
-    const message = error instanceof Error ? error.message : "Error interno";
+    
+    // Extractor dinámico de diagnósticos para errores complejos de Supabase/PostgreSQL
+    const errObj = error as any;
+    const dbMessage = errObj?.message || errObj?.details || errObj?.hint;
+    const message = dbMessage || (error instanceof Error ? error.message : "Error interno");
+    
     return jsonResponse({ error: message }, 500);
   }
          }
