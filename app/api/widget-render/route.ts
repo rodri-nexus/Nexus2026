@@ -262,7 +262,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (OPTIMIZADO DIRECTO)
+   ENDPOINT PRINCIPAL GET (CASCADA TOTAL)
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -280,6 +280,7 @@ export async function GET(req: NextRequest) {
 
     const storeId = parseInt(storeIdParam, 10)
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
+    const safeStoreIdStr = String(storeIdParam).trim()
 
     // 🔒 Verificación de plan activo
     const isActivePlan = await isStorePlanActive(storeId)
@@ -300,8 +301,8 @@ export async function GET(req: NextRequest) {
     const storeMaster = storeRows?.[0] || null
     const storeOwnerUserId = storeMaster?.user_id || null
 
-    // 🚀 2. CONSULTAS EN PARALELO ULTRA-DIRECTAS (Sin PostgREST boolean filters que fallen)
-    const [voiceRes, salesmanRes, campaignRes, widgetsRes, langRes] = await Promise.all([
+    // 🚀 2. CONSULTAS BASE EN PARALELO
+    const [voiceRes, salesmanRes, langRes] = await Promise.all([
       // 🎙️ Búsqueda por Voz
       supabaseAdmin
         .from('store_voice_search_settings')
@@ -315,18 +316,6 @@ export async function GET(req: NextRequest) {
         .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
         .eq('store_id', storeId)
         .limit(1),
-
-      // 🎃 Campaña activa (búsqueda limpia directa)
-      supabaseAdmin
-        .from('active_campaigns')
-        .select('campaign_slug, activated_at')
-        .eq('store_id', storeId),
-
-      // 📦 Widgets directos por store_id
-      supabaseAdmin
-        .from('widgets')
-        .select('*')
-        .eq('store_id', storeId),
 
       // 🌎 Configuración de idioma
       supabaseAdmin
@@ -358,21 +347,41 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // Parsear Campaña Activa (ordenar en JS en memoria)
+    // 🎃 3. CASCADA PARA CAMPAÑA ACTIVA
     let activeCampaignSlug: string | null = null
-    const campaignRows = campaignRes.data || []
-    if (campaignRows.length > 0) {
-      campaignRows.sort((a, b) => (b.activated_at || '').localeCompare(a.activated_at || ''))
-      activeCampaignSlug = campaignRows[0].campaign_slug
-    } else if (storeOwnerUserId) {
-      // Fallback por user_id
-      const { data: userCampRows } = await supabaseAdmin
+
+    // Cascada 1: Por store_id numérico
+    const campNumRes = await supabaseAdmin
+      .from('active_campaigns')
+      .select('campaign_slug, activated_at')
+      .eq('store_id', storeId)
+      .limit(1)
+
+    if (campNumRes.data?.[0]?.campaign_slug) {
+      activeCampaignSlug = campNumRes.data[0].campaign_slug
+    }
+
+    // Cascada 2: Por store_id texto
+    if (!activeCampaignSlug && safeStoreIdStr) {
+      const campStrRes = await supabaseAdmin
+        .from('active_campaigns')
+        .select('campaign_slug, activated_at')
+        .eq('store_id', safeStoreIdStr)
+        .limit(1)
+      if (campStrRes.data?.[0]?.campaign_slug) {
+        activeCampaignSlug = campStrRes.data[0].campaign_slug
+      }
+    }
+
+    // Cascada 3: Por user_id
+    if (!activeCampaignSlug && storeOwnerUserId) {
+      const campUserRes = await supabaseAdmin
         .from('active_campaigns')
         .select('campaign_slug, activated_at')
         .eq('user_id', storeOwnerUserId)
-      if (userCampRows && userCampRows.length > 0) {
-        userCampRows.sort((a, b) => (b.activated_at || '').localeCompare(a.activated_at || ''))
-        activeCampaignSlug = userCampRows[0].campaign_slug
+        .limit(1)
+      if (campUserRes.data?.[0]?.campaign_slug) {
+        activeCampaignSlug = campUserRes.data[0].campaign_slug
       }
     }
 
@@ -397,17 +406,40 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Parsear Widgets (Filtrado en memoria de JS)
-    let rawWidgets = widgetsRes.data || []
+    // 📦 4. CASCADA PARA WIDGETS
+    let rawWidgets: any[] = []
 
-    // Fallback por user_id si no vinieron por store_id
+    // Cascada 1: Por store_id numérico
+    const wNumRes = await supabaseAdmin
+      .from('widgets')
+      .select('*')
+      .eq('store_id', storeId)
+
+    if (wNumRes.data && wNumRes.data.length > 0) {
+      rawWidgets = wNumRes.data
+    }
+
+    // Cascada 2: Por store_id texto
+    if (rawWidgets.length === 0 && safeStoreIdStr) {
+      const wStrRes = await supabaseAdmin
+        .from('widgets')
+        .select('*')
+        .eq('store_id', safeStoreIdStr)
+
+      if (wStrRes.data && wStrRes.data.length > 0) {
+        rawWidgets = wStrRes.data
+      }
+    }
+
+    // Cascada 3: Por user_id
     if (rawWidgets.length === 0 && storeOwnerUserId) {
-      const { data: userWidgets } = await supabaseAdmin
+      const wUserRes = await supabaseAdmin
         .from('widgets')
         .select('*')
         .eq('user_id', storeOwnerUserId)
-      if (userWidgets && userWidgets.length > 0) {
-        rawWidgets = userWidgets
+
+      if (wUserRes.data && wUserRes.data.length > 0) {
+        rawWidgets = wUserRes.data
       }
     }
 
@@ -590,4 +622,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-               }
+}
