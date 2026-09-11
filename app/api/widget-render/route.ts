@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isStorePlanActive } from '@/lib/plan'
-import { getCampaignPreset } from '@/lib/campaignPresets'
 import { getProducts } from "@/lib/tiendanube"
 
 export const dynamic = 'force-dynamic'
@@ -34,7 +33,7 @@ function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
   const lower = text.trim().toLowerCase();
 
   // Búsqueda directa en diccionario
-  if (ECOMMERCE_DICTIONARY[lower]) {
+  if (ECOCOMMERCE_DICTIONARY[lower]) {
     return ECOMMERCE_DICTIONARY[lower][targetLang];
   }
 
@@ -275,7 +274,7 @@ export async function GET(req: NextRequest) {
 
     if (!storeIdParam) {
       return NextResponse.json(
-        { error: 'store_id es requerido', widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
+        { error: 'store_id es requerido', widgets: [], voiceSearch: null, virtualSalesman: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -283,7 +282,7 @@ export async function GET(req: NextRequest) {
     const storeId = parseInt(storeIdParam, 10)
     if (isNaN(storeId)) {
       return NextResponse.json(
-        { error: 'store_id inválido', widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
+        { error: 'store_id inválido', widgets: [], voiceSearch: null, virtualSalesman: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -294,7 +293,7 @@ export async function GET(req: NextRequest) {
     const isActivePlan = await isStorePlanActive(storeId)
     if (!isActivePlan) {
       return NextResponse.json(
-        { widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { widgets: [], voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
         { status: 200, headers: corsHeaders }
       )
     }
@@ -342,34 +341,6 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 1. Consultar campaña activa de la tienda para efectos visuales
-    let activeCampaignData: {
-      slug: string
-      name: string
-      effect: string
-      themeColor: string
-      accentColor: string
-    } | null = null
-
-    const { data: campaignRow } = await supabase
-      .from('active_campaigns')
-      .select('campaign_slug')
-      .eq('store_id', storeId)
-      .maybeSingle()
-
-    if (campaignRow && campaignRow.campaign_slug) {
-      const preset = getCampaignPreset(campaignRow.campaign_slug)
-      if (preset) {
-        activeCampaignData = {
-          slug: preset.slug,
-          name: preset.name,
-          effect: preset.effect,
-          themeColor: preset.themeColor,
-          accentColor: preset.accentColor,
-        }
-      }
-    }
-
     // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
     let query = supabase
       .from('widgets')
@@ -391,7 +362,7 @@ export async function GET(req: NextRequest) {
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
       return NextResponse.json(
-        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData, voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
+        { error: widgetsError.message, widgets: [], voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
         { status: 500, headers: corsHeaders }
       )
     }
@@ -568,7 +539,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       { 
         widgets: enrichedWidgets, 
-        activeCampaign: activeCampaignData,
         voiceSearch: voiceSearchData,
         virtualSalesman: virtualSalesmanData,
         ts: Date.now() 
@@ -578,8 +548,8 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Error en GET /api/widget-render:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message, widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
+      { error: 'Error interno del servidor', details: error?.message, widgets: [], voiceSearch: null, virtualSalesman: null },
       { status: 500, headers: corsHeaders }
     )
   }
-                                               }
+     }
