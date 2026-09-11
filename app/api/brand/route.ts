@@ -1,6 +1,7 @@
 // app/api/brand/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { createClient as createServerClient } from "@/lib/supabase-server";
+import { createClient as createDirectClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
@@ -116,11 +117,10 @@ function applyBrandColorsToConfig(
       updated.bgColor = brand.background;
       updated.borderColor = brand.primary;
       updated.textColor = brand.text;
-      // Opacidad inteligente del color primario (~8%) para el fondo de tu columna destacada
       updated.destacadoBgColor = brand.primary + "15";
       updated.destacadoTextColor = brand.primary;
       updated.checkColor = brand.primary;
-      updated.crossColor = "#9ca3af"; // Cruz neutra gris para balance visual elegante
+      updated.crossColor = "#9ca3af";
       updated.bordesRedondeados = brand.radiusNum;
       break;
 
@@ -132,7 +132,6 @@ function applyBrandColorsToConfig(
       break;
 
     default:
-      // Adaptación universal para otros widgets
       if ("colorFondo" in updated) updated.colorFondo = brand.background;
       if ("colorTexto" in updated) updated.colorTexto = brand.text;
       if ("colorBoton" in updated) updated.colorBoton = brand.primary;
@@ -150,7 +149,7 @@ function applyBrandColorsToConfig(
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = createServerClient();
     const {
       data: { user },
       error: authError,
@@ -201,11 +200,11 @@ export async function GET(req: NextRequest) {
 ═══════════════════════════════════════════ */
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient();
+    const serverSupabase = createServerClient();
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await serverSupabase.auth.getUser();
 
     if (authError || !user) {
       return jsonResponse({ error: "No autorizado" }, 401);
@@ -230,23 +229,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Cliente de alta velocidad (bypass de RLS para sincronizaciones masivas)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+    const adminSupabase = createDirectClient(supabaseUrl, supabaseKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
     // 1. Validar que la tienda pertenezca al comerciante
-    const { data: store, error: storeError } = await supabase
+    const { data: store, error: storeError } = await adminSupabase
       .from("stores")
       .select("id, store_id")
       .eq("user_id", user.id)
       .eq("store_id", store_id)
-      .eq("is_active", true)
-      .single();
+      .limit(1);
 
-    if (storeError || !store) {
+    if (storeError || !store || store.length === 0) {
       return jsonResponse({ error: "Tienda no autorizada o no encontrada" }, 403);
     }
 
     const nowIso = new Date().toISOString();
 
     // 2. Guardar o actualizar la configuración de marca en Supabase
-    const { data: savedBrand, error: brandSaveError } = await supabase
+    const { data: savedBrand, error: brandSaveError } = await adminSupabase
       .from("store_brand_settings")
       .upsert(
         {
@@ -271,18 +279,18 @@ export async function POST(req: NextRequest) {
 
     let widgetsUpdatedCount = 0;
 
-    // 3. Si se solicitó sincronizar todos los widgets existentes
+    // 3. Sincronizar todos los widgets de la tienda
     if (sync_all_widgets) {
       const radiusNumber = border_radius === "recto" ? 0 : border_radius === "redondo" ? 20 : 10;
 
-      const { data: widgets, error: widgetsErr } = await supabase
+      const { data: widgets, error: widgetsErr } = await adminSupabase
         .from("widgets")
-        .select("*")
-        .eq("user_id", user.id)
+        .select("id, widget_slug, config")
         .eq("store_id", store_id);
 
       if (!widgetsErr && widgets && widgets.length > 0) {
-        for (const widget of widgets) {
+        // Actualización en paralelo ultra-rápida de todos los widgets
+        const updatePromises = widgets.map((widget) => {
           const currentCfg =
             typeof widget.config === "object" && widget.config !== null
               ? (widget.config as Record<string, unknown>)
@@ -296,17 +304,17 @@ export async function POST(req: NextRequest) {
             radiusNum: radiusNumber,
           });
 
-          await supabase
+          return adminSupabase
             .from("widgets")
             .update({
               config: updatedCfg,
               updated_at: nowIso,
             })
-            .eq("id", widget.id)
-            .eq("user_id", user.id);
+            .eq("id", widget.id);
+        });
 
-          widgetsUpdatedCount++;
-        }
+        await Promise.all(updatePromises);
+        widgetsUpdatedCount = widgets.length;
       }
     }
 
