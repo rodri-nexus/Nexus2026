@@ -1,3 +1,4 @@
+// app/components/landing/FeatureWidgets.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,11 +18,14 @@ import {
   Tag,
   Bot,
   BarChart3,
-  Rocket,
+  Mic,
+  Palette,
+  Globe,
+  Cpu,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
-   DATOS DE LOS 27 WIDGETS POR OBJETIVO
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 type Categoria = "todos" | "aov" | "urgencia" | "confianza" | "gamificacion" | "home";
 
@@ -40,6 +44,16 @@ interface CategoriaItem {
   icon: React.ComponentType<{ size?: number | string }>;
 }
 
+interface ProToolItem {
+  titulo: string;
+  badge: string;
+  descripcion: string;
+  icono: React.ComponentType<{ size?: number | string }>;
+}
+
+/* ═══════════════════════════════════════════
+   DATOS DE LOS 27 WIDGETS POR OBJETIVO
+═══════════════════════════════════════════ */
 const WIDGETS_DATA: WidgetItem[] = [
   // 💰 AUMENTO DE TICKET PROMEDIO (AOV)
   {
@@ -277,6 +291,48 @@ const CATEGORIAS: CategoriaItem[] = [
   { id: "home", label: "📱 Estilo App", icon: Smartphone },
 ];
 
+const PRO_TOOLS: ProToolItem[] = [
+  {
+    titulo: "NevuxBot AI CRM (WhatsApp)",
+    badge: "RECUPERO DE VENTAS",
+    descripcion: "Detección inteligente de carritos caídos. La IA redacta el mensaje persuasivo exacto y dispara directo a WhatsApp en 1 clic.",
+    icono: Bot,
+  },
+  {
+    titulo: "Live Analytics & ROI Tracker",
+    badge: "FACTURACIÓN EN VIVO",
+    descripcion: "Telemetría en tiempo real que mide con exactitud cuántos pesos extra generó cada widget activado en tu tienda.",
+    icono: BarChart3,
+  },
+  {
+    titulo: "Vendedor Virtual IA 24/7",
+    badge: "ATENCIÓN INTELIGENTE",
+    descripcion: "Asesor virtual interactivo que conoce tu catálogo al detalle, derriba dudas y recomienda el producto ideal al comprador.",
+    icono: Cpu,
+  },
+  {
+    titulo: "Búsqueda por Voz IA",
+    badge: "MOBILE FIRST",
+    descripcion: "Permite a tus clientes buscar productos hablando directamente desde su celular en lenguaje natural y sin escribir.",
+    icono: Mic,
+  },
+  {
+    titulo: "Multi-Idioma Automático IA",
+    badge: "EXPANSIÓN GLOBAL",
+    descripcion: "Detección inteligente del idioma del visitante (Español, Portugués e Inglés) y traducción neuronal de toda la app en milisegundos.",
+    icono: Globe,
+  },
+  {
+    titulo: "Estilo Marca Sincronizado",
+    badge: "DISEÑO 1 CLIC",
+    descripcion: "Armoniza colores, tipografías, botones y radios de todos los widgets con la identidad visual de tu marca automáticamente.",
+    icono: Palette,
+  },
+];
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function FeatureWidgets() {
   const [categoriaActiva, setCategoriaActiva] = useState<Categoria>("todos");
   const [copied, setCopied] = useState(false);
@@ -510,7 +566,7 @@ export default function FeatureWidgets() {
         </motion.div>
 
         {/* ═══════════════════════════════════════════
-           SECCIÓN: LO QUE SE VIENE EN NEVUX (ROADMAP)
+           SECCIÓN: SUITE DE HERRAMIENTAS PRO & IA EN VIVO
         ═══════════════════════════════════════════ */}
         <div
           style={{
@@ -523,7 +579,7 @@ export default function FeatureWidgets() {
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
           }}
         >
-          <div style={{ textAlign: "center", maxWidth: "720px", margin: "0 auto 3rem auto" }}>
+          <div style={{ textAlign: "center", maxWidth: "760px", margin: "0 auto 3rem auto" }}>
             <div
               style={{
                 display: "inline-flex",
@@ -539,73 +595,58 @@ export default function FeatureWidgets() {
                 marginBottom: "0.75rem",
               }}
             >
-              <Rocket size={14} />
-              INNOVACIÓN CONSTANTE
+              <Sparkles size={14} />
+              SUITE DE CONVERSIÓN ULTRA-PRO
             </div>
 
             <h3 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, margin: "0 0 0.75rem 0" }}>
-              Lo que se viene en el ecosistema Nevux
+              Inteligencia Artificial y analíticas integradas
             </h3>
 
             <p style={{ fontSize: "0.95rem", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
-              Nevux no se queda quieto. Tu suscripción única incluye automáticamente todas las nuevas tecnologías que lanzamos mes a mes sin costo extra.
+              Nevux no son solo widgets estáticos. Tu plan incluye automáticamente el paquete completo de tecnologías avanzadas para potenciar tu Tiendanube sin pagar apps extras.
             </p>
           </div>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               gap: "1.25rem",
             }}
           >
-            {/* Feature 1: NevuxBot IA CRM */}
-            <div style={{ background: "#1f2937", border: "1px solid #374151", borderRadius: "18px", padding: "1.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
-                  <Bot size={22} />
+            {PRO_TOOLS.map((tool, idx) => {
+              const IconComp = tool.icono;
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    background: "#1f2937",
+                    border: "1px solid #374151",
+                    borderRadius: "18px",
+                    padding: "1.5rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                      <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
+                        <IconComp size={22} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: "14px", fontWeight: 800 }}>{tool.titulo}</div>
+                        <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 800 }}>● {tool.badge}</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
+                      {tool.descripcion}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <div style={{ fontSize: "14px", fontWeight: 800 }}>NevuxBot IA CRM</div>
-                  <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 700 }}>● Próxima Actualización</span>
-                </div>
-              </div>
-              <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
-                Detección automática de carritos abandonados con generación de mensajes persuasivos con IA y disparo directo a WhatsApp en 1 clic.
-              </p>
-            </div>
-
-            {/* Feature 2: A/B Testing Predictivo */}
-            <div style={{ background: "#1f2937", border: "1px solid #374151", borderRadius: "18px", padding: "1.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
-                  <BarChart3 size={22} />
-                </div>
-                <div>
-                  <div style={{ fontSize: "14px", fontWeight: 800 }}>Analytics de Facturación Extra</div>
-                  <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 700 }}>● En Desarrollo</span>
-                </div>
-              </div>
-              <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
-                Métricas en tiempo real que te muestran con exactitud cuántos pesos extra facturaste gracias a cada widget activado.
-              </p>
-            </div>
-
-            {/* Feature 3: Nuevos Formatos de Storytelling */}
-            <div style={{ background: "#1f2937", border: "1px solid #374151", borderRadius: "18px", padding: "1.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
-                  <Smartphone size={22} />
-                </div>
-                <div>
-                  <div style={{ fontSize: "14px", fontWeight: 800 }}>Nuevos Widgets Nativos</div>
-                  <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 700 }}>● Sin Costo Adicional</span>
-                </div>
-              </div>
-              <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
-                Nuevas herramientas de gamificación y formatos de video interactivo para mantener tu tienda siempre un paso adelante de la competencia.
-              </p>
-            </div>
+              );
+            })}
           </div>
         </div>
 
@@ -625,7 +666,7 @@ export default function FeatureWidgets() {
               Así interactúan tus clientes con Nevux
             </h3>
             <p style={{ fontSize: "0.9rem", color: "#6b7280", margin: 0 }}>
-              Probá los botones directamente desde esta pantalla
+              Probá los botones interactivos directamente desde acá
             </p>
           </div>
 
@@ -730,45 +771,4 @@ export default function FeatureWidgets() {
                   </div>
                   <div>
                     <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>EXPERIENCIA SIN FRICCIÓN</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>Talles + Ruleta</div>
-                  </div>
-                </div>
-
-                <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "10px", marginBottom: "8px" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#166534" }}>📏 Talles con Selección Real</div>
-                  <div style={{ fontSize: "0.75rem", color: "#15803d" }}>El cliente elige el talle y se selecciona automáticamente en el carrito.</div>
-                </div>
-
-                <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "10px" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1e293b" }}>🎡 Ruleta Anti-Saturación</div>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Captura leads y sólo se muestra una vez por cliente para no molestar.</div>
-                </div>
-              </div>
-
-              <a
-                href="/registro"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.4rem",
-                  padding: "0.75rem",
-                  background: "#10B981",
-                  color: "#ffffff",
-                  borderRadius: "10px",
-                  fontSize: "0.85rem",
-                  fontWeight: 800,
-                  textDecoration: "none",
-                  marginTop: "1rem",
-                }}
-              >
-                <span>Probar Nevux 7 días gratis</span>
-                <ArrowRight size={16} />
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-  }
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, 
