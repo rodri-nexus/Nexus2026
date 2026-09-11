@@ -1,9 +1,13 @@
+// app/page.tsx
 import Header from "./components/landing/Header";
 import Hero from "./components/landing/Hero";
 import FeatureWidgets from "./components/landing/FeatureWidgets";
+import FeatureCustomize from "./components/landing/FeatureCustomize";
 import CTAFinal from "./components/landing/CTAFinal";
 import Footer from "./components/landing/Footer";
 import ChatBubble from "./components/landing/ChatBubble";
+
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   return (
@@ -16,19 +20,26 @@ export default function HomePage() {
         color: "#000000",
       }}
     >
-      {/* Header sticky */}
+      {/* Header sticky de navegación */}
       <Header />
 
-      {/* Secciones principales de alta conversión */}
+      {/* 1. Hero: Suite de Conversión & IA */}
       <Hero />
+
+      {/* 2. Los 27 Widgets + Herramientas Pro & IA */}
       <FeatureWidgets />
+
+      {/* 3. Motor de Estilo de Marca Sincronizado en Vivo */}
+      <FeatureCustomize />
+
+      {/* 4. Cierre de Alta Conversión & ROI Tracker */}
       <CTAFinal />
 
-      {/* Footer */}
+      {/* Footer corporativo */}
       <Footer />
 
-      {/* Chat flotante */}
+      {/* Burbuja flotante de atención */}
       <ChatBubble />
     </main>
   );
-}
+      }
