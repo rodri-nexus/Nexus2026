@@ -14,7 +14,6 @@ import {
   User,
   X,
   TrendingUp,
-  Flame,
   Palette,
   Cpu,
   Globe,
@@ -53,7 +52,6 @@ const menuItems: MenuItem[] = [
 
 const proMenuItems: MenuItem[] = [
   { label: "Live Analytics", href: "/dashboard/analytics", icon: TrendingUp },
-  { label: "Fechas Especiales", href: "/dashboard/campanas", icon: Flame },
   { label: "Estilo Marca", href: "/dashboard/estilo-marca", icon: Palette },
   { label: "Sugerencias IA", href: "/dashboard/sugerencias-ia", icon: Cpu },
   { label: "Multi-Idioma IA", href: "/dashboard/idiomas-ia", icon: Globe },
@@ -316,7 +314,7 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
                         <span
                           style={{
                             marginLeft: "auto",
-                            fontSize: "0.6rem",
+                            fontSize: "0.6.2rem",
                             fontWeight: 700,
                             background: "#f3f4f6",
                             color: "#6b7280",
@@ -433,4 +431,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-    }
+              }
