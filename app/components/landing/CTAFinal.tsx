@@ -1,8 +1,54 @@
+// app/components/landing/CTAFinal.tsx
 "use client";
 
 import { motion } from "framer-motion";
 import { Check, ArrowRight, Rocket, Sparkles, ShieldCheck, TrendingUp } from "lucide-react";
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+interface BulletItemProps {
+  text: string;
+}
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function BulletItem({ text }: BulletItemProps) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "0.5rem",
+        fontSize: "0.85rem",
+        color: "#374151",
+        fontWeight: 700,
+      }}
+    >
+      <div
+        style={{
+          width: "20px",
+          height: "20px",
+          borderRadius: "50%",
+          background: "#ecfdf5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          color: "#10B981",
+        }}
+      >
+        <Check size={12} strokeWidth={3} />
+      </div>
+      <span>{text}</span>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function CTAFinal() {
   return (
     <section
@@ -18,7 +64,7 @@ export default function CTAFinal() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         style={{
-          maxWidth: "920px",
+          maxWidth: "960px",
           margin: "0 auto",
           background: "#ffffff",
           borderRadius: "32px",
@@ -118,22 +164,22 @@ export default function CTAFinal() {
               color: "#4b5563",
               lineHeight: 1.55,
               margin: "0 auto 2rem auto",
-              maxWidth: "640px",
+              maxWidth: "680px",
               fontWeight: 500,
             }}
           >
-            Activá de inmediato el pack completo de las 27 herramientas premium de Nevux. 
-            Sin letra chica, sin comisiones ocultas y diseñado para cargarse al instante en teléfonos celulares.
+            Activá de inmediato los <b>27 widgets de alta conversión</b> y la <b>suite completa de Inteligencia Artificial</b> de Nevux. 
+            Sin letra chica, sin comisiones sobre tus ventas y diseñado para cargar al instante en teléfonos celulares.
           </p>
 
           {/* TARJETA INTERNA DE PRECIOS ULTRA CLARA (ROI FOCUS) */}
           <div
             style={{
               background: "#f9fafb",
-              border: "1px solid #e5e7eb",
-              borderRadius: "20px",
-              padding: "1.75rem 1.5rem",
-              maxWidth: "540px",
+              border: "1.5px solid #e5e7eb",
+              borderRadius: "24px",
+              padding: "2rem 1.5rem",
+              maxWidth: "580px",
               margin: "0 auto 2.5rem auto",
               textAlign: "center",
             }}
@@ -145,40 +191,44 @@ export default function CTAFinal() {
                 gap: "0.4rem",
                 color: "#059669",
                 background: "#ecfdf5",
-                padding: "0.35rem 0.75rem",
+                padding: "0.35rem 0.85rem",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
                 fontWeight: 800,
-                marginBottom: "0.75rem",
+                marginBottom: "0.85rem",
               }}
             >
-              <TrendingUp size={12} />
-              <span>SE PAGA SOLA CON SOLO 1 O 2 VENTAS EXTRA</span>
+              <TrendingUp size={13} />
+              <span>SE PAGA SOLA CON SOLO 1 O 2 VENTAS EXTRA AL MES</span>
             </div>
 
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: "0.25rem", marginBottom: "0.25rem" }}>
-              <span style={{ fontSize: "2.25rem", fontWeight: 900, color: "#111827" }}>$30.000 ARS</span>
+              <span style={{ fontSize: "2.4rem", fontWeight: 900, color: "#111827" }}>$30.000 ARS</span>
               <span style={{ fontSize: "1rem", color: "#6b7280", fontWeight: 700 }}>/ mes</span>
             </div>
 
             <div style={{ fontSize: "0.9rem", color: "#4b5563", fontWeight: 700, marginBottom: "1rem" }}>
-              Plan Único Todo Incluido • Acceso Ilimitado a los 27 Widgets
+              Plan Único Todo Incluido • 27 Widgets + Suite IA Completa
             </div>
 
-            <div style={{ height: "1px", background: "#e5e7eb", margin: "1rem 0" }} />
+            <div style={{ height: "1px", background: "#e5e7eb", margin: "1.25rem 0" }} />
 
             {/* Beneficios clave */}
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "0.6rem",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: "0.75rem",
                 textAlign: "left",
               }}
             >
-              <BulletItem text="Activación instantánea en 1 clic" />
-              <BulletItem text="Sin comisiones por ventas" />
-              <BulletItem text="Carga ultra-veloz de 12kb" />
+              <BulletItem text="27 Widgets de conversión ilimitados" />
+              <BulletItem text="NevuxBot AI CRM (WhatsApp 1 Clic)" />
+              <BulletItem text="Vendedor Virtual 24/7 con IA" />
+              <BulletItem text="Búsqueda por Voz en celulares" />
+              <BulletItem text="Live Analytics y ROI Tracker" />
+              <BulletItem text="Multi-Idioma IA (PT-BR / EN)" />
+              <BulletItem text="Sin comisiones por ventas extras" />
               <BulletItem text="Soporte prioritario por WhatsApp" />
             </div>
           </div>
@@ -277,37 +327,4 @@ export default function CTAFinal() {
       </motion.div>
     </section>
   );
-}
-
-// Subcomponente de viñeta premium
-function BulletItem({ text }: { text: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0.5rem",
-        fontSize: "0.85rem",
-        color: "#374151",
-        fontWeight: 700,
-      }}
-    >
-      <div
-        style={{
-          width: "20px",
-          height: "20px",
-          borderRadius: "50%",
-          background: "#ecfdf5",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          color: "#10B981",
-        }}
-      >
-        <Check size={12} strokeWidth={3} />
-      </div>
-      <span>{text}</span>
-    </div>
-  );
-                  }
+            }
