@@ -33,10 +33,12 @@ function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
   if (!text || typeof text !== "string") return "";
   const lower = text.trim().toLowerCase();
 
+  // Búsqueda directa en diccionario
   if (ECOMMERCE_DICTIONARY[lower]) {
     return ECOMMERCE_DICTIONARY[lower][targetLang];
   }
 
+  // Traducción contextual por patrones
   if (targetLang === "pt") {
     return text
       .replace(/envío gratis/gi, "Frete grátis")
@@ -109,7 +111,7 @@ function translateWidgetConfig(
 }
 
 /* ═══════════════════════════════════════════
-   FUNCIONES AUXILIARES (Regla #9 al inicio)
+   FUNCIONES AUXILIARES Y TIPOS DEL SISTEMA (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -126,12 +128,143 @@ function defaultStats() {
   }
 }
 
+function calcularStats(reviews: any[]) {
+  const total = reviews.length
+  if (total === 0) return defaultStats()
+
+  const distribucion: Record<string, number> = {
+    '5': 0,
+    '4': 0,
+    '3': 0,
+    '2': 0,
+    '1': 0,
+  }
+
+  let suma = 0
+  for (const r of reviews) {
+    suma += r.estrellas || 0
+    const key = String(r.estrellas)
+    if (distribucion[key] !== undefined) {
+      distribucion[key]++
+    }
+  }
+
+  const promedio = parseFloat((suma / total).toFixed(2))
+  return { total, promedio, distribucion }
+}
+
+function parseProductName(raw: any): string {
+  if (!raw) return "Producto Complementario";
+  if (typeof raw === "string") return raw;
+  if (typeof raw === "object" && raw !== null) {
+    return String(raw.es || raw.pt || Object.values(raw)[0] || "Producto Complementario");
+  }
+  return "Producto Complementario";
+}
+
+function parseProductPrice(price: any): number {
+  if (typeof price === "number") return price;
+  if (!price) return 0;
+  const cleaned = String(price).replace(/[^0-9.]/g, "");
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
+}
+
+function extractProductPrice(p: any): number {
+  if (p.price) return parseProductPrice(p.price);
+  if (p.promotional_price) return parseProductPrice(p.promotional_price);
+  if (Array.isArray(p.variants) && p.variants.length > 0) {
+    const v = p.variants[0];
+    if (typeof v === "object" && v !== null) {
+      const vPrice = v.promotional_price || v.price;
+      if (vPrice) return parseProductPrice(vPrice);
+    }
+  }
+  return 0;
+}
+
+function getProductImageUrl(p: any): string {
+  if (typeof p.image_url === "string") return p.image_url;
+  if (Array.isArray(p.images) && p.images.length > 0) {
+    const first = p.images[0];
+    if (typeof first === "string") return first;
+    if (typeof first === "object" && first !== null && "src" in first) {
+      return String(first.src || "");
+    }
+  }
+  return "";
+}
+
+function getProductVariantId(p: any): string {
+  if (Array.isArray(p.variants) && p.variants.length > 0) {
+    return String(p.variants[0].id || "");
+  }
+  return "";
+}
+
+function computeAiPairings(
+  products: any[],
+  mainProductId: number,
+  discountPercentage: number
+): any[] {
+  if (!Array.isArray(products) || products.length < 2) return [];
+
+  const parsed = products.map((p) => ({
+    id: Number(p.id) || 0,
+    name: parseProductName(p.name),
+    price: extractProductPrice(p),
+    image: getProductImageUrl(p),
+    variantId: getProductVariantId(p),
+  })).filter((p) => p.id > 0 && p.price > 0 && p.variantId !== "");
+
+  if (parsed.length < 2) return [];
+
+  const mainProduct = parsed.find(p => p.id === mainProductId);
+  if (!mainProduct) {
+    return parsed.slice(0, 2).map(p => ({
+      titulo: p.name,
+      precio: p.price,
+      imagenUrl: p.image,
+      variantId: p.variantId,
+      incluidoPorDefecto: true
+    }));
+  }
+
+  const candidates = parsed.filter(p => p.id !== mainProductId);
+  const scoredCandidates = candidates.map(candidate => {
+    let score = 50;
+    const ratio = candidate.price / mainProduct.price;
+    if (ratio >= 0.15 && ratio <= 0.65) {
+      score += 35;
+    } else if (ratio < 1.0) {
+      score += 15;
+    }
+    const mainWords = mainProduct.name.toLowerCase().split(/\s+/);
+    const candWords = candidate.name.toLowerCase().split(/\s+/);
+    const sharesKeywords = mainWords.some(w => w.length > 3 && candWords.includes(w));
+    if (sharesKeywords) {
+      score += 20;
+    }
+    return { candidate, score };
+  });
+
+  scoredCandidates.sort((a, b) => b.score - a.score);
+
+  return scoredCandidates.slice(0, 2).map(item => ({
+    titulo: item.candidate.name,
+    precio: item.candidate.price,
+    imagenUrl: item.candidate.image,
+    variantId: item.candidate.variantId,
+    incluidoPorDefecto: true
+  }));
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET (SQL RESTRINCTION - ZERO TIMEOUT)
+   ENDPOINT PRINCIPAL GET
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -157,6 +290,15 @@ export async function GET(req: NextRequest) {
 
     const productId = productIdParam ? parseInt(productIdParam, 10) : null
 
+    // 🔒 Verificación de plan activo
+    const isActivePlan = await isStorePlanActive(storeId)
+    if (!isActivePlan) {
+      return NextResponse.json(
+        { widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { status: 200, headers: corsHeaders }
+      )
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseKey =
       process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -166,52 +308,14 @@ export async function GET(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     })
 
-    // 🎯 Consulta limpia directamente a PostgreSQL
-    let dbQuery = supabase
-      .from('widgets')
-      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
+    // 🎙️ Obtener ajustes de Búsqueda por Voz
+    const { data: voiceRow } = await supabase
+      .from('store_voice_search_settings')
+      .select('is_active, position, button_color, listening_text, placeholder_text, language')
       .eq('store_id', storeId)
-      .eq('is_active', true)
-      .order('updated_at', { ascending: false });
+      .maybeSingle()
 
-    if (productId) {
-      dbQuery = dbQuery.or(`target_type.eq.all,target_product_id.eq.${productId}`);
-    } else {
-      dbQuery = dbQuery.eq('target_type', 'all');
-    }
-
-    // ⚡ EJECUCIÓN PARALELA ULTRA RÁPIDA (10ms)
-    const [
-      isActivePlan,
-      { data: voiceRows },
-      { data: salesmanRows },
-      { data: campaignRows },
-      { data: rawWidgets, error: widgetsError },
-      { data: langSettingsRows }
-    ] = await Promise.all([
-      isStorePlanActive(storeId),
-      supabase.from('store_voice_search_settings').select('is_active, position, button_color, listening_text, placeholder_text, language').eq('store_id', storeId).limit(1),
-      supabase.from('store_virtual_salesman_settings').select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color').eq('store_id', storeId).limit(1),
-      supabase.from('active_campaigns').select('campaign_slug').eq('store_id', storeId).order('activated_at', { ascending: false }).limit(1),
-      dbQuery.limit(25),
-      supabase.from('store_language_settings').select('*').eq('store_id', storeId).limit(1)
-    ]);
-
-    if (!isActivePlan) {
-      return NextResponse.json(
-        { widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
-        { status: 200, headers: corsHeaders }
-      )
-    }
-
-    if (widgetsError) {
-      return NextResponse.json(
-        { error: widgetsError.message, widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
-        { status: 500, headers: corsHeaders }
-      )
-    }
-
-    const voiceSearchData = voiceRows?.[0] || {
+    const voiceSearchData = voiceRow || {
       is_active: false,
       position: "bottom-right",
       button_color: "#10B981",
@@ -220,7 +324,14 @@ export async function GET(req: NextRequest) {
       language: "es-AR",
     }
 
-    const virtualSalesmanData = salesmanRows?.[0] || {
+    // 🤖 Obtener ajustes del Vendedor Virtual IA
+    const { data: salesmanRow } = await supabase
+      .from('store_virtual_salesman_settings')
+      .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
+      .eq('store_id', storeId)
+      .maybeSingle()
+
+    const virtualSalesmanData = salesmanRow || {
       is_active: false,
       agent_name: "Sofía (Asesora Virtual)",
       welcome_message: "¡Hola! 👋 ¿Buscás algo en especial hoy? Contame y te ayudo a encontrar el producto ideal.",
@@ -231,6 +342,7 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
+    // 1. Consultar campaña activa de la tienda para efectos visuales
     let activeCampaignData: {
       slug: string
       name: string
@@ -239,10 +351,14 @@ export async function GET(req: NextRequest) {
       accentColor: string
     } | null = null
 
-    const activeCampaignSlug = campaignRows?.[0]?.campaign_slug
+    const { data: campaignRow } = await supabase
+      .from('active_campaigns')
+      .select('campaign_slug')
+      .eq('store_id', storeId)
+      .maybeSingle()
 
-    if (activeCampaignSlug) {
-      const preset = getCampaignPreset(activeCampaignSlug)
+    if (campaignRow && campaignRow.campaign_slug) {
+      const preset = getCampaignPreset(campaignRow.campaign_slug)
       if (preset) {
         activeCampaignData = {
           slug: preset.slug,
@@ -254,24 +370,49 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Deduplicación por slug
-    const allWidgets = rawWidgets || []
+    // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
+    let query = supabase
+      .from('widgets')
+      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
+      .eq('store_id', storeId)
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false })
+
+    if (productId) {
+      query = query.or(
+        `target_type.eq.all,and(target_type.eq.product,target_product_id.eq.${productId})`
+      )
+    } else {
+      query = query.eq('target_type', 'all')
+    }
+
+    const { data: rawWidgets, error: widgetsError } = await query
+
+    if (widgetsError) {
+      console.error('Error obteniendo widgets:', widgetsError)
+      return NextResponse.json(
+        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData, voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
+        { status: 500, headers: corsHeaders }
+      )
+    }
+
+    // 🧹 DEDUPLICACIÓN ESTRICTA: Conservar ÚNICAMENTE la configuración MÁS RECIENTE guardada para cada widget_slug
     const uniqueMap = new Map<string, any>()
-    for (const w of allWidgets) {
+    for (const w of rawWidgets || []) {
       if (!uniqueMap.has(w.widget_slug)) {
         uniqueMap.set(w.widget_slug, w)
       }
     }
     const widgets = Array.from(uniqueMap.values())
 
-    // Enriquecer con definiciones
+    // Enriquecer widgets con sus definiciones
     const slugs = widgets.map((w) => w.widget_slug)
     let definitions: any[] = []
 
     if (slugs.length > 0) {
       const { data: defs } = await supabase
         .from('widget_definitions')
-        .select('slug, name')
+        .select('*')
         .in('slug', slugs)
 
       definitions = defs || []
@@ -281,6 +422,148 @@ export async function GET(req: NextRequest) {
       ...w,
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
+
+    // 🧠 INTERCEPCIÓN IA: Dinamizar el widget pack-complementarios con Cross-Selling predictivo si está activo
+    const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
+
+    if (packWidgetIndex !== -1 && productId) {
+      const { data: aiSettings } = await supabase
+        .from('ai_cross_sell_settings')
+        .select('*')
+        .eq('store_id', storeId)
+        .maybeSingle();
+
+      const aiActive = aiSettings ? aiSettings.is_active : false;
+
+      if (aiActive) {
+        const { data: storeRow } = await supabase
+          .from('stores')
+          .select('access_token')
+          .eq('store_id', storeId)
+          .maybeSingle();
+
+        if (storeRow && storeRow.access_token) {
+          try {
+            const rawProducts = await getProducts(storeId, storeRow.access_token);
+            const productList = Array.isArray(rawProducts)
+              ? rawProducts
+              : (rawProducts as { products?: any[] })?.products || [];
+
+            const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
+
+            // Calcular complementarios óptimos de forma dinámica por IA
+            const aiRecommendedItems = computeAiPairings(productList, productId, discount);
+
+            if (aiRecommendedItems.length > 0) {
+              const currentConfig = enrichedWidgets[packWidgetIndex].config || {};
+              enrichedWidgets[packWidgetIndex].config = {
+                ...currentConfig,
+                titulo: aiSettings?.title || currentConfig.titulo || "🔥 COMBINÁ Y AHORRÁ EN TU PACK",
+                subtexto: aiSettings?.subtitle || currentConfig.subtexto || "Llevate estos productos juntos con un descuento especial",
+                textoBoton: aiSettings?.button_text || currentConfig.textoBoton || "Agregar pack al carrito",
+                descuentoPorcentaje: discount,
+                items: aiRecommendedItems
+              };
+            }
+          } catch (aiError) {
+            console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
+          }
+        }
+      }
+    }
+
+    // Enriquecer widgets de reseñas si existen
+    const widgetsResenas = enrichedWidgets.filter(
+      (w) => w.widget_slug === 'resenas-clientes'
+    )
+
+    if (widgetsResenas.length > 0) {
+      const enriquecidos = await Promise.all(
+        widgetsResenas.map(async (w) => {
+          let reviewsQuery = supabase
+            .from('reviews')
+            .select(
+              'id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, ' +
+              'verificada, desde_calificar, respuesta_texto, respuesta_fecha, ' +
+              'fecha_resena, orden, product_id'
+            )
+            .eq('widget_id', w.id)
+            .eq('estado', 'aprobada')
+            .order('orden', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(100)
+
+          if (w.target_type === 'product' && w.target_product_id) {
+            reviewsQuery = reviewsQuery.eq('product_id', w.target_product_id)
+          }
+
+          const { data: reviews, error: reviewsError } = await reviewsQuery
+
+          if (reviewsError) {
+            console.error(`Error obteniendo reseñas para widget ${w.id}:`, reviewsError)
+            return { ...w, reviews: [], stats: defaultStats() }
+          }
+
+          const aprobadas = reviews || []
+          const stats = calcularStats(aprobadas)
+
+          return { ...w, reviews: aprobadas, stats }
+        })
+      )
+
+      enrichedWidgets = enrichedWidgets.map((w) => {
+        if (w.widget_slug !== 'resenas-clientes') return w
+        const enriquecido = enriquecidos.find((e) => e.id === w.id)
+        return enriquecido ?? w
+      })
+    }
+
+    // 🌎 INTERCEPCIÓN IDIOMA: Traducir los widgets automáticamente si el cliente tiene habilitado otro idioma
+    const { data: langSettings } = await supabase
+      .from("store_language_settings")
+      .select("*")
+      .eq("store_id", storeId)
+      .maybeSingle();
+
+    if (langSettings) {
+      const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
+      const autoDetect = langSettings.auto_detect ?? true;
+      const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
+      const savedTranslations = langSettings.translations || {};
+
+      // Decidir idioma de destino (target)
+      let targetLang: "es" | "pt" | "en" = defaultLang;
+      if (autoDetect && clientLangParam) {
+        const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
+        if (enabledLangs.includes(slicedLang)) {
+          targetLang = slicedLang;
+        }
+      }
+
+      // Si el idioma final no es Español, aplicamos las traducciones
+      if (targetLang !== "es") {
+        enrichedWidgets = enrichedWidgets.map((w) => {
+          let translatedConfig = { ...w.config };
+
+          // 1. Prioridad: Traducción pre-generada en panel (1 Clic)
+          if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
+            translatedConfig = {
+              ...translatedConfig,
+              ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
+            };
+          } else {
+            // 2. Fallback: Traducción al vuelo en milisegundos con el diccionario
+            translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
+          }
+
+          return {
+            ...w,
+            config: translatedConfig,
+          };
+        });
+        console.log(`[Nevux IA Language] Traducidos ${enrichedWidgets.length} widgets automáticamente a idioma:`, targetLang);
+      }
+    }
 
     return NextResponse.json(
       { 
@@ -299,4 +582,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-                           }
+                                               }
