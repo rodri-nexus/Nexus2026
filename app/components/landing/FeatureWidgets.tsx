@@ -22,6 +22,7 @@ import {
   Palette,
   Globe,
   Cpu,
+  type LucideIcon,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
@@ -41,14 +42,14 @@ interface WidgetItem {
 interface CategoriaItem {
   id: Categoria;
   label: string;
-  icon: React.ComponentType<{ size?: number | string }>;
+  icon: LucideIcon;
 }
 
 interface ProToolItem {
   titulo: string;
   badge: string;
   descripcion: string;
-  icono: React.ComponentType<{ size?: number | string }>;
+  icono: LucideIcon;
 }
 
 /* ═══════════════════════════════════════════
@@ -771,4 +772,46 @@ export default function FeatureWidgets() {
                   </div>
                   <div>
                     <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>EXPERIENCIA SIN FRICCIÓN</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, 
+                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>Talles + Ruleta</div>
+                  </div>
+                </div>
+
+                <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "10px", marginBottom: "8px" }}>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#166534" }}>📏 Talles con Selección Real</div>
+                  <div style={{ fontSize: "0.75rem", color: "#15803d" }}>El cliente elige el talle y se selecciona automáticamente en el carrito.</div>
+                </div>
+
+                <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "10px" }}>
+                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1e293b" }}>🎡 Ruleta Anti-Saturación</div>
+                  <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Captura leads y sólo se muestra una vez por cliente para no molestar.</div>
+                </div>
+              </div>
+
+              <a
+                href="/registro"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.4rem",
+                  padding: "0.75rem",
+                  background: "#10B981",
+                  color: "#ffffff",
+                  borderRadius: "10px",
+                  fontSize: "0.85rem",
+                  fontWeight: 800,
+                  textDecoration: "none",
+                  marginTop: "1rem",
+                }}
+              >
+                <span>Probar Nevux 7 días gratis</span>
+                <ArrowRight size={16} />
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+    }
