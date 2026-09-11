@@ -33,7 +33,7 @@ function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
   const lower = text.trim().toLowerCase();
 
   // Búsqueda directa en diccionario
-  if (ECOCOMMERCE_DICTIONARY[lower]) {
+  if (ECOMMERCE_DICTIONARY[lower]) {
     return ECOMMERCE_DICTIONARY[lower][targetLang];
   }
 
@@ -552,4 +552,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-     }
+                                              }
