@@ -1,8 +1,12 @@
+// app/components/landing/Hero.tsx
 "use client";
 
 import { motion } from "framer-motion";
-import { Zap, ArrowRight, TrendingUp, Sparkles, Shield, ShoppingCart } from "lucide-react";
+import { Zap, ArrowRight, TrendingUp, Sparkles, Bot, ShieldCheck } from "lucide-react";
 
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function Hero() {
   return (
     <section
@@ -59,7 +63,7 @@ export default function Hero() {
           }}
         >
           <Sparkles size={14} />
-          <span>LA SUITE DE CONVERSIÓN & AUMENTO DE TICKET #1 EN LATAM</span>
+          <span>EL ÚNICO ECOSISTEMA INTEGRAL DE CONVERSIÓN & IA PARA TIENDANUBE</span>
         </motion.div>
 
         {/* Título Vendedor de Alto Impacto */}
@@ -76,8 +80,8 @@ export default function Hero() {
             margin: "0 0 1.25rem 0",
           }}
         >
-          Convertí las visitas de tu tienda en{" "}
-          <span style={{ color: "#10B981" }}>compras reales</span>
+          Multiplicá las ventas de tu tienda con{" "}
+          <span style={{ color: "#10B981" }}>Widgets e Inteligencia Artificial</span>
         </motion.h1>
 
         {/* Subtítulo enfocado en la Solución */}
@@ -89,13 +93,14 @@ export default function Hero() {
             fontSize: "clamp(1.05rem, 2.5vw, 1.25rem)",
             color: "#4b5563",
             lineHeight: 1.5,
-            maxWidth: "760px",
+            maxWidth: "820px",
             margin: "0 auto 2.5rem auto",
             fontWeight: 500,
           }}
         >
-          Sin programadores ni gastar más en anuncios. Instalás en 1 clic los <b>27 widgets inteligentes</b> que 
-          derriban dudas, generan urgencia y motivan a sumar más productos a cada carrito.
+          Sin programadores ni configurar APIs complejas. Activás en un solo clic <b>27 widgets inteligentes</b> y 
+          <b> herramientas de IA en vivo</b> (Buscador por Voz, Vendedor 24/7 y CRM de WhatsApp) que derriban dudas, 
+          recomiendan productos y aumentan tu ticket promedio al instante.
         </motion.p>
 
         {/* CTA Principal */}
@@ -145,9 +150,9 @@ export default function Hero() {
               fontWeight: 600,
             }}
           >
-            <span>⚡ Instalación instantánea</span>
+            <span>⚡ Instalación en 1 Clic</span>
             <span>•</span>
-            <span>💳 7 días de prueba sin tarjeta</span>
+            <span>💳 7 días de prueba sin ingresar tarjeta</span>
           </div>
         </motion.div>
 
@@ -183,19 +188,19 @@ export default function Hero() {
                   <TrendingUp size={20} />
                 </div>
                 <span style={{ fontSize: "14px", fontWeight: 800, color: "#111827" }}>
-                  Multiplicá el Ticket Promedio
+                  Maximizá el Ticket Promedio (AOV)
                 </span>
               </div>
               <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
-                Bundles por volumen, packs complementarios y barra de envío gratis para que cada cliente gaste más en cada compra.
+                Bundles automáticos por volumen, packs complementarios e IA predictiva de Cross-Selling para tentar a tus clientes a gastar más en cada compra.
               </p>
             </div>
             <div style={{ marginTop: "16px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
-              +35% promedio en valor por pedido ↗
+              +35% promedio en valor por pedido 📈
             </div>
           </div>
 
-          {/* Tarjeta 2: Cero Dudas y Antidevoluciones */}
+          {/* Tarjeta 2: Vendedor IA y Búsqueda por Voz */}
           <div
             style={{
               background: "#f9fafb",
@@ -210,22 +215,22 @@ export default function Hero() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                 <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#10B981" }}>
-                  <Shield size={20} />
+                  <Bot size={20} />
                 </div>
                 <span style={{ fontSize: "14px", fontWeight: 800, color: "#111827" }}>
-                  Confianza Total & Menos Cambios
+                  Asistentes de Inteligencia Artificial
                 </span>
               </div>
               <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
-                Tabla de talles con selección de variante real en 1 clic y fotos UGC subidas por tus clientes reales.
+                Un Vendedor Virtual 24/7 que conoce todo tu catálogo, Buscador por Voz inteligente y NevuxBot CRM para recuperar carritos abandonados por WhatsApp.
               </p>
             </div>
             <div style={{ marginTop: "16px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
-              Elimina objeciones antes del pago 🛡️
+              Atención y cierre de ventas en piloto automático 🤖
             </div>
           </div>
 
-          {/* Tarjeta 3: Urgencia y Ventas Rápidas */}
+          {/* Tarjeta 3: Urgencia, Talles y Confianza */}
           <div
             style={{
               background: "#f9fafb",
@@ -240,22 +245,22 @@ export default function Hero() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                 <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#10B981" }}>
-                  <Zap size={20} />
+                  <ShieldCheck size={20} />
                 </div>
                 <span style={{ fontSize: "14px", fontWeight: 800, color: "#111827" }}>
-                  Urgencia & Cierre Inmediato
+                  Urgencia, Talles & Confianza Total
                 </span>
               </div>
               <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
-                Contadores regresivos, avisos de stock en tiempo real y ruleta popup anti-saturación para capturar la venta antes de que se vayan.
+                Tabla de talles interactiva con variantes reales, muros de reseñas con fotos de compradores (UGC) y contadores regresivos que eliminan la indecisión.
               </p>
             </div>
             <div style={{ marginTop: "16px", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
-              Menos carritos abandonados 🔥
+              Eliminá dudas antes de que salgan del embudo 🛡️
             </div>
           </div>
         </motion.div>
       </div>
     </section>
   );
-        }
+              }
