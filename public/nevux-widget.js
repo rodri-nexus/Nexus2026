@@ -3880,8 +3880,8 @@
     return '<div class="' + NS + '-opiniones-list">' + cardsHtml + '</div>';
       }
 
-  /* ═══════════════════════════════════════════
-     RENDER INFORMACIÓN DE DESPACHO
+/* ═══════════════════════════════════════════
+     RENDER INFORMACIÓN DE DESPACHO (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderInformacionDespacho(widget) {
     if (pageType !== "product") return;
@@ -3923,6 +3923,7 @@
       bordesRedondeados: n(raw.bordesRedondeados, 12),
       paddingInterno: n(raw.paddingInterno, 10),
       activarBorde: raw.activarBorde === true,
+      campaignTheme: raw.campaignTheme || "none",
     };
   }
 
@@ -3963,7 +3964,7 @@
     refresh();
     setInterval(refresh, 60 * 1000);
 
-    console.log("[Nevux] Info despacho montado");
+    console.log("[Nevux] Info despacho montado con soporte de campaña");
   }
 
   function calculateDespachoInfo(cfg) {
@@ -4032,16 +4033,16 @@
     };
   }
 
-  function getDespachoIconSvg(tipo, size, colorTexto) {
+  function getDespachoIconSvg(tipo, size, colorCirculo) {
     switch (tipo) {
       case "circulo":
-        return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#10B981"><circle cx="12" cy="12" r="10"/></svg>';
+        return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + colorCirculo + '"><circle cx="12" cy="12" r="10"/></svg>';
       case "corazon":
         return '<span style="font-size:' + (size + 2) + 'px;line-height:1;">❤️</span>';
       case "alerta":
         return '<span style="font-size:' + (size + 2) + 'px;line-height:1;">⚠️</span>';
       case "emoji":
-        return '<span style="font-size:' + (size + 4) + 'px;line-height:1;">✏️</span>';
+        return '<span style="font-size:' + (size + 4) + 'px;line-height:1;">📦</span>';
       case "nada":
       default:
         return "";
@@ -4049,16 +4050,37 @@
   }
 
   function buildInformacionDespachoHtml(cfg, info) {
-    var fontWeight = cfg.estiloTexto === "negrita" ? 700 : 400;
+    var THEMES = {
+      'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBg: '#F59E0B' },
+      'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+      'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBg: '#3B82F6' },
+      'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+      'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBg: '#F43F5E' },
+      'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBg: '#10B981' },
+      'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBg: '#FBBF24' }
+    };
+
+    var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
+    var activeTheme = currentCampaign && THEMES[currentCampaign] ? THEMES[currentCampaign] : null;
+
+    var colorFondo = activeTheme ? activeTheme.themeColor : cfg.colorFondo;
+    var colorTexto = activeTheme ? activeTheme.textColor : cfg.colorTexto;
+
+    var fontWeight = cfg.estiloTexto === "negrita" ? 800 : 600;
     var fontSize = cfg.tamanoFuente || 15;
 
     var background = cfg.fondoDegradado
-      ? "linear-gradient(135deg, " + cfg.colorFondo + " 0%, " + cfg.colorFondo + "dd 100%)"
-      : cfg.colorFondo;
+      ? "linear-gradient(135deg, " + colorFondo + " 0%, " + colorFondo + "dd 100%)"
+      : colorFondo;
 
-    var border = cfg.activarBorde ? "1px solid " + cfg.colorTexto + "33" : "none";
+    var border = (cfg.activarBorde || activeTheme)
+      ? "1.5px solid " + (activeTheme ? activeTheme.accentColor : colorTexto + "33")
+      : "none";
 
-    var badgeBg = cfg.colorBadge;
+    var badgeBg = activeTheme ? activeTheme.badgeBg : cfg.colorBadge;
+    var colorTextoBadge = activeTheme
+      ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+      : cfg.colorTextoBadge;
 
     var efectoAnim =
       cfg.efecto === "aureola" ? NS + "-aureolaPulse 2s ease-in-out infinite" :
@@ -4070,40 +4092,41 @@
     var animacionIcono = aplicarASoloIcono ? efectoAnim : "none";
 
     var iconoSize = fontSize + 2;
-    var iconoSvg = getDespachoIconSvg(cfg.icono, iconoSize, cfg.colorTexto);
+    var colorCirculo = activeTheme ? activeTheme.accentColor : "#10B981";
+    var iconoSvg = getDespachoIconSvg(cfg.icono, iconoSize, colorCirculo);
     var iconoHtml = iconoSvg
-      ? '<div class="' + NS + '-despacho-icon" style="animation:' + animacionIcono + ';">' + iconoSvg + '</div>'
+      ? '<div class="' + NS + '-despacho-icon" style="display:inline-flex;align-items:center;animation:' + animacionIcono + ';">' + iconoSvg + '</div>'
       : "";
 
     var textoPrincipal = "Comprando ahora tu pedido se despacha";
-    var dayBadgeFontSize = Math.max(11, fontSize - 3);
+    var dayBadgeFontSize = Math.max(10, fontSize - 4);
 
-    var dayBadgeHtml = '<span class="' + NS + '-despacho-day-badge" style="background:' + badgeBg + ';color:' + cfg.colorTextoBadge + ';font-size:' + dayBadgeFontSize + 'px;">' +
+    var dayBadgeHtml = '<span class="' + NS + '-despacho-day-badge" style="background:' + badgeBg + ';color:' + colorTextoBadge + ';font-size:' + dayBadgeFontSize + 'px;font-weight:800;padding:3px 9px;border-radius:6px;letter-spacing:0.04em;box-shadow:0 2px 6px rgba(0,0,0,0.15);">' +
       escapeHtml(info.dayLabel) +
     '</span>';
 
     var rightHtml = "";
     if (info.showRight && info.timeLeft) {
-      var rightLabelSize = Math.max(10, fontSize - 5);
-      var rightValueSize = Math.max(14, fontSize);
-      rightHtml = '<div class="' + NS + '-despacho-right" style="background:' + badgeBg + ';color:' + cfg.colorTextoBadge + ';">' +
-        '<span class="' + NS + '-despacho-right-label" style="font-size:' + rightLabelSize + 'px;">Te quedan</span>' +
-        '<span class="' + NS + '-despacho-right-value" style="font-size:' + rightValueSize + 'px;">' + escapeHtml(info.timeLeft) + '</span>' +
+      var rightLabelSize = Math.max(9, fontSize - 5);
+      var rightValueSize = Math.max(13, fontSize);
+      rightHtml = '<div class="' + NS + '-despacho-right" style="background:' + badgeBg + ';color:' + colorTextoBadge + ';padding:8px 12px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;box-shadow:0 3px 10px rgba(0,0,0,0.15);flex-shrink:0;">' +
+        '<span class="' + NS + '-despacho-right-label" style="font-size:' + rightLabelSize + 'px;opacity:0.9;font-weight:600;">Te quedan</span>' +
+        '<span class="' + NS + '-despacho-right-value" style="font-size:' + rightValueSize + 'px;font-weight:900;">' + escapeHtml(info.timeLeft) + '</span>' +
       '</div>';
     }
 
     return '' +
-      '<div class="' + NS + '-despacho-box" style="background:' + background + ';color:' + cfg.colorTexto + ';border-radius:' + cfg.bordesRedondeados + 'px;padding:' + (cfg.paddingInterno + 4) + 'px ' + (cfg.paddingInterno + 8) + 'px;border:' + border + ';animation:' + animacionCard + ';">' +
-        '<div class="' + NS + '-despacho-left">' +
+      '<div class="' + NS + '-despacho-box" style="background:' + background + ';color:' + colorTexto + ';border-radius:' + cfg.bordesRedondeados + 'px;padding:' + (cfg.paddingInterno + 4) + 'px ' + (cfg.paddingInterno + 8) + 'px;border:' + border + ';animation:' + animacionCard + ';display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box;box-shadow:0 4px 14px rgba(0,0,0,0.04);">' +
+        '<div class="' + NS + '-despacho-left" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">' +
           iconoHtml +
-          '<div class="' + NS + '-despacho-text-wrap">' +
-            '<span class="' + NS + '-despacho-text" style="font-size:' + fontSize + 'px;font-weight:' + fontWeight + ';color:' + cfg.colorTexto + ';">' + escapeHtml(textoPrincipal) + '</span>' +
+          '<div class="' + NS + '-despacho-text-wrap" style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;">' +
+            '<span class="' + NS + '-despacho-text" style="font-size:' + fontSize + 'px;font-weight:' + fontWeight + ';color:' + colorTexto + ';line-height:1.25;letter-spacing:-0.01em;">' + escapeHtml(textoPrincipal) + '</span>' +
             dayBadgeHtml +
           '</div>' +
         '</div>' +
         rightHtml +
       '</div>';
-  }
+}
 /* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE ENVÍO
   ═══════════════════════════════════════════ */
