@@ -1,3 +1,4 @@
+// components/widgets/editors/InformacionEnvioEditor.tsx
 'use client';
 
 import React from 'react';
@@ -5,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
+/* ═══════════════════════════════════════════
+   CONSTANTES Y TIPOS (Regla #9: Al inicio)
+═══════════════════════════════════════════ */
 interface EditorProps {
   widgetDefinition: {
     id: string;
@@ -44,6 +48,17 @@ const DEFAULT_CONFIG = {
   colorDestacado: '#059669',
   bordeRedondeado: 12,
   padding: 12,
+  campaignTheme: 'none',
+};
+
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; subtextColor: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', subtextColor: '#9ca3af' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', subtextColor: '#9ca3af' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', subtextColor: '#9ca3af' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', subtextColor: '#a7f3d0' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', subtextColor: '#fbcfe8' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', subtextColor: '#c7d2fe' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', subtextColor: '#fca5a5' },
 };
 
 /* ================= HELPERS UI ================= */
@@ -282,7 +297,7 @@ export default function InfoCompraEditor({
 
   const [config, setConfig] = React.useState<any>(initialConfig);
   const [isActive, setIsActive] = React.useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = React.useState<'general' | 'estilos'>('general');
+  const [tab, setTab] = React.useState<'general' | 'estilos' | 'fechas'>('general');
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -319,6 +334,87 @@ export default function InfoCompraEditor({
 
   const hasAnyRow = config.mostrarEnvio || config.mostrarCuotas || config.mostrarTransferencia;
 
+  // Adaptación de estilos según si hay Campaña Activa
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  const previewFondo = activeTheme ? activeTheme.themeColor : config.colorFondo;
+  const previewBorde = activeTheme ? `1.5px solid ${activeTheme.textColor}22` : `1.5px solid ${config.colorBorde}`;
+  const previewTexto = activeTheme ? activeTheme.textColor : config.colorTexto;
+  const previewSubtexto = activeTheme ? activeTheme.subtextColor : config.colorSubtexto;
+  const previewIcono = activeTheme ? activeTheme.accentColor : config.colorIcono;
+  const previewDestacado = activeTheme ? activeTheme.accentColor : config.colorDestacado;
+
+  /* ═══ TAB FECHAS ESPECIALES ═══ */
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Colores y Diseño.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  ];
+
+  const tabFechasEspeciales = (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 12, lineHeight: 1.5 }}>
+          Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para este widget.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {CAMPAIGN_PRESETS.map((preset) => {
+          const isSelected = (config.campaignTheme || 'none') === preset.id;
+          return (
+            <div
+              key={preset.id}
+              onClick={() => updateConfig('campaignTheme', preset.id)}
+              style={{
+                background: '#ffffff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {preset.label}
+                  {isSelected && (
+                    <span style={{
+                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                    }}>
+                      ACTIVO
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                  {preset.desc}
+                </div>
+              </div>
+              {preset.id !== 'none' && (
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* HEADER */}
@@ -351,8 +447,8 @@ export default function InfoCompraEditor({
           {hasAnyRow ? (
             <div
               style={{
-                background: config.colorFondo,
-                border: `1.5px solid ${config.colorBorde}`,
+                background: previewFondo,
+                border: previewBorde,
                 borderRadius: config.bordeRedondeado,
                 padding: config.padding,
                 display: 'flex',
@@ -364,44 +460,44 @@ export default function InfoCompraEditor({
             >
               {config.mostrarEnvio && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ color: config.colorIcono, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  <div style={{ color: previewIcono, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5"/><path d="M14 17h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
                   </div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: config.colorTexto }}>{config.tituloEnvio}</div>
-                    <div style={{ fontSize: 11.5, color: config.colorSubtexto, marginTop: 1 }}>{config.subtituloEnvio}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: previewTexto }}>{config.tituloEnvio}</div>
+                    <div style={{ fontSize: 11.5, color: previewSubtexto, marginTop: 1 }}>{config.subtituloEnvio}</div>
                   </div>
                 </div>
               )}
 
               {config.mostrarEnvio && config.mostrarCuotas && (
-                <div style={{ height: '1px', background: config.colorBorde }} />
+                <div style={{ height: '1px', background: activeTheme ? `${activeTheme.textColor}22` : config.colorBorde }} />
               )}
 
               {config.mostrarCuotas && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ color: config.colorIcono, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  <div style={{ color: previewIcono, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                   </div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: config.colorTexto }}>{config.tituloCuotas}</div>
-                    <div style={{ fontSize: 11.5, color: config.colorSubtexto, marginTop: 1 }}>{config.subtituloCuotas}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: previewTexto }}>{config.tituloCuotas}</div>
+                    <div style={{ fontSize: 11.5, color: previewSubtexto, marginTop: 1 }}>{config.subtituloCuotas}</div>
                   </div>
                 </div>
               )}
 
               {((config.mostrarEnvio || config.mostrarCuotas) && config.mostrarTransferencia) && (
-                <div style={{ height: '1px', background: config.colorBorde }} />
+                <div style={{ height: '1px', background: activeTheme ? `${activeTheme.textColor}22` : config.colorBorde }} />
               )}
 
               {config.mostrarTransferencia && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ color: config.colorDestacado, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  <div style={{ color: previewDestacado, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01"/><path d="M18 12h.01"/></svg>
                   </div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: config.colorDestacado }}>{config.tituloTransferencia}</div>
-                    <div style={{ fontSize: 11.5, color: config.colorSubtexto, marginTop: 1 }}>{config.subtituloTransferencia}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: previewDestacado }}>{config.tituloTransferencia}</div>
+                    <div style={{ fontSize: 11.5, color: previewSubtexto, marginTop: 1 }}>{config.subtituloTransferencia}</div>
                   </div>
                 </div>
               )}
@@ -415,19 +511,23 @@ export default function InfoCompraEditor({
 
         {/* TABS */}
         <div style={{ display: 'flex', background: '#e5e7eb', padding: 3, borderRadius: 10, marginBottom: 16 }}>
-          {(['general', 'estilos'] as const).map((t) => {
-            const active = tab === t;
+          {([
+            { id: 'general', label: 'Secciones' },
+            { id: 'estilos', label: 'Diseño' },
+            { id: 'fechas', label: '🔥 Fechas Especiales' }
+          ] as const).map((t) => {
+            const active = tab === t.id;
             return (
               <button
-                key={t}
-                onClick={() => setTab(t)}
+                key={t.id}
+                onClick={() => setTab(t.id)}
                 style={{
                   flex: 1,
                   background: active ? '#ffffff' : 'transparent',
                   border: 'none',
                   padding: '8px',
                   borderRadius: 8,
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: 700,
                   color: active ? '#10B981' : '#4b5563',
                   cursor: 'pointer',
@@ -435,7 +535,7 @@ export default function InfoCompraEditor({
                   transition: 'all 0.15s',
                 }}
               >
-                {t === 'general' ? 'Secciones' : 'Colores y Diseño'}
+                {t.label}
               </button>
             );
           })}
@@ -620,6 +720,9 @@ export default function InfoCompraEditor({
             </SectionCard>
           </div>
         )}
+
+        {/* CONTENIDO TAB FECHAS ESPECIALES */}
+        {tab === 'fechas' && tabFechasEspeciales}
 
         {/* BOTON GUARDAR / PIE */}
         <div
