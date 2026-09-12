@@ -1558,9 +1558,9 @@
   fetch(url)
     .then(function (r) { return r.json(); })
     .then(function (data) {
-      // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
-      if (data.activeCampaign) {
-        renderAtmosphericEffects(data.activeCampaign);
+         // 🔥 APLICAR SKIN TEMÁTICO DE FECHAS ESPECIALES
+      if (data.activeCampaign && data.activeCampaign.is_active) {
+        applyCampaignTheme(data.activeCampaign);
       }
 
       // 🎙️ INYECCIÓN UNIFICADA DE BÚSQUEDA POR VOZ
@@ -9790,5 +9790,51 @@
       }
     } catch(e) {}
   }
+  /* ═══════════════════════════════════════════
+     FECHAS ESPECIALES 2.0 — SKIN TEMÁTICO EN VIVO
+  ═══════════════════════════════════════════ */
+  function applyCampaignTheme(campaign) {
+    if (!campaign || !campaign.is_active) return;
+    try {
+      var themeColor = campaign.theme_color || "#111827";
+      var accentColor = campaign.accent_color || "#10B981";
+      var badgeText = campaign.custom_badge_text || "";
 
+      var styleEl = document.getElementById("nvx-campaign-skin");
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = "nvx-campaign-skin";
+        document.head.appendChild(styleEl);
+      }
+
+      styleEl.innerHTML =
+        ".nvx-campaign-themed { background: " + themeColor + " !important; color: " + accentColor + " !important; border-color: " + accentColor + " !important; }" +
+        ".nvx-campaign-accent { color: " + accentColor + " !important; }";
+
+      setTimeout(function () {
+        var badges = document.querySelectorAll("[class*='nvx-badge'], .nvx-badge-pill");
+        badges.forEach(function (b) {
+          if (!b.dataset.nvxThemed) {
+            b.dataset.nvxThemed = "true";
+            b.style.background = themeColor;
+            b.style.color = accentColor;
+            b.style.borderColor = accentColor;
+          }
+        });
+
+        if (badgeText) {
+          var countTitles = document.querySelectorAll("[class*='countdown-title'], [class*='nvx-cuenta-regresiva'] h4");
+          countTitles.forEach(function (ct) {
+            if (!ct.dataset.nvxThemed) {
+              ct.dataset.nvxThemed = "true";
+              ct.innerHTML = badgeText + " • " + ct.innerHTML;
+              ct.style.color = accentColor;
+            }
+          });
+        }
+      }, 150);
+    } catch (err) {
+      console.warn("[Nevux Campaign] Error aplicando skin temático:", err);
+    }
+  }
 })();
