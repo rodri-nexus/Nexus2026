@@ -1,9 +1,10 @@
+// components/widgets/editors/CountdownPreview.tsx
 'use client';
 
 import { useEffect, useState, useRef, useMemo } from 'react';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 interface CountdownConfig {
   title: string;
@@ -39,6 +40,7 @@ interface CountdownConfig {
   colorClockBgMedium?: string;
   colorClockBgCritical?: string;
   flashMinutes?: number;
+  campaignTheme?: 'none' | 'black-friday' | 'hot-sale' | 'cyber-monday' | 'navidad' | 'san-valentin' | 'dia-madre-padre' | 'liquidacion';
 }
 
 interface Props {
@@ -58,7 +60,20 @@ interface TimeLeft {
 type UrgencyState = 'normal' | 'medium' | 'critical';
 
 /* ═══════════════════════════════════════════
-   HOOK: tiempo restante
+   PRESETS DE FECHAS ESPECIALES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const THEME_PRESETS: Record<string, { themeColor: string; accentColor: string; badge: string; emoji: string }> = {
+  "black-friday": { themeColor: "#111827", accentColor: "#F59E0B", badge: "🔥 BLACK FRIDAY", emoji: "🔥" },
+  "hot-sale": { themeColor: "#0F172A", accentColor: "#EF4444", badge: "⚡ HOT SALE", emoji: "⚡" },
+  "cyber-monday": { themeColor: "#090D16", accentColor: "#3B82F6", badge: "🚀 CYBER MONDAY", emoji: "🚀" },
+  "navidad": { themeColor: "#064E3B", accentColor: "#EF4444", badge: "🎄 ESPECIAL NAVIDAD", emoji: "🎄" },
+  "san-valentin": { themeColor: "#831843", accentColor: "#F43F5E", badge: "💘 SAN VALENTÍN", emoji: "💘" },
+  "dia-madre-padre": { themeColor: "#312E81", accentColor: "#10B981", badge: "🎁 REGALO ESPECIAL", emoji: "🎁" },
+  "liquidacion": { themeColor: "#7F1D1D", accentColor: "#FBBF24", badge: "🏷️ SALE FINAL", emoji: "🏷️" },
+};
+
+/* ═══════════════════════════════════════════
+   HOOK: TIEMPO RESTANTE (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function useTimeLeft(config: CountdownConfig): TimeLeft {
   const startTime = useRef<number>(Date.now());
@@ -156,12 +171,12 @@ function getClockBgColor(config: CountdownConfig, state: UrgencyState): string {
 }
 
 /* ═══════════════════════════════════════════
-   DIGIT CLÁSICO
+   SUB-COMPONENTES DE DÍGITOS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function DigitClasico({
-  value, config, bgColor, isCritical,
+  value, config, bgColor, isCritical, numbersColor,
 }: {
-  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean;
+  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean; numbersColor: string;
 }) {
   const size = parseInt(config.fontSizeClock, 10) || 16;
   return (
@@ -170,7 +185,7 @@ function DigitClasico({
         minWidth: size * 2.4,
         minHeight: size * 2.4,
         background: bgColor,
-        color: config.colorNumbers || '#ffffff',
+        color: numbersColor,
         borderRadius: config.borderRadiusClock || 10,
         display: 'inline-flex',
         alignItems: 'center',
@@ -190,13 +205,10 @@ function DigitClasico({
   );
 }
 
-/* ═══════════════════════════════════════════
-   DIGIT RETRO FLIP
-═══════════════════════════════════════════ */
 function DigitRetro({
-  value, config, bgColor, isCritical,
+  value, config, bgColor, isCritical, numbersColor,
 }: {
-  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean;
+  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean; numbersColor: string;
 }) {
   const prevRef = useRef(value);
   const [flip, setFlip] = useState(false);
@@ -227,7 +239,7 @@ function DigitRetro({
             justifyContent: 'center',
             fontSize: config.fontSizeClock,
             fontWeight: 900,
-            color: config.colorNumbers || '#ffffff',
+            color: numbersColor,
             fontFamily: "monospace",
             boxShadow: '0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
             position: 'relative',
@@ -248,10 +260,10 @@ function DigitRetro({
 }
 
 function ClockUnit({
-  value, label, config, bgColor, isCritical,
+  value, label, config, bgColor, isCritical, labelColor, numbersColor,
 }: {
   value: number; label: string; config: CountdownConfig;
-  bgColor: string; isCritical: boolean;
+  bgColor: string; isCritical: boolean; labelColor: string; numbersColor: string;
 }) {
   const s = String(value).padStart(2, '0');
   const Digit = config.style === 'retro' ? DigitRetro : DigitClasico;
@@ -259,13 +271,13 @@ function ClockUnit({
 
   return (
     <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-      <Digit value={s} config={config} bgColor={bgColor} isCritical={isCritical} />
+      <Digit value={s} config={config} bgColor={bgColor} isCritical={isCritical} numbersColor={numbersColor} />
       {config.showLabels && (
         <span style={{
           fontSize: labelSize,
           fontWeight: 800,
-          color: config.colorTitle || '#000000',
-          opacity: 0.75,
+          color: labelColor,
+          opacity: 0.85,
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
         }}>
@@ -276,7 +288,7 @@ function ClockUnit({
   );
 }
 
-function Separator({ config }: { config: CountdownConfig }) {
+function Separator({ dotColor, config }: { dotColor: string; config: CountdownConfig }) {
   const [on, setOn] = useState(true);
   useEffect(() => {
     const i = setInterval(() => setOn((v) => !v), 600);
@@ -295,8 +307,8 @@ function Separator({ config }: { config: CountdownConfig }) {
       opacity: on ? 1 : 0.25,
       transition: 'opacity 0.2s ease',
     }}>
-      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: config.colorTitle || '#000000', opacity: 0.85 }} />
-      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: config.colorTitle || '#000000', opacity: 0.85 }} />
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: dotColor, opacity: 0.85 }} />
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: dotColor, opacity: 0.85 }} />
     </div>
   );
 }
@@ -308,8 +320,27 @@ export default function CountdownPreview({ config }: Props) {
   const time = useTimeLeft(config);
 
   const urgencyState = getUrgencyState(time.percentConsumed, !!config.urgencyEnabled);
-  const currentClockBg = getClockBgColor(config, urgencyState);
+  const baseClockBg = getClockBgColor(config, urgencyState);
   const isCritical = urgencyState === 'critical';
+
+  // Detección de tema de Fechas Especiales activo
+  const activeTheme = config.campaignTheme && config.campaignTheme !== 'none'
+    ? THEME_PRESETS[config.campaignTheme]
+    : null;
+
+  // Colores efectivos con prioridad temática
+  const effectiveBg = activeTheme
+    ? activeTheme.themeColor
+    : config.bgType === 'gradient'
+    ? `linear-gradient(${config.gradientDirection || 'to bottom right'}, ${config.colorWidgetBg || '#05070B'}, ${config.colorWidgetBg2 || '#10B981'})`
+    : config.colorWidgetBg || '#ffffff';
+
+  const effectiveTitleColor = activeTheme ? '#ffffff' : config.colorTitle || '#000000';
+  const effectiveClockBg = activeTheme ? activeTheme.accentColor : baseClockBg;
+  const effectiveNumbersColor = activeTheme
+    ? (['black-friday', 'liquidacion'].includes(config.campaignTheme || '') ? '#111827' : '#ffffff')
+    : config.colorNumbers || '#ffffff';
+  const effectiveLabelColor = activeTheme ? activeTheme.accentColor : config.colorTitle || '#000000';
 
   const units: { v: number; l: string }[] = useMemo(() => {
     const arr: { v: number; l: string }[] = [];
@@ -339,16 +370,6 @@ export default function CountdownPreview({ config }: Props) {
     );
   }
 
-  const bg = (() => {
-    if (config.bgType === 'gradient') {
-      const c1 = config.colorWidgetBg || '#05070B';
-      const c2 = config.colorWidgetBg2 || '#10B981';
-      const dir = config.gradientDirection || 'to bottom right';
-      return `linear-gradient(${dir}, ${c1}, ${c2})`;
-    }
-    return config.colorWidgetBg || '#ffffff';
-  })();
-
   return (
     <>
       <style>{`
@@ -370,18 +391,43 @@ export default function CountdownPreview({ config }: Props) {
       `}</style>
 
       <div style={{
-        background: bg,
+        background: effectiveBg,
         borderRadius: config.borderRadiusWidget || 16,
         padding: config.paddingWidget || 18,
         textAlign: config.alignment || 'center',
-        border: '1px solid rgba(0,0,0,0.06)',
-        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.04)',
+        border: activeTheme ? `1.5px solid ${activeTheme.accentColor}44` : '1px solid rgba(0,0,0,0.06)',
+        boxShadow: activeTheme ? `0 8px 24px ${activeTheme.themeColor}55` : '0 6px 20px rgba(0, 0, 0, 0.04)',
+        transition: 'all 0.3s ease',
       }}>
+        {/* Badge Temático de Campaña */}
+        {activeTheme && (
+          <div style={{
+            marginBottom: 10,
+            textAlign: config.alignment === 'center' ? 'center' : 'left',
+          }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              background: activeTheme.accentColor,
+              color: ['black-friday', 'liquidacion'].includes(config.campaignTheme || '') ? '#111827' : '#ffffff',
+              fontSize: '11px',
+              fontWeight: 900,
+              padding: '3px 10px',
+              borderRadius: 999,
+              letterSpacing: '0.04em',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            }}>
+              {activeTheme.badge}
+            </span>
+          </div>
+        )}
+
         {config.title && (
           <div style={{
             fontSize: config.fontSizeTitle || '18px',
             fontWeight: 800,
-            color: config.colorTitle || '#000000',
+            color: effectiveTitleColor,
             marginBottom: 12,
             lineHeight: 1.2,
             textAlign: config.alignment === 'center' ? 'center' : 'left',
@@ -398,13 +444,13 @@ export default function CountdownPreview({ config }: Props) {
           }}>
             <span style={{
               display: 'inline-block',
-              background: config.colorSubtitleBg || '#ecfdf5',
-              color: config.colorSubtitle || '#059669',
+              background: activeTheme ? `${activeTheme.accentColor}22` : (config.colorSubtitleBg || '#ecfdf5'),
+              color: activeTheme ? activeTheme.accentColor : (config.colorSubtitle || '#059669'),
               fontSize: config.fontSizeSubtitle || '12px',
               fontWeight: 800,
               padding: '4px 12px',
               borderRadius: 8,
-              border: '1px solid #a7f3d0',
+              border: activeTheme ? `1px solid ${activeTheme.accentColor}55` : '1px solid #a7f3d0',
             }}>
               {config.subtitle}
             </span>
@@ -414,7 +460,7 @@ export default function CountdownPreview({ config }: Props) {
         {time.isFinished ? (
           <div style={{
             padding: 12,
-            color: config.colorTitle || '#000000',
+            color: effectiveTitleColor,
             opacity: 0.8,
             fontWeight: 800,
             textAlign: 'center',
@@ -435,10 +481,12 @@ export default function CountdownPreview({ config }: Props) {
                   value={u.v}
                   label={u.l}
                   config={config}
-                  bgColor={currentClockBg}
+                  bgColor={effectiveClockBg}
                   isCritical={isCritical}
+                  labelColor={effectiveLabelColor}
+                  numbersColor={effectiveNumbersColor}
                 />
-                {i < units.length - 1 && <Separator config={config} />}
+                {i < units.length - 1 && <Separator dotColor={effectiveLabelColor} config={config} />}
               </div>
             ))}
           </div>
@@ -446,4 +494,4 @@ export default function CountdownPreview({ config }: Props) {
       </div>
     </>
   );
-   }
+       }
