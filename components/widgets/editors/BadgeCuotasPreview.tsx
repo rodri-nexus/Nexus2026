@@ -1,3 +1,4 @@
+// components/widgets/editors/BadgeCuotasPreview.tsx
 'use client';
 
 /* ═══════════════════════════════════════════
@@ -22,6 +23,7 @@ interface BadgeCuotasConfig {
   efecto: 'aureola' | 'zoom' | 'sin-efecto';
   colorFondoBadge: string;
   colorTextoBadge: string;
+  campaignTheme?: string;
 }
 
 interface Props {
@@ -39,6 +41,19 @@ const IconTarjeta = ({ color = 'currentColor', size = 14 }: { color?: string; si
 );
 
 /* ═══════════════════════════════════════════
+   PRESETS DE CAMPAÑAS (FECHAS ESPECIALES)
+═══════════════════════════════════════════ */
+const THEMES: Record<string, { themeColor: string; accentColor: string; badgeText: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', badgeText: 'BLACK FRIDAY' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', badgeText: 'HOT SALE' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', badgeText: 'CYBER MONDAY' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', badgeText: 'NAVIDAD' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', badgeText: 'LOVE SALE' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', badgeText: 'ESPECIAL' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', badgeText: 'LIQUIDACIÓN' },
+};
+
+/* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function BadgeCuotasPreview({ config }: Props) {
@@ -51,12 +66,32 @@ export default function BadgeCuotasPreview({ config }: Props) {
     .replace('{cuotas}', cuotaShow)
     .replace('{monto}', '$****');
 
-  // Fondo del badge
-  const fondo = config.fondoDegradado
-    ? `linear-gradient(135deg, ${config.colorFondo} 0%, ${config.colorFondo}dd 100%)`
-    : config.colorFondo;
+  // Evaluar si hay campaña activa para sobreescribir colores en vivo
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
 
-  const borde = config.mostrarBorde ? `1px solid ${config.colorTexto}22` : '1px solid rgba(255, 255, 255, 0.12)';
+  // Fondo del badge con soporte para degradados normales o temáticos
+  const fondo = activeTheme
+    ? `linear-gradient(135deg, ${activeTheme.themeColor} 0%, ${activeTheme.themeColor}dd 100%)`
+    : config.fondoDegradado
+      ? `linear-gradient(135deg, ${config.colorFondo} 0%, ${config.colorFondo}dd 100%)`
+      : config.colorFondo;
+
+  const colorTexto = activeTheme ? '#ffffff' : config.colorTexto;
+  const colorFondoBadge = activeTheme ? activeTheme.accentColor : config.colorFondoBadge;
+  
+  // Contraste óptimo oscuro para Black Friday y Liquidación sobre acentos amarillos/dorados
+  const colorTextoBadge = activeTheme
+    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+    : config.colorTextoBadge;
+
+  // Texto del badge opcional (prioriza configuración del usuario, de lo contrario toma el del tema)
+  const textoBadgeToShow = config.textoBadge && config.textoBadge.trim().length > 0
+    ? config.textoBadge
+    : (activeTheme ? activeTheme.badgeText : '');
+
+  const showBadge = textoBadgeToShow && textoBadgeToShow.trim().length > 0;
+  const borde = config.mostrarBorde ? `1px solid ${colorTexto}22` : '1px solid rgba(255, 255, 255, 0.12)';
 
   // Animaciones según efecto
   const animation =
@@ -64,7 +99,6 @@ export default function BadgeCuotasPreview({ config }: Props) {
     config.efecto === 'zoom' ? 'nvxZoom 2.5s ease-in-out infinite' :
     'none';
 
-  const showBadge = config.textoBadge && config.textoBadge.trim().length > 0;
   const badgeAnimation = config.efectoRebote ? 'nvxBounceBadge 1.4s ease-in-out infinite' : 'none';
 
   return (
@@ -104,7 +138,7 @@ export default function BadgeCuotasPreview({ config }: Props) {
             alignItems: 'center',
             gap: 8,
             background: fondo,
-            color: config.colorTexto,
+            color: colorTexto,
             fontSize: config.fontSize,
             fontWeight: 600,
             padding: `${config.paddingInterno}px ${config.paddingInterno + 10}px`,
@@ -133,7 +167,7 @@ export default function BadgeCuotasPreview({ config }: Props) {
 
             {config.mostrarIconoTarjeta && (
               <span style={{ display: 'inline-flex', alignItems: 'center', zIndex: 2 }}>
-                <IconTarjeta color={config.colorTexto} size={15} />
+                <IconTarjeta color={colorTexto} size={15} />
               </span>
             )}
 
@@ -143,8 +177,8 @@ export default function BadgeCuotasPreview({ config }: Props) {
             {showBadge && config.posicionBadge === 'final-texto' && (
               <span style={{
                 display: 'inline-block',
-                background: config.colorFondoBadge,
-                color: config.colorTextoBadge,
+                background: colorFondoBadge,
+                color: colorTextoBadge,
                 fontSize: Math.max(9, parseInt(config.fontSize, 10) - 3),
                 fontWeight: 800,
                 padding: '3px 9px',
@@ -156,7 +190,7 @@ export default function BadgeCuotasPreview({ config }: Props) {
                 zIndex: 2,
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.12)',
               }}>
-                {config.textoBadge}
+                {textoBadgeToShow}
               </span>
             )}
           </div>
@@ -167,8 +201,8 @@ export default function BadgeCuotasPreview({ config }: Props) {
               position: 'absolute',
               top: -10,
               right: -8,
-              background: config.colorFondoBadge,
-              color: config.colorTextoBadge,
+              background: colorFondoBadge,
+              color: colorTextoBadge,
               fontSize: 10,
               fontWeight: 800,
               padding: '3px 8px',
@@ -180,7 +214,7 @@ export default function BadgeCuotasPreview({ config }: Props) {
               whiteSpace: 'nowrap',
               zIndex: 3,
             }}>
-              {config.textoBadge}
+              {textoBadgeToShow}
             </span>
           )}
         </div>
