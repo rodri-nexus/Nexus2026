@@ -1839,7 +1839,8 @@
       return arguments[arguments.length - 1];
     }
     const mode = pick(raw.mode, "fixed");
-    return {
+
+    var res = {
       title: pick(raw.title, "🔥 Oferta"),
       subtitle: pick(raw.subtitle, ""),
       mode: mode === "duration" ? "duration" : "fixed",
@@ -1876,7 +1877,33 @@
       urgencyEnabled: pick(raw.urgencyEnabled, false) === true,
       colorClockBgMedium: pick(raw.colorClockBgMedium, "#f97316"),
       colorClockBgCritical: pick(raw.colorClockBgCritical, "#dc2626"),
+      campaignTheme: pick(raw.campaignTheme, raw.campaign_theme, "none"),
     };
+
+    // 🔥 APLICAR TEMA DE FECHAS ESPECIALES 3.0 SI ESTÁ ACTIVO EN ESTE WIDGET
+    var THEMES = {
+      "black-friday": { themeColor: "#111827", accentColor: "#F59E0B", badge: "🔥 BLACK FRIDAY" },
+      "hot-sale": { themeColor: "#0F172A", accentColor: "#EF4444", badge: "⚡ HOT SALE" },
+      "cyber-monday": { themeColor: "#090D16", accentColor: "#3B82F6", badge: "🚀 CYBER MONDAY" },
+      "navidad": { themeColor: "#064E3B", accentColor: "#EF4444", badge: "🎄 ESPECIAL NAVIDAD" },
+      "san-valentin": { themeColor: "#831843", accentColor: "#F43F5E", badge: "💘 SAN VALENTÍN" },
+      "dia-madre-padre": { themeColor: "#312E81", accentColor: "#10B981", badge: "🎁 REGALO ESPECIAL" },
+      "liquidacion": { themeColor: "#7F1D1D", accentColor: "#FBBF24", badge: "🏷️ SALE FINAL" }
+    };
+
+    var theme = THEMES[res.campaignTheme];
+    if (theme) {
+      res.colorWidgetBg = theme.themeColor;
+      res.bgType = "solid";
+      res.colorTitle = "#ffffff";
+      res.colorClockBg = theme.accentColor;
+      res.colorNumbers = (res.campaignTheme === "black-friday" || res.campaignTheme === "liquidacion") ? "#111827" : "#ffffff";
+      res.campaignBadge = theme.badge;
+      res.campaignBadgeColor = theme.accentColor;
+      res.campaignBadgeTextColor = (res.campaignTheme === "black-friday" || res.campaignTheme === "liquidacion") ? "#111827" : "#ffffff";
+    }
+
+    return res;
   }
 
   function calcTime(state) {
@@ -1983,6 +2010,11 @@
 
   function buildFullHtml(cfg, units, time, urgency, isBar) {
     const bg = getBg(cfg);
+
+    const badgeHtml = cfg.campaignBadge
+      ? '<div style="margin-bottom:10px;text-align:' + cfg.alignment + ';"><span style="display:inline-flex;align-items:center;background:' + cfg.campaignBadgeColor + ';color:' + cfg.campaignBadgeTextColor + ';font-size:11px;font-weight:900;padding:3px 10px;border-radius:999px;letter-spacing:0.04em;box-shadow:0 2px 8px rgba(0,0,0,0.15);">' + escapeHtml(cfg.campaignBadge) + '</span></div>'
+      : "";
+
     const titleHtml = cfg.title
       ? '<div style="font-size:' + cfg.fontSizeTitle + ';font-weight:700;color:' + cfg.colorTitle + ';margin-bottom:14px;line-height:1.2;text-align:' + cfg.alignment + ';">' + escapeHtml(cfg.title) + '</div>'
       : "";
@@ -2011,6 +2043,7 @@
     return '' +
       '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="' + String(isBar) + '" data-urgency="' + urgency + '" style="background:' + bg + ';border-radius:' + radius + 'px;padding:' + padding + 'px;text-align:' + cfg.alignment + ';">' +
         innerWrap +
+          badgeHtml +
           titleHtml +
           subtitleHtml +
           '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:8px;flex-wrap:wrap;">' + clockInner + '</div>' +
@@ -2094,8 +2127,8 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;")
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
-      }
-
+    }
+  
   /* ═══════════════════════════════════════════
      RENDER INFORMACIÓN DE COMPRA (UNIFICADO)
   ═══════════════════════════════════════════ */
