@@ -1,3 +1,4 @@
+// components/widgets/editors/MensajeAlertaPreview.tsx
 'use client';
 
 import React from 'react';
@@ -21,6 +22,7 @@ interface MensajeAlertaPreviewProps {
     bordesRedondeados: number;
     paddingInterno: number;
     mostrarBorde: boolean;
+    campaignTheme?: string;
   };
 }
 
@@ -95,18 +97,42 @@ function darkenColor(hex: string, percent: number): string {
   }
 }
 
+const THEMES: Record<string, { themeColor: string; accentColor: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+};
+
 /* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function MensajeAlertaPreview({ config }: MensajeAlertaPreviewProps) {
-  const colores = getColores(
+  let colores = getColores(
     config.color,
     config.colorPersonalizadoFondo,
     config.colorPersonalizadoTexto
   );
 
-  const bordeColor =
-    config.color === 'personalizado'
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  if (activeTheme) {
+    colores = {
+      fondo: activeTheme.themeColor,
+      texto: '#ffffff',
+      borde: activeTheme.accentColor,
+      circulo: activeTheme.accentColor,
+      shadow: activeTheme.themeColor + '44',
+    };
+  }
+
+  const bordeColor = activeTheme
+    ? activeTheme.accentColor
+    : config.color === 'personalizado'
       ? darkenColor(config.colorPersonalizadoFondo || '#10B981', 15)
       : colores.borde;
 
@@ -206,7 +232,7 @@ export default function MensajeAlertaPreview({ config }: MensajeAlertaPreviewPro
           color: colores.texto,
           padding: `${config.paddingInterno || 10}px ${(config.paddingInterno || 10) + 8}px`,
           borderRadius: config.bordesRedondeados || 12,
-          border: config.mostrarBorde ? `1.5px solid ${bordeColor}` : 'none',
+          border: (config.mostrarBorde || activeTheme) ? `1.5px solid ${bordeColor}` : 'none',
           fontSize: config.tamanoTexto || 14,
           fontWeight: config.estiloTexto === 'resaltado' ? 800 : 600,
           lineHeight: 1.3,
@@ -238,4 +264,4 @@ export default function MensajeAlertaPreview({ config }: MensajeAlertaPreviewPro
       </div>
     </div>
   );
-        }
+              }
