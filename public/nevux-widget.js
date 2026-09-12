@@ -2307,8 +2307,8 @@
     return outputHtml;
                     }
 
-  /* ═══════════════════════════════════════════
-     RENDER BADGE CUOTAS
+ /* ═══════════════════════════════════════════
+     RENDER BADGE CUOTAS (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderBadgeCuotas(widget) {
     const cfg = normalizeBadgeCuotasConfig(widget.config || {});
@@ -2346,6 +2346,7 @@
       efecto: raw.efecto === "aureola" ? "aureola" : (raw.efecto === "zoom" ? "zoom" : "sin-efecto"),
       colorFondoBadge: raw.colorFondoBadge || "#ff0000",
       colorTextoBadge: raw.colorTextoBadge || "#ffffff",
+      campaignTheme: raw.campaignTheme || "none",
     };
   }
 
@@ -2382,6 +2383,20 @@
   }
 
   function buildBadgeCuotasHtml(cfg) {
+    // Definimos presets temáticos locales ES5-friendly
+    var THEMES = {
+      'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', badgeText: 'BLACK FRIDAY' },
+      'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', badgeText: 'HOT SALE' },
+      'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', badgeText: 'CYBER MONDAY' },
+      'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', badgeText: 'NAVIDAD' },
+      'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', badgeText: 'LOVE SALE' },
+      'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', badgeText: 'ESPECIAL' },
+      'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', badgeText: 'LIQUIDACIÓN' }
+    };
+
+    var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
+    var activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
     var cuotasOrdenadas = (cfg.cuotasSeleccionadas || []).slice().sort(function (a, b) { return b - a; });
     var cuotaShow = cuotasOrdenadas.length > 0 ? cuotasOrdenadas[0] : 3;
 
@@ -2395,22 +2410,36 @@
       .replace("{cuotas}", String(cuotaShow))
       .replace("{monto}", montoTxt);
 
-    var fondo = cfg.fondoDegradado
-      ? "linear-gradient(135deg, " + cfg.colorFondo + " 0%, " + cfg.colorFondo + "dd 100%)"
-      : cfg.colorFondo;
+    // Sobrecarga de colores si hay evento activo
+    var colorFondoNormal = cfg.colorFondo || "#ededed";
+    var fondo = activeTheme
+      ? "linear-gradient(135deg, " + activeTheme.themeColor + " 0%, " + activeTheme.themeColor + "dd 100%)"
+      : (cfg.fondoDegradado ? "linear-gradient(135deg, " + colorFondoNormal + " 0%, " + colorFondoNormal + "dd 100%)" : colorFondoNormal);
 
-    var borde = cfg.mostrarBorde ? "1px solid " + cfg.colorTexto + "22" : "none";
+    var colorTexto = activeTheme ? "#ffffff" : (cfg.colorTexto || "#000000");
+    var colorFondoBadge = activeTheme ? activeTheme.accentColor : cfg.colorFondoBadge;
+    
+    var colorTextoBadge = cfg.colorTextoBadge;
+    if (activeTheme) {
+      colorTextoBadge = (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion') ? '#000000' : '#ffffff';
+    }
+
+    var textoBadgeToShow = cfg.textoBadge && cfg.textoBadge.trim().length > 0
+      ? cfg.textoBadge
+      : (activeTheme ? activeTheme.badgeText : "");
+
+    var borde = cfg.mostrarBorde ? "1px solid " + colorTexto + "22" : "none";
 
     var animation =
       cfg.efecto === "aureola" ? NS + "-aureolaPulse 2s ease-in-out infinite" :
       cfg.efecto === "zoom" ? NS + "-zoomEffect 2s ease-in-out infinite" :
       "none";
 
-    var showBadge = cfg.textoBadge && cfg.textoBadge.trim().length > 0;
+    var showBadge = textoBadgeToShow && textoBadgeToShow.trim().length > 0;
     var badgeAnim = cfg.efectoRebote ? NS + "-bounceBadge 1.2s ease-in-out infinite" : "none";
 
     var iconHtml = cfg.mostrarIconoTarjeta
-      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + cfg.colorTexto + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + colorTexto + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
       : "";
 
     var badgeInlineHtml = "";
@@ -2418,16 +2447,16 @@
     if (showBadge) {
       var fontSizeNum = parseInt(cfg.fontSize, 10) || 13;
       if (cfg.posicionBadge === "final-texto") {
-        badgeInlineHtml = '<span style="display:inline-block;background:' + cfg.colorFondoBadge + ';color:' + cfg.colorTextoBadge + ';font-size:' + Math.max(9, fontSizeNum - 3) + 'px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;margin-left:4px;animation:' + badgeAnim + ';">' + escapeHtml(cfg.textoBadge) + '</span>';
+        badgeInlineHtml = '<span style="display:inline-block;background:' + colorFondoBadge + ';color:' + colorTextoBadge + ';font-size:' + Math.max(9, fontSizeNum - 3) + 'px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;margin-left:4px;animation:' + badgeAnim + ';">' + escapeHtml(textoBadgeToShow) + '</span>';
       } else {
-        badgeCornerHtml = '<span style="position:absolute;top:-10px;right:-8px;background:' + cfg.colorFondoBadge + ';color:' + cfg.colorTextoBadge + ';font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:0.05em;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,0.15);animation:' + badgeAnim + ';white-space:nowrap;z-index:2;">' + escapeHtml(cfg.textoBadge) + '</span>';
+        badgeCornerHtml = '<span style="position:absolute;top:-10px;right:-8px;background:' + colorFondoBadge + ';color:' + colorTextoBadge + ';font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:0.05em;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,0.15);animation:' + badgeAnim + ';white-space:nowrap;z-index:2;">' + escapeHtml(textoBadgeToShow) + '</span>';
       }
     }
 
     return '' +
       '<div style="display:flex;justify-content:flex-start;padding:8px 0;">' +
         '<div style="position:relative;display:inline-block;">' +
-          '<div style="display:inline-flex;align-items:center;gap:8px;background:' + fondo + ';color:' + cfg.colorTexto + ';font-size:' + cfg.fontSize + ';font-weight:500;padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 8) + 'px;border-radius:' + cfg.bordesRedondeados + 'px;border:' + borde + ';animation:' + animation + ';white-space:nowrap;">' +
+          '<div style="display:inline-flex;align-items:center;gap:8px;background:' + fondo + ';color:' + colorTexto + ';font-size:' + cfg.fontSize + ';font-weight:500;padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 8) + 'px;border-radius:' + cfg.bordesRedondeados + 'px;border:' + borde + ';animation:' + animation + ';white-space:nowrap;">' +
             iconHtml +
             '<span>' + escapeHtml(mensaje) + '</span>' +
             badgeInlineHtml +
@@ -2435,7 +2464,7 @@
           badgeCornerHtml +
         '</div>' +
       '</div>';
-  }
+      }
 
   /* ═══════════════════════════════════════════
      RENDER BADGE ENVÍO
