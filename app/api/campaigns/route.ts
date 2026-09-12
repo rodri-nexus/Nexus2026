@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-export interface CampaignPreset {
+interface CampaignPreset {
   slug: string;
   name: string;
   tagline: string;
@@ -18,7 +18,7 @@ export interface CampaignPreset {
   emoji: string;
 }
 
-export const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
+const CAMPAIGN_PRESETS: Record<string, CampaignPreset> = {
   "black-friday": {
     slug: "black-friday",
     name: "Black Friday",
@@ -212,4 +212,4 @@ export async function POST(req: NextRequest) {
     console.error("[Campaign POST Exception]:", err);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
-    }
+       }
