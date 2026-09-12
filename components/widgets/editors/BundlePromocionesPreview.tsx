@@ -1,7 +1,11 @@
+// components/widgets/editors/BundlePromocionesPreview.tsx
 'use client';
 
 import React from 'react';
 
+/* ═══════════════════════════════════════════
+   TIPOS Y MAPAS (Regla de Oro #9)
+═══════════════════════════════════════════ */
 interface BundlePromocionesPreviewProps {
   config: {
     titulo?: string;
@@ -27,14 +31,37 @@ interface BundlePromocionesPreviewProps {
     tamanoSubtitulo?: string;
     efectoBoton?: 'sin-efecto' | 'zoom';
     pulsante?: boolean;
+    campaignTheme?: string;
   };
 }
 
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff' },
+};
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function BundlePromocionesPreview({ config }: BundlePromocionesPreviewProps) {
-  const colorBoton = config.colorBoton || '#000000';
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  // Sobrecarga de colores según campaña
+  const colorBoton = activeTheme ? activeTheme.accentColor : (config.colorBoton || '#10B981');
+  const colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : (config.colorUnidadSeleccionada || '#10B981');
+  const colorPrecio = activeTheme ? activeTheme.themeColor : (config.colorPrecio || '#000000');
+  
+  const colorTextoBoton = activeTheme
+    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+    : '#ffffff';
+
   const fondoDegrade = config.fondoDegrade || false;
-  const colorPrecio = config.colorPrecio || '#000000';
-  const colorUnidadSeleccionada = config.colorUnidadSeleccionada || '#000000';
   const bordeBoton = config.bordeBoton ?? 25;
   const bordeUnidad = config.bordeUnidad ?? 8;
   const tamanoEtiqueta = config.tamanoEtiqueta || '16px';
@@ -70,6 +97,7 @@ export default function BundlePromocionesPreview({ config }: BundlePromocionesPr
           alignItems: 'center',
           justifyContent: 'space-between',
           background: '#ffffff',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -134,12 +162,12 @@ export default function BundlePromocionesPreview({ config }: BundlePromocionesPr
         style={{
           width: '100%',
           background: bgBoton,
-          color: '#ffffff',
+          color: colorTextoBoton,
           border: 'none',
           borderRadius: bordeBoton,
           padding: '16px 20px',
           fontSize: 16,
-          fontWeight: 600,
+          fontWeight: 700,
           cursor: 'pointer',
           animation: pulsante ? 'nevuxBundlePulse 1.6s ease-in-out infinite' : 'none',
           transition: 'transform 0.2s ease',
@@ -164,4 +192,4 @@ export default function BundlePromocionesPreview({ config }: BundlePromocionesPr
       `}</style>
     </div>
   );
-  }
+}
