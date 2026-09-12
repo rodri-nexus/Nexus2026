@@ -4502,8 +4502,8 @@
       '</div>';
  }
   
-  /* ═══════════════════════════════════════════
-     RENDER MENSAJE DE GARANTÍA
+/* ═══════════════════════════════════════════
+     RENDER MENSAJE DE GARANTÍA (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderMensajeGarantia(widget) {
     if (pageType !== "product") return;
@@ -4534,7 +4534,8 @@
       tamanoTexto: raw.tamanoTexto || "16px",
       bordesRedondeados: n(raw.bordesRedondeados, 5),
       paddingInterno: n(raw.paddingInterno, 20),
-      ubicacion: raw.ubicacion || "under-cart"
+      ubicacion: raw.ubicacion || "under-cart",
+      campaignTheme: raw.campaignTheme || "none"
     };
   }
 
@@ -4585,7 +4586,6 @@
   }
 
   function findProductEndTarget() {
-    // Selectores del contenedor de descripción y detalles del producto
     var selectors = [
       "[data-store='product-description-container']",
       ".js-product-description",
@@ -4605,7 +4605,6 @@
       }
     }
 
-    // Selectores alternativos: justo antes de productos relacionados o comentarios
     var fallbackSelectors = [
       ".js-related-products",
       "#related-products",
@@ -4623,7 +4622,6 @@
       }
     }
 
-    // Último recurso: al fondo del contenedor principal de producto
     var mainContainer = qs(".js-product-container") || qs("#single-product") || qs(".product-container");
     if (mainContainer) {
       return { node: mainContainer, action: "append" };
@@ -4671,6 +4669,24 @@
   }
 
   function buildMensajeGarantiaHtml(cfg) {
+    var THEMES = {
+      'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#d1d5db', titleColor: '#ffffff' },
+      'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#cbd5e1', titleColor: '#ffffff' },
+      'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#cbd5e1', titleColor: '#ffffff' },
+      'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#a7f3d0', titleColor: '#ffffff' },
+      'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#fbcfe8', titleColor: '#ffffff' },
+      'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#c7d2fe', titleColor: '#ffffff' },
+      'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#fca5a5', titleColor: '#ffffff' }
+    };
+
+    var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
+    var activeTheme = currentCampaign && THEMES[currentCampaign] ? THEMES[currentCampaign] : null;
+
+    var colorFondo = activeTheme ? activeTheme.themeColor : cfg.colorFondo;
+    var colorBorde = activeTheme ? activeTheme.accentColor : cfg.colorBorde;
+    var colorTitulo = activeTheme ? activeTheme.titleColor : cfg.colorTitulo;
+    var colorTexto = activeTheme ? activeTheme.textColor : cfg.colorTexto;
+
     var tieneImagen = cfg.imagenBase64 && cfg.imagenBase64.trim() !== "";
     var tieneTitulo = cfg.titulo && cfg.titulo.trim() !== "";
     var tieneTexto = cfg.texto && cfg.texto.trim() !== "";
@@ -4678,7 +4694,7 @@
     var imgHtml = "";
     if (tieneImagen) {
       imgHtml = '<div class="' + NS + '-garantia-img-wrap">' +
-        '<img src="' + cfg.imagenBase64 + '" alt="" style="max-width: 80px; height: auto;" />' +
+        '<img src="' + cfg.imagenBase64 + '" alt="" style="max-width: 80px; height: auto; border-radius: 8px;" />' +
       '</div>';
     }
 
@@ -4686,8 +4702,9 @@
     if (tieneTitulo) {
       tituloHtml = '<div class="' + NS + '-garantia-titulo" style="' +
         'font-size:' + cfg.tamanoTitulo + ';' +
-        'color:' + cfg.colorTitulo + ';' +
-        (tieneTexto ? '' : 'margin-bottom:0;') +
+        'font-weight: 800;' +
+        'color:' + colorTitulo + ';' +
+        (tieneTexto ? 'margin-bottom: 6px;' : 'margin-bottom:0;') +
       '">' + escapeHtml(cfg.titulo) + '</div>';
     }
 
@@ -4696,22 +4713,26 @@
       var textoParseado = parseTextoMarkdownGarantia(cfg.texto);
       textoHtml = '<div class="' + NS + '-garantia-texto" style="' +
         'font-size:' + cfg.tamanoTexto + ';' +
-        'color:' + cfg.colorTexto + ';' +
+        'color:' + colorTexto + ';' +
+        'line-height: 1.5;' +
       '">' + textoParseado + '</div>';
     }
 
     return '' +
       '<div class="' + NS + '-garantia-box" style="' +
-        'background:' + cfg.colorFondo + ';' +
-        'border:1px solid ' + cfg.colorBorde + ';' +
+        'background:' + colorFondo + ';' +
+        'border:1.5px solid ' + colorBorde + ';' +
         'border-radius:' + cfg.bordesRedondeados + 'px;' +
         'padding:' + cfg.paddingInterno + 'px;' +
         'display: flex;' +
         'align-items: center;' +
         'gap: 16px;' +
+        'box-shadow: 0 4px 14px rgba(0,0,0,0.04);' +
+        'box-sizing: border-box;' +
+        'width: 100%;' +
       '">' +
         imgHtml +
-        '<div class="' + NS + '-garantia-content" style="flex: 1;">' +
+        '<div class="' + NS + '-garantia-content" style="flex: 1; min-width: 0;">' +
           tituloHtml +
           textoHtml +
         '</div>' +
