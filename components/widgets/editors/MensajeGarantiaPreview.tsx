@@ -1,3 +1,4 @@
+// components/widgets/editors/MensajeGarantiaPreview.tsx
 "use client";
 
 import React from "react";
@@ -17,11 +18,25 @@ interface MensajeGarantiaConfig {
   tamanoTexto: string;
   bordesRedondeados: number;
   paddingInterno: number;
+  campaignTheme?: string;
 }
 
 interface Props {
   config: MensajeGarantiaConfig;
 }
+
+/* ═══════════════════════════════════════════
+   CAMPANAS PRESETS
+═══════════════════════════════════════════ */
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; titleColor: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#d1d5db', titleColor: '#ffffff' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#cbd5e1', titleColor: '#ffffff' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#cbd5e1', titleColor: '#ffffff' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#a7f3d0', titleColor: '#ffffff' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#fbcfe8', titleColor: '#ffffff' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#c7d2fe', titleColor: '#ffffff' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#fca5a5', titleColor: '#ffffff' },
+};
 
 /* ═══════════════════════════════════════════
    HELPER PARSER MARKDOWN
@@ -84,33 +99,27 @@ function parseTextoConMarkdown(texto: string): string {
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function MensajeGarantiaPreview({ config }: Props) {
-  const {
-    titulo,
-    texto,
-    imagenBase64,
-    colorFondo,
-    colorTitulo,
-    colorTexto,
-    colorBorde,
-    tamanoTitulo,
-    tamanoTexto,
-    bordesRedondeados,
-    paddingInterno,
-  } = config;
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
 
-  const tieneImagen = imagenBase64 && imagenBase64.trim() !== "";
-  const tieneTitulo = titulo && titulo.trim() !== "";
-  const tieneTexto = texto && texto.trim() !== "";
+  const colorFondo = activeTheme ? activeTheme.themeColor : config.colorFondo;
+  const colorBorde = activeTheme ? activeTheme.accentColor : config.colorBorde;
+  const colorTitulo = activeTheme ? activeTheme.titleColor : config.colorTitulo;
+  const colorTexto = activeTheme ? activeTheme.textColor : config.colorTexto;
 
-  const textoHtml = parseTextoConMarkdown(texto);
+  const tieneImagen = config.imagenBase64 && config.imagenBase64.trim() !== "";
+  const tieneTitulo = config.titulo && config.titulo.trim() !== "";
+  const tieneTexto = config.texto && config.texto.trim() !== "";
+
+  const textoHtml = parseTextoConMarkdown(config.texto);
 
   return (
     <div
       style={{
         background: colorFondo || "#FFFFFF",
         border: `1.5px solid ${colorBorde || "rgba(16, 185, 129, 0.2)"}`,
-        borderRadius: `${bordesRedondeados || 14}px`,
-        padding: `${paddingInterno || 16}px`,
+        borderRadius: `${config.bordesRedondeados || 14}px`,
+        padding: `${config.paddingInterno || 16}px`,
         width: "100%",
         boxSizing: "border-box",
         display: "flex",
@@ -143,14 +152,14 @@ export default function MensajeGarantiaPreview({ config }: Props) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#ecfdf5",
-          border: "1px solid #a7f3d0",
+          background: activeTheme ? `${activeTheme.accentColor}22` : "#ecfdf5",
+          border: `1px solid ${activeTheme ? activeTheme.accentColor : "#a7f3d0"}`,
           animation: "nvxShieldGlow 3s ease-in-out infinite",
         }}
       >
         {tieneImagen ? (
           <img
-            src={imagenBase64}
+            src={config.imagenBase64}
             alt=""
             style={{
               width: "100%",
@@ -165,7 +174,7 @@ export default function MensajeGarantiaPreview({ config }: Props) {
             height="26"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#10B981"
+            stroke={activeTheme ? activeTheme.accentColor : "#10B981"}
             strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -180,7 +189,7 @@ export default function MensajeGarantiaPreview({ config }: Props) {
         {tieneTitulo && (
           <div
             style={{
-              fontSize: tamanoTitulo || "15px",
+              fontSize: config.tamanoTitulo || "15px",
               fontWeight: 800,
               color: colorTitulo || "#000000",
               lineHeight: 1.3,
@@ -189,14 +198,14 @@ export default function MensajeGarantiaPreview({ config }: Props) {
               letterSpacing: "-0.01em",
             }}
           >
-            {titulo}
+            {config.titulo}
           </div>
         )}
 
         {tieneTexto && (
           <div
             style={{
-              fontSize: tamanoTexto || "13px",
+              fontSize: config.tamanoTexto || "13px",
               color: colorTexto || "#000000",
               lineHeight: 1.5,
               wordBreak: "break-word",
@@ -209,4 +218,4 @@ export default function MensajeGarantiaPreview({ config }: Props) {
       </div>
     </div>
   );
-    }
+}
