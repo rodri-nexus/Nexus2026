@@ -274,7 +274,7 @@ export async function GET(req: NextRequest) {
 
     if (!storeIdParam) {
       return NextResponse.json(
-        { error: 'store_id es requerido', widgets: [], voiceSearch: null, virtualSalesman: null },
+        { error: 'store_id es requerido', widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -282,7 +282,7 @@ export async function GET(req: NextRequest) {
     const storeId = parseInt(storeIdParam, 10)
     if (isNaN(storeId)) {
       return NextResponse.json(
-        { error: 'store_id inválido', widgets: [], voiceSearch: null, virtualSalesman: null },
+        { error: 'store_id inválido', widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -293,7 +293,7 @@ export async function GET(req: NextRequest) {
     const isActivePlan = await isStorePlanActive(storeId)
     if (!isActivePlan) {
       return NextResponse.json(
-        { widgets: [], voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
         { status: 200, headers: corsHeaders }
       )
     }
@@ -341,6 +341,31 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
+    // 🔥 Obtener skin temático de Fechas Especiales 2.0
+    let activeCampaignData: {
+      is_active: boolean;
+      campaign_slug: string;
+      custom_badge_text: string;
+      theme_color: string;
+      accent_color: string;
+    } | null = null;
+
+    const { data: campaignRow } = await supabase
+      .from('store_campaign_settings')
+      .select('is_active, campaign_slug, custom_badge_text, theme_color, accent_color')
+      .eq('store_id', storeId)
+      .maybeSingle();
+
+    if (campaignRow && campaignRow.is_active) {
+      activeCampaignData = {
+        is_active: true,
+        campaign_slug: campaignRow.campaign_slug || 'black-friday',
+        custom_badge_text: campaignRow.custom_badge_text || '',
+        theme_color: campaignRow.theme_color || '#111827',
+        accent_color: campaignRow.accent_color || '#10B981',
+      };
+    }
+
     // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
     let query = supabase
       .from('widgets')
@@ -362,7 +387,7 @@ export async function GET(req: NextRequest) {
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
       return NextResponse.json(
-        { error: widgetsError.message, widgets: [], voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
+        { error: widgetsError.message, widgets: [], activeCampaign: activeCampaignData, voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
         { status: 500, headers: corsHeaders }
       )
     }
@@ -539,6 +564,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       { 
         widgets: enrichedWidgets, 
+        activeCampaign: activeCampaignData,
         voiceSearch: voiceSearchData,
         virtualSalesman: virtualSalesmanData,
         ts: Date.now() 
@@ -548,8 +574,8 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Error en GET /api/widget-render:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message, widgets: [], voiceSearch: null, virtualSalesman: null },
+      { error: 'Error interno del servidor', details: error?.message, widgets: [], activeCampaign: null, voiceSearch: null, virtualSalesman: null },
       { status: 500, headers: corsHeaders }
     )
   }
-                                              }
+       }
