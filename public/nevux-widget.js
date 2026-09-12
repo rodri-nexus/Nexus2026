@@ -6172,8 +6172,8 @@
 
 
           
-    /* ═══════════════════════════════════════════
-     RENDER BADGE CUPÓN
+/* ═══════════════════════════════════════════
+     RENDER BADGE CUPÓN (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderBadgeCupon(w) {
     if (pageType !== "product") return;
@@ -6189,13 +6189,38 @@
     var textoBoton = cfg.textoBoton || "Copiar";
     var textoCopiado = cfg.textoCopiado || "¡Copiado! 🎉";
 
-    var bgColor = cfg.bgColor || "#ffffff";
-    var borderColor = cfg.borderColor || "#10B981";
-    var textColor = cfg.textColor || "#000000";
-    var badgeBgColor = cfg.badgeBgColor || "#ecfdf5";
-    var badgeTextColor = cfg.badgeTextColor || "#059669";
-    var botonBgColor = cfg.botonBgColor || "#10B981";
+    // Presets locales de Fechas Especiales
+    var THEMES = {
+      'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBgColor: '#F59E0B', badgeTextColor: '#000000' },
+      'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBgColor: '#EF4444', badgeTextColor: '#ffffff' },
+      'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBgColor: '#3B82F6', badgeTextColor: '#ffffff' },
+      'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBgColor: '#EF4444', badgeTextColor: '#ffffff' },
+      'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBgColor: '#F43F5E', badgeTextColor: '#ffffff' },
+      'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBgColor: '#10B981', badgeTextColor: '#ffffff' },
+      'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBgColor: '#FBBF24', badgeTextColor: '#000000' }
+    };
+
+    var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
+    var activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+    // Sobrecarga de colores según campaña activa
+    var bgColor = activeTheme ? activeTheme.themeColor : (cfg.bgColor || "#ffffff");
+    var borderColor = activeTheme ? activeTheme.accentColor : (cfg.borderColor || "#10B981");
+    var textColor = activeTheme ? activeTheme.textColor : (cfg.textColor || "#000000");
+    var badgeBgColor = activeTheme ? activeTheme.badgeBgColor : (cfg.badgeBgColor || "#ecfdf5");
+    var badgeTextColor = activeTheme ? activeTheme.badgeTextColor : (cfg.badgeTextColor || "#059669");
+    var botonBgColor = activeTheme ? activeTheme.accentColor : (cfg.botonBgColor || "#10B981");
+    
     var botonTextColor = cfg.botonTextColor || "#ffffff";
+    if (activeTheme) {
+      botonTextColor = (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion') ? '#000000' : '#ffffff';
+    }
+
+    // Adaptación visual interna de la fila del código
+    var innerCodeRowBg = activeTheme ? '#1e293b' : '#f9fafb';
+    var innerCodeRowBorder = activeTheme ? '#334155' : '#e5e7eb';
+    var innerCodeTextColor = activeTheme ? '#ffffff' : '#000000';
+    var innerCodeLabelColor = activeTheme ? '#94a3b8' : '#6b7280';
 
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 14) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 16) + "px";
@@ -6265,8 +6290,8 @@
           align-items: center !important;
           justify-content: space-between !important;
           gap: 8px !important;
-          background: #f9fafb !important;
-          border: 1px solid #e5e7eb !important;
+          background: ${innerCodeRowBg} !important;
+          border: 1px solid ${innerCodeRowBorder} !important;
           border-radius: 8px !important;
           padding: 6px 8px 6px 12px !important;
           box-sizing: border-box !important;
@@ -6275,7 +6300,7 @@
           font-family: monospace !important;
           font-weight: 800 !important;
           font-size: 15px !important;
-          color: #000000 !important;
+          color: ${innerCodeTextColor} !important;
           letter-spacing: 0.05em !important;
         }
         #nvx-cupon-${w.id} .nvx-cp-btn {
@@ -6313,7 +6338,7 @@
       <p class="nvx-cp-subtext">${escapeHtml(subtexto)}</p>
       <div class="nvx-cp-code-row">
         <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:11px; color:#6b7280; font-weight:600;">Código:</span>
+          <span style="font-size:11px; color:${innerCodeLabelColor}; font-weight:600;">Código:</span>
           <span class="nvx-cp-code">${escapeHtml(codigo)}</span>
         </div>
         <button type="button" class="nvx-cp-btn" id="nvx-copy-btn-${w.id}">
@@ -6368,8 +6393,8 @@
         console.error("Nevux copy error:", err);
       }
     }
-          }
-
+            }
+  
   /* ═══════════════════════════════════════════
      RENDER COMPARADOR DE MARCA
   ═══════════════════════════════════════════ */
