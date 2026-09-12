@@ -1,3 +1,4 @@
+// components/widgets/editors/BadgeCuponEditor.tsx
 'use client';
 
 import { useState } from 'react';
@@ -57,10 +58,11 @@ interface BadgeCuponConfig {
   botonTextColor: string;
   bordesRedondeados: number;
   paddingInterno: number;
+  campaignTheme?: string;
 }
 
 /* ═══════════════════════════════════════════
-   DEFAULTS
+   DEFAULTS Y MAPAS DE TEMPORADAS
 ═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: BadgeCuponConfig = {
   titulo: '🔥 ¡CUPÓN EXCLUSIVO!',
@@ -78,6 +80,17 @@ const DEFAULT_CONFIG: BadgeCuponConfig = {
   botonTextColor: '#ffffff',
   bordesRedondeados: 14,
   paddingInterno: 16,
+  campaignTheme: 'none',
+};
+
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBgColor: string; badgeTextColor: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBgColor: '#F59E0B', badgeTextColor: '#000000' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBgColor: '#EF4444', badgeTextColor: '#ffffff' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBgColor: '#3B82F6', badgeTextColor: '#ffffff' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBgColor: '#EF4444', badgeTextColor: '#ffffff' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBgColor: '#F43F5E', badgeTextColor: '#ffffff' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBgColor: '#10B981', badgeTextColor: '#ffffff' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBgColor: '#FBBF24', badgeTextColor: '#000000' },
 };
 
 /* ═══════════════════════════════════════════
@@ -121,7 +134,7 @@ function SectionCard({
 }
 
 /* ═══════════════════════════════════════════
-   PREVIEW EN VIVO
+   PREVIEW EN VIVO (Adaptativo a campañas)
 ═══════════════════════════════════════════ */
 function BadgeCuponPreview({
   config,
@@ -132,11 +145,25 @@ function BadgeCuponPreview({
   copied: boolean;
   onCopyClick: () => void;
 }) {
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  const bgColor = activeTheme ? activeTheme.themeColor : config.bgColor;
+  const borderColor = activeTheme ? activeTheme.accentColor : config.borderColor;
+  const textColor = activeTheme ? activeTheme.textColor : config.textColor;
+  const badgeBgColor = activeTheme ? activeTheme.badgeBgColor : config.badgeBgColor;
+  const badgeTextColor = activeTheme ? activeTheme.badgeTextColor : config.badgeTextColor;
+  
+  const botonBgColor = activeTheme ? activeTheme.accentColor : config.botonBgColor;
+  const botonTextColor = activeTheme 
+    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+    : config.botonTextColor;
+
   return (
     <div
       style={{
-        background: config.bgColor,
-        border: `1.5px dashed ${config.borderColor}`,
+        background: bgColor,
+        border: `1.5px dashed ${borderColor}`,
         borderRadius: config.bordesRedondeados,
         padding: config.paddingInterno,
         boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
@@ -154,12 +181,12 @@ function BadgeCuponPreview({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Ticket size={18} color={config.borderColor} />
+          <Ticket size={18} color={borderColor} />
           <span
             style={{
               fontWeight: 800,
               fontSize: '0.95rem',
-              color: config.textColor,
+              color: textColor,
               letterSpacing: '-0.01em',
             }}
           >
@@ -170,8 +197,8 @@ function BadgeCuponPreview({
         {config.badge && (
           <span
             style={{
-              background: config.badgeBgColor,
-              color: config.badgeTextColor,
+              background: badgeBgColor,
+              color: badgeTextColor,
               fontSize: '0.75rem',
               fontWeight: 800,
               padding: '0.25rem 0.65rem',
@@ -189,7 +216,7 @@ function BadgeCuponPreview({
         style={{
           margin: '0 0 0.85rem 0',
           fontSize: '0.82rem',
-          color: config.textColor,
+          color: textColor,
           opacity: 0.75,
           lineHeight: 1.4,
         }}
@@ -204,14 +231,14 @@ function BadgeCuponPreview({
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '0.75rem',
-          background: '#f9fafb',
-          border: '1px solid #e5e7eb',
+          background: activeTheme ? '#1e293b' : '#f9fafb',
+          border: activeTheme ? '1px solid #334155' : '1px solid #e5e7eb',
           borderRadius: '10px',
           padding: '0.45rem 0.65rem 0.45rem 0.85rem',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
-          <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>
+          <span style={{ fontSize: '0.75rem', color: activeTheme ? '#94a3b8' : '#6b7280', fontWeight: 600 }}>
             Código:
           </span>
           <span
@@ -219,7 +246,7 @@ function BadgeCuponPreview({
               fontFamily: 'monospace',
               fontWeight: 800,
               fontSize: '1.05rem',
-              color: '#000000',
+              color: activeTheme ? '#ffffff' : '#000000',
               letterSpacing: '0.05em',
             }}
           >
@@ -231,8 +258,8 @@ function BadgeCuponPreview({
           type="button"
           onClick={onCopyClick}
           style={{
-            background: copied ? '#059669' : config.botonBgColor,
-            color: config.botonTextColor,
+            background: copied ? '#059669' : botonBgColor,
+            color: botonTextColor,
             border: 'none',
             borderRadius: '8px',
             padding: '0.5rem 0.9rem',
@@ -471,6 +498,76 @@ export default function BadgeCuponEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  ];
+
+  const tabFechasEspeciales = (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>Seleccionar Temporada / Evento</div>
+        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 12, lineHeight: 1.5 }}>
+          Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para este widget.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {CAMPAIGN_PRESETS.map((preset) => {
+          const isSelected = (config.campaignTheme || 'none') === preset.id;
+          return (
+            <div
+              key={preset.id}
+              onClick={() => updateCfg('campaignTheme', preset.id)}
+              style={{
+                background: '#ffffff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {preset.label}
+                  {isSelected && (
+                    <span style={{
+                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                    }}>
+                      ACTIVO
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                  {preset.desc}
+                </div>
+              </div>
+              {preset.id !== 'none' && (
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -585,9 +682,10 @@ export default function BadgeCuponEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: '🔥 Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechasEspeciales]}
           </EditorTabs>
 
           {/* GUARDAR */}
@@ -687,4 +785,4 @@ export default function BadgeCuponEditor({
       </div>
     </div>
   );
-    }
+  }
