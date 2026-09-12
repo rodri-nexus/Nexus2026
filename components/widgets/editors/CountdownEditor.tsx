@@ -1,7 +1,7 @@
 // components/widgets/editors/CountdownEditor.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CountdownPreview from './CountdownPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
@@ -89,7 +89,7 @@ interface CountdownConfig {
 }
 
 interface CampaignThemePreset {
-  slug: string;
+  slug: CountdownConfig['campaignTheme'];
   name: string;
   emoji: string;
   themeColor: string;
@@ -105,9 +105,9 @@ const CAMPAIGN_THEMES: CampaignThemePreset[] = [
     slug: "none",
     name: "Diseño Normal / Sin Evento",
     emoji: "⚙️",
-    themeColor: "#ffffff",
+    themeColor: "#000000",
     accentColor: "#10B981",
-    tagline: "Mantiene los colores y estilos definidos en la pestaña Estilos.",
+    tagline: "Usa tus colores configurados en la pestaña Estilos.",
   },
   {
     slug: "black-friday",
@@ -115,7 +115,7 @@ const CAMPAIGN_THEMES: CampaignThemePreset[] = [
     emoji: "🔥",
     themeColor: "#111827",
     accentColor: "#F59E0B",
-    tagline: "Estética Dark & Gold ultra premium para compras de alto volumen.",
+    tagline: "Estética Dark & Gold ultra premium de alto impacto.",
   },
   {
     slug: "hot-sale",
@@ -131,7 +131,7 @@ const CAMPAIGN_THEMES: CampaignThemePreset[] = [
     emoji: "🚀",
     themeColor: "#090D16",
     accentColor: "#3B82F6",
-    tagline: "Estilo cibernético moderno ideal para liquidación digital.",
+    tagline: "Estilo cibernético moderno para liquidación digital.",
   },
   {
     slug: "navidad",
@@ -139,7 +139,7 @@ const CAMPAIGN_THEMES: CampaignThemePreset[] = [
     emoji: "🎄",
     themeColor: "#064E3B",
     accentColor: "#EF4444",
-    tagline: "Combinación festiva de verdes y rojos enfocada en regalos.",
+    tagline: "Combinación festiva de verdes y rojos para regalos.",
   },
   {
     slug: "san-valentin",
@@ -147,15 +147,15 @@ const CAMPAIGN_THEMES: CampaignThemePreset[] = [
     emoji: "💘",
     themeColor: "#831843",
     accentColor: "#F43F5E",
-    tagline: "Diseño romántico apasionado ideal para obsequios y parejas.",
+    tagline: "Diseño romántico apasionado para obsequios en pareja.",
   },
   {
     slug: "dia-madre-padre",
-    name: "Día de la Madre / Padre",
+    name: "Día Madre / Padre",
     emoji: "🎁",
     themeColor: "#312E81",
     accentColor: "#10B981",
-    tagline: "Paleta elegante e institucional que transmite confianza familiar.",
+    tagline: "Paleta institucional que transmite confianza familiar.",
   },
   {
     slug: "liquidacion",
@@ -163,7 +163,7 @@ const CAMPAIGN_THEMES: CampaignThemePreset[] = [
     emoji: "🏷️",
     themeColor: "#7F1D1D",
     accentColor: "#FBBF24",
-    tagline: "Diseño agresivo para cierres de stock y fin de temporada.",
+    tagline: "Diseño agresivo para cierres de stock de temporada.",
   },
 ];
 
@@ -691,4 +691,715 @@ function ChoiceButtons({
       })}
     </div>
   );
-     }
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL (EXPORT DEFAULT)
+═══════════════════════════════════════════ */
+export default function CountdownEditor({
+  widgetDefinition,
+  existingWidget,
+  targetType,
+  productId,
+  storeId,
+}: CountdownEditorProps) {
+  const router = useRouter();
+
+  const [config, setConfig] = useState<CountdownConfig>(() => ({
+    ...defaultConfig,
+    ...(existingWidget?.config || {}),
+  }));
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [saving, setSaving] = useState(false);
+  const [savedOK, setSavedOK] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos' | 'fechas'>('general');
+  const [customDurationOpen, setCustomDurationOpen] = useState(false);
+
+  const isEditing = !!existingWidget;
+  const isForAll = targetType === 'all';
+  const scopeLabel = isForAll ? 'General' : 'Producto';
+
+  const update = <K extends keyof CountdownConfig>(key: K, value: CountdownConfig[K]) => {
+    setConfig((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    setSavedOK(false);
+    try {
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: existingWidget?.id ?? null,
+          widget_slug: widgetDefinition.slug,
+          store_id: storeId,
+          target_type: targetType,
+          target_product_id: productId,
+          config,
+          is_active: isActive,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Error al guardar');
+      setSavedOK(true);
+
+      if (data.action === 'created') {
+        const params = new URLSearchParams();
+        params.set('created', widgetDefinition.slug);
+        if (targetType === 'product' && productId) {
+          params.set('product', String(productId));
+        }
+        router.push(`/widgets?${params.toString()}`);
+      } else {
+        router.push('/widgets');
+      }
+    } catch (e: any) {
+      setError(e.message || 'Error inesperado');
+      setSaving(false);
+    }
+  };
+
+  const durationPresets = [5, 10, 15, 30, 45, 60, 90, 120];
+  const isCustomDuration = !durationPresets.includes(config.durationMinutes);
+
+  /* ═══ TAB GENERAL ═══ */
+  const tabGeneral = (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <FieldLabel required>Título</FieldLabel>
+        <TextInput
+          value={config.title}
+          onChange={(v) => update('title', v)}
+          placeholder="Oferta 🔥"
+        />
+        <FieldHelper>Texto principal del contador</FieldHelper>
+      </div>
+
+      <div style={{ marginBottom: 24 }}>
+        <FieldLabel>Subtítulo (opcional)</FieldLabel>
+        <TextInput
+          value={config.subtitle}
+          onChange={(v) => update('subtitle', v)}
+          placeholder="Ingresa un subtítulo..."
+        />
+        <FieldHelper>Descripción o promoción</FieldHelper>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <FieldLabel required>Tipo de contador</FieldLabel>
+        <ChoiceButtons
+          value={config.mode}
+          onChange={(v) => update('mode', v as any)}
+          options={[
+            { value: 'fixed', label: 'Fecha específica', icon: <IconCalendar /> },
+            { value: 'duration', label: 'Duración corta', icon: <IconBolt /> },
+          ]}
+        />
+        <FieldHelper>
+          <strong>Fecha específica:</strong> el contador termina en la fecha y hora que elijas.<br />
+          <strong>Duración corta ⚡:</strong> cada visitante ve un contador nuevo que arranca al entrar.
+        </FieldHelper>
+      </div>
+
+      {config.mode === 'fixed' ? (
+        <div style={{ marginBottom: 24 }}>
+          <FieldLabel required>Fecha y hora final</FieldLabel>
+          <DateTimeInput
+            value={config.endDate}
+            onChange={(v) => update('endDate', v)}
+          />
+          <FieldHelper>
+            Selecciona cuándo termina la cuenta regresiva.
+          </FieldHelper>
+        </div>
+      ) : (
+        <div style={{ marginBottom: 24 }}>
+          <FieldLabel required>Duración por sesión</FieldLabel>
+          <SelectField
+            value={isCustomDuration ? 'custom' : String(config.durationMinutes)}
+            onChange={(v) => {
+              if (v === 'custom') {
+                setCustomDurationOpen(true);
+              } else {
+                setCustomDurationOpen(false);
+                update('durationMinutes', parseInt(v, 10));
+              }
+            }}
+            options={[
+              { value: '5', label: '⚡ 5 minutos' },
+              { value: '10', label: '⚡ 10 minutos' },
+              { value: '15', label: '🔥 15 minutos (recomendado)' },
+              { value: '30', label: '30 minutos' },
+              { value: '45', label: '45 minutos' },
+              { value: '60', label: '1 hora' },
+              { value: '90', label: '1 hora 30 minutos' },
+              { value: '120', label: '2 horas' },
+              { value: 'custom', label: '⚙️ Personalizado...' },
+            ]}
+          />
+          {(customDurationOpen || isCustomDuration) && (
+            <div style={{ marginTop: 12 }}>
+              <FieldLabel>Minutos personalizados</FieldLabel>
+              <NumberInput
+                value={config.durationMinutes}
+                min={1}
+                max={1440}
+                onChange={(v) => update('durationMinutes', v)}
+                placeholder="Ej: 20"
+              />
+            </div>
+          )}
+          <FieldHelper>
+            Cada visitante ve un contador nuevo que arranca en <strong>{config.durationMinutes} min</strong> al entrar.
+          </FieldHelper>
+        </div>
+      )}
+
+      {config.mode === 'fixed' && (
+        <CheckboxCard
+          checked={config.autoRestart}
+          onChange={(v) => update('autoRestart', v)}
+          label="Reiniciar automáticamente cuando termine"
+          helper="El contador se reiniciará con la duración configurada cada vez que llegue a 00:00:00"
+        />
+      )}
+
+      <CheckboxCard
+        checked={config.showDays}
+        onChange={(v) => update('showDays', v)}
+        label="Mostrar días"
+        helper="Si se desactiva, los días se acumulan en las horas."
+      />
+    </div>
+  );
+
+  /* ═══ TAB UBICACIÓN ═══ */
+  const tabUbicacion = (
+    <div>
+      <CheckboxCard
+        checked={config.showOnProduct}
+        onChange={(v) => update('showOnProduct', v)}
+        label="Mostrar en ficha de producto"
+        helper="El widget aparecerá dentro de la ficha de producto."
+      >
+        <div style={{ paddingLeft: 4 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 12 }}>
+            Ubicación del widget
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <RadioOption
+              checked={config.productPosition === 'before-button'}
+              onChange={() => update('productPosition', 'before-button')}
+              label='Antes del botón "Agregar al carrito"'
+            />
+            <RadioOption
+              checked={config.productPosition === 'before-title'}
+              onChange={() => update('productPosition', 'before-title')}
+              label="Antes del título del producto"
+            />
+          </div>
+        </div>
+      </CheckboxCard>
+
+      <CheckboxCard
+        checked={config.showAsTopBar}
+        onChange={(v) => update('showAsTopBar', v)}
+        label="Mostrar como barra fija en la parte superior"
+        helper="Se mostrará en la parte superior fija de la pantalla."
+      />
+
+      <CheckboxCard
+        checked={config.showOnCart}
+        onChange={(v) => update('showOnCart', v)}
+        label="Mostrar en el carrito"
+        helper="Se mostrará al comienzo del carrito cuando el cliente lo abra."
+      />
+    </div>
+  );
+
+  /* ═══ TAB ESTILOS ═══ */
+  const tabEstilos = (
+    <div>
+      <SectionCard
+        icon={<IconClock />}
+        title="Estilo del reloj"
+        helper="Customizá la apariencia del contador."
+      >
+        <FieldLabel>Estilo del reloj</FieldLabel>
+        <ChoiceButtons
+          value={config.style}
+          onChange={(v) => update('style', v as any)}
+          options={[
+            { value: 'clasico', label: 'Clásico', icon: <IconClockSmall /> },
+            { value: 'retro', label: 'Retro flip', icon: <IconRotate /> },
+          ]}
+        />
+
+        <div style={{ marginTop: 20 }}>
+          <FieldLabel>Alineación del contenido</FieldLabel>
+          <ChoiceButtons
+            value={config.alignment}
+            onChange={(v) => update('alignment', v as any)}
+            options={[
+              { value: 'left', label: 'Izquierda / derecha', icon: <IconAlignLeft /> },
+              { value: 'center', label: 'Siempre centrado', icon: <IconAlignCenter /> },
+            ]}
+          />
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <CheckboxCard
+            checked={config.showLabels}
+            onChange={(v) => update('showLabels', v)}
+            label="Mostrar etiquetas del reloj"
+            helper="Muestra los textos DÍAS, HRS, MIN y SEG."
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        icon={<IconLayers />}
+        title="Fondo del widget"
+        helper="Elegí el fondo principal del widget."
+      >
+        <FieldLabel>Tipo de fondo</FieldLabel>
+        <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>
+          <RadioOption
+            checked={config.bgType === 'solid'}
+            onChange={() => update('bgType', 'solid')}
+            label="Color sólido"
+          />
+          <RadioOption
+            checked={config.bgType === 'gradient'}
+            onChange={() => update('bgType', 'gradient')}
+            label="Degradé"
+          />
+        </div>
+
+        {config.bgType === 'solid' ? (
+          <>
+            <FieldLabel>Color de fondo</FieldLabel>
+            <ColorPickerField
+              value={config.colorWidgetBg}
+              onChange={(v) => update('colorWidgetBg', v)}
+              showClear={false}
+            />
+          </>
+        ) : (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              <FieldLabel>Color inicial</FieldLabel>
+              <ColorPickerField
+                value={config.colorWidgetBg}
+                onChange={(v) => update('colorWidgetBg', v)}
+                showClear={false}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <FieldLabel>Color final</FieldLabel>
+              <ColorPickerField
+                value={config.colorWidgetBg2}
+                onChange={(v) => update('colorWidgetBg2', v)}
+                showClear={false}
+              />
+            </div>
+
+            <div>
+              <FieldLabel>Dirección del degradé</FieldLabel>
+              <ChoiceButtons
+                value={config.gradientDirection}
+                onChange={(v) => update('gradientDirection', v as any)}
+                options={[
+                  { value: 'to bottom', label: 'Vertical', icon: <IconArrowDown /> },
+                  { value: 'to right', label: 'Horizontal', icon: <IconArrowRight /> },
+                  { value: 'to bottom right', label: 'Diagonal', icon: <IconArrowDiagonal /> },
+                ]}
+              />
+            </div>
+          </>
+        )}
+      </SectionCard>
+
+      <SectionCard
+        icon={<IconPalette />}
+        title="Colores"
+        helper="Definí los colores de textos y fondos."
+      >
+        <div style={{ marginBottom: 16 }}>
+          <FieldLabel>Color de fondo del reloj</FieldLabel>
+          <ColorPickerField
+            value={config.colorClockBg}
+            onChange={(v) => update('colorClockBg', v)}
+            showClear={false}
+          />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <FieldLabel>Color de fuente del título</FieldLabel>
+          <ColorPickerField
+            value={config.colorTitle}
+            onChange={(v) => update('colorTitle', v)}
+            showClear={false}
+          />
+        </div>
+
+        <div>
+          <FieldLabel>Color de números</FieldLabel>
+          <ColorPickerField
+            value={config.colorNumbers}
+            onChange={(v) => update('colorNumbers', v)}
+            showClear={false}
+          />
+        </div>
+      </SectionCard>
+    </div>
+  );
+
+  /* ═══ TAB FECHAS ESPECIALES (NUEVO TAB #4) ═══ */
+  const tabFechasEspeciales = (
+    <div>
+      <div
+        style={{
+          background: '#ecfdf5',
+          border: '1.5px solid #a7f3d0',
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+        }}
+      >
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#065f46', marginBottom: 4 }}>
+          🔥 Maquillaje de Temporada Exclusivo
+        </div>
+        <div style={{ fontSize: 13, color: '#047857', lineHeight: 1.5 }}>
+          Elegí si querés que este contador adopte la estética de un evento de alta venta. 
+          Podés activarlo o volver al <strong>Diseño Normal</strong> cuando quieras.
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+        {CAMPAIGN_THEMES.map((theme) => {
+          const isSelected = config.campaignTheme === theme.slug;
+          return (
+            <div
+              key={theme.slug}
+              onClick={() => update('campaignTheme', theme.slug)}
+              style={{
+                background: isSelected ? '#ffffff' : '#f9fafb',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 14,
+                padding: 16,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                boxShadow: isSelected ? '0 4px 14px rgba(16, 185, 129, 0.15)' : 'none',
+                position: 'relative',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 22 }}>{theme.emoji}</span>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: '#000000' }}>{theme.name}</span>
+                </div>
+                <div
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    border: isSelected ? '5px solid #10B981' : '2px solid #d1d5db',
+                    background: '#ffffff',
+                    flexShrink: 0,
+                  }}
+                />
+              </div>
+
+              <p style={{ fontSize: 12.5, color: '#000000', opacity: 0.6, margin: 0, lineHeight: 1.4 }}>
+                {theme.tagline}
+              </p>
+
+              {theme.slug !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                  <div style={{ width: 14, height: 14, borderRadius: 4, background: theme.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 14, height: 14, borderRadius: 4, background: theme.accentColor, border: '1px solid #d1d5db' }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#000000', opacity: 0.5, marginLeft: 4 }}>
+                    Paleta Oficial
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const tabs = [
+    { id: 'general', label: 'General' },
+    { id: 'ubicacion', label: 'Ubicación' },
+    { id: 'estilos', label: 'Estilos' },
+    { id: 'fechas', label: '🔥 Fechas Especiales' },
+  ];
+
+  const infoBoxText = config.productPosition === 'before-title'
+    ? 'La cuenta regresiva aparecerá antes del título del producto.'
+    : 'La cuenta regresiva aparecerá antes del botón "Agregar al carrito".';
+
+  /* ═══ RENDER ═══ */
+  return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+
+      {/* HEADER */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 30,
+          background: '#FFFFFF',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <NevuxLogo size="medium" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              background: '#000000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#FFFFFF',
+            }}
+          >
+            RL
+          </div>
+        </div>
+      </div>
+
+      {/* MAIN */}
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
+
+        {/* Scope chip */}
+        {isForAll ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: '#10B981',
+              color: '#FFFFFF',
+              padding: '8px 14px',
+              borderRadius: 999,
+              fontSize: 14,
+              fontWeight: 700,
+              marginBottom: 14,
+            }}
+          >
+            <IconStore />
+            Todos los productos
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#FFFFFF',
+              border: '1px solid #e5e7eb',
+              padding: '8px 14px',
+              borderRadius: 10,
+              fontSize: 14,
+              fontWeight: 700,
+              color: '#000000',
+              marginBottom: 14,
+            }}
+          >
+            <span style={{ fontSize: 18 }}>🛍</span>
+            NEVUX Widget
+          </div>
+        )}
+
+        <h1
+          style={{
+            fontSize: 26,
+            fontWeight: 800,
+            color: '#000000',
+            marginBottom: 20,
+            lineHeight: 1.2,
+          }}
+        >
+          {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
+          {widgetDefinition.name} ({scopeLabel})
+        </h1>
+
+        {/* CARD PRINCIPAL */}
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 16,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          {/* PREVIEW */}
+          <div style={{ marginBottom: 14 }}>
+            <CountdownPreview config={config as any} />
+          </div>
+
+          {/* NOTA INFO */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              borderRadius: 10,
+              padding: '12px 16px',
+              marginBottom: 16,
+              fontSize: 14,
+              color: '#000000',
+              lineHeight: 1.5,
+            }}
+          >
+            <IconInfo />
+            <span>{infoBoxText}</span>
+          </div>
+
+          {/* TABS (4 PESTAÑAS) */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 0,
+              borderBottom: '1px solid #e5e7eb',
+              marginBottom: 20,
+            }}
+          >
+            {tabs.map((tab) => {
+              const act = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as any)}
+                  style={{
+                    flex: 1,
+                    background: act ? '#FFFFFF' : 'transparent',
+                    border: 'none',
+                    borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
+                    padding: '14px 6px',
+                    fontSize: 14,
+                    fontWeight: act ? 800 : 500,
+                    color: act ? '#059669' : '#000000',
+                    opacity: act ? 1 : 0.6,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div>
+            {activeTab === 'general' && tabGeneral}
+            {activeTab === 'ubicacion' && tabUbicacion}
+            {activeTab === 'estilos' && tabEstilos}
+            {activeTab === 'fechas' && tabFechasEspeciales}
+          </div>
+
+          {/* FOOTER CONTROLES */}
+          <div
+            style={{
+              marginTop: 32,
+              paddingTop: 20,
+              borderTop: '1px solid #e5e7eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 16,
+              flexWrap: 'wrap',
+            }}
+          >
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+              <div
+                onClick={() => setIsActive(!isActive)}
+                style={{
+                  width: 40,
+                  height: 22,
+                  borderRadius: 999,
+                  background: isActive ? '#10B981' : '#e5e7eb',
+                  position: 'relative',
+                  transition: 'background 0.15s',
+                  flexShrink: 0,
+                }}
+              >
+                <div
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    background: '#FFFFFF',
+                    position: 'absolute',
+                    top: 2,
+                    left: isActive ? 20 : 2,
+                    transition: 'left 0.15s',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                  }}
+                />
+              </div>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
+                Widget activo
+              </span>
+              <IconInfo />
+            </label>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                padding: '12px 28px',
+                borderRadius: 999,
+                border: 'none',
+                background: savedOK ? '#059669' : '#10B981',
+                color: '#FFFFFF',
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: saving ? 'wait' : 'pointer',
+                opacity: saving ? 0.7 : 1,
+                fontFamily: 'inherit',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {saving
+                ? 'Guardando...'
+                : savedOK
+                ? '✓ Guardado'
+                : isEditing
+                ? 'Guardar cambios'
+                : 'Crear widget'}
+            </button>
+          </div>
+        </div>
+
+        {/* CENTRO DE AYUDA */}
+        <div style={{ marginTop: 40 }}>
+          <CentroAyuda />
+        </div>
+      </div>
+    </div>
+  );
+}
