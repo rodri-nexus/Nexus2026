@@ -4314,8 +4314,8 @@
       '</div>';
   }
 
-  /* ═══════════════════════════════════════════
-     RENDER MENSAJE DE ALERTA
+/* ═══════════════════════════════════════════
+     RENDER MENSAJE DE ALERTA (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderMensajeAlerta(widget) {
     if (pageType !== "product") return;
@@ -4343,26 +4343,49 @@
       estiloTexto: raw.estiloTexto === "resaltado" ? "resaltado" : "normal",
       efecto: raw.efecto === "aureola" ? "aureola" : (raw.efecto === "zoom" ? "zoom" : "ninguno"),
       aplicarEfectoA: raw.aplicarEfectoA === "completo" ? "completo" : "icono",
-      bordesRedondeados: n(raw.bordesRedondeados, 8),
-      paddingInterno: n(raw.paddingInterno, 12),
+      bordesRedondeados: n(raw.bordesRedondeados, 25),
+      paddingInterno: n(raw.paddingInterno, 10),
       mostrarBorde: raw.mostrarBorde === true,
+      campaignTheme: raw.campaignTheme || "none",
     };
   }
 
   function getMensajeAlertaColores(cfg) {
+    var THEMES = {
+      'black-friday': { themeColor: '#111827', accentColor: '#F59E0B' },
+      'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444' },
+      'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6' },
+      'navidad': { themeColor: '#064E3B', accentColor: '#EF4444' },
+      'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E' },
+      'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981' },
+      'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24' }
+    };
+
+    var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
+    if (currentCampaign && THEMES[currentCampaign]) {
+      var th = THEMES[currentCampaign];
+      return {
+        fondo: th.themeColor,
+        texto: "#ffffff",
+        borde: th.accentColor,
+        isCampaign: true,
+      };
+    }
+
     switch (cfg.color) {
       case "verde":
-        return { fondo: "#22c55e", texto: "#ffffff", borde: "#15803d" };
+        return { fondo: "#10B981", texto: "#ffffff", borde: "#059669", isCampaign: false };
       case "rojo":
-        return { fondo: "#ef4444", texto: "#ffffff", borde: "#b91c1c" };
+        return { fondo: "#EF4444", texto: "#ffffff", borde: "#DC2626", isCampaign: false };
       case "amarillo":
-        return { fondo: "#f59e0b", texto: "#ffffff", borde: "#b45309" };
+        return { fondo: "#F59E0B", texto: "#ffffff", borde: "#D97706", isCampaign: false };
       case "personalizado":
       default:
         return {
-          fondo: cfg.colorPersonalizadoFondo || "#6366f1",
+          fondo: cfg.colorPersonalizadoFondo || "#10B981",
           texto: cfg.colorPersonalizadoTexto || "#ffffff",
-          borde: cfg.colorPersonalizadoFondo || "#6366f1",
+          borde: cfg.colorPersonalizadoFondo || "#059669",
+          isCampaign: false,
         };
     }
   }
@@ -4371,10 +4394,10 @@
     var iconoSize = Math.round((cfg.tamanoTexto || 14) * 1.4);
     switch (cfg.icono) {
       case "circulo": {
-        var dotColor = cfg.color === "amarillo" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.85)";
+        var dotColor = colores.isCampaign ? colores.borde : (cfg.color === "amarillo" ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.9)");
         var dotSize = Math.max(10, Math.round(iconoSize * 0.55));
-        return '<span class="' + NS + '-alerta-icono" style="width:' + iconoSize + 'px;height:' + iconoSize + 'px;">' +
-          '<span style="display:inline-block;width:' + dotSize + 'px;height:' + dotSize + 'px;border-radius:50%;background:' + dotColor + ';"></span>' +
+        return '<span class="' + NS + '-alerta-icono" style="width:' + iconoSize + 'px;height:' + iconoSize + 'px;display:inline-flex;align-items:center;justify-content:center;">' +
+          '<span style="display:inline-block;width:' + dotSize + 'px;height:' + dotSize + 'px;border-radius:50%;background:' + dotColor + ';box-shadow:0 0 6px rgba(255,255,255,0.5);"></span>' +
         '</span>';
       }
       case "corazon":
@@ -4382,7 +4405,7 @@
       case "alerta":
         return '<span class="' + NS + '-alerta-icono" style="font-size:' + iconoSize + 'px;">⚠️</span>';
       case "emoji":
-        return '<span class="' + NS + '-alerta-icono" style="font-size:' + iconoSize + 'px;">' + escapeHtml(cfg.emojiCustom || "⭐") + '</span>';
+        return '<span class="' + NS + '-alerta-icono" style="font-size:' + iconoSize + 'px;">' + escapeHtml(cfg.emojiCustom || "🔥") + '</span>';
       case "imagen":
         if (cfg.imagenUrl && cfg.imagenUrl.trim() !== "") {
           return '<span class="' + NS + '-alerta-icono"><img src="' + escapeHtml(cfg.imagenUrl) + '" alt="" style="width:' + iconoSize + 'px;height:' + iconoSize + 'px;object-fit:contain;display:block;" /></span>';
@@ -4428,15 +4451,15 @@
     }
 
     container.innerHTML = buildMensajeAlertaHtml(cfg);
-    console.log("[Nevux] Mensaje alerta montado");
+    console.log("[Nevux] Mensaje alerta montado con campaña");
   }
 
   function buildMensajeAlertaHtml(cfg) {
     var colores = getMensajeAlertaColores(cfg);
     var iconoHtml = getMensajeAlertaIconoHtml(cfg, colores);
 
-    var fontWeight = cfg.estiloTexto === "resaltado" ? 700 : 500;
-    var borde = cfg.mostrarBorde ? "2px solid " + colores.borde : "none";
+    var fontWeight = cfg.estiloTexto === "resaltado" ? 800 : 600;
+    var borde = (cfg.mostrarBorde || colores.isCampaign) ? "1.5px solid " + colores.borde : "none";
 
     var efectoAnim =
       cfg.efecto === "aureola" ? NS + "-aureolaPulse 2s ease-in-out infinite" :
@@ -4449,7 +4472,7 @@
 
     var iconoFinal = iconoHtml;
     if (iconoHtml && animacionIcono !== "none") {
-      iconoFinal = '<span style="display:inline-flex;animation:' + animacionIcono + ';">' + iconoHtml + '</span>';
+      iconoFinal = '<span style="display:inline-flex;align-items:center;animation:' + animacionIcono + ';">' + iconoHtml + '</span>';
     }
 
     return '' +
@@ -4457,20 +4480,28 @@
         'background:' + colores.fondo + ';' +
         'color:' + colores.texto + ';' +
         'border-radius:' + cfg.bordesRedondeados + 'px;' +
-        'padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 6) + 'px;' +
+        'padding:' + cfg.paddingInterno + 'px ' + (cfg.paddingInterno + 8) + 'px;' +
         'border:' + borde + ';' +
         'animation:' + animacionBox + ';' +
-        'width:100%;box-sizing:border-box;' +
+        'display:inline-flex;' +
+        'align-items:center;' +
+        'gap:10px;' +
+        'width:auto;' +
+        'max-width:100%;' +
+        'box-sizing:border-box;' +
+        'margin:8px 0;' +
+        'box-shadow:0 4px 14px rgba(0,0,0,0.06);' +
       '">' +
         (iconoFinal ? iconoFinal : "") +
         '<span class="' + NS + '-alerta-texto" style="' +
           'font-size:' + cfg.tamanoTexto + 'px;' +
           'font-weight:' + fontWeight + ';' +
           'color:' + colores.texto + ';' +
+          'line-height:1.3;' +
         '">' + escapeHtml(cfg.mensaje) + '</span>' +
       '</div>';
-  }
-
+ }
+  
   /* ═══════════════════════════════════════════
      RENDER MENSAJE DE GARANTÍA
   ═══════════════════════════════════════════ */
