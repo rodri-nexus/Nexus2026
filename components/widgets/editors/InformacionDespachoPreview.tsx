@@ -1,3 +1,4 @@
+// components/widgets/editors/InformacionDespachoPreview.tsx
 'use client';
 
 import React from 'react';
@@ -33,15 +34,29 @@ interface PreviewProps {
     bordesRedondeados: number;
     paddingInterno: number;
     activarBorde: boolean;
+    campaignTheme?: string;
   };
 }
 
 /* ═══════════════════════════════════════════
+   CAMPANAS PRESETS
+═══════════════════════════════════════════ */
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBg: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBg: '#F59E0B' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBg: '#3B82F6' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBg: '#F43F5E' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBg: '#10B981' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBg: '#FBBF24' },
+};
+
+/* ═══════════════════════════════════════════
    ICONOS
 ═══════════════════════════════════════════ */
-function IconoCirculo({ size = 14 }: { size?: number }) {
+function IconoCirculo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="#10B981">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
       <circle cx="12" cy="12" r="10" />
     </svg>
   );
@@ -63,10 +78,10 @@ function IconoAlerta({ size = 16 }: { size?: number }) {
   );
 }
 
-function renderIcono(tipo: string, size: number) {
+function renderIcono(tipo: string, size: number, colorCirculo: string) {
   switch (tipo) {
     case 'circulo':
-      return <IconoCirculo size={size} />;
+      return <IconoCirculo size={size} color={colorCirculo} />;
     case 'corazon':
       return <IconoCorazon size={size + 2} />;
     case 'alerta':
@@ -83,21 +98,32 @@ function renderIcono(tipo: string, size: number) {
    PREVIEW
 ═══════════════════════════════════════════ */
 export default function InformacionDespachoPreview({ config }: PreviewProps) {
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
   const fontWeight = config.estiloTexto === 'negrita' ? 800 : 600;
   const fontSize = config.tamanoFuente || 14;
 
-  const background = config.fondoDegradado
-    ? `linear-gradient(135deg, ${config.colorFondo || '#ffffff'} 0%, ${config.colorFondo || '#ffffff'}dd 100%)`
-    : config.colorFondo || '#ffffff';
+  const colorFondo = activeTheme ? activeTheme.themeColor : config.colorFondo || '#10B981';
+  const colorTexto = activeTheme ? activeTheme.textColor : config.colorTexto || '#ffffff';
 
-  const border = config.activarBorde
-    ? `1px solid ${config.colorTexto || '#000000'}22`
+  const background = config.fondoDegradado
+    ? `linear-gradient(135deg, ${colorFondo} 0%, ${colorFondo}dd 100%)`
+    : colorFondo;
+
+  const border = (config.activarBorde || activeTheme)
+    ? `1.5px solid ${activeTheme ? activeTheme.accentColor : (config.colorTexto || '#000000') + '22'}`
     : '1px solid rgba(0,0,0,0.06)';
 
-  const badgeBg =
-    config.colorBadge && config.colorBadge.trim() !== ''
-      ? config.colorBadge
-      : '#10B981';
+  const badgeBg = activeTheme
+    ? activeTheme.badgeBg
+    : config.colorBadge && config.colorBadge.trim() !== ''
+    ? config.colorBadge
+    : 'rgba(0,0,0,0.18)';
+
+  const colorTextoBadge = activeTheme
+    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+    : config.colorTextoBadge || '#ffffff';
 
   const efectoIcono =
     config.efecto === 'aureola'
@@ -111,7 +137,8 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
   const animacionIcono = aplicarASoloIcono ? efectoIcono : 'none';
 
   const iconoSize = fontSize + 2;
-  const iconoNode = renderIcono(config.icono, iconoSize);
+  const colorCirculo = activeTheme ? activeTheme.accentColor : '#10B981';
+  const iconoNode = renderIcono(config.icono, iconoSize, colorCirculo);
 
   return (
     <>
@@ -133,7 +160,7 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
           justifyContent: 'space-between',
           gap: 12,
           background: background,
-          color: config.colorTexto || '#000000',
+          color: colorTexto,
           borderRadius: config.bordesRedondeados || 14,
           padding: `${(config.paddingInterno || 10) + 4}px ${(config.paddingInterno || 10) + 8}px`,
           border: border,
@@ -180,7 +207,7 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
                 fontSize: fontSize,
                 fontWeight: fontWeight,
                 lineHeight: 1.25,
-                color: config.colorTexto || '#000000',
+                color: colorTexto,
                 letterSpacing: '-0.01em',
               }}
             >
@@ -192,13 +219,13 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
                 display: 'inline-block',
                 alignSelf: 'flex-start',
                 background: badgeBg,
-                color: config.colorTextoBadge || '#ffffff',
+                color: colorTextoBadge,
                 fontSize: Math.max(10, fontSize - 4),
                 fontWeight: 800,
                 padding: '3px 9px',
                 borderRadius: 6,
                 letterSpacing: '0.04em',
-                boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
               }}
             >
               HOY
@@ -214,13 +241,13 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
             alignItems: 'center',
             justifyContent: 'center',
             background: badgeBg,
-            color: config.colorTextoBadge || '#ffffff',
+            color: colorTextoBadge,
             padding: '8px 12px',
             borderRadius: 10,
             flexShrink: 0,
             minWidth: 80,
             lineHeight: 1.15,
-            boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
+            boxShadow: '0 3px 10px rgba(0, 0, 0, 0.15)',
           }}
         >
           <span
@@ -244,4 +271,4 @@ export default function InformacionDespachoPreview({ config }: PreviewProps) {
       </div>
     </>
   );
-    }
+     }
