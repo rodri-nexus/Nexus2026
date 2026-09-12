@@ -1,3 +1,4 @@
+// components/widgets/editors/MensajeGarantiaEditor.tsx
 'use client';
 
 import { useState, useRef } from 'react';
@@ -54,6 +55,7 @@ interface MensajeGarantiaConfig {
   bordesRedondeados: number;
   paddingInterno: number;
   ubicacion?: 'under-cart' | 'product-end';
+  campaignTheme?: string;
 }
 
 /* ═══════════════════════════════════════════
@@ -73,6 +75,7 @@ const DEFAULT_CONFIG: MensajeGarantiaConfig = {
   bordesRedondeados: 5,
   paddingInterno: 20,
   ubicacion: 'under-cart',
+  campaignTheme: 'none',
 };
 
 const TAMANO_OPTIONS = [
@@ -668,6 +671,76 @@ export default function MensajeGarantiaEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  ];
+
+  const tabFechasEspeciales = (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>Seleccionar Temporada / Evento</div>
+        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 12, lineHeight: 1.5 }}>
+          Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para este widget.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {CAMPAIGN_PRESETS.map((preset) => {
+          const isSelected = (config.campaignTheme || 'none') === preset.id;
+          return (
+            <div
+              key={preset.id}
+              onClick={() => updateCfg('campaignTheme', preset.id)}
+              style={{
+                background: '#ffffff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {preset.label}
+                  {isSelected && (
+                    <span style={{
+                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                    }}>
+                      ACTIVO
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                  {preset.desc}
+                </div>
+              </div>
+              {preset.id !== 'none' && (
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -812,9 +885,10 @@ export default function MensajeGarantiaEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: '🔥 Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechasEspeciales]}
           </EditorTabs>
 
           {/* FOOTER: Toggle + botón guardar */}
