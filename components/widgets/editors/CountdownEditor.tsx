@@ -1,3 +1,4 @@
+// components/widgets/editors/CountdownEditor.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,7 +8,7 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -84,10 +85,90 @@ interface CountdownConfig {
   showBounce: boolean;
   showGlowBreath: boolean;
   showVibration: boolean;
+  campaignTheme: 'none' | 'black-friday' | 'hot-sale' | 'cyber-monday' | 'navidad' | 'san-valentin' | 'dia-madre-padre' | 'liquidacion';
+}
+
+interface CampaignThemePreset {
+  slug: string;
+  name: string;
+  emoji: string;
+  themeColor: string;
+  accentColor: string;
+  tagline: string;
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO
+   PRESETS DE CAMPAÑAS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const CAMPAIGN_THEMES: CampaignThemePreset[] = [
+  {
+    slug: "none",
+    name: "Diseño Normal / Sin Evento",
+    emoji: "⚙️",
+    themeColor: "#ffffff",
+    accentColor: "#10B981",
+    tagline: "Mantiene los colores y estilos definidos en la pestaña Estilos.",
+  },
+  {
+    slug: "black-friday",
+    name: "Black Friday",
+    emoji: "🔥",
+    themeColor: "#111827",
+    accentColor: "#F59E0B",
+    tagline: "Estética Dark & Gold ultra premium para compras de alto volumen.",
+  },
+  {
+    slug: "hot-sale",
+    name: "Hot Sale",
+    emoji: "⚡",
+    themeColor: "#0F172A",
+    accentColor: "#EF4444",
+    tagline: "Paleta Neón con alto sentido de escasez y compras flash.",
+  },
+  {
+    slug: "cyber-monday",
+    name: "Cyber Monday",
+    emoji: "🚀",
+    themeColor: "#090D16",
+    accentColor: "#3B82F6",
+    tagline: "Estilo cibernético moderno ideal para liquidación digital.",
+  },
+  {
+    slug: "navidad",
+    name: "Navidad & Reyes",
+    emoji: "🎄",
+    themeColor: "#064E3B",
+    accentColor: "#EF4444",
+    tagline: "Combinación festiva de verdes y rojos enfocada en regalos.",
+  },
+  {
+    slug: "san-valentin",
+    name: "San Valentín",
+    emoji: "💘",
+    themeColor: "#831843",
+    accentColor: "#F43F5E",
+    tagline: "Diseño romántico apasionado ideal para obsequios y parejas.",
+  },
+  {
+    slug: "dia-madre-padre",
+    name: "Día de la Madre / Padre",
+    emoji: "🎁",
+    themeColor: "#312E81",
+    accentColor: "#10B981",
+    tagline: "Paleta elegante e institucional que transmite confianza familiar.",
+  },
+  {
+    slug: "liquidacion",
+    name: "Liquidación / Sale",
+    emoji: "🏷️",
+    themeColor: "#7F1D1D",
+    accentColor: "#FBBF24",
+    tagline: "Diseño agresivo para cierres de stock y fin de temporada.",
+  },
+];
+
+/* ═══════════════════════════════════════════
+   CONFIG POR DEFECTO (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function getDefaultEndDate(): string {
   const d = new Date();
@@ -147,10 +228,11 @@ const defaultConfig: CountdownConfig = {
   showBounce: false,
   showGlowBreath: false,
   showVibration: false,
+  campaignTheme: 'none',
 };
 
 /* ═══════════════════════════════════════════
-   ICONOS SVG
+   ICONOS SVG (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const IconStore = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -260,7 +342,7 @@ const IconBolt = () => (
 );
 
 /* ═══════════════════════════════════════════
-   COMPONENTES REUTILIZABLES
+   SUB-COMPONENTES REUTILIZABLES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -609,801 +691,4 @@ function ChoiceButtons({
       })}
     </div>
   );
-}
-
-/* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
-═══════════════════════════════════════════ */
-export default function CountdownEditor({
-  widgetDefinition,
-  existingWidget,
-  targetType,
-  productId,
-  storeId,
-}: CountdownEditorProps) {
-  const router = useRouter();
-
-  const [config, setConfig] = useState<CountdownConfig>(() => ({
-    ...defaultConfig,
-    ...(existingWidget?.config || {}),
-  }));
-  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
-  const [saving, setSaving] = useState(false);
-  const [savedOK, setSavedOK] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos'>('general');
-  const [customDurationOpen, setCustomDurationOpen] = useState(false);
-
-  const isEditing = !!existingWidget;
-  const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
-
-  const update = <K extends keyof CountdownConfig>(key: K, value: CountdownConfig[K]) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    setError(null);
-    setSavedOK(false);
-    try {
-      const res = await fetch('/api/widgets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: existingWidget?.id ?? null,
-          widget_slug: widgetDefinition.slug,
-          store_id: storeId,
-          target_type: targetType,
-          target_product_id: productId,
-          config,
-          is_active: isActive,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Error al guardar');
-      setSavedOK(true);
-
-      if (data.action === 'created') {
-        const params = new URLSearchParams();
-        params.set('created', widgetDefinition.slug);
-        if (targetType === 'product' && productId) {
-          params.set('product', String(productId));
-        }
-        router.push(`/widgets?${params.toString()}`);
-      } else {
-        router.push('/widgets');
-      }
-    } catch (e: any) {
-      setError(e.message || 'Error inesperado');
-      setSaving(false);
-    }
-  };
-
-  const durationPresets = [5, 10, 15, 30, 45, 60, 90, 120];
-  const isCustomDuration = !durationPresets.includes(config.durationMinutes);
-
-  /* ═══ TAB GENERAL ═══ */
-  const tabGeneral = (
-    <div>
-      <div style={{ marginBottom: 24 }}>
-        <FieldLabel required>Título</FieldLabel>
-        <TextInput
-          value={config.title}
-          onChange={(v) => update('title', v)}
-          placeholder="Oferta 🔥"
-        />
-        <FieldHelper>Texto principal del contador</FieldHelper>
-      </div>
-
-      <div style={{ marginBottom: 24 }}>
-        <FieldLabel>Subtítulo (opcional)</FieldLabel>
-        <TextInput
-          value={config.subtitle}
-          onChange={(v) => update('subtitle', v)}
-          placeholder="Ingresa un subtítulo..."
-        />
-        <FieldHelper>Descripción o promoción</FieldHelper>
-      </div>
-
-      <div style={{ marginBottom: 20 }}>
-        <FieldLabel required>Tipo de contador</FieldLabel>
-        <ChoiceButtons
-          value={config.mode}
-          onChange={(v) => update('mode', v as any)}
-          options={[
-            { value: 'fixed', label: 'Fecha específica', icon: <IconCalendar /> },
-            { value: 'duration', label: 'Duración corta', icon: <IconBolt /> },
-          ]}
-        />
-        <FieldHelper>
-          <strong>Fecha específica:</strong> el contador termina en la fecha y hora que elijas.<br />
-          <strong>Duración corta ⚡:</strong> cada visitante ve un contador nuevo que arranca al entrar (ideal para urgencia tipo "flash sale").
-        </FieldHelper>
-      </div>
-
-      {config.mode === 'fixed' ? (
-        <div style={{ marginBottom: 24 }}>
-          <FieldLabel required>Fecha y hora final</FieldLabel>
-          <DateTimeInput
-            value={config.endDate}
-            onChange={(v) => update('endDate', v)}
-          />
-          <FieldHelper>
-            Selecciona cuándo termina la cuenta regresiva. Llegado a la fecha se ocultará automáticamente a menos que tenga configurado el reinicio automático.
-          </FieldHelper>
-        </div>
-      ) : (
-        <div style={{ marginBottom: 24 }}>
-          <FieldLabel required>Duración por sesión</FieldLabel>
-          <SelectField
-            value={isCustomDuration ? 'custom' : String(config.durationMinutes)}
-            onChange={(v) => {
-              if (v === 'custom') {
-                setCustomDurationOpen(true);
-              } else {
-                setCustomDurationOpen(false);
-                update('durationMinutes', parseInt(v, 10));
-              }
-            }}
-            options={[
-              { value: '5', label: '⚡ 5 minutos' },
-              { value: '10', label: '⚡ 10 minutos' },
-              { value: '15', label: '🔥 15 minutos (recomendado)' },
-              { value: '30', label: '30 minutos' },
-              { value: '45', label: '45 minutos' },
-              { value: '60', label: '1 hora' },
-              { value: '90', label: '1 hora 30 minutos' },
-              { value: '120', label: '2 horas' },
-              { value: 'custom', label: '⚙️ Personalizado...' },
-            ]}
-          />
-          {(customDurationOpen || isCustomDuration) && (
-            <div style={{ marginTop: 12 }}>
-              <FieldLabel>Minutos personalizados</FieldLabel>
-              <NumberInput
-                value={config.durationMinutes}
-                min={1}
-                max={1440}
-                onChange={(v) => update('durationMinutes', v)}
-                placeholder="Ej: 20"
-              />
-            </div>
-          )}
-          <FieldHelper>
-            Cada visitante ve un contador nuevo que arranca en <strong>{config.durationMinutes} min</strong> al entrar a la página. Genera máxima urgencia.
-          </FieldHelper>
-        </div>
-      )}
-
-      {config.mode === 'fixed' && (
-        <CheckboxCard
-          checked={config.autoRestart}
-          onChange={(v) => update('autoRestart', v)}
-          label="Reiniciar automáticamente cuando termine"
-          helper="El contador se reiniciará con la duración configurada cada vez que llegue a 00:00:00"
-        />
-      )}
-
-      <CheckboxCard
-        checked={config.showDays}
-        onChange={(v) => update('showDays', v)}
-        label="Mostrar días"
-        helper="Si se desactiva, los días se acumulan en las horas (ej: 1 día 2 horas → 26 HRS). Si está activado pero quedan menos de 24 horas, la sección de días se oculta automáticamente."
-      />
-    </div>
-  );
-
-  /* ═══ TAB UBICACIÓN ═══ */
-  const tabUbicacion = (
-    <div>
-      <CheckboxCard
-        checked={config.showOnProduct}
-        onChange={(v) => update('showOnProduct', v)}
-        label="Mostrar en ficha de producto"
-        helper="El widget aparecerá dentro de la ficha de producto."
-      >
-        <div style={{ paddingLeft: 4 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 12 }}>
-            Ubicación del widget
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <RadioOption
-              checked={config.productPosition === 'before-button'}
-              onChange={() => update('productPosition', 'before-button')}
-              label='Antes del botón "Agregar al carrito"'
-            />
-            <RadioOption
-              checked={config.productPosition === 'before-title'}
-              onChange={() => update('productPosition', 'before-title')}
-              label="Antes del título del producto"
-            />
-          </div>
-          <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 12, lineHeight: 1.5 }}>
-            Selecciona dónde quieres que aparezca la cuenta regresiva en la ficha del producto
-          </div>
-        </div>
-      </CheckboxCard>
-
-      <CheckboxCard
-        checked={config.showAsTopBar}
-        onChange={(v) => update('showAsTopBar', v)}
-        label="Mostrar como barra fija en la parte superior de la pantalla"
-        helper="Se mostrará el widget en una barra fija en la parte superior de la pantalla."
-      />
-
-      <CheckboxCard
-        checked={config.showOnCart}
-        onChange={(v) => update('showOnCart', v)}
-        label="Mostrar en el carrito"
-        helper="Se mostrará el widget al comienzo del carrito cuando el cliente lo abra."
-      />
-    </div>
-  );
-
-  /* ═══ TAB ESTILOS ═══ */
-  const tabEstilos = (
-    <div>
-      <SectionCard
-        icon={<IconClock />}
-        title="Estilo del reloj"
-        helper="Customizá la apariencia del contador."
-      >
-        <FieldLabel>Estilo del reloj</FieldLabel>
-        <ChoiceButtons
-          value={config.style}
-          onChange={(v) => update('style', v as any)}
-          options={[
-            { value: 'clasico', label: 'Clásico', icon: <IconClockSmall /> },
-            { value: 'retro', label: 'Retro flip', icon: <IconRotate /> },
-          ]}
-        />
-
-        <div style={{ marginTop: 20 }}>
-          <FieldLabel>Alineación del contenido</FieldLabel>
-          <ChoiceButtons
-            value={config.alignment}
-            onChange={(v) => update('alignment', v as any)}
-            options={[
-              { value: 'left', label: 'Izquierda / derecha', icon: <IconAlignLeft /> },
-              { value: 'center', label: 'Siempre centrado', icon: <IconAlignCenter /> },
-            ]}
-          />
-        </div>
-
-        <div style={{ marginTop: 20 }}>
-          <CheckboxCard
-            checked={config.showLabels}
-            onChange={(v) => update('showLabels', v)}
-            label="Mostrar etiquetas del reloj"
-            helper="Muestra los textos DÍAS, HRS, MIN y SEG debajo de cada número."
-          />
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        icon={<IconFire />}
-        title="Modo urgencia 🔥"
-        helper="Cambiá los colores del reloj a medida que se acerca el final para generar más urgencia."
-      >
-        <CheckboxCard
-          checked={config.urgencyEnabled}
-          onChange={(v) => update('urgencyEnabled', v)}
-          label="Activar modo urgencia"
-          helper="Cuando quede menos del 66% del tiempo → color medio. Cuando quede menos del 33% → color crítico con pulso."
-        >
-          <div style={{ marginBottom: 16 }}>
-            <FieldLabel>🟩 Color normal (100% - 67% restante)</FieldLabel>
-            <ColorPickerField
-              value={config.colorClockBg}
-              onChange={(v) => update('colorClockBg', v)}
-              showClear={false}
-            />
-            <FieldHelper>Este es el color de fondo del reloj cuando queda mucho tiempo.</FieldHelper>
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <FieldLabel>🟧 Color medio (66% - 34% restante)</FieldLabel>
-            <ColorPickerField
-              value={config.colorClockBgMedium}
-              onChange={(v) => update('colorClockBgMedium', v)}
-              showClear={false}
-            />
-            <FieldHelper>Color de advertencia cuando queda un tercio del tiempo.</FieldHelper>
-          </div>
-
-          <div>
-            <FieldLabel>🟥 Color crítico (33% - 0% restante)</FieldLabel>
-            <ColorPickerField
-              value={config.colorClockBgCritical}
-              onChange={(v) => update('colorClockBgCritical', v)}
-              showClear={false}
-            />
-            <FieldHelper>Color de urgencia máxima con animación de pulso.</FieldHelper>
-          </div>
-        </CheckboxCard>
-      </SectionCard>
-
-      <SectionCard
-        icon={<IconLayers />}
-        title="Fondo del widget"
-        helper="Elegí el fondo principal del widget."
-      >
-        <FieldLabel>Tipo de fondo</FieldLabel>
-        <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>
-          <RadioOption
-            checked={config.bgType === 'solid'}
-            onChange={() => update('bgType', 'solid')}
-            label="Color sólido"
-          />
-          <RadioOption
-            checked={config.bgType === 'gradient'}
-            onChange={() => update('bgType', 'gradient')}
-            label="Degradé"
-          />
-        </div>
-
-        {config.bgType === 'solid' ? (
-          <>
-            <FieldLabel>Color de fondo</FieldLabel>
-            <ColorPickerField
-              value={config.colorWidgetBg}
-              onChange={(v) => update('colorWidgetBg', v)}
-              showClear={false}
-            />
-          </>
-        ) : (
-          <>
-            <div style={{ marginBottom: 16 }}>
-              <FieldLabel>Color inicial</FieldLabel>
-              <ColorPickerField
-                value={config.colorWidgetBg}
-                onChange={(v) => update('colorWidgetBg', v)}
-                showClear={false}
-              />
-            </div>
-
-            <div style={{ marginBottom: 16 }}>
-              <FieldLabel>Color final</FieldLabel>
-              <ColorPickerField
-                value={config.colorWidgetBg2}
-                onChange={(v) => update('colorWidgetBg2', v)}
-                showClear={false}
-              />
-            </div>
-
-            <div>
-              <FieldLabel>Dirección del degradé</FieldLabel>
-              <ChoiceButtons
-                value={config.gradientDirection}
-                onChange={(v) => update('gradientDirection', v as any)}
-                options={[
-                  { value: 'to bottom', label: 'Vertical', icon: <IconArrowDown /> },
-                  { value: 'to right', label: 'Horizontal', icon: <IconArrowRight /> },
-                  { value: 'to bottom right', label: 'Diagonal', icon: <IconArrowDiagonal /> },
-                ]}
-              />
-            </div>
-
-            <div style={{ marginTop: 16 }}>
-              <FieldLabel>Vista previa</FieldLabel>
-              <div style={{
-                width: '100%', height: 60, borderRadius: 10,
-                background: `linear-gradient(${config.gradientDirection}, ${config.colorWidgetBg}, ${config.colorWidgetBg2})`,
-                border: '1.5px solid #e5e7eb',
-              }} />
-            </div>
-          </>
-        )}
-      </SectionCard>
-
-      <SectionCard
-        icon={<IconPalette />}
-        title="Colores"
-        helper="Definí los colores de textos y fondos."
-      >
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Fondo del subtítulo</FieldLabel>
-          <ColorPickerField
-            value={config.colorSubtitleBg}
-            onChange={(v) => update('colorSubtitleBg', v)}
-          />
-        </div>
-
-        {!config.urgencyEnabled && (
-          <div style={{ marginBottom: 16 }}>
-            <FieldLabel>Color de fondo del reloj</FieldLabel>
-            <ColorPickerField
-              value={config.colorClockBg}
-              onChange={(v) => update('colorClockBg', v)}
-              showClear={false}
-            />
-            <FieldHelper>💡 Si activás el modo urgencia, este color se maneja desde esa sección.</FieldHelper>
-          </div>
-        )}
-
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Color de fuente del título</FieldLabel>
-          <ColorPickerField
-            value={config.colorTitle}
-            onChange={(v) => update('colorTitle', v)}
-            showClear={false}
-          />
-        </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Color de fuente del subtítulo</FieldLabel>
-          <ColorPickerField
-            value={config.colorSubtitle}
-            onChange={(v) => update('colorSubtitle', v)}
-            showClear={false}
-          />
-        </div>
-
-        <div>
-          <FieldLabel>Color de números</FieldLabel>
-          <ColorPickerField
-            value={config.colorNumbers}
-            onChange={(v) => update('colorNumbers', v)}
-            showClear={false}
-          />
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        icon={<IconType />}
-        title="Tipografía"
-        helper="Ajustá los tamaños de letra."
-      >
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Tamaño de fuente del título</FieldLabel>
-          <SelectField
-            value={config.fontSizeTitle}
-            onChange={(v) => update('fontSizeTitle', v)}
-            options={[
-              { value: '12px', label: '12px' },
-              { value: '14px', label: '14px' },
-              { value: '16px', label: '16px' },
-              { value: '18px', label: '18px' },
-              { value: '20px', label: '20px' },
-              { value: '24px', label: '24px' },
-            ]}
-          />
-        </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Tamaño de fuente del subtítulo</FieldLabel>
-          <SelectField
-            value={config.fontSizeSubtitle}
-            onChange={(v) => update('fontSizeSubtitle', v)}
-            options={[
-              { value: '9px', label: '9px' },
-              { value: '11px', label: '11px' },
-              { value: '13px', label: '13px' },
-              { value: '15px', label: '15px' },
-            ]}
-          />
-        </div>
-
-        <div>
-          <FieldLabel>Tamaño de fuente del reloj</FieldLabel>
-          <SelectField
-            value={config.fontSizeClock}
-            onChange={(v) => update('fontSizeClock', v)}
-            options={[
-              { value: '14px', label: '14px' },
-              { value: '16px', label: '16px' },
-              { value: '20px', label: '20px' },
-              { value: '24px', label: '24px' },
-              { value: '32px', label: '32px' },
-            ]}
-          />
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        icon={<IconSpacing />}
-        title="Espacios y bordes"
-        helper="Controlá bordes redondeados y márgenes internos."
-      >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
-          <RangeSlider
-            label="Borde del reloj:"
-            value={config.borderRadiusClock}
-            min={0} max={25}
-            onChange={(v) => update('borderRadiusClock', v)}
-            ticks={[0, 5, 25]}
-          />
-          <RangeSlider
-            label="Borde del widget:"
-            value={config.borderRadiusWidget}
-            min={0} max={25}
-            onChange={(v) => update('borderRadiusWidget', v)}
-            ticks={[0, 5, 25]}
-          />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <RangeSlider
-            label="Margen interno:"
-            value={config.paddingWidget}
-            min={0} max={40}
-            onChange={(v) => update('paddingWidget', v)}
-            ticks={[0, 15, 40]}
-          />
-          <RangeSlider
-            label="Margen interno del reloj:"
-            value={config.paddingClock}
-            min={0} max={30}
-            onChange={(v) => update('paddingClock', v)}
-            ticks={[0, 7, 30]}
-          />
-        </div>
-      </SectionCard>
-    </div>
-  );
-
-  const tabs = [
-    { id: 'general', label: 'General' },
-    { id: 'ubicacion', label: 'Ubicación' },
-    { id: 'estilos', label: 'Estilos' },
-  ];
-
-  const infoBoxText = config.productPosition === 'before-title'
-    ? 'La cuenta regresiva aparecerá antes del título del producto.'
-    : 'La cuenta regresiva aparecerá antes del botón "Agregar al carrito".';
-
-  /* ═══ RENDER ═══ */
-  return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-
-      {/* HEADER */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 30,
-          background: '#FFFFFF',
-          borderBottom: '1px solid #e5e7eb',
-          padding: '14px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <NevuxLogo size="medium" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              background: '#000000',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#FFFFFF',
-            }}
-          >
-            RL
-          </div>
-        </div>
-      </div>
-
-      {/* MAIN */}
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
-
-        {/* Scope chip */}
-        {isForAll ? (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: '#10B981',
-              color: '#FFFFFF',
-              padding: '8px 14px',
-              borderRadius: 999,
-              fontSize: 14,
-              fontWeight: 700,
-              marginBottom: 14,
-            }}
-          >
-            <IconStore />
-            Todos los productos
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              background: '#FFFFFF',
-              border: '1px solid #e5e7eb',
-              padding: '8px 14px',
-              borderRadius: 10,
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#000000',
-              marginBottom: 14,
-            }}
-          >
-            <span style={{ fontSize: 18 }}>🛍</span>
-            NEVUX Widget
-          </div>
-        )}
-
-        <h1
-          style={{
-            fontSize: 26,
-            fontWeight: 800,
-            color: '#000000',
-            marginBottom: 20,
-            lineHeight: 1.2,
-          }}
-        >
-          {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
-          {widgetDefinition.name} ({scopeLabel})
-        </h1>
-
-        {/* CARD PRINCIPAL */}
-        <div
-          style={{
-            background: '#FFFFFF',
-            border: '1px solid #e5e7eb',
-            borderRadius: 16,
-            padding: 16,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          }}
-        >
-          {/* PREVIEW */}
-          <div style={{ marginBottom: 14 }}>
-            <CountdownPreview config={config as any} />
-          </div>
-
-          {/* NOTA INFO */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 10,
-              background: '#ecfdf5',
-              border: '1px solid #a7f3d0',
-              borderRadius: 10,
-              padding: '12px 16px',
-              marginBottom: 16,
-              fontSize: 14,
-              color: '#000000',
-              lineHeight: 1.5,
-            }}
-          >
-            <IconInfo />
-            <span>{infoBoxText}</span>
-          </div>
-
-          {/* TABS */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 0,
-              borderBottom: '1px solid #e5e7eb',
-              marginBottom: 20,
-            }}
-          >
-            {tabs.map((tab) => {
-              const act = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
-                  style={{
-                    flex: 1,
-                    background: act ? '#FFFFFF' : 'transparent',
-                    border: 'none',
-                    borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
-                    padding: '14px 10px',
-                    fontSize: 15,
-                    fontWeight: act ? 700 : 500,
-                    color: '#000000',
-                    opacity: act ? 1 : 0.6,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div>
-            {activeTab === 'general' && tabGeneral}
-            {activeTab === 'ubicacion' && tabUbicacion}
-            {activeTab === 'estilos' && tabEstilos}
-          </div>
-
-          {/* FOOTER CONTROLES */}
-          <div
-            style={{
-              marginTop: 32,
-              paddingTop: 20,
-              borderTop: '1px solid #e5e7eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 16,
-              flexWrap: 'wrap',
-            }}
-          >
-            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-              <div
-                onClick={() => setIsActive(!isActive)}
-                style={{
-                  width: 40,
-                  height: 22,
-                  borderRadius: 999,
-                  background: isActive ? '#10B981' : '#e5e7eb',
-                  position: 'relative',
-                  transition: 'background 0.15s',
-                  flexShrink: 0,
-                }}
-              >
-                <div
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: '50%',
-                    background: '#FFFFFF',
-                    position: 'absolute',
-                    top: 2,
-                    left: isActive ? 20 : 2,
-                    transition: 'left 0.15s',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                  }}
-                />
-              </div>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
-                Widget activo
-              </span>
-              <IconInfo />
-            </label>
-
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              style={{
-                padding: '12px 28px',
-                borderRadius: 999,
-                border: 'none',
-                background: savedOK ? '#059669' : '#10B981',
-                color: '#FFFFFF',
-                fontSize: 15,
-                fontWeight: 700,
-                cursor: saving ? 'wait' : 'pointer',
-                opacity: saving ? 0.7 : 1,
-                fontFamily: 'inherit',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {saving
-                ? 'Guardando...'
-                : savedOK
-                ? '✓ Guardado'
-                : isEditing
-                ? 'Guardar cambios'
-                : 'Crear widget'}
-            </button>
-          </div>
-        </div>
-
-        {/* CENTRO DE AYUDA */}
-        <div style={{ marginTop: 40 }}>
-          <CentroAyuda />
-        </div>
-      </div>
-    </div>
-  );
-}
+     }
