@@ -1,3 +1,4 @@
+// components/widgets/editors/BundlePromocionesEditor.tsx
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -6,6 +7,9 @@ import BundlePromocionesPreview from './BundlePromocionesPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
+/* ═══════════════════════════════════════════
+   TIPOS (Regla de Oro #9)
+═══════════════════════════════════════════ */
 interface EditorProps {
   widgetDefinition: {
     id: string;
@@ -72,688 +76,12 @@ const DEFAULT_CONFIG = {
   tamanoSubtitulo: '14px',
   efectoBoton: 'sin-efecto' as 'sin-efecto' | 'zoom',
   pulsante: true,
+  campaignTheme: 'none',
 };
 
-export default function BundlePromocionesEditor({
-  widgetDefinition,
-  existingWidget,
-  targetType,
-  productId,
-  storeId,
-}: EditorProps) {
-  const router = useRouter();
-  const [config, setConfig] = useState<any>({
-    ...DEFAULT_CONFIG,
-    ...(existingWidget?.config || {}),
-  });
-  const [isActive, setIsActive] = useState<boolean>(existingWidget?.is_active ?? true);
-  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilo'>('general');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const isEditing = !!existingWidget;
-
-  const update = (patch: Partial<any>) => setConfig((prev: any) => ({ ...prev, ...patch }));
-
-  const togglePromocion = (promo: string) => {
-    const current: string[] = config.promociones || [];
-    const configPromos = { ...(config.configPromos || {}) };
-    let next: string[];
-    if (current.includes(promo)) {
-      next = current.filter((p) => p !== promo);
-      delete configPromos[promo];
-    } else {
-      next = [...current, promo];
-      configPromos[promo] = { ...DEFAULT_PROMO_CONFIG };
-    }
-    update({ promociones: next, configPromos });
-  };
-
-  const updatePromoConfig = (promo: string, patch: Partial<any>) => {
-    const configPromos = { ...(config.configPromos || {}) };
-    configPromos[promo] = { ...(configPromos[promo] || DEFAULT_PROMO_CONFIG), ...patch };
-    update({ configPromos });
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/widgets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: existingWidget?.id ?? null,
-          widget_slug: widgetDefinition.slug,
-          store_id: storeId,
-          target_type: targetType,
-          target_product_id: productId,
-          config,
-          is_active: isActive,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al guardar');
-      }
-
-      if (data.action === 'created') {
-        const params = new URLSearchParams();
-        params.set('created', widgetDefinition.slug);
-        if (targetType === 'product' && productId) {
-          params.set('product', String(productId));
-        }
-        router.push(`/widgets?${params.toString()}`);
-      } else {
-        router.push('/widgets');
-      }
-      router.refresh();
-    } catch (e: any) {
-      setError(e.message || 'Error al guardar');
-      setSaving(false);
-    }
-  };
-
-  const scopeLabel = targetType === 'all' ? 'General' : 'Producto';
-  const titulo = isEditing
-    ? `Editar widget: ${widgetDefinition.name} (${scopeLabel})`
-    : `Nuevo widget: ${widgetDefinition.name} (${scopeLabel})`;
-
-  const promosOrdenadas = useMemo(() => {
-    const orden = ['lleva-1', ...(config.promociones || [])];
-    return orden;
-  }, [config.promociones]);
-
-  return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', color: '#000000' }}>
-      <Header />
-
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 80px' }}>
-        {targetType === 'all' ? (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: '#10B981',
-              color: '#ffffff',
-              padding: '8px 14px',
-              borderRadius: 999,
-              fontSize: 14,
-              fontWeight: 700,
-              marginBottom: 16,
-            }}
-          >
-            <IconStore /> Todos los productos
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              background: '#ffffff',
-              border: '1px solid #e5e7eb',
-              padding: '8px 14px',
-              borderRadius: 12,
-              fontSize: 14,
-              fontWeight: 700,
-              marginBottom: 16,
-              color: '#000000',
-            }}
-          >
-            <span style={{ fontSize: 18 }}>🛍</span> NEVUX Widget
-          </div>
-        )}
-
-        <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 20px', lineHeight: 1.25, color: '#000000' }}>
-          {titulo}
-        </h1>
-
-        <div
-          style={{
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            borderRadius: 16,
-            padding: 20,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          }}
-        >
-          <BundlePromocionesPreview config={config} />
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 8,
-              background: '#ecfdf5',
-              border: '1px solid #a7f3d0',
-              color: '#000000',
-              padding: '12px 14px',
-              borderRadius: 10,
-              fontSize: 13,
-              lineHeight: 1.5,
-              margin: '12px 0 20px',
-            }}
-          >
-            <IconInfo /> El formulario original de Tiendanube permanecerá visible y funcional.
-          </div>
-
-          <Tabs activeTab={activeTab} onChange={setActiveTab} />
-
-          {activeTab === 'general' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: 20 }}>
-              <div>
-                <FieldLabel>Título</FieldLabel>
-                <TextInput
-                  value={config.titulo || ''}
-                  onChange={(v) => update({ titulo: v })}
-                  placeholder="Ej: Promoción especial"
-                />
-                <FieldHelper>Dejá vacío para no mostrar título</FieldHelper>
-              </div>
-
-              <div>
-                <FieldLabel>Texto del botón</FieldLabel>
-                <TextInput
-                  value={config.textoBoton || ''}
-                  onChange={(v) => update({ textoBoton: v })}
-                  placeholder="Agregar al carrito"
-                />
-                <FieldHelper>Dejá vacío para usar "Agregar al carrito"</FieldHelper>
-              </div>
-
-              <div>
-                <FieldLabel>Seleccionar promociones</FieldLabel>
-                <FieldHelper>
-                  Seleccioná los tipos de promoción que querés ofrecer (recordá crearlos en el
-                  panel de "Descuentos" -&gt; "Promociones" de Tiendanube)
-                </FieldHelper>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: 10,
-                    marginTop: 10,
-                  }}
-                >
-                  {PROMOS_DISPONIBLES.map((p) => (
-                    <CheckboxSmall
-                      key={p}
-                      label={p}
-                      checked={(config.promociones || []).includes(p)}
-                      onChange={() => togglePromocion(p)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <FieldLabel>Configuración por promoción</FieldLabel>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 10 }}>
-                  {promosOrdenadas.map((promoKey) => {
-                    const isBase = promoKey === 'lleva-1';
-                    const promoTitle = isBase
-                      ? 'Lleva 1'
-                      : `Lleva ${parseInt(promoKey.split('x')[0], 10)}, paga ${parseInt(
-                          promoKey.split('x')[1],
-                          10
-                        )} (${promoKey})`;
-                    const pc =
-                      config.configPromos?.[promoKey] || { ...DEFAULT_PROMO_CONFIG };
-
-                    return (
-                      <div
-                        key={promoKey}
-                        style={{
-                          background: '#ffffff',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: 12,
-                          padding: 16,
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, marginBottom: 12, color: '#000000', fontSize: 16 }}>{promoTitle}</div>
-
-                        <div style={{ marginBottom: 12 }}>
-                          <FieldLabel small>Formato de etiqueta</FieldLabel>
-                          <SelectField
-                            value={pc.formatoEtiqueta || 'lleva-paga'}
-                            onChange={(v) =>
-                              updatePromoConfig(promoKey, { formatoEtiqueta: v })
-                            }
-                            options={[
-                              { value: 'lleva-paga', label: 'Lleva # paga #' },
-                              { value: 'llevate-x', label: 'Llevate # unidades' },
-                              { value: 'descuento', label: '# de descuento' },
-                            ]}
-                          />
-                        </div>
-
-                        <div style={{ marginBottom: 12 }}>
-                          <FieldLabel small>Subtítulo</FieldLabel>
-                          <TextInput
-                            value={pc.subtitulo || ''}
-                            onChange={(v) => updatePromoConfig(promoKey, { subtitulo: v })}
-                            placeholder="Ej: Oferta por tiempo limitado"
-                          />
-                        </div>
-
-                        <div style={{ marginBottom: 10 }}>
-                          <FieldLabel small>Badges</FieldLabel>
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: 8,
-                              marginTop: 8,
-                            }}
-                          >
-                            <CheckboxRow
-                              label="Envío gratis"
-                              checked={!!pc.badgeEnvioGratis}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { badgeEnvioGratis: v })
-                              }
-                            />
-                            <CheckboxRow
-                              label="Más vendido"
-                              checked={!!pc.badgeMasVendido}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { badgeMasVendido: v })
-                              }
-                            />
-                            <CheckboxRow
-                              label="Personalizado"
-                              checked={!!pc.badgePersonalizado}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { badgePersonalizado: v })
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <Divider />
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <CheckboxRow
-                            label="Ocultar producto complementario 1 en esta unidad"
-                            checked={!!pc.ocultarComp1}
-                            onChange={(v) => updatePromoConfig(promoKey, { ocultarComp1: v })}
-                          />
-                          <CheckboxRow
-                            label="Ocultar producto complementario 2 en esta unidad"
-                            checked={!!pc.ocultarComp2}
-                            onChange={(v) => updatePromoConfig(promoKey, { ocultarComp2: v })}
-                          />
-                        </div>
-
-                        <Divider />
-
-                        <CheckboxRow
-                          label="Agregar producto de regalo en esta promoción"
-                          checked={!!pc.agregarRegalo}
-                          onChange={(v) => updatePromoConfig(promoKey, { agregarRegalo: v })}
-                        />
-
-                        <Divider />
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <CheckboxRow
-                            label="Marcar por defecto"
-                            checked={!!pc.marcarPorDefecto}
-                            onChange={(v) =>
-                              updatePromoConfig(promoKey, { marcarPorDefecto: v })
-                            }
-                          />
-                          {isBase && (
-                            <CheckboxRow
-                              label="Ocultar esta unidad"
-                              checked={!!pc.ocultarEsta}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { ocultarEsta: v })
-                              }
-                            />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <FieldLabel>Productos complementarios</FieldLabel>
-                <FieldHelper>
-                  Se mostrarán debajo de cada tarjeta con un checkbox (máx. 2)
-                </FieldHelper>
-
-                <div style={{ marginTop: 12 }}>
-                  <FieldLabel small>Producto 1</FieldLabel>
-                  <TextInput
-                    value={config.producto1 || ''}
-                    onChange={(v) => update({ producto1: v })}
-                    placeholder="Buscar un producto..."
-                  />
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <FieldLabel small>Producto 2</FieldLabel>
-                  <TextInput
-                    value={config.producto2 || ''}
-                    onChange={(v) => update({ producto2: v })}
-                    placeholder="Buscar un producto..."
-                  />
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <CheckboxRow
-                    label="Marcar como checkeado por defecto"
-                    checked={!!config.productosCheckedDefault}
-                    onChange={(v) => update({ productosCheckedDefault: v })}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'ubicacion' && (
-            <div style={{ marginTop: 20 }}>
-              <div
-                style={{
-                  background: config.reemplazarBoton ? '#ecfdf5' : '#ffffff',
-                  border: config.reemplazarBoton ? '1.5px solid #10B981' : '1px solid #e5e7eb',
-                  borderRadius: 12,
-                  padding: 16,
-                  display: 'flex',
-                  gap: 12,
-                  alignItems: 'flex-start',
-                  transition: 'border-color 0.2s',
-                }}
-              >
-                <div
-                  onClick={() => update({ reemplazarBoton: !config.reemplazarBoton })}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: 5,
-                    background: config.reemplazarBoton ? '#10B981' : '#ffffff',
-                    border: config.reemplazarBoton ? '2px solid #10B981' : '2px solid #d1d5db',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    marginTop: 2,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {config.reemplazarBoton && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: '#000000' }}>
-                    Reemplazar por el botón de agregar al carrito de Tiendanube
-                  </div>
-                  <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, lineHeight: 1.5 }}>
-                    Cuando está activo, el widget reemplaza el formulario original de Tiendanube.
-                    Al desactivarlo, el formulario original permanece visible y funcional.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'estilo' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 20 }}>
-              <SectionCard
-                icon="🎨"
-                title="Colores principales"
-                subtitle="Definí la paleta del bloque principal y del botón de compra."
-              >
-                <ColorPickerField
-                  label='Color del botón "Agregar"'
-                  value={config.colorBoton}
-                  onChange={(v) => update({ colorBoton: v })}
-                />
-                <ToggleField
-                  label="Fondo en degradé"
-                  checked={!!config.fondoDegrade}
-                  onChange={(v) => update({ fondoDegrade: v })}
-                />
-                <ColorPickerField
-                  label="Color del precio"
-                  value={config.colorPrecio}
-                  onChange={(v) => update({ colorPrecio: v })}
-                />
-                <ColorPickerField
-                  label="Color de subtítulos"
-                  value={config.colorSubtitulos}
-                  onChange={(v) => update({ colorSubtitulos: v })}
-                />
-                <ColorPickerField
-                  label="Fondo del subtítulo"
-                  value={config.fondoSubtitulo}
-                  onChange={(v) => update({ fondoSubtitulo: v })}
-                  allowTransparent
-                />
-                <ColorPickerField
-                  label="Color texto regalo"
-                  value={config.colorTextoRegalo}
-                  onChange={(v) => update({ colorTextoRegalo: v })}
-                />
-                <ColorPickerField
-                  label="Color precio regalo"
-                  value={config.colorPrecioRegalo}
-                  onChange={(v) => update({ colorPrecioRegalo: v })}
-                />
-                <ColorPickerField
-                  label="Fondo del regalo"
-                  value={config.fondoRegalo}
-                  onChange={(v) => update({ fondoRegalo: v })}
-                />
-              </SectionCard>
-
-              <SectionCard
-                icon="🏷"
-                title="Badges y etiquetas"
-                subtitle="Personalizá los colores de destacados y estado seleccionado."
-              >
-                <ColorPickerField
-                  label="Color badge envío gratis"
-                  value={config.colorBadgeEnvio}
-                  onChange={(v) => update({ colorBadgeEnvio: v })}
-                />
-                <ColorPickerField
-                  label="Color badge personalizado"
-                  value={config.colorBadgePersonalizado}
-                  onChange={(v) => update({ colorBadgePersonalizado: v })}
-                />
-                <ColorPickerField
-                  label="Color badge más vendido"
-                  value={config.colorBadgeMasVendido}
-                  onChange={(v) => update({ colorBadgeMasVendido: v })}
-                />
-                <ColorPickerField
-                  label="Color de la unidad seleccionada"
-                  value={config.colorUnidadSeleccionada}
-                  onChange={(v) => update({ colorUnidadSeleccionada: v })}
-                />
-              </SectionCard>
-
-              <SectionCard
-                icon="🧩"
-                title="Estructura y bordes"
-                subtitle="Ajustá el redondeado del botón y de cada unidad."
-              >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <RangeSlider
-                    label={'Borde del botón "Agregar"'}
-                    value={config.bordeBoton ?? 25}
-                    onChange={(v) => update({ bordeBoton: v })}
-                    min={0}
-                    max={25}
-                  />
-                  <RangeSlider
-                    label="Borde de la unidad"
-                    value={config.bordeUnidad ?? 8}
-                    onChange={(v) => update({ bordeUnidad: v })}
-                    min={0}
-                    max={25}
-                  />
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                icon="T"
-                title="Tipografía"
-                subtitle="Definí el tamaño de texto para etiqueta, precio y subtítulo."
-              >
-                <SelectField
-                  label="Etiqueta"
-                  value={config.tamanoEtiqueta || '16px'}
-                  onChange={(v) => update({ tamanoEtiqueta: v })}
-                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
-                    value: s,
-                    label: s,
-                  }))}
-                />
-                <SelectField
-                  label="Precio"
-                  value={config.tamanoPrecio || '18px'}
-                  onChange={(v) => update({ tamanoPrecio: v })}
-                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
-                    value: s,
-                    label: s,
-                  }))}
-                />
-                <SelectField
-                  label="Subtítulo"
-                  value={config.tamanoSubtitulo || '14px'}
-                  onChange={(v) => update({ tamanoSubtitulo: v })}
-                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
-                    value: s,
-                    label: s,
-                  }))}
-                />
-              </SectionCard>
-
-              <SectionCard
-                icon="✨"
-                title="Efectos y animaciones"
-                subtitle="Elegí cómo se comporta visualmente el botón al interactuar."
-              >
-                <FieldLabel>Efecto del botón</FieldLabel>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <RadioBox
-                    label="Sin efecto"
-                    selected={config.efectoBoton === 'sin-efecto'}
-                    onClick={() => update({ efectoBoton: 'sin-efecto' })}
-                  />
-                  <RadioBox
-                    label="Zoom al cursor"
-                    selected={config.efectoBoton === 'zoom'}
-                    onClick={() => update({ efectoBoton: 'zoom' })}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    marginTop: 12,
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 12,
-                    padding: '10px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    background: '#ffffff',
-                  }}
-                >
-                  <Toggle
-                    checked={!!config.pulsante}
-                    onChange={(v) => update({ pulsante: v })}
-                  />
-                  <div style={{ fontSize: 15, fontWeight: 600, color: '#000000' }}>Pulsante</div>
-                </div>
-              </SectionCard>
-            </div>
-          )}
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 24,
-              paddingTop: 20,
-              borderTop: '1px solid #e5e7eb',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Toggle checked={isActive} onChange={setIsActive} />
-              <span style={{ fontSize: 15, fontWeight: 600, color: '#000000' }}>Widget activo</span>
-              <IconInfoSmall />
-            </div>
-
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              style={{
-                background: '#10B981',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 999,
-                padding: '12px 28px',
-                fontSize: 15,
-                fontWeight: 700,
-                cursor: saving ? 'not-allowed' : 'pointer',
-                opacity: saving ? 0.6 : 1,
-                fontFamily: 'inherit',
-              }}
-            >
-              {saving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear widget'}
-            </button>
-          </div>
-        </div>
-
-        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
-        <div style={{ marginTop: 40, width: '100%' }}>
-          <CentroAyuda />
-        </div>
-      </div>
-
-      {error && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: '#fee2e2',
-            color: '#991b1b',
-            border: '1px solid #fecaca',
-            padding: '12px 20px',
-            borderRadius: 12,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-            fontSize: 14,
-            fontWeight: 600,
-            zIndex: 100,
-          }}
-        >
-          ⚠️ {error}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------- COMPONENTES REUTILIZABLES ---------- */
-
+/* ═══════════════════════════════════════════
+   COMPONENTES AUXILIARES (Regla de Oro #9 - Antes del componente principal)
+═══════════════════════════════════════════ */
 function Header() {
   return (
     <div
@@ -797,12 +125,13 @@ function Tabs({
   onChange,
 }: {
   activeTab: string;
-  onChange: (t: 'general' | 'ubicacion' | 'estilo') => void;
+  onChange: (t: 'general' | 'ubicacion' | 'estilo' | 'fechas') => void;
 }) {
-  const tabs: { key: 'general' | 'ubicacion' | 'estilo'; label: string }[] = [
+  const tabs: { key: 'general' | 'ubicacion' | 'estilo' | 'fechas'; label: string }[] = [
     { key: 'general', label: 'General' },
     { key: 'ubicacion', label: 'Ubicación' },
     { key: 'estilo', label: 'Estilo' },
+    { key: 'fechas', label: '🔥 Fechas Especiales' },
   ];
   return (
     <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb' }}>
@@ -816,7 +145,7 @@ function Tabs({
             background: 'transparent',
             border: 'none',
             padding: '14px 8px',
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: activeTab === t.key ? 700 : 500,
             color: activeTab === t.key ? '#10B981' : '#000000',
             opacity: activeTab === t.key ? 1 : 0.6,
@@ -1342,4 +671,757 @@ function IconInfoSmall() {
       <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
   );
-  }
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
+export default function BundlePromocionesEditor({
+  widgetDefinition,
+  existingWidget,
+  targetType,
+  productId,
+  storeId,
+}: EditorProps) {
+  const router = useRouter();
+  const [config, setConfig] = useState<any>({
+    ...DEFAULT_CONFIG,
+    ...(existingWidget?.config || {}),
+  });
+  const [isActive, setIsActive] = useState<boolean>(existingWidget?.is_active ?? true);
+  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilo' | 'fechas'>('general');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isEditing = !!existingWidget;
+
+  const update = (patch: Partial<any>) => setConfig((prev: any) => ({ ...prev, ...patch }));
+
+  const togglePromocion = (promo: string) => {
+    const current: string[] = config.promociones || [];
+    const configPromos = { ...(config.configPromos || {}) };
+    let next: string[];
+    if (current.includes(promo)) {
+      next = current.filter((p) => p !== promo);
+      delete configPromos[promo];
+    } else {
+      next = [...current, promo];
+      configPromos[promo] = { ...DEFAULT_PROMO_CONFIG };
+    }
+    update({ promociones: next, configPromos });
+  };
+
+  const updatePromoConfig = (promo: string, patch: Partial<any>) => {
+    const configPromos = { ...(config.configPromos || {}) };
+    configPromos[promo] = { ...(configPromos[promo] || DEFAULT_PROMO_CONFIG), ...patch };
+    update({ configPromos });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: existingWidget?.id ?? null,
+          widget_slug: widgetDefinition.slug,
+          store_id: storeId,
+          target_type: targetType,
+          target_product_id: productId,
+          config,
+          is_active: isActive,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al guardar');
+      }
+
+      if (data.action === 'created') {
+        const params = new URLSearchParams();
+        params.set('created', widgetDefinition.slug);
+        if (targetType === 'product' && productId) {
+          params.set('product', String(productId));
+        }
+        router.push(`/widgets?${params.toString()}`);
+      } else {
+        router.push('/widgets');
+      }
+      router.refresh();
+    } catch (e: any) {
+      setError(e.message || 'Error al guardar');
+      setSaving(false);
+    }
+  };
+
+  const scopeLabel = targetType === 'all' ? 'General' : 'Producto';
+  const titulo = isEditing
+    ? `Editar widget: ${widgetDefinition.name} (${scopeLabel})`
+    : `Nuevo widget: ${widgetDefinition.name} (${scopeLabel})`;
+
+  const promosOrdenadas = useMemo(() => {
+    const orden = ['lleva-1', ...(config.promociones || [])];
+    return orden;
+  }, [config.promociones]);
+
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilo.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  ];
+
+  const tabFechasEspeciales = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
+      <div>
+        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 12, lineHeight: 1.5 }}>
+          Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para este widget.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {CAMPAIGN_PRESETS.map((preset) => {
+          const isSelected = (config.campaignTheme || 'none') === preset.id;
+          return (
+            <div
+              key={preset.id}
+              onClick={() => update({ campaignTheme: preset.id })}
+              style={{
+                background: '#ffffff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {preset.label}
+                  {isSelected && (
+                    <span style={{
+                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                    }}>
+                      ACTIVO
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                  {preset.desc}
+                </div>
+              </div>
+              {preset.id !== 'none' && (
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb', color: '#000000' }}>
+      <Header />
+
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 80px' }}>
+        {targetType === 'all' ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: '#10B981',
+              color: '#ffffff',
+              padding: '8px 14px',
+              borderRadius: 999,
+              fontSize: 14,
+              fontWeight: 700,
+              marginBottom: 16,
+            }}
+          >
+            <IconStore /> Todos los productos
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#ffffff',
+              border: '1px solid #e5e7eb',
+              padding: '8px 14px',
+              borderRadius: 12,
+              fontSize: 14,
+              fontWeight: 700,
+              marginBottom: 16,
+              color: '#000000',
+            }}
+          >
+            <span style={{ fontSize: 18 }}>🛍</span> NEVUX Widget
+          </div>
+        )}
+
+        <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 20px', lineHeight: 1.25, color: '#000000' }}>
+          {titulo}
+        </h1>
+
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: 16,
+            padding: 20,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}
+        >
+          <BundlePromocionesPreview config={config} />
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 8,
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              color: '#000000',
+              padding: '12px 14px',
+              borderRadius: 10,
+              fontSize: 13,
+              lineHeight: 1.5,
+              margin: '12px 0 20px',
+            }}
+          >
+            <IconInfo /> El formulario original de Tiendanube permanecerá visible y funcional.
+          </div>
+
+          <Tabs activeTab={activeTab} onChange={setActiveTab} />
+
+          {activeTab === 'general' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: 20 }}>
+              <div>
+                <FieldLabel>Título</FieldLabel>
+                <TextInput
+                  value={config.titulo || ''}
+                  onChange={(v) => update({ titulo: v })}
+                  placeholder="Ej: Promoción especial"
+                />
+                <FieldHelper>Dejá vacío para no mostrar título</FieldHelper>
+              </div>
+
+              <div>
+                <FieldLabel>Texto del botón</FieldLabel>
+                <TextInput
+                  value={config.textoBoton || ''}
+                  onChange={(v) => update({ textoBoton: v })}
+                  placeholder="Agregar al carrito"
+                />
+                <FieldHelper>Dejá vacío para usar "Agregar al carrito"</FieldHelper>
+              </div>
+
+              <div>
+                <FieldLabel>Seleccionar promociones</FieldLabel>
+                <FieldHelper>
+                  Seleccioná los tipos de promoción que querés ofrecer (recordá crearlos en el
+                  panel de "Descuentos" -&gt; "Promociones" de Tiendanube)
+                </FieldHelper>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 10,
+                    marginTop: 10,
+                  }}
+                >
+                  {PROMOS_DISPONIBLES.map((p) => (
+                    <CheckboxSmall
+                      key={p}
+                      label={p}
+                      checked={(config.promociones || []).includes(p)}
+                      onChange={() => togglePromocion(p)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Configuración por promoción</FieldLabel>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 10 }}>
+                  {promosOrdenadas.map((promoKey) => {
+                    const isBase = promoKey === 'lleva-1';
+                    const promoTitle = isBase
+                      ? 'Lleva 1'
+                      : `Lleva ${parseInt(promoKey.split('x')[0], 10)}, paga ${parseInt(
+                          promoKey.split('x')[1],
+                          10
+                        )} (${promoKey})`;
+                    const pc =
+                      config.configPromos?.[promoKey] || { ...DEFAULT_PROMO_CONFIG };
+
+                    return (
+                      <div
+                        key={promoKey}
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: 12,
+                          padding: 16,
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, marginBottom: 12, color: '#000000', fontSize: 16 }}>{promoTitle}</div>
+
+                        <div style={{ marginBottom: 12 }}>
+                          <FieldLabel small>Formato de etiqueta</FieldLabel>
+                          <SelectField
+                            value={pc.formatoEtiqueta || 'lleva-paga'}
+                            onChange={(v) =>
+                              updatePromoConfig(promoKey, { formatoEtiqueta: v })
+                            }
+                            options={[
+                              { value: 'lleva-paga', label: 'Lleva # paga #' },
+                              { value: 'llevate-x', label: 'Llevate # unidades' },
+                              { value: 'descuento', label: '# de descuento' },
+                            ]}
+                          />
+                        </div>
+
+                        <div style={{ marginBottom: 12 }}>
+                          <FieldLabel small>Subtítulo</FieldLabel>
+                          <TextInput
+                            value={pc.subtitulo || ''}
+                            onChange={(v) => updatePromoConfig(promoKey, { subtitulo: v })}
+                            placeholder="Ej: Oferta por tiempo limitado"
+                          />
+                        </div>
+
+                        <div style={{ marginBottom: 10 }}>
+                          <FieldLabel small>Badges</FieldLabel>
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 8,
+                              marginTop: 8,
+                            }}
+                          >
+                            <CheckboxRow
+                              label="Envío gratis"
+                              checked={!!pc.badgeEnvioGratis}
+                              onChange={(v) =>
+                                updatePromoConfig(promoKey, { badgeEnvioGratis: v })
+                              }
+                            />
+                            <CheckboxRow
+                              label="Más vendido"
+                              checked={!!pc.badgeMasVendido}
+                              onChange={(v) =>
+                                updatePromoConfig(promoKey, { badgeMasVendido: v })
+                              }
+                            />
+                            <CheckboxRow
+                              label="Personalizado"
+                              checked={!!pc.badgePersonalizado}
+                              onChange={(v) =>
+                                updatePromoConfig(promoKey, { badgePersonalizado: v })
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <Divider />
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <CheckboxRow
+                            label="Ocultar producto complementario 1 en esta unidad"
+                            checked={!!pc.ocultarComp1}
+                            onChange={(v) => updatePromoConfig(promoKey, { ocultarComp1: v })}
+                          />
+                          <CheckboxRow
+                            label="Ocultar producto complementario 2 en esta unidad"
+                            checked={!!pc.ocultarComp2}
+                            onChange={(v) => updatePromoConfig(promoKey, { ocultarComp2: v })}
+                          />
+                        </div>
+
+                        <Divider />
+
+                        <CheckboxRow
+                          label="Agregar producto de regalo en esta promoción"
+                          checked={!!pc.agregarRegalo}
+                          onChange={(v) => updatePromoConfig(promoKey, { agregarRegalo: v })}
+                        />
+
+                        <Divider />
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <CheckboxRow
+                            label="Marcar por defecto"
+                            checked={!!pc.marcarPorDefecto}
+                            onChange={(v) =>
+                              updatePromoConfig(promoKey, { marcarPorDefecto: v })
+                            }
+                          />
+                          {isBase && (
+                            <CheckboxRow
+                              label="Ocultar esta unidad"
+                              checked={!!pc.ocultarEsta}
+                              onChange={(v) =>
+                                updatePromoConfig(promoKey, { ocultarEsta: v })
+                              }
+                            />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Productos complementarios</FieldLabel>
+                <FieldHelper>
+                  Se mostrarán debajo de cada tarjeta con un checkbox (máx. 2)
+                </FieldHelper>
+
+                <div style={{ marginTop: 12 }}>
+                  <FieldLabel small>Producto 1</FieldLabel>
+                  <TextInput
+                    value={config.producto1 || ''}
+                    onChange={(v) => update({ producto1: v })}
+                    placeholder="Buscar un producto..."
+                  />
+                </div>
+
+                <div style={{ marginTop: 12 }}>
+                  <FieldLabel small>Producto 2</FieldLabel>
+                  <TextInput
+                    value={config.producto2 || ''}
+                    onChange={(v) => update({ producto2: v })}
+                    placeholder="Buscar un producto..."
+                  />
+                </div>
+
+                <div style={{ marginTop: 12 }}>
+                  <CheckboxRow
+                    label="Marcar como checkeado por defecto"
+                    checked={!!config.productosCheckedDefault}
+                    onChange={(v) => update({ productosCheckedDefault: v })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'ubicacion' && (
+            <div style={{ marginTop: 20 }}>
+              <div
+                style={{
+                  background: config.reemplazarBoton ? '#ecfdf5' : '#ffffff',
+                  border: config.reemplazarBoton ? '1.5px solid #10B981' : '1px solid #e5e7eb',
+                  borderRadius: 12,
+                  padding: 16,
+                  display: 'flex',
+                  gap: 12,
+                  alignItems: 'flex-start',
+                  transition: 'border-color 0.2s',
+                }}
+              >
+                <div
+                  onClick={() => update({ reemplazarBoton: !config.reemplazarBoton })}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 5,
+                    background: config.reemplazarBoton ? '#10B981' : '#ffffff',
+                    border: config.reemplazarBoton ? '2px solid #10B981' : '2px solid #d1d5db',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: 2,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {config.reemplazarBoton && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: '#000000' }}>
+                    Reemplazar por el botón de agregar al carrito de Tiendanube
+                  </div>
+                  <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, lineHeight: 1.5 }}>
+                    Cuando está activo, el widget reemplaza el formulario original de Tiendanube.
+                    Al desactivarlo, el formulario original permanece visible y funcional.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'estilo' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 20 }}>
+              <SectionCard
+                icon="🎨"
+                title="Colores principales"
+                subtitle="Definí la paleta del bloque principal y del botón de compra."
+              >
+                <ColorPickerField
+                  label='Color del botón "Agregar"'
+                  value={config.colorBoton}
+                  onChange={(v) => update({ colorBoton: v })}
+                />
+                <ToggleField
+                  label="Fondo en degradé"
+                  checked={!!config.fondoDegrade}
+                  onChange={(v) => update({ fondoDegrade: v })}
+                />
+                <ColorPickerField
+                  label="Color del precio"
+                  value={config.colorPrecio}
+                  onChange={(v) => update({ colorPrecio: v })}
+                />
+                <ColorPickerField
+                  label="Color de subtítulos"
+                  value={config.colorSubtitulos}
+                  onChange={(v) => update({ colorSubtitulos: v })}
+                />
+                <ColorPickerField
+                  label="Fondo del subtítulo"
+                  value={config.fondoSubtitulo}
+                  onChange={(v) => update({ fondoSubtitulo: v })}
+                  allowTransparent
+                />
+                <ColorPickerField
+                  label="Color texto regalo"
+                  value={config.colorTextoRegalo}
+                  onChange={(v) => update({ colorTextoRegalo: v })}
+                />
+                <ColorPickerField
+                  label="Color precio regalo"
+                  value={config.colorPrecioRegalo}
+                  onChange={(v) => update({ colorPrecioRegalo: v })}
+                />
+                <ColorPickerField
+                  label="Fondo del regalo"
+                  value={config.fondoRegalo}
+                  onChange={(v) => update({ fondoRegalo: v })}
+                />
+              </SectionCard>
+
+              <SectionCard
+                icon="🏷"
+                title="Badges y etiquetas"
+                subtitle="Personalizá los colores de destacados y estado seleccionado."
+              >
+                <ColorPickerField
+                  label="Color badge envío gratis"
+                  value={config.colorBadgeEnvio}
+                  onChange={(v) => update({ colorBadgeEnvio: v })}
+                />
+                <ColorPickerField
+                  label="Color badge personalizado"
+                  value={config.colorBadgePersonalizado}
+                  onChange={(v) => update({ colorBadgePersonalizado: v })}
+                />
+                <ColorPickerField
+                  label="Color badge más vendido"
+                  value={config.colorBadgeMasVendido}
+                  onChange={(v) => update({ colorBadgeMasVendido: v })}
+                />
+                <ColorPickerField
+                  label="Color de la unidad seleccionada"
+                  value={config.colorUnidadSeleccionada}
+                  onChange={(v) => update({ colorUnidadSeleccionada: v })}
+                />
+              </SectionCard>
+
+              <SectionCard
+                icon="🧩"
+                title="Estructura y bordes"
+                subtitle="Ajustá el redondeado del botón y de cada unidad."
+              >
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <RangeSlider
+                    label={'Borde del botón "Agregar"'}
+                    value={config.bordeBoton ?? 25}
+                    onChange={(v) => update({ bordeBoton: v })}
+                    min={0}
+                    max={25}
+                  />
+                  <RangeSlider
+                    label="Borde de la unidad"
+                    value={config.bordeUnidad ?? 8}
+                    onChange={(v) => update({ bordeUnidad: v })}
+                    min={0}
+                    max={25}
+                  />
+                </div>
+              </SectionCard>
+
+              <SectionCard
+                icon="T"
+                title="Tipografía"
+                subtitle="Definí el tamaño de texto para etiqueta, precio y subtítulo."
+              >
+                <SelectField
+                  label="Etiqueta"
+                  value={config.tamanoEtiqueta || '16px'}
+                  onChange={(v) => update({ tamanoEtiqueta: v })}
+                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
+                    value: s,
+                    label: s,
+                  }))}
+                />
+                <SelectField
+                  label="Precio"
+                  value={config.tamanoPrecio || '18px'}
+                  onChange={(v) => update({ tamanoPrecio: v })}
+                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
+                    value: s,
+                    label: s,
+                  }))}
+                />
+                <SelectField
+                  label="Subtítulo"
+                  value={config.tamanoSubtitulo || '14px'}
+                  onChange={(v) => update({ tamanoSubtitulo: v })}
+                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
+                    value: s,
+                    label: s,
+                  }))}
+                />
+              </SectionCard>
+
+              <SectionCard
+                icon="✨"
+                title="Efectos y animaciones"
+                subtitle="Elegí cómo se comporta visualmente el botón al interactuar."
+              >
+                <FieldLabel>Efecto del botón</FieldLabel>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <RadioBox
+                    label="Sin efecto"
+                    selected={config.efectoBoton === 'sin-efecto'}
+                    onClick={() => update({ efectoBoton: 'sin-efecto' })}
+                  />
+                  <RadioBox
+                    label="Zoom al cursor"
+                    selected={config.efectoBoton === 'zoom'}
+                    onClick={() => update({ efectoBoton: 'zoom' })}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    marginTop: 12,
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 12,
+                    padding: '10px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    background: '#ffffff',
+                  }}
+                >
+                  <Toggle
+                    checked={!!config.pulsante}
+                    onChange={(v) => update({ pulsante: v })}
+                  />
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#000000' }}>Pulsante</div>
+                </div>
+              </SectionCard>
+            </div>
+          )}
+
+          {activeTab === 'fechas' && tabFechasEspeciales}
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginTop: 24,
+              paddingTop: 20,
+              borderTop: '1px solid #e5e7eb',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Toggle checked={isActive} onChange={setIsActive} />
+              <span style={{ fontSize: 15, fontWeight: 600, color: '#000000' }}>Widget activo</span>
+              <IconInfoSmall />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                background: '#10B981',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 999,
+                padding: '12px 28px',
+                fontSize: 15,
+                fontWeight: 700,
+                cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.6 : 1,
+                fontFamily: 'inherit',
+              }}
+            >
+              {saving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear widget'}
+            </button>
+          </div>
+        </div>
+
+        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        <div style={{ marginTop: 40, width: '100%' }}>
+          <CentroAyuda />
+        </div>
+      </div>
+
+      {error && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#fee2e2',
+            color: '#991b1b',
+            border: '1px solid #fecaca',
+            padding: '12px 20px',
+            borderRadius: 12,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+            fontSize: 14,
+            fontWeight: 600,
+            zIndex: 100,
+          }}
+        >
+          ⚠️ {error}
+        </div>
+      )}
+    </div>
+  );
+          }
