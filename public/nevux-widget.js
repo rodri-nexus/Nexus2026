@@ -1589,10 +1589,47 @@
         console.log("[Nevux] No hay widgets activos");
         return;
       }
-      console.log("[Nevux] Widgets recibidos:", data.widgets.length);
+          console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
+        
+        // 🎨 INTERCEPCIÓN CAMPAÑA 2.0: Cambiar colores antes de dibujar el widget
+        if (data.activeCampaign && data.activeCampaign.is_active && w.config) {
+          var tc = data.activeCampaign.theme_color;
+          var ac = data.activeCampaign.accent_color;
+          var badge = data.activeCampaign.custom_badge_text;
+
+          // Pintar fondo
+          if (w.config.bgColor !== undefined) w.config.bgColor = tc;
+          if (w.config.bg_color !== undefined) w.config.bg_color = tc;
+          if (w.config.backgroundColor !== undefined) w.config.backgroundColor = tc;
+
+          // Pintar textos y bordes
+          if (w.config.textColor !== undefined) w.config.textColor = ac;
+          if (w.config.text_color !== undefined) w.config.text_color = ac;
+          if (w.config.color !== undefined) w.config.color = ac;
+          if (w.config.accentColor !== undefined) w.config.accentColor = ac;
+          if (w.config.accent_color !== undefined) w.config.accent_color = ac;
+          if (w.config.borderColor !== undefined) w.config.borderColor = ac;
+
+          // Sumar el texto del evento al título
+          if (badge) {
+            if (w.widget_slug === "cuenta-regresiva" && w.config.titulo) {
+              if (w.config.titulo.indexOf(badge) === -1) {
+                w.config.titulo = badge + " • " + w.config.titulo;
+              }
+            }
+            if (w.widget_slug.indexOf("badge") !== -1 && w.config.texto) {
+              if (w.config.texto.indexOf(badge) === -1) {
+                w.config.texto = badge + " • " + w.config.texto;
+              }
+            }
+          }
+        }
+
         try {
           if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
+          if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
+          if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
           if (w.widget_slug === "badge-cuotas") renderBadgeCuotas(w);
           if (w.widget_slug === "badge-envio") renderBadgeEnvio(w);
           if (w.widget_slug === "badge-transferencia") renderBadgeTransferencia(w);
