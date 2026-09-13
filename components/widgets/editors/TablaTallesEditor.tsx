@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Ruler,
   Plus,
   Trash2,
   Eye,
@@ -19,7 +18,7 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -69,7 +68,142 @@ interface TablaTallesConfig {
   headerBgColor: string;
   headerTextColor: string;
   bordesRedondeados: number;
+  campaignTheme?: string;
 }
+
+/* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const TALLES_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    botonBgColor: string;
+    botonTextColor: string;
+    botonBorderColor: string;
+    modalBgColor: string;
+    modalTextColor: string;
+    headerBgColor: string;
+    headerTextColor: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    botonBgColor: '#f3f4f6',
+    botonTextColor: '#000000',
+    botonBorderColor: '#e5e7eb',
+    modalBgColor: '#ffffff',
+    modalTextColor: '#000000',
+    headerBgColor: '#ecfdf5',
+    headerTextColor: '#059669',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    botonBgColor: '#111827',
+    botonTextColor: '#F59E0B',
+    botonBorderColor: '#F59E0B',
+    modalBgColor: '#111827',
+    modalTextColor: '#FFFFFF',
+    headerBgColor: '#374151',
+    headerTextColor: '#F59E0B',
+    tag: 'BLACK FRIDAY',
+    description: 'Modal oscuro con encabezados grises y botones/bordes oro neón.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    botonBgColor: '#0F172A',
+    botonTextColor: '#EF4444',
+    botonBorderColor: '#EF4444',
+    modalBgColor: '#0F172A',
+    modalTextColor: '#FFFFFF',
+    headerBgColor: '#1E293B',
+    headerTextColor: '#EF4444',
+    tag: 'HOT SALE',
+    description: 'Fondo azul noche profundo con acentos de urgencia en rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    botonBgColor: '#090D16',
+    botonTextColor: '#3B82F6',
+    botonBorderColor: '#3B82F6',
+    modalBgColor: '#090D16',
+    modalTextColor: '#FFFFFF',
+    headerBgColor: '#1E293B',
+    headerTextColor: '#60A5FA',
+    tag: 'CYBER MONDAY',
+    description: 'Estilo tech futurista con acentos azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    botonBgColor: '#064E3B',
+    botonTextColor: '#FFFFFF',
+    botonBorderColor: '#10B981',
+    modalBgColor: '#064E3B',
+    modalTextColor: '#FFFFFF',
+    headerBgColor: '#047857',
+    headerTextColor: '#FCD34D',
+    tag: 'NAVIDAD',
+    description: 'Verde pino navideño con acentos rojos y encabezado dorado.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    botonBgColor: '#831843',
+    botonTextColor: '#FFFFFF',
+    botonBorderColor: '#FB7185',
+    modalBgColor: '#831843',
+    modalTextColor: '#FFFFFF',
+    headerBgColor: '#9D174D',
+    headerTextColor: '#FECDD3',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    botonBgColor: '#312E81',
+    botonTextColor: '#FFFFFF',
+    botonBorderColor: '#6366F1',
+    modalBgColor: '#312E81',
+    modalTextColor: '#FFFFFF',
+    headerBgColor: '#3730A3',
+    headerTextColor: '#A7F3D0',
+    tag: 'SPECIAL DAY',
+    description: 'Fondo índigo sofisticado con acentos esmeralda.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    botonBgColor: '#7F1D1D',
+    botonTextColor: '#FBBF24',
+    botonBorderColor: '#FBBF24',
+    modalBgColor: '#7F1D1D',
+    modalTextColor: '#FFFFFF',
+    headerBgColor: '#991B1B',
+    headerTextColor: '#FBBF24',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo líquido con contrastes en amarillo vibrante.',
+  },
+};
 
 /* ═══════════════════════════════════════════
    DEFAULTS
@@ -95,10 +229,11 @@ const DEFAULT_CONFIG: TablaTallesConfig = {
   headerBgColor: '#ecfdf5',
   headerTextColor: '#059669',
   bordesRedondeados: 12,
+  campaignTheme: 'none',
 };
 
 /* ═══════════════════════════════════════════
-   SECTION CARD
+   SECTION CARD (Subcomponente auxiliar)
 ═══════════════════════════════════════════ */
 function SectionCard({
   icon,
@@ -151,6 +286,20 @@ function TablaTallesPreview({
 }) {
   const [talleSeleccionado, setTalleSeleccionado] = useState<string | null>(null);
 
+  const themeKey = config.campaignTheme || 'none';
+  const theme = TALLES_CAMPAIGN_THEMES[themeKey] || TALLES_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  // Sobrecarga temática de colores
+  const botonBgColor = isCustomTheme ? theme.botonBgColor : config.botonBgColor;
+  const botonTextColor = isCustomTheme ? theme.botonTextColor : config.botonTextColor;
+  const botonBorderColor = isCustomTheme ? theme.botonBorderColor : config.botonBorderColor;
+  const modalBgColor = isCustomTheme ? theme.modalBgColor : config.modalBgColor;
+  const modalTextColor = isCustomTheme ? theme.modalTextColor : config.modalTextColor;
+  const headerBgColor = isCustomTheme ? theme.headerBgColor : config.headerBgColor;
+  const headerTextColor = isCustomTheme ? theme.headerTextColor : config.headerTextColor;
+  const saveBtnBg = isCustomTheme ? theme.accentColor : '#10B981';
+
   const handleSimularElegir = (talle: string) => {
     setTalleSeleccionado(talle);
     setTimeout(() => {
@@ -166,9 +315,9 @@ function TablaTallesPreview({
           type="button"
           onClick={onToggleModal}
           style={{
-            background: config.botonBgColor,
-            color: config.botonTextColor,
-            border: `1.5px solid ${config.botonBorderColor}`,
+            background: botonBgColor,
+            color: botonTextColor,
+            border: `1.5px solid ${botonBorderColor}`,
             borderRadius: config.bordesRedondeados,
             padding: '8px 14px',
             fontSize: 13,
@@ -190,12 +339,13 @@ function TablaTallesPreview({
       <div
         style={{
           width: '100%',
-          background: config.modalBgColor,
-          border: '1.5px solid #e5e7eb',
+          background: modalBgColor,
+          border: isCustomTheme ? `2px solid ${saveBtnBg}` : '1.5px solid #e5e7eb',
           borderRadius: 16,
           padding: 16,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+          boxShadow: isCustomTheme ? `0 8px 30px ${saveBtnBg}22` : '0 8px 24px rgba(0,0,0,0.06)',
           boxSizing: 'border-box',
+          transition: 'all 0.3s ease',
         }}
       >
         <div
@@ -204,7 +354,7 @@ function TablaTallesPreview({
             alignItems: 'center',
             justifyContent: 'space-between',
             marginBottom: 10,
-            borderBottom: '1px solid #f3f4f6',
+            borderBottom: isCustomTheme ? `1px solid ${saveBtnBg}33` : '1px solid #f3f4f6',
             paddingBottom: 8,
           }}
         >
@@ -213,14 +363,14 @@ function TablaTallesPreview({
               style={{
                 fontSize: 14,
                 fontWeight: 900,
-                color: config.modalTextColor,
+                color: modalTextColor,
                 letterSpacing: '-0.01em',
               }}
             >
               {config.tituloModal}
             </div>
             {config.subtextoModal && (
-              <div style={{ fontSize: 11, color: config.modalTextColor, opacity: 0.65, marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: modalTextColor, opacity: 0.65, marginTop: 2 }}>
                 {config.subtextoModal}
               </div>
             )}
@@ -228,8 +378,8 @@ function TablaTallesPreview({
           <span
             style={{
               fontSize: 11,
-              background: '#f3f4f6',
-              color: '#6b7280',
+              background: isCustomTheme ? `${saveBtnBg}1a` : '#f3f4f6',
+              color: isCustomTheme ? saveBtnBg : '#6b7280',
               padding: '2px 8px',
               borderRadius: 6,
               fontWeight: 700,
@@ -272,14 +422,14 @@ function TablaTallesPreview({
             }}
           >
             <thead>
-              <tr style={{ background: config.headerBgColor, color: config.headerTextColor }}>
+              <tr style={{ background: headerBgColor, color: headerTextColor }}>
                 {config.columnas.map((col, idx) => (
                   <th
                     key={idx}
                     style={{
                       padding: '8px 10px',
                       fontWeight: 800,
-                      borderBottom: '1px solid #e5e7eb',
+                      borderBottom: isCustomTheme ? `1px solid ${saveBtnBg}33` : '1px solid #e5e7eb',
                     }}
                   >
                     {col}
@@ -289,7 +439,7 @@ function TablaTallesPreview({
                   style={{
                     padding: '8px 10px',
                     fontWeight: 800,
-                    borderBottom: '1px solid #e5e7eb',
+                    borderBottom: isCustomTheme ? `1px solid ${saveBtnBg}33` : '1px solid #e5e7eb',
                   }}
                 >
                   Acción
@@ -301,20 +451,20 @@ function TablaTallesPreview({
                 <tr
                   key={idx}
                   style={{
-                    background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
-                    borderBottom: '1px solid #f3f4f6',
+                    background: idx % 2 === 0 ? 'transparent' : (isCustomTheme ? '#ffffff06' : '#fafafa'),
+                    borderBottom: '1px solid #f3f4f633',
                   }}
                 >
-                  <td style={{ padding: '8px 10px', fontWeight: 900, color: config.modalTextColor }}>
+                  <td style={{ padding: '8px 10px', fontWeight: 900, color: modalTextColor }}>
                     {fila.talle}
                   </td>
-                  <td style={{ padding: '8px 10px', color: config.modalTextColor }}>
+                  <td style={{ padding: '8px 10px', color: modalTextColor }}>
                     {fila.col1} cm
                   </td>
-                  <td style={{ padding: '8px 10px', color: config.modalTextColor }}>
+                  <td style={{ padding: '8px 10px', color: modalTextColor }}>
                     {fila.col2} cm
                   </td>
-                  <td style={{ padding: '8px 10px', color: config.modalTextColor }}>
+                  <td style={{ padding: '8px 10px', color: modalTextColor }}>
                     {fila.col3} cm
                   </td>
                   <td style={{ padding: '6px 8px' }}>
@@ -322,7 +472,7 @@ function TablaTallesPreview({
                       type="button"
                       onClick={() => handleSimularElegir(fila.talle)}
                       style={{
-                        background: '#10B981',
+                        background: saveBtnBg,
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: 6,
@@ -331,7 +481,7 @@ function TablaTallesPreview({
                         fontWeight: 800,
                         cursor: 'pointer',
                         whiteSpace: 'nowrap',
-                        boxShadow: '0 2px 4px rgba(16,185,129,0.2)',
+                        boxShadow: `0 2px 4px ${saveBtnBg}33`,
                       }}
                     >
                       {config.textoBotonElegir || 'Elegir talle'}
@@ -349,11 +499,12 @@ function TablaTallesPreview({
             style={{
               marginTop: 12,
               padding: '8px 12px',
-              background: '#f9fafb',
+              background: isCustomTheme ? '#ffffff06' : '#f9fafb',
               borderRadius: 8,
-              border: '1px solid #f3f4f6',
+              border: isCustomTheme ? '1px solid #ffffff14' : '1px solid #f3f4f6',
               fontSize: 11,
-              color: '#4b5563',
+              color: modalTextColor,
+              opacity: 0.8,
               lineHeight: 1.4,
             }}
           >
@@ -377,6 +528,7 @@ export default function TablaTallesEditor({
 }: Props) {
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
   const [config, setConfig] = useState<TablaTallesConfig>(() => {
     if (existingWidget?.config) {
       return {
@@ -741,6 +893,164 @@ export default function TablaTallesEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const tabFechas = (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${TALLES_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'El modal de medidas y el botón disparador adaptarán automáticamente toda su paleta visual al evento comercial seleccionado.'
+              : 'El widget respeta los colores estándar configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => updateCfg('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(TALLES_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => updateCfg('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.botonBgColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Botón disparador"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.modalBgColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Fondo del modal"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta de la fecha
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -855,9 +1165,10 @@ export default function TablaTallesEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: 'Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechas]}
           </EditorTabs>
 
           {/* GUARDAR */}
@@ -922,12 +1233,6 @@ export default function TablaTallesEditor({
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.7 : 1,
                 transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.background = '#059669';
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.background = '#10B981';
               }}
             >
               {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
