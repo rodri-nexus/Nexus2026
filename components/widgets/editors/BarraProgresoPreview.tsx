@@ -3,6 +3,113 @@
 import React from 'react';
 
 /* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const BARRA_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string; // Barra llena
+    cardBg: string; // Fondo widget
+    textColor: string; // Texto general
+    priceColor: string; // Texto destacado / {x}
+    barVacia: string; // Barra vacía / fondo de hit inactivo
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    cardBg: '#ffffff',
+    textColor: '#000000',
+    priceColor: '#059669',
+    barVacia: '#e5e7eb',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores y estilos configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    cardBg: '#111827',
+    textColor: '#FFFFFF',
+    priceColor: '#F59E0B',
+    barVacia: '#374151',
+    tag: 'BLACK FRIDAY',
+    description: 'Fondo negro profundo con acentos dorados de alto impacto.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    cardBg: '#0F172A',
+    textColor: '#FFFFFF',
+    priceColor: '#EF4444',
+    barVacia: '#334155',
+    tag: 'HOT SALE',
+    description: 'Fondo azul noche con acentos rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    cardBg: '#090D16',
+    textColor: '#FFFFFF',
+    priceColor: '#60A5FA',
+    barVacia: '#1E293B',
+    tag: 'CYBER MONDAY',
+    description: 'Estilo tech futurista con acentos azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    cardBg: '#064E3B',
+    textColor: '#FFFFFF',
+    priceColor: '#FCD34D',
+    barVacia: '#065F46',
+    tag: 'NAVIDAD',
+    description: 'Verde pino navideño con detalles en rojo y dorado.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    cardBg: '#831843',
+    textColor: '#FFFFFF',
+    priceColor: '#FECDD3',
+    barVacia: '#9D174D',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    cardBg: '#312E81',
+    textColor: '#FFFFFF',
+    priceColor: '#A7F3D0',
+    barVacia: '#3730A3',
+    tag: 'SPECIAL DAY',
+    description: 'Índigo premium con acentos esmeralda para regalos.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    cardBg: '#7F1D1D',
+    textColor: '#FFFFFF',
+    priceColor: '#FBBF24',
+    barVacia: '#991B1B',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo liquidación con contrastes en amarillo vibrante.',
+  },
+};
+
+/* ═══════════════════════════════════════════
    TIPOS
 ═══════════════════════════════════════════ */
 interface Objetivo {
@@ -27,6 +134,7 @@ interface BarraProgresoPreviewProps {
     colorObjetivos?: string;
     tamanoFuenteObjetivos?: number;
     tamanoFuenteTexto?: number;
+    campaignTheme?: string;
   };
   subtotalDemo?: number;
 }
@@ -44,12 +152,20 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
   const textoCumplido = config.textoCumplido || '¡{objetivo} desbloqueado! 🎉';
   const bordesRedondeados = config.bordesRedondeados ?? 12;
   const rellenoInterno = config.rellenoInterno ?? 14;
-  const colorBarraVacia = config.colorBarraVacia || '#e5e7eb';
-  const colorBarraLlena = config.colorBarraLlena || '#10B981';
-  const colorFondo = config.colorFondo || '#ffffff';
-  const colorTexto = config.colorTexto || '#000000';
-  const colorMonto = config.colorMonto || '#059669';
-  const colorObjetivos = config.colorObjetivos || '#000000';
+
+  // Fechas especiales
+  const themeKey = config.campaignTheme || 'none';
+  const theme = BARRA_CAMPAIGN_THEMES[themeKey] || BARRA_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  // Sobrecarga de colores
+  const colorFondo = isCustomTheme && theme.cardBg ? theme.cardBg : (config.colorFondo || '#ffffff');
+  const colorBarraLlena = isCustomTheme && theme.accentColor ? theme.accentColor : (config.colorBarraLlena || '#10B981');
+  const colorBarraVacia = isCustomTheme && theme.barVacia ? theme.barVacia : (config.colorBarraVacia || '#e5e7eb');
+  const colorTexto = isCustomTheme && theme.textColor ? theme.textColor : (config.colorTexto || '#000000');
+  const colorMonto = isCustomTheme && theme.priceColor ? theme.priceColor : (config.colorMonto || '#059669');
+  const colorObjetivos = isCustomTheme && theme.textColor ? theme.textColor : (config.colorObjetivos || '#000000');
+  
   const tamanoFuenteObjetivos = config.tamanoFuenteObjetivos ?? 11;
   const tamanoFuenteTexto = config.tamanoFuenteTexto ?? 13;
 
@@ -107,8 +223,11 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
         borderRadius: `${bordesRedondeados}px`,
         padding: `${rellenoInterno}px ${rellenoInterno + 4}px`,
         boxSizing: 'border-box',
-        border: '1px solid rgba(0, 0, 0, 0.06)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
+        border: isCustomTheme ? `1px solid ${colorBarraLlena}55` : '1px solid rgba(0, 0, 0, 0.06)',
+        boxShadow: isCustomTheme
+          ? `0 4px 20px ${colorBarraLlena}22`
+          : '0 4px 12px rgba(0, 0, 0, 0.03)',
+        transition: 'all 0.3s ease',
       }}
     >
       <style>{`
@@ -131,6 +250,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
           marginBottom: 12,
           fontWeight: 600,
           letterSpacing: '-0.01em',
+          transition: 'color 0.3s ease',
         }}
       >
         {textoPrincipal}
@@ -147,6 +267,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
             background: colorBarraVacia,
             borderRadius: 999,
             overflow: 'visible',
+            transition: 'background 0.3s ease',
           }}
         >
           {/* Barra llena con patrón fluido dinámico */}
@@ -159,7 +280,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
               backgroundSize: '16px 16px',
               animation: 'nvxProgressBarFlow 2s linear infinite',
               borderRadius: 999,
-              transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease',
               position: 'relative',
               boxShadow: `0 0 10px ${colorBarraLlena}66`,
             }}
@@ -186,6 +307,8 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
             const isLast = i === objetivosOrdenados.length - 1;
             const posPct = isLast ? 100 : (o.monto / montoMax) * 100;
             const cumplido = subtotalDemo >= o.monto;
+            const hitBgColor = cumplido ? colorBarraLlena : (isCustomTheme ? theme.barVacia : '#d1d5db');
+            
             return (
               <div
                 key={i}
@@ -197,7 +320,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
                   width: 24,
                   height: 24,
                   borderRadius: '50%',
-                  background: cumplido ? colorBarraLlena : '#d1d5db',
+                  background: hitBgColor,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -222,6 +345,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
           <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
             {objetivosOrdenados.map((o, i) => {
               const cumplido = subtotalDemo >= o.monto;
+              const pointBg = cumplido ? colorBarraLlena : (isCustomTheme ? theme.barVacia : '#d1d5db');
               return (
                 <div
                   key={i}
@@ -232,6 +356,7 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
                     fontSize: `${tamanoFuenteObjetivos}px`,
                     color: colorObjetivos,
                     opacity: cumplido ? 1 : 0.65,
+                    transition: 'all 0.3s ease',
                   }}
                 >
                   <span
@@ -239,9 +364,10 @@ export default function BarraProgresoPreview({ config, subtotalDemo = 0 }: Barra
                       width: 12,
                       height: 12,
                       borderRadius: '50%',
-                      background: cumplido ? colorBarraLlena : '#d1d5db',
+                      background: pointBg,
                       display: 'inline-block',
                       boxShadow: cumplido ? `0 0 6px ${colorBarraLlena}aa` : 'none',
+                      transition: 'background 0.3s ease',
                     }}
                   />
                   <span style={{ fontWeight: cumplido ? 700 : 500 }}>
@@ -378,4 +504,4 @@ function renderIcono(icono: string, size: number, color: string): React.ReactNod
     default:
       return null;
   }
-}
+     }
