@@ -17,6 +17,53 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9)
+═══════════════════════════════════════════ */
+interface WidgetDefinition {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+}
+
+interface ExistingWidget {
+  id: string;
+  config: Record<string, unknown>;
+  is_active: boolean;
+  target_type: string;
+  target_product_id: number | null;
+}
+
+interface Props {
+  widgetDefinition: WidgetDefinition;
+  existingWidget: ExistingWidget | null;
+  targetType: 'product' | 'all';
+  productId: number | null;
+  storeId: string | number;
+}
+
+export interface CirculoItem {
+  nombre: string;
+  imagenUrl: string;
+  link: string;
+  destacado: boolean;
+}
+
+interface MenuCirculosConfig {
+  titulo: string;
+  mostrarTitulo: boolean;
+  tamanoCirculo: number;
+  colorBordeActivo: string;
+  colorBordeInactivo: string;
+  colorTexto: string;
+  colorFondo: string;
+  items: CirculoItem[];
+  campaignTheme?: string;
+}
+
+/* ═══════════════════════════════════════════
    PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
 ═══════════════════════════════════════════ */
 const CIRCULOS_CAMPAIGN_THEMES: Record<
@@ -124,53 +171,6 @@ const CIRCULOS_CAMPAIGN_THEMES: Record<
 };
 
 /* ═══════════════════════════════════════════
-   TIPOS E INTERFACES (Regla #9)
-═══════════════════════════════════════════ */
-interface WidgetDefinition {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  category: string;
-  icon: string;
-}
-
-interface ExistingWidget {
-  id: string;
-  config: Record<string, unknown>;
-  is_active: boolean;
-  target_type: string;
-  target_product_id: number | null;
-}
-
-interface Props {
-  widgetDefinition: WidgetDefinition;
-  existingWidget: ExistingWidget | null;
-  targetType: 'product' | 'all';
-  productId: number | null;
-  storeId: string | number;
-}
-
-export interface CirculoItem {
-  nombre: string;
-  imagenUrl: string;
-  link: string;
-  destacado: boolean;
-}
-
-interface MenuCirculosConfig {
-  titulo: string;
-  mostrarTitulo: boolean;
-  tamanoCirculo: number;
-  colorBordeActivo: string;
-  colorBordeInactivo: string;
-  colorTexto: string;
-  colorFondo: string;
-  items: CirculoItem[];
-  campaignTheme?: string;
-}
-
-/* ═══════════════════════════════════════════
    DEFAULTS
 ═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: MenuCirculosConfig = {
@@ -209,6 +209,46 @@ const DEFAULT_CONFIG: MenuCirculosConfig = {
   ],
   campaignTheme: 'none',
 };
+
+/* ═══════════════════════════════════════════
+   SECTION CARD (Subcomponente auxiliar)
+═══════════════════════════════════════════ */
+function SectionCard({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: 14,
+        padding: 20,
+        marginBottom: 16,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
+        <div style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{icon}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
+            {title}
+          </div>
+          <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, lineHeight: 1.4 }}>
+            {description}
+          </div>
+        </div>
+      </div>
+      <div>{children}</div>
+    </div>
+  );
+}
 
 /* ═══════════════════════════════════════════
    PREVIEW EN VIVO
