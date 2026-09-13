@@ -6661,6 +6661,32 @@
     var checkColor = cfg.checkColor || "#10B981";
     var crossColor = cfg.crossColor || "#9ca3af";
 
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { bgColor: "#111827", borderColor: "#F59E0B", textColor: "#FFFFFF", destacadoBgColor: "#F59E0B1a", destacadoTextColor: "#F59E0B", checkColor: "#F59E0B", crossColor: "#374151" },
+      "hot-sale": { bgColor: "#0F172A", borderColor: "#EF4444", textColor: "#FFFFFF", destacadoBgColor: "#EF44441a", destacadoTextColor: "#EF4444", checkColor: "#EF4444", crossColor: "#334155" },
+      "cyber-monday": { bgColor: "#090D16", borderColor: "#3B82F6", textColor: "#FFFFFF", destacadoBgColor: "#3B82F61a", destacadoTextColor: "#60A5FA", checkColor: "#3B82F6", crossColor: "#1E293B" },
+      "navidad": { bgColor: "#064E3B", borderColor: "#10B981", textColor: "#FFFFFF", destacadoBgColor: "#EF44441a", destacadoTextColor: "#FCD34D", checkColor: "#EF4444", crossColor: "#047857" },
+      "san-valentin": { bgColor: "#831843", borderColor: "#FB7185", textColor: "#FFFFFF", destacadoBgColor: "#F43F5E1a", destacadoTextColor: "#FECDD3", checkColor: "#F43F5E", crossColor: "#9D174D" },
+      "dia-madre-padre": { bgColor: "#312E81", borderColor: "#6366F1", textColor: "#FFFFFF", destacadoBgColor: "#10B9811a", destacadoTextColor: "#A7F3D0", checkColor: "#10B981", crossColor: "#3730A3" },
+      "sale-liquidacion": { bgColor: "#7F1D1D", borderColor: "#FBBF24", textColor: "#FFFFFF", destacadoBgColor: "#FBBF241a", destacadoTextColor: "#FBBF24", checkColor: "#FBBF24", crossColor: "#991B1B" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    if (isCustomTheme) {
+      bgColor = th.bgColor;
+      borderColor = th.borderColor;
+      textColor = th.textColor;
+      destacadoBgColor = th.destacadoBgColor;
+      destacadoTextColor = th.destacadoTextColor;
+      checkColor = th.checkColor;
+      crossColor = th.crossColor;
+    }
+
+    var subtextColor = isCustomTheme ? textColor : textColor;
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 16) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 18) + "px";
 
@@ -6676,10 +6702,11 @@
           padding: ${pageType === "home" ? "24px 20px" : padInt} !important;
           margin: ${pageType === "home" ? "36px auto" : "18px 0"} !important;
           max-width: ${pageType === "home" ? "1100px" : "100%"} !important;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
+          box-shadow: ${isCustomTheme ? '0 4px 20px ' + borderColor + '22' : '0 4px 14px rgba(0,0,0,0.03)'} !important;
           font-family: system-ui, -apple-system, sans-serif !important;
           box-sizing: border-box !important;
           width: 100% !important;
+          transition: all 0.3s ease !important;
         }
         #nvx-comparador-${w.id} .nvx-cmp-title {
           font-size: ${pageType === "home" ? "18px" : "15px"} !important;
@@ -6691,8 +6718,8 @@
         }
         #nvx-comparador-${w.id} .nvx-cmp-subtext {
           font-size: ${pageType === "home" ? "13px" : "12px"} !important;
-          color: ${textColor} !important;
-          opacity: 0.65 !important;
+          color: ${subtextColor} !important;
+          opacity: ${isCustomTheme ? '0.8' : '0.65'} !important;
           text-align: center !important;
           margin: 0 0 16px 0 !important;
         }
@@ -6700,12 +6727,13 @@
           border: 1px solid ${borderColor} !important;
           border-radius: 12px !important;
           overflow: hidden !important;
-          background: #ffffff !important;
+          background: #ffffff02 !important;
+          transition: all 0.3s ease !important;
         }
         #nvx-comparador-${w.id} .nvx-cmp-header-row {
           display: grid !important;
           grid-template-columns: 2fr 1fr 1fr !important;
-          background: #f9fafb !important;
+          background: ${isCustomTheme ? '#ffffff06' : '#f9fafb'} !important;
           border-bottom: 1px solid ${borderColor} !important;
           padding: 10px 12px !important;
           align-items: center !important;
@@ -6748,8 +6776,8 @@
           width: 20px !important;
           height: 20px !important;
           border-radius: 50% !important;
-          background: #f3f4f6 !important;
-          border: 1px solid #e5e7eb !important;
+          background: ${isCustomTheme ? '#ffffff0a' : '#f3f4f6'} !important;
+          border: 1.5px solid ${isCustomTheme ? '#ffffff1a' : '#e5e7eb'} !important;
           color: ${crossColor} !important;
           display: flex !important;
           align-items: center !important;
@@ -6775,7 +6803,7 @@
         ? '<div class="nvx-cmp-icon-check">✓</div>' 
         : '<div class="nvx-cmp-icon-cross">✕</div>';
 
-      var rowBg = idx % 2 === 0 ? "#ffffff" : "#fafafa";
+      var rowBg = idx % 2 === 0 ? "transparent" : (isCustomTheme ? "#ffffff03" : "#fafafa");
 
       return `
         <div class="nvx-cmp-row" style="background:${rowBg};">
@@ -6795,9 +6823,9 @@
       ${subtexto ? '<div class="nvx-cmp-subtext">' + escapeHtml(subtexto) + '</div>' : ''}
       <div class="nvx-cmp-table">
         <div class="nvx-cmp-header-row">
-          <div style="color:#6b7280;">BENEFICIO</div>
+          <div style="color:${isCustomTheme ? '#ffffffa3' : '#6b7280'};">BENEFICIO</div>
           <div class="nvx-cmp-col-destacada">${escapeHtml(nombreTuMarca)}</div>
-          <div style="text-align:center; color:#6b7280;">${escapeHtml(nombreCompetencia)}</div>
+          <div style="text-align:center; color:${isCustomTheme ? '#ffffffa3' : '#6b7280'};">${escapeHtml(nombreCompetencia)}</div>
         </div>
         ${rowsHtml}
       </div>
