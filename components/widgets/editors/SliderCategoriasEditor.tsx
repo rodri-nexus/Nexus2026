@@ -6,7 +6,6 @@ import {
   Plus,
   Trash2,
   Eye,
-  ExternalLink,
 } from 'lucide-react';
 import {
   ColorPicker,
@@ -18,7 +17,7 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -62,7 +61,106 @@ interface SliderCategoriasConfig {
   colorFondo: string;
   colorBordeDestacado: string;
   items: SliderCategoriaItem[];
+  campaignTheme?: string;
 }
+
+/* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const SLIDER_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    colorFondo: string;
+    colorTexto: string;
+    colorBordeDestacado: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    colorFondo: '#ffffff',
+    colorTexto: '#ffffff',
+    colorBordeDestacado: '#10B981',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    colorFondo: '#111827',
+    colorTexto: '#FFFFFF',
+    colorBordeDestacado: '#F59E0B',
+    tag: 'BLACK FRIDAY',
+    description: 'Fondo negro con bordes y badges destacados en dorado vibrante.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    colorFondo: '#0F172A',
+    colorTexto: '#FFFFFF',
+    colorBordeDestacado: '#EF4444',
+    tag: 'HOT SALE',
+    description: 'Fondo azul noche profundo con detalles estéticos rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    colorFondo: '#090D16',
+    colorTexto: '#FFFFFF',
+    colorBordeDestacado: '#3B82F6',
+    tag: 'CYBER MONDAY',
+    description: 'Estilo tech futurista con iluminación destacada azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    colorFondo: '#064E3B',
+    colorTexto: '#FFFFFF',
+    colorBordeDestacado: '#EF4444',
+    tag: 'NAVIDAD',
+    description: 'Verde pino navideño clásico con aros y bordes en rojo.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    colorFondo: '#831843',
+    colorTexto: '#FFFFFF',
+    colorBordeDestacado: '#F43F5E',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    colorFondo: '#312E81',
+    colorTexto: '#FFFFFF',
+    colorBordeDestacado: '#10B981',
+    tag: 'SPECIAL DAY',
+    description: 'Índigo premium con bordes y detalles en esmeralda.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    colorFondo: '#7F1D1D',
+    colorTexto: '#FFFFFF',
+    colorBordeDestacado: '#FBBF24',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo líquido pasional con marcos de colección amarillos.',
+  },
+};
 
 /* ═══════════════════════════════════════════
    DEFAULTS
@@ -105,10 +203,11 @@ const DEFAULT_CONFIG: SliderCategoriasConfig = {
       destacado: false,
     },
   ],
+  campaignTheme: 'none',
 };
 
 /* ═══════════════════════════════════════════
-   SECTION CARD
+   SUBCOMPONENTES AUXILIARES (Regla #9)
 ═══════════════════════════════════════════ */
 function SectionCard({
   icon,
@@ -147,20 +246,27 @@ function SectionCard({
   );
 }
 
-/* ═══════════════════════════════════════════
-   PREVIEW EN VIVO
-═══════════════════════════════════════════ */
 function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig }) {
+  const themeKey = config.campaignTheme || 'none';
+  const theme = SLIDER_CAMPAIGN_THEMES[themeKey] || SLIDER_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  const colorFondo = isCustomTheme ? theme.colorFondo : config.colorFondo;
+  const colorTexto = isCustomTheme ? theme.colorTexto : config.colorTexto;
+  const colorBordeDestacado = isCustomTheme ? theme.colorBordeDestacado : config.colorBordeDestacado;
+  const colorTituloExterior = isCustomTheme ? theme.colorTexto : '#000000';
+
   return (
     <div
       style={{
-        background: config.colorFondo,
-        border: '1.5px solid #e5e7eb',
+        background: colorFondo,
+        border: isCustomTheme ? `1.5px solid ${colorBordeDestacado}55` : '1.5px solid #e5e7eb',
         borderRadius: 16,
         padding: 16,
-        boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
+        boxShadow: isCustomTheme ? `0 4px 20px ${colorBordeDestacado}22` : '0 4px 14px rgba(0,0,0,0.03)',
         boxSizing: 'border-box',
         overflow: 'hidden',
+        transition: 'all 0.3s ease',
       }}
     >
       {config.mostrarTitulo && config.titulo && (
@@ -168,7 +274,7 @@ function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig })
           style={{
             fontSize: 13,
             fontWeight: 800,
-            color: '#000000',
+            color: colorTituloExterior,
             letterSpacing: '0.03em',
             marginBottom: 14,
             textAlign: 'center',
@@ -203,10 +309,11 @@ function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig })
                 overflow: 'hidden',
                 position: 'relative',
                 flexShrink: 0,
-                border: isHighlight ? `2.5px solid ${config.colorBordeDestacado}` : '1px solid #e5e7eb',
-                boxShadow: isHighlight ? `0 0 10px rgba(16, 185, 129, 0.3)` : '0 2px 6px rgba(0,0,0,0.08)',
+                border: isHighlight ? `2.5px solid ${colorBordeDestacado}` : '1px solid #e5e7eb',
+                boxShadow: isHighlight ? `0 0 10px ${colorBordeDestacado}55` : '0 2px 6px rgba(0,0,0,0.08)',
                 cursor: 'pointer',
                 background: '#1f2937',
+                transition: 'all 0.3s ease',
               }}
             >
               {/* Imagen de fondo */}
@@ -233,7 +340,7 @@ function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig })
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%)',
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.8) 100%)',
                 }}
               />
 
@@ -244,7 +351,7 @@ function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig })
                     position: 'absolute',
                     top: 8,
                     right: 8,
-                    background: config.colorBordeDestacado,
+                    background: colorBordeDestacado,
                     color: '#ffffff',
                     fontSize: 9,
                     fontWeight: 800,
@@ -274,7 +381,7 @@ function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig })
                   style={{
                     fontSize: 12,
                     fontWeight: 800,
-                    color: config.colorTexto,
+                    color: colorTexto,
                     lineHeight: 1.2,
                     textShadow: '0 1px 3px rgba(0,0,0,0.8)',
                   }}
@@ -286,7 +393,7 @@ function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig })
                     style={{
                       fontSize: 10,
                       fontWeight: 500,
-                      color: config.colorTexto,
+                      color: colorTexto,
                       opacity: 0.85,
                       lineHeight: 1.1,
                       textShadow: '0 1px 2px rgba(0,0,0,0.8)',
@@ -316,6 +423,7 @@ export default function SliderCategoriasEditor({
 }: Props) {
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
   const [config, setConfig] = useState<SliderCategoriasConfig>(() => {
     if (existingWidget?.config) {
       return {
@@ -416,7 +524,7 @@ export default function SliderCategoriasEditor({
   /* ─── TAB GENERAL ─── */
   const tabGeneral = (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'space-between', marginBottom: 10 }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#000000' }}>
           Mostrar título de la sección
         </span>
@@ -682,6 +790,164 @@ export default function SliderCategoriasEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const tabFechas = (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${SLIDER_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'El carrusel de colecciones adaptará automáticamente sus marcos, badges y fondo a la estética de la fecha elegida.'
+              : 'La barra respeta fielmente los colores estándar configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => updateCfg('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(SLIDER_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => updateCfg('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorFondo,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de fondo"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorBordeDestacado,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Aro / Borde destacado"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta del evento
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -792,9 +1058,10 @@ export default function SliderCategoriasEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: 'Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechas]}
           </EditorTabs>
 
           {/* GUARDAR */}
@@ -859,12 +1126,6 @@ export default function SliderCategoriasEditor({
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.7 : 1,
                 transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.background = '#059669';
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.background = '#10B981';
               }}
             >
               {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
