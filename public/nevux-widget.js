@@ -9058,6 +9058,29 @@
     var colorRuletaPrincipal = cfg.colorRuletaPrincipal || "#10B981";
     var colorRuletaSecundario = cfg.colorRuletaSecundario || "#111827";
 
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { colorFondoModal: "#111827", colorTexto: "#FFFFFF", colorBoton: "#F59E0B", colorRuletaPrincipal: "#111827", colorRuletaSecundario: "#F59E0B" },
+      "hot-sale": { colorFondoModal: "#0F172A", colorTexto: "#FFFFFF", colorBoton: "#EF4444", colorRuletaPrincipal: "#0F172A", colorRuletaSecundario: "#EF4444" },
+      "cyber-monday": { colorFondoModal: "#090D16", colorTexto: "#FFFFFF", colorBoton: "#3B82F6", colorRuletaPrincipal: "#090D16", colorRuletaSecundario: "#3B82F6" },
+      "navidad": { colorFondoModal: "#064E3B", colorTexto: "#FFFFFF", colorBoton: "#EF4444", colorRuletaPrincipal: "#064E3B", colorRuletaSecundario: "#EF4444" },
+      "san-valentin": { colorFondoModal: "#831843", colorTexto: "#FFFFFF", colorBoton: "#F43F5E", colorRuletaPrincipal: "#831843", colorRuletaSecundario: "#F43F5E" },
+      "dia-madre-padre": { colorFondoModal: "#312E81", colorTexto: "#FFFFFF", colorBoton: "#10B981", colorRuletaPrincipal: "#312E81", colorRuletaSecundario: "#10B981" },
+      "sale-liquidacion": { colorFondoModal: "#7F1D1D", colorTexto: "#FFFFFF", colorBoton: "#FBBF24", colorRuletaPrincipal: "#7F1D1D", colorRuletaSecundario: "#FBBF24" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    if (isCustomTheme) {
+      colorFondoModal = th.colorFondoModal;
+      colorTexto = th.colorTexto;
+      colorBoton = th.colorBoton;
+      colorRuletaPrincipal = th.colorRuletaPrincipal;
+      colorRuletaSecundario = th.colorRuletaSecundario;
+    }
+
     var premios = Array.isArray(cfg.premios) && cfg.premios.length >= 4 ? cfg.premios : [
       { texto: "10% OFF", codigoCupon: "SUERTE10", esGanador: true },
       { texto: "5% OFF", codigoCupon: "SUERTE5", esGanador: true },
@@ -9103,26 +9126,28 @@
         #${modalId} {
           background: ${colorFondoModal} !important;
           border-radius: 20px !important;
+          border: ${isCustomTheme ? '2px solid ' + colorBoton : 'none'} !important;
           padding: 24px 20px !important;
           width: 100% !important;
           max-width: 360px !important;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+          box-shadow: ${isCustomTheme ? '0 20px 40px ' + colorBoton + '33' : '0 20px 40px rgba(0,0,0,0.3)'} !important;
           text-align: center !important;
           position: relative !important;
           box-sizing: border-box !important;
+          transition: all 0.3s ease !important;
         }
         #${modalId} .nvx-rl-close {
           position: absolute !important;
           top: 12px !important;
           right: 14px !important;
-          background: #f3f4f6 !important;
+          background: ${isCustomTheme ? '#ffffff1a' : '#f3f4f6'} !important;
           border: none !important;
           width: 30px !important;
           height: 30px !important;
           border-radius: 50% !important;
           font-size: 16px !important;
           font-weight: bold !important;
-          color: #4b5563 !important;
+          color: ${isCustomTheme ? '#ffffff' : '#4b5563'} !important;
           cursor: pointer !important;
           display: flex !important;
           align-items: center !important;
@@ -9137,7 +9162,7 @@
         }
         #${modalId} .nvx-rl-sub {
           font-size: 11.5px !important;
-          color: #6b7280 !important;
+          color: ${isCustomTheme ? '#ffffffb3' : '#6b7280'} !important;
           margin: 0 0 16px 0 !important;
           line-height: 1.35 !important;
         }
@@ -9227,7 +9252,7 @@
           border-radius: 999px !important;
           border: none !important;
           cursor: pointer !important;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+          box-shadow: 0 4px 12px ${colorBoton}55 !important;
           transition: transform 0.15s ease !important;
         }
         #${modalId} .nvx-rl-btn:active {
@@ -9322,13 +9347,13 @@
 
         if (winningPremio.esGanador && winningPremio.codigoCupon) {
           formBox.innerHTML = `
-            <div style="background:#ecfdf5; border:1.5px dashed #10B981; border-radius:12px; padding:12px; margin-top:4px;">
-              <div style="font-size:13px; font-weight:800; color:#059669; margin-bottom:4px;">🎉 ¡FELICITACIONES! GANASTE:</div>
-              <div style="font-size:16px; font-weight:900; color:#111827; margin-bottom:8px;">${escapeHtml(winningPremio.texto)}</div>
-              <div style="font-size:11px; color:#6b7280; margin-bottom:6px;">Usa este cupón en tu compra:</div>
+            <div style="background:${isCustomTheme ? '#ffffff1a' : '#ecfdf5'}; border:1.5px dashed ${colorBoton}; border-radius:12px; padding:12px; margin-top:4px;">
+              <div style="font-size:13px; font-weight:800; color:${isCustomTheme ? '#ffffff' : '#059669'}; margin-bottom:4px;">🎉 ¡FELICITACIONES! GANASTE:</div>
+              <div style="font-size:16px; font-weight:900; color:${colorTexto}; margin-bottom:8px;">${escapeHtml(winningPremio.texto)}</div>
+              <div style="font-size:11px; color:${isCustomTheme ? '#ffffffb3' : '#6b7280'}; margin-bottom:6px;">Usa este cupón en tu compra:</div>
               <div style="display:flex; gap:6px; justify-content:center;">
-                <input type="text" readonly value="${escapeHtml(winningPremio.codigoCupon)}" style="width:130px; text-align:center; font-family:monospace; font-weight:800; padding:6px; border:1px solid #a7f3d0; border-radius:6px; font-size:13px; background:#fff;" />
-                <button id="${modalId}-copy-btn" style="background:#10B981; color:#fff; border:none; border-radius:6px; padding:6px 12px; font-weight:800; font-size:12px; cursor:pointer;">Copiar</button>
+                <input type="text" readonly value="${escapeHtml(winningPremio.codigoCupon)}" style="width:130px; text-align:center; font-family:monospace; font-weight:800; padding:6px; border:1px solid ${colorBoton}aa; border-radius:6px; font-size:13px; background:#fff; color:#000;" />
+                <button id="${modalId}-copy-btn" style="background:${colorBoton}; color:#fff; border:none; border-radius:6px; padding:6px 12px; font-weight:800; font-size:12px; cursor:pointer;">Copiar</button>
               </div>
             </div>
           `;
@@ -9343,15 +9368,15 @@
           }
         } else {
           formBox.innerHTML = `
-            <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:12px; margin-top:4px;">
-              <div style="font-size:14px; font-weight:800; color:#111827;">¡Casi! Gracias por participar 🎁</div>
-              <div style="font-size:11px; color:#6b7280; margin-top:4px;">Disfrutá de nuestros productos en la tienda.</div>
+            <div style="background:${isCustomTheme ? '#ffffff1a' : '#f9fafb'}; border:1.5px solid ${isCustomTheme ? '#ffffff33' : '#e5e7eb'}; border-radius:12px; padding:12px; margin-top:4px;">
+              <div style="font-size:14px; font-weight:800; color:${colorTexto};">¡Casi! Gracias por participar 🎁</div>
+              <div style="font-size:11px; color:${isCustomTheme ? '#ffffffb3' : '#6b7280'}; margin-top:4px;">Disfrutá de nuestros productos en la tienda.</div>
             </div>
           `;
         }
       }, 4200);
     });
-          }
+    }
 /* ═══════════════════════════════════════════
      MOTOR DE TELEMETRÍA Y ANALYTICS EN VIVO (NEVUX TRACK)
   ═══════════════════════════════════════════ */
