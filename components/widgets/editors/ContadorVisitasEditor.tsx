@@ -13,7 +13,7 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -51,10 +51,118 @@ interface ContadorVisitasConfig {
   tamanoTexto: string;
   bordesRedondeados: number;
   paddingInterno: number;
+  campaignTheme?: string;
 }
 
 /* ═══════════════════════════════════════════
-   DEFAULTS (Basados en tu imagen de referencia)
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const CONTADOR_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    colorFondo: string;
+    colorTexto: string;
+    colorBorde: string;
+    colorPunto: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    colorFondo: '#ffffff',
+    colorTexto: '#000000',
+    colorBorde: '#e5e7eb',
+    colorPunto: '#dc2626',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    colorFondo: '#111827',
+    colorTexto: '#FFFFFF',
+    colorBorde: '#F59E0B',
+    colorPunto: '#F59E0B',
+    tag: 'BLACK FRIDAY',
+    description: 'Píldora negro azabache con borde y punto pulsante dorado neón.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    colorFondo: '#0F172A',
+    colorTexto: '#FFFFFF',
+    colorBorde: '#EF4444',
+    colorPunto: '#EF4444',
+    tag: 'HOT SALE',
+    description: 'Azul noche con acentos de urgencia en rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    colorFondo: '#090D16',
+    colorTexto: '#FFFFFF',
+    colorBorde: '#3B82F6',
+    colorPunto: '#60A5FA',
+    tag: 'CYBER MONDAY',
+    description: 'Estilo tech futurista con acentos azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    colorFondo: '#064E3B',
+    colorTexto: '#FFFFFF',
+    colorBorde: '#10B981',
+    colorPunto: '#EF4444',
+    tag: 'NAVIDAD',
+    description: 'Verde pino navideño con punto indicador rojo.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    colorFondo: '#831843',
+    colorTexto: '#FFFFFF',
+    colorBorde: '#FB7185',
+    colorPunto: '#F43F5E',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    colorFondo: '#312E81',
+    colorTexto: '#FFFFFF',
+    colorBorde: '#6366F1',
+    colorPunto: '#10B981',
+    tag: 'SPECIAL DAY',
+    description: 'Índigo premium con punto pulsante esmeralda.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    colorFondo: '#7F1D1D',
+    colorTexto: '#FFFFFF',
+    colorBorde: '#FBBF24',
+    colorPunto: '#FBBF24',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo liquidación con bordes y detalles en amarillo vibrante.',
+  },
+};
+
+/* ═══════════════════════════════════════════
+   DEFAULTS
 ═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: ContadorVisitasConfig = {
   textoAntes: 'personas viendo esto ahora',
@@ -67,6 +175,7 @@ const DEFAULT_CONFIG: ContadorVisitasConfig = {
   tamanoTexto: '14px',
   bordesRedondeados: 999,
   paddingInterno: 12,
+  campaignTheme: 'none',
 };
 
 const TAMANO_OPTIONS = [
@@ -118,9 +227,18 @@ function SectionCard({
 }
 
 /* ═══════════════════════════════════════════
-   PREVIEW EN VIVO (Misma estructura de la foto)
+   PREVIEW EN VIVO
 ═══════════════════════════════════════════ */
 function ContadorVisitasPreview({ config }: { config: ContadorVisitasConfig }) {
+  const themeKey = config.campaignTheme || 'none';
+  const theme = CONTADOR_CAMPAIGN_THEMES[themeKey] || CONTADOR_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  const colorFondo = isCustomTheme ? theme.colorFondo : config.colorFondo;
+  const colorTexto = isCustomTheme ? theme.colorTexto : config.colorTexto;
+  const colorBorde = isCustomTheme ? theme.colorBorde : config.colorBorde;
+  const colorPunto = isCustomTheme ? theme.colorPunto : config.colorPunto;
+
   const numeroEjemplo = Math.floor(
     (config.minVisitas + config.maxVisitas) / 2
   ) || 100;
@@ -132,12 +250,13 @@ function ContadorVisitasPreview({ config }: { config: ContadorVisitasConfig }) {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 10,
-        background: config.colorFondo,
-        border: `1.5px solid ${config.colorBorde}`,
+        background: colorFondo,
+        border: `1.5px solid ${colorBorde}`,
         borderRadius: config.bordesRedondeados,
         padding: `8px ${config.paddingInterno + 8}px`,
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.04)',
+        boxShadow: isCustomTheme ? `0 4px 16px ${colorBorde}33` : '0 2px 10px rgba(0, 0, 0, 0.04)',
         margin: '0 auto',
+        transition: 'all 0.3s ease',
       }}
     >
       {/* Punto pulsante */}
@@ -146,8 +265,8 @@ function ContadorVisitasPreview({ config }: { config: ContadorVisitasConfig }) {
           width: 10,
           height: 10,
           borderRadius: '50%',
-          background: config.colorPunto,
-          boxShadow: `0 0 0 3px ${config.colorPunto}33`,
+          background: colorPunto,
+          boxShadow: `0 0 0 3px ${colorPunto}33`,
           flexShrink: 0,
         }}
       />
@@ -156,7 +275,7 @@ function ContadorVisitasPreview({ config }: { config: ContadorVisitasConfig }) {
       <div
         style={{
           fontSize: config.tamanoTexto,
-          color: config.colorTexto,
+          color: colorTexto,
           fontWeight: 800,
           lineHeight: 1.2,
           letterSpacing: '-0.01em',
@@ -361,6 +480,164 @@ export default function ContadorVisitasEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const tabFechas = (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${CONTADOR_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'El contador de urgencia adaptará automáticamente sus bordes, fondos e indicador luminoso a la estética del evento comercial.'
+              : 'El widget respeta los colores estándar configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => updateCfg('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(CONTADOR_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => updateCfg('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorFondo,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de fondo"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorBorde,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de borde y acento"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta del evento
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -428,7 +705,7 @@ export default function ContadorVisitasEditor({
           {widgetDefinition.name}
         </h1>
 
-        {/* PREVIEW IDÉNTICO A TU IMAGEN */}
+        {/* PREVIEW */}
         <div
           style={{
             background: '#ffffff',
@@ -457,9 +734,10 @@ export default function ContadorVisitasEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: 'Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechas]}
           </EditorTabs>
 
           <div
@@ -558,4 +836,4 @@ export default function ContadorVisitasEditor({
       </div>
     </div>
   );
-      }
+}
