@@ -260,7 +260,7 @@ function SliderCategoriasPreview({ config }: { config: SliderCategoriasConfig })
     <div
       style={{
         background: colorFondo,
-        border: isCustomTheme ? `1.5px solid ${colorBordeDestacado}55` : '1.5px solid #e5e7eb',
+        border: isCustomTheme ? `1px solid ${colorBordeDestacado}55` : '1px solid #e5e7eb',
         borderRadius: 16,
         padding: 16,
         boxShadow: isCustomTheme ? `0 4px 20px ${colorBordeDestacado}22` : '0 4px 14px rgba(0,0,0,0.03)',
@@ -524,7 +524,7 @@ export default function SliderCategoriasEditor({
   /* ─── TAB GENERAL ─── */
   const tabGeneral = (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'space-between', marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#000000' }}>
           Mostrar título de la sección
         </span>
@@ -1155,4 +1155,4 @@ export default function SliderCategoriasEditor({
       </div>
     </div>
   );
-}
+  }
