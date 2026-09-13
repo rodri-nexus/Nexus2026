@@ -6,6 +6,122 @@ import BannerDeslizantePreview from './BannerDeslizantePreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
+/* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const EDITOR_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    tipoFondo: 'solido' | 'degradado';
+    colorFondo: string;
+    colorFondoInicio: string;
+    colorFondoFin: string;
+    colorTexto: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    tipoFondo: 'solido',
+    colorFondo: '#333333',
+    colorFondoInicio: '#333333',
+    colorFondoFin: '#555555',
+    colorTexto: '#ffffff',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores y estilos configurados en la pestaña Estilo.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    tipoFondo: 'degradado',
+    colorFondo: '#111827',
+    colorFondoInicio: '#111827',
+    colorFondoFin: '#030712',
+    colorTexto: '#F59E0B',
+    tag: 'BLACK FRIDAY',
+    description: 'Fondo negro profundo con texto dorado neón de alto impacto.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    tipoFondo: 'degradado',
+    colorFondo: '#0F172A',
+    colorFondoInicio: '#0F172A',
+    colorFondoFin: '#1E293B',
+    colorTexto: '#EF4444',
+    tag: 'HOT SALE',
+    description: 'Fondo azul noche con texto y acentos rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    tipoFondo: 'degradado',
+    colorFondo: '#090D16',
+    colorFondoInicio: '#090D16',
+    colorFondoFin: '#1E293B',
+    colorTexto: '#3B82F6',
+    tag: 'CYBER MONDAY',
+    description: 'Estilo tech futurista con acentos azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    tipoFondo: 'degradado',
+    colorFondo: '#064E3B',
+    colorFondoInicio: '#064E3B',
+    colorFondoFin: '#022C22',
+    colorTexto: '#FCD34D',
+    tag: 'NAVIDAD',
+    description: 'Verde pino navideño con detalles en dorado brillante.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    tipoFondo: 'degradado',
+    colorFondo: '#831843',
+    colorFondoInicio: '#831843',
+    colorFondoFin: '#500724',
+    colorTexto: '#F43F5E',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    tipoFondo: 'degradado',
+    colorFondo: '#312E81',
+    colorFondoInicio: '#312E81',
+    colorFondoFin: '#1E1B4B',
+    colorTexto: '#10B981',
+    tag: 'SPECIAL DAY',
+    description: 'Índigo premium con acentos esmeralda.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    tipoFondo: 'degradado',
+    colorFondo: '#7F1D1D',
+    colorFondoInicio: '#7F1D1D',
+    colorFondoFin: '#450A0A',
+    colorTexto: '#FBBF24',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo liquidación con contrastes en amarillo vibrante.',
+  },
+};
+
 // ═══════════════════════════════════════════════════════════
 // TIPOS
 // ═══════════════════════════════════════════════════════════
@@ -45,6 +161,7 @@ interface BannerConfig {
   bordeRadio: number;
   separacionMensajes: number;
   velocidad: number;
+  campaignTheme?: string;
 }
 
 const DEFAULT_CONFIG: BannerConfig = {
@@ -61,6 +178,7 @@ const DEFAULT_CONFIG: BannerConfig = {
   bordeRadio: 8,
   separacionMensajes: 300,
   velocidad: 20,
+  campaignTheme: 'none',
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -75,7 +193,7 @@ export default function BannerDeslizanteEditor({
   storeId,
 }: EditorProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilo'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilo' | 'fechas'>('general');
   const [config, setConfig] = useState<BannerConfig>({
     ...DEFAULT_CONFIG,
     ...(existingWidget?.config ?? {}),
@@ -85,7 +203,6 @@ export default function BannerDeslizanteEditor({
   const [error, setError] = useState<string | null>(null);
 
   const isEditing = !!existingWidget;
-
   const scopeLabel = targetType === 'all' ? '(General)' : '(Producto)';
   const titlePrefix = isEditing ? 'Editar widget' : 'Nuevo widget';
 
@@ -292,7 +409,7 @@ export default function BannerDeslizanteEditor({
 
           {/* TABS */}
           <div style={{ padding: '0 20px', borderBottom: '1px solid #e5e7eb' }}>
-            <div style={{ display: 'flex', gap: 0 }}>
+            <div style={{ display: 'flex', gap: 0, overflowX: 'auto' }}>
               <TabButton active={activeTab === 'general'} onClick={() => setActiveTab('general')}>
                 General
               </TabButton>
@@ -301,6 +418,9 @@ export default function BannerDeslizanteEditor({
               </TabButton>
               <TabButton active={activeTab === 'estilo'} onClick={() => setActiveTab('estilo')}>
                 Estilo
+              </TabButton>
+              <TabButton active={activeTab === 'fechas'} onClick={() => setActiveTab('fechas')}>
+                🔥 Fechas Especiales
               </TabButton>
             </div>
           </div>
@@ -329,6 +449,10 @@ export default function BannerDeslizanteEditor({
 
             {activeTab === 'estilo' && (
               <EstiloTab config={config} onChange={updateConfig} />
+            )}
+
+            {activeTab === 'fechas' && (
+              <FechasTab config={config} onUpdate={updateConfig} />
             )}
           </div>
 
@@ -928,6 +1052,175 @@ function EstiloTab({
 }
 
 // ═══════════════════════════════════════════════════════════
+// TAB FECHAS ESPECIALES
+// ═══════════════════════════════════════════════════════════
+
+function FechasTab({
+  config,
+  onUpdate,
+}: {
+  config: BannerConfig;
+  onUpdate: <K extends keyof BannerConfig>(key: K, value: BannerConfig[K]) => void;
+}) {
+  return (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${EDITOR_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'El banner adaptará automáticamente sus colores (incluyendo degradés comerciales) a la estética de la fecha elegida.'
+              : 'El banner respetará fielmente la paleta definida en la pestaña Estilo.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => onUpdate('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(EDITOR_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => onUpdate('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.tipoFondo === 'solido' ? theme.colorFondo : theme.colorFondoInicio,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de fondo inicial"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorTexto,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de texto"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta del evento
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
 // COMPONENTES REUTILIZABLES
 // ═══════════════════════════════════════════════════════════
 
@@ -959,7 +1252,7 @@ function TabButton({
     <button
       onClick={onClick}
       style={{
-        flex: 1,
+        flexShrink: 0,
         background: 'none',
         border: 'none',
         padding: '14px 12px',
@@ -971,6 +1264,7 @@ function TabButton({
         borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
         fontFamily: 'inherit',
         transition: 'all 0.2s',
+        whiteSpace: 'nowrap',
       }}
     >
       {children}
@@ -1139,4 +1433,4 @@ function IconInfo() {
       <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
     </svg>
   );
-  }
+}
