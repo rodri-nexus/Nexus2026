@@ -10,6 +10,8 @@ import {
   ChevronRight,
   MousePointer,
   Download,
+  Upload,
+  CheckCircle2,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
@@ -25,7 +27,6 @@ interface StepReal {
   duration: number; // ms
   title: string;
   caption: Caption;
-  imageUrl: string;
   cursor: {
     x: number; // 0 a 1
     y: number; // 0 a 1
@@ -34,7 +35,7 @@ interface StepReal {
 }
 
 /* ═══════════════════════════════════════════
-   2. SECUENCIA PASO A PASO CON TUS FOTOS REALES
+   2. SECUENCIA PASO A PASO
    ═══════════════════════════════════════════ */
 const REAL_STEPS: StepReal[] = [
   {
@@ -45,7 +46,6 @@ const REAL_STEPS: StepReal[] = [
       es: "🔥 ¿Querés duplicar las ventas de tu Tiendanube? Mirá esto...",
       pt: "🔥 Quer duplicar as vendas da sua Nuvemshop? Olha só...",
     },
-    imageUrl: "/reels/step1.jpg",
     cursor: { x: 0.5, y: 0.42, click: true },
   },
   {
@@ -56,7 +56,6 @@ const REAL_STEPS: StepReal[] = [
       es: "1️⃣ Tocá en Crear Widget y elegí 'Para todos los productos'",
       pt: "1️⃣ Toque em Criar Widget e escolha 'Para todos os produtos'",
     },
-    imageUrl: "/reels/step2.jpg",
     cursor: { x: 0.5, y: 0.82, click: true },
   },
   {
@@ -67,7 +66,6 @@ const REAL_STEPS: StepReal[] = [
       es: "2️⃣ Elegí 'Cuenta Regresiva' para activar máxima urgencia ⏰",
       pt: "2️⃣ Escolha 'Contador Regressivo' para ativar urgência máxima ⏰",
     },
-    imageUrl: "/reels/step3.jpg",
     cursor: { x: 0.5, y: 0.88, click: true },
   },
   {
@@ -78,7 +76,6 @@ const REAL_STEPS: StepReal[] = [
       es: "3️⃣ Personalizá tu oferta y activá el modo 'Hot Sale' 🔥",
       pt: "3️⃣ Customize sua oferta e ative o modo 'Hot Sale' 🔥",
     },
-    imageUrl: "/reels/step4.jpg",
     cursor: { x: 0.78, y: 0.62, click: true },
   },
   {
@@ -89,7 +86,6 @@ const REAL_STEPS: StepReal[] = [
       es: "🚀 ¡Listo! El contador resalta al instante en el inicio de tu tienda",
       pt: "🚀 Pronto! O contador se destaca ao vivo na home da sua loja",
     },
-    imageUrl: "/reels/step5.jpg",
     cursor: { x: 0.5, y: 0.15, click: false },
   },
   {
@@ -100,7 +96,6 @@ const REAL_STEPS: StepReal[] = [
       es: "💥 Y aparece arriba del botón de compra multiplicando tu conversión",
       pt: "💥 E aparece acima do botão de compra multiplicando suas vendas",
     },
-    imageUrl: "/reels/step6.jpg",
     cursor: { x: 0.5, y: 0.75, click: false },
   },
 ];
@@ -176,15 +171,8 @@ export default function MarketingReelsPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingProgress, setRecordingProgress] = useState(0);
 
-  // Almacenador de imágenes reales locales o cargadas
-  const [images, setImages] = useState<string[]>([
-    "/reels/step1.jpg",
-    "/reels/step2.jpg",
-    "/reels/step3.jpg",
-    "/reels/step4.jpg",
-    "/reels/step5.jpg",
-    "/reels/step6.jpg",
-  ]);
+  // Almacenador de imágenes en Base64 cargadas directamente desde la galería
+  const [images, setImages] = useState<string[]>(["", "", "", "", "", ""]);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const currentStep = REAL_STEPS[currentIdx];
@@ -229,21 +217,25 @@ export default function MarketingReelsPage() {
     setIsPlaying(true);
   };
 
-  // Carga de imágenes reales por el usuario
+  // Carga de imágenes reales convertidas inmediatamente a Base64
   const handleImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setImages((prev) => {
-        const next = [...prev];
-        next[index] = url;
-        return next;
-      });
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setImages((prev) => {
+          const next = [...prev];
+          next[index] = dataUrl;
+          return next;
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   // ═══════════════════════════════════════════
-  // MOTOR EXPORTADOR DE VIDEO REAL (Canvas 30fps + MediaRecorder)
+  // MOTOR EXPORTADOR DE VIDEO REAL (.MP4 / .WEBM COMPATIBLE CELULARES)
   // ═══════════════════════════════════════════
   const generateVideoFile = async () => {
     setIsRecording(true);
@@ -258,7 +250,7 @@ export default function MarketingReelsPage() {
     const ctx = canvas.getContext("2d");
 
     if (!ctx) {
-      alert("No se pudo iniciar el canvas.");
+      alert("No se pudo iniciar el motor gráfico.");
       setIsRecording(false);
       return;
     }
@@ -267,28 +259,43 @@ export default function MarketingReelsPage() {
     const loadedImages: HTMLImageElement[] = await Promise.all(
       images.map((src) => {
         return new Promise<HTMLImageElement>((resolve) => {
+          if (!src || !src.startsWith("data:")) {
+            resolve(new Image());
+            return;
+          }
           const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.src = src;
           img.onload = () => resolve(img);
-          img.onerror = () => {
-            const fallback = new Image();
-            resolve(fallback);
-          };
+          img.onerror = () => resolve(new Image());
+          img.src = src;
         });
       })
     );
 
-    // Stream de captura a 30 FPS
-    const stream = canvas.captureStream(30);
-    let mimeType = "video/webm;codecs=vp9";
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
-      mimeType = "video/webm";
-    }
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
-      mimeType = "video/mp4";
+    // Detección estricta de MIME types compatibles con iOS Safari y Android
+    let mimeType = "";
+    const possibleTypes = [
+      "video/mp4;codecs=avc1",
+      "video/mp4",
+      "video/webm;codecs=vp9",
+      "video/webm;codecs=vp8",
+      "video/webm",
+    ];
+
+    for (const type of possibleTypes) {
+      if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type)) {
+        mimeType = type;
+        break;
+      }
     }
 
+    if (!mimeType) {
+      alert("Tu navegador móvil no soporta grabación directa de video. Reintentá desde Chrome o Safari.");
+      setIsRecording(false);
+      return;
+    }
+
+    // Stream de captura a 30 FPS
+    const stream = canvas.captureStream(30);
     const recorder = new MediaRecorder(stream, { mimeType });
     const chunks: Blob[] = [];
 
@@ -297,11 +304,12 @@ export default function MarketingReelsPage() {
     };
 
     recorder.onstop = () => {
+      const ext = mimeType.includes("mp4") ? "mp4" : "webm";
       const blob = new Blob(chunks, { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `nevux_tutorial_cuenta_regresiva_${lang.toUpperCase()}.webm`;
+      a.download = `nevux_tutorial_paso_a_paso_${lang.toUpperCase()}.${ext}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -338,28 +346,49 @@ export default function MarketingReelsPage() {
       const activeStep = REAL_STEPS[activeStepIdx];
       const img = loadedImages[activeStepIdx];
 
-      // 1. Limpiar Fondo
-      ctx.fillStyle = "#0d1117";
+      // 1. Fondo Oscuro Premium
+      ctx.fillStyle = "#0b0f19";
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Dibujar Imagen Real con Ken Burns Pan/Zoom suave
-      if (img && img.width > 0) {
-        const zoomFactor = 1 + (stepTime / activeStep.duration) * 0.05; // 5% zoom
-        const dw = width * zoomFactor;
-        const dh = height * zoomFactor;
+      // 2. Dibujar Imagen Real o Placa de Respaldo HD
+      if (img && img.width > 0 && img.height > 0) {
+        // Escalar e integrar la foto real dentro del marco
+        const scale = Math.min((width - 40) / img.width, (height - 180) / img.height);
+        const dw = img.width * scale;
+        const dh = img.height * scale;
         const dx = (width - dw) / 2;
-        const dy = (height - dh) / 2;
+        const dy = (height - dh) / 2 - 20;
+
+        // Borde elegante alrededor de la captura real
+        ctx.fillStyle = "#1f2937";
+        drawRoundedRect(ctx, dx - 10, dy - 10, dw + 20, dh + 20, 24);
+        ctx.fill();
+
         ctx.drawImage(img, dx, dy, dw, dh);
       } else {
-        ctx.fillStyle = "#161b22";
-        ctx.fillRect(40, 100, width - 80, height - 300);
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 28px sans-serif";
+        // Placa gráfica de respaldo HD (Si no ha cargado foto todavía)
+        ctx.fillStyle = "#111827";
+        ctx.strokeStyle = "#10B981";
+        ctx.lineWidth = 3;
+        drawRoundedRect(ctx, 40, 100, width - 80, height - 320, 28);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#10B981";
+        ctx.font = "bold 22px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(activeStep.title, width / 2, height / 2);
+        ctx.fillText("NEVUX PASO A PASO", width / 2, height / 2 - 40);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 32px sans-serif";
+        ctx.fillText(activeStep.title, width / 2, height / 2 + 10);
+
+        ctx.fillStyle = "#9ca3af";
+        ctx.font = "18px sans-serif";
+        ctx.fillText("📸 Cargar captura real desde el panel", width / 2, height / 2 + 50);
       }
 
-      // 3. Dibujar Barras de Progreso Superiores
+      // 3. Dibujar Barras de Progreso Superiores (Estilo Instagram Stories)
       const barY = 40;
       const barHeight = 6;
       const totalBars = REAL_STEPS.length;
@@ -406,7 +435,7 @@ export default function MarketingReelsPage() {
 
       // 5. Dibujar Subtítulo Estilo TikTok (Abajo)
       const capText = lang === "es" ? activeStep.caption.es : activeStep.caption.pt;
-      const boxY = height - 220;
+      const boxY = height - 200;
       const boxMargin = 30;
       const boxWidth = width - boxMargin * 2;
 
@@ -420,29 +449,29 @@ export default function MarketingReelsPage() {
       ctx.textAlign = "center";
       ctx.fillText("NEVUX APP", boxMargin + 60, boxY - 17);
 
-      // Card Fondo
-      ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
+      // Card Fondo Subtítulo
+      ctx.fillStyle = "rgba(0, 0, 0, 0.92)";
       ctx.strokeStyle = "rgba(16, 185, 129, 0.5)";
       ctx.lineWidth = 2;
-      drawRoundedRect(ctx, boxMargin, boxY, boxWidth, 140, 20);
+      drawRoundedRect(ctx, boxMargin, boxY, boxWidth, 130, 20);
       ctx.fill();
       ctx.stroke();
 
       // Texto
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 24px sans-serif";
+      ctx.font = "bold 22px sans-serif";
       ctx.textAlign = "left";
 
       const words = capText.split(" ");
       let line = "";
-      let lineY = boxY + 45;
+      let lineY = boxY + 42;
       for (let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + " ";
         const metrics = ctx.measureText(testLine);
         if (metrics.width > boxWidth - 30 && n > 0) {
           ctx.fillText(line, boxMargin + 16, lineY);
           line = words[n] + " ";
-          lineY += 32;
+          lineY += 30;
         } else {
           line = testLine;
         }
@@ -673,7 +702,7 @@ export default function MarketingReelsPage() {
               </div>
               <div
                 style={{
-                  background: "rgba(0, 0, 0, 0.9)",
+                  background: "rgba(0, 0, 0, 0.92)",
                   border: "1.5px solid rgba(16, 185, 129, 0.4)",
                   color: "#ffffff",
                   fontSize: "13px",
@@ -690,20 +719,25 @@ export default function MarketingReelsPage() {
             </div>
 
             {/* CAPTURA REAL MOSTRADA EN PANTALLA */}
-            <div style={{ flex: 1, position: "relative", overflow: "hidden", background: "#000000" }}>
-              <img
-                src={images[currentIdx]}
-                alt={currentStep.title}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  objectPosition: "center",
-                }}
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
+            <div style={{ flex: 1, position: "relative", overflow: "hidden", background: "#0b0f19", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {images[currentIdx] ? (
+                <img
+                  src={images[currentIdx]}
+                  alt={currentStep.title}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    objectPosition: "center",
+                  }}
+                />
+              ) : (
+                <div style={{ padding: "20px", textAlign: "center", color: "#6b7280" }}>
+                  <Upload size={32} color="#10B981" style={{ marginBottom: "10px" }} />
+                  <div style={{ fontSize: "12px", fontWeight: "800", color: "#ffffff" }}>{currentStep.title}</div>
+                  <div style={{ fontSize: "10px", marginTop: "4px" }}>Tocá "Cargar foto" a la derecha para subir la captura de este paso</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -805,12 +839,14 @@ export default function MarketingReelsPage() {
           {/* GESTIÓN DE LAS CAPTURAS REALES SUBIDAS */}
           <div style={{ background: "#111827", padding: "20px", borderRadius: "20px", border: "1px solid #1f2937" }}>
             <div style={{ fontSize: "12px", fontWeight: "800", color: "#9ca3af", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.05em" }}>
-              Capturas Reales de tu App (Paso a Paso)
+              Cargar Capturas Reales (Paso a Paso)
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {REAL_STEPS.map((sc, idx) => {
                 const isAct = idx === currentIdx;
+                const hasImg = !!images[idx];
+
                 return (
                   <div
                     key={sc.id}
@@ -848,10 +884,11 @@ export default function MarketingReelsPage() {
                     </div>
 
                     <div style={{ flex: 1, textAlign: "left" }}>
-                      <div style={{ fontSize: "12px", fontWeight: "800", color: isAct ? "#10B981" : "#ffffff" }}>
-                        {sc.title}
+                      <div style={{ fontSize: "12px", fontWeight: "800", color: isAct ? "#10B981" : "#ffffff", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>{sc.title}</span>
+                        {hasImg && <CheckCircle2 size={13} color="#10B981" />}
                       </div>
-                      <div style={{ fontSize: "10px", color: "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "200px" }}>
+                      <div style={{ fontSize: "10px", color: "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "180px" }}>
                         {lang === "es" ? sc.caption.es : sc.caption.pt}
                       </div>
                     </div>
@@ -860,17 +897,21 @@ export default function MarketingReelsPage() {
                     <label
                       onClick={(e) => e.stopPropagation()}
                       style={{
-                        background: "#1f2937",
-                        color: "#10B981",
+                        background: hasImg ? "rgba(16, 185, 129, 0.15)" : "#1f2937",
+                        color: hasImg ? "#10B981" : "#ffffff",
                         fontSize: "10px",
-                        fontWeight: "700",
-                        padding: "4px 8px",
-                        borderRadius: "6px",
+                        fontWeight: "800",
+                        padding: "6px 10px",
+                        borderRadius: "8px",
                         cursor: "pointer",
-                        border: "1px solid #374151",
+                        border: hasImg ? "1px solid #10B981" : "1px solid #374151",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
                       }}
                     >
-                      Cargar foto
+                      <Upload size={12} />
+                      {hasImg ? "Cambiar foto" : "Cargar foto"}
                       <input
                         type="file"
                         accept="image/*"
@@ -888,4 +929,4 @@ export default function MarketingReelsPage() {
       </div>
     </div>
   );
-    }
+  }
