@@ -2,19 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import {
   Check,
-  X,
   Plus,
   Trash2,
-  Scale,
-  Palette,
-  Type,
   Eye,
-  Save,
-  Loader2,
-  Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   ColorPicker,
@@ -26,7 +19,7 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -75,7 +68,142 @@ interface ComparadorMarcaConfig {
   bordesRedondeados: number;
   paddingInterno: number;
   ubicacion: 'product' | 'home' | 'ambas';
+  campaignTheme?: string;
 }
+
+/* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const COMPARADOR_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    bgColor: string;
+    borderColor: string;
+    textColor: string;
+    destacadoBgColor: string;
+    destacadoTextColor: string;
+    checkColor: string;
+    crossColor: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    bgColor: '#ffffff',
+    borderColor: '#e5e7eb',
+    textColor: '#000000',
+    destacadoBgColor: '#ecfdf4',
+    destacadoTextColor: '#059669',
+    checkColor: '#10B981',
+    crossColor: '#9ca3af',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    bgColor: '#111827',
+    borderColor: '#F59E0B',
+    textColor: '#FFFFFF',
+    destacadoBgColor: '#F59E0B1a',
+    destacadoTextColor: '#F59E0B',
+    checkColor: '#F59E0B',
+    crossColor: '#374151',
+    tag: 'BLACK FRIDAY',
+    description: 'Fondo negro con bordes y acentos destacados dorados.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    bgColor: '#0F172A',
+    borderColor: '#EF4444',
+    textColor: '#FFFFFF',
+    destacadoBgColor: '#EF44441a',
+    destacadoTextColor: '#EF4444',
+    checkColor: '#EF4444',
+    crossColor: '#334155',
+    tag: 'HOT SALE',
+    description: 'Azul noche profundo con indicadores y bordes en rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    bgColor: '#090D16',
+    borderColor: '#3B82F6',
+    textColor: '#FFFFFF',
+    destacadoBgColor: '#3B82F61a',
+    destacadoTextColor: '#60A5FA',
+    checkColor: '#3B82F6',
+    crossColor: '#1E293B',
+    tag: 'CYBER MONDAY',
+    description: 'Estética cyber futurista con resaltados en azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    bgColor: '#064E3B',
+    borderColor: '#10B981',
+    textColor: '#FFFFFF',
+    destacadoBgColor: '#EF44441a',
+    destacadoTextColor: '#FCD34D',
+    checkColor: '#EF4444',
+    crossColor: '#047857',
+    tag: 'NAVIDAD',
+    description: 'Verde pino de fondo con tildes y marcos rojo navideño.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    bgColor: '#831843',
+    borderColor: '#FB7185',
+    textColor: '#FFFFFF',
+    destacadoBgColor: '#F43F5E1a',
+    destacadoTextColor: '#FECDD3',
+    checkColor: '#F43F5E',
+    crossColor: '#9D174D',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    bgColor: '#312E81',
+    borderColor: '#6366F1',
+    textColor: '#FFFFFF',
+    destacadoBgColor: '#10B9811a',
+    destacadoTextColor: '#A7F3D0',
+    checkColor: '#10B981',
+    crossColor: '#3730A3',
+    tag: 'SPECIAL DAY',
+    description: 'Fondo índigo premium con destacados de marca en esmeralda.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    bgColor: '#7F1D1D',
+    borderColor: '#FBBF24',
+    textColor: '#FFFFFF',
+    destacadoBgColor: '#FBBF241a',
+    destacadoTextColor: '#FBBF24',
+    checkColor: '#FBBF24',
+    crossColor: '#991B1B',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo líquido audaz con aros destacados y tildes amarillos.',
+  },
+};
 
 /* ═══════════════════════════════════════════
    DEFAULTS
@@ -101,10 +229,11 @@ const DEFAULT_CONFIG: ComparadorMarcaConfig = {
   bordesRedondeados: 16,
   paddingInterno: 18,
   ubicacion: 'product',
+  campaignTheme: 'none',
 };
 
 /* ═══════════════════════════════════════════
-   SECTION CARD
+   SECTION CARD (Subcomponente auxiliar)
 ═══════════════════════════════════════════ */
 function SectionCard({
   icon,
@@ -147,15 +276,29 @@ function SectionCard({
    PREVIEW EN VIVO
 ═══════════════════════════════════════════ */
 function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
+  const themeKey = config.campaignTheme || 'none';
+  const theme = COMPARADOR_CAMPAIGN_THEMES[themeKey] || COMPARADOR_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  // Sobrecarga temática de colores
+  const bgColor = isCustomTheme ? theme.bgColor : config.bgColor;
+  const borderColor = isCustomTheme ? theme.borderColor : config.borderColor;
+  const textColor = isCustomTheme ? theme.textColor : config.textColor;
+  const subtextColor = isCustomTheme ? `${theme.textColor}cc` : config.textColor;
+  const destacadoBgColor = isCustomTheme ? theme.destacadoBgColor : config.destacadoBgColor;
+  const destacadoTextColor = isCustomTheme ? theme.destacadoTextColor : config.destacadoTextColor;
+  const checkColor = isCustomTheme ? theme.checkColor : config.checkColor;
+  const crossColor = isCustomTheme ? theme.crossColor : config.crossColor;
+
   return (
     <div
       style={{
-        background: config.bgColor,
-        border: `1.5px solid ${config.borderColor}`,
+        background: bgColor,
+        border: `1.5px solid ${borderColor}`,
         borderRadius: config.bordesRedondeados,
         padding: config.paddingInterno,
-        boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
-        transition: 'all 0.2s ease',
+        boxShadow: isCustomTheme ? `0 4px 20px ${borderColor}22` : '0 4px 14px rgba(0,0,0,0.03)',
+        transition: 'all 0.3s ease',
       }}
     >
       <div style={{ textAlign: 'center', marginBottom: 16 }}>
@@ -163,7 +306,7 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
           style={{
             fontWeight: 900,
             fontSize: 16,
-            color: config.textColor,
+            color: textColor,
             letterSpacing: '-0.02em',
             marginBottom: 3,
           }}
@@ -171,7 +314,7 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
           {config.titulo}
         </div>
         {config.subtexto && (
-          <div style={{ fontSize: 12, color: config.textColor, opacity: 0.65 }}>
+          <div style={{ fontSize: 12, color: subtextColor, opacity: isCustomTheme ? 1 : 0.65 }}>
             {config.subtexto}
           </div>
         )}
@@ -180,9 +323,10 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
       {/* Tabla comparativa */}
       <div
         style={{
-          border: `1px solid ${config.borderColor}`,
+          border: `1px solid ${borderColor}`,
           borderRadius: 12,
           overflow: 'hidden',
+          transition: 'all 0.3s ease',
         }}
       >
         {/* Cabecera de la tabla */}
@@ -190,20 +334,20 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
           style={{
             display: 'grid',
             gridTemplateColumns: '2fr 1fr 1fr',
-            background: '#f9fafb',
-            borderBottom: `1px solid ${config.borderColor}`,
+            background: isCustomTheme ? '#ffffff06' : '#f9fafb',
+            borderBottom: `1px solid ${borderColor}`,
             padding: '10px 12px',
             alignItems: 'center',
             fontSize: 11,
             fontWeight: 800,
           }}
         >
-          <div style={{ color: '#6b7280' }}>BENEFICIO</div>
+          <div style={{ color: isCustomTheme ? '#ffffffa3' : '#6b7280' }}>BENEFICIO</div>
           <div
             style={{
               textAlign: 'center',
-              color: config.destacadoTextColor,
-              background: config.destacadoBgColor,
+              color: destacadoTextColor,
+              background: destacadoBgColor,
               padding: '4px 6px',
               borderRadius: 6,
               fontWeight: 900,
@@ -211,7 +355,7 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
           >
             {config.nombreTuMarca}
           </div>
-          <div style={{ textAlign: 'center', color: '#6b7280' }}>
+          <div style={{ textAlign: 'center', color: isCustomTheme ? '#ffffffa3' : '#6b7280' }}>
             {config.nombreCompetencia}
           </div>
         </div>
@@ -227,13 +371,13 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
               alignItems: 'center',
               borderBottom:
                 idx < config.items.length - 1
-                  ? `1px solid ${config.borderColor}`
+                  ? `1px solid ${borderColor}`
                   : 'none',
-              background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
+              background: idx % 2 === 0 ? 'transparent' : (isCustomTheme ? '#ffffff03' : '#fafafa'),
               fontSize: 12,
             }}
           >
-            <div style={{ fontWeight: 600, color: config.textColor, paddingRight: 8 }}>
+            <div style={{ fontWeight: 600, color: textColor, paddingRight: 8 }}>
               {item.caracteristica || `Beneficio #${idx + 1}`}
             </div>
 
@@ -243,7 +387,7 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                background: config.destacadoBgColor,
+                background: destacadoBgColor,
                 margin: '-10px 0',
                 padding: '10px 0',
               }}
@@ -254,7 +398,7 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
                     width: 22,
                     height: 22,
                     borderRadius: '50%',
-                    background: config.checkColor,
+                    background: checkColor,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -268,13 +412,13 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
                     width: 22,
                     height: 22,
                     borderRadius: '50%',
-                    background: config.crossColor,
+                    background: crossColor,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <X size={14} color="#ffffff" strokeWidth={3} />
+                  <span style={{ color: '#ffffff', fontSize: 13, fontWeight: 900, lineHeight: 1 }}>✕</span>
                 </div>
               )}
             </div>
@@ -287,7 +431,7 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
                     width: 20,
                     height: 20,
                     borderRadius: '50%',
-                    background: config.checkColor,
+                    background: checkColor,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -301,14 +445,14 @@ function ComparadorMarcaPreview({ config }: { config: ComparadorMarcaConfig }) {
                     width: 20,
                     height: 20,
                     borderRadius: '50%',
-                    background: '#f3f4f6',
-                    border: '1px solid #e5e7eb',
+                    background: isCustomTheme ? '#ffffff0a' : '#f3f4f6',
+                    border: isCustomTheme ? '1px solid #ffffff1a' : '1px solid #e5e7eb',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <X size={13} color={config.crossColor} strokeWidth={2.5} />
+                  <span style={{ color: crossColor, fontSize: 11, fontWeight: 900, lineHeight: 1 }}>✕</span>
                 </div>
               )}
             </div>
@@ -331,6 +475,7 @@ export default function ComparadorMarcaEditor({
 }: Props) {
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
   const [config, setConfig] = useState<ComparadorMarcaConfig>(() => {
     if (existingWidget?.config) {
       return {
@@ -527,7 +672,7 @@ export default function ComparadorMarcaEditor({
             color: '#000000',
             marginBottom: 10,
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: ' some-between',
             alignItems: 'center',
           }}
         >
@@ -724,6 +869,164 @@ export default function ComparadorMarcaEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const tabFechas = (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${COMPARADOR_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'La tabla de comparación adaptará automáticamente toda su paleta visual al evento comercial seleccionado.'
+              : 'El widget respeta los colores estándar configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => updateCfg('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(COMPARADOR_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => updateCfg('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.bgColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Fondo de la tabla"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.borderColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de los bordes"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta de la fecha
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -834,9 +1137,10 @@ export default function ComparadorMarcaEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: 'Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechas]}
           </EditorTabs>
 
           {/* GUARDAR */}
@@ -902,12 +1206,6 @@ export default function ComparadorMarcaEditor({
                 opacity: saving ? 0.7 : 1,
                 transition: 'all 0.2s ease',
               }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.background = '#059669';
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.background = '#10B981';
-              }}
             >
               {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
             </button>
@@ -936,4 +1234,4 @@ export default function ComparadorMarcaEditor({
       </div>
     </div>
   );
-}
+  }
