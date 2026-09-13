@@ -19,6 +19,122 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const RULETA_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    colorBoton: string;
+    colorFondoModal: string;
+    colorTexto: string;
+    colorRuletaPrincipal: string;
+    colorRuletaSecundario: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    colorBoton: '#10B981',
+    colorFondoModal: '#ffffff',
+    colorTexto: '#111827',
+    colorRuletaPrincipal: '#10B981',
+    colorRuletaSecundario: '#111827',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    colorBoton: '#F59E0B',
+    colorFondoModal: '#111827',
+    colorTexto: '#FFFFFF',
+    colorRuletaPrincipal: '#111827',
+    colorRuletaSecundario: '#F59E0B',
+    tag: 'BLACK FRIDAY',
+    description: 'Modal oscuro profundo con porciones doradas y botón de alta conversión.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    colorBoton: '#EF4444',
+    colorFondoModal: '#0F172A',
+    colorTexto: '#FFFFFF',
+    colorRuletaPrincipal: '#0F172A',
+    colorRuletaSecundario: '#EF4444',
+    tag: 'HOT SALE',
+    description: 'Estética azul noche con porciones y botón rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    colorBoton: '#3B82F6',
+    colorFondoModal: '#090D16',
+    colorTexto: '#FFFFFF',
+    colorRuletaPrincipal: '#090D16',
+    colorRuletaSecundario: '#3B82F6',
+    tag: 'CYBER MONDAY',
+    description: 'Tecnología y neón con alternancia de azul eléctrico.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    colorBoton: '#EF4444',
+    colorFondoModal: '#064E3B',
+    colorTexto: '#FFFFFF',
+    colorRuletaPrincipal: '#064E3B',
+    colorRuletaSecundario: '#EF4444',
+    tag: 'NAVIDAD',
+    description: 'Verde pino y rojo navideño con contrastes elegantes.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    colorBoton: '#F43F5E',
+    colorFondoModal: '#831843',
+    colorTexto: '#FFFFFF',
+    colorRuletaPrincipal: '#831843',
+    colorRuletaSecundario: '#F43F5E',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    colorBoton: '#10B981',
+    colorFondoModal: '#312E81',
+    colorTexto: '#FFFFFF',
+    colorRuletaPrincipal: '#312E81',
+    colorRuletaSecundario: '#10B981',
+    tag: 'SPECIAL DAY',
+    description: 'Índigo premium y esmeralda de alta fidelidad estética.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    colorBoton: '#FBBF24',
+    colorFondoModal: '#7F1D1D',
+    colorTexto: '#FFFFFF',
+    colorRuletaPrincipal: '#7F1D1D',
+    colorRuletaSecundario: '#FBBF24',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo sale con porciones alternas en amarillo vibrante.',
+  },
+};
+
+/* ═══════════════════════════════════════════
    OPCIONES FIJAS DE PREMIOS
 ═══════════════════════════════════════════ */
 const OPCIONES_PREMIOS = [
@@ -29,38 +145,10 @@ const OPCIONES_PREMIOS = [
   { label: 'Sigue Intentando 😢', value: 'Sigue Intentando 😢', esGanador: false },
 ];
 
-/* ═══════════════════════════════════════════
-   TIPOS
-═══════════════════════════════════════════ */
-interface WidgetDefinition {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  category: string;
-  icon: string;
-}
-
-interface ExistingWidget {
-  id: string;
-  config: Record<string, unknown>;
-  is_active: boolean;
-  target_type: string;
-  target_product_id: number | null;
-}
-
-interface Props {
-  widgetDefinition: WidgetDefinition;
-  existingWidget: ExistingWidget | null;
-  targetType: 'product' | 'all';
-  productId: number | null;
-  storeId: string | number;
-}
-
 export interface PremioItem {
-  texto: string;         // '5% OFF' | '10% OFF' | '15% OFF' | '20% OFF' | 'Sigue Intentando 😢'
-  codigoCupon: string;   // Ej: "SUERTE10"
-  esGanador: boolean;    // true para descuentos, false para "Sigue Intentando"
+  texto: string;
+  codigoCupon: string;
+  esGanador: boolean;
 }
 
 interface RuletaDescuentosConfig {
@@ -73,11 +161,9 @@ interface RuletaDescuentosConfig {
   colorRuletaPrincipal: string;
   colorRuletaSecundario: string;
   premios: PremioItem[];
+  campaignTheme?: string;
 }
 
-/* ═══════════════════════════════════════════
-   DEFAULTS
-═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: RuletaDescuentosConfig = {
   titulo: '🎉 ¡GIRÁ Y GANÁ UN DESCUENTO!',
   subtitulo: 'Ingresá tu email para girar la ruleta y obtener tu regalo exclusivo.',
@@ -95,6 +181,7 @@ const DEFAULT_CONFIG: RuletaDescuentosConfig = {
     { texto: '20% OFF', codigoCupon: 'MEGA20', esGanador: true },
     { texto: '10% OFF', codigoCupon: 'PROMO10', esGanador: true },
   ],
+  campaignTheme: 'none',
 };
 
 /* ═══════════════════════════════════════════
@@ -141,26 +228,41 @@ function SectionCard({
    PREVIEW EN VIVO DE LA RULETA
 ═══════════════════════════════════════════ */
 function RuletaPreview({ config }: { config: RuletaDescuentosConfig }) {
+  const themeKey = config.campaignTheme || 'none';
+  const theme = RULETA_CAMPAIGN_THEMES[themeKey] || RULETA_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  // Sobrecarga de colores según la campaña elegida
+  const cardBg = isCustomTheme ? theme.colorFondoModal : config.colorFondoModal;
+  const textColor = isCustomTheme ? theme.colorTexto : config.colorTexto;
+  const subtextColor = isCustomTheme ? `${theme.colorTexto}bb` : '#6b7280';
+  const colorBoton = isCustomTheme ? theme.colorBoton : config.colorBoton;
+  const rPrincipal = isCustomTheme ? theme.colorRuletaPrincipal : config.colorRuletaPrincipal;
+  const rSecundario = isCustomTheme ? theme.colorRuletaSecundario : config.colorRuletaSecundario;
+
   return (
     <div
       style={{
-        background: config.colorFondoModal,
-        border: '1.5px solid #e5e7eb',
+        background: cardBg,
+        border: isCustomTheme ? `2px solid ${colorBoton}aa` : '1.5px solid #e5e7eb',
         borderRadius: 16,
         padding: 20,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+        boxShadow: isCustomTheme
+          ? `0 8px 30px ${colorBoton}33`
+          : '0 8px 24px rgba(0,0,0,0.08)',
         boxSizing: 'border-box',
         maxWidth: 380,
         margin: '0 auto',
         textAlign: 'center',
         position: 'relative',
+        transition: 'all 0.3s ease',
       }}
     >
       {/* Título y Subtítulo */}
-      <div style={{ fontSize: 16, fontWeight: 900, color: config.colorTexto, marginBottom: 4 }}>
+      <div style={{ fontSize: 16, fontWeight: 900, color: textColor, marginBottom: 4 }}>
         {config.titulo}
       </div>
-      <div style={{ fontSize: 11.5, color: '#6b7280', marginBottom: 16, lineHeight: 1.3 }}>
+      <div style={{ fontSize: 11.5, color: subtextColor, marginBottom: 16, lineHeight: 1.3 }}>
         {config.subtitulo}
       </div>
 
@@ -195,15 +297,17 @@ function RuletaPreview({ config }: { config: RuletaDescuentosConfig }) {
             background: `conic-gradient(
               ${config.premios.map((_, i) => {
                 const step = 360 / config.premios.length;
-                const color = i % 2 === 0 ? config.colorRuletaPrincipal : config.colorRuletaSecundario;
+                const color = i % 2 === 0 ? rPrincipal : rSecundario;
                 return `${color} ${i * step}deg ${(i + 1) * step}deg`;
               }).join(', ')}
             )`,
+            transition: 'background 0.3s ease',
           }}
         >
           {/* Textos de las porciones */}
           {config.premios.map((premio, i) => {
             const angle = (360 / config.premios.length) * i + (360 / config.premios.length) / 2;
+            const sliceTextCol = '#ffffff';
             return (
               <div
                 key={i}
@@ -221,7 +325,7 @@ function RuletaPreview({ config }: { config: RuletaDescuentosConfig }) {
                   justifyContent: 'center',
                   fontSize: 8.5,
                   fontWeight: 900,
-                  color: '#ffffff',
+                  color: sliceTextCol,
                   textShadow: '0 1px 2px rgba(0,0,0,0.8)',
                   whiteSpace: 'nowrap',
                   paddingLeft: 25,
@@ -278,13 +382,14 @@ function RuletaPreview({ config }: { config: RuletaDescuentosConfig }) {
       {/* Botón de Girar */}
       <div
         style={{
-          background: config.colorBoton,
+          background: colorBoton,
           color: '#ffffff',
           fontWeight: 800,
           fontSize: 13,
           padding: '11px',
           borderRadius: 999,
-          boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+          boxShadow: `0 4px 12px ${colorBoton}44`,
+          transition: 'all 0.3s ease',
         }}
       >
         {config.textoBotonGirar}
@@ -305,6 +410,7 @@ export default function RuletaDescuentosEditor({
 }: Props) {
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
   const [config, setConfig] = useState<RuletaDescuentosConfig>(() => {
     if (existingWidget?.config) {
       return {
@@ -356,7 +462,7 @@ export default function RuletaDescuentosEditor({
   };
 
   const removePremio = (index: number) => {
-    if (config.premios.length <= 4) return; // Mínimo 4 premios para formar la rueda
+    if (config.premios.length <= 4) return;
     setConfig((prev) => ({
       ...prev,
       premios: prev.premios.filter((_, i) => i !== index),
@@ -505,7 +611,7 @@ export default function RuletaDescuentosEditor({
                   padding: 14,
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
                       Porción #{idx + 1}
@@ -562,7 +668,6 @@ export default function RuletaDescuentosEditor({
                           {op.label}
                         </option>
                       ))}
-                      {/* Compatibilidad si tenía un valor anterior personalizado */}
                       {!esOpcionConocida && (
                         <option value={item.texto}>
                           {item.texto} (Anterior)
@@ -634,6 +739,164 @@ export default function RuletaDescuentosEditor({
           />
         </div>
       </SectionCard>
+    </div>
+  );
+
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const tabFechas = (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${RULETA_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'La ruleta y el popup adaptarán automáticamente toda su paleta visual e indicadores de premio al evento comercial seleccionado.'
+              : 'El widget respeta los colores estándar configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => updateCfg('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(RULETA_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => updateCfg('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorRuletaPrincipal,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Porción 1"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorRuletaSecundario,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Porción 2"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta de la fecha
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 
@@ -747,9 +1010,10 @@ export default function RuletaDescuentosEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: 'Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechas]}
           </EditorTabs>
 
           {/* GUARDAR */}
@@ -814,12 +1078,6 @@ export default function RuletaDescuentosEditor({
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.7 : 1,
                 transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.background = '#059669';
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.background = '#10B981';
               }}
             >
               {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
