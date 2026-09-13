@@ -1,6 +1,86 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+
+/* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const PREVIEW_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    tipoFondo: 'solido' | 'degradado';
+    colorFondo: string;
+    colorFondoInicio: string;
+    colorFondoFin: string;
+    colorTexto: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    tipoFondo: 'solido',
+    colorFondo: '#333333',
+    colorFondoInicio: '#333333',
+    colorFondoFin: '#555555',
+    colorTexto: '#ffffff',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    tipoFondo: 'degradado',
+    colorFondo: '#111827',
+    colorFondoInicio: '#111827',
+    colorFondoFin: '#030712',
+    colorTexto: '#F59E0B',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    tipoFondo: 'degradado',
+    colorFondo: '#0F172A',
+    colorFondoInicio: '#0F172A',
+    colorFondoFin: '#1E293B',
+    colorTexto: '#EF4444',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    tipoFondo: 'degradado',
+    colorFondo: '#090D16',
+    colorFondoInicio: '#090D16',
+    colorFondoFin: '#1E293B',
+    colorTexto: '#3B82F6',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    tipoFondo: 'degradado',
+    colorFondo: '#064E3B',
+    colorFondoInicio: '#064E3B',
+    colorFondoFin: '#022C22',
+    colorTexto: '#FCD34D',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    tipoFondo: 'degradado',
+    colorFondo: '#831843',
+    colorFondoInicio: '#831843',
+    colorFondoFin: '#500724',
+    colorTexto: '#F43F5E',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    tipoFondo: 'degradado',
+    colorFondo: '#312E81',
+    colorFondoInicio: '#312E81',
+    colorFondoFin: '#1E1B4B',
+    colorTexto: '#10B981',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    tipoFondo: 'degradado',
+    colorFondo: '#7F1D1D',
+    colorFondoInicio: '#7F1D1D',
+    colorFondoFin: '#450A0A',
+    colorTexto: '#FBBF24',
+  },
+};
 
 /* ═══════════════════════════════════════════
    TIPOS
@@ -18,6 +98,7 @@ interface BannerDeslizantePreviewProps {
     separacionMensajes?: number;
     velocidad?: number;
     modoBarra?: boolean;
+    campaignTheme?: string;
   };
 }
 
@@ -32,11 +113,18 @@ export default function BannerDeslizantePreview({ config }: BannerDeslizantePrev
       ? config.mensajes.filter((m) => m && m.trim().length > 0)
       : ['🎉 ¡Envío gratis en compras mayores a $25.000!'];
 
-  const tipoFondo = config.tipoFondo ?? 'solido';
-  const colorFondo = config.colorFondo ?? '#05070B';
-  const colorFondoInicio = config.colorFondoInicio ?? '#05070B';
-  const colorFondoFin = config.colorFondoFin ?? '#10B981';
-  const colorTexto = config.colorTexto ?? '#ffffff';
+  // Fechas especiales
+  const themeKey = config.campaignTheme || 'none';
+  const theme = PREVIEW_CAMPAIGN_THEMES[themeKey] || PREVIEW_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  // Sobrecarga de estilos
+  const tipoFondo = isCustomTheme ? theme.tipoFondo : (config.tipoFondo ?? 'solido');
+  const colorFondo = isCustomTheme ? theme.colorFondo : (config.colorFondo ?? '#333333');
+  const colorFondoInicio = isCustomTheme ? theme.colorFondoInicio : (config.colorFondoInicio ?? '#333333');
+  const colorFondoFin = isCustomTheme ? theme.colorFondoFin : (config.colorFondoFin ?? '#555555');
+  const colorTexto = isCustomTheme ? theme.colorTexto : (config.colorTexto ?? '#ffffff');
+
   const tamanoFuente = config.tamanoFuente ?? 15;
   const bordeRadio = config.bordeRadio ?? 12;
   const separacionMensajes = config.separacionMensajes ?? 200;
@@ -54,7 +142,7 @@ export default function BannerDeslizantePreview({ config }: BannerDeslizantePrev
   useEffect(() => {
     if (!trackRef.current) return;
     trackRef.current.style.animation = 'none';
-    // Forzar reflow para reiniciar la animación cuando cambian valores
+    // Forzar reflow para reiniciar la animación
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     trackRef.current.offsetHeight;
     trackRef.current.style.animation = `nevux-banner-scroll ${velocidad}s linear infinite`;
@@ -104,6 +192,7 @@ export default function BannerDeslizantePreview({ config }: BannerDeslizantePrev
             : '0 8px 24px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
           border: modoBarra ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
           cursor: 'pointer',
+          transition: 'all 0.3s ease',
         }}
       >
         <div
@@ -135,4 +224,4 @@ export default function BannerDeslizantePreview({ config }: BannerDeslizantePrev
       </div>
     </div>
   );
-    }
+                                                       }
