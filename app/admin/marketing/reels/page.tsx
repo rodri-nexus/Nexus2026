@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import {
   Play,
   Pause,
@@ -15,6 +14,9 @@ import {
   Percent,
   Clock,
   ShoppingCart,
+  Download,
+  Loader2,
+  Check,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
@@ -120,7 +122,7 @@ const MockTimer = () => {
   return (
     <div style={{ display: "flex", gap: "4px", alignItems: "center", fontFamily: "monospace" }}>
       <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
-        00d
+        0d
       </div>
       <span style={{ color: "#ffffff", fontSize: "10px", fontWeight: "bold" }}>:</span>
       <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
@@ -140,14 +142,15 @@ const MockTimer = () => {
 
 // Cursor Virtual Animado
 const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: boolean }) => (
-  <motion.div
-    animate={{ left: x, top: y }}
-    transition={{ type: "spring", stiffness: 90, damping: 20 }}
+  <div
     style={{
       position: "absolute",
+      left: x,
+      top: y,
       pointerEvents: "none",
       zIndex: 100,
       transform: "translate(-8px, -8px)",
+      transition: "left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), top 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
     }}
   >
     <div style={{ position: "relative" }}>
@@ -168,7 +171,7 @@ const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: bool
         />
       )}
     </div>
-  </motion.div>
+  </div>
 );
 
 /* ═══════════════════════════════════════════
@@ -180,8 +183,11 @@ export default function MarketingReelsPage() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [elapsedTime, setElapsedTime] = useState(0); // Tiempo transcurrido en la escena actual
   const [zoom, setZoom] = useState(85);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [showCursorInDownload, setShowCursorInDownload] = useState(true);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const phoneRef = useRef<HTMLDivElement | null>(null);
   const currentScene = SCENES[currentSceneIdx];
 
   // Control temporal automático para avanzar de escena
@@ -223,6 +229,63 @@ export default function MarketingReelsPage() {
     setElapsedTime(0);
     setCurrentSceneIdx(0);
     setIsPlaying(true);
+  };
+
+  // Cargador dinámico del Renderizador HD en navegador sin npm install (Regla #11)
+  const loadHtml2Canvas = () => {
+    return new Promise<any>((resolve, reject) => {
+      if ((window as any).html2canvas) {
+        resolve((window as any).html2canvas);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      script.onload = () => resolve((window as any).html2canvas);
+      script.onerror = () => reject(new Error("No se pudo cargar el motor HD."));
+      document.head.appendChild(script);
+    });
+  };
+
+  // Motor de Renderizado Full HD 1080x1920
+  const handleDownloadHD = async () => {
+    if (!phoneRef.current) return;
+    setIsDownloading(true);
+
+    try {
+      const html2canvas = await loadHtml2Canvas();
+
+      // Escalado digital preciso 3x para llegar a 1080px de ancho y Full HD real
+      const canvas = await html2canvas(phoneRef.current, {
+        scale: 3, 
+        useCORS: true,
+        backgroundColor: "#000000",
+        logging: false,
+        allowTaint: true,
+        onclone: (clonedDoc: Document) => {
+          // Si el usuario eligió no incluir el cursor en la descarga, lo ocultamos temporalmente en el clon
+          if (!showCursorInDownload) {
+            const cursorEl = clonedDoc.querySelector("[style*='pointer-events: none']");
+            if (cursorEl) {
+              (cursorEl as HTMLElement).style.display = "none";
+            }
+          }
+        }
+      });
+
+      // Generación de imagen con calidad premium 95%
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
+      const link = document.createElement("a");
+      link.download = `nevux_reel_escena_${currentSceneIdx + 1}_${lang.toUpperCase()}.jpg`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo generar la imagen HD. Reintentá.");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // Cálculo del progreso porcentual de la barra de carga (0 a 100)
@@ -349,6 +412,7 @@ export default function MarketingReelsPage() {
         {/* COLUMNA 1: SMARTPHONE FRAME 9:16 (MOCKUP DEL REEL) */}
         <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center", transition: "transform 0.2s" }}>
           <div
+            ref={phoneRef}
             style={{
               width: "360px",
               height: "640px",
@@ -823,8 +887,68 @@ export default function MarketingReelsPage() {
               <span>Escena {currentSceneIdx + 1} de {SCENES.length}</span>
               <span>Progreso: {Math.round(progressPercent)}%</span>
             </div>
-            <div style={{ width: "100%", height: "6px", background: "#1f2937", borderRadius: "999px", overflow: "hidden" }}>
+            <div style={{ width: "100%", height: "6px", background: "#1f2937", borderRadius: "999px", overflow: "hidden", marginBottom: "20px" }}>
               <div style={{ width: `${progressPercent}%`, height: "100%", background: "#10B981", transition: "width 0.1s linear" }} />
+            </div>
+
+            {/* 📥 MOTOR DE EXPORTACIÓN FULL HD (1080x1920) */}
+            <div
+              style={{
+                borderTop: "1px solid #1f2937",
+                paddingTop: "16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              {/* Opciones de exportación */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "12px", color: "#9ca3af" }}>Incluir cursor virtual:</span>
+                <input
+                  type="checkbox"
+                  checked={showCursorInDownload}
+                  onChange={(e) => setShowCursorInDownload(e.target.checked)}
+                  style={{ width: "18px", height: "18px", accentColor: "#10B981", cursor: "pointer" }}
+                />
+              </div>
+
+              {/* BOTÓN DESCARGAR FULL HD */}
+              <button
+                onClick={handleDownloadHD}
+                disabled={isDownloading}
+                style={{
+                  width: "100%",
+                  background: isDownloading ? "#1f2937" : "#10B981",
+                  color: isDownloading ? "#ffffff" : "#000000",
+                  border: "none",
+                  borderRadius: "14px",
+                  padding: "14px",
+                  fontWeight: "900",
+                  fontSize: "13px",
+                  cursor: isDownloading ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  boxShadow: isDownloading ? "none" : "0 8px 24px rgba(16, 185, 129, 0.2)",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {isDownloading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Procesando material en Full HD...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download size={18} />
+                    <span>Descargar esta escena en Full HD (1080x1920)</span>
+                  </>
+                )}
+              </button>
+              <span style={{ fontSize: "10px", color: "#64748b", textAlign: "center", lineHeight: "1.3" }}>
+                ⚡ Se descarga una imagen limpia y escalada en altísima definición lista para subir directamente a tus Reels, Historias de Instagram o TikTok.
+              </span>
             </div>
           </div>
 
@@ -890,4 +1014,4 @@ export default function MarketingReelsPage() {
       </div>
     </div>
   );
-      }
+}
