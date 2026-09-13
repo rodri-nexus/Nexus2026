@@ -5932,8 +5932,35 @@
     var colorSwitchOn = cfg.colorSwitchOn || "#10B981";
     var colorSwitchOff = cfg.colorSwitchOff || "#e5e7eb";
 
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { cardBg: "#111827", borderColor: "#F59E0B", textColor: "#FFFFFF", priceColor: "#F59E0B", badgeBg: "#F59E0B", badgeText: "#111827", switchOnColor: "#F59E0B" },
+      "hot-sale": { cardBg: "#0F172A", borderColor: "#EF4444", textColor: "#FFFFFF", priceColor: "#EF4444", badgeBg: "#EF4444", badgeText: "#FFFFFF", switchOnColor: "#EF4444" },
+      "cyber-monday": { cardBg: "#090D16", borderColor: "#3B82F6", textColor: "#FFFFFF", priceColor: "#60A5FA", badgeBg: "#3B82F6", badgeText: "#FFFFFF", switchOnColor: "#3B82F6" },
+      "navidad": { cardBg: "#064E3B", borderColor: "#10B981", textColor: "#FFFFFF", priceColor: "#FCD34D", badgeBg: "#EF4444", badgeText: "#FFFFFF", switchOnColor: "#10B981" },
+      "san-valentin": { cardBg: "#831843", borderColor: "#FB7185", textColor: "#FFFFFF", priceColor: "#FECDD3", badgeBg: "#F43F5E", badgeText: "#FFFFFF", switchOnColor: "#F43F5E" },
+      "dia-madre-padre": { cardBg: "#312E81", borderColor: "#6366F1", textColor: "#FFFFFF", priceColor: "#A7F3D0", badgeBg: "#10B981", badgeText: "#FFFFFF", switchOnColor: "#10B981" },
+      "sale-liquidacion": { cardBg: "#7F1D1D", borderColor: "#FBBF24", textColor: "#FFFFFF", priceColor: "#FBBF24", badgeBg: "#FBBF24", badgeText: "#7F1D1D", switchOnColor: "#FBBF24" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    if (th) {
+      colorFondo = th.cardBg;
+      colorBorde = th.borderColor;
+      colorTitulo = th.textColor;
+      colorPrecio = th.priceColor;
+      colorBadge = th.badgeBg;
+      colorTextoBadge = th.badgeText;
+      colorSwitchOn = th.switchOnColor;
+    }
+
+    var colorLink = isCustomTheme ? th.textColor : "#000000";
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : (cfg.bordes || 16)) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : (cfg.padding || 14)) + "px";
+    var shadowBox = isCustomTheme ? "0 4px 20px " + colorBorde + "33" : "0 4px 14px rgba(0,0,0,0.05)";
 
     var target = document.querySelector("form[action*='/cart/add']") || 
                  document.querySelector(".js-product-buy-container") ||
@@ -5958,9 +5985,10 @@
           border-radius: ${borderRad} !important;
           padding: ${padInt} !important;
           margin: 15px 0;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+          box-shadow: ${shadowBox};
           font-family: system-ui, -apple-system, sans-serif;
           box-sizing: border-box;
+          transition: all 0.3s ease;
         }
         #nvx-extras-${w.id} .nvx-extra-img-box {
           width: 54px;
@@ -5968,7 +5996,7 @@
           border-radius: 8px;
           overflow: hidden;
           background: #ffffff;
-          border: 1px solid #e5e7eb;
+          border: ${isCustomTheme ? `1px solid ${colorBorde}55` : '1px solid #e5e7eb'};
           display: flex;
           align-items: center;
           justify-content: center;
@@ -6011,7 +6039,7 @@
         #nvx-extras-${w.id} .nvx-extra-link {
           font-size: 10px;
           font-weight: 800;
-          color: #000000;
+          color: ${colorLink} !important;
           text-decoration: underline;
           letter-spacing: 0.03em;
           cursor: pointer;
@@ -6181,8 +6209,7 @@
         });
       }
     });
-  }
-
+                   }
 /* ═══════════════════════════════════════════
      RENDER CONTADOR DE VISITAS
   ═══════════════════════════════════════════ */
