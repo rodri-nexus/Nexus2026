@@ -3,19 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  CircleDot,
   Plus,
   Trash2,
   Eye,
-  Save,
-  Loader2,
-  Sparkles,
-  ExternalLink,
-  HelpCircle,
-  Info,
-  Image as ImageIcon,
-  CheckCircle2,
-  AlertTriangle,
 } from 'lucide-react';
 import {
   ColorPicker,
@@ -27,7 +17,114 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const CIRCULOS_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    colorFondo: string;
+    colorTexto: string;
+    colorBordeActivo: string;
+    colorBordeInactivo: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    colorFondo: '#ffffff',
+    colorTexto: '#000000',
+    colorBordeActivo: '#10B981',
+    colorBordeInactivo: '#e5e7eb',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    colorFondo: '#111827',
+    colorTexto: '#FFFFFF',
+    colorBordeActivo: '#F59E0B',
+    colorBordeInactivo: '#374151',
+    tag: 'BLACK FRIDAY',
+    description: 'Fondo negro con aros dorados neón para el evento insignia.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    colorFondo: '#0F172A',
+    colorTexto: '#FFFFFF',
+    colorBordeActivo: '#EF4444',
+    colorBordeInactivo: '#334155',
+    tag: 'HOT SALE',
+    description: 'Azul noche profundo con aros activos en rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    colorFondo: '#090D16',
+    colorTexto: '#FFFFFF',
+    colorBordeActivo: '#3B82F6',
+    colorBordeInactivo: '#1E293B',
+    tag: 'CYBER MONDAY',
+    description: 'Estética cyber futurista con aros y acentos azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    colorFondo: '#064E3B',
+    colorTexto: '#FFFFFF',
+    colorBordeActivo: '#10B981',
+    colorBordeInactivo: '#065F46',
+    tag: 'NAVIDAD',
+    description: 'Verde pino de fondo con aros en rojo alegre.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    colorFondo: '#831843',
+    colorTexto: '#FFFFFF',
+    colorBordeActivo: '#F43F5E',
+    colorBordeInactivo: '#9D174D',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    colorFondo: '#312E81',
+    colorTexto: '#FFFFFF',
+    colorBordeActivo: '#10B981',
+    colorBordeInactivo: '#3730A3',
+    tag: 'SPECIAL DAY',
+    description: 'Fondo índigo sofisticado con aros destacados esmeralda.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    colorFondo: '#7F1D1D',
+    colorTexto: '#FFFFFF',
+    colorBordeActivo: '#FBBF24',
+    colorBordeInactivo: '#991B1B',
+    tag: 'LIQUIDACIÓN',
+    description: 'Fondo rojo liquidación con aros amarillos de alto contraste.',
+  },
+};
+
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -70,6 +167,7 @@ interface MenuCirculosConfig {
   colorTexto: string;
   colorFondo: string;
   items: CirculoItem[];
+  campaignTheme?: string;
 }
 
 /* ═══════════════════════════════════════════
@@ -109,62 +207,33 @@ const DEFAULT_CONFIG: MenuCirculosConfig = {
       destacado: false,
     },
   ],
+  campaignTheme: 'none',
 };
-
-/* ═══════════════════════════════════════════
-   SECTION CARD
-═══════════════════════════════════════════ */
-function SectionCard({
-  icon,
-  title,
-  description,
-  children,
-}: {
-  icon: string;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        background: '#ffffff',
-        border: '1px solid #e5e7eb',
-        borderRadius: 14,
-        padding: 20,
-        marginBottom: 16,
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
-        <div style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{icon}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
-            {title}
-          </div>
-          <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, lineHeight: 1.4 }}>
-            {description}
-          </div>
-        </div>
-      </div>
-      <div>{children}</div>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════
    PREVIEW EN VIVO
 ═══════════════════════════════════════════ */
 function MenuCirculosPreview({ config }: { config: MenuCirculosConfig }) {
+  const themeKey = config.campaignTheme || 'none';
+  const theme = CIRCULOS_CAMPAIGN_THEMES[themeKey] || CIRCULOS_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  const colorFondo = isCustomTheme ? theme.colorFondo : config.colorFondo;
+  const colorTexto = isCustomTheme ? theme.colorTexto : config.colorTexto;
+  const colorBordeActivo = isCustomTheme ? theme.colorBordeActivo : config.colorBordeActivo;
+  const colorBordeInactivo = isCustomTheme ? theme.colorBordeInactivo : config.colorBordeInactivo;
+
   return (
     <div
       style={{
-        background: config.colorFondo,
-        border: '1.5px solid #e5e7eb',
+        background: colorFondo,
+        border: isCustomTheme ? `1px solid ${colorBordeActivo}55` : '1px solid #e5e7eb',
         borderRadius: 16,
         padding: 16,
-        boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
+        boxShadow: isCustomTheme ? `0 4px 20px ${colorBordeActivo}22` : '0 4px 14px rgba(0,0,0,0.03)',
         boxSizing: 'border-box',
         overflow: 'hidden',
+        transition: 'all 0.3s ease',
       }}
     >
       {config.mostrarTitulo && config.titulo && (
@@ -172,7 +241,7 @@ function MenuCirculosPreview({ config }: { config: MenuCirculosConfig }) {
           style={{
             fontSize: 13,
             fontWeight: 800,
-            color: config.colorTexto,
+            color: colorTexto,
             letterSpacing: '0.03em',
             marginBottom: 12,
             textAlign: 'center',
@@ -195,7 +264,7 @@ function MenuCirculosPreview({ config }: { config: MenuCirculosConfig }) {
         }}
       >
         {config.items.map((item, idx) => {
-          const borderColor = item.destacado ? config.colorBordeActivo : config.colorBordeInactivo;
+          const borderColor = item.destacado ? colorBordeActivo : colorBordeInactivo;
           const size = config.tamanoCirculo;
 
           return (
@@ -223,7 +292,7 @@ function MenuCirculosPreview({ config }: { config: MenuCirculosConfig }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   background: '#ffffff',
-                  boxShadow: item.destacado ? `0 0 0 2px rgba(16, 185, 129, 0.2)` : 'none',
+                  boxShadow: item.destacado ? `0 0 0 2px ${colorBordeActivo}33` : 'none',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -268,7 +337,7 @@ function MenuCirculosPreview({ config }: { config: MenuCirculosConfig }) {
                 style={{
                   fontSize: 11,
                   fontWeight: item.destacado ? 800 : 600,
-                  color: config.colorTexto,
+                  color: colorTexto,
                   textAlign: 'center',
                   lineHeight: 1.2,
                   whiteSpace: 'nowrap',
@@ -299,6 +368,7 @@ export default function MenuCirculosEditor({
 }: Props) {
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
   const [config, setConfig] = useState<MenuCirculosConfig>(() => {
     if (existingWidget?.config) {
       return {
@@ -419,7 +489,7 @@ export default function MenuCirculosEditor({
         />
       )}
 
-      {/* MINI TUTORIAL REFORZADO: CÓMO PONER FOTOS Y LINKS CORRECTAMENTE */}
+      {/* MINI TUTORIAL REFORZADO */}
       <div
         style={{
           background: '#f0fdf4',
@@ -691,6 +761,164 @@ export default function MenuCirculosEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const tabFechas = (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${CIRCULOS_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'La barra e historias destacadas adaptarán automáticamente toda su paleta visual de aros activos/inactivos al evento comercial.'
+              : 'El widget respeta los colores estándar configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => updateCfg('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(CIRCULOS_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => updateCfg('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorFondo,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de fondo"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.colorBordeActivo,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de aro activo"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta del evento
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -801,9 +1029,10 @@ export default function MenuCirculosEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: 'Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechas]}
           </EditorTabs>
 
           {/* GUARDAR */}
@@ -869,12 +1098,6 @@ export default function MenuCirculosEditor({
                 opacity: saving ? 0.7 : 1,
                 transition: 'all 0.2s ease',
               }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.background = '#059669';
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.background = '#10B981';
-              }}
             >
               {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
             </button>
@@ -903,4 +1126,4 @@ export default function MenuCirculosEditor({
       </div>
     </div>
   );
-    }
+}
