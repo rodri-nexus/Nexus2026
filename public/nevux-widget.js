@@ -6862,7 +6862,7 @@
     }
   }
 
-  /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      RENDER MEDIOS DE PAGO
   ═══════════════════════════════════════════ */
   function renderMediosPago(w) {
@@ -6897,6 +6897,30 @@
     var borderColor = cfg.borderColor || "#e5e7eb";
     var textColor = cfg.textColor || "#000000";
 
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { bgColor: "#111827", borderColor: "#F59E0B", textColor: "#FFFFFF", accentColor: "#F59E0B" },
+      "hot-sale": { bgColor: "#0F172A", borderColor: "#EF4444", textColor: "#FFFFFF", accentColor: "#EF4444" },
+      "cyber-monday": { bgColor: "#090D16", borderColor: "#3B82F6", textColor: "#FFFFFF", accentColor: "#3B82F6" },
+      "navidad": { bgColor: "#064E3B", borderColor: "#10B981", textColor: "#FFFFFF", accentColor: "#EF4444" },
+      "san-valentin": { bgColor: "#831843", borderColor: "#FB7185", textColor: "#FFFFFF", accentColor: "#F43F5E" },
+      "dia-madre-padre": { bgColor: "#312E81", borderColor: "#6366F1", textColor: "#FFFFFF", accentColor: "#10B981" },
+      "sale-liquidacion": { bgColor: "#7F1D1D", borderColor: "#FBBF24", textColor: "#FFFFFF", accentColor: "#FBBF24" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    if (isCustomTheme) {
+      bgColor = th.bgColor;
+      borderColor = th.borderColor;
+      textColor = th.textColor;
+    }
+
+    var subtextColor = isCustomTheme ? textColor : textColor;
+    var securityColor = isCustomTheme ? th.accentColor : "#10B981";
+
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 14) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 16) + "px";
 
@@ -6912,11 +6936,12 @@
           padding: ${pageType === "home" ? "20px 18px" : padInt} !important;
           margin: ${pageType === "home" ? "28px auto" : "16px 0"} !important;
           max-width: ${pageType === "home" ? "1100px" : "100%"} !important;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
+          box-shadow: ${isCustomTheme ? '0 4px 20px ' + borderColor + '22' : '0 4px 14px rgba(0,0,0,0.03)'} !important;
           font-family: system-ui, -apple-system, sans-serif !important;
           box-sizing: border-box !important;
           width: 100% !important;
           text-align: center !important;
+          transition: all 0.3s ease !important;
         }
         #nvx-mediospago-${w.id} .nvx-mp-title {
           font-size: ${pageType === "home" ? "14px" : "13px"} !important;
@@ -6927,8 +6952,8 @@
         }
         #nvx-mediospago-${w.id} .nvx-mp-subtext {
           font-size: 11px !important;
-          color: ${textColor} !important;
-          opacity: 0.65 !important;
+          color: ${subtextColor} !important;
+          opacity: ${isCustomTheme ? '0.8' : '0.65'} !important;
           margin: 0 0 12px 0 !important;
         }
         #nvx-mediospago-${w.id} .nvx-mp-grid {
@@ -6958,8 +6983,9 @@
           gap: 5px !important;
           margin-top: 12px !important;
           font-size: 10.5px !important;
-          color: #10B981 !important;
+          color: ${securityColor} !important;
           font-weight: 700 !important;
+          transition: color 0.3s ease !important;
         }
       `;
       document.head.appendChild(styleEl);
@@ -7039,7 +7065,7 @@
         }
       }
     }
-      }
+    }
   /* ═══════════════════════════════════════════
      RENDER MEDIOS DE PAGO
   ═══════════════════════════════════════════ */
