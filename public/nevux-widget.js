@@ -8590,7 +8590,7 @@
       tryInject();
     }
       }
-    /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      RENDER SLIDER DE CATEGORÍAS (COLECCIONES)
   ═══════════════════════════════════════════ */
   function renderSliderCategorias(w) {
@@ -8620,6 +8620,29 @@
     var colorTexto = cfg.colorTexto || "#ffffff";
     var colorFondo = cfg.colorFondo || "#ffffff";
     var colorBordeDestacado = cfg.colorBordeDestacado || "#10B981";
+
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { colorFondo: "#111827", colorTexto: "#FFFFFF", colorBordeDestacado: "#F59E0B" },
+      "hot-sale": { colorFondo: "#0F172A", colorTexto: "#FFFFFF", colorBordeDestacado: "#EF4444" },
+      "cyber-monday": { colorFondo: "#090D16", colorTexto: "#FFFFFF", colorBordeDestacado: "#3B82F6" },
+      "navidad": { colorFondo: "#064E3B", colorTexto: "#FFFFFF", colorBordeDestacado: "#EF4444" },
+      "san-valentin": { colorFondo: "#831843", colorTexto: "#FFFFFF", colorBordeDestacado: "#F43F5E" },
+      "dia-madre-padre": { colorFondo: "#312E81", colorTexto: "#FFFFFF", colorBordeDestacado: "#10B981" },
+      "sale-liquidacion": { colorFondo: "#7F1D1D", colorTexto: "#FFFFFF", colorBordeDestacado: "#FBBF24" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    if (isCustomTheme) {
+      colorFondo = th.colorFondo;
+      colorTexto = th.colorTexto;
+      colorBordeDestacado = th.colorBordeDestacado;
+    }
+
+    var colorTituloExterior = isCustomTheme ? th.colorTexto : "#000000";
 
     var items = Array.isArray(cfg.items) && cfg.items.length > 0 ? cfg.items : [
       { nombre: "🔥 LIQUIDACIÓN", subtitulo: "Hasta 40% OFF", imagenUrl: "", link: "/ofertas", destacado: true },
@@ -8675,11 +8698,15 @@
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
+            border: ${isCustomTheme ? '1px solid ' + colorBordeDestacado + '44' : 'none'} !important;
+            border-radius: ${isCustomTheme ? '16px' : '0px'} !important;
+            box-shadow: ${isCustomTheme ? '0 4px 20px ' + colorBordeDestacado + '11' : 'none'} !important;
+            transition: all 0.3s ease !important;
           }
           #nvx-slider-cat-${w.id} .nvx-sc-title {
             font-size: 14px !important;
             font-weight: 800 !important;
-            color: #000000 !important; /* Mantenemos título exterior oscuro por defecto, u opcionalmente colorTexto */
+            color: ${colorTituloExterior} !important;
             letter-spacing: 0.03em !important;
             margin: 0 0 12px 0 !important;
             text-align: center !important;
@@ -8782,7 +8809,7 @@
 
       var itemsHtml = items.map(function(item) {
         var isHighlight = item.destacado;
-        var borderStyle = isHighlight ? "border: 2.5px solid " + colorBordeDestacado + "; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);" : "border: 1px solid rgba(255,255,255,0.2);";
+        var borderStyle = isHighlight ? "border: 2.5px solid " + colorBordeDestacado + "; box-shadow: 0 0 10px " + colorBordeDestacado + "55;" : "border: 1px solid rgba(255,255,255,0.2);";
         var imgHtml = item.imagenUrl
           ? '<img class="nvx-sc-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" onerror="this.style.display=\'none\';" />'
           : '';
@@ -8810,7 +8837,7 @@
         </div>
       `;
 
-      // Inyección inteligente idéntica a renderMenuCirculos:
+      // Inyección inteligente:
       if (target === document.body || target.tagName === "MAIN" || target.classList.contains("js-home-sections")) {
         target.insertBefore(div, target.firstChild);
       } else if (target.nextSibling) {
@@ -8825,7 +8852,7 @@
     } else {
       tryInject();
     }
-    }
+ }
   
      /* ═══════════════════════════════════════════
      RENDER RESEÑAS CON FOTO (UGC - HOME FOOTER)
