@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   ChevronLeft,
   MoreVertical,
@@ -14,10 +14,14 @@ import {
   BarChart3,
   Bot,
   Sparkles,
+  Download,
+  Smartphone,
+  Square,
+  Languages,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
-type TabId = "appstore5" | "partners" | "stories" | "covers";
+type TabId = "appstore5" | "partners" | "stories" | "covers" | "carousels";
 type StoryDestacada =
   | "problema"
   | "solucion"
@@ -34,6 +38,278 @@ type StoryDestacada =
 /* ═══════════════════════════════════════════
    ESTILOS Y HELPERS (DECLARADOS AL INICIO - Regla #9)
 ═══════════════════════════════════════════ */
+
+interface CarouselSlideData {
+  badgeEs: string;
+  badgePt: string;
+  titleEs: string;
+  titlePt: string;
+  descEs: string;
+  descPt: string;
+  visualType: "hook" | "problem" | "solution" | "steps" | "result" | "metrics" | "cta";
+  accentTextEs?: string;
+  accentTextPt?: string;
+}
+
+interface CarouselTemplate {
+  slug: string;
+  nameEs: string;
+  namePt: string;
+  emoji: string;
+  themeColor: string;
+  accentColor: string;
+  slides: CarouselSlideData[];
+}
+
+// 18 Widgets / Presets seleccionados para Campañas Estratégicas de Contenido
+const CAROUSEL_TEMPLATES: CarouselTemplate[] = [
+  {
+    slug: "cuenta-regresiva",
+    nameEs: "Cuenta Regresiva",
+    namePt: "Contagem Regressiva",
+    emoji: "⏳",
+    themeColor: "#0f172a",
+    accentColor: "#F59E0B",
+    slides: [
+      {
+        badgeEs: "PSICOLOGÍA DE VENTAS",
+        badgePt: "PSICOLOGIA DE VENDAS",
+        titleEs: "El sesgo de urgencia que estás ignorando",
+        titlePt: "O gatilho de urgência que você está ignorando",
+        descEs: "Tus clientes entran, miran y se van 'para comprar después'. Al no sentir presión, esa venta se pierde para siempre.",
+        descPt: "Seus clientes entram, olham e saem 'para comprar depois'. Sem pressão, essa venda é perdida para sempre.",
+        visualType: "hook"
+      },
+      {
+        badgeEs: "EL PROBLEMA",
+        badgePt: "O PROBLEMA",
+        titleEs: "Procrastinación del comprador online",
+        titlePt: "Procrastinação do comprador online",
+        descEs: "El 70% de los carritos abandonados ocurre porque el cliente siente que tiene todo el tiempo del mundo para decidir.",
+        descPt: "70% dos carrinhos abandonados ocorrem porque o cliente sente que tem todo o tempo do mundo para decidir.",
+        visualType: "problem"
+      },
+      {
+        badgeEs: "LA SOLUCIÓN",
+        badgePt: "A SOLUÇÃO",
+        titleEs: "Widget de Cuenta Regresiva Inteligente",
+        titlePt: "Widget de Contagem Regressiva Inteligente",
+        descEs: "Colocá un temporizador visual premium directamente en la página de producto sincronizado con ofertas reales.",
+        descPt: "Coloque um cronômetro visual premium diretamente na página do produto sincronizado com ofertas reais.",
+        visualType: "solution"
+      },
+      {
+        badgeEs: "PASO 1",
+        badgePt: "PASSO 1",
+        titleEs: "Activación en solo 30 segundos",
+        titlePt: "Ativação em apenas 30 segundos",
+        descEs: "Entrás al Dashboard de Nevux, elegís el widget de cuenta regresiva y definís la fecha límite del descuento.",
+        descPt: "Entre no Dashboard da Nevux, escolha o widget de contagem regressiva e defina o prazo do desconto.",
+        visualType: "steps"
+      },
+      {
+        badgeEs: "PASO 2",
+        badgePt: "PASSO 2",
+        titleEs: "Diseño adaptable a tu marca",
+        titlePt: "Design adaptável à sua marca",
+        descEs: "Nevux detecta tus colores automáticamente para que el banner luzca 100% orgánico e integrado en tu tienda.",
+        descPt: "A Nevux detecta suas cores de forma automática para que o banner pareça 100% orgânico e integrado.",
+        visualType: "steps"
+      },
+      {
+        badgeEs: "EL RESULTADO",
+        badgePt: "O RESULTADO",
+        titleEs: "Urgencia real en la pantalla del cliente",
+        titlePt: "Urgência real na tela do cliente",
+        descEs: "El cliente ve que la oferta termina. El miedo a perderse la oportunidad (FOMO) acelera la decisión de compra.",
+        descPt: "O cliente vê que a oferta está acabando. O medo de perder a oportunidade (FOMO) acelera a decisão de compra.",
+        visualType: "result"
+      },
+      {
+        badgeEs: "MÉTRICAS NEVUX",
+        badgePt: "MÉTRICAS NEVUX",
+        titleEs: "Subida del +24% en conversión directa",
+        titlePt: "Aumento de +24% em conversão direta",
+        descEs: "Las tiendas con cuenta regresiva reducen el tiempo de decisión de compra de horas a escasos minutos.",
+        descPt: "Lojas com contagem regressiva reduzem o tempo de decisão de compra de horas para poucos minutos.",
+        visualType: "metrics"
+      },
+      {
+        badgeEs: "CTA FINAL",
+        badgePt: "CTA FINAL",
+        titleEs: "Probá Nevux gratis hoy mismo",
+        titlePt: "Teste a Nevux gratuitamente hoje",
+        descEs: "Aumentá la urgencia de tu tienda. Instalación en un clic con 7 días de prueba de regalo.",
+        descPt: "Aumente a urgência da sua loja. Instalação em um clique com 7 dias de teste grátis.",
+        visualType: "cta"
+      }
+    ]
+  },
+  {
+    slug: "ruleta-descuentos",
+    nameEs: "Ruleta de Descuentos",
+    namePt: "Roleta de Descontos",
+    emoji: "🎡",
+    themeColor: "#581c87",
+    accentColor: "#10B981",
+    slides: [
+      {
+        badgeEs: "GAMIFICACIÓN",
+        badgePt: "GAMIFICAÇÃO",
+        titleEs: "La gente odia los cupones aburridos",
+        titlePt: "As pessoas odeiam cupons chatos",
+        descEs: "Pegar un código de descuento estático en un banner ya no funciona. La falta de interacción mata el interés.",
+        descPt: "Colar um cupom estático em um banner já não funciona. A falta de interação mata o interesse do cliente.",
+        visualType: "hook"
+      },
+      {
+        badgeEs: "EL PROBLEMA",
+        badgePt: "O PROBLEMA",
+        titleEs: "Saturación de ofertas y rebajas",
+        titlePt: "Saturação de ofertas e descontos",
+        descEs: "Todas las tiendas ofrecen lo mismo de la misma forma. Perdés visitas sin que dejen su mail o compren.",
+        descPt: "Todas as lojas oferecem o mesmo do mesmo jeito. Você perde visitas sem que deixem o e-mail ou comprem.",
+        visualType: "problem"
+      },
+      {
+        badgeEs: "LA SOLUCIÓN",
+        badgePt: "A SOLUÇÃO",
+        titleEs: "Ruleta Interactiva Anti-Saturación",
+        titlePt: "Roleta Interativa Anti-Saturação",
+        descEs: "Un juego visual e interactivo donde tus clientes giran para ganar cupones reales y comprar en el momento.",
+        descPt: "Um jogo visual e interativo onde seus clientes giram para ganhar cupons reais e comprar na hora.",
+        visualType: "solution"
+      },
+      {
+        badgeEs: "PASO 1",
+        badgePt: "PASSO 1",
+        titleEs: "Configuración fácil de premios",
+        titlePt: "Configuração fácil de prêmios",
+        descEs: "Cargás tus cupones de Tiendanube en Nevux y definís la probabilidad de ganarse cada uno.",
+        descPt: "Insira seus cupons da Nuvemshop na Nevux e defina as probabilidades de ganhar cada prêmio.",
+        visualType: "steps"
+      },
+      {
+        badgeEs: "PASO 2",
+        badgePt: "PASSO 2",
+        titleEs: "Tecnología Anti-Saturación",
+        titlePt: "Tecnologia Anti-Saturação",
+        descEs: "Controlá que la ruleta aparezca solo una vez por usuario para no interrumpir la navegación habitual.",
+        descPt: "Controle para que a roleta apareça apenas uma vez por usuário para não atrapalhar a navegação.",
+        visualType: "steps"
+      },
+      {
+        badgeEs: "EL RESULTADO",
+        badgePt: "O RESULTADO",
+        titleEs: "Captura de leads y ventas masivas",
+        titlePt: "Captura de leads e vendas massivas",
+        descEs: "El cliente siente que ganó un premio único y decide usarlo inmediatamente antes de perder la sesión.",
+        descPt: "O cliente sente que ganhou um prêmio único e decide usá-lo imediatamente antes de fechar o site.",
+        visualType: "result"
+      },
+      {
+        badgeEs: "MÉTRICAS NEVUX",
+        badgePt: "MÉTRICAS NEVUX",
+        titleEs: "+300% en captura de emails",
+        titlePt: "+300% na captura de e-mails",
+        descEs: "Multiplicás tu base de datos de potenciales clientes y aumentás las ventas del día de forma interactiva.",
+        descPt: "Multiplique sua base de dados de potenciais clientes e aumente as vendas do dia de forma interativa.",
+        visualType: "metrics"
+      },
+      {
+        badgeEs: "CTA FINAL",
+        badgePt: "CTA FINAL",
+        titleEs: "Activá tu Ruleta hoy gratis",
+        titlePt: "Ative sua Roleta hoje grátis",
+        descEs: "Convertí las visitas aburridas en compradores felices. 7 días de prueba gratis con Nevux.",
+        descPt: "Converta visitas frias em compradores felizes. 7 dias de teste gratuito com a Nevux.",
+        visualType: "cta"
+      }
+    ]
+  },
+  {
+    slug: "tabla-talles",
+    nameEs: "Tabla de Talles",
+    namePt: "Tabela de Medidas",
+    emoji: "📐",
+    themeColor: "#065f46",
+    accentColor: "#10B981",
+    slides: [
+      {
+        badgeEs: "ATENCIÓN AL CLIENTE",
+        badgePt: "ATENDIMENTO",
+        titleEs: "El terror de comprar ropa por internet",
+        titlePt: "O terror de comprar roupas pela internet",
+        descEs: "La duda número uno de cualquier cliente de moda es: ¿Me quedará bien? Al no saber, prefieren no arriesgarse.",
+        descPt: "A dúvida número um de qualquer cliente de moda é: Vai servir? Por não saberem, preferem não comprar.",
+        visualType: "hook"
+      },
+      {
+        badgeEs: "EL PROBLEMA",
+        badgePt: "O PROBLEMA",
+        titleEs: "Devoluciones caras y ventas caídas",
+        titlePt: "Trocas caras e vendas canceladas",
+        descEs: "Los cambios de talle consumen tu ganancia en logística inversa y saturan tu WhatsApp de soporte.",
+        descPt: "As trocas de tamanho consomem seu lucro com frete reverso e lotam seu WhatsApp de suporte.",
+        visualType: "problem"
+      },
+      {
+        badgeEs: "LA SOLUCIÓN",
+        badgePt: "A SOLUÇÃO",
+        titleEs: "Tabla de Talles Interactiva Nevux",
+        titlePt: "Tabela de Medidas Interativa Nevux",
+        descEs: "Un recomendador visual directo en la tienda donde el usuario ingresa sus medidas y ve su talle ideal.",
+        descPt: "Um recomendador visual direto na loja onde o usuário insere suas medidas e vê o tamanho ideal.",
+        visualType: "solution"
+      },
+      {
+        badgeEs: "PASO 1",
+        badgePt: "PASSO 1",
+        titleEs: "Carga rápida por categoría",
+        titlePt: "Cadastro rápido por categoria",
+        descEs: "Cargás las medidas en centímetros una sola vez y Nevux las vincula a los productos correspondientes.",
+        descPt: "Cadastre as medidas em centímetros uma única vez e a Nevux vincula aos produtos corretos.",
+        visualType: "steps"
+      },
+      {
+        badgeEs: "PASO 2",
+        badgePt: "PASSO 2",
+        titleEs: "Botón limpio en la página",
+        titlePt: "Botão limpo na página",
+        descEs: "Se añade un acceso elegante junto al selector de talles, listo para abrirse como modal emergente.",
+        descPt: "Um acesso elegante é adicionado junto ao seletor de tamanhos, pronto para abrir como modal.",
+        visualType: "steps"
+      },
+      {
+        badgeEs: "EL RESULTADO",
+        badgePt: "O RESULTADO",
+        titleEs: "Clientes seguros y cero dudas",
+        titlePt: "Clientes seguros e zero dúvidas",
+        descEs: "El cliente compra con total tranquilidad sabiendo exactamente cuál es la prenda que le va a calzar perfecto.",
+        descPt: "O cliente compra com total tranquilidade sabendo exatamente qual peça vai servir perfeitamente.",
+        visualType: "result"
+      },
+      {
+        badgeEs: "MÉTRICAS NEVUX",
+        badgePt: "MÉTRICAS NEVUX",
+        titleEs: "Reducción del 45% en cambios",
+        titlePt: "Redução de 45% nas trocas",
+        descEs: "Ahorrá miles de pesos en logística inversa y liberá tiempo de soporte resolviendo la duda al instante.",
+        descPt: "Economize muito dinheiro com logística reversa e libere tempo de suporte resolvendo a dúvida na hora.",
+        visualType: "metrics"
+      },
+      {
+        badgeEs: "CTA FINAL",
+        badgePt: "CTA FINAL",
+        titleEs: "Instalá Nevux gratis ahora",
+        titlePt: "Instale a Nevux grátis agora",
+        descEs: "Llevá la experiencia de tu local físico a la pantalla digital. 7 días gratis sin compromisos.",
+        descPt: "Leve a experiência da sua loja física para a tela digital. 7 dias grátis sem compromisso.",
+        visualType: "cta"
+      }
+    ]
+  }
+];
 
 const subTabStyle = (isActive: boolean): React.CSSProperties => ({
   flex: "1 0 auto",
@@ -473,6 +749,11 @@ export default function BannersPage() {
   const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("vendedor");
   const [appstoreZoom, setAppstoreZoom] = useState<number>(0.2);
 
+  // Estados Pro para la sección Carruseles
+  const [selectedWidget, setSelectedWidget] = useState<string>("cuenta-regresiva");
+  const [format, setFormat] = useState<"portrait" | "square">("portrait");
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+
   const isPt = lang === "pt";
 
   const tabs: { id: TabId; label: string; icon: string }[] = [
@@ -480,7 +761,174 @@ export default function BannersPage() {
     { id: "partners", label: "Banners Partners", icon: "🖼️" },
     { id: "stories", label: "Historias Instagram", icon: "📱" },
     { id: "covers", label: "Portadas Destacadas", icon: "🎨" },
+    { id: "carousels", label: "Carruseles Instagram", icon: "🎠" },
   ];
+
+  const currentTemplate = CAROUSEL_TEMPLATES.find((t) => t.slug === selectedWidget) || CAROUSEL_TEMPLATES[0];
+
+  // Función HD Exporter por Canvas (Regla #14: Generics explícitos en Promises)
+  const downloadSlideAsImage = async (slideIndex: number) => {
+    setIsDownloading(true);
+    try {
+      const slide = currentTemplate.slides[slideIndex];
+      const width = format === "portrait" ? 1080 : 1080;
+      const height = format === "portrait" ? 1350 : 1080;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        // Fondo con Degradado Premium
+        const gradient = ctx.createRadialGradient(
+          width / 2,
+          height / 2,
+          10,
+          width / 2,
+          height / 2,
+          width * 0.8
+        );
+        gradient.addColorStop(0, currentTemplate.themeColor);
+        gradient.addColorStop(1, "#020617");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        // Decoración de luz circular superior
+        ctx.beginPath();
+        ctx.arc(width / 2, 0, width * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
+        ctx.fill();
+
+        // Logo Nevux Superior
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 32px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("NEVUX", width / 2, 85);
+
+        // Línea sutil superior
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(100, 125);
+        ctx.lineTo(width - 100, 125);
+        ctx.stroke();
+
+        // Dibujar Badge
+        const badgeText = isPt ? slide.badgePt : slide.badgeEs;
+        ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+        ctx.strokeStyle = currentTemplate.accentColor;
+        ctx.lineWidth = 3;
+        const badgeWidth = ctx.measureText(badgeText).width + 50;
+        const badgeHeight = 44;
+        const badgeX = (width - badgeWidth) / 2;
+        const badgeY = 170;
+
+        // Borde redondeado del badge
+        ctx.beginPath();
+        ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 22);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 15px sans-serif";
+        ctx.fillText(badgeText.toUpperCase(), width / 2, badgeY + 27);
+
+        // Dibujar Título principal (Soporta múltiples líneas)
+        const titleText = isPt ? slide.titlePt : slide.titleEs;
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "900 52px sans-serif";
+        ctx.textAlign = "center";
+        
+        const words = titleText.split(" ");
+        let line = "";
+        const lines: string[] = [];
+        const maxWidth = width - 160;
+        const lineHeight = 65;
+
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + " ";
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && n > 0) {
+            lines.push(line);
+            line = words[n] + " ";
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line);
+
+        let startY = height / 2 - 80;
+        for (let i = 0; i < lines.length; i++) {
+          ctx.fillText(lines[i].trim(), width / 2, startY + i * lineHeight);
+        }
+
+        // Dibujar Caja de Descripción / Bloque de Contenido
+        const descText = isPt ? slide.descPt : slide.descEs;
+        const boxWidth = width - 200;
+        const boxHeight = format === "portrait" ? 280 : 200;
+        const boxX = 100;
+        const boxY = height - boxHeight - 160;
+
+        // Fondo caja con opacidad oscura
+        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.3)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 24);
+        ctx.fill();
+        ctx.stroke();
+
+        // Texto descriptivo en el bloque (Soporta múltiples líneas)
+        ctx.fillStyle = "#a7f3d0";
+        ctx.font = "500 24px sans-serif";
+        const descWords = descText.split(" ");
+        let descLine = "";
+        const descLines: string[] = [];
+        const maxDescWidth = boxWidth - 60;
+        const descLineHeight = 36;
+
+        for (let n = 0; n < descWords.length; n++) {
+          const testLine = descLine + descWords[n] + " ";
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxDescWidth && n > 0) {
+            descLines.push(descLine);
+            descLine = descWords[n] + " ";
+          } else {
+            descLine = testLine;
+          }
+        }
+        descLines.push(descLine);
+
+        const descStartY = boxY + (boxHeight - (descLines.length * descLineHeight)) / 2 + 10;
+        for (let i = 0; i < descLines.length; i++) {
+          ctx.fillText(descLines[i].trim(), width / 2, descStartY + i * descLineHeight);
+        }
+
+        // Swipe / Footer Fijo Inferior
+        ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+        ctx.fillRect(0, height - 100, width, 100);
+
+        ctx.fillStyle = currentTemplate.accentColor;
+        ctx.font = "900 18px sans-serif";
+        const swipeText = isPt 
+          ? `SLIDE ${slideIndex + 1} DE ${currentTemplate.slides.length} ➔ DESLIZE PARA VER MAIS`
+          : `SLIDE ${slideIndex + 1} DE ${currentTemplate.slides.length} ➔ DESLIZÁ PARA VER MÁS`;
+        ctx.fillText(swipeText, width / 2, height - 42);
+      }
+
+      // Descargar archivo generado
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.download = `nevux-carousel-${selectedWidget}-slide-${slideIndex + 1}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Error al exportar canvas:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div
@@ -969,7 +1417,7 @@ export default function BannersPage() {
                   <NevuxLogo size="small" />
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>🛑</div>
+                  <div style={{ fontSize: "42px", marginBottom: "12px" }}></div>
                   <div style={storyBadgeStyle}>REALIDAD DEL E-COMMERCE</div>
                   <h2 style={storyTitleStyle}>¿Por qué tu tienda vende <span style={{ color: "#fca5a5", textDecoration: "underline" }}>menos</span>?</h2>
                 </div>
@@ -997,12 +1445,12 @@ export default function BannersPage() {
           {activeDestacada === "testimonios" && (
             <div style={storyContainerStyle}>
               <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Mariana 💚 Cliente" status="en línea" emoji="🧥" />
+                <WhatsAppHeader name="Mariana  Cliente" status="en línea" emoji="🧥" />
                 <div style={whatsappBodyStyle}>
                   <BlurBubble text="Hola Rodri! Todo bien?" isLeft={true} />
                   <div style={highlightBubbleStyle}>
                     <div style={{ fontSize: "12px", lineHeight: "1.4" }}>
-                      Rodri boludo GRACIAS 🙌 desde q instalé nevux subí el ticket promedio 35% en 3 semanas. La app es una locura, se instala re fácil y la tabla de talles es un 10.
+                      Rodri boludo GRACIAS  desde q instalé nevux subí el ticket promedio 35% en 3 semanas. La app es una locura, se instala re fácil y la tabla de talles es un 10.
                     </div>
                   </div>
                 </div>
@@ -1161,7 +1609,7 @@ export default function BannersPage() {
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "40px", marginBottom: "10px" }}>🧠</div>
-                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>ENTRENADO CON TU TIENDA</div>
+                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>ENTRENADO WITH TIENDA</div>
                   <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.25, margin: "0 0 12px 0" }}>Sabe de precios, stock, medidas y envíos</h3>
                   <div style={bubbleDarkStyle}>
                     <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>Nevux sincroniza tu catálogo en tiempo real. La IA responde como tu mejor empleado de mostrador: con empatía, fotos y enlaces directos.</p>
@@ -1259,10 +1707,373 @@ export default function BannersPage() {
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🧠</span></div><span style={coverLabelStyle}>8. Cross-Selling</span></div>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🌎</span></div><span style={coverLabelStyle}>9. Multi-Idioma</span></div>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🎙️</span></div><span style={coverLabelStyle}>10. Búsqueda Voz</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>11. Vendedor IA</span></div></div>
+            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🤝</span></div><span style={coverLabelStyle}>11. Vendedor IA</span></div>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 TAB 5: CARRUSELES INSTAGRAM */}
+      {activeTab === "carousels" && (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "750px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "24px",
+            boxSizing: "border-box",
+          }}
+        >
+          {/* PANEL DE CONTROL DE CARRUSEL */}
+          <div
+            style={{
+              backgroundColor: "#0b2920",
+              borderRadius: "16px",
+              padding: "20px",
+              border: "1.5px solid rgba(16, 185, 129, 0.3)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+              boxSizing: "border-box",
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+              }}
+            >
+              {/* SELECTOR DE WIDGET */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", fontWeight: 800, color: "#6ee7b7" }}>
+                  WIDGET CAMPAÑA
+                </label>
+                <select
+                  value={selectedWidget}
+                  onChange={(e) => setSelectedWidget(e.target.value)}
+                  style={{
+                    backgroundColor: "#061a14",
+                    color: "#ffffff",
+                    border: "1.5px solid rgba(16, 185, 129, 0.4)",
+                    borderRadius: "10px",
+                    padding: "10px",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    outline: "none",
+                  }}
+                >
+                  {CAROUSEL_TEMPLATES.map((t) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.emoji} {isPt ? t.namePt : t.nameEs}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* SELECTOR DE FORMATO */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", fontWeight: 800, color: "#6ee7b7" }}>
+                  FORMATO INSTAGRAM
+                </label>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    onClick={() => setFormat("portrait")}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      borderRadius: "10px",
+                      border: "none",
+                      backgroundColor: format === "portrait" ? "#10B981" : "#061a14",
+                      color: "#ffffff",
+                      fontSize: "11px",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <Smartphone size={14} /> Vertical 4:5
+                  </button>
+                  <button
+                    onClick={() => setFormat("square")}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      borderRadius: "10px",
+                      border: "none",
+                      backgroundColor: format === "square" ? "#10B981" : "#061a14",
+                      color: "#ffffff",
+                      fontSize: "11px",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <Square size={14} /> Cuadrado 1:1
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* IDIOMA Y RECOMENDACIÓN */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderTop: "1px solid rgba(16, 185, 129, 0.15)",
+                paddingTop: "12px",
+              }}
+            >
+              <div style={{ display: "flex", gap: "6px" }}>
+                <button
+                  onClick={() => setLang("es")}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    border: "none",
+                    backgroundColor: !isPt ? "rgba(16, 185, 129, 0.2)" : "transparent",
+                    color: !isPt ? "#10B981" : "#6ee7b7",
+                    cursor: "pointer",
+                  }}
+                >
+                  🇪🇸 ES
+                </button>
+                <button
+                  onClick={() => setLang("pt")}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    border: "none",
+                    backgroundColor: isPt ? "rgba(16, 185, 129, 0.2)" : "transparent",
+                    color: isPt ? "#10B981" : "#6ee7b7",
+                    cursor: "pointer",
+                  }}
+                >
+                  🇧🇷 PT-BR
+                </button>
+              </div>
+
+              <span style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 600 }}>
+                {isPt
+                  ? "💡 Toque em baixar para exportar o slide em HD nativo."
+                  : "💡 Tocá en descargar para exportar el slide en HD nativo."}
+              </span>
+            </div>
+          </div>
+
+          {/* GRILLA DE SLIDES DEL CARRUSEL SELECCIONADO */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "40px",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            {currentTemplate.slides.map((slide, index) => {
+              const isPortrait = format === "portrait";
+              const aspectWidth = 340;
+              const aspectHeight = isPortrait ? 425 : 340; // Proporción 4:5 vs 1:1 en renderizado responsivo móvil
+
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "12px",
+                    width: "100%",
+                    maxWidth: "360px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      padding: "0 8px",
+                    }}
+                  >
+                    <span style={{ fontSize: "12px", fontWeight: 900, color: "#10B981" }}>
+                      SLIDE {index + 1} ({slide.visualType.toUpperCase()})
+                    </span>
+                    <button
+                      disabled={isDownloading}
+                      onClick={() => downloadSlideAsImage(index)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#6ee7b7",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontSize: "12px",
+                        fontWeight: 800,
+                      }}
+                    >
+                      <Download size={14} /> {isPt ? "Baixar" : "Descargar"}
+                    </button>
+                  </div>
+
+                  {/* LIENZO DE PREVISUALIZACIÓN */}
+                  <div
+                    style={{
+                      width: `${aspectWidth}px`,
+                      height: `${aspectHeight}px`,
+                      background: `radial-gradient(circle at center, ${currentTemplate.themeColor} 0%, #020617 100%)`,
+                      border: "2px solid #10B981",
+                      borderRadius: "20px",
+                      padding: "20px 16px 14px",
+                      boxShadow: "0 15px 35px rgba(0, 0, 0, 0.4)",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      position: "relative",
+                      overflow: "hidden",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    {/* Efecto de luz superior */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "-20%",
+                        width: "80%",
+                        height: "40%",
+                        background: "rgba(16, 185, 129, 0.12)",
+                        filter: "blur(40px)",
+                        borderRadius: "50%",
+                        pointerEvents: "none",
+                      }}
+                    />
+
+                    {/* Header */}
+                    <div
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        paddingBottom: "8px",
+                        borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                        zIndex: 2,
+                      }}
+                    >
+                      <NevuxLogo size="small" />
+                    </div>
+
+                    {/* Contenido Central */}
+                    <div
+                      style={{
+                        width: "100%",
+                        textAlign: "center",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "10px",
+                        zIndex: 2,
+                        margin: "12px 0",
+                      }}
+                    >
+                      {/* Badge superior */}
+                      <span
+                        style={{
+                          display: "inline-block",
+                          border: `1.5px solid ${currentTemplate.accentColor}`,
+                          background: "rgba(16, 185, 129, 0.1)",
+                          color: "#ffffff",
+                          fontSize: "8.5px",
+                          fontWeight: 900,
+                          padding: "3px 10px",
+                          borderRadius: "999px",
+                          letterSpacing: "0.05em",
+                        }}
+                      >
+                        {isPt ? slide.badgePt : slide.badgeEs}
+                      </span>
+
+                      {/* Título adaptado según formato */}
+                      <h3
+                        style={{
+                          fontSize: isPortrait ? "19px" : "16px",
+                          fontWeight: 900,
+                          color: "#ffffff",
+                          lineHeight: 1.2,
+                          margin: 0,
+                          letterSpacing: "-0.02em",
+                        }}
+                      >
+                        {isPt ? slide.titlePt : slide.titleEs}
+                      </h3>
+                    </div>
+
+                    {/* Contenedor de Texto Descriptivo Inferior */}
+                    <div
+                      style={{
+                        width: "100%",
+                        background: "rgba(0, 0, 0, 0.35)",
+                        border: "1px solid rgba(16, 185, 129, 0.2)",
+                        borderRadius: "14px",
+                        padding: "10px 12px",
+                        boxSizing: "border-box",
+                        zIndex: 2,
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: isPortrait ? "11.5px" : "10px",
+                          color: "#a7f3d0",
+                          margin: 0,
+                          lineHeight: 1.4,
+                          fontWeight: 500,
+                          textAlign: "center",
+                        }}
+                      >
+                        {isPt ? slide.descPt : slide.descEs}
+                      </p>
+                    </div>
+
+                    {/* Swipe Footer */}
+                    <div
+                      style={{
+                        fontSize: "9px",
+                        fontWeight: 900,
+                        color: currentTemplate.accentColor,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        width: "100%",
+                        textAlign: "center",
+                        zIndex: 2,
+                        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                        paddingTop: "10px",
+                      }}
+                    >
+                      {isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA VER ➔"}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
     </div>
   );
-  }
+      }
