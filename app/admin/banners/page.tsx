@@ -61,7 +61,6 @@ interface CarouselTemplate {
   slides: CarouselSlideData[];
 }
 
-// 18 Widgets / Presets seleccionados para Campañas Estratégicas de Contenido
 const CAROUSEL_TEMPLATES: CarouselTemplate[] = [
   {
     slug: "cuenta-regresiva",
@@ -766,13 +765,15 @@ export default function BannersPage() {
 
   const currentTemplate = CAROUSEL_TEMPLATES.find((t) => t.slug === selectedWidget) || CAROUSEL_TEMPLATES[0];
 
-  // Función HD Exporter por Canvas (Regla #14: Generics explícitos en Promises)
+  // CLONACIÓN MATEMÁTICA EXACTA AL PREVIEW DE PANTALLA (Regla #14: Generics explícitos en Promises)
   const downloadSlideAsImage = async (slideIndex: number) => {
     setIsDownloading(true);
     try {
       const slide = currentTemplate.slides[slideIndex];
-      const width = format === "portrait" ? 1080 : 1080;
-      const height = format === "portrait" ? 1350 : 1080;
+      const isPortrait = format === "portrait";
+      
+      const width = 1080;
+      const height = isPortrait ? 1350 : 1080;
 
       const canvas = document.createElement("canvas");
       canvas.width = width;
@@ -780,118 +781,138 @@ export default function BannersPage() {
       const ctx = canvas.getContext("2d");
 
       if (ctx) {
-        // Fondo con Degradado Premium
+        // Factor de escala exacto basado en el ancho visual de 340px del celular
+        const S = width / 340;
+
+        // Fondo con Degradado Radial Premium
         const gradient = ctx.createRadialGradient(
           width / 2,
           height / 2,
-          10,
+          10 * S,
           width / 2,
           height / 2,
-          width * 0.8
+          width * 0.7
         );
         gradient.addColorStop(0, currentTemplate.themeColor);
         gradient.addColorStop(1, "#020617");
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
 
-        // Decoración de luz circular superior
+        // Halo de Luz Superior Orgánico
+        const topLightY = -80 * S;
+        const topLightRadius = 170 * S;
+        const radialGrad = ctx.createRadialGradient(
+          width / 2, topLightY, 10 * S,
+          width / 2, topLightY, topLightRadius
+        );
+        radialGrad.addColorStop(0, "rgba(16, 185, 129, 0.12)");
+        radialGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = radialGrad;
         ctx.beginPath();
-        ctx.arc(width / 2, 0, width * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
+        ctx.arc(width / 2, topLightY, topLightRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Logo Nevux Superior
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "900 32px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("NEVUX", width / 2, 85);
+        // LOGO NEVUX OFICIAL (Cuadrado esmeralda con la letra N + texto EVUX)
+        const logoSize = 24 * S;
+        const logoX = (width - logoSize) / 2 - 34 * S;
+        const logoY = 22 * S;
 
-        // Línea sutil superior
+        // Cuadrado redondeado esmeralda
+        ctx.fillStyle = "#10B981";
+        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 6 * S);
+        ctx.fill();
+
+        // N en blanco
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `950 ${15 * S}px system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("N", logoX + logoSize / 2, logoY + logoSize / 2 + 0.5 * S);
+
+        // Texto EVUX
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `900 ${16 * S}px system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = "left";
+        ctx.fillText("EVUX", logoX + logoSize + 8 * S, logoY + logoSize / 2);
+
+        // Separador del Header
         ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1 * S;
         ctx.beginPath();
-        ctx.moveTo(100, 125);
-        ctx.lineTo(width - 100, 125);
+        ctx.moveTo(16 * S, 64 * S);
+        ctx.lineTo(width - 16 * S, 64 * S);
         ctx.stroke();
 
-        // Dibujar Badge
+        // BADGE SUPERIOR DE TEMPORADA
         const badgeText = isPt ? slide.badgePt : slide.badgeEs;
-        ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
-        ctx.strokeStyle = currentTemplate.accentColor;
-        ctx.lineWidth = 3;
-        const badgeWidth = ctx.measureText(badgeText).width + 50;
-        const badgeHeight = 44;
-        const badgeX = (width - badgeWidth) / 2;
-        const badgeY = 170;
+        ctx.font = `900 ${8.5 * S}px system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = "center";
+        const textWidth = ctx.measureText(badgeText.toUpperCase()).width;
+        
+        const badgeW = textWidth + 20 * S;
+        const badgeH = 22 * S;
+        const badgeX = (width - badgeW) / 2;
+        const badgeY = 90 * S;
 
-        // Borde redondeado del badge
+        ctx.fillStyle = "rgba(16, 185, 129, 0.1)";
+        ctx.strokeStyle = currentTemplate.accentColor;
+        ctx.lineWidth = 1.5 * S;
         ctx.beginPath();
-        ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 22);
+        ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 11 * S);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 15px sans-serif";
-        ctx.fillText(badgeText.toUpperCase(), width / 2, badgeY + 27);
+        ctx.textBaseline = "middle";
+        ctx.fillText(badgeText.toUpperCase(), width / 2, badgeY + badgeH / 2);
 
-        // Dibujar Título principal (Soporta múltiples líneas)
+        // TÍTULO PRINCIPAL (Multi-línea y adaptado al formato)
         const titleText = isPt ? slide.titlePt : slide.titleEs;
+        const titleFontSize = isPortrait ? 19 * S : 16 * S;
+        ctx.font = `900 ${titleFontSize}px system-ui, -apple-system, sans-serif`;
         ctx.fillStyle = "#ffffff";
-        ctx.font = "900 52px sans-serif";
         ctx.textAlign = "center";
-        
-        const words = titleText.split(" ");
-        let line = "";
-        const lines: string[] = [];
-        const maxWidth = width - 160;
-        const lineHeight = 65;
+        ctx.textBaseline = "top";
 
-        for (let n = 0; n < words.length; n++) {
-          const testLine = line + words[n] + " ";
+        const titleWords = titleText.split(" ");
+        let titleLine = "";
+        const titleLines: string[] = [];
+        const maxTitleWidth = width - 40 * S;
+        const titleLineHeight = titleFontSize * 1.25;
+
+        for (let n = 0; n < titleWords.length; n++) {
+          const testLine = titleLine + titleWords[n] + " ";
           const metrics = ctx.measureText(testLine);
-          if (metrics.width > maxWidth && n > 0) {
-            lines.push(line);
-            line = words[n] + " ";
+          if (metrics.width > maxTitleWidth && n > 0) {
+            titleLines.push(titleLine);
+            titleLine = titleWords[n] + " ";
           } else {
-            line = testLine;
+            titleLine = testLine;
           }
         }
-        lines.push(line);
+        titleLines.push(titleLine);
 
-        let startY = height / 2 - 80;
-        for (let i = 0; i < lines.length; i++) {
-          ctx.fillText(lines[i].trim(), width / 2, startY + i * lineHeight);
+        const titleStartY = 135 * S;
+        for (let i = 0; i < titleLines.length; i++) {
+          ctx.fillText(titleLines[i].trim(), width / 2, titleStartY + i * titleLineHeight);
         }
 
-        // Dibujar Caja de Descripción / Bloque de Contenido
+        // DESCRIPCIÓN CON CAJA CONTENEDORA (Clonación exacta de opacidad y borde)
         const descText = isPt ? slide.descPt : slide.descEs;
-        const boxWidth = width - 200;
-        const boxHeight = format === "portrait" ? 280 : 200;
-        const boxX = 100;
-        const boxY = height - boxHeight - 160;
+        const descFontSize = isPortrait ? 11.5 * S : 10 * S;
+        ctx.font = `500 ${descFontSize}px system-ui, -apple-system, sans-serif`;
 
-        // Fondo caja con opacidad oscura
-        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-        ctx.strokeStyle = "rgba(16, 185, 129, 0.3)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 24);
-        ctx.fill();
-        ctx.stroke();
-
-        // Texto descriptivo en el bloque (Soporta múltiples líneas)
-        ctx.fillStyle = "#a7f3d0";
-        ctx.font = "500 24px sans-serif";
         const descWords = descText.split(" ");
         let descLine = "";
         const descLines: string[] = [];
-        const maxDescWidth = boxWidth - 60;
-        const descLineHeight = 36;
+        const descBoxWidth = width - 32 * S;
+        const maxDescTextWidth = descBoxWidth - 24 * S;
+        const descLineHeight = descFontSize * 1.4;
 
         for (let n = 0; n < descWords.length; n++) {
           const testLine = descLine + descWords[n] + " ";
           const metrics = ctx.measureText(testLine);
-          if (metrics.width > maxDescWidth && n > 0) {
+          if (metrics.width > maxDescTextWidth && n > 0) {
             descLines.push(descLine);
             descLine = descWords[n] + " ";
           } else {
@@ -900,24 +921,46 @@ export default function BannersPage() {
         }
         descLines.push(descLine);
 
-        const descStartY = boxY + (boxHeight - (descLines.length * descLineHeight)) / 2 + 10;
+        const descBoxHeight = descLines.length * descLineHeight + 20 * S;
+        const descBoxX = 16 * S;
+        const descBoxY = height - 44 * S - descBoxHeight;
+
+        // Caja negra translúcida con borde esmeralda sutil
+        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
+        ctx.lineWidth = 1 * S;
+        ctx.beginPath();
+        ctx.roundRect(descBoxX, descBoxY, descBoxWidth, descBoxHeight, 14 * S);
+        ctx.fill();
+        ctx.stroke();
+
+        // Dibujar el texto descriptivo dentro de la caja
+        ctx.fillStyle = "#a7f3d0";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        const descTextStartY = descBoxY + 10 * S;
         for (let i = 0; i < descLines.length; i++) {
-          ctx.fillText(descLines[i].trim(), width / 2, descStartY + i * descLineHeight);
+          ctx.fillText(descLines[i].trim(), width / 2, descTextStartY + i * descLineHeight);
         }
 
-        // Swipe / Footer Fijo Inferior
-        ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-        ctx.fillRect(0, height - 100, width, 100);
+        // FOOTER CON DESLIZADOR
+        const footerY = height - 34 * S;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.lineWidth = 1 * S;
+        ctx.beginPath();
+        ctx.moveTo(16 * S, footerY);
+        ctx.lineTo(width - 16 * S, footerY);
+        ctx.stroke();
 
         ctx.fillStyle = currentTemplate.accentColor;
-        ctx.font = "900 18px sans-serif";
-        const swipeText = isPt 
-          ? `SLIDE ${slideIndex + 1} DE ${currentTemplate.slides.length} ➔ DESLIZE PARA VER MAIS`
-          : `SLIDE ${slideIndex + 1} DE ${currentTemplate.slides.length} ➔ DESLIZÁ PARA VER MÁS`;
-        ctx.fillText(swipeText, width / 2, height - 42);
+        ctx.font = `900 ${9 * S}px system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const swipeText = isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA VER ➔";
+        ctx.fillText(swipeText, width / 2, footerY + 17 * S);
       }
 
-      // Descargar archivo generado
+      // Descarga directa a la galería en PNG HD
       const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
       link.download = `nevux-carousel-${selectedWidget}-slide-${slideIndex + 1}.png`;
@@ -1242,7 +1285,7 @@ export default function BannersPage() {
                       </h3>
                     </div>
                     <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Cross-selling preditivo dinâmico baseado em afinidade de preços." : "Cross-selling predictivo dinámico basado en afinidad de precios."}
+                      {isPt ? "Cross-selling preditivo dinâmico baseado em affinity de preços." : "Cross-selling predictivo dinámico basado en afinidad de precios."}
                     </p>
                   </div>
                 </div>
@@ -1258,7 +1301,7 @@ export default function BannersPage() {
                       </h3>
                     </div>
                     <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Tradução contextual em tempo real para PT-BR / ES / EN." : "Traducción contextual en tiempo real para ES / PT-BR / EN."}
+                      {isPt ? "Tradução contextual em tempo real para PT-BR / ES / EN." : "Traducción contextual en tempo real para ES / PT-BR / EN."}
                     </p>
                   </div>
 
@@ -1361,7 +1404,7 @@ export default function BannersPage() {
               <h2 style={bannerTitleStyle}>
                 {isPt
                   ? "O primeiro CRM de Carrinhos com IA"
-                  : "El primer CRM de Carritos con IA"}
+                  : "El primer CRM de Carritos com IA"}
               </h2>
               <p style={bannerDescStyle}>
                 {isPt
@@ -1417,7 +1460,7 @@ export default function BannersPage() {
                   <NevuxLogo size="small" />
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "42px", marginBottom: "12px" }}></div>
+                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>🛑</div>
                   <div style={storyBadgeStyle}>REALIDAD DEL E-COMMERCE</div>
                   <h2 style={storyTitleStyle}>¿Por qué tu tienda vende <span style={{ color: "#fca5a5", textDecoration: "underline" }}>menos</span>?</h2>
                 </div>
@@ -1445,12 +1488,12 @@ export default function BannersPage() {
           {activeDestacada === "testimonios" && (
             <div style={storyContainerStyle}>
               <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Mariana  Cliente" status="en línea" emoji="🧥" />
+                <WhatsAppHeader name="Mariana Cliente" status="en línea" emoji="🧥" />
                 <div style={whatsappBodyStyle}>
                   <BlurBubble text="Hola Rodri! Todo bien?" isLeft={true} />
                   <div style={highlightBubbleStyle}>
                     <div style={{ fontSize: "12px", lineHeight: "1.4" }}>
-                      Rodri boludo GRACIAS  desde q instalé nevux subí el ticket promedio 35% en 3 semanas. La app es una locura, se instala re fácil y la tabla de talles es un 10.
+                      Rodri boludo GRACIAS desde q instalé nevux subí el ticket promedio 35% en 3 semanas. La app es una locura, se instala re fácil y la tabla de talles es un 10.
                     </div>
                   </div>
                 </div>
@@ -1930,7 +1973,7 @@ export default function BannersPage() {
                     </button>
                   </div>
 
-                  {/* LIENZO DE PREVISUALIZACIÓN */}
+                  {/* LIENZO DE PREVISUALIZACIÓN EN PANTALLA */}
                   <div
                     style={{
                       width: `${aspectWidth}px`,
@@ -2076,4 +2119,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-      }
+}
