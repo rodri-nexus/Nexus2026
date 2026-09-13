@@ -7576,7 +7576,7 @@
       }
     }
                                                       }
-    /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      RENDER TABLA DE TALLES (CON TELEMETRÍA REAL)
   ═══════════════════════════════════════════ */
   function renderTablaTalles(w) {
@@ -7621,6 +7621,32 @@
     var headerTextColor = cfg.headerTextColor || "#059669";
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 12) + "px";
 
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { botonBgColor: "#111827", botonTextColor: "#F59E0B", botonBorderColor: "#F59E0B", modalBgColor: "#111827", modalTextColor: "#FFFFFF", headerBgColor: "#374151", headerTextColor: "#F59E0B", accentColor: "#F59E0B" },
+      "hot-sale": { botonBgColor: "#0F172A", botonTextColor: "#EF4444", botonBorderColor: "#EF4444", modalBgColor: "#0F172A", modalTextColor: "#FFFFFF", headerBgColor: "#1E293B", headerTextColor: "#EF4444", accentColor: "#EF4444" },
+      "cyber-monday": { botonBgColor: "#090D16", botonTextColor: "#3B82F6", botonBorderColor: "#3B82F6", modalBgColor: "#090D16", modalTextColor: "#FFFFFF", headerBgColor: "#1E293B", headerTextColor: "#60A5FA", accentColor: "#3B82F6" },
+      "navidad": { botonBgColor: "#064E3B", botonTextColor: "#FFFFFF", botonBorderColor: "#10B981", modalBgColor: "#064E3B", modalTextColor: "#FFFFFF", headerBgColor: "#047857", headerTextColor: "#FCD34D", accentColor: "#EF4444" },
+      "san-valentin": { botonBgColor: "#831843", botonTextColor: "#FFFFFF", botonBorderColor: "#FB7185", modalBgColor: "#831843", modalTextColor: "#FFFFFF", headerBgColor: "#9D174D", headerTextColor: "#FECDD3", accentColor: "#F43F5E" },
+      "dia-madre-padre": { botonBgColor: "#312E81", botonTextColor: "#FFFFFF", botonBorderColor: "#6366F1", modalBgColor: "#312E81", modalTextColor: "#FFFFFF", headerBgColor: "#3730A3", headerTextColor: "#A7F3D0", accentColor: "#10B981" },
+      "sale-liquidacion": { botonBgColor: "#7F1D1D", botonTextColor: "#FBBF24", botonBorderColor: "#FBBF24", modalBgColor: "#7F1D1D", modalTextColor: "#FFFFFF", headerBgColor: "#991B1B", headerTextColor: "#FBBF24", accentColor: "#FBBF24" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    if (isCustomTheme) {
+      botonBgColor = th.botonBgColor;
+      botonTextColor = th.botonTextColor;
+      botonBorderColor = th.botonBorderColor;
+      modalBgColor = th.modalBgColor;
+      modalTextColor = th.modalTextColor;
+      headerBgColor = th.headerBgColor;
+      headerTextColor = th.headerTextColor;
+    }
+
+    var saveBtnBg = isCustomTheme ? th.accentColor : "#10B981";
     var target = document.querySelector("form[action*='/cart/add']") || 
                  document.querySelector(".js-product-buy-container") ||
                  document.querySelector(".product-buy-panel") ||
@@ -7681,7 +7707,8 @@
           width: 100% !important;
           max-width: 540px !important;
           border-radius: 18px !important;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
+          border: ${isCustomTheme ? '2px solid ' + saveBtnBg : 'none'} !important;
+          box-shadow: ${isCustomTheme ? '0 20px 50px ' + saveBtnBg + '22' : '0 20px 50px rgba(0,0,0,0.2)'} !important;
           padding: 20px !important;
           box-sizing: border-box !important;
           font-family: system-ui, -apple-system, sans-serif !important;
@@ -7689,6 +7716,7 @@
           max-height: 90vh !important;
           overflow-y: auto !important;
           animation: nvxModalPop 0.25s ease-out forwards !important;
+          transition: all 0.3s ease !important;
         }
         @keyframes nvxModalPop {
           from { opacity: 0; transform: scale(0.94) translateY(10px); }
@@ -7699,7 +7727,7 @@
           align-items: flex-start !important;
           justify-content: space-between !important;
           margin-bottom: 12px !important;
-          border-bottom: 1px solid #f3f4f6 !important;
+          border-bottom: 1px solid #f3f4f633 !important;
           padding-bottom: 10px !important;
         }
         #nvx-talles-modal-card-${w.id} .nvx-modal-title {
@@ -7714,7 +7742,7 @@
           margin: 3px 0 0 0 !important;
         }
         #nvx-talles-modal-card-${w.id} .nvx-close-btn {
-          background: #f3f4f6 !important;
+          background: ${isCustomTheme ? '#ffffff1a' : '#f3f4f6'} !important;
           border: none !important;
           width: 32px !important;
           height: 32px !important;
@@ -7725,7 +7753,7 @@
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          color: #000000 !important;
+          color: ${isCustomTheme ? '#ffffff' : '#000000'} !important;
           flex-shrink: 0 !important;
         }
         #nvx-talles-modal-card-${w.id} table {
@@ -7740,32 +7768,32 @@
           color: ${headerTextColor} !important;
           padding: 9px 10px !important;
           font-weight: 800 !important;
-          border-bottom: 1px solid #e5e7eb !important;
+          border-bottom: 1px solid #e5e7eb33 !important;
         }
         .nvx-talle-row {
           cursor: pointer !important;
           transition: background 0.15s ease !important;
         }
         .nvx-talle-row:hover {
-          background: #ecfdf5 !important;
+          background: ${isCustomTheme ? '#ffffff0a' : '#ecfdf5'} !important;
         }
         .nvx-talle-row.nvx-row-active {
-          background: #ecfdf5 !important;
-          outline: 2px solid #10B981 !important;
+          background: ${isCustomTheme ? '#ffffff0f' : '#ecfdf5'} !important;
+          outline: 2px solid ${saveBtnBg} !important;
         }
         .nvx-talle-radio {
-          accent-color: #10B981 !important;
+          accent-color: ${saveBtnBg} !important;
           cursor: pointer !important;
           transform: scale(1.15) !important;
         }
         #nvx-talles-modal-card-${w.id} td {
           padding: 8px 10px !important;
-          border-bottom: 1px solid #f3f4f6 !important;
+          border-bottom: 1px solid #f3f4f614 !important;
           color: ${modalTextColor} !important;
         }
         .nvx-save-talle-btn {
           width: 100% !important;
-          background: #10B981 !important;
+          background: ${saveBtnBg} !important;
           color: #ffffff !important;
           border: none !important;
           border-radius: 12px !important;
@@ -7782,17 +7810,19 @@
           transition: all 0.2s ease !important;
         }
         .nvx-save-talle-btn:hover {
-          background: #059669 !important;
+          background: ${isCustomTheme ? saveBtnBg : '#059669'} !important;
+          opacity: 0.9 !important;
           transform: translateY(-1px) !important;
         }
         #nvx-talles-modal-card-${w.id} .nvx-help-note {
           margin-top: 12px !important;
           padding: 9px 12px !important;
-          background: #f9fafb !important;
+          background: ${isCustomTheme ? '#ffffff06' : '#f9fafb'} !important;
           border-radius: 10px !important;
-          border: 1px solid #f3f4f6 !important;
+          border: 1px solid #f3f4f614 !important;
           font-size: 11px !important;
-          color: #4b5563 !important;
+          color: ${modalTextColor} !important;
+          opacity: 0.8 !important;
           line-height: 1.45 !important;
         }
       `;
@@ -7993,7 +8023,7 @@
         closeModal();
       }, 450);
     });
-  }
+}
   
     /* ═══════════════════════════════════════════
      RENDER PACK COMPLEMENTARIOS
