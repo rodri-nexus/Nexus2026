@@ -6,8 +6,6 @@ import {
   Plus,
   Trash2,
   Eye,
-  Gift,
-  Sparkles,
   ShieldCheck,
 } from 'lucide-react';
 import {
@@ -17,6 +15,53 @@ import {
 import EditorTabs from './EditorTabs';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9)
+═══════════════════════════════════════════ */
+interface WidgetDefinition {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+}
+
+interface ExistingWidget {
+  id: string;
+  config: Record<string, unknown>;
+  is_active: boolean;
+  target_type: string;
+  target_product_id: number | null;
+}
+
+interface Props {
+  widgetDefinition: WidgetDefinition;
+  existingWidget: ExistingWidget | null;
+  targetType: 'product' | 'all';
+  productId: number | null;
+  storeId: string | number;
+}
+
+export interface PremioItem {
+  texto: string;
+  codigoCupon: string;
+  esGanador: boolean;
+}
+
+interface RuletaDescuentosConfig {
+  titulo: string;
+  subtitulo: string;
+  textoBotonGirar: string;
+  colorBoton: string;
+  colorFondoModal: string;
+  colorTexto: string;
+  colorRuletaPrincipal: string;
+  colorRuletaSecundario: string;
+  premios: PremioItem[];
+  campaignTheme?: string;
+}
 
 /* ═══════════════════════════════════════════
    PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
@@ -145,25 +190,6 @@ const OPCIONES_PREMIOS = [
   { label: 'Sigue Intentando 😢', value: 'Sigue Intentando 😢', esGanador: false },
 ];
 
-export interface PremioItem {
-  texto: string;
-  codigoCupon: string;
-  esGanador: boolean;
-}
-
-interface RuletaDescuentosConfig {
-  titulo: string;
-  subtitulo: string;
-  textoBotonGirar: string;
-  colorBoton: string;
-  colorFondoModal: string;
-  colorTexto: string;
-  colorRuletaPrincipal: string;
-  colorRuletaSecundario: string;
-  premios: PremioItem[];
-  campaignTheme?: string;
-}
-
 const DEFAULT_CONFIG: RuletaDescuentosConfig = {
   titulo: '🎉 ¡GIRÁ Y GANÁ UN DESCUENTO!',
   subtitulo: 'Ingresá tu email para girar la ruleta y obtener tu regalo exclusivo.',
@@ -232,7 +258,6 @@ function RuletaPreview({ config }: { config: RuletaDescuentosConfig }) {
   const theme = RULETA_CAMPAIGN_THEMES[themeKey] || RULETA_CAMPAIGN_THEMES.none;
   const isCustomTheme = themeKey !== 'none';
 
-  // Sobrecarga de colores según la campaña elegida
   const cardBg = isCustomTheme ? theme.colorFondoModal : config.colorFondoModal;
   const textColor = isCustomTheme ? theme.colorTexto : config.colorTexto;
   const subtextColor = isCustomTheme ? `${theme.colorTexto}bb` : '#6b7280';
@@ -307,7 +332,6 @@ function RuletaPreview({ config }: { config: RuletaDescuentosConfig }) {
           {/* Textos de las porciones */}
           {config.premios.map((premio, i) => {
             const angle = (360 / config.premios.length) * i + (360 / config.premios.length) / 2;
-            const sliceTextCol = '#ffffff';
             return (
               <div
                 key={i}
@@ -325,7 +349,7 @@ function RuletaPreview({ config }: { config: RuletaDescuentosConfig }) {
                   justifyContent: 'center',
                   fontSize: 8.5,
                   fontWeight: 900,
-                  color: sliceTextCol,
+                  color: '#ffffff',
                   textShadow: '0 1px 2px rgba(0,0,0,0.8)',
                   whiteSpace: 'nowrap',
                   paddingLeft: 25,
@@ -611,7 +635,7 @@ export default function RuletaDescuentosEditor({
                   padding: 14,
                 }}
               >
-                <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
                       Porción #{idx + 1}
@@ -1107,4 +1131,4 @@ export default function RuletaDescuentosEditor({
       </div>
     </div>
   );
-  }
+    }
