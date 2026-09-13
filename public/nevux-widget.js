@@ -2859,7 +2859,7 @@
       '</div>';
   }
 
-  /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      RENDER BARRA DE PROGRESO
   ═══════════════════════════════════════════ */
   function renderBarraProgreso(widget) {
@@ -2942,6 +2942,7 @@
       colorObjetivos: raw.colorObjetivos || "#333333",
       tamanoFuenteObjetivos: n(raw.tamanoFuenteObjetivos, 11),
       tamanoFuenteTexto: n(raw.tamanoFuenteTexto, 13),
+      campaignTheme: raw.campaignTheme || "none"
     };
   }
 
@@ -2984,6 +2985,31 @@
   }
 
   function buildBarraProgresoHtml(cfg, subtotal, placement) {
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { cardBg: "#111827", barVacia: "#374151", accentColor: "#F59E0B", textColor: "#FFFFFF", priceColor: "#F59E0B" },
+      "hot-sale": { cardBg: "#0F172A", barVacia: "#334155", accentColor: "#EF4444", textColor: "#FFFFFF", priceColor: "#EF4444" },
+      "cyber-monday": { cardBg: "#090D16", barVacia: "#1E293B", accentColor: "#3B82F6", textColor: "#FFFFFF", priceColor: "#60A5FA" },
+      "navidad": { cardBg: "#064E3B", barVacia: "#065F46", accentColor: "#EF4444", textColor: "#FFFFFF", priceColor: "#FCD34D" },
+      "san-valentin": { cardBg: "#831843", barVacia: "#9D174D", accentColor: "#F43F5E", textColor: "#FFFFFF", priceColor: "#FECDD3" },
+      "dia-madre-padre": { cardBg: "#312E81", barVacia: "#3730A3", accentColor: "#10B981", textColor: "#FFFFFF", priceColor: "#A7F3D0" },
+      "sale-liquidacion": { cardBg: "#7F1D1D", barVacia: "#991B1B", accentColor: "#FBBF24", textColor: "#FFFFFF", priceColor: "#FBBF24" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    var colorFondo = isCustomTheme ? th.cardBg : cfg.colorFondo;
+    var colorBarraLlena = isCustomTheme ? th.accentColor : cfg.colorBarraLlena;
+    var colorBarraVacia = isCustomTheme ? th.barVacia : cfg.colorBarraVacia;
+    var colorTexto = isCustomTheme ? th.textColor : cfg.colorTexto;
+    var colorMonto = isCustomTheme ? th.priceColor : cfg.colorMonto;
+    var colorObjetivos = isCustomTheme ? th.textColor : cfg.colorObjetivos;
+
+    var borderStyle = isCustomTheme ? '1px solid ' + colorBarraLlena + '55' : '1px solid rgba(0,0,0,0.06)';
+    var boxShadowStyle = isCustomTheme ? '0 4px 20px ' + colorBarraLlena + '22' : '0 4px 12px rgba(0,0,0,0.03)';
+
     var objetivosOrd = cfg.objetivos.slice().sort(function (a, b) { return a.monto - b.monto; });
     var montoMax = objetivosOrd[objetivosOrd.length - 1].monto;
 
@@ -3003,12 +3029,12 @@
     if (proximoObj) {
       var t = escapeHtml(cfg.textoFaltante || "Te faltan {x} para {objetivo}");
       t = t
-        .replace("{x}", '<strong style="color:' + cfg.colorMonto + ';font-weight:700;">' + formatMoneyInt(faltante) + '</strong>')
-        .replace("{objetivo}", '<strong style="color:' + cfg.colorObjetivos + ';font-weight:700;">' + escapeHtml(proximoObj.nombre) + '</strong>');
+        .replace("{x}", '<strong style="color:' + colorMonto + ';font-weight:700;">' + formatMoneyInt(faltante) + '</strong>')
+        .replace("{objetivo}", '<strong style="color:' + colorObjetivos + ';font-weight:700;">' + escapeHtml(proximoObj.nombre) + '</strong>');
       textoHtml = t;
     } else if (ultimoCumplido) {
       var tc = escapeHtml(cfg.textoCumplido || "¡{objetivo} desbloqueado! 🎉");
-      tc = tc.replace("{objetivo}", '<strong style="color:' + cfg.colorObjetivos + ';font-weight:700;">' + escapeHtml(ultimoCumplido.nombre) + '</strong>');
+      tc = tc.replace("{objetivo}", '<strong style="color:' + colorObjetivos + ';font-weight:700;">' + escapeHtml(ultimoCumplido.nombre) + '</strong>');
       textoHtml = tc;
     }
 
@@ -3019,7 +3045,9 @@
       var posPct = isLast ? 100 : (o.monto / montoMax) * 100;
       var cumplido = subtotal >= o.monto;
       var iconInner = getIconoSvgProgreso(o.icono, 12, "#ffffff");
-      hitsHtml += '<div class="' + NS + '-progress-hit" style="left:' + posPct + '%;background:' + (cumplido ? cfg.colorBarraLlena : "#c9c9c9") + ';" title="' + escapeHtml(o.nombre) + '">' + iconInner + '</div>';
+      var hitBg = cumplido ? colorBarraLlena : (isCustomTheme ? th.barVacia : "#c9c9c9");
+      var hitShadow = cumplido ? 'box-shadow: 0 0 10px ' + colorBarraLlena + '88;' : 'box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+      hitsHtml += '<div class="' + NS + '-progress-hit" style="left:' + posPct + '%;background:' + hitBg + ';' + hitShadow + '" title="' + escapeHtml(o.nombre) + '">' + iconInner + '</div>';
     }
 
     var listaHtml = "";
@@ -3028,22 +3056,23 @@
       for (var m = 0; m < objetivosOrd.length; m++) {
         var oo = objetivosOrd[m];
         var cc = subtotal >= oo.monto;
-        items += '<div style="display:flex;align-items:center;gap:6px;font-size:' + cfg.tamanoFuenteObjetivos + 'px;color:' + cfg.colorObjetivos + ';opacity:' + (cc ? "1" : "0.6") + ';margin-top:4px;">' +
-          '<span style="width:12px;height:12px;border-radius:50%;background:' + (cc ? cfg.colorBarraLlena : "#c9c9c9") + ';display:inline-block;"></span>' +
+        var bulletBg = cc ? colorBarraLlena : (isCustomTheme ? th.barVacia : "#c9c9c9");
+        items += '<div style="display:flex;align-items:center;gap:6px;font-size:' + cfg.tamanoFuenteObjetivos + 'px;color:' + colorObjetivos + ';opacity:' + (cc ? "1" : "0.6") + ';margin-top:4px;">' +
+          '<span style="width:12px;height:12px;border-radius:50%;background:' + bulletBg + ';display:inline-block;"></span>' +
           '<span style="font-weight:' + (cc ? "700" : "500") + ';">' + escapeHtml(oo.nombre) + ' — ' + formatMoneyInt(oo.monto) + '</span>' +
         '</div>';
       }
       listaHtml = '<div style="margin-top:10px;">' + items + '</div>';
     }
 
-    var bgStyle = cfg.colorFondo === "transparent" ? "transparent" : cfg.colorFondo;
+    var bgStyle = colorFondo === "transparent" ? "transparent" : colorFondo;
 
     return '' +
-      '<div style="width:100%;background:' + bgStyle + ';border-radius:' + cfg.bordesRedondeados + 'px;padding:' + cfg.rellenoInterno + 'px ' + (cfg.rellenoInterno + 4) + 'px;box-sizing:border-box;">' +
-        '<div style="color:' + cfg.colorTexto + ';font-size:' + cfg.tamanoFuenteTexto + 'px;line-height:1.4;margin-bottom:10px;">' + textoHtml + '</div>' +
+      '<div style="width:100%;background:' + bgStyle + ';border:' + borderStyle + ';box-shadow:' + boxShadowStyle + ';border-radius:' + cfg.bordesRedondeados + 'px;padding:' + cfg.rellenoInterno + 'px ' + (cfg.rellenoInterno + 4) + 'px;box-sizing:border-box;transition:all 0.3s ease;">' +
+        '<div style="color:' + colorTexto + ';font-size:' + cfg.tamanoFuenteTexto + 'px;line-height:1.4;margin-bottom:10px;">' + textoHtml + '</div>' +
         '<div class="' + NS + '-progress-wrap">' +
-          '<div class="' + NS + '-progress-track" style="background:' + cfg.colorBarraVacia + ';">' +
-            '<div class="' + NS + '-progress-fill" style="width:' + porcentaje + '%;background:' + cfg.colorBarraLlena + ';"></div>' +
+          '<div class="' + NS + '-progress-track" style="background:' + colorBarraVacia + ';">' +
+            '<div class="' + NS + '-progress-fill" style="width:' + porcentaje + '%;background:' + colorBarraLlena + ';box-shadow: 0 0 10px ' + colorBarraLlena + '66;"></div>' +
             hitsHtml +
           '</div>' +
           listaHtml +
@@ -3084,7 +3113,7 @@
       default:
         return "";
     }
-          }
+        }
 /* ═══════════════════════════════════════════
      RENDER BUNDLE PROMOCIONES (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
