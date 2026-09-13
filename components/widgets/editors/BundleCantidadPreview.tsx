@@ -1,3 +1,4 @@
+// components/widgets/editors/BundleCantidadPreview.tsx
 'use client';
 
 import React from 'react';
@@ -49,12 +50,26 @@ interface BundleCantidadConfig {
   fuenteSubtitulo: number;
   efectoBoton: 'sin-efecto' | 'zoom';
   pulsante: boolean;
+  campaignTheme?: string;
 }
 
 interface Props {
   config: BundleCantidadConfig;
   precioProducto?: number;
 }
+
+/* ═══════════════════════════════════════════
+   CAMPANAS PRESETS (Fechas Especiales)
+═══════════════════════════════════════════ */
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBg: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBg: '#F59E0B' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBg: '#3B82F6' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBg: '#F43F5E' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBg: '#10B981' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBg: '#FBBF24' },
+};
 
 /* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL
@@ -78,15 +93,28 @@ export default function BundleCantidadPreview({ config, precioProducto = 30000 }
     return '$' + Math.round(n).toLocaleString('es-AR');
   };
 
+  // Lectura de la campaña activa para la previsualización en vivo
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
   const cantidadReal = Math.max(1, Math.min(5, config.cantidadUnidades || 2));
   const unidadesVisibles: number[] = [];
   for (let i = 0; i < cantidadReal; i++) {
     if (!config.unidades[i]?.ocultar) unidadesVisibles.push(i);
   }
 
-  const bgBoton = config.botonDegradado
+  // Sobrecarga de colores si hay evento activo
+  const colorBoton = activeTheme ? activeTheme.accentColor : (config.colorBoton || '#10B981');
+  const colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : (config.colorUnidadSeleccionada || '#10B981');
+  const colorPrecio = activeTheme ? activeTheme.themeColor : (config.colorPrecio || '#000000');
+
+  const colorTextoBoton = activeTheme
+    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+    : '#ffffff';
+
+  const bgBoton = config.botonDegradado && !activeTheme
     ? `linear-gradient(90deg, ${config.colorBoton || '#10B981'}, ${config.colorBoton2 || '#059669'})`
-    : config.colorBoton || '#10B981';
+    : colorBoton;
 
   return (
     <div
@@ -138,7 +166,7 @@ export default function BundleCantidadPreview({ config, precioProducto = 30000 }
           const precioTachadoMostrar =
             config.mostrarPrecio === 'individual' ? precioProducto : precioTotalOriginal;
 
-          const colorActivo = config.colorUnidadSeleccionada || '#10B981';
+          const colorActivo = colorUnidadSeleccionada;
 
           const badges: { label: string; color: string }[] = [];
           if (u.badgeEnvioGratis) badges.push({ label: 'Envío gratis', color: config.colorBadgeEnvio || '#10B981' });
@@ -245,7 +273,7 @@ export default function BundleCantidadPreview({ config, precioProducto = 30000 }
                     style={{
                       fontSize: config.fuentePrecio || 15,
                       fontWeight: 800,
-                      color: config.colorPrecio || '#000000',
+                      color: colorPrecio,
                       lineHeight: 1.1,
                     }}
                   >
@@ -310,13 +338,13 @@ export default function BundleCantidadPreview({ config, precioProducto = 30000 }
             width: '100%',
             padding: '14px 20px',
             background: bgBoton,
-            color: '#FFFFFF',
+            color: colorTextoBoton,
             fontSize: 16,
             fontWeight: 800,
             border: 'none',
             borderRadius: config.bordeBoton || 12,
             cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
+            boxShadow: `0 4px 14px ${colorUnidadSeleccionada}44`,
             animation: config.pulsante ? 'nevux-widget-bundle-pulse 1.8s ease-in-out infinite' : 'none',
           }}
         >
@@ -358,4 +386,4 @@ export default function BundleCantidadPreview({ config, precioProducto = 30000 }
       </div>
     </div>
   );
-  }
+                                          }
