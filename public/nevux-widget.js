@@ -3085,8 +3085,8 @@
         return "";
     }
           }
-  /* ═══════════════════════════════════════════
-     RENDER BUNDLE PROMOCIONES
+/* ═══════════════════════════════════════════
+     RENDER BUNDLE PROMOCIONES (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderBundlePromociones(widget) {
     if (pageType !== "product") return;
@@ -3150,6 +3150,7 @@
       tamanoSubtitulo: raw.tamanoSubtitulo || "14px",
       efectoBoton: raw.efectoBoton === "zoom" ? "zoom" : "sin-efecto",
       botonPulsante: raw.botonPulsante === true,
+      campaignTheme: raw.campaignTheme || "none"
     };
   }
 
@@ -3266,6 +3267,30 @@
   }
 
   function buildBundlePromocionesHtml(cfg, state) {
+    // Definimos presets temáticos locales
+    var THEMES = {
+      'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff' },
+      'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff' },
+      'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff' },
+      'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff' },
+      'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff' },
+      'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff' },
+      'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff' }
+    };
+
+    var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
+    var activeTheme = currentCampaign && THEMES[currentCampaign] ? THEMES[currentCampaign] : null;
+
+    // Sobrecarga dinámica de colores según campaña
+    var colorBoton = activeTheme ? activeTheme.accentColor : cfg.colorBoton;
+    var colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : cfg.colorUnidadSeleccionada;
+    var colorPrecio = activeTheme ? activeTheme.themeColor : cfg.colorPrecio;
+
+    var colorTextoBoton = "#ffffff";
+    if (activeTheme) {
+      colorTextoBoton = (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion') ? '#000000' : '#ffffff';
+    }
+
     var precio = detectProductPrice() || 0;
 
     var titleHtml = cfg.titulo
@@ -3284,7 +3309,7 @@
       var precioTotalPromo = precio * ratio.paga;
 
       var isSelected = i === state.selectedIdx;
-      var borderColor = isSelected ? cfg.colorUnidadSeleccionada : "#e5e7eb";
+      var borderColor = isSelected ? colorUnidadSeleccionada : "#e5e7eb";
 
       var badgesHtml = "";
       if (p.badges.envioGratis) {
@@ -3337,7 +3362,7 @@
       cardsHtml +=
         '<div class="' + NS + '-bundle-card' + (isSelected ? ' selected' : '') + '" data-idx="' + i + '" style="border-color:' + borderColor + ';border-radius:' + cfg.bordeUnidad + 'px;">' +
           '<div style="display:flex;align-items:center;gap:12px;width:100%;">' +
-            '<div class="' + NS + '-bundle-radio"><div class="' + NS + '-bundle-radio-dot"></div></div>' +
+            '<div class="' + NS + '-bundle-radio" style="border-color:' + borderColor + ';"><div class="' + NS + '-bundle-radio-dot" style="background:' + colorUnidadSeleccionada + ';"></div></div>' +
             '<div class="' + NS + '-bundle-info">' +
               '<div class="' + NS + '-bundle-label" style="font-size:' + cfg.tamanoEtiqueta + ';">' + escapeHtml(etiqueta) + '</div>' +
               subtitleHtml +
@@ -3345,7 +3370,7 @@
             '</div>' +
             '<div class="' + NS + '-bundle-prices">' +
               (ratio.lleva !== ratio.paga ? '<span class="' + NS + '-bundle-price-old">' + formatMoney(precioTotalNormal) + '</span>' : "") +
-              '<span class="' + NS + '-bundle-price-new" style="color:' + cfg.colorPrecio + ';font-size:' + cfg.tamanoPrecio + ';">' + formatMoney(precioTotalPromo) + '</span>' +
+              '<span class="' + NS + '-bundle-price-new" style="color:' + colorPrecio + ';font-size:' + cfg.tamanoPrecio + ';">' + formatMoney(precioTotalPromo) + '</span>' +
             '</div>' +
           '</div>' +
           (compsHtml || giftHtml ? '<div style="width:100%;">' + compsHtml + giftHtml + '</div>' : "") +
@@ -3353,13 +3378,13 @@
     }
 
     var btnBg = cfg.botonDegradado
-      ? 'background:linear-gradient(135deg, ' + cfg.colorBoton + ' 0%, ' + cfg.colorBoton + 'cc 100%);'
-      : 'background:' + cfg.colorBoton + ';';
+      ? 'background:linear-gradient(135deg, ' + colorBoton + ' 0%, ' + colorBoton + 'cc 100%);'
+      : 'background:' + colorBoton + ';';
     var btnClass = NS + "-bundle-btn";
     if (cfg.efectoBoton === "zoom") btnClass += " zoom";
     if (cfg.botonPulsante) btnClass += " pulse";
 
-    var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:#fff;font-size:' + cfg.tamanoEtiqueta + ';border-radius:' + cfg.bordeBoton + 'px;">' + escapeHtml(cfg.textoBoton || "Agregar al carrito") + '</button>';
+    var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:' + colorTextoBoton + ';font-size:' + cfg.tamanoEtiqueta + ';border-radius:' + cfg.bordeBoton + 'px;font-weight:700;">' + escapeHtml(cfg.textoBoton || "Agregar al carrito") + '</button>';
 
     var infoHtml = !cfg.reemplazarBoton
       ? '<div class="' + NS + '-bundle-info-note"><span style="opacity:0.7;">ⓘ</span><span>El formulario original de Tiendanube permanecerá visible y funcional.</span></div>'
@@ -3371,7 +3396,7 @@
       btnHtml +
       infoHtml +
     '</div>';
-  }
+      }
 
   /* ═══════════════════════════════════════════
      RENDER BUNDLE DE CANTIDAD
