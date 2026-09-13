@@ -8,15 +8,11 @@ import {
   Smartphone,
   Sparkles,
   ChevronRight,
-  Store,
-  ArrowLeft,
   MousePointer,
-  Percent,
-  Clock,
-  ShoppingCart,
-  Download,
+  Video,
   Loader2,
-  Check,
+  CheckCircle2,
+  Download,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
@@ -27,71 +23,88 @@ interface Caption {
   pt: string;
 }
 
-interface Scene {
+interface StepReal {
   id: number;
-  duration: number; // Duración en milisegundos
+  duration: number; // ms
   title: string;
-  captions: Caption;
+  caption: Caption;
+  imageUrl: string;
   cursor: {
-    x: string;
-    y: string;
+    x: number; // 0 to 1
+    y: number; // 0 to 1
     click: boolean;
   };
 }
 
 /* ═══════════════════════════════════════════
-   2. ESCENAS DEL REEL (FLUJO REAL DE NEVUX)
+   2. SECUENCIA PASO A PASO CON TUS FOTOS REALES
    ═══════════════════════════════════════════ */
-const SCENES: Scene[] = [
+const REAL_STEPS: StepReal[] = [
   {
     id: 1,
-    duration: 4000,
-    title: "1. Dashboard Nevux",
-    captions: {
+    duration: 3500,
+    title: "1. Dashboard Principal",
+    caption: {
       es: "🔥 ¿Querés duplicar las ventas de tu Tiendanube? Mirá esto...",
       pt: "🔥 Quer duplicar as vendas da sua Nuvemshop? Olha só...",
     },
-    cursor: { x: "72%", y: "46%", click: true },
+    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step1.jpg", // Fallback / Slot foto 1
+    cursor: { x: 0.5, y: 0.42, click: true },
   },
   {
     id: 2,
-    duration: 4000,
-    title: "2. Modal de Creación",
-    captions: {
-      es: "1️⃣ Tocá en Crear Widget y elegí aplicarlo a Todos tus Productos",
-      pt: "1️⃣ Toque em Criar Widget e escolha Todos os Produtos",
+    duration: 3500,
+    title: "2. Seleccionar Alcance",
+    caption: {
+      es: "1️⃣ Tocá en Crear Widget y elegí 'Para todos los productos'",
+      pt: "1️⃣ Toque em Criar Widget e escolha 'Para todos os produtos'",
     },
-    cursor: { x: "50%", y: "62%", click: true },
+    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step2.jpg", // Fallback / Slot foto 2
+    cursor: { x: 0.5, y: 0.82, click: true },
   },
   {
     id: 3,
-    duration: 3800,
+    duration: 3500,
     title: "3. Elegir Widget",
-    captions: {
-      es: "2️⃣ Elegí la Cuenta Regresiva para activar máxima urgencia ⏰",
-      pt: "2️⃣ Escolha o Contador Regressivo para ativar urgência máxima ⏰",
+    caption: {
+      es: "2️⃣ Elegí 'Cuenta Regresiva' para activar máxima urgencia ⏰",
+      pt: "2️⃣ Escolha 'Contador Regressivo' para ativar urgência máxima ⏰",
     },
-    cursor: { x: "28%", y: "24%", click: true },
+    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step3.jpg", // Fallback / Slot foto 3
+    cursor: { x: 0.5, y: 0.88, click: true },
   },
   {
     id: 4,
-    duration: 5200,
-    title: "4. Editor de Estilos y Ubicación",
-    captions: {
-      es: "3️⃣ Personalizá el estilo, activá el Modo Urgencia y guardá cambios 🎨",
-      pt: "3️⃣ Customize o estilo, ative o Modo Urgência e salve 🎨",
+    duration: 4500,
+    title: "4. Editor & Fechas Especiales",
+    caption: {
+      es: "3️⃣ Personalizá tu oferta y activá el modo 'Hot Sale' 🔥",
+      pt: "3️⃣ Customize sua oferta e ative o modo 'Hot Sale' 🔥",
     },
-    cursor: { x: "78%", y: "89%", click: true },
+    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step4.jpg", // Fallback / Slot foto 4
+    cursor: { x: 0.78, y: 0.62, click: true },
   },
   {
     id: 5,
-    duration: 6500,
-    title: "5. Widget en Tienda Real",
-    captions: {
-      es: "🚀 ¡Listo! El widget ya está vendiendo por vos en vivo. ¡Aumentá tu ticket ya!",
-      pt: "🚀 Pronto! O widget já está vendendo ao vivo por você. Fature mais hoje!",
+    duration: 4000,
+    title: "5. Resultado en la Home",
+    caption: {
+      es: "🚀 ¡Listo! El contador resalta al instante en el inicio de tu tienda",
+      pt: "🚀 Pronto! O contador se destaca ao vivo na home da sua loja",
     },
-    cursor: { x: "50%", y: "78%", click: false },
+    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step5.jpg", // Fallback / Slot foto 5
+    cursor: { x: 0.5, y: 0.15, click: false },
+  },
+  {
+    id: 6,
+    duration: 5000,
+    title: "6. Resultado en Ficha de Producto",
+    caption: {
+      es: "💥 Y aparece arriba del botón de compra multiplicando tu conversión",
+      pt: "💥 E aparece acima do botão de compra multiplicando suas vendas",
+    },
+    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step6.jpg", // Fallback / Slot foto 6
+    cursor: { x: 0.5, y: 0.75, click: false },
   },
 ];
 
@@ -99,54 +112,13 @@ const SCENES: Scene[] = [
    3. SUB-COMPONENTES AUXILIARES (Regla #9)
    ═══════════════════════════════════════════ */
 
-// Reloj dinámico con Ticking en tiempo real
-const MockTimer = () => {
-  const [seconds, setSeconds] = useState(45);
-  const [minutes, setMinutes] = useState(14);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev === 0) {
-          setMinutes((m) => (m === 0 ? 14 : m - 1));
-          return 59;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const pad = (n: number) => String(n).padStart(2, "0");
-
-  return (
-    <div style={{ display: "flex", gap: "4px", alignItems: "center", fontFamily: "monospace" }}>
-      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
-        0d
-      </div>
-      <span style={{ color: "#ffffff", fontSize: "10px", fontWeight: "bold" }}>:</span>
-      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
-        12h
-      </div>
-      <span style={{ color: "#ffffff", fontSize: "10px", fontWeight: "bold" }}>:</span>
-      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
-        {pad(minutes)}m
-      </div>
-      <span style={{ color: "#ffffff", fontSize: "10px", fontWeight: "bold" }}>:</span>
-      <div style={{ background: "#10B981", color: "#ffffff", padding: "3px 6px", borderRadius: "5px", fontSize: "11px", fontWeight: "800" }}>
-        {pad(seconds)}s
-      </div>
-    </div>
-  );
-};
-
 // Cursor Virtual Animado
-const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: boolean }) => (
+const PointerOverlay = ({ x, y, active }: { x: number; y: number; active: boolean }) => (
   <div
     style={{
       position: "absolute",
-      left: x,
-      top: y,
+      left: `${x * 100}%`,
+      top: `${y * 100}%`,
       pointerEvents: "none",
       zIndex: 100,
       transform: "translate(-8px, -8px)",
@@ -154,7 +126,7 @@ const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: bool
     }}
   >
     <div style={{ position: "relative" }}>
-      <MousePointer size={26} color="#000000" fill="#ffffff" style={{ filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.5))" }} />
+      <MousePointer size={28} color="#000000" fill="#ffffff" style={{ filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.5))" }} />
       {active && (
         <span
           style={{
@@ -163,10 +135,10 @@ const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: bool
             left: 0,
             width: "32px",
             height: "32px",
-            background: "rgba(16, 185, 129, 0.45)",
+            background: "rgba(16, 185, 129, 0.5)",
             borderRadius: "50%",
             transform: "translate(-30%, -30%)",
-            animation: "ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite",
+            animation: "ping 1s cubic-bezier(0, 0, 0.2, 1) infinite",
           }}
         />
       )}
@@ -179,18 +151,27 @@ const SimulatedPointer = ({ x, y, active }: { x: string; y: string; active: bool
    ═══════════════════════════════════════════ */
 export default function MarketingReelsPage() {
   const [lang, setLang] = useState<"es" | "pt">("es");
-  const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [elapsedTime, setElapsedTime] = useState(0); // Tiempo transcurrido en la escena actual
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [zoom, setZoom] = useState(85);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [showCursorInDownload, setShowCursorInDownload] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingProgress, setRecordingProgress] = useState(0);
+
+  // Almacenador de imágenes reales locales/subidas por el usuario
+  const [images, setImages] = useState<string[]>([
+    "/reels/step1.jpg",
+    "/reels/step2.jpg",
+    "/reels/step3.jpg",
+    "/reels/step4.jpg",
+    "/reels/step5.jpg",
+    "/reels/step6.jpg",
+  ]);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const phoneRef = useRef<HTMLDivElement | null>(null);
-  const currentScene = SCENES[currentSceneIdx];
+  const currentStep = REAL_STEPS[currentIdx];
 
-  // Control temporal automático para avanzar de escena
+  // Control de reproducción automática del reproductor
   useEffect(() => {
     if (!isPlaying) {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -201,9 +182,8 @@ export default function MarketingReelsPage() {
     timerRef.current = setInterval(() => {
       setElapsedTime((prev) => {
         const nextTime = prev + stepTime;
-        if (nextTime >= currentScene.duration) {
-          // Cambiar a la siguiente escena
-          setCurrentSceneIdx((prevIdx) => (prevIdx + 1) % SCENES.length);
+        if (nextTime >= currentStep.duration) {
+          setCurrentIdx((prevIdx) => (prevIdx + 1) % REAL_STEPS.length);
           return 0;
         }
         return nextTime;
@@ -213,83 +193,261 @@ export default function MarketingReelsPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPlaying, currentSceneIdx, currentScene]);
+  }, [isPlaying, currentIdx, currentStep]);
 
   const handleNext = () => {
     setElapsedTime(0);
-    setCurrentSceneIdx((prev) => (prev + 1) % SCENES.length);
+    setCurrentIdx((prev) => (prev + 1) % REAL_STEPS.length);
   };
 
   const handlePrev = () => {
     setElapsedTime(0);
-    setCurrentSceneIdx((prev) => (prev === 0 ? SCENES.length - 1 : prev - 1));
+    setCurrentIdx((prev) => (prev === 0 ? REAL_STEPS.length - 1 : prev - 1));
   };
 
   const handleReset = () => {
     setElapsedTime(0);
-    setCurrentSceneIdx(0);
+    setCurrentIdx(0);
     setIsPlaying(true);
   };
 
-  // Cargador dinámico del Renderizador HD en navegador sin npm install (Regla #11)
-  const loadHtml2Canvas = () => {
-    return new Promise<any>((resolve, reject) => {
-      if ((window as any).html2canvas) {
-        resolve((window as any).html2canvas);
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-      script.onload = () => resolve((window as any).html2canvas);
-      script.onerror = () => reject(new Error("No se pudo cargar el motor HD."));
-      document.head.appendChild(script);
-    });
-  };
-
-  // Motor de Renderizado Full HD 1080x1920
-  const handleDownloadHD = async () => {
-    if (!phoneRef.current) return;
-    setIsDownloading(true);
-
-    try {
-      const html2canvas = await loadHtml2Canvas();
-
-      // Escalado digital preciso 3x para llegar a 1080px de ancho y Full HD real
-      const canvas = await html2canvas(phoneRef.current, {
-        scale: 3, 
-        useCORS: true,
-        backgroundColor: "#000000",
-        logging: false,
-        allowTaint: true,
-        onclone: (clonedDoc: Document) => {
-          // Si el usuario eligió no incluir el cursor en la descarga, lo ocultamos temporalmente en el clon
-          if (!showCursorInDownload) {
-            const cursorEl = clonedDoc.querySelector("[style*='pointer-events: none']");
-            if (cursorEl) {
-              (cursorEl as HTMLElement).style.display = "none";
-            }
-          }
-        }
+  // Permite al usuario cargar o reemplazar cualquier imagen directamente si lo desea
+  const handleImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImages((prev) => {
+        const next = [...prev];
+        next[index] = url;
+        return next;
       });
-
-      // Generación de imagen con calidad premium 95%
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
-      const link = document.createElement("a");
-      link.download = `nevux_reel_escena_${currentSceneIdx + 1}_${lang.toUpperCase()}.jpg`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo generar la imagen HD. Reintentá.");
-    } finally {
-      setIsDownloading(false);
     }
   };
 
-  // Cálculo del progreso porcentual de la barra de carga (0 a 100)
-  const progressPercent = Math.min((elapsedTime / currentScene.duration) * 100, 100);
+  // ═══════════════════════════════════════════
+  // MOTOR EXPORTADOR DE VIDEO REAL (Canvas 30fps + MediaRecorder)
+  // ═══════════════════════════════════════════
+  const generateVideoFile = async () => {
+    setIsRecording(true);
+    setIsPlaying(false);
+    setRecordingProgress(0);
+
+    const width = 720;
+    const height = 1280; // Proporción 9:16 HD
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      alert("No se pudo iniciar el canvas.");
+      setIsRecording(false);
+      return;
+    }
+
+    // Cargar todas las imágenes a elementos HTMLImageElement
+    const loadedImages: HTMLImageElement[] = await Promise.all(
+      images.map((src) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = src;
+          img.onload = () => resolve(img);
+          img.onerror = () => {
+            // Fallback en canvas si no carga
+            const fallback = new Image();
+            resolve(fallback);
+          };
+        });
+      })
+    );
+
+    // Stream de captura a 30 FPS
+    const stream = canvas.captureStream(30);
+    let mimeType = "video/webm;codecs=vp9";
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = "video/webm";
+    }
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = "video/mp4";
+    }
+
+    const recorder = new MediaRecorder(stream, { mimeType });
+    const chunks: Blob[] = [];
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunks.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `nevux_tutorial_cuenta_regresiva_${lang.toUpperCase()}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setIsRecording(false);
+      setRecordingProgress(100);
+      setIsPlaying(true);
+    };
+
+    recorder.start();
+
+    // Renderizar escena por escena en tiempo real
+    const totalDuration = REAL_STEPS.reduce((acc, s) => acc + s.duration, 0);
+    let startTime = performance.now();
+
+    const renderLoop = (now: number) => {
+      const elapsedTotal = now - startTime;
+      const progress = Math.min(elapsedTotal / totalDuration, 1);
+      setRecordingProgress(Math.round(progress * 100));
+
+      // Buscar qué paso corresponde
+      let accumulatedTime = 0;
+      let activeStepIdx = 0;
+      let stepTime = 0;
+
+      for (let i = 0; i < REAL_STEPS.length; i++) {
+        if (elapsedTotal < accumulatedTime + REAL_STEPS[i].duration) {
+          activeStepIdx = i;
+          stepTime = elapsedTotal - accumulatedTime;
+          break;
+        }
+        accumulatedTime += REAL_STEPS[i].duration;
+      }
+
+      const activeStep = REAL_STEPS[activeStepIdx];
+      const img = loadedImages[activeStepIdx];
+
+      // 1. Limpiar Fondo
+      ctx.fillStyle = "#0d1117";
+      ctx.fillRect(0, 0, width, height);
+
+      // 2. Dibujar Imagen Real con Ken Burns Pan/Zoom suave
+      if (img && img.width > 0) {
+        const zoomFactor = 1 + (stepTime / activeStep.duration) * 0.05; // 5% zoom
+        const dw = width * zoomFactor;
+        const dh = height * zoomFactor;
+        const dx = (width - dw) / 2;
+        const dy = (height - dh) / 2;
+        ctx.drawImage(img, dx, dy, dw, dh);
+      } else {
+        ctx.fillStyle = "#161b22";
+        ctx.fillRect(40, 100, width - 80, height - 300);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 28px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(activeStep.title, width / 2, height / 2);
+      }
+
+      // 3. Dibujar Barras de Progreso Superiores (Estilo Instagram Stories)
+      const barY = 40;
+      const barHeight = 6;
+      const totalBars = REAL_STEPS.length;
+      const barGap = 8;
+      const totalWidth = width - 40;
+      const singleBarWidth = (totalWidth - (totalBars - 1) * barGap) / totalBars;
+
+      for (let b = 0; b < totalBars; b++) {
+        const bx = 20 + b * (singleBarWidth + barGap);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.beginPath();
+        ctx.roundRect(bx, barY, singleBarWidth, barHeight, 3);
+        ctx.fill();
+
+        let fillPct = 0;
+        if (b < activeStepIdx) fillPct = 1;
+        if (b === activeStepIdx) fillPct = stepTime / activeStep.duration;
+
+        if (fillPct > 0) {
+          ctx.fillStyle = "#10B981";
+          ctx.beginPath();
+          ctx.roundRect(bx, barY, singleBarWidth * fillPct, barHeight, 3);
+          ctx.fill();
+        }
+      }
+
+      // 4. Dibujar Cursor de Clic Virtual
+      const cx = activeStep.cursor.x * width;
+      const cy = activeStep.cursor.y * height;
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Ripple de clic
+      if (stepTime > 800 && stepTime < 1800 && activeStep.cursor.click) {
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.8)";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // 5. Dibujar Subtítulo Estilo TikTok (Abajo)
+      const capText = lang === "es" ? activeStep.caption.es : activeStep.caption.pt;
+      const boxY = height - 220;
+      const boxMargin = 30;
+      const boxWidth = width - boxMargin * 2;
+
+      // Card Badge Nevux
+      ctx.fillStyle = "#10B981";
+      ctx.beginPath();
+      ctx.roundRect(boxMargin, boxY - 36, 120, 28, 8);
+      ctx.fill();
+
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("NEVUX APP", boxMargin + 60, boxY - 17);
+
+      // Card Fondo
+      ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
+      ctx.strokeStyle = "rgba(16, 185, 129, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(boxMargin, boxY, boxWidth, 140, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      // Texto
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 24px sans-serif";
+      ctx.textAlign = "left";
+
+      // Wrap simple
+      const words = capText.split(" ");
+      let line = "";
+      let lineY = boxY + 45;
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + " ";
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > boxWidth - 30 && n > 0) {
+          ctx.fillText(line, boxMargin + 16, lineY);
+          line = words[n] + " ";
+          lineY += 32;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, boxMargin + 16, lineY);
+
+      if (elapsedTotal < totalDuration) {
+        requestAnimationFrame(renderLoop);
+      } else {
+        recorder.stop();
+      }
+    };
+
+    requestAnimationFrame(renderLoop);
+  };
+
+  const progressPercent = Math.min((elapsedTime / currentStep.duration) * 100, 100);
 
   return (
     <div
@@ -305,7 +463,7 @@ export default function MarketingReelsPage() {
         alignItems: "center",
       }}
     >
-      {/* ═══ HEADER SUPERIOR DE CONTROL ═══ */}
+      {/* ═══ HEADER DE CONTROL ═══ */}
       <div
         style={{
           width: "100%",
@@ -338,14 +496,13 @@ export default function MarketingReelsPage() {
             N
           </div>
           <div>
-            <div style={{ fontSize: "16px", fontWeight: "800", color: "#ffffff" }}>Nevux Studio</div>
-            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700" }}>GENERADOR DE REELS</div>
+            <div style={{ fontSize: "16px", fontWeight: "800", color: "#ffffff" }}>Nevux Video Studio</div>
+            <div style={{ fontSize: "11px", color: "#10B981", fontWeight: "700" }}>PASO A PASO REAL 🎬</div>
           </div>
         </div>
 
-        {/* CONTROLES RÁPIDOS */}
+        {/* SELECTOR DE IDIOMA Y ZOOM */}
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", background: "#111827", padding: "6px 12px", borderRadius: "12px", border: "1px solid #374151" }}>
-          {/* Idioma */}
           <div style={{ display: "flex", gap: "4px" }}>
             <button
               onClick={() => setLang("es")}
@@ -381,7 +538,6 @@ export default function MarketingReelsPage() {
 
           <div style={{ width: "1px", height: "20px", background: "#374151" }} />
 
-          {/* Zoom Slider */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span style={{ fontSize: "12px", color: "#9ca3af" }}>Zoom:</span>
             <input
@@ -409,10 +565,9 @@ export default function MarketingReelsPage() {
           justifyItems: "center",
         }}
       >
-        {/* COLUMNA 1: SMARTPHONE FRAME 9:16 (MOCKUP DEL REEL) */}
+        {/* COLUMNA 1: SMARTPHONE MOCKUP 9:16 CON CAPTURA REAL */}
         <div style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center", transition: "transform 0.2s" }}>
           <div
-            ref={phoneRef}
             style={{
               width: "360px",
               height: "640px",
@@ -444,13 +599,13 @@ export default function MarketingReelsPage() {
             />
 
             {/* CURSOR VIRTUAL ANIMADO */}
-            <SimulatedPointer
-              x={currentScene.cursor.x}
-              y={currentScene.cursor.y}
-              active={elapsedTime > 1200 && elapsedTime < 2400 && currentScene.cursor.click}
+            <PointerOverlay
+              x={currentStep.cursor.x}
+              y={currentStep.cursor.y}
+              active={elapsedTime > 1000 && elapsedTime < 2200 && currentStep.cursor.click}
             />
 
-            {/* BARRA DE HISTORIAS / PROGRESO SUPERIOR SINCRONIZADA */}
+            {/* BARRA DE PROGRESO DE HISTORIAS */}
             <div
               style={{
                 position: "absolute",
@@ -462,10 +617,10 @@ export default function MarketingReelsPage() {
                 gap: "4px",
               }}
             >
-              {SCENES.map((sc, idx) => {
+              {REAL_STEPS.map((sc, idx) => {
                 let p = 0;
-                if (idx < currentSceneIdx) p = 100;
-                if (idx === currentSceneIdx) p = progressPercent;
+                if (idx < currentIdx) p = 100;
+                if (idx === currentIdx) p = progressPercent;
                 return (
                   <div key={sc.id} style={{ flex: 1, height: "3px", background: "rgba(255,255,255,0.25)", borderRadius: "999px", overflow: "hidden" }}>
                     <div style={{ width: `${p}%`, height: "100%", background: "#10B981" }} />
@@ -474,11 +629,11 @@ export default function MarketingReelsPage() {
               })}
             </div>
 
-            {/* SUBTÍTULOS ESTILO TIKTOK / INSTAGRAM (ZONA MEDIA-BAJA) */}
+            {/* SUBTÍTULOS ESTILO TIKTOK EN ZONA INFERIOR */}
             <div
               style={{
                 position: "absolute",
-                bottom: "32px",
+                bottom: "28px",
                 left: "14px",
                 right: "14px",
                 zIndex: 85,
@@ -506,7 +661,7 @@ export default function MarketingReelsPage() {
               </div>
               <div
                 style={{
-                  background: "rgba(0, 0, 0, 0.88)",
+                  background: "rgba(0, 0, 0, 0.9)",
                   border: "1.5px solid rgba(16, 185, 129, 0.4)",
                   color: "#ffffff",
                   fontSize: "13px",
@@ -518,326 +673,41 @@ export default function MarketingReelsPage() {
                   boxShadow: "0 8px 24px rgba(0,0,0,0.8)",
                 }}
               >
-                {lang === "es" ? currentScene.captions.es : currentScene.captions.pt}
+                {lang === "es" ? currentStep.caption.es : currentStep.caption.pt}
               </div>
             </div>
 
-            {/* ═══ ESCENAS DEL FLUJO ═══ */}
-            <div style={{ flex: 1, paddingTop: "44px", paddingBottom: "120px", paddingLeft: "14px", paddingRight: "14px", background: "#0d1117", display: "flex", flexDirection: "column" }}>
-              
-              {/* ESCENA 1: DASHBOARD REAL */}
-              {currentSceneIdx === 0 && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  {/* Nav Dashboard */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "8px", borderBottom: "1px solid #21262d" }}>
-                    <span style={{ color: "#10B981", fontWeight: "900", fontSize: "14px" }}>NEVUX</span>
-                    <span style={{ fontSize: "10px", background: "rgba(16,185,129,0.15)", color: "#10B981", padding: "2px 8px", borderRadius: "999px", fontWeight: "700" }}>Tienda Conectada</span>
-                  </div>
-
-                  {/* Saludo */}
-                  <div style={{ background: "#161b22", padding: "10px 12px", borderRadius: "12px", border: "1px solid #30363d" }}>
-                    <div style={{ fontSize: "10px", color: "#8b949e" }}>Hola Rodrigo,</div>
-                    <div style={{ fontSize: "12px", fontWeight: "800", color: "#ffffff" }}>¡Tu tienda está lista para despegar! 🚀</div>
-                  </div>
-
-                  {/* Estadísticas */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                    <div style={{ background: "#161b22", padding: "10px", borderRadius: "12px", border: "1px solid #30363d" }}>
-                      <div style={{ fontSize: "9px", color: "#8b949e" }}>Widgets Activos</div>
-                      <div style={{ fontSize: "14px", fontWeight: "800", color: "#10B981" }}>0 widgets</div>
-                    </div>
-                    <div style={{ background: "#161b22", padding: "10px", borderRadius: "12px", border: "1px solid #30363d" }}>
-                      <div style={{ fontSize: "9px", color: "#8b949e" }}>Facturación Extra</div>
-                      <div style={{ fontSize: "14px", fontWeight: "800", color: "#ffffff" }}>$0.00</div>
-                    </div>
-                  </div>
-
-                  {/* Tarjeta Empty State con Botón "+ Crear widget" */}
-                  <div style={{ background: "rgba(22, 27, 34, 0.6)", border: "1.5px dashed #30363d", borderRadius: "16px", padding: "18px 12px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", marginTop: "6px" }}>
-                    <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(16, 185, 129, 0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "8px" }}>
-                      <Store size={18} color="#10B981" />
-                    </div>
-                    <div style={{ fontSize: "11px", fontWeight: "800", color: "#ffffff", marginBottom: "2px" }}>No tenés widgets activos</div>
-                    <div style={{ fontSize: "9px", color: "#8b949e", marginBottom: "12px" }}>Activá tu primer optimizador de conversión</div>
-                    
-                    {/* BOTÓN + CREAR WIDGET */}
-                    <div
-                      style={{
-                        background: elapsedTime > 1400 ? "#059669" : "#10B981",
-                        color: "#000000",
-                        padding: "8px 16px",
-                        borderRadius: "10px",
-                        fontSize: "11px",
-                        fontWeight: "800",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
-                        transform: elapsedTime > 1400 ? "scale(0.96)" : "scale(1)",
-                        transition: "all 0.15s",
-                      }}
-                    >
-                      <Sparkles size={13} />
-                      + Crear widget
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ESCENA 2: MODAL "CREAR NUEVO WIDGET" */}
-              {currentSceneIdx === 1 && (
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "100%", paddingBottom: "20px" }}>
-                  <div style={{ background: "#ffffff", borderRadius: "20px", padding: "16px", color: "#000000", boxShadow: "0 20px 40px rgba(0,0,0,0.8)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                      <div style={{ fontSize: "13px", fontWeight: "900", color: "#000000" }}>Crear nuevo widget</div>
-                      <span style={{ fontSize: "10px", color: "#9ca3af" }}>✕</span>
-                    </div>
-                    <div style={{ fontSize: "10px", color: "#6b7280", marginBottom: "12px" }}>¿Qué tipo de widget querés crear?</div>
-
-                    {/* Opciones */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {/* Opción 1 */}
-                      <div style={{ border: "1px solid #e5e7eb", borderRadius: "12px", padding: "8px 10px", display: "flex", alignItems: "center", gap: "8px", opacity: 0.5 }}>
-                        <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <Percent size={14} color="#000" />
-                        </div>
-                        <div style={{ fontSize: "10px", fontWeight: "700", color: "#000" }}>Widget para un producto específico</div>
-                      </div>
-
-                      {/* Opción 2: SELECCIONADA */}
-                      <div
-                        style={{
-                          border: elapsedTime > 1400 ? "2px solid #10B981" : "1.5px solid #e5e7eb",
-                          background: elapsedTime > 1400 ? "#ecfdf5" : "#ffffff",
-                          borderRadius: "12px",
-                          padding: "10px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          boxShadow: elapsedTime > 1400 ? "0 0 0 3px rgba(16, 185, 129, 0.15)" : "none",
-                          transition: "all 0.2s",
-                        }}
-                      >
-                        <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#000000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <Store size={14} color="#ffffff" />
-                        </div>
-                        <div style={{ flex: 1, textAlign: "left" }}>
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: "#000000" }}>Widget para todos los productos</div>
-                          <div style={{ fontSize: "8px", color: "#6b7280" }}>Aparece en toda la tienda e inicio</div>
-                        </div>
-                        <ChevronRight size={14} color="#10B981" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ESCENA 3: LISTA DE 27 WIDGETS (SELECCIÓN CUENTA REGRESIVA) */}
-              {currentSceneIdx === 2 && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#8b949e", fontSize: "10px" }}>
-                    <ArrowLeft size={12} />
-                    <span>Volver</span>
-                  </div>
-                  <div style={{ fontSize: "12px", fontWeight: "800", color: "#ffffff" }}>Seleccioná el widget a activar:</div>
-
-                  {/* Grid de Widgets */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                    
-                    {/* Widget Seleccionado: Cuenta Regresiva */}
-                    <div
-                      style={{
-                        background: elapsedTime > 1200 ? "rgba(16, 185, 129, 0.15)" : "#161b22",
-                        border: elapsedTime > 1200 ? "2px solid #10B981" : "1px solid #30363d",
-                        borderRadius: "12px",
-                        padding: "10px",
-                        textAlign: "left",
-                        transition: "all 0.2s",
-                      }}
-                    >
-                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "rgba(16, 185, 129, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
-                        <Clock size={14} color="#10B981" />
-                      </div>
-                      <div style={{ fontSize: "10px", fontWeight: "800", color: "#ffffff" }}>Cuenta Regresiva</div>
-                      <div style={{ fontSize: "8px", color: "#10B981" }}>🔥 Alta Urgencia</div>
-                    </div>
-
-                    {/* Otros Widgets */}
-                    <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: "12px", padding: "10px", opacity: 0.4 }}>
-                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "#21262d", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
-                        <Percent size={14} color="#8b949e" />
-                      </div>
-                      <div style={{ fontSize: "10px", fontWeight: "700", color: "#ffffff" }}>Badge Cuotas</div>
-                    </div>
-
-                    <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: "12px", padding: "10px", opacity: 0.4 }}>
-                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "#21262d", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
-                        <Store size={14} color="#8b949e" />
-                      </div>
-                      <div style={{ fontSize: "10px", fontWeight: "700", color: "#ffffff" }}>Banner Deslizante</div>
-                    </div>
-
-                    <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: "12px", padding: "10px", opacity: 0.4 }}>
-                      <div style={{ width: "26px", height: "26px", borderRadius: "6px", background: "#21262d", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "6px" }}>
-                        <Sparkles size={14} color="#8b949e" />
-                      </div>
-                      <div style={{ fontSize: "10px", fontWeight: "700", color: "#ffffff" }}>Vendedor IA</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ESCENA 4: EDITOR REAL DEL WIDGET (UBICACIÓN, ESTILOS, MODO URGENCIA) */}
-              {currentSceneIdx === 3 && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", textAlign: "left" }}>
-                  <div style={{ fontSize: "11px", fontWeight: "800", color: "#ffffff", paddingBottom: "4px", borderBottom: "1px solid #21262d" }}>
-                    Editor: Cuenta Regresiva
-                  </div>
-
-                  {/* Tabs */}
-                  <div style={{ display: "flex", borderBottom: "1px solid #21262d", textAlign: "center" }}>
-                    <div style={{ flex: 1, fontSize: "9px", fontWeight: "800", color: "#10B981", borderBottom: "2px solid #10B981", paddingBottom: "4px" }}>
-                      Ubicación
-                    </div>
-                    <div style={{ flex: 1, fontSize: "9px", color: "#8b949e", paddingBottom: "4px" }}>Estilos</div>
-                    <div style={{ flex: 1, fontSize: "9px", color: "#8b949e", paddingBottom: "4px" }}>General</div>
-                  </div>
-
-                  {/* Campos Reales */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "2px" }}>
-                    <div>
-                      <div style={{ fontSize: "8px", fontWeight: "700", color: "#8b949e", marginBottom: "2px" }}>Título del contador:</div>
-                      <div style={{ background: "#161b22", border: "1px solid #30363d", padding: "5px 8px", borderRadius: "6px", fontSize: "9px", color: "#ffffff" }}>
-                        ¡Oferta Flash termina en! 🔥
-                      </div>
-                    </div>
-
-                    {/* Selector de Ubicación */}
-                    <div>
-                      <div style={{ fontSize: "8px", fontWeight: "700", color: "#8b949e", marginBottom: "3px" }}>Ubicación en Producto:</div>
-                      <div style={{ background: "#161b22", border: "1px solid #10B981", padding: "6px 8px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
-                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10B981" }} />
-                        <span style={{ fontSize: "8px", fontWeight: "700", color: "#ffffff" }}>Antes del botón &quot;Agregar al carrito&quot;</span>
-                      </div>
-                    </div>
-
-                    {/* Switch Modo Urgencia */}
-                    <div style={{ background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "8px", padding: "6px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <div style={{ fontSize: "8px", fontWeight: "800", color: "#ffffff" }}>Modo Urgencia 🔥</div>
-                        <div style={{ fontSize: "7px", color: "#8b949e" }}>Cambia a color rojo en los últimos minutos</div>
-                      </div>
-                      <div style={{ width: "24px", height: "14px", background: "#10B981", borderRadius: "999px", position: "relative" }}>
-                        <div style={{ width: "10px", height: "10px", background: "#ffffff", borderRadius: "50%", position: "absolute", right: "2px", top: "2px" }} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Botón Guardar Cambios */}
-                  <div
-                    style={{
-                      marginTop: "6px",
-                      background: elapsedTime > 4200 ? "#059669" : "#10B981",
-                      color: elapsedTime > 4200 ? "#ffffff" : "#000000",
-                      padding: "8px",
-                      borderRadius: "10px",
-                      fontSize: "11px",
-                      fontWeight: "900",
-                      textAlign: "center",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    {elapsedTime > 4200 ? "✓ Cambios Guardados" : "Guardar cambios"}
-                  </div>
-                </div>
-              )}
-
-              {/* ESCENA 5: TIENDA REAL CON EL WIDGET RENDERIZADO */}
-              {currentSceneIdx === 4 && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", textAlign: "left" }}>
-                  {/* Header Tienda */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "4px", borderBottom: "1px solid #21262d" }}>
-                    <span style={{ fontSize: "10px", fontWeight: "900", letterSpacing: "0.05em" }}>TIENDA STREETWEAR</span>
-                    <span style={{ fontSize: "9px", color: "#8b949e" }}>🛒 (1)</span>
-                  </div>
-
-                  {/* Ficha Producto */}
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "2px" }}>
-                    <div style={{ width: "60px", height: "70px", background: "#161b22", borderRadius: "8px", border: "1px solid #30363d", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <ShoppingCart size={20} color="#8b949e" />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: "7px", color: "#10B981", fontWeight: "800" }}>HOT SALE 🔥</div>
-                      <div style={{ fontSize: "10px", fontWeight: "800", color: "#ffffff", lineHeight: "1.2" }}>Hoodie Oversized Nevux Black</div>
-                      <div style={{ display: "flex", gap: "6px", alignItems: "baseline", marginTop: "2px" }}>
-                        <span style={{ fontSize: "12px", fontWeight: "900", color: "#10B981" }}>$18.990</span>
-                        <span style={{ fontSize: "9px", color: "#6b7280", textDecoration: "line-through" }}>$29.990</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* EL WIDGET DE NEVUX RENDERIZADO EN VIVO */}
-                  <div
-                    style={{
-                      background: "#000000",
-                      border: "1.5px solid #10B981",
-                      borderRadius: "10px",
-                      padding: "8px",
-                      textAlign: "center",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "4px",
-                      boxShadow: "0 0 15px rgba(16, 185, 129, 0.25)",
-                    }}
-                  >
-                    <div style={{ fontSize: "9px", fontWeight: "800", color: "#ffffff", textTransform: "uppercase" }}>
-                      ⚡ ¡OFERTA FLASH TERMINA EN:
-                    </div>
-                    <MockTimer />
-                  </div>
-
-                  {/* Botón Comprar de la Tienda */}
-                  <div
-                    style={{
-                      background: "#10B981",
-                      color: "#000000",
-                      padding: "8px",
-                      borderRadius: "10px",
-                      fontSize: "10px",
-                      fontWeight: "900",
-                      textAlign: "center",
-                      textTransform: "uppercase",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <ShoppingCart size={12} />
-                    Agregar al carrito
-                  </div>
-
-                  <div style={{ fontSize: "7px", textAlign: "center", color: "#6b7280" }}>
-                    🔒 Compra segura procesada por Tiendanube
-                  </div>
-                </div>
-              )}
-
+            {/* CAPTURA REAL MOSTRADA EN PANTALLA */}
+            <div style={{ flex: 1, position: "relative", overflow: "hidden", background: "#000000" }}>
+              <img
+                src={images[currentIdx]}
+                alt={currentStep.title}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "center",
+                }}
+                onError={(e) => {
+                  // Fallback limpio si la URL externa no está disponible
+                  e.currentTarget.style.display = "none";
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* COLUMNA 2: CONTROLES DE LA SIMULACIÓN Y GUION */}
+        {/* COLUMNA 2: REPRODUCTOR, EXPORTADOR Y CARGADOR DE FOTOS */}
         <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          {/* CONTROLADOR PRINCIPAL */}
+          {/* CONTROLADOR PRINCIPAL Y BOTÓN DE DESCARGA EN VIDEO */}
           <div style={{ background: "#111827", padding: "20px", borderRadius: "20px", border: "1px solid #1f2937", boxShadow: "0 10px 25px rgba(0,0,0,0.5)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#10B981", fontSize: "14px", fontWeight: "800", marginBottom: "16px" }}>
-              <Smartphone size={18} />
-              Controles del Reproductor
+              <Video size={18} />
+              Exportador de Video Nivel Estudio
             </div>
 
+            {/* Botones del reproductor */}
             <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
               <button
                 onClick={handlePrev}
@@ -864,7 +734,7 @@ export default function MarketingReelsPage() {
                 }}
               >
                 {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                {isPlaying ? "Pausar Reel" : "Reproducir Continuo"}
+                {isPlaying ? "Pausar Vista Previa" : "Reproducir Continuo"}
               </button>
 
               <button
@@ -882,90 +752,59 @@ export default function MarketingReelsPage() {
               </button>
             </div>
 
-            {/* Barra de progreso de la escena */}
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#9ca3af", marginBottom: "6px" }}>
-              <span>Escena {currentSceneIdx + 1} de {SCENES.length}</span>
-              <span>Progreso: {Math.round(progressPercent)}%</span>
-            </div>
-            <div style={{ width: "100%", height: "6px", background: "#1f2937", borderRadius: "999px", overflow: "hidden", marginBottom: "20px" }}>
-              <div style={{ width: `${progressPercent}%`, height: "100%", background: "#10B981", transition: "width 0.1s linear" }} />
-            </div>
-
-            {/* 📥 MOTOR DE EXPORTACIÓN FULL HD (1080x1920) */}
-            <div
+            {/* BOTÓN OFICIAL: GENERAR Y DESCARGAR VIDEO (.MP4 / .WEBM) */}
+            <button
+              onClick={generateVideoFile}
+              disabled={isRecording}
               style={{
-                borderTop: "1px solid #1f2937",
-                paddingTop: "16px",
+                width: "100%",
+                background: isRecording ? "#1f2937" : "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                color: isRecording ? "#ffffff" : "#000000",
+                border: "none",
+                borderRadius: "14px",
+                padding: "16px",
+                fontWeight: "900",
+                fontSize: "14px",
+                cursor: isRecording ? "not-allowed" : "pointer",
                 display: "flex",
-                flexDirection: "column",
-                gap: "12px",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                boxShadow: isRecording ? "none" : "0 8px 24px rgba(16, 185, 129, 0.3)",
+                transition: "all 0.2s ease",
               }}
             >
-              {/* Opciones de exportación */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "12px", color: "#9ca3af" }}>Incluir cursor virtual:</span>
-                <input
-                  type="checkbox"
-                  checked={showCursorInDownload}
-                  onChange={(e) => setShowCursorInDownload(e.target.checked)}
-                  style={{ width: "18px", height: "18px", accentColor: "#10B981", cursor: "pointer" }}
-                />
-              </div>
-
-              {/* BOTÓN DESCARGAR FULL HD */}
-              <button
-                onClick={handleDownloadHD}
-                disabled={isDownloading}
-                style={{
-                  width: "100%",
-                  background: isDownloading ? "#1f2937" : "#10B981",
-                  color: isDownloading ? "#ffffff" : "#000000",
-                  border: "none",
-                  borderRadius: "14px",
-                  padding: "14px",
-                  fontWeight: "900",
-                  fontSize: "13px",
-                  cursor: isDownloading ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px",
-                  boxShadow: isDownloading ? "none" : "0 8px 24px rgba(16, 185, 129, 0.2)",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                {isDownloading ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    <span>Procesando material en Full HD...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download size={18} />
-                    <span>Descargar esta escena en Full HD (1080x1920)</span>
-                  </>
-                )}
-              </button>
-              <span style={{ fontSize: "10px", color: "#64748b", textAlign: "center", lineHeight: "1.3" }}>
-                ⚡ Se descarga una imagen limpia y escalada en altísima definición lista para subir directamente a tus Reels, Historias de Instagram o TikTok.
-              </span>
-            </div>
+              {isRecording ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  <span>Procesando video HD... ({recordingProgress}%)</span>
+                </>
+              ) : (
+                <>
+                  <Download size={20} />
+                  <span>🎬 Descargar Video Paso a Paso (MP4 / WebM HD)</span>
+                </>
+              )}
+            </button>
+            <span style={{ display: "block", fontSize: "10px", color: "#64748b", textAlign: "center", marginTop: "8px", lineHeight: "1.3" }}>
+              ⚡ Compila la secuencia completa de tus capturas reales en un video de alta definición a 30 FPS listo para guardar en la galería de tu teléfono.
+            </span>
           </div>
 
-          {/* GUION TÉCNICO CLICKABLE */}
+          {/* GESTIÓN DE LAS CAPTURAS REALES SUBIDAS */}
           <div style={{ background: "#111827", padding: "20px", borderRadius: "20px", border: "1px solid #1f2937" }}>
             <div style={{ fontSize: "12px", fontWeight: "800", color: "#9ca3af", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.05em" }}>
-              Escenas del Reel
+              Capturas Reales de tu App (Paso a Paso)
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {SCENES.map((sc, idx) => {
-                const isAct = idx === currentSceneIdx;
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {REAL_STEPS.map((sc, idx) => {
+                const isAct = idx === currentIdx;
                 return (
                   <div
                     key={sc.id}
                     onClick={() => {
-                      setCurrentSceneIdx(idx);
+                      setCurrentIdx(idx);
                       setElapsedTime(0);
                     }}
                     style={{
@@ -975,14 +814,14 @@ export default function MarketingReelsPage() {
                       padding: "10px 12px",
                       cursor: "pointer",
                       display: "flex",
-                      alignItems: "flex-start",
+                      alignItems: "center",
                       gap: "10px",
                     }}
                   >
                     <div
                       style={{
-                        width: "22px",
-                        height: "22px",
+                        width: "24px",
+                        height: "24px",
                         borderRadius: "50%",
                         background: isAct ? "#10B981" : "#1f2937",
                         color: isAct ? "#000000" : "#9ca3af",
@@ -996,14 +835,38 @@ export default function MarketingReelsPage() {
                     >
                       {sc.id}
                     </div>
+
                     <div style={{ flex: 1, textAlign: "left" }}>
-                      <div style={{ fontSize: "12px", fontWeight: "800", color: isAct ? "#10B981" : "#ffffff", marginBottom: "2px" }}>
+                      <div style={{ fontSize: "12px", fontWeight: "800", color: isAct ? "#10B981" : "#ffffff" }}>
                         {sc.title}
                       </div>
-                      <div style={{ fontSize: "11px", color: "#9ca3af", lineHeight: "1.3" }}>
-                        {lang === "es" ? sc.captions.es : sc.captions.pt}
+                      <div style={{ fontSize: "10px", color: "#9ca3af", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "200px" }}>
+                        {lang === "es" ? sc.caption.es : sc.caption.pt}
                       </div>
                     </div>
+
+                    {/* Botón Reemplazar Foto si quisieras actualizarla */}
+                    <label
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        background: "#1f2937",
+                        color: "#10B981",
+                        fontSize: "10px",
+                        fontWeight: "700",
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        border: "1px solid #374151",
+                      }}
+                    >
+                      Cargar foto
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleImageUpload(idx, e)}
+                      />
+                    </label>
                   </div>
                 );
               })}
