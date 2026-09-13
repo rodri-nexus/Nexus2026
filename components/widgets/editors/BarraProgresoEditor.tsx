@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import BarraProgresoPreview from './BarraProgresoPreview';
+import BarraProgresoPreview, { BARRA_CAMPAIGN_THEMES } from './BarraProgresoPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
@@ -57,6 +57,7 @@ interface BarraConfig {
   colorObjetivos: string;
   tamanoFuenteObjetivos: number;
   tamanoFuenteTexto: number;
+  campaignTheme?: string;
 }
 
 const DEFAULT_CONFIG: BarraConfig = {
@@ -77,6 +78,7 @@ const DEFAULT_CONFIG: BarraConfig = {
   colorObjetivos: '#000000',
   tamanoFuenteObjetivos: 11,
   tamanoFuenteTexto: 13,
+  campaignTheme: 'none',
 };
 
 const ICONOS_DISPONIBLES = [
@@ -108,10 +110,12 @@ export default function BarraProgresoEditor({
   storeId,
 }: EditorProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos'>('general');
-  const [config, setConfig] = useState<BarraConfig>({
-    ...DEFAULT_CONFIG,
-    ...(existingWidget?.config ?? {}),
+  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos' | 'fechas'>('general');
+  const [config, setConfig] = useState<BarraConfig>(() => {
+    return {
+      ...DEFAULT_CONFIG,
+      ...(existingWidget?.config ?? {}),
+    };
   });
   const [isActive, setIsActive] = useState<boolean>(existingWidget?.is_active ?? true);
   const [saving, setSaving] = useState(false);
@@ -299,7 +303,7 @@ export default function BarraProgresoEditor({
             >
               Vista previa
             </div>
-            <BarraProgresoPreview config={config} subtotalDemo={0} />
+            <BarraProgresoPreview config={config} subtotalDemo={15000} />
           </div>
 
           {/* INFO BOX */}
@@ -326,7 +330,7 @@ export default function BarraProgresoEditor({
 
           {/* TABS */}
           <div style={{ padding: '0 20px', borderBottom: '1px solid #e5e7eb' }}>
-            <div style={{ display: 'flex', gap: 0 }}>
+            <div style={{ display: 'flex', gap: 0, overflowX: 'auto' }}>
               <TabButton active={activeTab === 'general'} onClick={() => setActiveTab('general')}>
                 General
               </TabButton>
@@ -335,6 +339,9 @@ export default function BarraProgresoEditor({
               </TabButton>
               <TabButton active={activeTab === 'estilos'} onClick={() => setActiveTab('estilos')}>
                 Estilos
+              </TabButton>
+              <TabButton active={activeTab === 'fechas'} onClick={() => setActiveTab('fechas')}>
+                🔥 Fechas Especiales
               </TabButton>
             </div>
           </div>
@@ -357,6 +364,10 @@ export default function BarraProgresoEditor({
 
             {activeTab === 'estilos' && (
               <EstilosTab config={config} onUpdate={updateConfig} />
+            )}
+
+            {activeTab === 'fechas' && (
+              <FechasTab config={config} onUpdate={updateConfig} />
             )}
           </div>
 
@@ -1103,7 +1114,176 @@ function EstilosTab({
 }
 
 // ═══════════════════════════════════════════════════════════
-// COMPONENTES REUTILIZABLES
+// TAB FECHAS ESPECIALES
+// ═══════════════════════════════════════════════════════════
+
+function FechasTab({
+  config,
+  onUpdate,
+}: {
+  config: BarraConfig;
+  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
+}) {
+  return (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${BARRA_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'La barra adaptará automáticamente sus bordes, burbujas e indicadores visuales a la fecha comercial elegida.'
+              : 'La barra respeta fielmente los colores personalizados configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => onUpdate('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(BARRA_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => onUpdate('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.cardBg,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de fondo"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.accentColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de barra"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta del evento
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// COMPONENTES REUTILIZABLES AUXILIARES
 // ═══════════════════════════════════════════════════════════
 
 function VarChip({ children }: { children: React.ReactNode }) {
@@ -1138,7 +1318,7 @@ function TabButton({
     <button
       onClick={onClick}
       style={{
-        flex: 1,
+        flexShrink: 0,
         background: 'none',
         border: 'none',
         padding: '14px 12px',
@@ -1150,6 +1330,7 @@ function TabButton({
         borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
         fontFamily: 'inherit',
         transition: 'all 0.2s',
+        whiteSpace: 'nowrap',
       }}
     >
       {children}
@@ -1386,6 +1567,7 @@ function RangeSlider({
           fontSize: 12,
           color: '#000000',
           opacity: 0.6,
+          padding: '0 2px',
         }}
       >
         {labels.map((l, i) => (
@@ -1520,4 +1702,4 @@ function renderIconoBtn(icono: string, size: number): React.ReactNode {
     default:
       return null;
   }
-}
+  }
