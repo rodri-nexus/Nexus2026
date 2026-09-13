@@ -39,6 +39,26 @@ type StoryDestacada =
    ESTILOS Y HELPERS (DECLARADOS AL INICIO - Regla #9)
 ═══════════════════════════════════════════ */
 
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+) {
+  let radius = r;
+  if (w < 2 * radius) radius = w / 2;
+  if (h < 2 * radius) radius = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
 interface CarouselSlideData {
   badgeEs: string;
   badgePt: string;
@@ -857,8 +877,7 @@ export default function BannersPage() {
         ctx.fillStyle = "rgba(16, 185, 129, 0.1)";
         ctx.strokeStyle = currentTemplate.accentColor;
         ctx.lineWidth = 1.5 * S;
-        ctx.beginPath();
-        ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 11 * S);
+        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 11 * S);
         ctx.fill();
         ctx.stroke();
 
@@ -929,8 +948,7 @@ export default function BannersPage() {
         ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
         ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
         ctx.lineWidth = 1 * S;
-        ctx.beginPath();
-        ctx.roundRect(descBoxX, descBoxY, descBoxWidth, descBoxHeight, 14 * S);
+        drawRoundedRect(ctx, descBoxX, descBoxY, descBoxWidth, descBoxHeight, 14 * S);
         ctx.fill();
         ctx.stroke();
 
@@ -1285,7 +1303,7 @@ export default function BannersPage() {
                       </h3>
                     </div>
                     <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Cross-selling preditivo dinâmico baseado em affinity de preços." : "Cross-selling predictivo dinámico basado en afinidad de precios."}
+                      {isPt ? "Cross-selling preditivo dinâmico baseado em afinidade de preços." : "Cross-selling predictivo dinámico basado en afinidad de precios."}
                     </p>
                   </div>
                 </div>
@@ -1301,7 +1319,7 @@ export default function BannersPage() {
                       </h3>
                     </div>
                     <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Tradução contextual em tempo real para PT-BR / ES / EN." : "Traducción contextual en tempo real para ES / PT-BR / EN."}
+                      {isPt ? "Tradução contextual em tempo real para PT-BR / ES / EN." : "Traducción contextual en tiempo real para ES / PT-BR / EN."}
                     </p>
                   </div>
 
@@ -1404,7 +1422,7 @@ export default function BannersPage() {
               <h2 style={bannerTitleStyle}>
                 {isPt
                   ? "O primeiro CRM de Carrinhos com IA"
-                  : "El primer CRM de Carritos com IA"}
+                  : "El primer CRM de Carritos con IA"}
               </h2>
               <p style={bannerDescStyle}>
                 {isPt
