@@ -5,13 +5,10 @@ import {
   Play,
   Pause,
   RotateCcw,
-  Smartphone,
-  Sparkles,
-  ChevronRight,
-  MousePointer,
   Video,
   Loader2,
-  CheckCircle2,
+  ChevronRight,
+  MousePointer,
   Download,
 } from "lucide-react";
 
@@ -30,8 +27,8 @@ interface StepReal {
   caption: Caption;
   imageUrl: string;
   cursor: {
-    x: number; // 0 to 1
-    y: number; // 0 to 1
+    x: number; // 0 a 1
+    y: number; // 0 a 1
     click: boolean;
   };
 }
@@ -48,7 +45,7 @@ const REAL_STEPS: StepReal[] = [
       es: "🔥 ¿Querés duplicar las ventas de tu Tiendanube? Mirá esto...",
       pt: "🔥 Quer duplicar as vendas da sua Nuvemshop? Olha só...",
     },
-    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step1.jpg", // Fallback / Slot foto 1
+    imageUrl: "/reels/step1.jpg",
     cursor: { x: 0.5, y: 0.42, click: true },
   },
   {
@@ -59,7 +56,7 @@ const REAL_STEPS: StepReal[] = [
       es: "1️⃣ Tocá en Crear Widget y elegí 'Para todos los productos'",
       pt: "1️⃣ Toque em Criar Widget e escolha 'Para todos os produtos'",
     },
-    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step2.jpg", // Fallback / Slot foto 2
+    imageUrl: "/reels/step2.jpg",
     cursor: { x: 0.5, y: 0.82, click: true },
   },
   {
@@ -70,7 +67,7 @@ const REAL_STEPS: StepReal[] = [
       es: "2️⃣ Elegí 'Cuenta Regresiva' para activar máxima urgencia ⏰",
       pt: "2️⃣ Escolha 'Contador Regressivo' para ativar urgência máxima ⏰",
     },
-    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step3.jpg", // Fallback / Slot foto 3
+    imageUrl: "/reels/step3.jpg",
     cursor: { x: 0.5, y: 0.88, click: true },
   },
   {
@@ -81,7 +78,7 @@ const REAL_STEPS: StepReal[] = [
       es: "3️⃣ Personalizá tu oferta y activá el modo 'Hot Sale' 🔥",
       pt: "3️⃣ Customize sua oferta e ative o modo 'Hot Sale' 🔥",
     },
-    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step4.jpg", // Fallback / Slot foto 4
+    imageUrl: "/reels/step4.jpg",
     cursor: { x: 0.78, y: 0.62, click: true },
   },
   {
@@ -92,7 +89,7 @@ const REAL_STEPS: StepReal[] = [
       es: "🚀 ¡Listo! El contador resalta al instante en el inicio de tu tienda",
       pt: "🚀 Pronto! O contador se destaca ao vivo na home da sua loja",
     },
-    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step5.jpg", // Fallback / Slot foto 5
+    imageUrl: "/reels/step5.jpg",
     cursor: { x: 0.5, y: 0.15, click: false },
   },
   {
@@ -103,16 +100,37 @@ const REAL_STEPS: StepReal[] = [
       es: "💥 Y aparece arriba del botón de compra multiplicando tu conversión",
       pt: "💥 E aparece acima do botão de compra multiplicando suas vendas",
     },
-    imageUrl: "https://images.lucidpress.com/placeholder/nevux-step6.jpg", // Fallback / Slot foto 6
+    imageUrl: "/reels/step6.jpg",
     cursor: { x: 0.5, y: 0.75, click: false },
   },
 ];
 
 /* ═══════════════════════════════════════════
-   3. SUB-COMPONENTES AUXILIARES (Regla #9)
+   3. HELPER CANVAS BORDES REDONDEADOS (Regla #9)
    ═══════════════════════════════════════════ */
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+) {
+  let radius = r;
+  if (w < 2 * radius) radius = w / 2;
+  if (h < 2 * radius) radius = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
 
-// Cursor Virtual Animado
+/* ═══════════════════════════════════════════
+   4. SUB-COMPONENTES AUXILIARES (Regla #9)
+   ═══════════════════════════════════════════ */
 const PointerOverlay = ({ x, y, active }: { x: number; y: number; active: boolean }) => (
   <div
     style={{
@@ -147,7 +165,7 @@ const PointerOverlay = ({ x, y, active }: { x: number; y: number; active: boolea
 );
 
 /* ═══════════════════════════════════════════
-   4. COMPONENTE PRINCIPAL
+   5. COMPONENTE PRINCIPAL
    ═══════════════════════════════════════════ */
 export default function MarketingReelsPage() {
   const [lang, setLang] = useState<"es" | "pt">("es");
@@ -158,7 +176,7 @@ export default function MarketingReelsPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingProgress, setRecordingProgress] = useState(0);
 
-  // Almacenador de imágenes reales locales/subidas por el usuario
+  // Almacenador de imágenes reales locales o cargadas
   const [images, setImages] = useState<string[]>([
     "/reels/step1.jpg",
     "/reels/step2.jpg",
@@ -211,7 +229,7 @@ export default function MarketingReelsPage() {
     setIsPlaying(true);
   };
 
-  // Permite al usuario cargar o reemplazar cualquier imagen directamente si lo desea
+  // Carga de imágenes reales por el usuario
   const handleImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -248,13 +266,12 @@ export default function MarketingReelsPage() {
     // Cargar todas las imágenes a elementos HTMLImageElement
     const loadedImages: HTMLImageElement[] = await Promise.all(
       images.map((src) => {
-        return new Promise((resolve) => {
+        return new Promise<HTMLImageElement>((resolve) => {
           const img = new Image();
           img.crossOrigin = "anonymous";
           img.src = src;
           img.onload = () => resolve(img);
           img.onerror = () => {
-            // Fallback en canvas si no carga
             const fallback = new Image();
             resolve(fallback);
           };
@@ -297,7 +314,7 @@ export default function MarketingReelsPage() {
 
     // Renderizar escena por escena en tiempo real
     const totalDuration = REAL_STEPS.reduce((acc, s) => acc + s.duration, 0);
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     const renderLoop = (now: number) => {
       const elapsedTotal = now - startTime;
@@ -342,7 +359,7 @@ export default function MarketingReelsPage() {
         ctx.fillText(activeStep.title, width / 2, height / 2);
       }
 
-      // 3. Dibujar Barras de Progreso Superiores (Estilo Instagram Stories)
+      // 3. Dibujar Barras de Progreso Superiores
       const barY = 40;
       const barHeight = 6;
       const totalBars = REAL_STEPS.length;
@@ -353,8 +370,7 @@ export default function MarketingReelsPage() {
       for (let b = 0; b < totalBars; b++) {
         const bx = 20 + b * (singleBarWidth + barGap);
         ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-        ctx.beginPath();
-        ctx.roundRect(bx, barY, singleBarWidth, barHeight, 3);
+        drawRoundedRect(ctx, bx, barY, singleBarWidth, barHeight, 3);
         ctx.fill();
 
         let fillPct = 0;
@@ -363,8 +379,7 @@ export default function MarketingReelsPage() {
 
         if (fillPct > 0) {
           ctx.fillStyle = "#10B981";
-          ctx.beginPath();
-          ctx.roundRect(bx, barY, singleBarWidth * fillPct, barHeight, 3);
+          drawRoundedRect(ctx, bx, barY, singleBarWidth * fillPct, barHeight, 3);
           ctx.fill();
         }
       }
@@ -397,8 +412,7 @@ export default function MarketingReelsPage() {
 
       // Card Badge Nevux
       ctx.fillStyle = "#10B981";
-      ctx.beginPath();
-      ctx.roundRect(boxMargin, boxY - 36, 120, 28, 8);
+      drawRoundedRect(ctx, boxMargin, boxY - 36, 120, 28, 8);
       ctx.fill();
 
       ctx.fillStyle = "#000000";
@@ -410,8 +424,7 @@ export default function MarketingReelsPage() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
       ctx.strokeStyle = "rgba(16, 185, 129, 0.5)";
       ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(boxMargin, boxY, boxWidth, 140, 20);
+      drawRoundedRect(ctx, boxMargin, boxY, boxWidth, 140, 20);
       ctx.fill();
       ctx.stroke();
 
@@ -420,7 +433,6 @@ export default function MarketingReelsPage() {
       ctx.font = "bold 24px sans-serif";
       ctx.textAlign = "left";
 
-      // Wrap simple
       const words = capText.split(" ");
       let line = "";
       let lineY = boxY + 45;
@@ -689,7 +701,6 @@ export default function MarketingReelsPage() {
                   objectPosition: "center",
                 }}
                 onError={(e) => {
-                  // Fallback limpio si la URL externa no está disponible
                   e.currentTarget.style.display = "none";
                 }}
               />
@@ -845,7 +856,7 @@ export default function MarketingReelsPage() {
                       </div>
                     </div>
 
-                    {/* Botón Reemplazar Foto si quisieras actualizarla */}
+                    {/* Botón Cargar foto */}
                     <label
                       onClick={(e) => e.stopPropagation()}
                       style={{
@@ -877,4 +888,4 @@ export default function MarketingReelsPage() {
       </div>
     </div>
   );
-}
+    }
