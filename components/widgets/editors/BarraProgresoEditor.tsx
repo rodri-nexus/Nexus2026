@@ -2,9 +2,116 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import BarraProgresoPreview, { BARRA_CAMPAIGN_THEMES } from './BarraProgresoPreview';
+import BarraProgresoPreview from './BarraProgresoPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES (Regla #9)
+═══════════════════════════════════════════ */
+const BARRA_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    cardBg: string;
+    textColor: string;
+    priceColor: string;
+    barVacia: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    cardBg: '#ffffff',
+    textColor: '#000000',
+    priceColor: '#059669',
+    barVacia: '#e5e7eb',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores y estilos configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    cardBg: '#111827',
+    textColor: '#FFFFFF',
+    priceColor: '#F59E0B',
+    barVacia: '#374151',
+    tag: 'BLACK FRIDAY',
+    description: 'Fondo negro profundo con acentos dorados de alto impacto.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    cardBg: '#0F172A',
+    textColor: '#FFFFFF',
+    priceColor: '#EF4444',
+    barVacia: '#334155',
+    tag: 'HOT SALE',
+    description: 'Fondo azul noche con acentos rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    cardBg: '#090D16',
+    textColor: '#FFFFFF',
+    priceColor: '#60A5FA',
+    barVacia: '#1E293B',
+    tag: 'CYBER MONDAY',
+    description: 'Estilo tech futurista con acentos azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    cardBg: '#064E3B',
+    textColor: '#FFFFFF',
+    priceColor: '#FCD34D',
+    barVacia: '#065F46',
+    tag: 'NAVIDAD',
+    description: 'Verde pino navideño con detalles en rojo y dorado.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    cardBg: '#831843',
+    textColor: '#FFFFFF',
+    priceColor: '#FECDD3',
+    barVacia: '#9D174D',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    cardBg: '#312E81',
+    textColor: '#FFFFFF',
+    priceColor: '#A7F3D0',
+    barVacia: '#3730A3',
+    tag: 'SPECIAL DAY',
+    description: 'Índigo premium con acentos esmeralda para regalos.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    cardBg: '#7F1D1D',
+    textColor: '#FFFFFF',
+    priceColor: '#FBBF24',
+    barVacia: '#991B1B',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo liquidación con contrastes en amarillo vibrante.',
+  },
+};
 
 // ═══════════════════════════════════════════════════════════
 // TIPOS
@@ -41,11 +148,9 @@ interface BarraConfig {
   objetivos: Objetivo[];
   textoFaltante: string;
   textoCumplido: string;
-  // Ubicación
   posicionFicha: 'debajo-boton' | 'encima-form' | 'no-mostrar';
   elementoFlotante: boolean;
   enCarrito: boolean;
-  // Estilos
   formatoObjetivos: 'automatico' | 'lista';
   bordesRedondeados: number;
   rellenoInterno: number;
