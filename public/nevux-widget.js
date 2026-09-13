@@ -2754,7 +2754,7 @@
      RENDER BANNER DESLIZANTE
   ═══════════════════════════════════════════ */
   function renderBannerDeslizante(widget) {
-    const cfg = normalizeBannerDeslizanteConfig(widget.config || {});
+    var cfg = normalizeBannerDeslizanteConfig(widget.config || {});
 
     if (cfg.modoBarra) {
       mountBannerDeslizante(widget, cfg, "topbar");
@@ -2786,6 +2786,7 @@
       bordeRadio: n(raw.bordeRadio, 8),
       separacionMensajes: n(raw.separacionMensajes, 300),
       velocidad: n(raw.velocidad, 20),
+      campaignTheme: raw.campaignTheme || "none",
     };
   }
 
@@ -2834,31 +2835,55 @@
 
   function buildBannerDeslizanteHtml(cfg, placement) {
     var isBar = placement === "topbar";
-    var fondo = cfg.tipoFondo === "degradado"
-      ? "linear-gradient(90deg, " + cfg.colorFondoInicio + " 0%, " + cfg.colorFondoFin + " 100%)"
-      : cfg.colorFondo;
+
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { tipoFondo: "degradado", colorFondo: "#111827", colorFondoInicio: "#111827", colorFondoFin: "#030712", colorTexto: "#F59E0B" },
+      "hot-sale": { tipoFondo: "degradado", colorFondo: "#0F172A", colorFondoInicio: "#0F172A", colorFondoFin: "#1E293B", colorTexto: "#EF4444" },
+      "cyber-monday": { tipoFondo: "degradado", colorFondo: "#090D16", colorFondoInicio: "#090D16", colorFondoFin: "#1E293B", colorTexto: "#3B82F6" },
+      "navidad": { tipoFondo: "degradado", colorFondo: "#064E3B", colorFondoInicio: "#064E3B", colorFondoFin: "#022C22", colorTexto: "#FCD34D" },
+      "san-valentin": { tipoFondo: "degradado", colorFondo: "#831843", colorFondoInicio: "#831843", colorFondoFin: "#500724", colorTexto: "#F43F5E" },
+      "dia-madre-padre": { tipoFondo: "degradado", colorFondo: "#312E81", colorFondoInicio: "#312E81", colorFondoFin: "#1E1B4B", colorTexto: "#10B981" },
+      "sale-liquidacion": { tipoFondo: "degradado", colorFondo: "#7F1D1D", colorFondoInicio: "#7F1D1D", colorFondoFin: "#450A0A", colorTexto: "#FBBF24" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    var tipoFondo = isCustomTheme ? th.tipoFondo : cfg.tipoFondo;
+    var colorFondo = isCustomTheme ? th.colorFondo : cfg.colorFondo;
+    var colorFondoInicio = isCustomTheme ? th.colorFondoInicio : cfg.colorFondoInicio;
+    var colorFondoFin = isCustomTheme ? th.colorFondoFin : cfg.colorFondoFin;
+    var colorTexto = isCustomTheme ? th.colorTexto : cfg.colorTexto;
+
+    var fondo = tipoFondo === "degradado"
+      ? "linear-gradient(90deg, " + colorFondoInicio + " 0%, " + colorFondoFin + " 100%)"
+      : colorFondo;
 
     var borderRadius = isBar ? "0" : cfg.bordeRadio + "px";
     var separacion = cfg.separacionMensajes;
     var velocidad = cfg.velocidad;
 
-    var mensajesRender = cfg.mensajes.concat(cfg.mensajes);
+    var mensajesRender = cfg.mensajes.concat(cfg.mensajes).concat(cfg.mensajes);
 
     var itemsHtml = "";
     for (var i = 0; i < mensajesRender.length; i++) {
-      itemsHtml += '<span class="' + NS + '-banner-item" style="padding-right:' + separacion + 'px;font-size:' + cfg.tamanoFuente + 'px;color:' + cfg.colorTexto + ';">' +
+      itemsHtml += '<span class="' + NS + '-banner-item" style="padding-right:' + separacion + 'px;font-size:' + cfg.tamanoFuente + 'px;color:' + colorTexto + ';letter-spacing:-0.01em;">' +
         escapeHtml(mensajesRender[i]) +
       '</span>';
     }
 
+    var borderStyle = isBar ? "none" : (isCustomTheme ? "1px solid rgba(255, 255, 255, 0.15)" : "none");
+    var shadowStyle = isBar ? "none" : (isCustomTheme ? "0 4px 16px rgba(0, 0, 0, 0.15)" : "none");
+
     return '' +
-      '<div class="' + NS + '-banner-wrap" style="background:' + fondo + ';color:' + cfg.colorTexto + ';border-radius:' + borderRadius + ';padding:14px 0;font-size:' + cfg.tamanoFuente + 'px;font-weight:500;line-height:1.2;">' +
-        '<div class="' + NS + '-banner-track" style="animation:' + NS + '-banner-scroll ' + velocidad + 's linear infinite;">' +
+      '<div class="' + NS + '-banner-wrap" style="background:' + fondo + ';color:' + colorTexto + ';border-radius:' + borderRadius + ';border:' + borderStyle + ';box-shadow:' + shadowStyle + ';padding:14px 0;font-size:' + cfg.tamanoFuente + 'px;font-weight:600;line-height:1.2;overflow:hidden;box-sizing:border-box;transition:all 0.3s ease;">' +
+        '<div class="' + NS + '-banner-track" style="animation:' + NS + '-banner-scroll ' + velocidad + 's linear infinite;display:inline-flex;white-space:nowrap;will-change:transform;">' +
           itemsHtml +
         '</div>' +
       '</div>';
-  }
-
+      }
 /* ═══════════════════════════════════════════
      RENDER BARRA DE PROGRESO
   ═══════════════════════════════════════════ */
