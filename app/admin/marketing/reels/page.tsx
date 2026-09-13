@@ -298,6 +298,19 @@ export default function MarketingReelsPage() {
   const showClick =
     zoomT > 0.35 && zoomT < 0.85 && currentStep.cursorClick;
 
+  // Funciones de control manual agregadas correctamente
+  const handlePrev = () => {
+    setIsPlaying(false);
+    setElapsedTime(0);
+    setCurrentIdx((prev) => (prev === 0 ? REAL_STEPS.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setIsPlaying(false);
+    setElapsedTime(0);
+    setCurrentIdx((prev) => (prev === REAL_STEPS.length - 1 ? 0 : prev + 1));
+  };
+
   const handleImageUpload = (
     index: number,
     event: React.ChangeEvent<HTMLInputElement>
@@ -444,12 +457,11 @@ export default function MarketingReelsPage() {
       ctx.fillStyle = "#0b0f19";
       ctx.fillRect(0, 0, width, height);
 
-      // Capa base (ligeramente desenfocada vía scale down/up simulado + darken)
+      // Capa base
       octx.clearRect(0, 0, width, height);
       octx.fillStyle = "#0b0f19";
       octx.fillRect(0, 0, width, height);
       coverDraw(octx, img, 0, 0, width, height, 0.5, 0.5, 1.02);
-      // blur aproximado
       if (zT > 0.05) {
         octx.filter = `blur(${Math.min(12, zT * 14)}px)`;
         octx.drawImage(off, 0, 0);
@@ -462,7 +474,7 @@ export default function MarketingReelsPage() {
       // Capa nítida con zoom al foco
       coverDraw(ctx, img, 0, 0, width, height, step.focusX, step.focusY, z);
 
-      // Viñeta / prioridad al botón
+      // Viñeta
       if (zT > 0.08) {
         const g = ctx.createRadialGradient(
           step.focusX * width,
@@ -546,7 +558,7 @@ export default function MarketingReelsPage() {
       ctx.textAlign = "left";
       wrapText(ctx, cap, m + 16, boxY + 40, boxW - 32, 28);
 
-      // CTA final en escena 6 (segunda mitad)
+      // CTA final en escena 6
       if (step.isCta && tt > 0.42) {
         const ctaA = Math.min(1, (tt - 0.42) / 0.2);
         ctx.fillStyle = `rgba(0,0,0,${0.55 * ctaA})`;
