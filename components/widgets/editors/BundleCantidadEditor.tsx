@@ -1,11 +1,15 @@
+// components/widgets/editors/BundleCantidadEditor.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BundleCantidadPreview from './BundleCantidadPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
+/* ═══════════════════════════════════════════
+   TIPOS Y INTERFACES (Regla de Oro #9)
+═══════════════════════════════════════════ */
 interface EditorProps {
   widgetDefinition: {
     id: string;
@@ -90,10 +94,12 @@ const DEFAULT_CONFIG = {
   fuenteSubtitulo: 14,
   efectoBoton: 'sin-efecto' as 'sin-efecto' | 'zoom',
   pulsante: false,
+  campaignTheme: 'none',
 };
 
-/* ================= HELPERS UI ================= */
-
+/* ═══════════════════════════════════════════
+   HELPERS UI Y ICONOS (Regla de Oro #9)
+═══════════════════════════════════════════ */
 function IconStore({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -565,8 +571,9 @@ function SectionCard({
   );
 }
 
-/* ================= EDITOR ================= */
-
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function BundleCantidadEditor({
   widgetDefinition,
   existingWidget,
@@ -588,7 +595,7 @@ export default function BundleCantidadEditor({
 
   const [config, setConfig] = React.useState(initialConfig);
   const [isActive, setIsActive] = React.useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = React.useState<'general' | 'ubicacion' | 'estilo'>('general');
+  const [tab, setTab] = React.useState<'general' | 'ubicacion' | 'estilo' | 'fechas'>('general');
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -646,6 +653,77 @@ export default function BundleCantidadEditor({
   };
 
   const cantidadReal = Math.max(2, Math.min(5, Number(config.cantidadUnidades) || 2));
+  const scopeLabel = targetType === 'all' ? 'General' : 'Producto';
+
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilo.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  ];
+
+  const tabFechasEspeciales = (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 12, lineHeight: 1.5 }}>
+          Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para este widget.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {CAMPAIGN_PRESETS.map((preset) => {
+          const isSelected = (config.campaignTheme || 'none') === preset.id;
+          return (
+            <div
+              key={preset.id}
+              onClick={() => updateConfig('campaignTheme', preset.id)}
+              style={{
+                background: '#ffffff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '16px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {preset.label}
+                  {isSelected && (
+                    <span style={{
+                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                    }}>
+                      ACTIVO
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                  {preset.desc}
+                </div>
+              </div>
+              {preset.id !== 'none' && (
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
@@ -753,6 +831,27 @@ export default function BundleCantidadEditor({
             <BundleCantidadPreview config={config} />
           </div>
 
+          {/* Nota info debajo del preview */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 8,
+              fontSize: 13,
+              color: '#000000',
+              opacity: 0.6,
+              marginBottom: 16,
+              lineHeight: 1.5,
+            }}
+          >
+            <IconInfo size={16} color="#10B981" />
+            <span>
+              {config.reemplazarBoton
+                ? 'El formulario original de Tiendanube quedará oculto.'
+                : 'El formulario original de Tiendanube permanecerá visible y funcional.'}
+            </span>
+          </div>
+
           {/* TABS */}
           <div
             style={{
@@ -762,21 +861,25 @@ export default function BundleCantidadEditor({
               marginBottom: 20,
             }}
           >
-            {(['general', 'ubicacion', 'estilo'] as const).map((t) => {
-              const label = t === 'general' ? 'General' : t === 'ubicacion' ? 'Ubicación' : 'Estilo';
-              const active = tab === t;
+            {[
+              { id: 'general', label: 'General' },
+              { id: 'ubicacion', label: 'Ubicación' },
+              { id: 'estilo', label: 'Estilo' },
+              { id: 'fechas', label: '🔥 Fechas Especiales' }
+            ].map((t) => {
+              const active = tab === t.id;
               return (
                 <button
-                  key={t}
+                  key={t.id}
                   type="button"
-                  onClick={() => setTab(t)}
+                  onClick={() => setTab(t.id as any)}
                   style={{
                     flex: 1,
                     background: 'transparent',
                     border: 'none',
                     borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
                     padding: '14px 10px',
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: active ? 700 : 500,
                     color: active ? '#10B981' : '#000000',
                     opacity: active ? 1 : 0.6,
@@ -785,7 +888,7 @@ export default function BundleCantidadEditor({
                     transition: 'all 0.2s',
                   }}
                 >
-                  {label}
+                  {t.label}
                 </button>
               );
             })}
@@ -1256,6 +1359,9 @@ export default function BundleCantidadEditor({
             </div>
           )}
 
+          {/* TAB FECHAS ESPECIALES */}
+          {tab === 'fechas' && tabFechasEspeciales}
+
           {/* FOOTER ACCIONES DE GUARDADO */}
           <div
             style={{
@@ -1328,4 +1434,4 @@ export default function BundleCantidadEditor({
       )}
     </div>
   );
-  }
+     }
