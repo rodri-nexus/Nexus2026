@@ -8360,7 +8360,7 @@
       target.parentNode.appendChild(div);
     }
 }
- /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
   function renderMenuCirculos(w) {
@@ -8390,6 +8390,28 @@
     var colorBordeInactivo = cfg.colorBordeInactivo || "#e5e7eb";
     var colorTexto = cfg.colorTexto || "#000000";
     var colorFondo = cfg.colorFondo || "#ffffff";
+
+    // ─── FECHAS ESPECIALES 3.0 ───
+    var campaignTheme = cfg.campaignTheme || "none";
+    var THEMES = {
+      "black-friday": { colorFondo: "#111827", colorTexto: "#FFFFFF", colorBordeActivo: "#F59E0B", colorBordeInactivo: "#374151" },
+      "hot-sale": { colorFondo: "#0F172A", colorTexto: "#FFFFFF", colorBordeActivo: "#EF4444", colorBordeInactivo: "#334155" },
+      "cyber-monday": { colorFondo: "#090D16", colorTexto: "#FFFFFF", colorBordeActivo: "#3B82F6", colorBordeInactivo: "#1E293B" },
+      "navidad": { colorFondo: "#064E3B", colorTexto: "#FFFFFF", colorBordeActivo: "#10B981", colorBordeInactivo: "#065F46" },
+      "san-valentin": { colorFondo: "#831843", colorTexto: "#FFFFFF", colorBordeActivo: "#F43F5E", colorBordeInactivo: "#9D174D" },
+      "dia-madre-padre": { colorFondo: "#312E81", colorTexto: "#FFFFFF", colorBordeActivo: "#10B981", colorBordeInactivo: "#3730A3" },
+      "sale-liquidacion": { colorFondo: "#7F1D1D", colorTexto: "#FFFFFF", colorBordeActivo: "#FBBF24", colorBordeInactivo: "#991B1B" }
+    };
+
+    var isCustomTheme = campaignTheme !== "none" && THEMES[campaignTheme];
+    var th = isCustomTheme ? THEMES[campaignTheme] : null;
+
+    if (isCustomTheme) {
+      colorFondo = th.colorFondo;
+      colorTexto = th.colorTexto;
+      colorBordeActivo = th.colorBordeActivo;
+      colorBordeInactivo = th.colorBordeInactivo;
+    }
 
     var items = Array.isArray(cfg.items) && cfg.items.length > 0 ? cfg.items : [
       { nombre: "🔥 Ofertas", imagenUrl: "", link: "/ofertas", destacado: true },
@@ -8445,6 +8467,10 @@
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
+            border: ${isCustomTheme ? '1px solid ' + colorBordeActivo + '44' : 'none'} !important;
+            border-radius: ${isCustomTheme ? '16px' : '0px'} !important;
+            box-shadow: ${isCustomTheme ? '0 4px 20px ' + colorBordeActivo + '11' : 'none'} !important;
+            transition: all 0.3s ease !important;
           }
           #nvx-circulos-${w.id} .nvx-cr-title {
             font-size: 14px !important;
@@ -8521,7 +8547,7 @@
 
       var itemsHtml = items.map(function(item) {
         var bColor = item.destacado ? colorBordeActivo : colorBordeInactivo;
-        var ringShadow = item.destacado ? "box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);" : "";
+        var ringShadow = item.destacado ? "box-shadow: 0 0 0 2px " + colorBordeActivo + "33;" : "";
         var fontWeight = item.destacado ? "font-weight: 800;" : "font-weight: 600;";
         
         // Detección de fallos en imagen física con fallback limpio in-line sin romper la estructura
@@ -8563,7 +8589,7 @@
     } else {
       tryInject();
     }
-}
+      }
     /* ═══════════════════════════════════════════
      RENDER SLIDER DE CATEGORÍAS (COLECCIONES)
   ═══════════════════════════════════════════ */
