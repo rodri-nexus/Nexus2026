@@ -3,13 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  CreditCard,
-  Check,
-  Palette,
-  Type,
-  Eye,
-  Save,
-  Loader2,
   ShieldCheck,
 } from 'lucide-react';
 import {
@@ -22,7 +15,7 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -67,7 +60,106 @@ interface MediosPagoConfig {
   bordesRedondeados: number;
   paddingInterno: number;
   ubicacion: 'product' | 'home' | 'ambas';
+  campaignTheme?: string;
 }
+
+/* ═══════════════════════════════════════════
+   PRESETS DE FECHAS ESPECIALES LOCALES (Regla #9)
+═══════════════════════════════════════════ */
+const MEDIOS_CAMPAIGN_THEMES: Record<
+  string,
+  {
+    name: string;
+    themeColor: string;
+    accentColor: string;
+    bgColor: string;
+    borderColor: string;
+    textColor: string;
+    tag: string;
+    description: string;
+  }
+> = {
+  none: {
+    name: 'Diseño Normal / Sin Evento',
+    themeColor: '#10B981',
+    accentColor: '#10B981',
+    bgColor: '#ffffff',
+    borderColor: '#e5e7eb',
+    textColor: '#000000',
+    tag: 'DEFAULT',
+    description: 'Mantiene los colores configurados en la pestaña Estilos.',
+  },
+  'black-friday': {
+    name: '🔥 Black Friday',
+    themeColor: '#111827',
+    accentColor: '#F59E0B',
+    bgColor: '#111827',
+    borderColor: '#F59E0B',
+    textColor: '#FFFFFF',
+    tag: 'BLACK FRIDAY',
+    description: 'Fondo negro profundo con marcos destacados y textos en oro neón.',
+  },
+  'hot-sale': {
+    name: '⚡ Hot Sale',
+    themeColor: '#0F172A',
+    accentColor: '#EF4444',
+    bgColor: '#0F172A',
+    borderColor: '#EF4444',
+    textColor: '#FFFFFF',
+    tag: 'HOT SALE',
+    description: 'Fondo azul noche profundo con acentos y bordes en rojo fuego.',
+  },
+  'cyber-monday': {
+    name: '🚀 Cyber Monday',
+    themeColor: '#090D16',
+    accentColor: '#3B82F6',
+    bgColor: '#090D16',
+    borderColor: '#3B82F6',
+    textColor: '#FFFFFF',
+    tag: 'CYBER MONDAY',
+    description: 'Estilo tech futurista con acentos y bordes en azul neón.',
+  },
+  navidad: {
+    name: '🎄 Navidad & Reyes',
+    themeColor: '#064E3B',
+    accentColor: '#EF4444',
+    bgColor: '#064E3B',
+    borderColor: '#10B981',
+    textColor: '#FFFFFF',
+    tag: 'NAVIDAD',
+    description: 'Verde pino navideño de fondo con detalles en esmeralda.',
+  },
+  'san-valentin': {
+    name: '💘 San Valentín',
+    themeColor: '#831843',
+    accentColor: '#F43F5E',
+    bgColor: '#831843',
+    borderColor: '#FB7185',
+    textColor: '#FFFFFF',
+    tag: 'SAN VALENTÍN',
+    description: 'Tono vino y rosa apasionado para fechas románticas.',
+  },
+  'dia-madre-padre': {
+    name: '🎁 Día de la Madre / Padre',
+    themeColor: '#312E81',
+    accentColor: '#10B981',
+    bgColor: '#312E81',
+    borderColor: '#6366F1',
+    textColor: '#FFFFFF',
+    tag: 'SPECIAL DAY',
+    description: 'Índigo premium con detalles estéticos destacados en esmeralda.',
+  },
+  'sale-liquidacion': {
+    name: '🏷️ Liquidación / Sale',
+    themeColor: '#7F1D1D',
+    accentColor: '#FBBF24',
+    bgColor: '#7F1D1D',
+    borderColor: '#FBBF24',
+    textColor: '#FFFFFF',
+    tag: 'LIQUIDACIÓN',
+    description: 'Rojo líquido pasional con bordes e indicadores amarillos.',
+  },
+};
 
 /* ═══════════════════════════════════════════
    DEFAULTS
@@ -90,10 +182,11 @@ const DEFAULT_CONFIG: MediosPagoConfig = {
   bordesRedondeados: 14,
   paddingInterno: 16,
   ubicacion: 'product',
+  campaignTheme: 'none',
 };
 
 /* ═══════════════════════════════════════════
-   SECTION CARD
+   SUBCOMPONENTES AUXILIARES (Regla #9)
 ═══════════════════════════════════════════ */
 function SectionCard({
   icon,
@@ -132,9 +225,6 @@ function SectionCard({
   );
 }
 
-/* ═══════════════════════════════════════════
-   BADGES DE PAGO VISUALES
-═══════════════════════════════════════════ */
 function PaymentBadge({ label, color, bg }: { label: string; color: string; bg: string }) {
   return (
     <div
@@ -158,19 +248,27 @@ function PaymentBadge({ label, color, bg }: { label: string; color: string; bg: 
   );
 }
 
-/* ═══════════════════════════════════════════
-   PREVIEW EN VIVO
-═══════════════════════════════════════════ */
 function MediosPagoPreview({ config }: { config: MediosPagoConfig }) {
+  const themeKey = config.campaignTheme || 'none';
+  const theme = MEDIOS_CAMPAIGN_THEMES[themeKey] || MEDIOS_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  // Sobrecarga temática de colores
+  const bgColor = isCustomTheme ? theme.bgColor : config.bgColor;
+  const borderColor = isCustomTheme ? theme.borderColor : config.borderColor;
+  const textColor = isCustomTheme ? theme.textColor : config.textColor;
+  const subtextColor = isCustomTheme ? `${theme.textColor}cc` : config.textColor;
+  const securityColor = isCustomTheme ? theme.accentColor : '#10B981';
+
   return (
     <div
       style={{
-        background: config.bgColor,
-        border: `1.5px solid ${config.borderColor}`,
+        background: bgColor,
+        border: `1.5px solid ${borderColor}`,
         borderRadius: config.bordesRedondeados,
         padding: config.paddingInterno,
-        boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
-        transition: 'all 0.2s ease',
+        boxShadow: isCustomTheme ? `0 4px 20px ${borderColor}22` : '0 4px 14px rgba(0,0,0,0.03)',
+        transition: 'all 0.3s ease',
       }}
     >
       <div style={{ textAlign: 'center', marginBottom: 12 }}>
@@ -178,7 +276,7 @@ function MediosPagoPreview({ config }: { config: MediosPagoConfig }) {
           style={{
             fontWeight: 800,
             fontSize: 14,
-            color: config.textColor,
+            color: textColor,
             letterSpacing: '-0.01em',
             marginBottom: 2,
           }}
@@ -186,7 +284,7 @@ function MediosPagoPreview({ config }: { config: MediosPagoConfig }) {
           {config.titulo}
         </div>
         {config.subtexto && (
-          <div style={{ fontSize: 11, color: config.textColor, opacity: 0.65 }}>
+          <div style={{ fontSize: 11, color: subtextColor, opacity: isCustomTheme ? 1 : 0.65 }}>
             {config.subtexto}
           </div>
         )}
@@ -239,8 +337,9 @@ function MediosPagoPreview({ config }: { config: MediosPagoConfig }) {
           gap: 4,
           marginTop: 12,
           fontSize: 10,
-          color: '#10B981',
+          color: securityColor,
           fontWeight: 700,
+          transition: 'color 0.3s ease',
         }}
       >
         <ShieldCheck size={13} />
@@ -262,6 +361,7 @@ export default function MediosPagoEditor({
 }: Props) {
   const router = useRouter();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
   const [config, setConfig] = useState<MediosPagoConfig>(() => {
     if (existingWidget?.config) {
       return {
@@ -540,6 +640,164 @@ export default function MediosPagoEditor({
     </div>
   );
 
+  /* ─── TAB FECHAS ESPECIALES ─── */
+  const tabFechas = (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${MEDIOS_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'La tarjeta y el fondo de medios de pago adaptarán automáticamente toda su paleta visual al evento comercial seleccionado.'
+              : 'El widget respeta los colores estándar configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => updateCfg('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {Object.entries(MEDIOS_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => updateCfg('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.bgColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Fondo de tarjeta"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.borderColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Borde de tarjeta"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta de la fecha
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
       {/* HEADER */}
@@ -630,7 +888,6 @@ export default function MediosPagoEditor({
               marginBottom: 12,
             }}
           >
-            <Eye size={14} />
             <span>Vista previa interactiva</span>
           </div>
           <MediosPagoPreview config={config} />
@@ -650,9 +907,10 @@ export default function MediosPagoEditor({
             tabs={[
               { id: 'general', label: 'General', icon: '⚙️' },
               { id: 'estilos', label: 'Estilos', icon: '🎨' },
+              { id: 'fechas', label: 'Fechas Especiales', icon: '🔥' },
             ]}
           >
-            {[tabGeneral, tabEstilos]}
+            {[tabGeneral, tabEstilos, tabFechas]}
           </EditorTabs>
 
           {/* GUARDAR */}
@@ -718,12 +976,6 @@ export default function MediosPagoEditor({
                 opacity: saving ? 0.7 : 1,
                 transition: 'all 0.2s ease',
               }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.background = '#059669';
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.background = '#10B981';
-              }}
             >
               {saving ? 'Guardando...' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
             </button>
@@ -752,4 +1004,4 @@ export default function MediosPagoEditor({
       </div>
     </div>
   );
-    }
+}
