@@ -208,10 +208,8 @@ export default function LoginPage() {
               marginBottom: "1.25rem",
             }}
           >
-            <a
-              href="https://wa.me/5493434163999?text=Hola,%20necesito%20recuperar%20mi%20contrase%C3%B1a%20de%20Nevux"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/recuperar"
               style={{
                 fontSize: "0.82rem",
                 color: "#10B981",
@@ -220,7 +218,7 @@ export default function LoginPage() {
               }}
             >
               ¿Olvidaste tu contraseña?
-            </a>
+            </Link>
           </div>
 
           {error && (
@@ -323,4 +321,4 @@ export default function LoginPage() {
       </motion.div>
     </div>
   );
-              }
+      }
