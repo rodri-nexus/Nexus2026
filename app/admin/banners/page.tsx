@@ -149,7 +149,7 @@ const CAROUSEL_TEMPLATES: CarouselTemplate[] = [
         badgePt: "MÉTRICAS NEVUX",
         titleEs: "Subida del +24% en conversión directa",
         titlePt: "Aumento de +24% em conversão direta",
-        descEs: "Las tiendas con cuenta regresiva reducen el tiempo de decision de compra de horas a escasos minutos.",
+        descEs: "Las tiendas con cuenta regresiva reducen el tiempo de decisión de compra de horas a escasos minutos.",
         descPt: "Lojas com contagem regressiva reduzem o tempo de decisão de compra de horas para poucos minutos.",
         visualType: "metrics"
       },
@@ -890,7 +890,7 @@ export default function BannersPage() {
         const maxTitleWidth = width - 40 * S;
         const titleLineHeight = titleFontSize * 1.25;
 
-        for (let n = 0; n < words.length; n++) {
+        for (let n = 0; n < titleWords.length; n++) {
           const testLine = titleLine + titleWords[n] + " ";
           const metrics = ctx.measureText(testLine);
           if (metrics.width > maxTitleWidth && n > 0) {
@@ -1053,7 +1053,6 @@ export default function BannersPage() {
           }
 
         } else if (type === "mini_hook") {
-          // RENDER NUEVO: MINI GANCHO 15 SEGUNDOS
           ctx.fillStyle = "#090d16";
           ctx.fillRect(0, 0, width, height);
 
@@ -1617,7 +1616,7 @@ export default function BannersPage() {
               </div>
             </div>
 
-            {/* ⚡ 2. MINI GANCHO CENTRAL (NUEVO) */}
+            {/* ⚡ 2. MINI GANCHO CENTRAL */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
               <div style={{ display: "flex", justifyContent: "space-between", width: "220px" }}>
                 <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>⚡ MINI GANCHO (15S)</span>
@@ -1763,4 +1762,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-  }
+}
