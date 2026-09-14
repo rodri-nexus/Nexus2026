@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
-type TabId = "appstore5" | "partners" | "stories" | "covers" | "carousels";
+type TabId = "appstore5" | "partners" | "stories" | "covers" | "carousels" | "marketing_assets";
 type StoryDestacada =
   | "problema"
   | "solucion"
@@ -768,7 +768,7 @@ export default function BannersPage() {
   const [activeDestacada, setActiveDestacada] = useState<StoryDestacada>("vendedor");
   const [appstoreZoom, setAppstoreZoom] = useState<number>(0.2);
 
-  // Estados Pro para la sección Carruseles
+  // Estados Pro para la sección Carruseles y Hooks/Cierres
   const [selectedWidget, setSelectedWidget] = useState<string>("cuenta-regresiva");
   const [format, setFormat] = useState<"portrait" | "square">("portrait");
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
@@ -781,6 +781,7 @@ export default function BannersPage() {
     { id: "stories", label: "Historias Instagram", icon: "📱" },
     { id: "covers", label: "Portadas Destacadas", icon: "🎨" },
     { id: "carousels", label: "Carruseles Instagram", icon: "🎠" },
+    { id: "marketing_assets", label: "Hooks y Cierres Reels", icon: "🎬" },
   ];
 
   const currentTemplate = CAROUSEL_TEMPLATES.find((t) => t.slug === selectedWidget) || CAROUSEL_TEMPLATES[0];
@@ -986,6 +987,160 @@ export default function BannersPage() {
       link.click();
     } catch (err) {
       console.error("Error al exportar canvas:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // EXPORTADOR PREMIUM DE HOOKS Y CIERRES EN CALIDAD REELS (9:16 - 1080x1920)
+  const downloadMarketingAsset = async (type: "hook" | "cierre") => {
+    setIsDownloading(true);
+    try {
+      const width = 1080;
+      const height = 1920;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        const S = width / 340; // Factor de escala Reels
+
+        if (type === "hook") {
+          // Fondo Negro profundo estilo Tech
+          ctx.fillStyle = "#090d16";
+          ctx.fillRect(0, 0, width, height);
+
+          // Halo de luz neón central
+          const grad = ctx.createRadialGradient(width/2, height/2, 50*S, width/2, height/2, 200*S);
+          grad.addColorStop(0, "rgba(16, 185, 129, 0.18)");
+          grad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(width/2, height/2, 200*S, 0, Math.PI*2);
+          ctx.fill();
+
+          // Badge superior
+          ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+          ctx.strokeStyle = "#10B981";
+          ctx.lineWidth = 1.5 * S;
+          const badgeW = 96 * S;
+          const badgeH = 22 * S;
+          const badgeX = (width - badgeW) / 2;
+          const badgeY = 180 * S;
+          drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 11 * S);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = "#10B981";
+          ctx.font = `900 ${8.5 * S}px system-ui, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("NEVUX REELS", width / 2, badgeY + badgeH / 2);
+
+          // Título de dolor impactante (Hook 2)
+          ctx.fillStyle = "#ffffff";
+          ctx.font = `950 ${24 * S}px system-ui, sans-serif`;
+          ctx.textBaseline = "top";
+
+          const text = isPt 
+            ? "Os que vendem na Nuvemshop já usam isso 👀" 
+            : "Los que venden en Tiendanube ya usan esto 👀";
+
+          const words = text.split(" ");
+          let line = "";
+          const lines: string[] = [];
+          const maxW = width - 48 * S;
+          const lineH = 34 * S;
+
+          for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxW && n > 0) {
+              lines.push(line);
+              line = words[n] + " ";
+            } else {
+              line = testLine;
+            }
+          }
+          lines.push(line);
+
+          const startY = height / 2 - (lines.length * lineH) / 2;
+          for (let i = 0; i < lines.length; i++) {
+            const lineText = lines[i].trim();
+            ctx.fillText(lineText, width / 2, startY + i * lineH);
+          }
+
+        } else {
+          // Outro / Cierre 1
+          const radial = ctx.createRadialGradient(width/2, height/2, 20*S, width/2, height/2, width*0.8);
+          radial.addColorStop(0, "#064e3b");
+          radial.addColorStop(1, "#020617");
+          ctx.fillStyle = radial;
+          ctx.fillRect(0, 0, width, height);
+
+          // Logo Nevux gigante en el medio
+          const logoW = 54 * S;
+          const logoH = 54 * S;
+          const logoX = (width - logoW) / 2;
+          const logoY = height / 2 - 140 * S;
+
+          ctx.fillStyle = "#10B981";
+          drawRoundedRect(ctx, logoX, logoY, logoW, logoH, 12 * S);
+          ctx.fill();
+
+          ctx.fillStyle = "#ffffff";
+          ctx.font = `950 ${28 * S}px system-ui, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("N", logoX + logoW/2, logoY + logoH/2);
+
+          // Texto de Cierre 1
+          ctx.fillStyle = "#ffffff";
+          ctx.font = `900 ${22 * S}px system-ui, sans-serif`;
+          ctx.textBaseline = "top";
+          const ctaText = isPt ? "Teste o Nevux GRÁTIS por 7 dias 🚀" : "Probá Nevux GRATIS 7 días 🚀";
+          
+          const words = ctaText.split(" ");
+          let line = "";
+          const lines: string[] = [];
+          const maxW = width - 48 * S;
+          const lineH = 32 * S;
+
+          for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxW && n > 0) {
+              lines.push(line);
+              line = words[n] + " ";
+            } else {
+              line = testLine;
+            }
+          }
+          lines.push(line);
+
+          const startY = height / 2;
+          for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
+          }
+
+          // Subtítulo
+          ctx.fillStyle = "#a7f3d0";
+          ctx.font = `800 ${11 * S}px system-ui, sans-serif`;
+          ctx.fillText(isPt ? "Link na Biografia" : "Link en la Biografía", width / 2, height / 2 + 100 * S);
+
+          // Flecha indicadora 👇
+          ctx.fillStyle = "#10B981";
+          ctx.font = `900 ${24 * S}px system-ui, sans-serif`;
+          ctx.fillText("👇", width / 2, height / 2 + 140 * S);
+        }
+      }
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.download = `nevux-${type === "hook" ? "hook-dolor" : "cierre-cta"}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Error al exportar asset:", err);
     } finally {
       setIsDownloading(false);
     }
@@ -1773,7 +1928,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* 🌟 TAB 5: CARRUSELES INSTAGRAM */}
+      {/* TAB 5: CARRUSELES INSTAGRAM */}
       {activeTab === "carousels" && (
         <div
           style={{
@@ -2132,6 +2287,210 @@ export default function BannersPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* 🎬 🌟 TAB 6: HOOKS Y CIERRES PARA REELS (9:16 - 1080x1920) */}
+      {activeTab === "marketing_assets" && (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "750px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "28px",
+            alignItems: "center",
+            boxSizing: "border-box",
+          }}
+        >
+          {/* SELECTOR DE IDIOMA */}
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              background: "#0b2920",
+              padding: "6px",
+              borderRadius: "12px",
+              border: "1.5px solid rgba(16, 185, 129, 0.3)",
+            }}
+          >
+            <button
+              onClick={() => setLang("es")}
+              style={{
+                padding: "8px 20px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 800,
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: !isPt ? "#10B981" : "transparent",
+                color: !isPt ? "#ffffff" : "#a7f3d0",
+                transition: "all 0.2s ease",
+              }}
+            >
+              🇦🇷 Español
+            </button>
+            <button
+              onClick={() => setLang("pt")}
+              style={{
+                padding: "8px 20px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 800,
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: isPt ? "#10B981" : "transparent",
+                color: isPt ? "#ffffff" : "#a7f3d0",
+                transition: "all 0.2s ease",
+              }}
+            >
+              🇧🇷 Português
+            </button>
+          </div>
+
+          <p style={{ fontSize: "12.5px", color: "#6ee7b7", textAlign: "center", margin: 0, fontWeight: 600 }}>
+            {isPt 
+              ? "💡 Exporte essas duas telas e coloque-as como o início e o fim do seu Reel no CapCut Pro."
+              : "💡 Exportá estas dos pantallas y colocalas como el inicio y el final de tu Reel en CapCut Pro."}
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "32px",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            {/* HOOK SELECCIONADO (HOOK 2) */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "240px" }}>
+                <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>🚨 HOOK DE APERTURA</span>
+                <button
+                  disabled={isDownloading}
+                  onClick={() => downloadMarketingAsset("hook")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#6ee7b7",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                  }}
+                >
+                  <Download size={14} /> Descargar
+                </button>
+              </div>
+
+              {/* Render de pantalla vertical 9:16 */}
+              <div
+                style={{
+                  width: "240px",
+                  height: "426px", // Aspecto exacto 9:16
+                  backgroundColor: "#090d16",
+                  border: "2.5px solid #10B981",
+                  borderRadius: "20px",
+                  padding: "40px 16px 20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                  boxSizing: "border-box",
+                }}
+              >
+                {/* Glow Neón */}
+                <div style={{ position: "absolute", width: "120px", height: "120px", background: "rgba(16, 185, 129, 0.15)", filter: "blur(30px)", borderRadius: "50%", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                
+                {/* Badge */}
+                <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", color: "#10B981", fontSize: "7px", fontWeight: 900, padding: "3px 10px", borderRadius: "999px", letterSpacing: "0.05em", zIndex: 2 }}>
+                  NEVUX REELS
+                </div>
+
+                {/* Título Hook 2 */}
+                <h2 style={{ fontSize: "16px", fontWeight: 950, color: "#ffffff", textAlign: "center", lineHeight: 1.3, margin: "16px 0", zIndex: 2 }}>
+                  {isPt 
+                    ? <>Os que vendem na <span style={{ color: "#10B981" }}>Nuvemshop</span> já usam isso 👀</>
+                    : <>Los que venden en <span style={{ color: "#10B981" }}>Tiendanube</span> ya usan esto 👀</>}
+                </h2>
+
+                <div style={{ fontSize: "9px", color: "#4b5563", letterSpacing: "0.05em", fontWeight: 800, zIndex: 2 }}>
+                  0:00 - 0:03 SEC
+                </div>
+              </div>
+            </div>
+
+            {/* OUTRO SELECCIONADO (CIERRE 1) */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "240px" }}>
+                <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>🏁 CTA DE CIERRE</span>
+                <button
+                  disabled={isDownloading}
+                  onClick={() => downloadMarketingAsset("cierre")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#6ee7b7",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                  }}
+                >
+                  <Download size={14} /> Descargar
+                </button>
+              </div>
+
+              {/* Render de pantalla vertical 9:16 */}
+              <div
+                style={{
+                  width: "240px",
+                  height: "426px", // Aspecto exacto 9:16
+                  background: "radial-gradient(circle at center, #064e3b 0%, #020617 100%)",
+                  border: "2.5px solid #10B981",
+                  borderRadius: "20px",
+                  padding: "40px 16px 20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                  boxSizing: "border-box",
+                }}
+              >
+                {/* Logo Nevux central */}
+                <div style={{ zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                  <div style={{ width: "36px", height: "36px", background: "#10B981", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 950, fontSize: "18px", color: "#ffffff", boxShadow: "0 0 15px rgba(16, 185, 129, 0.4)" }}>
+                    N
+                  </div>
+
+                  {/* Texto principal Cierre 1 */}
+                  <h2 style={{ fontSize: "15px", fontWeight: 900, color: "#ffffff", textAlign: "center", lineHeight: 1.3, margin: 0 }}>
+                    {isPt ? "Teste o Nevux GRÁTIS por 7 dias 🚀" : "Probá Nevux GRATIS 7 días 🚀"}
+                  </h2>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", zIndex: 2 }}>
+                  <span style={{ fontSize: "9px", color: "#a7f3d0", fontWeight: 800 }}>
+                    {isPt ? "Link na Biografia" : "Link en la Biografía"}
+                  </span>
+                  <span style={{ fontSize: "16px", animation: "bounce 1.5s infinite" }}>👇</span>
+                </div>
+
+                <div style={{ fontSize: "9px", color: "#064e3b", letterSpacing: "0.05em", fontWeight: 900, zIndex: 2 }}>
+                  FINAL REEL
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
