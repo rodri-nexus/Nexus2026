@@ -149,7 +149,7 @@ const CAROUSEL_TEMPLATES: CarouselTemplate[] = [
         badgePt: "MÉTRICAS NEVUX",
         titleEs: "Subida del +24% en conversión directa",
         titlePt: "Aumento de +24% em conversão direta",
-        descEs: "Las tiendas con cuenta regresiva reducen el tiempo de decisión de compra de horas a escasos minutos.",
+        descEs: "Las tiendas con cuenta regresiva reducen el tiempo de decision de compra de horas a escasos minutos.",
         descPt: "Lojas com contagem regressiva reduzem o tempo de decisão de compra de horas para poucos minutos.",
         visualType: "metrics"
       },
@@ -890,7 +890,7 @@ export default function BannersPage() {
         const maxTitleWidth = width - 40 * S;
         const titleLineHeight = titleFontSize * 1.25;
 
-        for (let n = 0; n < titleWords.length; n++) {
+        for (let n = 0; n < words.length; n++) {
           const testLine = titleLine + titleWords[n] + " ";
           const metrics = ctx.measureText(testLine);
           if (metrics.width > maxTitleWidth && n > 0) {
@@ -977,8 +977,8 @@ export default function BannersPage() {
     }
   };
 
-  // EXPORTADOR ULTRA-RESALTADO: TEXTO NEGRO (#000000) SOBRE VERDE NEÓN ESPECTACULAR
-  const downloadMarketingAsset = async (type: "hook" | "cierre") => {
+  // EXPORTADOR ULTRA-RESALTADO REELS: TEXTO NEGRO (#000000) SOBRE VERDE NEÓN ESPECTACULAR
+  const downloadMarketingAsset = async (type: "hook" | "cierre" | "mini_hook") => {
     setIsDownloading(true);
     try {
       const width = 1080;
@@ -992,11 +992,9 @@ export default function BannersPage() {
         const S = width / 340;
 
         if (type === "hook") {
-          // Fondo Negro profundo Tech
           ctx.fillStyle = "#090d16";
           ctx.fillRect(0, 0, width, height);
 
-          // Halo de luz neón central
           const grad = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 220 * S);
           grad.addColorStop(0, "rgba(16, 185, 129, 0.3)");
           grad.addColorStop(1, "rgba(0,0,0,0)");
@@ -1005,7 +1003,6 @@ export default function BannersPage() {
           ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
           ctx.fill();
 
-          // Caja Resaltada Neón Esmeralda
           const boxW = width - 48 * S;
           const boxH = 260 * S;
           const boxX = (width - boxW) / 2;
@@ -1019,14 +1016,12 @@ export default function BannersPage() {
           ctx.lineWidth = 3 * S;
           ctx.stroke();
 
-          // Badge superior en Negro
           ctx.fillStyle = "#000000";
           ctx.font = `950 ${9.5 * S}px system-ui, sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText("🔥 SECRETO DE E-COMMERCE", width / 2, boxY + 36 * S);
 
-          // TÍTULO HOOK 2 EN NEGRO PROFUNDO (#000000)
           ctx.fillStyle = "#000000";
           ctx.font = `950 ${24 * S}px system-ui, sans-serif`;
           ctx.textBaseline = "top";
@@ -1057,12 +1052,72 @@ export default function BannersPage() {
             ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
           }
 
-        } else {
-          // Fondo Negro profundo Tech
+        } else if (type === "mini_hook") {
+          // RENDER NUEVO: MINI GANCHO 15 SEGUNDOS
           ctx.fillStyle = "#090d16";
           ctx.fillRect(0, 0, width, height);
 
-          // Halo de luz neón
+          const grad = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 220 * S);
+          grad.addColorStop(0, "rgba(16, 185, 129, 0.35)");
+          grad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
+          ctx.fill();
+
+          const boxW = width - 48 * S;
+          const boxH = 260 * S;
+          const boxX = (width - boxW) / 2;
+          const boxY = (height - boxH) / 2;
+
+          ctx.fillStyle = "#10B981";
+          drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 28 * S);
+          ctx.fill();
+
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 3 * S;
+          ctx.stroke();
+
+          ctx.fillStyle = "#000000";
+          ctx.font = `950 ${9.5 * S}px system-ui, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("⚡ ACCESO AL INSTANTE", width / 2, boxY + 36 * S);
+
+          ctx.fillStyle = "#000000";
+          ctx.font = `950 ${23 * S}px system-ui, sans-serif`;
+          ctx.textBaseline = "top";
+
+          const text = isPt 
+            ? "Ative um Contador e venda o triplo em 15 segundos ⏳" 
+            : "Activá una Cuenta Regresiva y vendé el triple hoy mismo ⏳";
+
+          const words = text.split(" ");
+          let line = "";
+          const lines: string[] = [];
+          const maxW = boxW - 36 * S;
+          const lineH = 36 * S;
+
+          for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxW && n > 0) {
+              lines.push(line);
+              line = words[n] + " ";
+            } else {
+              line = testLine;
+            }
+          }
+          lines.push(line);
+
+          const startY = boxY + 85 * S;
+          for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
+          }
+
+        } else {
+          ctx.fillStyle = "#090d16";
+          ctx.fillRect(0, 0, width, height);
+
           const grad = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 220 * S);
           grad.addColorStop(0, "rgba(16, 185, 129, 0.3)");
           grad.addColorStop(1, "rgba(0,0,0,0)");
@@ -1071,7 +1126,6 @@ export default function BannersPage() {
           ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
           ctx.fill();
 
-          // Caja Resaltada Neón Esmeralda para CTA
           const boxW = width - 48 * S;
           const boxH = 340 * S;
           const boxX = (width - boxW) / 2;
@@ -1085,7 +1139,6 @@ export default function BannersPage() {
           ctx.lineWidth = 3 * S;
           ctx.stroke();
 
-          // Logo Nevux Cuadrado Negro con 'N' Esmeralda
           const logoW = 54 * S;
           const logoH = 54 * S;
           const logoX = (width - logoW) / 2;
@@ -1101,7 +1154,6 @@ export default function BannersPage() {
           ctx.textBaseline = "middle";
           ctx.fillText("N", logoX + logoW / 2, logoY + logoH / 2);
 
-          // TÍTULO CTA EN NEGRO PROFUNDO (#000000)
           ctx.fillStyle = "#000000";
           ctx.font = `950 ${23 * S}px system-ui, sans-serif`;
           ctx.textBaseline = "top";
@@ -1129,7 +1181,6 @@ export default function BannersPage() {
             ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
           }
 
-          // Link en Bio y Flecha en Negro
           ctx.fillStyle = "#000000";
           ctx.font = `900 ${14 * S}px system-ui, sans-serif`;
           ctx.fillText(isPt ? "👉 Link na Biografia 👈" : "👉 Link en la Biografía 👈", width / 2, boxY + 225 * S);
@@ -1141,7 +1192,7 @@ export default function BannersPage() {
 
       const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
-      link.download = `nevux-${type === "hook" ? "hook-dolor" : "cierre-cta"}.png`;
+      link.download = `nevux-${type === "hook" ? "hook-dolor" : type === "mini_hook" ? "mini-hook" : "cierre-cta"}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -1376,26 +1427,6 @@ export default function BannersPage() {
                     </p>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(16, 185, 129, 0.15)", border: "2px solid #10B981", padding: "8px 24px", borderRadius: "999px" }}>
-                  <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10B981" }} />
-                  <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    App Store ID: 37382
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "45px", margin: "20px 0", zIndex: 10 }}>
-                <div style={{ textAlign: "center" }}>
-                  <h1 style={{ margin: "0 0 14px 0", fontSize: "68px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.1 }}>
-                    {isPt ? "NEVUX NÃO É UMA APP COMUM." : "NEVUX NO ES CUALQUIER APLICACIÓN."}
-                  </h1>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "2px solid rgba(16, 185, 129, 0.15)", paddingTop: "25px", zIndex: 10 }}>
-                <span style={{ fontSize: "18px", fontWeight: 850, color: "#10B981", letterSpacing: "0.03em" }}>
-                  {isPt ? "🚀 JUNTE-SE À REVOLUÇÃO DO COMMERCE NA AMÉRICA LATINA" : "🚀 UNETE A LA REVOLUCIÓN DEL COMMERCE EN LATAM"}
-                </span>
               </div>
             </div>
           </div>
@@ -1422,42 +1453,6 @@ export default function BannersPage() {
           <div style={{ display: "flex", gap: "6px", background: "#0b2920", padding: "6px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.3)", width: "100%", overflowX: "auto" }}>
             <button onClick={() => setActiveDestacada("problema")} style={subTabStyle(activeDestacada === "problema")}>🚨 1. Dolor</button>
             <button onClick={() => setActiveDestacada("solucion")} style={subTabStyle(activeDestacada === "solucion")}>⚡ 2. Solución</button>
-            <button onClick={() => setActiveDestacada("testimonios")} style={subTabStyle(activeDestacada === "testimonios")}>💬 3. Chats</button>
-            <button onClick={() => setActiveDestacada("nevuxbot")} style={subTabStyle(activeDestacada === "nevuxbot")}>🤖 4. NevuxBot</button>
-            <button onClick={() => setActiveDestacada("analytics")} style={subTabStyle(activeDestacada === "analytics")}>📊 5. Analytics</button>
-            <button onClick={() => setActiveDestacada("blackfriday")} style={subTabStyle(activeDestacada === "blackfriday")}>🔥 6. Fechas</button>
-            <button onClick={() => setActiveDestacada("estilomarca")} style={subTabStyle(activeDestacada === "estilomarca")}>🎨 7. Marca</button>
-            <button onClick={() => setActiveDestacada("crossselling")} style={subTabStyle(activeDestacada === "crossselling")}>🧠 8. Cross-Sell</button>
-            <button onClick={() => setActiveDestacada("multiidioma")} style={subTabStyle(activeDestacada === "multiidioma")}>🌎 9. Idiomas</button>
-            <button onClick={() => setActiveDestacada("voz")} style={subTabStyle(activeDestacada === "voz")}>🎙️ 10. Voz</button>
-            <button onClick={() => setActiveDestacada("vendedor")} style={subTabStyle(activeDestacada === "vendedor")}>🤝 11. Vendedor IA</button>
-          </div>
-
-          {activeDestacada === "vendedor" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>🤝</div>
-                  <h2 style={storyTitleStyle}>Vendedor Virtual IA: <span style={{ color: "#10B981" }}>Ventas 24/7</span>.</h2>
-                </div>
-                <div style={storyBottomSwipe}>¿Cómo funciona? Deslizá ➔</div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 4: PORTADAS DESTACADAS */}
-      {activeTab === "covers" && (
-        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "32px", alignItems: "center" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))", gap: "16px", width: "100%", justifyContent: "center" }}>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🚨</span></div><span style={coverLabelStyle}>1. El Problema</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>⚡</span></div><span style={coverLabelStyle}>2. La Solución</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>💬</span></div><span style={coverLabelStyle}>3. Testimonios</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🤖</span></div><span style={coverLabelStyle}>4. NevuxBot IA</span></div>
           </div>
         </div>
       )}
@@ -1475,19 +1470,12 @@ export default function BannersPage() {
                   ))}
                 </select>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", fontWeight: 800, color: "#6ee7b7" }}>FORMATO</label>
-                <div style={{ display: "flex", gap: "6px" }}>
-                  <button onClick={() => setFormat("portrait")} style={{ flex: 1, padding: "10px", borderRadius: "10px", border: "none", backgroundColor: format === "portrait" ? "#10B981" : "#061a14", color: "#ffffff", fontSize: "11px", fontWeight: 800, cursor: "pointer" }}><Smartphone size={14} /> Vertical 4:5</button>
-                  <button onClick={() => setFormat("square")} style={{ flex: 1, padding: "10px", borderRadius: "10px", border: "none", backgroundColor: format === "square" ? "#10B981" : "#061a14", color: "#ffffff", fontSize: "11px", fontWeight: 800, cursor: "pointer" }}><Square size={14} /> Cuadrado 1:1</button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 🎬 🌟 TAB 6: HOOKS Y CIERRES REELS (LETRAS NEGRAS + ALTO IMPACTO NEÓN) */}
+      {/* 🎬 🌟 TAB 6: HOOKS Y CIERRES REELS (3 ASSETS DE ALTO IMPACTO) */}
       {activeTab === "marketing_assets" && (
         <div
           style={{
@@ -1560,10 +1548,10 @@ export default function BannersPage() {
               width: "100%",
             }}
           >
-            {/* 🚨 HOOK DE APERTURA (LETRAS NEGRAS + CAJA NEÓN) */}
+            {/* 🚨 1. HOOK DE APERTURA */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", width: "240px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>🚨 HOOK DE APERTURA</span>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "220px" }}>
+                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>🚨 HOOK INICIO (3S)</span>
                 <button
                   disabled={isDownloading}
                   onClick={() => downloadMarketingAsset("hook")}
@@ -1575,21 +1563,20 @@ export default function BannersPage() {
                     display: "flex",
                     alignItems: "center",
                     gap: "4px",
-                    fontSize: "12px",
+                    fontSize: "11px",
                     fontWeight: 800,
                   }}
                 >
-                  <Download size={14} /> Descargar
+                  <Download size={12} /> Descargar
                 </button>
               </div>
 
-              {/* Render de pantalla vertical 9:16 con letras negras */}
               <div
                 style={{
-                  width: "240px",
-                  height: "426px",
+                  width: "220px",
+                  height: "390px",
                   backgroundColor: "#090d16",
-                  border: "2.5px solid #10B981",
+                  border: "2px solid #10B981",
                   borderRadius: "20px",
                   padding: "20px 14px",
                   display: "flex",
@@ -1601,31 +1588,27 @@ export default function BannersPage() {
                   boxSizing: "border-box",
                 }}
               >
-                {/* Glow Neón de fondo */}
-                <div style={{ position: "absolute", width: "160px", height: "160px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(40px)", borderRadius: "50%", pointerEvents: "none" }} />
-                
-                {/* Caja resaltada verde esmeralda con texto en NEGRO */}
+                <div style={{ position: "absolute", width: "140px", height: "140px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(35px)", borderRadius: "50%", pointerEvents: "none" }} />
                 <div
                   style={{
                     width: "100%",
                     backgroundColor: "#10B981",
-                    border: "2px solid #ffffff",
-                    borderRadius: "18px",
-                    padding: "24px 12px",
+                    border: "1.5px solid #ffffff",
+                    borderRadius: "16px",
+                    padding: "20px 10px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "12px",
+                    gap: "10px",
                     boxShadow: "0 10px 30px rgba(16, 185, 129, 0.4)",
                     zIndex: 2,
                     boxSizing: "border-box",
                   }}
                 >
-                  <span style={{ fontSize: "8px", fontWeight: 950, color: "#000000", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  <span style={{ fontSize: "7.5px", fontWeight: 950, color: "#000000", letterSpacing: "0.06em" }}>
                     🔥 SECRETO DE E-COMMERCE
                   </span>
-
-                  <h2 style={{ fontSize: "16px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0, letterSpacing: "-0.02em" }}>
+                  <h2 style={{ fontSize: "13.5px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0 }}>
                     {isPt 
                       ? "Os que vendem na Nuvemshop já usam isso 👀" 
                       : "Los que venden en Tiendanube ya usan esto 👀"}
@@ -1634,10 +1617,79 @@ export default function BannersPage() {
               </div>
             </div>
 
-            {/* 🏁 CTA DE CIERRE (LETRAS NEGRAS + CAJA NEÓN) */}
+            {/* ⚡ 2. MINI GANCHO CENTRAL (NUEVO) */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", width: "240px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>🏁 CTA DE CIERRE</span>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "220px" }}>
+                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>⚡ MINI GANCHO (15S)</span>
+                <button
+                  disabled={isDownloading}
+                  onClick={() => downloadMarketingAsset("mini_hook")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#6ee7b7",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "11px",
+                    fontWeight: 800,
+                  }}
+                >
+                  <Download size={12} /> Descargar
+                </button>
+              </div>
+
+              <div
+                style={{
+                  width: "220px",
+                  height: "390px",
+                  backgroundColor: "#090d16",
+                  border: "2px solid #10B981",
+                  borderRadius: "20px",
+                  padding: "20px 14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                  boxSizing: "border-box",
+                }}
+              >
+                <div style={{ position: "absolute", width: "140px", height: "140px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(35px)", borderRadius: "50%", pointerEvents: "none" }} />
+                <div
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#10B981",
+                    border: "1.5px solid #ffffff",
+                    borderRadius: "16px",
+                    padding: "20px 10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "10px",
+                    boxShadow: "0 10px 30px rgba(16, 185, 129, 0.4)",
+                    zIndex: 2,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <span style={{ fontSize: "7.5px", fontWeight: 950, color: "#000000", letterSpacing: "0.06em" }}>
+                    ⚡ ACCESO AL INSTANTE
+                  </span>
+                  <h2 style={{ fontSize: "13.5px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0 }}>
+                    {isPt 
+                      ? "Ative um Contador e venda o triplo em 15 segundos ⏳" 
+                      : "Activá una Cuenta Regresiva y vendé el triple hoy mismo ⏳"}
+                  </h2>
+                </div>
+              </div>
+            </div>
+
+            {/* 🏁 3. CTA DE CIERRE */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "220px" }}>
+                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>🏁 CTA CIERRE (REELS)</span>
                 <button
                   disabled={isDownloading}
                   onClick={() => downloadMarketingAsset("cierre")}
@@ -1649,21 +1701,20 @@ export default function BannersPage() {
                     display: "flex",
                     alignItems: "center",
                     gap: "4px",
-                    fontSize: "12px",
+                    fontSize: "11px",
                     fontWeight: 800,
                   }}
                 >
-                  <Download size={14} /> Descargar
+                  <Download size={12} /> Descargar
                 </button>
               </div>
 
-              {/* Render de pantalla vertical 9:16 con letras negras */}
               <div
                 style={{
-                  width: "240px",
-                  height: "426px",
+                  width: "220px",
+                  height: "390px",
                   backgroundColor: "#090d16",
-                  border: "2.5px solid #10B981",
+                  border: "2px solid #10B981",
                   borderRadius: "20px",
                   padding: "20px 14px",
                   display: "flex",
@@ -1675,41 +1726,34 @@ export default function BannersPage() {
                   boxSizing: "border-box",
                 }}
               >
-                {/* Glow Neón */}
-                <div style={{ position: "absolute", width: "160px", height: "160px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(40px)", borderRadius: "50%", pointerEvents: "none" }} />
-
-                {/* Tarjeta de Cierre resaltada verde esmeralda con texto en NEGRO */}
+                <div style={{ position: "absolute", width: "140px", height: "140px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(35px)", borderRadius: "50%", pointerEvents: "none" }} />
                 <div
                   style={{
                     width: "100%",
                     backgroundColor: "#10B981",
-                    border: "2px solid #ffffff",
-                    borderRadius: "20px",
-                    padding: "22px 14px",
+                    border: "1.5px solid #ffffff",
+                    borderRadius: "16px",
+                    padding: "20px 10px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "14px",
+                    gap: "12px",
                     boxShadow: "0 10px 30px rgba(16, 185, 129, 0.4)",
                     zIndex: 2,
                     boxSizing: "border-box",
                   }}
                 >
-                  {/* Logo 'N' en Negro */}
-                  <div style={{ width: "36px", height: "36px", background: "#000000", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 950, fontSize: "18px", color: "#10B981", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>
+                  <div style={{ width: "32px", height: "36px", background: "#000000", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 950, fontSize: "16px", color: "#10B981" }}>
                     N
                   </div>
-
-                  {/* Texto CTA en Negro */}
-                  <h2 style={{ fontSize: "15px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0 }}>
+                  <h2 style={{ fontSize: "13.5px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0 }}>
                     {isPt ? "Teste o Nevux GRÁTIS por 7 dias 🚀" : "Probá Nevux GRATIS 7 días 🚀"}
                   </h2>
-
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                    <span style={{ fontSize: "10px", color: "#000000", fontWeight: 900 }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                    <span style={{ fontSize: "9px", color: "#000000", fontWeight: 900 }}>
                       {isPt ? "👉 Link na Biografia 👈" : "👉 Link en la Biografía 👈"}
                     </span>
-                    <span style={{ fontSize: "18px" }}>👇</span>
+                    <span style={{ fontSize: "16px" }}>👇</span>
                   </div>
                 </div>
               </div>
