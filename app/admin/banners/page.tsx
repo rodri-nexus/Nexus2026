@@ -667,11 +667,6 @@ function WhatsAppHeader({
           </div>
         </div>
       </div>
-      <div style={{ display: "flex", gap: "16px", color: "#ffffff" }}>
-        <Video size={18} />
-        <Phone size={16} />
-        <MoreVertical size={18} />
-      </div>
     </div>
   );
 }
@@ -977,7 +972,7 @@ export default function BannersPage() {
     }
   };
 
-  // EXPORTADOR ULTRA-RESALTADO REELS: TEXTO NEGRO (#000000) SOBRE VERDE NEÓN ESPECTACULAR
+  // EXPORTADOR REELS CON ILUSTRACIONES VECTORIALES NATIVAS (Apertura Comparativa & Mini Gancho Veloz)
   const downloadMarketingAsset = async (type: "hook" | "cierre" | "mini_hook") => {
     setIsDownloading(true);
     try {
@@ -992,71 +987,104 @@ export default function BannersPage() {
         const S = width / 340;
 
         if (type === "hook") {
+          // Fondo oscuro tecnológico
           ctx.fillStyle = "#090d16";
           ctx.fillRect(0, 0, width, height);
 
-          const grad = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 220 * S);
-          grad.addColorStop(0, "rgba(16, 185, 129, 0.3)");
-          grad.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
-          ctx.fill();
+          // 🚨 LADO IZQUIERDO: VISITAS PERO 0 VENTAS (FRUSTRACIÓN - ROJO)
+          const leftW = width / 2;
+          const leftGrad = ctx.createLinearGradient(0, 0, leftW, height);
+          leftGrad.addColorStop(0, "#2a0812");
+          leftGrad.addColorStop(1, "#090d16");
+          ctx.fillStyle = leftGrad;
+          ctx.fillRect(0, 0, leftW, height);
 
-          const boxW = width - 48 * S;
-          const boxH = 260 * S;
-          const boxX = (width - boxW) / 2;
-          const boxY = (height - boxH) / 2;
+          // Ilustrar gráfico plano y triste
+          ctx.strokeStyle = "#ef4444";
+          ctx.lineWidth = 4 * S;
+          ctx.beginPath();
+          ctx.moveTo(15 * S, height / 2 + 100 * S);
+          ctx.lineTo(leftW - 15 * S, height / 2 + 110 * S); // Facturación plana
+          ctx.stroke();
+
+          // Emoji frustrado / visitas gigantes
+          ctx.fillStyle = "#ef4444";
+          ctx.font = `900 ${44 * S}px system-ui`;
+          ctx.textAlign = "center";
+          ctx.fillText("👀", leftW / 2, height / 2 - 40 * S);
+          ctx.font = `950 ${12 * S}px system-ui`;
+          ctx.fillText("10.000 VISITAS", leftW / 2, height / 2 + 15 * S);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText("$0 VENTAS 😢", leftW / 2, height / 2 + 45 * S);
+
+          // 🍏 LADO DERECHO: VENTAS DISPARADAS CON NEVUX (ÉXITO - VERDE)
+          const rightGrad = ctx.createLinearGradient(leftW, 0, width, height);
+          rightGrad.addColorStop(0, "#022c22");
+          rightGrad.addColorStop(1, "#090d16");
+          ctx.fillStyle = rightGrad;
+          ctx.fillRect(leftW, 0, leftW, height);
+
+          // Ilustrar gráfico exponencial hacia la luna
+          ctx.strokeStyle = "#10B981";
+          ctx.lineWidth = 5 * S;
+          ctx.beginPath();
+          ctx.moveTo(leftW + 15 * S, height / 2 + 120 * S);
+          ctx.bezierCurveTo(leftW + 60 * S, height / 2 + 100 * S, leftW + 110 * S, height / 2 - 20 * S, width - 20 * S, height / 2 - 100 * S);
+          ctx.stroke();
+
+          // Bolsa de dinero y cohete
+          ctx.font = `900 ${44 * S}px system-ui`;
+          ctx.fillText("💰", leftW + leftW / 2, height / 2 - 50 * S);
+          ctx.font = `950 ${12 * S}px system-ui`;
+          ctx.fillStyle = "#10B981";
+          ctx.fillText("VENTAS x3", leftW + leftW / 2, height / 2 + 15 * S);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText("CON NEVUX 🔥", leftW + leftW / 2, height / 2 + 45 * S);
+
+          // Línea divisoria dorada/esmeralda brillante
+          ctx.strokeStyle = "rgba(16, 185, 129, 0.4)";
+          ctx.lineWidth = 2 * S;
+          ctx.beginPath();
+          ctx.moveTo(leftW, 80 * S);
+          ctx.lineTo(leftW, height - 120 * S);
+          ctx.stroke();
+
+          // STICKER SUPERPUESTO DE GANCHO EN NEGRO Y VERDE
+          const hookW = width - 40 * S;
+          const hookH = 140 * S;
+          const hookX = (width - hookW) / 2;
+          const hookY = 120 * S;
 
           ctx.fillStyle = "#10B981";
-          drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 28 * S);
+          drawRoundedRect(ctx, hookX, hookY, hookW, hookH, 20 * S);
           ctx.fill();
 
           ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 3 * S;
+          ctx.lineWidth = 2.5 * S;
           ctx.stroke();
 
           ctx.fillStyle = "#000000";
-          ctx.font = `950 ${9.5 * S}px system-ui, sans-serif`;
           ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("🔥 SECRETO DE E-COMMERCE", width / 2, boxY + 36 * S);
-
-          ctx.fillStyle = "#000000";
-          ctx.font = `950 ${24 * S}px system-ui, sans-serif`;
-          ctx.textBaseline = "top";
-
-          const text = isPt 
-            ? "Os que vendem na Nuvemshop já usam isso 👀" 
-            : "Los que venden en Tiendanube ya usan esto 👀";
-
-          const words = text.split(" ");
-          let line = "";
-          const lines: string[] = [];
-          const maxW = boxW - 36 * S;
-          const lineH = 36 * S;
-
-          for (let n = 0; n < words.length; n++) {
-            const testLine = line + words[n] + " ";
-            if (ctx.measureText(testLine).width > maxW && n > 0) {
-              lines.push(line);
-              line = words[n] + " ";
-            } else {
-              line = testLine;
-            }
-          }
-          lines.push(line);
-
-          const startY = boxY + 85 * S;
-          for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
-          }
+          ctx.font = `950 ${15 * S}px system-ui, sans-serif`;
+          ctx.fillText(
+            isPt ? "Os que vendem na Nuvemshop" : "Los que venden en Tiendanube",
+            width / 2,
+            hookY + 45 * S
+          );
+          ctx.font = `950 ${18 * S}px system-ui, sans-serif`;
+          ctx.fillText(
+            isPt ? "já usam isso 👀 e te vencem!" : "ya usan esto 👀 y por eso te ganan",
+            width / 2,
+            hookY + 95 * S
+          );
 
         } else if (type === "mini_hook") {
+          // ⚡ MINI GANCHO 15 SEGUNDOS (ILUSTRACIÓN DE VELOCIDAD EXTREMA)
           ctx.fillStyle = "#090d16";
           ctx.fillRect(0, 0, width, height);
 
-          const grad = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 220 * S);
+          // Halo verde
+          const grad = ctx.createRadialGradient(width / 2, height / 2, 20 * S, width / 2, height / 2, 220 * S);
           grad.addColorStop(0, "rgba(16, 185, 129, 0.35)");
           grad.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = grad;
@@ -1064,56 +1092,77 @@ export default function BannersPage() {
           ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
           ctx.fill();
 
+          // Ilustrar Cronómetro Glowing Neon
+          const centerX = width / 2;
+          const centerY = height / 2 - 80 * S;
+          const radius = 60 * S;
+
+          ctx.strokeStyle = "#10B981";
+          ctx.lineWidth = 6 * S;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Botón del cronómetro arriba
+          ctx.fillStyle = "#10B981";
+          ctx.fillRect(centerX - 10 * S, centerY - radius - 15 * S, 20 * S, 15 * S);
+
+          // Agujas marcando 15s (un cuarto de reloj)
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 4 * S;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(centerX, centerY - radius + 15 * S); // Aguja minutos
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(centerX + radius - 15 * S, centerY); // Aguja 15 segundos
+          ctx.stroke();
+
+          // Gráfico de Ventas Parabólico detrás
+          ctx.strokeStyle = "rgba(16, 185, 129, 0.25)";
+          ctx.lineWidth = 30 * S;
+          ctx.beginPath();
+          ctx.moveTo(40 * S, height / 2 + 180 * S);
+          ctx.bezierCurveTo(width / 2 - 100 * S, height / 2 + 150 * S, width / 2 + 50 * S, height / 2 + 50 * S, width - 40 * S, height / 2 - 20 * S);
+          ctx.stroke();
+
+          // Caja Resaltada con sticker explicativo
           const boxW = width - 48 * S;
-          const boxH = 260 * S;
+          const boxH = 160 * S;
           const boxX = (width - boxW) / 2;
-          const boxY = (height - boxH) / 2;
+          const boxY = height / 2 + 100 * S;
 
           ctx.fillStyle = "#10B981";
-          drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 28 * S);
+          drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 24 * S);
           ctx.fill();
 
           ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 3 * S;
+          ctx.lineWidth = 2.5 * S;
           ctx.stroke();
 
           ctx.fillStyle = "#000000";
-          ctx.font = `950 ${9.5 * S}px system-ui, sans-serif`;
+          ctx.font = `950 ${14 * S}px system-ui, sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText("⚡ ACCESO AL INSTANTE", width / 2, boxY + 36 * S);
-
-          ctx.fillStyle = "#000000";
-          ctx.font = `950 ${23 * S}px system-ui, sans-serif`;
-          ctx.textBaseline = "top";
-
-          const text = isPt 
-            ? "Ative um Contador e venda o triplo em 15 segundos ⏳" 
-            : "Activá una Cuenta Regresiva y vendé el triple hoy mismo ⏳";
-
-          const words = text.split(" ");
-          let line = "";
-          const lines: string[] = [];
-          const maxW = boxW - 36 * S;
-          const lineH = 36 * S;
-
-          for (let n = 0; n < words.length; n++) {
-            const testLine = line + words[n] + " ";
-            if (ctx.measureText(testLine).width > maxW && n > 0) {
-              lines.push(line);
-              line = words[n] + " ";
-            } else {
-              line = testLine;
-            }
-          }
-          lines.push(line);
-
-          const startY = boxY + 85 * S;
-          for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
-          }
+          ctx.fillText(
+            isPt ? "ATIVE EM 15 SEGUNDOS ⏳" : "ACTIVÁ EN 15 SEGUNDOS ⏳",
+            width / 2,
+            boxY + 36 * S
+          );
+          ctx.font = `950 ${17 * S}px system-ui, sans-serif`;
+          ctx.fillText(
+            isPt ? "E VENDA O TRIPLO HOJE" : "Y VENDÉ EL TRIPLE HOY MISMO",
+            width / 2,
+            boxY + 80 * S
+          );
+          ctx.font = `900 ${11 * S}px system-ui, sans-serif`;
+          ctx.fillText(
+            isPt ? "🚀 Ativação direta na sua Nuvemshop" : "🚀 Activación directa en tu Tiendanube",
+            width / 2,
+            boxY + 120 * S
+          );
 
         } else {
+          // CTA Outro de Cierre
           ctx.fillStyle = "#090d16";
           ctx.fillRect(0, 0, width, height);
 
@@ -1349,86 +1398,6 @@ export default function BannersPage() {
               🇧🇷 Português (Brasil)
             </button>
           </div>
-
-          <div
-            style={{
-              background: "#0b2920",
-              padding: "16px 20px",
-              borderRadius: "16px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-              width: "100%",
-              maxWidth: "500px",
-              border: "1.5px solid rgba(16, 185, 129, 0.3)",
-              boxSizing: "border-box",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "12.5px", fontWeight: 800, color: "#a7f3d0" }}>
-                🔎 {isPt ? "Controle de Zoom" : "Control de Zoom"}
-              </span>
-              <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>
-                {Math.round(appstoreZoom * 100)}%
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0.15"
-              max="1.0"
-              step="0.05"
-              value={appstoreZoom}
-              onChange={(e) => setAppstoreZoom(parseFloat(e.target.value))}
-              style={{
-                width: "100%",
-                accentColor: "#10B981",
-                cursor: "pointer",
-              }}
-            />
-          </div>
-
-          <div
-            style={{
-              width: `${1920 * appstoreZoom}px`,
-              height: `${1080 * appstoreZoom}px`,
-              overflow: "hidden",
-              borderRadius: "24px",
-              border: "4px solid #10B981",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
-              transition: "width 0.1s ease, height 0.1s ease",
-              boxSizing: "border-box",
-            }}
-          >
-            <div
-              style={{
-                width: "1920px",
-                height: "1080px",
-                transform: `scale(${appstoreZoom})`,
-                transformOrigin: "top left",
-                background: "radial-gradient(circle at top left, #042f1a 0%, #020617 60%, #000000 100%)",
-                padding: "60px 70px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                boxSizing: "border-box",
-                position: "relative",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "3px solid rgba(16, 185, 129, 0.25)", paddingBottom: "30px", zIndex: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <div style={{ background: "#10B981", color: "#ffffff", width: "64px", height: "64px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", fontWeight: 950, boxShadow: "0 0 30px rgba(16, 185, 129, 0.6)" }}>
-                    N
-                  </div>
-                  <div>
-                    <h2 style={{ margin: 0, fontSize: "38px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.04em" }}>NEVUX</h2>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#10B981", fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase" }}>
-                      {isPt ? "Powering Nuvemshop" : "Powering Tiendanube"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
@@ -1442,16 +1411,6 @@ export default function BannersPage() {
                 {isPt ? "O primeiro CRM de Carrinhos com IA" : "El primer CRM de Carritos con IA"}
               </h2>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: HISTORIAS INSTAGRAM */}
-      {activeTab === "stories" && (
-        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "24px" }}>
-          <div style={{ display: "flex", gap: "6px", background: "#0b2920", padding: "6px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.3)", width: "100%", overflowX: "auto" }}>
-            <button onClick={() => setActiveDestacada("problema")} style={subTabStyle(activeDestacada === "problema")}>🚨 1. Dolor</button>
-            <button onClick={() => setActiveDestacada("solucion")} style={subTabStyle(activeDestacada === "solucion")}>⚡ 2. Solución</button>
           </div>
         </div>
       )}
@@ -1474,7 +1433,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* 🎬 🌟 TAB 6: HOOKS Y CIERRES REELS (3 ASSETS DE ALTO IMPACTO) */}
+      {/* 🎬 🌟 TAB 6: HOOKS Y CIERRES REELS (STORYTELLING VISUAL CON REALIDAD DE COMPRA) */}
       {activeTab === "marketing_assets" && (
         <div
           style={{
@@ -1532,12 +1491,6 @@ export default function BannersPage() {
             </button>
           </div>
 
-          <p style={{ fontSize: "12.5px", color: "#6ee7b7", textAlign: "center", margin: 0, fontWeight: 600 }}>
-            {isPt 
-              ? "💡 Letras em preto profundo (#000000) sobre fundo verde esmeralda com destaque viral."
-              : "💡 Letras en negro profundo (#000000) sobre fondo verde esmeralda con resaltado viral."}
-          </p>
-
           <div
             style={{
               display: "flex",
@@ -1547,10 +1500,10 @@ export default function BannersPage() {
               width: "100%",
             }}
           >
-            {/* 🚨 1. HOOK DE APERTURA */}
+            {/* 🚨 1. HOOK APERTURA (VISITAS VS VENTAS REALES) */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
               <div style={{ display: "flex", justifyContent: "space-between", width: "220px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>🚨 HOOK INICIO (3S)</span>
+                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>🚨 APERTURA DOLOR VS PLACER</span>
                 <button
                   disabled={isDownloading}
                   onClick={() => downloadMarketingAsset("hook")}
@@ -1577,49 +1530,32 @@ export default function BannersPage() {
                   backgroundColor: "#090d16",
                   border: "2px solid #10B981",
                   borderRadius: "20px",
-                  padding: "20px 14px",
                   display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  flexDirection: "row",
                   position: "relative",
                   overflow: "hidden",
                   boxSizing: "border-box",
                 }}
               >
-                <div style={{ position: "absolute", width: "140px", height: "140px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(35px)", borderRadius: "50%", pointerEvents: "none" }} />
-                <div
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#10B981",
-                    border: "1.5px solid #ffffff",
-                    borderRadius: "16px",
-                    padding: "20px 10px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "10px",
-                    boxShadow: "0 10px 30px rgba(16, 185, 129, 0.4)",
-                    zIndex: 2,
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <span style={{ fontSize: "7.5px", fontWeight: 950, color: "#000000", letterSpacing: "0.06em" }}>
-                    🔥 SECRETO DE E-COMMERCE
-                  </span>
-                  <h2 style={{ fontSize: "13.5px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0 }}>
-                    {isPt 
-                      ? "Os que vendem na Nuvemshop já usam isso 👀" 
-                      : "Los que venden en Tiendanube ya usan esto 👀"}
-                  </h2>
+                {/* Lado Izquierdo (Dolor) */}
+                <div style={{ flex: 1, background: "linear-gradient(to bottom, #3b0712, #090d16)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px", borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+                  <span style={{ fontSize: "32px" }}>😢</span>
+                  <span style={{ fontSize: "8px", fontWeight: 900, color: "#ef4444" }}>10k VISITAS</span>
+                  <span style={{ fontSize: "9px", fontWeight: 950, color: "#ffffff" }}>$0 VENTAS</span>
+                </div>
+                {/* Lado Derecho (Nevux Exito) */}
+                <div style={{ flex: 1, background: "linear-gradient(to bottom, #022c22, #090d16)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "32px" }}>💰</span>
+                  <span style={{ fontSize: "8px", fontWeight: 900, color: "#10B981" }}>VENTAS x3</span>
+                  <span style={{ fontSize: "9px", fontWeight: 950, color: "#ffffff" }}>CON NEVUX 🔥</span>
                 </div>
               </div>
             </div>
 
-            {/* ⚡ 2. MINI GANCHO CENTRAL */}
+            {/* ⚡ 2. MINI GANCHO CENTRAL (CRONÓMETRO VELOCIDAD EXTREMA) */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
               <div style={{ display: "flex", justifyContent: "space-between", width: "220px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>⚡ MINI GANCHO (15S)</span>
+                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>⚡ MINI GANCHO VELOCIDAD</span>
                 <button
                   disabled={isDownloading}
                   onClick={() => downloadMarketingAsset("mini_hook")}
@@ -1657,30 +1593,11 @@ export default function BannersPage() {
                 }}
               >
                 <div style={{ position: "absolute", width: "140px", height: "140px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(35px)", borderRadius: "50%", pointerEvents: "none" }} />
-                <div
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#10B981",
-                    border: "1.5px solid #ffffff",
-                    borderRadius: "16px",
-                    padding: "20px 10px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "10px",
-                    boxShadow: "0 10px 30px rgba(16, 185, 129, 0.4)",
-                    zIndex: 2,
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <span style={{ fontSize: "7.5px", fontWeight: 950, color: "#000000", letterSpacing: "0.06em" }}>
-                    ⚡ ACCESO AL INSTANTE
-                  </span>
-                  <h2 style={{ fontSize: "13.5px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0 }}>
-                    {isPt 
-                      ? "Ative um Contador e venda o triplo em 15 segundos ⏳" 
-                      : "Activá una Cuenta Regresiva y vendé el triple hoy mismo ⏳"}
-                  </h2>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", zIndex: 2 }}>
+                  <span style={{ fontSize: "44px" }}>⏳⏱️</span>
+                  <div style={{ backgroundColor: "#10B981", color: "#000000", fontWeight: 900, fontSize: "12px", padding: "8px 12px", borderRadius: "10px", border: "1.5px solid #ffffff", textAlign: "center" }}>
+                    {isPt ? "CONTADOR EM 15S" : "CUENTA REGRESIVA EN 15S"}
+                  </div>
                 </div>
               </div>
             </div>
