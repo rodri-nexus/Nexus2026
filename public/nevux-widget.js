@@ -8079,7 +8079,7 @@
     });
 }
   
-    /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER PACK COMPLEMENTARIOS
   ═══════════════════════════════════════════ */
   function renderPackComplementarios(w) {
@@ -8390,6 +8390,7 @@
       if (buyBtn) {
         buyBtn.addEventListener("click", function(e) {
           e.preventDefault();
+          e.stopPropagation();
           if (selectedSet.size === 0) return;
 
           var variantsToAdd = [];
@@ -8407,29 +8408,42 @@
           var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
           if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-          // Agregar productos al carrito secuencialmente
+          var addedCount = 0;
+
           var promiseChain = Promise.resolve();
           variantsToAdd.forEach(function(vId) {
             promiseChain = promiseChain.then(function() {
-              var params = new URLSearchParams();
-              params.append("add_to_cart", vId);
-              params.append("variant_id", vId);
-              params.append("quantity", "1");
+              var body = "id=" + encodeURIComponent(vId) + "&quantity=1";
 
-              return fetch("/cart/add", {
+              return fetch("/cart/add.js", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                   "X-Requested-With": "XMLHttpRequest",
-                  "Accept": "application/json, text/javascript, */*; q=0.01"
+                  "Accept": "application/json"
                 },
-                body: params.toString()
-              }).catch(function(e) { console.log("Pack item add err", e); });
+                body: body,
+                credentials: "same-origin"
+              }).then(function(res) {
+                if (res.ok) {
+                  addedCount++;
+                } else {
+                  console.log("Pack add failed for variant " + vId + " status " + res.status);
+                }
+              }).catch(function(err) {
+                console.log("Pack item add err", err);
+              });
             });
           });
 
           promiseChain.then(function() {
-            window.location.reload();
+            if (addedCount > 0) {
+              window.location.href = "/cart";
+            } else {
+              buyBtn.disabled = false;
+              if (btnTxt) btnTxt.innerText = textoBoton;
+              alert("No se pudo agregar el pack al carrito. Verificá que los IDs de variante sean correctos en el panel de Nevux.");
+            }
           });
         });
       }
@@ -8443,7 +8457,7 @@
     } else {
       target.parentNode.appendChild(div);
     }
-}
+    }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
