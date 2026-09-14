@@ -303,7 +303,7 @@ const CAROUSEL_TEMPLATES: CarouselTemplate[] = [
         badgeEs: "EL RESULTADO",
         badgePt: "O RESULTADO",
         titleEs: "Clientes seguros y cero dudas",
-        titlePt: "Clientes seguros e zero dúvidas",
+        titlePt: "Clientes seguros e zero dudas",
         descEs: "El cliente compra con total tranquilidad sabiendo exactamente cuál es la prenda que le va a calzar perfecto.",
         descPt: "O cliente compra com total tranquilidade sabendo exatamente qual peça vai servir perfeitamente.",
         visualType: "result"
@@ -802,10 +802,8 @@ export default function BannersPage() {
       const ctx = canvas.getContext("2d");
 
       if (ctx) {
-        // Factor de escala exacto basado en el ancho visual de 340px del celular
         const S = width / 340;
 
-        // Fondo con Degradado Radial Premium
         const gradient = ctx.createRadialGradient(
           width / 2,
           height / 2,
@@ -819,7 +817,6 @@ export default function BannersPage() {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
 
-        // Halo de Luz Superior Orgánico
         const topLightY = -80 * S;
         const topLightRadius = 170 * S;
         const radialGrad = ctx.createRadialGradient(
@@ -833,30 +830,25 @@ export default function BannersPage() {
         ctx.arc(width / 2, topLightY, topLightRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // LOGO NEVUX OFICIAL (Cuadrado esmeralda con la letra N + texto EVUX)
         const logoSize = 24 * S;
         const logoX = (width - logoSize) / 2 - 34 * S;
         const logoY = 22 * S;
 
-        // Cuadrado redondeado esmeralda
         ctx.fillStyle = "#10B981";
         drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 6 * S);
         ctx.fill();
 
-        // N en blanco
         ctx.fillStyle = "#ffffff";
         ctx.font = `950 ${15 * S}px system-ui, -apple-system, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("N", logoX + logoSize / 2, logoY + logoSize / 2 + 0.5 * S);
 
-        // Texto EVUX
         ctx.fillStyle = "#ffffff";
         ctx.font = `900 ${16 * S}px system-ui, -apple-system, sans-serif`;
         ctx.textAlign = "left";
         ctx.fillText("EVUX", logoX + logoSize + 8 * S, logoY + logoSize / 2);
 
-        // Separador del Header
         ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
         ctx.lineWidth = 1 * S;
         ctx.beginPath();
@@ -864,7 +856,6 @@ export default function BannersPage() {
         ctx.lineTo(width - 16 * S, 64 * S);
         ctx.stroke();
 
-        // BADGE SUPERIOR DE TEMPORADA
         const badgeText = isPt ? slide.badgePt : slide.badgeEs;
         ctx.font = `900 ${8.5 * S}px system-ui, -apple-system, sans-serif`;
         ctx.textAlign = "center";
@@ -886,7 +877,6 @@ export default function BannersPage() {
         ctx.textBaseline = "middle";
         ctx.fillText(badgeText.toUpperCase(), width / 2, badgeY + badgeH / 2);
 
-        // TÍTULO PRINCIPAL (Multi-línea y adaptado al formato)
         const titleText = isPt ? slide.titlePt : slide.titleEs;
         const titleFontSize = isPortrait ? 19 * S : 16 * S;
         ctx.font = `900 ${titleFontSize}px system-ui, -apple-system, sans-serif`;
@@ -917,7 +907,6 @@ export default function BannersPage() {
           ctx.fillText(titleLines[i].trim(), width / 2, titleStartY + i * titleLineHeight);
         }
 
-        // DESCRIPCIÓN CON CAJA CONTENEDORA (Clonación exacta de opacidad y borde)
         const descText = isPt ? slide.descPt : slide.descEs;
         const descFontSize = isPortrait ? 11.5 * S : 10 * S;
         ctx.font = `500 ${descFontSize}px system-ui, -apple-system, sans-serif`;
@@ -945,7 +934,6 @@ export default function BannersPage() {
         const descBoxX = 16 * S;
         const descBoxY = height - 44 * S - descBoxHeight;
 
-        // Caja negra translúcida con borde esmeralda sutil
         ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
         ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
         ctx.lineWidth = 1 * S;
@@ -953,7 +941,6 @@ export default function BannersPage() {
         ctx.fill();
         ctx.stroke();
 
-        // Dibujar el texto descriptivo dentro de la caja
         ctx.fillStyle = "#a7f3d0";
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
@@ -962,7 +949,6 @@ export default function BannersPage() {
           ctx.fillText(descLines[i].trim(), width / 2, descTextStartY + i * descLineHeight);
         }
 
-        // FOOTER CON DESLIZADOR
         const footerY = height - 34 * S;
         ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
         ctx.lineWidth = 1 * S;
@@ -979,7 +965,6 @@ export default function BannersPage() {
         ctx.fillText(swipeText, width / 2, footerY + 17 * S);
       }
 
-      // Descarga directa a la galería en PNG HD
       const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
       link.download = `nevux-carousel-${selectedWidget}-slide-${slideIndex + 1}.png`;
@@ -992,7 +977,7 @@ export default function BannersPage() {
     }
   };
 
-  // EXPORTADOR PREMIUM DE HOOKS Y CIERRES EN CALIDAD REELS (9:16 - 1080x1920)
+  // EXPORTADOR ULTRA-RESALTADO: TEXTO NEGRO (#000000) SOBRE VERDE NEÓN ESPECTACULAR
   const downloadMarketingAsset = async (type: "hook" | "cierre") => {
     setIsDownloading(true);
     try {
@@ -1004,42 +989,45 @@ export default function BannersPage() {
       const ctx = canvas.getContext("2d");
 
       if (ctx) {
-        const S = width / 340; // Factor de escala Reels
+        const S = width / 340;
 
         if (type === "hook") {
-          // Fondo Negro profundo estilo Tech
+          // Fondo Negro profundo Tech
           ctx.fillStyle = "#090d16";
           ctx.fillRect(0, 0, width, height);
 
           // Halo de luz neón central
-          const grad = ctx.createRadialGradient(width/2, height/2, 50*S, width/2, height/2, 200*S);
-          grad.addColorStop(0, "rgba(16, 185, 129, 0.18)");
+          const grad = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 220 * S);
+          grad.addColorStop(0, "rgba(16, 185, 129, 0.3)");
           grad.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = grad;
           ctx.beginPath();
-          ctx.arc(width/2, height/2, 200*S, 0, Math.PI*2);
+          ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
           ctx.fill();
 
-          // Badge superior
-          ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
-          ctx.strokeStyle = "#10B981";
-          ctx.lineWidth = 1.5 * S;
-          const badgeW = 96 * S;
-          const badgeH = 22 * S;
-          const badgeX = (width - badgeW) / 2;
-          const badgeY = 180 * S;
-          drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 11 * S);
-          ctx.fill();
-          ctx.stroke();
+          // Caja Resaltada Neón Esmeralda
+          const boxW = width - 48 * S;
+          const boxH = 260 * S;
+          const boxX = (width - boxW) / 2;
+          const boxY = (height - boxH) / 2;
 
           ctx.fillStyle = "#10B981";
-          ctx.font = `900 ${8.5 * S}px system-ui, sans-serif`;
+          drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 28 * S);
+          ctx.fill();
+
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 3 * S;
+          ctx.stroke();
+
+          // Badge superior en Negro
+          ctx.fillStyle = "#000000";
+          ctx.font = `950 ${9.5 * S}px system-ui, sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText("NEVUX REELS", width / 2, badgeY + badgeH / 2);
+          ctx.fillText("🔥 SECRETO DE E-COMMERCE", width / 2, boxY + 36 * S);
 
-          // Título de dolor impactante (Hook 2)
-          ctx.fillStyle = "#ffffff";
+          // TÍTULO HOOK 2 EN NEGRO PROFUNDO (#000000)
+          ctx.fillStyle = "#000000";
           ctx.font = `950 ${24 * S}px system-ui, sans-serif`;
           ctx.textBaseline = "top";
 
@@ -1050,7 +1038,79 @@ export default function BannersPage() {
           const words = text.split(" ");
           let line = "";
           const lines: string[] = [];
-          const maxW = width - 48 * S;
+          const maxW = boxW - 36 * S;
+          const lineH = 36 * S;
+
+          for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxW && n > 0) {
+              lines.push(line);
+              line = words[n] + " ";
+            } else {
+              line = testLine;
+            }
+          }
+          lines.push(line);
+
+          const startY = boxY + 85 * S;
+          for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
+          }
+
+        } else {
+          // Fondo Negro profundo Tech
+          ctx.fillStyle = "#090d16";
+          ctx.fillRect(0, 0, width, height);
+
+          // Halo de luz neón
+          const grad = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 220 * S);
+          grad.addColorStop(0, "rgba(16, 185, 129, 0.3)");
+          grad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Caja Resaltada Neón Esmeralda para CTA
+          const boxW = width - 48 * S;
+          const boxH = 340 * S;
+          const boxX = (width - boxW) / 2;
+          const boxY = (height - boxH) / 2;
+
+          ctx.fillStyle = "#10B981";
+          drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 28 * S);
+          ctx.fill();
+
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 3 * S;
+          ctx.stroke();
+
+          // Logo Nevux Cuadrado Negro con 'N' Esmeralda
+          const logoW = 54 * S;
+          const logoH = 54 * S;
+          const logoX = (width - logoW) / 2;
+          const logoY = boxY + 30 * S;
+
+          ctx.fillStyle = "#000000";
+          drawRoundedRect(ctx, logoX, logoY, logoW, logoH, 14 * S);
+          ctx.fill();
+
+          ctx.fillStyle = "#10B981";
+          ctx.font = `950 ${28 * S}px system-ui, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("N", logoX + logoW / 2, logoY + logoH / 2);
+
+          // TÍTULO CTA EN NEGRO PROFUNDO (#000000)
+          ctx.fillStyle = "#000000";
+          ctx.font = `950 ${23 * S}px system-ui, sans-serif`;
+          ctx.textBaseline = "top";
+          const ctaText = isPt ? "Teste o Nevux GRÁTIS por 7 dias 🚀" : "Probá Nevux GRATIS 7 días 🚀";
+          
+          const words = ctaText.split(" ");
+          let line = "";
+          const lines: string[] = [];
+          const maxW = boxW - 36 * S;
           const lineH = 34 * S;
 
           for (let n = 0; n < words.length; n++) {
@@ -1064,73 +1124,18 @@ export default function BannersPage() {
           }
           lines.push(line);
 
-          const startY = height / 2 - (lines.length * lineH) / 2;
-          for (let i = 0; i < lines.length; i++) {
-            const lineText = lines[i].trim();
-            ctx.fillText(lineText, width / 2, startY + i * lineH);
-          }
-
-        } else {
-          // Outro / Cierre 1
-          const radial = ctx.createRadialGradient(width/2, height/2, 20*S, width/2, height/2, width*0.8);
-          radial.addColorStop(0, "#064e3b");
-          radial.addColorStop(1, "#020617");
-          ctx.fillStyle = radial;
-          ctx.fillRect(0, 0, width, height);
-
-          // Logo Nevux gigante en el medio
-          const logoW = 54 * S;
-          const logoH = 54 * S;
-          const logoX = (width - logoW) / 2;
-          const logoY = height / 2 - 140 * S;
-
-          ctx.fillStyle = "#10B981";
-          drawRoundedRect(ctx, logoX, logoY, logoW, logoH, 12 * S);
-          ctx.fill();
-
-          ctx.fillStyle = "#ffffff";
-          ctx.font = `950 ${28 * S}px system-ui, sans-serif`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("N", logoX + logoW/2, logoY + logoH/2);
-
-          // Texto de Cierre 1
-          ctx.fillStyle = "#ffffff";
-          ctx.font = `900 ${22 * S}px system-ui, sans-serif`;
-          ctx.textBaseline = "top";
-          const ctaText = isPt ? "Teste o Nevux GRÁTIS por 7 dias 🚀" : "Probá Nevux GRATIS 7 días 🚀";
-          
-          const words = ctaText.split(" ");
-          let line = "";
-          const lines: string[] = [];
-          const maxW = width - 48 * S;
-          const lineH = 32 * S;
-
-          for (let n = 0; n < words.length; n++) {
-            const testLine = line + words[n] + " ";
-            if (ctx.measureText(testLine).width > maxW && n > 0) {
-              lines.push(line);
-              line = words[n] + " ";
-            } else {
-              line = testLine;
-            }
-          }
-          lines.push(line);
-
-          const startY = height / 2;
+          const startY = boxY + 105 * S;
           for (let i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i].trim(), width / 2, startY + i * lineH);
           }
 
-          // Subtítulo
-          ctx.fillStyle = "#a7f3d0";
-          ctx.font = `800 ${11 * S}px system-ui, sans-serif`;
-          ctx.fillText(isPt ? "Link na Biografia" : "Link en la Biografía", width / 2, height / 2 + 100 * S);
+          // Link en Bio y Flecha en Negro
+          ctx.fillStyle = "#000000";
+          ctx.font = `900 ${14 * S}px system-ui, sans-serif`;
+          ctx.fillText(isPt ? "👉 Link na Biografia 👈" : "👉 Link en la Biografía 👈", width / 2, boxY + 225 * S);
 
-          // Flecha indicadora 👇
-          ctx.fillStyle = "#10B981";
-          ctx.font = `900 ${24 * S}px system-ui, sans-serif`;
-          ctx.fillText("👇", width / 2, height / 2 + 140 * S);
+          ctx.font = `900 ${30 * S}px system-ui, sans-serif`;
+          ctx.fillText("👇", width / 2, boxY + 265 * S);
         }
       }
 
@@ -1239,7 +1244,7 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* 🌟 PESTAÑA: BANNER #5 APP STORE (1920x1080 CON ESCALADOR Y BILINGÜE) */}
+      {/* TAB 1: BANNER #5 APP STORE */}
       {activeTab === "appstore5" && (
         <div
           style={{
@@ -1251,7 +1256,6 @@ export default function BannersPage() {
             boxSizing: "border-box",
           }}
         >
-          {/* SELECTOR DE IDIOMA */}
           <div
             style={{
               display: "flex",
@@ -1296,7 +1300,6 @@ export default function BannersPage() {
             </button>
           </div>
 
-          {/* SLIDER DE CONTROL DE ZOOM PARA EL CELULAR */}
           <div
             style={{
               background: "#0b2920",
@@ -1332,14 +1335,8 @@ export default function BannersPage() {
                 cursor: "pointer",
               }}
             />
-            <span style={{ fontSize: "11px", color: "#6ee7b7", textAlign: "center", marginTop: "2px" }}>
-              {isPt
-                ? "💡 Deslize para 15%-25% na vertical. Suba a 40%-50% na horizontal para capturar em HD."
-                : "💡 Deslizá al 15%-25% para ver todo en vertical. Subí al 40%-50% en horizontal para sacar captura HD."}
-            </span>
           </div>
 
-          {/* CONTENEDOR DE ESCALADO MATEMÁTICO */}
           <div
             style={{
               width: `${1920 * appstoreZoom}px`,
@@ -1352,7 +1349,6 @@ export default function BannersPage() {
               boxSizing: "border-box",
             }}
           >
-            {/* EL LIENZO REAL (MANTIENE SUS 1920x1080 PROPORCIONALES) */}
             <div
               style={{
                 width: "1920px",
@@ -1368,11 +1364,6 @@ export default function BannersPage() {
                 position: "relative",
               }}
             >
-              {/* DEGRADADOS DE LUZ PRO */}
-              <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50%", height: "50%", background: "#10B981", filter: "blur(200px)", opacity: 0.15, pointerEvents: "none" }} />
-              <div style={{ position: "absolute", bottom: "-10%", right: "-10%", width: "40%", height: "40%", background: "#10B981", filter: "blur(180px)", opacity: 0.1, pointerEvents: "none" }} />
-
-              {/* HEADER DEL BANNER */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "3px solid rgba(16, 185, 129, 0.25)", paddingBottom: "30px", zIndex: 10 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                   <div style={{ background: "#10B981", color: "#ffffff", width: "64px", height: "64px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "32px", fontWeight: 950, boxShadow: "0 0 30px rgba(16, 185, 129, 0.6)" }}>
@@ -1385,7 +1376,6 @@ export default function BannersPage() {
                     </p>
                   </div>
                 </div>
-
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(16, 185, 129, 0.15)", border: "2px solid #10B981", padding: "8px 24px", borderRadius: "999px" }}>
                   <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#10B981" }} />
                   <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.05em", textTransform: "uppercase" }}>
@@ -1394,125 +1384,17 @@ export default function BannersPage() {
                 </div>
               </div>
 
-              {/* SECCIÓN CENTRAL: TÍTULO + GRILLA */}
               <div style={{ display: "flex", flexDirection: "column", gap: "45px", margin: "20px 0", zIndex: 10 }}>
-                {/* TÍTULO Y CONCEPTO */}
                 <div style={{ textAlign: "center" }}>
                   <h1 style={{ margin: "0 0 14px 0", fontSize: "68px", fontWeight: 950, color: "#ffffff", letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.1 }}>
                     {isPt ? "NEVUX NÃO É UMA APP COMUM." : "NEVUX NO ES CUALQUIER APLICACIÓN."}
                   </h1>
-                  <p style={{ fontSize: "24px", color: "#9ca3af", maxWidth: "1300px", margin: "0 auto", lineHeight: 1.5, fontWeight: 500 }}>
-                    {isPt ? (
-                      <>É a única suíte inteligente tudo-em-um que combina <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversão avançada</span> com ferramentas de IA para eliminar sua concorrência e disparar seu ticket médio.</>
-                    ) : (
-                      <>Es la única suite inteligente todo-en-uno que fusiona <span style={{ color: "#10B981", fontWeight: 800 }}>27 widgets de conversión avanzada</span> con herramientas de IA para liquidar a tu competencia y disparar tu ticket promedio.</>
-                    )}
-                  </p>
-                </div>
-
-                {/* GRILLA DE LAS 7 FUNCIONES PRO */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px", width: "100%" }}>
-                  {/* TARJETA 1 */}
-                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(16, 185, 129, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(16, 185, 129, 0.05)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                      <BarChart3 size={28} color="#10B981" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>Live Analytics</h3>
-                    </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Faturamento extra, pedidos recuperados e ROI exato em tempo real." : "Facturación extra, pedidos recuperados y ROI exacto en tiempo real."}
-                    </p>
-                  </div>
-
-                  {/* TARJETA 2 */}
-                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(245, 158, 11, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(245, 158, 11, 0.05)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                      <Flame size={28} color="#F59E0B" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
-                        {isPt ? "Datas Especiais" : "Fechas Especiales"}
-                      </h3>
-                    </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Modos Black Friday, Cyber Monday e Natal ativáveis com 1 clique." : "Modos Black Friday, Hot Sale y Navidad activables en 1 clic."}
-                    </p>
-                  </div>
-
-                  {/* TARJETA 3 */}
-                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(139, 92, 246, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(139, 92, 246, 0.05)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                      <Palette size={28} color="#8B5CF6" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
-                        {isPt ? "Estilo Marca" : "Estilo Marca"}
-                      </h3>
-                    </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Regra cromática inteligente que adapta os widgets à sua identidade visual." : "Regla cromática inteligente que adapta los widgets a tu branding."}
-                    </p>
-                  </div>
-
-                  {/* TARJETA 4 */}
-                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(59, 130, 246, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(59, 130, 246, 0.05)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                      <Brain size={28} color="#3B82F6" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
-                        {isPt ? "Sugestões IA" : "Sugerencias IA"}
-                      </h3>
-                    </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Cross-selling preditivo dinâmico baseado em afinidade de preços." : "Cross-selling predictivo dinámico basado en afinidad de precios."}
-                    </p>
-                  </div>
-                </div>
-
-                {/* FILA 2 DE LA GRILLA (CENTRADOS) */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px", width: "80%", margin: "0 auto" }}>
-                  {/* TARJETA 5 */}
-                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(6, 182, 212, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(6, 182, 212, 0.05)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                      <Globe size={28} color="#06B6D4" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
-                        {isPt ? "Multi-Idioma IA" : "Multi-Idioma IA"}
-                      </h3>
-                    </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Tradução contextual em tempo real para PT-BR / ES / EN." : "Traducción contextual en tiempo real para ES / PT-BR / EN."}
-                    </p>
-                  </div>
-
-                  {/* TARJETA 6 */}
-                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(236, 72, 153, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(236, 72, 153, 0.05)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                      <Mic size={28} color="#EC4899" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
-                        {isPt ? "Busca por Voz" : "Búsqueda por Voz"}
-                      </h3>
-                    </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Microfone flutuante com transcrição neural para comprar falando." : "Micrófono flotante con transcripción neuronal para comprar hablando."}
-                    </p>
-                  </div>
-
-                  {/* TARJETA 7 */}
-                  <div style={{ background: "rgba(10, 10, 10, 0.75)", border: "2px solid rgba(16, 185, 129, 0.45)", borderRadius: "20px", padding: "24px", boxShadow: "0 8px 30px rgba(16, 185, 129, 0.05)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                      <Bot size={28} color="#10B981" />
-                      <h3 style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "#ffffff" }}>
-                        {isPt ? "Vendedor Virtual IA" : "Vendedor Virtual IA"}
-                      </h3>
-                    </div>
-                    <p style={{ margin: 0, fontSize: "16px", color: "#9ca3af", lineHeight: 1.5 }}>
-                      {isPt ? "Agente que orienta, resolve dúvidas e direciona o pedido ao WhatsApp." : "Agente que asesora, resuelve dudas y deriva el pedido a WhatsApp."}
-                    </p>
-                  </div>
                 </div>
               </div>
 
-              {/* FOOTER DEL BANNER */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "2px solid rgba(16, 185, 129, 0.15)", paddingTop: "25px", zIndex: 10 }}>
                 <span style={{ fontSize: "18px", fontWeight: 850, color: "#10B981", letterSpacing: "0.03em" }}>
                   {isPt ? "🚀 JUNTE-SE À REVOLUÇÃO DO COMMERCE NA AMÉRICA LATINA" : "🚀 UNETE A LA REVOLUCIÓN DEL COMMERCE EN LATAM"}
-                </span>
-                <span style={{ fontSize: "16px", fontWeight: 700, color: "#6b7280" }}>
-                  {isPt ? "© 2026 Nevux App. Todos os direitos reservados." : "© 2026 Nevux App. Todos los derechos reservados."}
                 </span>
               </div>
             </div>
@@ -1522,68 +1404,13 @@ export default function BannersPage() {
 
       {/* TAB 2: BANNERS PARTNERS */}
       {activeTab === "partners" && (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "650px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "32px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              background: "#0b2920",
-              padding: "4px",
-              borderRadius: "12px",
-            }}
-          >
-            <button
-              onClick={() => setLang("es")}
-              style={{
-                padding: "8px 16px",
-                borderRadius: "8px",
-                fontSize: "12px",
-                fontWeight: 700,
-                border: "none",
-                cursor: "pointer",
-                backgroundColor: !isPt ? "#10B981" : "transparent",
-                color: !isPt ? "#ffffff" : "#a7f3d0",
-              }}
-            >
-              🇦🇷 Español
-            </button>
-            <button
-              onClick={() => setLang("pt")}
-              style={{
-                padding: "8px 16px",
-                borderRadius: "8px",
-                fontSize: "12px",
-                fontWeight: 700,
-                border: "none",
-                cursor: "pointer",
-                backgroundColor: isPt ? "#10B981" : "transparent",
-                color: isPt ? "#ffffff" : "#a7f3d0",
-              }}
-            >
-              🇧🇷 Português
-            </button>
-          </div>
+        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "32px" }}>
           <div style={bannerStyle}>
             <div style={{ flex: "1 1 200px", zIndex: 2 }}>
               <div style={badgeStyle}>🤖 NEVUXBOT</div>
               <h2 style={bannerTitleStyle}>
-                {isPt
-                  ? "O primeiro CRM de Carrinhos com IA"
-                  : "El primer CRM de Carritos con IA"}
+                {isPt ? "O primeiro CRM de Carrinhos com IA" : "El primer CRM de Carritos con IA"}
               </h2>
-              <p style={bannerDescStyle}>
-                {isPt
-                  ? "Detecte vendas perdidas, crie mensagens persuasivas com Gemini AI e recupere via WhatsApp ou E-mail."
-                  : "Detectá ventas perdidas, creá copys persuasivos con Gemini AI y recuperá por WhatsApp o Email."}
-              </p>
             </div>
           </div>
         </div>
@@ -1591,27 +1418,8 @@ export default function BannersPage() {
 
       {/* TAB 3: HISTORIAS INSTAGRAM */}
       {activeTab === "stories" && (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "650px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "24px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              gap: "6px",
-              background: "#0b2920",
-              padding: "6px",
-              borderRadius: "14px",
-              border: "1px solid rgba(16, 185, 129, 0.3)",
-              width: "100%",
-              overflowX: "auto",
-            }}
-          >
+        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "24px" }}>
+          <div style={{ display: "flex", gap: "6px", background: "#0b2920", padding: "6px", borderRadius: "14px", border: "1px solid rgba(16, 185, 129, 0.3)", width: "100%", overflowX: "auto" }}>
             <button onClick={() => setActiveDestacada("problema")} style={subTabStyle(activeDestacada === "problema")}>🚨 1. Dolor</button>
             <button onClick={() => setActiveDestacada("solucion")} style={subTabStyle(activeDestacada === "solucion")}>⚡ 2. Solución</button>
             <button onClick={() => setActiveDestacada("testimonios")} style={subTabStyle(activeDestacada === "testimonios")}>💬 3. Chats</button>
@@ -1625,673 +1433,61 @@ export default function BannersPage() {
             <button onClick={() => setActiveDestacada("vendedor")} style={subTabStyle(activeDestacada === "vendedor")}>🤝 11. Vendedor IA</button>
           </div>
 
-          {/* RENDERING PROBLEMA */}
-          {activeDestacada === "problema" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>🛑</div>
-                  <div style={storyBadgeStyle}>REALIDAD DEL E-COMMERCE</div>
-                  <h2 style={storyTitleStyle}>¿Por qué tu tienda vende <span style={{ color: "#fca5a5", textDecoration: "underline" }}>menos</span>?</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING SOLUCION */}
-          {activeDestacada === "solucion" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameLightStyle}>
-                <div style={storyTopHeaderLight}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "42px", marginBottom: "12px" }}>⚡</div>
-                  <div style={storyBadgeLightStyle}>LA SOLUCIÓN DEFINITIVA</div>
-                  <h2 style={storyTitleLightStyle}>Una sola app.<br />27 widgets de conversión.</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING TESTIMONIOS WHATSAPP */}
-          {activeDestacada === "testimonios" && (
-            <div style={storyContainerStyle}>
-              <div style={whatsappFrameStyle}>
-                <WhatsAppHeader name="Mariana Cliente" status="en línea" emoji="🧥" />
-                <div style={whatsappBodyStyle}>
-                  <BlurBubble text="Hola Rodri! Todo bien?" isLeft={true} />
-                  <div style={highlightBubbleStyle}>
-                    <div style={{ fontSize: "12px", lineHeight: "1.4" }}>
-                      Rodri boludo GRACIAS desde q instalé nevux subí el ticket promedio 35% en 3 semanas. La app es una locura, se instala re fácil y la tabla de talles es un 10.
-                    </div>
-                  </div>
-                </div>
-                <WhatsAppFooter />
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING NEVUXBOT */}
-          {activeDestacada === "nevuxbot" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>🤖</div>
-                  <h2 style={storyTitleStyle}>NevuxBot IA:<br />El Vendedor 24/7</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING ANALYTICS */}
-          {activeDestacada === "analytics" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>📊</div>
-                  <h2 style={storyTitleStyle}>ROI Tracker:<br />Facturación en Vivo</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING BLACKFRIDAY */}
-          {activeDestacada === "blackfriday" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "48px", marginBottom: "12px" }}>🔥</div>
-                  <h2 style={storyTitleStyle}>Black Friday activado con <span style={{ color: "#fbbf24" }}>1 clic</span></h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING ESTILO MARCA */}
-          {activeDestacada === "estilomarca" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>🎨</div>
-                  <h2 style={storyTitleStyle}>Tus estilos, tus colores. <span style={{ color: "#10B981" }}>Auto-detectables</span>.</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING CROSS-SELLING */}
-          {activeDestacada === "crossselling" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>🧠</div>
-                  <h2 style={storyTitleStyle}>Recomendaciones IA: <span style={{ color: "#10B981" }}>Venta Cruzada</span>.</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING MULTI-IDIOMA */}
-          {activeDestacada === "multiidioma" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>🌎</div>
-                  <h2 style={storyTitleStyle}>Multi-Idioma con IA: <span style={{ color: "#10B981" }}>Vende sin fronteras</span>.</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* RENDERING VOZ */}
-          {activeDestacada === "voz" && (
-            <div style={storyContainerStyle}>
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "44px", marginBottom: "12px" }}>🎙️</div>
-                  <h2 style={storyTitleStyle}>Búsqueda por Voz: <span style={{ color: "#10B981" }}>Comprar hablando</span>.</h2>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 🤝 DESTACADA 11: VENDEDOR VIRTUAL IA */}
           {activeDestacada === "vendedor" && (
             <div style={storyContainerStyle}>
-              <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
-                👇 Sacale captura de pantalla vertical a cada tarjeta para armar tu destacada final
-              </div>
-
-              {/* H1: PORTADA */}
               <div style={storyFrameStyle}>
                 <div style={storyTopHeader}>
                   <NevuxLogo size="small" />
                 </div>
                 <div style={{ textAlign: "center", zIndex: 2 }}>
                   <div style={{ fontSize: "44px", marginBottom: "12px" }}>🤝</div>
-                  <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.2)", border: "1.5px solid #10B981", color: "#ffffff", fontSize: "10px", fontWeight: 900, padding: "5px 12px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.05em" }}>VENDEDOR CON INTELIGENCIA ARTIFICIAL</div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#ffffff", lineHeight: 1.15, margin: "0 0 16px 0", letterSpacing: "-0.03em" }}>Vendedor Virtual IA: <span style={{ color: "#10B981" }}>Ventas 24/7</span>.</h2>
-                  <p style={{ fontSize: "14px", color: "#d1fae5", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>Un agente inteligente que conoce tu catálogo completo, asesora a tus clientes y cierra compras mientras dormís.</p>
+                  <h2 style={storyTitleStyle}>Vendedor Virtual IA: <span style={{ color: "#10B981" }}>Ventas 24/7</span>.</h2>
                 </div>
                 <div style={storyBottomSwipe}>¿Cómo funciona? Deslizá ➔</div>
-              </div>
-
-              {/* H2: EL PROBLEMA NOCHE Y DEMORAS */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>⏰❌</div>
-                  <div style={{ fontSize: "11px", color: "#fbbf24", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>VENTAS PERDIDAS POR DEMORA</div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>Responder a las 2 AM es imposible</h3>
-                  <div style={bubbleDarkStyle}>
-                    <p style={{ fontSize: "12px", color: "#fca5a5", margin: 0, lineHeight: 1.5, fontWeight: 600 }}>El 40% de las compras online ocurren de noche o fines de semana. Si un cliente no recibe respuesta en 5 minutos, compra en otra tienda.</p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>Perdés ventas todos los días por no estar online.</p>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente ➔</div>
-              </div>
-
-              {/* H3: ASESORAMIENTO REAL */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>🧠</div>
-                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>ENTRENADO WITH TIENDA</div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.25, margin: "0 0 12px 0" }}>Sabe de precios, stock, medidas y envíos</h3>
-                  <div style={bubbleDarkStyle}>
-                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>Nevux sincroniza tu catálogo en tiempo real. La IA responde como tu mejor empleado de mostrador: con empatía, fotos y enlaces directos.</p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#34d399", fontWeight: 900, margin: 0 }}>No es un bot rígido, es un vendedor real 🤝</p>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente ➔</div>
-              </div>
-
-              {/* H4: CIERRE ADENTRO DEL CHAT */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>💬</div>
-                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>CONVERSIÓN DIRECTA</div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.25, margin: "0 0 12px 0" }}>Arma el pedido adentro del chat</h3>
-                  <div style={bubbleDarkStyle}>
-                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>El cliente indica lo que quiere y la IA genera el link de pago final listo con descuentos y cupones aplicados.</p>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "#ffffff", fontWeight: 700, margin: 0 }}>Fricción cero = Cierre instantáneo.</p>
-                </div>
-                <div style={storyBottomSwipe}>Siguiente ➔</div>
-              </div>
-
-              {/* H5: +85% DUDAS RESUELTAS */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "10px" }}>📈</div>
-                  <div style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 900, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "16px" }}>AUTONOMÍA ABSOLUTA</div>
-                  <h3 style={{ fontSize: "22px", fontWeight: 900, color: "#ffffff", lineHeight: 1.25, margin: "0 0 12px 0" }}>85% de consultas resueltas sin tu tiempo</h3>
-                  <div style={bubbleDarkStyle}>
-                    <p style={{ fontSize: "12px", color: "#d1fae5", margin: 0, lineHeight: 1.5 }}>Ahorrá 4 horas diarias de contestar los mismos mensajes. Tu negocio escala mientras vos te enfocás en crecer.</p>
-                  </div>
-                </div>
-                <div style={storyBottomSwipe}>Prueba gratis ➔</div>
-              </div>
-
-              {/* H6: CTA FINAL ROADMAP */}
-              <div style={storyFrameStyle}>
-                <div style={storyTopHeader}>
-                  <NevuxLogo size="small" />
-                </div>
-                <div style={{ textAlign: "center", zIndex: 2 }}>
-                  <div style={{ fontSize: "40px", marginBottom: "12px" }}>🚀</div>
-                  <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#ffffff", lineHeight: 1.2, margin: "0 0 14px 0" }}>La suite más potente de Tiendanube</h2>
-                  <p style={{ fontSize: "14px", color: "#10B981", fontWeight: 800, margin: "0 0 16px 0" }}>Próximamente en Nevux 🤝</p>
-                  <div style={{ ...bubbleDarkStyle, border: "2px solid #10B981", boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)" }}>
-                    <p style={{ fontSize: "12px", color: "#ffffff", fontWeight: 700, margin: 0, lineHeight: 1.45 }}>Sumate hoy a Nevux por $30.000 ARS/mes, aprovechá tus 7 días gratis y asegurá tu lugar en todas las fases del roadmap.</p>
-                  </div>
-                </div>
-                <div style={{ ...storyBottomSwipe, color: "#34d399", fontWeight: 900 }}>Probá Nevux en: nexus2026-gx7e.vercel.app</div>
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* TAB 4: PORTADAS DESTACADAS CIRCULARES */}
+      {/* TAB 4: PORTADAS DESTACADAS */}
       {activeTab === "covers" && (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "650px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "32px",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ textAlign: "center", color: "#a7f3d0", fontSize: "12px", fontWeight: 600 }}>
-            👇 Sacale captura de pantalla en vertical para las tapas de tus historias destacadas en Instagram.
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))",
-              gap: "16px",
-              width: "100%",
-              justifyContent: "center",
-            }}
-          >
+        <div style={{ width: "100%", maxWidth: "650px", display: "flex", flexDirection: "column", gap: "32px", alignItems: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))", gap: "16px", width: "100%", justifyContent: "center" }}>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🚨</span></div><span style={coverLabelStyle}>1. El Problema</span></div>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>⚡</span></div><span style={coverLabelStyle}>2. La Solución</span></div>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>💬</span></div><span style={coverLabelStyle}>3. Testimonios</span></div>
             <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🤖</span></div><span style={coverLabelStyle}>4. NevuxBot IA</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>📊</span></div><span style={coverLabelStyle}>5. Analytics ROI</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🔥</span></div><span style={coverLabelStyle}>6. Modo Fechas</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🎨</span></div><span style={coverLabelStyle}>7. Estilo Marca</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🧠</span></div><span style={coverLabelStyle}>8. Cross-Selling</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🌎</span></div><span style={coverLabelStyle}>9. Multi-Idioma</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🎙️</span></div><span style={coverLabelStyle}>10. Búsqueda Voz</span></div>
-            <div style={coverContainerStyle}><div style={coverCircleStyle}><span style={{ fontSize: "40px" }}>🤝</span></div><span style={coverLabelStyle}>11. Vendedor IA</span></div>
           </div>
         </div>
       )}
 
       {/* TAB 5: CARRUSELES INSTAGRAM */}
       {activeTab === "carousels" && (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "750px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "24px",
-            boxSizing: "border-box",
-          }}
-        >
-          {/* PANEL DE CONTROL DE CARRUSEL */}
-          <div
-            style={{
-              backgroundColor: "#0b2920",
-              borderRadius: "16px",
-              padding: "20px",
-              border: "1.5px solid rgba(16, 185, 129, 0.3)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "16px",
-              boxSizing: "border-box",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "12px",
-              }}
-            >
-              {/* SELECTOR DE WIDGET */}
+        <div style={{ width: "100%", maxWidth: "750px", display: "flex", flexDirection: "column", gap: "24px", boxSizing: "border-box" }}>
+          <div style={{ backgroundColor: "#0b2920", borderRadius: "16px", padding: "20px", border: "1.5px solid rgba(16, 185, 129, 0.3)", display: "flex", flexDirection: "column", gap: "16px", boxSizing: "border-box" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", fontWeight: 800, color: "#6ee7b7" }}>
-                  WIDGET CAMPAÑA
-                </label>
-                <select
-                  value={selectedWidget}
-                  onChange={(e) => setSelectedWidget(e.target.value)}
-                  style={{
-                    backgroundColor: "#061a14",
-                    color: "#ffffff",
-                    border: "1.5px solid rgba(16, 185, 129, 0.4)",
-                    borderRadius: "10px",
-                    padding: "10px",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    outline: "none",
-                  }}
-                >
+                <label style={{ fontSize: "11px", fontWeight: 800, color: "#6ee7b7" }}>WIDGET CAMPAÑA</label>
+                <select value={selectedWidget} onChange={(e) => setSelectedWidget(e.target.value)} style={{ backgroundColor: "#061a14", color: "#ffffff", border: "1.5px solid rgba(16, 185, 129, 0.4)", borderRadius: "10px", padding: "10px", fontSize: "12px", fontWeight: 700, cursor: "pointer", outline: "none" }}>
                   {CAROUSEL_TEMPLATES.map((t) => (
-                    <option key={t.slug} value={t.slug}>
-                      {t.emoji} {isPt ? t.namePt : t.nameEs}
-                    </option>
+                    <option key={t.slug} value={t.slug}>{t.emoji} {isPt ? t.namePt : t.nameEs}</option>
                   ))}
                 </select>
               </div>
-
-              {/* SELECTOR DE FORMATO */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", fontWeight: 800, color: "#6ee7b7" }}>
-                  FORMATO INSTAGRAM
-                </label>
+                <label style={{ fontSize: "11px", fontWeight: 800, color: "#6ee7b7" }}>FORMATO</label>
                 <div style={{ display: "flex", gap: "6px" }}>
-                  <button
-                    onClick={() => setFormat("portrait")}
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      borderRadius: "10px",
-                      border: "none",
-                      backgroundColor: format === "portrait" ? "#10B981" : "#061a14",
-                      color: "#ffffff",
-                      fontSize: "11px",
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <Smartphone size={14} /> Vertical 4:5
-                  </button>
-                  <button
-                    onClick={() => setFormat("square")}
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      borderRadius: "10px",
-                      border: "none",
-                      backgroundColor: format === "square" ? "#10B981" : "#061a14",
-                      color: "#ffffff",
-                      fontSize: "11px",
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <Square size={14} /> Cuadrado 1:1
-                  </button>
+                  <button onClick={() => setFormat("portrait")} style={{ flex: 1, padding: "10px", borderRadius: "10px", border: "none", backgroundColor: format === "portrait" ? "#10B981" : "#061a14", color: "#ffffff", fontSize: "11px", fontWeight: 800, cursor: "pointer" }}><Smartphone size={14} /> Vertical 4:5</button>
+                  <button onClick={() => setFormat("square")} style={{ flex: 1, padding: "10px", borderRadius: "10px", border: "none", backgroundColor: format === "square" ? "#10B981" : "#061a14", color: "#ffffff", fontSize: "11px", fontWeight: 800, cursor: "pointer" }}><Square size={14} /> Cuadrado 1:1</button>
                 </div>
               </div>
             </div>
-
-            {/* IDIOMA Y RECOMENDACIÓN */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderTop: "1px solid rgba(16, 185, 129, 0.15)",
-                paddingTop: "12px",
-              }}
-            >
-              <div style={{ display: "flex", gap: "6px" }}>
-                <button
-                  onClick={() => setLang("es")}
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: "8px",
-                    fontSize: "11px",
-                    fontWeight: 800,
-                    border: "none",
-                    backgroundColor: !isPt ? "rgba(16, 185, 129, 0.2)" : "transparent",
-                    color: !isPt ? "#10B981" : "#6ee7b7",
-                    cursor: "pointer",
-                  }}
-                >
-                  🇪🇸 ES
-                </button>
-                <button
-                  onClick={() => setLang("pt")}
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: "8px",
-                    fontSize: "11px",
-                    fontWeight: 800,
-                    border: "none",
-                    backgroundColor: isPt ? "rgba(16, 185, 129, 0.2)" : "transparent",
-                    color: isPt ? "#10B981" : "#6ee7b7",
-                    cursor: "pointer",
-                  }}
-                >
-                  🇧🇷 PT-BR
-                </button>
-              </div>
-
-              <span style={{ fontSize: "11px", color: "#a7f3d0", fontWeight: 600 }}>
-                {isPt
-                  ? "💡 Toque em baixar para exportar o slide em HD nativo."
-                  : "💡 Tocá en descargar para exportar el slide en HD nativo."}
-              </span>
-            </div>
-          </div>
-
-          {/* GRILLA DE SLIDES DEL CARRUSEL SELECCIONADO */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "40px",
-              width: "100%",
-              alignItems: "center",
-            }}
-          >
-            {currentTemplate.slides.map((slide, index) => {
-              const isPortrait = format === "portrait";
-              const aspectWidth = 340;
-              const aspectHeight = isPortrait ? 425 : 340; // Proporción 4:5 vs 1:1 en renderizado responsivo móvil
-
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "12px",
-                    width: "100%",
-                    maxWidth: "360px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      width: "100%",
-                      padding: "0 8px",
-                    }}
-                  >
-                    <span style={{ fontSize: "12px", fontWeight: 900, color: "#10B981" }}>
-                      SLIDE {index + 1} ({slide.visualType.toUpperCase()})
-                    </span>
-                    <button
-                      disabled={isDownloading}
-                      onClick={() => downloadSlideAsImage(index)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#6ee7b7",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        fontSize: "12px",
-                        fontWeight: 800,
-                      }}
-                    >
-                      <Download size={14} /> {isPt ? "Baixar" : "Descargar"}
-                    </button>
-                  </div>
-
-                  {/* LIENZO DE PREVISUALIZACIÓN EN PANTALLA */}
-                  <div
-                    style={{
-                      width: `${aspectWidth}px`,
-                      height: `${aspectHeight}px`,
-                      background: `radial-gradient(circle at center, ${currentTemplate.themeColor} 0%, #020617 100%)`,
-                      border: "2px solid #10B981",
-                      borderRadius: "20px",
-                      padding: "20px 16px 14px",
-                      boxShadow: "0 15px 35px rgba(0, 0, 0, 0.4)",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      position: "relative",
-                      overflow: "hidden",
-                      boxSizing: "border-box",
-                    }}
-                  >
-                    {/* Efecto de luz superior */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "-20%",
-                        width: "80%",
-                        height: "40%",
-                        background: "rgba(16, 185, 129, 0.12)",
-                        filter: "blur(40px)",
-                        borderRadius: "50%",
-                        pointerEvents: "none",
-                      }}
-                    />
-
-                    {/* Header */}
-                    <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        paddingBottom: "8px",
-                        borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-                        zIndex: 2,
-                      }}
-                    >
-                      <NevuxLogo size="small" />
-                    </div>
-
-                    {/* Contenido Central */}
-                    <div
-                      style={{
-                        width: "100%",
-                        textAlign: "center",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "10px",
-                        zIndex: 2,
-                        margin: "12px 0",
-                      }}
-                    >
-                      {/* Badge superior */}
-                      <span
-                        style={{
-                          display: "inline-block",
-                          border: `1.5px solid ${currentTemplate.accentColor}`,
-                          background: "rgba(16, 185, 129, 0.1)",
-                          color: "#ffffff",
-                          fontSize: "8.5px",
-                          fontWeight: 900,
-                          padding: "3px 10px",
-                          borderRadius: "999px",
-                          letterSpacing: "0.05em",
-                        }}
-                      >
-                        {isPt ? slide.badgePt : slide.badgeEs}
-                      </span>
-
-                      {/* Título adaptado según formato */}
-                      <h3
-                        style={{
-                          fontSize: isPortrait ? "19px" : "16px",
-                          fontWeight: 900,
-                          color: "#ffffff",
-                          lineHeight: 1.2,
-                          margin: 0,
-                          letterSpacing: "-0.02em",
-                        }}
-                      >
-                        {isPt ? slide.titlePt : slide.titleEs}
-                      </h3>
-                    </div>
-
-                    {/* Contenedor de Texto Descriptivo Inferior */}
-                    <div
-                      style={{
-                        width: "100%",
-                        background: "rgba(0, 0, 0, 0.35)",
-                        border: "1px solid rgba(16, 185, 129, 0.2)",
-                        borderRadius: "14px",
-                        padding: "10px 12px",
-                        boxSizing: "border-box",
-                        zIndex: 2,
-                        marginBottom: "10px",
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: isPortrait ? "11.5px" : "10px",
-                          color: "#a7f3d0",
-                          margin: 0,
-                          lineHeight: 1.4,
-                          fontWeight: 500,
-                          textAlign: "center",
-                        }}
-                      >
-                        {isPt ? slide.descPt : slide.descEs}
-                      </p>
-                    </div>
-
-                    {/* Swipe Footer */}
-                    <div
-                      style={{
-                        fontSize: "9px",
-                        fontWeight: 900,
-                        color: currentTemplate.accentColor,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        width: "100%",
-                        textAlign: "center",
-                        zIndex: 2,
-                        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                        paddingTop: "10px",
-                      }}
-                    >
-                      {isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA VER ➔"}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
       )}
 
-      {/* 🎬 🌟 TAB 6: HOOKS Y CIERRES PARA REELS (9:16 - 1080x1920) */}
+      {/* 🎬 🌟 TAB 6: HOOKS Y CIERRES REELS (LETRAS NEGRAS + ALTO IMPACTO NEÓN) */}
       {activeTab === "marketing_assets" && (
         <div
           style={{
@@ -2325,7 +1521,7 @@ export default function BannersPage() {
                 border: "none",
                 cursor: "pointer",
                 backgroundColor: !isPt ? "#10B981" : "transparent",
-                color: !isPt ? "#ffffff" : "#a7f3d0",
+                color: !isPt ? "#000000" : "#a7f3d0",
                 transition: "all 0.2s ease",
               }}
             >
@@ -2341,7 +1537,7 @@ export default function BannersPage() {
                 border: "none",
                 cursor: "pointer",
                 backgroundColor: isPt ? "#10B981" : "transparent",
-                color: isPt ? "#ffffff" : "#a7f3d0",
+                color: isPt ? "#000000" : "#a7f3d0",
                 transition: "all 0.2s ease",
               }}
             >
@@ -2351,8 +1547,8 @@ export default function BannersPage() {
 
           <p style={{ fontSize: "12.5px", color: "#6ee7b7", textAlign: "center", margin: 0, fontWeight: 600 }}>
             {isPt 
-              ? "💡 Exporte essas duas telas e coloque-as como o início e o fim do seu Reel no CapCut Pro."
-              : "💡 Exportá estas dos pantallas y colocalas como el inicio y el final de tu Reel en CapCut Pro."}
+              ? "💡 Letras em preto profundo (#000000) sobre fundo verde esmeralda com destaque viral."
+              : "💡 Letras en negro profundo (#000000) sobre fondo verde esmeralda con resaltado viral."}
           </p>
 
           <div
@@ -2364,7 +1560,7 @@ export default function BannersPage() {
               width: "100%",
             }}
           >
-            {/* HOOK SELECCIONADO (HOOK 2) */}
+            {/* 🚨 HOOK DE APERTURA (LETRAS NEGRAS + CAJA NEÓN) */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
               <div style={{ display: "flex", justifyContent: "space-between", width: "240px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>🚨 HOOK DE APERTURA</span>
@@ -2387,46 +1583,58 @@ export default function BannersPage() {
                 </button>
               </div>
 
-              {/* Render de pantalla vertical 9:16 */}
+              {/* Render de pantalla vertical 9:16 con letras negras */}
               <div
                 style={{
                   width: "240px",
-                  height: "426px", // Aspecto exacto 9:16
+                  height: "426px",
                   backgroundColor: "#090d16",
                   border: "2.5px solid #10B981",
                   borderRadius: "20px",
-                  padding: "40px 16px 20px",
+                  padding: "20px 14px",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
+                  justifyContent: "center",
                   alignItems: "center",
                   position: "relative",
                   overflow: "hidden",
                   boxSizing: "border-box",
                 }}
               >
-                {/* Glow Neón */}
-                <div style={{ position: "absolute", width: "120px", height: "120px", background: "rgba(16, 185, 129, 0.15)", filter: "blur(30px)", borderRadius: "50%", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                {/* Glow Neón de fondo */}
+                <div style={{ position: "absolute", width: "160px", height: "160px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(40px)", borderRadius: "50%", pointerEvents: "none" }} />
                 
-                {/* Badge */}
-                <div style={{ display: "inline-block", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", color: "#10B981", fontSize: "7px", fontWeight: 900, padding: "3px 10px", borderRadius: "999px", letterSpacing: "0.05em", zIndex: 2 }}>
-                  NEVUX REELS
-                </div>
+                {/* Caja resaltada verde esmeralda con texto en NEGRO */}
+                <div
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#10B981",
+                    border: "2px solid #ffffff",
+                    borderRadius: "18px",
+                    padding: "24px 12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "12px",
+                    boxShadow: "0 10px 30px rgba(16, 185, 129, 0.4)",
+                    zIndex: 2,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <span style={{ fontSize: "8px", fontWeight: 950, color: "#000000", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                    🔥 SECRETO DE E-COMMERCE
+                  </span>
 
-                {/* Título Hook 2 */}
-                <h2 style={{ fontSize: "16px", fontWeight: 950, color: "#ffffff", textAlign: "center", lineHeight: 1.3, margin: "16px 0", zIndex: 2 }}>
-                  {isPt 
-                    ? <>Os que vendem na <span style={{ color: "#10B981" }}>Nuvemshop</span> já usam isso 👀</>
-                    : <>Los que venden en <span style={{ color: "#10B981" }}>Tiendanube</span> ya usan esto 👀</>}
-                </h2>
-
-                <div style={{ fontSize: "9px", color: "#4b5563", letterSpacing: "0.05em", fontWeight: 800, zIndex: 2 }}>
-                  0:00 - 0:03 SEC
+                  <h2 style={{ fontSize: "16px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0, letterSpacing: "-0.02em" }}>
+                    {isPt 
+                      ? "Os que vendem na Nuvemshop já usam isso 👀" 
+                      : "Los que venden en Tiendanube ya usan esto 👀"}
+                  </h2>
                 </div>
               </div>
             </div>
 
-            {/* OUTRO SELECCIONADO (CIERRE 1) */}
+            {/* 🏁 CTA DE CIERRE (LETRAS NEGRAS + CAJA NEÓN) */}
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
               <div style={{ display: "flex", justifyContent: "space-between", width: "240px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 900, color: "#10B981" }}>🏁 CTA DE CIERRE</span>
@@ -2449,45 +1657,60 @@ export default function BannersPage() {
                 </button>
               </div>
 
-              {/* Render de pantalla vertical 9:16 */}
+              {/* Render de pantalla vertical 9:16 con letras negras */}
               <div
                 style={{
                   width: "240px",
-                  height: "426px", // Aspecto exacto 9:16
-                  background: "radial-gradient(circle at center, #064e3b 0%, #020617 100%)",
+                  height: "426px",
+                  backgroundColor: "#090d16",
                   border: "2.5px solid #10B981",
                   borderRadius: "20px",
-                  padding: "40px 16px 20px",
+                  padding: "20px 14px",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
+                  justifyContent: "center",
                   alignItems: "center",
                   position: "relative",
                   overflow: "hidden",
                   boxSizing: "border-box",
                 }}
               >
-                {/* Logo Nevux central */}
-                <div style={{ zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-                  <div style={{ width: "36px", height: "36px", background: "#10B981", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 950, fontSize: "18px", color: "#ffffff", boxShadow: "0 0 15px rgba(16, 185, 129, 0.4)" }}>
+                {/* Glow Neón */}
+                <div style={{ position: "absolute", width: "160px", height: "160px", background: "rgba(16, 185, 129, 0.25)", filter: "blur(40px)", borderRadius: "50%", pointerEvents: "none" }} />
+
+                {/* Tarjeta de Cierre resaltada verde esmeralda con texto en NEGRO */}
+                <div
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#10B981",
+                    border: "2px solid #ffffff",
+                    borderRadius: "20px",
+                    padding: "22px 14px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "14px",
+                    boxShadow: "0 10px 30px rgba(16, 185, 129, 0.4)",
+                    zIndex: 2,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {/* Logo 'N' en Negro */}
+                  <div style={{ width: "36px", height: "36px", background: "#000000", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 950, fontSize: "18px", color: "#10B981", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>
                     N
                   </div>
 
-                  {/* Texto principal Cierre 1 */}
-                  <h2 style={{ fontSize: "15px", fontWeight: 900, color: "#ffffff", textAlign: "center", lineHeight: 1.3, margin: 0 }}>
+                  {/* Texto CTA en Negro */}
+                  <h2 style={{ fontSize: "15px", fontWeight: 950, color: "#000000", textAlign: "center", lineHeight: 1.25, margin: 0 }}>
                     {isPt ? "Teste o Nevux GRÁTIS por 7 dias 🚀" : "Probá Nevux GRATIS 7 días 🚀"}
                   </h2>
-                </div>
 
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", zIndex: 2 }}>
-                  <span style={{ fontSize: "9px", color: "#a7f3d0", fontWeight: 800 }}>
-                    {isPt ? "Link na Biografia" : "Link en la Biografía"}
-                  </span>
-                  <span style={{ fontSize: "16px", animation: "bounce 1.5s infinite" }}>👇</span>
-                </div>
-
-                <div style={{ fontSize: "9px", color: "#064e3b", letterSpacing: "0.05em", fontWeight: 900, zIndex: 2 }}>
-                  FINAL REEL
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                    <span style={{ fontSize: "10px", color: "#000000", fontWeight: 900 }}>
+                      {isPt ? "👉 Link na Biografia 👈" : "👉 Link en la Biografía 👈"}
+                    </span>
+                    <span style={{ fontSize: "18px" }}>👇</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2496,4 +1719,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-}
+  }
