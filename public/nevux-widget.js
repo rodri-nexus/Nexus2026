@@ -8088,12 +8088,14 @@
     var exist = document.getElementById("nvx-pack-" + w.id);
     if (exist) return;
 
-    // Autodetector debug para el celular del creador
-    if (window.location.search.indexOf("debug=1") !== -1) {
-      var dbg = document.createElement("div");
-      dbg.style.cssText = "position:fixed;top:10px;left:10px;background:#10B981;color:#fff;padding:12px;border-radius:8px;z-index:999999;font-size:12px;font-family:sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:300px;";
-      dbg.innerHTML = "<b>Nevux Debugger:</b><br>✓ El widget 'pack-complementarios' llegó desde la base de datos.<br>✓ Intentando inyectar en la página...";
-      document.body.appendChild(dbg);
+    var isDebug = window.location.search.indexOf("debug=1") !== -1;
+    var dbgEl = null;
+
+    if (isDebug) {
+      dbgEl = document.createElement("div");
+      dbgEl.style.cssText = "position:fixed;top:10px;left:10px;background:#10B981;color:#fff;padding:14px;border-radius:10px;z-index:999999;font-size:12px;font-family:sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:320px;line-height:1.5;";
+      dbgEl.innerHTML = "<b>Nevux Debugger:</b><br>✓ El widget 'pack-complementarios' llegó correctamente.<br>⚡ Buscando dónde inyectarlo...";
+      document.body.appendChild(dbgEl);
     }
 
     function _esc(s) {
@@ -8143,22 +8145,44 @@
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 16) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 18) + "px";
 
-    var target = document.querySelector("form[action*='/cart/add']") || 
-                 document.querySelector("form[action*='/comprar']") ||
-                 document.querySelector("form[action*='/carrinho']") ||
-                 document.querySelector("form[action*='cart']") ||
-                 document.querySelector(".js-product-buy-container") ||
-                 document.querySelector(".product-buy-panel") ||
-                 document.querySelector(".js-product-form") ||
-                 document.querySelector(".product-form") ||
-                 document.querySelector(".js-product-container") ||
-                 document.querySelector(".product-detail") ||
-                 document.querySelector(".js-product-detail") ||
-                 document.querySelector(".product-detail-container") ||
-                 document.querySelector("[data-store='product-form']") ||
-                 document.querySelector("[data-store='product-buy-button']") ||
-                 document.querySelector(".js-addtocart") ||
-                 document.querySelector("form");
+    // 1. MOTOR DE DETECCIÓN ADAPTATIVA DE DESTINO
+    var placementNode = null;
+    var method = "after"; // 'after', 'append' o 'prepend'
+
+    // Intentar buscar los formularios de compra nativos de Tiendanube
+    var buyForm = document.querySelector("form[action*='/cart/add']") || 
+                  document.querySelector("form[action*='/comprar']") ||
+                  document.querySelector("form[action*='/carrinho']") ||
+                  document.querySelector("form[action*='cart']") ||
+                  document.querySelector(".js-product-form") ||
+                  document.querySelector(".product-form");
+
+    if (buyForm) {
+      placementNode = buyForm;
+      method = "after";
+    } else {
+      // Fallback 1: Paneles de acción o detalles del producto
+      var productDetails = document.querySelector(".js-product-buy-container") || 
+                           document.querySelector(".product-buy-panel") ||
+                           document.querySelector(".js-product-container") ||
+                           document.querySelector(".product-detail") ||
+                           document.querySelector(".js-product-detail") ||
+                           document.querySelector(".product-detail-container") ||
+                           document.querySelector("[data-store='product-buy-button']");
+      if (productDetails) {
+        placementNode = productDetails;
+        method = "append";
+      } else {
+        // Fallback absoluto: contenedor principal de la página
+        placementNode = document.querySelector("main") || document.querySelector("#main") || document.body;
+        method = "append";
+      }
+    }
+
+    if (isDebug && dbgEl) {
+      var nodeName = placementNode ? placementNode.tagName + (placementNode.className ? "." + placementNode.className.split(" ")[0] : "") : "Nulo";
+      dbgEl.innerHTML += "<br>✓ Elemento detectado: <b>" + nodeName + "</b> (Método: " + method + ")";
+    }
 
     var styleId = "nvx-pack-styles-" + w.id;
     if (!document.getElementById(styleId)) {
@@ -8485,18 +8509,22 @@
 
     renderContent();
 
-    // Inserción universal con fallback
-    if (target) {
-      if (target.nextSibling) {
-        target.parentNode.insertBefore(div, target.nextSibling);
+    // 2. INYECCIÓN DINÁMICA CON FALLBACK SEGURO
+    if (placementNode) {
+      if (method === "after" && placementNode.parentNode) {
+        if (placementNode.nextSibling) {
+          placementNode.parentNode.insertBefore(div, placementNode.nextSibling);
+        } else {
+          placementNode.parentNode.appendChild(div);
+        }
       } else {
-        target.parentNode.appendChild(div);
+        placementNode.appendChild(div);
       }
-    } else {
-      var container = document.querySelector("main") || document.body;
-      if (container) container.appendChild(div);
+      if (isDebug && dbgEl) {
+        dbgEl.innerHTML += "<br>🎉 <b>¡Widget inyectado con éxito en pantalla!</b>";
+      }
     }
-}
+      }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
