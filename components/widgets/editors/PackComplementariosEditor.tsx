@@ -22,6 +22,17 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
+   HELPERS & AUXILIARY FUNCTIONS (Regla #9)
+═══════════════════════════════════════════ */
+const getProductName = (name: any): string => {
+  if (!name) return 'Producto';
+  if (typeof name === 'object') {
+    return String(name.es || Object.values(name)[0] || 'Producto');
+  }
+  return String(name);
+};
+
+/* ═══════════════════════════════════════════
    TIPOS
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
@@ -425,7 +436,7 @@ export default function PackComplementariosEditor({
   };
 
   const handleSelectProduct = (productIndex: number, prod: StoreProduct) => {
-    const nameStr = typeof prod.name === 'object' ? (prod.name.es || Object.values(prod.name)[0] || 'Producto') : (prod.name || 'Producto');
+    const nameStr = getProductName(prod.name);
     const firstVariant = (prod.variants && prod.variants.length > 0) ? prod.variants[0] : null;
     const priceVal = firstVariant ? Number(firstVariant.price) : 0;
     const variantIdVal = firstVariant ? String(firstVariant.id) : String(prod.id);
@@ -434,7 +445,7 @@ export default function PackComplementariosEditor({
     const newItems = [...config.items];
     newItems[productIndex] = {
       ...newItems[productIndex],
-      titulo: String(nameStr),
+      titulo: nameStr,
       precio: priceVal,
       imagenUrl: imgUrl,
       variantId: variantIdVal,
@@ -698,11 +709,11 @@ export default function PackComplementariosEditor({
                     ) : (
                       storeProducts
                         .filter((p) => {
-                          const name = typeof p.name === 'object' ? (p.name.es || '') : (p.name || '');
+                          const name = getProductName(p.name);
                           return name.toLowerCase().includes(searchFilter.toLowerCase());
                         })
                         .map((p) => {
-                          const name = typeof p.name === 'object' ? (p.name.es || Object.values(p.name)[0] || '') : (p.name || '');
+                          const name = getProductName(p.name);
                           const v = (p.variants && p.variants.length > 0) ? p.variants[0] : null;
                           const price = v ? Number(v.price) : 0;
                           const img = (p.images && p.images.length > 0) ? p.images[0].src : '';
@@ -1124,4 +1135,4 @@ export default function PackComplementariosEditor({
       </div>
     </div>
   );
-}
+                  }
