@@ -30,6 +30,7 @@ import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedade
 import HorarioAtencionEditor from '@/components/widgets/editors/HorarioAtencionEditor';
 import CalculadoraAhorroEditor from '@/components/widgets/editors/CalculadoraAhorroEditor';
 import EdicionLimitadaEditor from '@/components/widgets/editors/EdicionLimitadaEditor';
+import ContadorVendidosEditor from '@/components/widgets/editors/ContadorVendidosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -82,6 +83,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: CONTADOR DE VENDIDOS
+  if (params.widgetSlug === 'contador-vendidos') {
+    return (
+      <ContadorVendidosEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: STICKER EDICIÓN LIMITADA
   if (params.widgetSlug === 'edicion-limitada') {
@@ -458,4 +472,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+  }
