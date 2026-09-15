@@ -57,17 +57,18 @@ export default async function WidgetsNuevoProductoDetailPage({
     }
   }
 
-  // Traer definiciones de widgets activos excluyendo pack-complementarios
+  // Traer definiciones de widgets activos excluyendo widgets eliminados
   const { data: rawDefinitions } = await supabase
     .from("widget_definitions")
     .select("*")
     .eq("is_active", true)
-    .neq("slug", "pack-complementarios")
+    .not("slug", "in", '("pack-complementarios","extras-interruptor","switch-extras")')
     .order("name");
 
-  // Filtro de seguridad para excluir pack-complementarios
+  // Filtro de seguridad en memoria
+  const excludedSlugs = ["pack-complementarios", "extras-interruptor", "switch-extras"];
   const definitions = (rawDefinitions || []).filter(
-    (w) => w.slug !== "pack-complementarios"
+    (w) => !excludedSlugs.includes(w.slug)
   );
 
   const chip = (
@@ -112,4 +113,4 @@ export default async function WidgetsNuevoProductoDetailPage({
       </div>
     </div>
   );
-          }
+  }
