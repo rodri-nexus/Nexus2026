@@ -8092,10 +8092,14 @@
     var dbgEl = null;
 
     if (isDebug) {
-      dbgEl = document.createElement("div");
-      dbgEl.style.cssText = "position:fixed;top:10px;left:10px;background:#10B981;color:#fff;padding:14px;border-radius:10px;z-index:999999;font-size:12px;font-family:sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:320px;line-height:1.5;";
-      dbgEl.innerHTML = "<b>Nevux Debugger:</b><br>✓ El widget 'pack-complementarios' llegó correctamente.<br>⚡ Buscando dónde inyectarlo...";
-      document.body.appendChild(dbgEl);
+      dbgEl = document.getElementById("nvx-debug-box");
+      if (!dbgEl) {
+        dbgEl = document.createElement("div");
+        dbgEl.id = "nvx-debug-box";
+        dbgEl.style.cssText = "position:fixed;top:10px;left:10px;background:#10B981;color:#fff;padding:14px;border-radius:10px;z-index:999999;font-size:12px;font-family:sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:320px;line-height:1.5;";
+        document.body.appendChild(dbgEl);
+      }
+      dbgEl.innerHTML = "<b>Nevux Debugger (v140):</b><br>✓ El widget llegó de BD.<br>⏳ Esperando que cargue el diseño de la tienda...";
     }
 
     function _esc(s) {
@@ -8145,372 +8149,367 @@
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 16) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 18) + "px";
 
-    // 1. MOTOR DE DETECCIÓN ADAPTATIVA DE DESTINO
-    var placementNode = null;
-    var method = "after"; // 'after', 'append' o 'prepend'
+    // Reintentador de búsqueda del elemento receptor (hasta 5 segundos)
+    var attempts = 0;
+    var intervalId = setInterval(function() {
+      attempts++;
+      
+      var target = document.querySelector("form[action*='/cart/add']") || 
+                   document.querySelector("form[action*='/comprar']") ||
+                   document.querySelector("form[action*='/carrinho']") ||
+                   document.querySelector("form[action*='cart']") ||
+                   document.querySelector(".js-product-form") ||
+                   document.querySelector(".product-form") ||
+                   document.querySelector(".js-product-container") ||
+                   document.querySelector(".product-detail") ||
+                   document.querySelector("[data-store='product-buy-button']") ||
+                   document.querySelector(".js-addtocart");
 
-    // Intentar buscar los formularios de compra nativos de Tiendanube
-    var buyForm = document.querySelector("form[action*='/cart/add']") || 
-                  document.querySelector("form[action*='/comprar']") ||
-                  document.querySelector("form[action*='/carrinho']") ||
-                  document.querySelector("form[action*='cart']") ||
-                  document.querySelector(".js-product-form") ||
-                  document.querySelector(".product-form");
-
-    if (buyForm) {
-      placementNode = buyForm;
-      method = "after";
-    } else {
-      // Fallback 1: Paneles de acción o detalles del producto
-      var productDetails = document.querySelector(".js-product-buy-container") || 
-                           document.querySelector(".product-buy-panel") ||
-                           document.querySelector(".js-product-container") ||
-                           document.querySelector(".product-detail") ||
-                           document.querySelector(".js-product-detail") ||
-                           document.querySelector(".product-detail-container") ||
-                           document.querySelector("[data-store='product-buy-button']");
-      if (productDetails) {
-        placementNode = productDetails;
-        method = "append";
-      } else {
-        // Fallback absoluto: contenedor principal de la página
-        placementNode = document.querySelector("main") || document.querySelector("#main") || document.body;
-        method = "append";
+      if (target) {
+        clearInterval(intervalId);
+        injectWidget(target, "after");
+      } else if (attempts >= 25) { // Pasaron 5 segundos, inyectamos en fallback
+        clearInterval(intervalId);
+        var fallback = document.querySelector("main") || document.querySelector("#main") || document.body;
+        if (fallback) {
+          injectWidget(fallback, "append");
+        }
       }
-    }
+    }, 200);
 
-    if (isDebug && dbgEl) {
-      var nodeName = placementNode ? placementNode.tagName + (placementNode.className ? "." + placementNode.className.split(" ")[0] : "") : "Nulo";
-      dbgEl.innerHTML += "<br>✓ Elemento detectado: <b>" + nodeName + "</b> (Método: " + method + ")";
-    }
+    function injectWidget(placementNode, method) {
+      if (document.getElementById("nvx-pack-" + w.id)) return;
 
-    var styleId = "nvx-pack-styles-" + w.id;
-    if (!document.getElementById(styleId)) {
-      var styleEl = document.createElement("style");
-      styleEl.id = styleId;
-      styleEl.innerHTML = `
-        #nvx-pack-${w.id} {
-          background: ${bgColor} !important;
-          border: 2px solid ${borderColor} !important;
-          border-radius: ${borderRad} !important;
-          padding: ${padInt} !important;
-          margin: 18px 0 !important;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.04) !important;
-          font-family: system-ui, -apple-system, sans-serif !important;
-          box-sizing: border-box !important;
-          width: 100% !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-header {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-          gap: 8px !important;
-          flex-wrap: wrap !important;
-          margin-bottom: 12px !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-title {
-          font-size: 15px !important;
-          font-weight: 900 !important;
-          color: ${textColor} !important;
-          letter-spacing: -0.01em !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-badge {
-          background: ${badgeBgColor} !important;
-          color: ${badgeTextColor} !important;
-          font-size: 10px !important;
-          font-weight: 900 !important;
-          padding: 3px 8px !important;
-          border-radius: 999px !important;
-          text-transform: uppercase !important;
-          letter-spacing: 0.02em !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-subtext {
-          font-size: 12px !important;
-          color: ${textColor} !important;
-          opacity: 0.65 !important;
-          margin: 0 0 14px 0 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-items-list {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 8px !important;
-          margin-bottom: 14px !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-item-row {
-          display: flex !important;
-          align-items: center !important;
-          gap: 10px !important;
-          padding: 8px 10px !important;
-          border-radius: 10px !important;
-          border: 1px solid #e5e7eb !important;
-          background: #ffffff !important;
-          cursor: pointer !important;
-          user-select: none !important;
-          transition: all 0.15s ease !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-item-row.selected {
-          background: #f9fafb !important;
-          border-color: ${borderColor} !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-chk {
-          width: 20px !important;
-          height: 20px !important;
-          border-radius: 6px !important;
-          border: 2px solid #d1d5db !important;
-          background: #ffffff !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          flex-shrink: 0 !important;
-          color: #ffffff !important;
-          font-weight: 900 !important;
-          font-size: 13px !important;
-          transition: all 0.15s ease !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-item-row.selected .nvx-pk-chk {
-          background: ${borderColor} !important;
-          border-color: ${borderColor} !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-img {
-          width: 44px !important;
-          height: 44px !important;
-          border-radius: 8px !important;
-          object-fit: cover !important;
-          background: #f3f4f6 !important;
-          flex-shrink: 0 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-info {
-          flex: 1 !important;
-          min-width: 0 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-item-title {
-          font-size: 13px !important;
-          font-weight: 700 !important;
-          color: ${textColor} !important;
-          white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          margin-bottom: 2px !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-item-price {
-          font-size: 13px !important;
-          font-weight: 800 !important;
-          color: #10B981 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-footer {
-          border-top: 1px solid #f3f4f6 !important;
-          padding-top: 12px !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-          gap: 10px !important;
-          flex-wrap: wrap !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-total-label {
-          font-size: 11px !important;
-          color: #6b7280 !important;
-          font-weight: 600 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-total-prices {
-          display: flex !important;
-          align-items: baseline !important;
-          gap: 6px !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-total-final {
-          font-size: 18px !important;
-          font-weight: 900 !important;
-          color: #000000 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-total-old {
-          font-size: 13px !important;
-          color: #9ca3af !important;
-          text-decoration: line-through !important;
-          font-weight: 600 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-btn {
-          background: ${botonBgColor} !important;
-          color: ${botonTextColor} !important;
-          border: none !important;
-          border-radius: 10px !important;
-          padding: 10px 18px !important;
-          font-size: 13px !important;
-          font-weight: 800 !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          gap: 6px !important;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
-          transition: all 0.15s ease !important;
-          flex-shrink: 0 !important;
-        }
-        #nvx-pack-${w.id} .nvx-pk-btn:disabled {
-          background: #e5e7eb !important;
-          color: #9ca3af !important;
-          cursor: not-allowed !important;
-          box-shadow: none !important;
-        }
-      `;
-      document.head.appendChild(styleEl);
-    }
-
-    var div = document.createElement("div");
-    div.id = "nvx-pack-" + w.id;
-
-    var selectedSet = new Set();
-    items.forEach(function(item, idx) {
-      if (item.incluidoPorDefecto !== false) {
-        selectedSet.add(idx);
+      if (isDebug && dbgEl) {
+        var nodeName = placementNode.tagName + (placementNode.className ? "." + placementNode.className.split(" ")[0] : "");
+        dbgEl.innerHTML += "<br>✓ Elemento destino encontrado: <b>" + nodeName + "</b><br>🚀 Dibujando widget en pantalla...";
       }
-    });
 
-    function renderContent() {
-      var count = selectedSet.size;
-      var totalOriginal = 0;
+      var styleId = "nvx-pack-styles-" + w.id;
+      if (!document.getElementById(styleId)) {
+        var styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.innerHTML = `
+          #nvx-pack-${w.id} {
+            background: ${bgColor} !important;
+            border: 2px solid ${borderColor} !important;
+            border-radius: ${borderRad} !important;
+            padding: ${padInt} !important;
+            margin: 18px 0 !important;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04) !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+            flex-wrap: wrap !important;
+            margin-bottom: 12px !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-title {
+            font-size: 15px !important;
+            font-weight: 900 !important;
+            color: ${textColor} !important;
+            letter-spacing: -0.01em !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-badge {
+            background: ${badgeBgColor} !important;
+            color: ${badgeTextColor} !important;
+            font-size: 10px !important;
+            font-weight: 900 !important;
+            padding: 3px 8px !important;
+            border-radius: 999px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.02em !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-subtext {
+            font-size: 12px !important;
+            color: ${textColor} !important;
+            opacity: 0.65 !important;
+            margin: 0 0 14px 0 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-items-list {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+            margin-bottom: 14px !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-item-row {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 8px 10px !important;
+            border-radius: 10px !important;
+            border: 1px solid #e5e7eb !important;
+            background: #ffffff !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            transition: all 0.15s ease !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-item-row.selected {
+            background: #f9fafb !important;
+            border-color: ${borderColor} !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-chk {
+            width: 20px !important;
+            height: 20px !important;
+            border-radius: 6px !important;
+            border: 2px solid #d1d5db !important;
+            background: #ffffff !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 13px !important;
+            transition: all 0.15s ease !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-item-row.selected .nvx-pk-chk {
+            background: ${borderColor} !important;
+            border-color: ${borderColor} !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-img {
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 8px !important;
+            object-fit: cover !important;
+            background: #f3f4f6 !important;
+            flex-shrink: 0 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-info {
+            flex: 1 !important;
+            min-width: 0 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-item-title {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: ${textColor} !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            margin-bottom: 2px !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-item-price {
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            color: #10B981 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-footer {
+            border-top: 1px solid #f3f4f6 !important;
+            padding-top: 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+            flex-wrap: wrap !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-total-label {
+            font-size: 11px !important;
+            color: #6b7280 !important;
+            font-weight: 600 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-total-prices {
+            display: flex !important;
+            align-items: baseline !important;
+            gap: 6px !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-total-final {
+            font-size: 18px !important;
+            font-weight: 900 !important;
+            color: #000000 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-total-old {
+            font-size: 13px !important;
+            color: #9ca3af !important;
+            text-decoration: line-through !important;
+            font-weight: 600 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-btn {
+            background: ${botonBgColor} !important;
+            color: ${botonTextColor} !important;
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 10px 18px !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+            transition: all 0.15s ease !important;
+            flex-shrink: 0 !important;
+          }
+          #nvx-pack-${w.id} .nvx-pk-btn:disabled {
+            background: #e5e7eb !important;
+            color: #9ca3af !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      var div = document.createElement("div");
+      div.id = "nvx-pack-" + w.id;
+
+      var selectedSet = new Set();
       items.forEach(function(item, idx) {
-        if (selectedSet.has(idx)) {
-          totalOriginal += Number(item.precio) || 0;
+        if (item.incluidoPorDefecto !== false) {
+          selectedSet.add(idx);
         }
       });
 
-      var tieneDesc = descuentoPorcentaje > 0 && count > 1;
-      var factorDesc = tieneDesc ? (100 - descuentoPorcentaje) / 100 : 1;
-      var totalFinal = Math.round(totalOriginal * factorDesc);
+      function renderContent() {
+        var count = selectedSet.size;
+        var totalOriginal = 0;
+        items.forEach(function(item, idx) {
+          if (selectedSet.has(idx)) {
+            totalOriginal += Number(item.precio) || 0;
+          }
+        });
 
-      var badgeHtml = tieneDesc 
-        ? '<span class="nvx-pk-badge">AHORRÁS ' + descuentoPorcentaje + '%</span>'
-        : '';
+        var tieneDesc = descuentoPorcentaje > 0 && count > 1;
+        var factorDesc = tieneDesc ? (100 - descuentoPorcentaje) / 100 : 1;
+        var totalFinal = Math.round(totalOriginal * factorDesc);
 
-      var itemsHtml = items.map(function(item, idx) {
-        var isSel = selectedSet.has(idx);
-        var imgHtml = item.imagenUrl 
-          ? '<img class="nvx-pk-img" src="' + _esc(item.imagenUrl) + '" alt="" />'
-          : '<div class="nvx-pk-img" style="display:flex;align-items:center;justify-content:center;font-size:18px;">🛍️</div>';
+        var badgeHtml = tieneDesc 
+          ? '<span class="nvx-pk-badge">AHORRÁS ' + descuentoPorcentaje + '%</span>'
+          : '';
 
-        return `
-          <div class="nvx-pk-item-row ${isSel ? 'selected' : ''}" data-idx="${idx}">
-            <div class="nvx-pk-chk">${isSel ? '✓' : ''}</div>
-            ${imgHtml}
-            <div class="nvx-pk-info">
-              <div class="nvx-pk-item-title">${_esc(item.titulo || '')}</div>
-              <div class="nvx-pk-item-price">$${(Number(item.precio) || 0).toLocaleString('es-AR')}</div>
+        var itemsHtml = items.map(function(item, idx) {
+          var isSel = selectedSet.has(idx);
+          var imgHtml = item.imagenUrl 
+            ? '<img class="nvx-pk-img" src="' + _esc(item.imagenUrl) + '" alt="" />'
+            : '<div class="nvx-pk-img" style="display:flex;align-items:center;justify-content:center;font-size:18px;">🛍️</div>';
+
+          return `
+            <div class="nvx-pk-item-row ${isSel ? 'selected' : ''}" data-idx="${idx}">
+              <div class="nvx-pk-chk">${isSel ? '✓' : ''}</div>
+              ${imgHtml}
+              <div class="nvx-pk-info">
+                <div class="nvx-pk-item-title">${_esc(item.titulo || '')}</div>
+                <div class="nvx-pk-item-price">$${(Number(item.precio) || 0).toLocaleString('es-AR')}</div>
+              </div>
             </div>
+          `;
+        }).join("");
+
+        div.innerHTML = `
+          <div class="nvx-pk-header">
+            <div class="nvx-pk-title">${_esc(titulo)}</div>
+            ${badgeHtml}
+          </div>
+          ${subtexto ? '<div class="nvx-pk-subtext">' + _esc(subtexto) + '</div>' : ''}
+          <div class="nvx-pk-items-list">
+            ${itemsHtml}
+          </div>
+          <div class="nvx-pk-footer">
+            <div>
+              <div class="nvx-pk-total-label">Total por ${count} ${count === 1 ? 'producto' : 'productos'}:</div>
+              <div class="nvx-pk-total-prices">
+                <span class="nvx-pk-total-final">$${totalFinal.toLocaleString('es-AR')}</span>
+                ${tieneDesc ? '<span class="nvx-pk-total-old">$' + totalOriginal.toLocaleString('es-AR') + '</span>' : ''}
+              </div>
+            </div>
+            <button type="button" class="nvx-pk-btn" id="nvx-pack-buy-${w.id}" ${count === 0 ? 'disabled' : ''}>
+              🛍️ <span id="nvx-pack-btntxt-${w.id}">${_esc(textoBoton)}</span>
+            </button>
           </div>
         `;
-      }).join("");
 
-      div.innerHTML = `
-        <div class="nvx-pk-header">
-          <div class="nvx-pk-title">${_esc(titulo)}</div>
-          ${badgeHtml}
-        </div>
-        ${subtexto ? '<div class="nvx-pk-subtext">' + _esc(subtexto) + '</div>' : ''}
-        <div class="nvx-pk-items-list">
-          ${itemsHtml}
-        </div>
-        <div class="nvx-pk-footer">
-          <div>
-            <div class="nvx-pk-total-label">Total por ${count} ${count === 1 ? 'producto' : 'productos'}:</div>
-            <div class="nvx-pk-total-prices">
-              <span class="nvx-pk-total-final">$${totalFinal.toLocaleString('es-AR')}</span>
-              ${tieneDesc ? '<span class="nvx-pk-total-old">$' + totalOriginal.toLocaleString('es-AR') + '</span>' : ''}
-            </div>
-          </div>
-          <button type="button" class="nvx-pk-btn" id="nvx-pack-buy-${w.id}" ${count === 0 ? 'disabled' : ''}>
-            🛍️ <span id="nvx-pack-btntxt-${w.id}">${_esc(textoBoton)}</span>
-          </button>
-        </div>
-      `;
-
-      // Eventos de click en filas
-      var rows = div.querySelectorAll(".nvx-pk-item-row");
-      rows.forEach(function(row) {
-        row.addEventListener("click", function() {
-          var idx = Number(row.getAttribute("data-idx"));
-          if (selectedSet.has(idx)) {
-            selectedSet.delete(idx);
-          } else {
-            selectedSet.add(idx);
-          }
-          renderContent();
+        // Eventos de click en filas
+        var rows = div.querySelectorAll(".nvx-pk-item-row");
+        rows.forEach(function(row) {
+          row.addEventListener("click", function() {
+            var idx = Number(row.getAttribute("data-idx"));
+            if (selectedSet.has(idx)) {
+              selectedSet.delete(idx);
+            } else {
+              selectedSet.add(idx);
+            }
+            renderContent();
+          });
         });
-      });
 
-      // Evento de compra del pack completo
-      var buyBtn = div.querySelector("#nvx-pack-buy-" + w.id);
-      if (buyBtn) {
-        buyBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (selectedSet.size === 0) return;
+        // Evento de compra del pack completo
+        var buyBtn = div.querySelector("#nvx-pack-buy-" + w.id);
+        if (buyBtn) {
+          buyBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (selectedSet.size === 0) return;
 
-          var selectedItems = [];
-          selectedSet.forEach(function(idx) {
-            if (items[idx]) selectedItems.push(items[idx]);
-          });
+            var selectedItems = [];
+            selectedSet.forEach(function(idx) {
+              if (items[idx]) selectedItems.push(items[idx]);
+            });
 
-          if (selectedItems.length === 0) return;
+            if (selectedItems.length === 0) return;
 
-          var variantsToAdd = [];
-          selectedItems.forEach(function(it) {
-            var raw = String(it.variantId || "").trim();
-            var matches = raw.match(/\d+/g);
-            var cleanId = matches ? matches[matches.length - 1] : "";
-            if (cleanId) {
-              variantsToAdd.push(cleanId);
+            var variantsToAdd = [];
+            selectedItems.forEach(function(it) {
+              var raw = String(it.variantId || "").trim();
+              var matches = raw.match(/\d+/g);
+              var cleanId = matches ? matches[matches.length - 1] : "";
+              if (cleanId) {
+                variantsToAdd.push(cleanId);
+              }
+            });
+
+            if (variantsToAdd.length === 0) {
+              var currentInput = document.querySelector('input[name="add_to_cart"]');
+              if (currentInput && currentInput.value) {
+                variantsToAdd.push(currentInput.value);
+              }
             }
-          });
 
-          if (variantsToAdd.length === 0) {
-            var currentInput = document.querySelector('input[name="add_to_cart"]');
-            if (currentInput && currentInput.value) {
-              variantsToAdd.push(currentInput.value);
+            if (variantsToAdd.length === 0) {
+              alert("Por favor seleccioná los productos del combo usando '📦 Elegir de mi tienda' en el panel de Nevux.");
+              return;
             }
-          }
 
-          if (variantsToAdd.length === 0) {
-            alert("Por favor seleccioná los productos del combo usando '📦 Elegir de mi tienda' en el panel de Nevux.");
-            return;
-          }
+            buyBtn.disabled = true;
+            var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
+            if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-          buyBtn.disabled = true;
-          var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
-          if (btnTxt) btnTxt.innerText = textoBotonCargando;
+            var chain = Promise.resolve();
 
-          var chain = Promise.resolve();
+            variantsToAdd.forEach(function(vId) {
+              chain = chain.then(function() {
+                var params = new URLSearchParams();
+                params.append("add_to_cart", vId);
+                params.append("quantity", "1");
 
-          variantsToAdd.forEach(function(vId) {
-            chain = chain.then(function() {
-              var params = new URLSearchParams();
-              params.append("add_to_cart", vId);
-              params.append("quantity", "1");
-
-              return fetch("/cart/add", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                  "X-Requested-With": "XMLHttpRequest"
-                },
-                body: params.toString(),
-                credentials: "same-origin"
-              }).catch(function(err) {
-                console.log("Error agregando item pack:", err);
+                return fetch("/cart/add", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "X-Requested-With": "XMLHttpRequest"
+                  },
+                  body: params.toString(),
+                  credentials: "same-origin"
+                }).catch(function(err) {
+                  console.log("Error agregando item pack:", err);
+                });
               });
             });
-          });
 
-          chain.then(function() {
-            setTimeout(function() {
-              window.location.href = "/cart";
-            }, 350);
+            chain.then(function() {
+              setTimeout(function() {
+                window.location.href = "/cart";
+              }, 350);
+            });
           });
-        });
+        }
       }
-    }
 
-    renderContent();
+      renderContent();
 
-    // 2. INYECCIÓN DINÁMICA CON FALLBACK SEGURO
-    if (placementNode) {
       if (method === "after" && placementNode.parentNode) {
         if (placementNode.nextSibling) {
           placementNode.parentNode.insertBefore(div, placementNode.nextSibling);
@@ -8520,11 +8519,12 @@
       } else {
         placementNode.appendChild(div);
       }
+
       if (isDebug && dbgEl) {
         dbgEl.innerHTML += "<br>🎉 <b>¡Widget inyectado con éxito en pantalla!</b>";
       }
     }
-      }
+    }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
