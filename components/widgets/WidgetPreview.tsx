@@ -324,8 +324,6 @@ function MenuCirculosPreview() {
   );
 }
 
-function TablaTallesEditor() { return null; } // Fallback preventivo
-
 function TablaTallesPreview() {
   return (
     <div
@@ -504,7 +502,7 @@ function BadgeCuponPreview() {
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyRules: "space-between", gap: "4px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
           <span style={{ fontSize: "11px" }}>🎟️</span>
           <span style={{ fontSize: "8.5px", fontWeight: 800, color: "#000000" }}>
