@@ -16,7 +16,6 @@ import MensajeAlertaEditor from '@/components/widgets/editors/MensajeAlertaEdito
 import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
 import ResenasClientesEditor from '@/components/widgets/editors/ResenasClientesEditor';
 import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
-import ExtrasInterruptorEditor from '@/components/widgets/editors/ExtrasInterruptorEditor';
 import ContadorVisitasEditor from '@/components/widgets/editors/ContadorVisitasEditor';
 import InfoCompraEditor from '@/components/widgets/editors/InfoCompraEditor';
 import BadgeCuponEditor from '@/components/widgets/editors/BadgeCuponEditor';
@@ -188,19 +187,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   if (params.widgetSlug === 'info-compra') {
     return (
       <InfoCompraEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  // WIDGET EXTRAS CON INTERRUPTOR
-  if (params.widgetSlug === 'extras-interruptor' || params.widgetSlug === 'switch-extras') {
-    return (
-      <ExtrasInterruptorEditor
         widgetDefinition={widgetDef}
         existingWidget={existingWidget}
         targetType={targetType as 'product' | 'all'}
@@ -416,4 +402,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-      }
+}
