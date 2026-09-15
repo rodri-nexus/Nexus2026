@@ -1619,9 +1619,7 @@
           if (w.widget_slug === "slider-categorias") renderSliderCategorias(w);
           if (w.widget_slug === "resenas-foto") renderResenasFoto(w);
           if (w.widget_slug === "ruleta-descuentos") renderRuletaDescuentos(w);
-          if (w.widget_slug === 'marquee-novedades') { renderMarqueeNovedades(w);
-      return;
-              }
+          if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
