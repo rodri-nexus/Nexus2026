@@ -73,8 +73,6 @@ function renderPreview(slug: string) {
       return <MensajeGarantiaPreview />;
     case "resenas-clientes":
       return <ResenasPreview />;
-    case "banner-deslizante":
-      return <BannerDeslizantePreview />;
     case "badge-envio":
       return <BadgeEnvioPreview />;
     case "badge-cuotas":
@@ -1200,34 +1198,6 @@ function ResenasPreview() {
   );
 }
 
-function BannerDeslizantePreview() {
-  return (
-    <div style={{ width: "82%", display: "flex", flexDirection: "column", gap: "5px" }}>
-      <div
-        style={{
-          height: "44px",
-          background: "#10B981",
-          borderRadius: "8px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#ffffff",
-          fontSize: "10.5px",
-          fontWeight: 800,
-          letterSpacing: "0.02em",
-        }}
-      >
-        🚀 ¡ENVÍO GRATIS A TODO EL PAÍS!
-      </div>
-      <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
-        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10B981" }} />
-        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#e5e7eb" }} />
-        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#e5e7eb" }} />
-      </div>
-    </div>
-  );
-}
-
 function BadgeEnvioPreview() {
   return (
     <div
@@ -1531,4 +1501,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-          }
+                   }
