@@ -29,6 +29,7 @@ import RuletaDescuentosEditor from '@/components/widgets/editors/RuletaDescuento
 import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedadesEditor';
 import HorarioAtencionEditor from '@/components/widgets/editors/HorarioAtencionEditor';
 import CalculadoraAhorroEditor from '@/components/widgets/editors/CalculadoraAhorroEditor';
+import EdicionLimitadaEditor from '@/components/widgets/editors/EdicionLimitadaEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -81,6 +82,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: STICKER EDICIÓN LIMITADA
+  if (params.widgetSlug === 'edicion-limitada') {
+    return (
+      <EdicionLimitadaEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: CALCULADORA DE AHORRO
   if (params.widgetSlug === 'calculadora-ahorro') {
