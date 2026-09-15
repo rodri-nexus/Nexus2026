@@ -15,11 +15,17 @@ export default async function WidgetsNuevoTodosPage() {
     redirect("/login");
   }
 
-  const { data: definitions } = await supabase
+  const { data: rawDefinitions } = await supabase
     .from("widget_definitions")
     .select("*")
     .eq("is_active", true)
+    .neq("slug", "pack-complementarios")
     .order("name");
+
+  // Filtro de seguridad para excluir pack-complementarios
+  const definitions = (rawDefinitions || []).filter(
+    (w) => w.slug !== "pack-complementarios"
+  );
 
   const chip = (
     <div
@@ -53,7 +59,7 @@ export default async function WidgetsNuevoTodosPage() {
     >
       <div style={{ maxWidth: "900px", margin: "0 auto", boxSizing: "border-box" }}>
         <WidgetCatalogClient
-          definitions={definitions || []}
+          definitions={definitions}
           title="¿Qué widget querés agregar a todos los productos de la tienda?"
           chip={chip}
           baseUrl="/widgets/editar"
