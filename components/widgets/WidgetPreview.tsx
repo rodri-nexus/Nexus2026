@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "marquee-novedades":
+      return <MarqueeNovedadesPreview />;
     case "ruleta-descuentos":
       return <RuletaDescuentosPreview />;
     case "resenas-foto":
@@ -87,6 +89,57 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function MarqueeNovedadesPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 6px",
+        width: "94%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center", letterSpacing: "0.02em" }}>
+        MARQUEE DE NOVEDADES
+      </div>
+      <div
+        style={{
+          background: "#111827",
+          borderRadius: "6px",
+          padding: "6px 8px",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#10B981" }}>
+          ✨ NUEVOS INGRESOS
+        </span>
+        <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>
+          🔥 MÁS VENDIDOS
+        </span>
+        <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#F59E0B" }}>
+          📦 ENVÍO GRATIS
+        </span>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
+        <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
+        <div style={{ width: "4px", height: "2px", background: "#e5e7eb", borderRadius: "2px" }} />
+        <div style={{ width: "4px", height: "2px", background: "#e5e7eb", borderRadius: "2px" }} />
+      </div>
+    </div>
+  );
+}
 
 function RuletaDescuentosPreview() {
   return (
