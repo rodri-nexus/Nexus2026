@@ -8149,7 +8149,7 @@
         return { node: buyBtn.parentElement, method: "after" };
       }
 
-      var forms = document.querySelectorAll("form.js-product-form, form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart']");
+      var forms = document.querySelectorAll("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], form[action*='cart']");
       for (var i = 0; i < forms.length; i++) {
         var f = forms[i];
         if (!f.classList.contains("js-ajax-cart-panel") && !f.closest(".js-ajax-cart-container") && !f.closest(".modal")) {
@@ -8484,26 +8484,22 @@
             var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
             if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-            // Función para enviar petición nativa Tiendanube
+            // Función para enviar petición a /comprar (Endpoint nativo Tiendanube)
             function addToCartRequest(vId) {
-              var fd = new FormData();
-              fd.append("add_to_cart", vId);
-              fd.append("quantity", "1");
-              fd.append("ajax", "1");
+              var bodyData = "add_to_cart=" + encodeURIComponent(vId) + "&quantity=1";
 
-              return fetch("/cart/add", {
+              return fetch("/comprar", {
                 method: "POST",
-                body: fd,
                 headers: {
+                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                   "X-Requested-With": "XMLHttpRequest"
                 },
+                body: bodyData,
                 credentials: "same-origin"
               }).then(function(res) {
-                return res.text().then(function(text) {
-                  return { ok: res.ok, status: res.status, body: text };
-                });
+                return { ok: res.ok || res.status === 200 || res.status === 302, status: res.status };
               }).catch(function(err) {
-                return { ok: false, status: 0, error: err };
+                return { ok: false, status: 0 };
               });
             }
 
@@ -8513,10 +8509,8 @@
             variantsToAdd.forEach(function(vObj) {
               chain = chain.then(function() {
                 return addToCartRequest(vObj.id).then(function(result) {
-                  if (result.ok || result.status === 200 || result.status === 302) {
+                  if (result.ok) {
                     successCount++;
-                  } else {
-                    console.log("Error agregando " + vObj.title + " (ID: " + vObj.id + "):", result);
                   }
                 });
               });
@@ -8526,11 +8520,11 @@
               if (successCount > 0) {
                 setTimeout(function() {
                   window.location.href = "/comprar";
-                }, 400);
+                }, 350);
               } else {
                 buyBtn.disabled = false;
                 if (btnTxt) btnTxt.innerText = textoBoton;
-                alert("Tiendanube no pudo agregar los productos al carrito. Por favor abrí Nevux > Widgets > Pack Complementarios, tocalos desde '📦 Elegir de mi tienda' y guardá cambios.");
+                alert("Tiendanube no pudo agregar los productos al carrito. Por favor verificá que los productos tengan stock en tu tienda.");
               }
             });
           });
@@ -8549,7 +8543,7 @@
         placementNode.appendChild(div);
       }
     }
- }
+    }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
