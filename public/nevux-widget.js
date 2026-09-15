@@ -5957,7 +5957,7 @@
     });
   }
   /* ═══════════════════════════════════════════
-     RENDER EXTRAS CON INTERRUPTOR (Motor Nativo Directo)
+     RENDER EXTRAS CON INTERRUPTOR (Global Cart Endpoint)
   ═══════════════════════════════════════════ */
   function renderExtrasInterruptor(w) {
     if (pageType !== "product") return;
@@ -6258,13 +6258,6 @@
           var targetVariant = cleanVariantId;
 
           if (!targetVariant) {
-            var currInput = document.querySelector("input[name='add_to_cart'], select[name='add_to_cart']");
-            if (currInput && currInput.value) {
-              targetVariant = String(currInput.value).replace(/\D/g, "");
-            }
-          }
-
-          if (!targetVariant) {
             alert("Por favor seleccioná el producto extra en el panel de Nevux usando 'Elegir de mi tienda'.");
             checkbox.checked = false;
             return;
@@ -6273,40 +6266,34 @@
           loader.style.display = "inline-block";
           checkbox.disabled = true;
 
-          // Detección del endpoint nativo de la tienda
-          var nativeForm = document.querySelector("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], form[action*='cart']");
-          var targetAction = (nativeForm && nativeForm.getAttribute("action")) ? nativeForm.getAttribute("action") : "/comprar";
+          // Petición al endpoint global /cart/add de Tiendanube
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "/cart/add", true);
+          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+          xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+          xhr.withCredentials = true;
 
-          // ENVÍO DE FORMULARIO NATIVO DIRECTO (Persiste sesión 100% en Tiendanube)
-          var form = document.createElement("form");
-          form.method = "POST";
-          form.action = targetAction;
-          form.style.display = "none";
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              if (xhr.status >= 200 && xhr.status < 400) {
+                setTimeout(function () {
+                  window.location.href = window.location.pathname + "#modal-fullscreen-cart";
+                  window.location.reload();
+                }, 300);
+              } else {
+                loader.style.display = "none";
+                checkbox.disabled = false;
+                checkbox.checked = false;
+                alert("No se pudo agregar al carrito. Verificá que el producto seleccionado tenga stock en tu tienda.");
+              }
+            }
+          };
 
-          var inputAddToCart = document.createElement("input");
-          inputAddToCart.type = "hidden";
-          inputAddToCart.name = "add_to_cart";
-          inputAddToCart.value = targetVariant;
-          form.appendChild(inputAddToCart);
-
-          var inputVariantId = document.createElement("input");
-          inputVariantId.type = "hidden";
-          inputVariantId.name = "variant_id";
-          inputVariantId.value = targetVariant;
-          form.appendChild(inputVariantId);
-
-          var inputQty = document.createElement("input");
-          inputQty.type = "hidden";
-          inputQty.name = "quantity";
-          inputQty.value = "1";
-          form.appendChild(inputQty);
-
-          document.body.appendChild(form);
-          form.submit();
+          xhr.send("add_to_cart=" + encodeURIComponent(targetVariant) + "&quantity=1");
         }
       });
     }
-}
+  }
 /* ═══════════════════════════════════════════
      RENDER CONTADOR DE VISITAS
   ═══════════════════════════════════════════ */
