@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "contador-vendidos":
+      return <ContadorVendidosPreview />;
     case "edicion-limitada":
       return <EdicionLimitadaPreview />;
     case "calculadora-ahorro":
@@ -95,6 +97,49 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function ContadorVendidosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🔥 ALTA DEMANDA</span>
+        <span style={{ fontSize: "6.5px", color: "#ef4444", fontWeight: 800, display: "flex", alignItems: "center", gap: "2px" }}>
+          <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#ef4444" }} />
+          EN VIVO
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#ecfdf5",
+          border: "1px solid #a7f3d0",
+          borderRadius: "6px",
+          padding: "5px 8px",
+          display: "flex",
+          alignItems: "center",
+          gap: "5px",
+        }}
+      >
+        <span style={{ fontSize: "10px" }}>🔥</span>
+        <div style={{ fontSize: "7px", color: "#065f46", lineHeight: 1.2 }}>
+          <strong style={{ fontWeight: 900, color: "#059669" }}>247 unidades</strong> vendidas en 24hs
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function EdicionLimitadaPreview() {
   return (
@@ -1486,4 +1531,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-               }
+          }
