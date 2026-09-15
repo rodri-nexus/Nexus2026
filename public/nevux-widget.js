@@ -1621,6 +1621,7 @@
           if (w.widget_slug === "ruleta-descuentos") renderRuletaDescuentos(w);
           if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
           if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
+          if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -9778,4 +9779,82 @@ function renderHorarioAtencion(w) {
     nvxTrack(w.id, 'impression');
   }
     } 
+  /* ═══════════════════════════════════════════
+   WIDGET: CALCULADORA DE AHORRO
+   ═══════════════════════════════════════════ */
+function renderCalculadoraAhorro(w) {
+  if (document.getElementById('nvx-ahorro-' + w.id)) return;
+
+  var cfg = w.config || {};
+  var badgeText = cfg.badgeText || "AHORRO EXCLUSIVO";
+  var prefixText = cfg.prefixText || "🎉 ¡Ahorrás";
+  var suffixText = cfg.suffixText || "comprando hoy!";
+  var exampleAmount = cfg.exampleAmount || "$ 14.500";
+  var bgColor = cfg.bgColor || "#ecfdf5";
+  var textColor = cfg.textColor || "#065f46";
+  var borderColor = cfg.borderColor || "#10B981";
+  var accentColor = cfg.accentColor || "#059669";
+
+  // Intentar calcular el ahorro real leyendo los precios del producto en Tiendanube
+  var displaySavings = exampleAmount;
+  try {
+    var compareEl = document.querySelector('.js-compare-price-display, .price-compare, .js-price-compare, [data-compare-price]');
+    var currentEl = document.querySelector('.js-price-display, #price_display, .js-price, [data-price]');
+
+    if (compareEl && currentEl) {
+      var parsePrice = function(txt) {
+        if (!txt) return 0;
+        var clean = txt.replace(/[^0-9.,]/g, '').replace(/\./g, '').replace(',', '.');
+        return parseFloat(clean) || 0;
+      };
+
+      var compPrice = parsePrice(compareEl.innerText || compareEl.textContent);
+      var currPrice = parsePrice(currentEl.innerText || currentEl.textContent);
+
+      if (compPrice > currPrice && currPrice > 0) {
+        var diff = compPrice - currPrice;
+        displaySavings = '$ ' + Math.round(diff).toLocaleString('es-AR');
+      }
+    }
+  } catch (e) {
+    displaySavings = exampleAmount;
+  }
+
+  var container = document.createElement('div');
+  container.id = 'nvx-ahorro-' + w.id;
+  container.className = 'nvx-widget nvx-ahorro-wrapper';
+  container.style.cssText = 'background:' + bgColor + ';border:1.5px solid ' + borderColor + ';border-radius:12px;padding:14px 18px;margin:12px 0;box-sizing:border-box;box-shadow:0 3px 10px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:system-ui,-apple-system,sans-serif;color:' + textColor + ';';
+
+  var badgeHtml = badgeText
+    ? '<span style="font-size:10px;font-weight:900;letter-spacing:0.04em;color:' + accentColor + ';text-transform:uppercase;display:block;margin-bottom:2px;">' + badgeText + '</span>'
+    : '';
+
+  container.innerHTML =
+    '<div style="flex:1;min-width:0;">' +
+      badgeHtml +
+      '<div style="font-size:14px;font-weight:700;line-height:1.3;">' +
+        prefixText + ' <span style="font-size:16px;font-weight:900;color:' + accentColor + ';text-decoration:underline;">' + displaySavings + '</span> ' + suffixText +
+      '</div>' +
+    '</div>' +
+    '<div style="width:36px;height:36px;border-radius:50%;background:' + accentColor + ';color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0;">%</div>';
+
+  // Inserción en el DOM
+  var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+  if (targetEl && targetEl.parentNode) {
+    targetEl.parentNode.insertBefore(container, targetEl);
+  } else {
+    var main = document.querySelector('main, #content, .main-content, .js-main-content');
+    if (main) {
+      main.insertBefore(container, main.firstChild);
+    } else {
+      var body = document.body;
+      if (body) body.insertBefore(container, body.firstChild);
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === 'function') {
+    nvxTrack(w.id, 'impression');
+  }
+          }
 })();
