@@ -23,7 +23,6 @@ import BadgeCuponEditor from '@/components/widgets/editors/BadgeCuponEditor';
 import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaEditor';
 import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
-import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
 import MenuCirculosEditor from '@/components/widgets/editors/MenuCirculosEditor';
 import SliderCategoriasEditor from '@/components/widgets/editors/SliderCategoriasEditor';
 import ResenasFotoEditor from '@/components/widgets/editors/ResenasFotoEditor';
@@ -124,19 +123,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   if (params.widgetSlug === 'menu-circulos') {
     return (
       <MenuCirculosEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  // WIDGET: PACK COMPLEMENTARIOS
-  if (params.widgetSlug === 'pack-complementarios') {
-    return (
-      <PackComplementariosEditor
         widgetDefinition={widgetDef}
         existingWidget={existingWidget}
         targetType={targetType as 'product' | 'all'}
@@ -430,4 +416,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+      }
