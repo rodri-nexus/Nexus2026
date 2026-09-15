@@ -8456,22 +8456,20 @@
 
             if (selectedItems.length === 0) return;
 
-            // Obtener IDs limpios
             var variantsToAdd = [];
             selectedItems.forEach(function(it) {
               var raw = String(it.variantId || "").trim();
               var matches = raw.match(/\d+/g);
               var cleanId = matches ? matches[matches.length - 1] : "";
               if (cleanId) {
-                variantsToAdd.push({ id: cleanId, title: it.titulo || "Producto" });
+                variantsToAdd.push(cleanId);
               }
             });
 
-            // Fallback: Si no hay ID en config, usar el del producto actual de la página
             if (variantsToAdd.length === 0) {
               var currentInput = document.querySelector('input[name="add_to_cart"], select[name="add_to_cart"]');
               if (currentInput && currentInput.value) {
-                variantsToAdd.push({ id: currentInput.value, title: "Producto actual" });
+                variantsToAdd.push(currentInput.value);
               }
             }
 
@@ -8484,49 +8482,56 @@
             var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
             if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-            // Función para enviar petición a /comprar (Endpoint nativo Tiendanube)
-            function addToCartRequest(vId) {
-              var bodyData = "add_to_cart=" + encodeURIComponent(vId) + "&quantity=1";
+            // Función ultra-compatible con XMLHttpRequest nativo y manejo forzado de cookies de sesión
+            function addToCartAJAX(vId, callback) {
+              var xhr = new XMLHttpRequest();
+              xhr.open("POST", "/comprar", true);
+              xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+              xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+              xhr.withCredentials = true; // Forzar persistencia de sesión en Safari/Chrome móvil
 
-              return fetch("/comprar", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                  "X-Requested-With": "XMLHttpRequest"
-                },
-                body: bodyData,
-                credentials: "same-origin"
-              }).then(function(res) {
-                return { ok: res.ok || res.status === 200 || res.status === 302, status: res.status };
-              }).catch(function(err) {
-                return { ok: false, status: 0 };
-              });
+              xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                  var success = (xhr.status >= 200 && xhr.status < 400);
+                  callback(success);
+                }
+              };
+              xhr.send("add_to_cart=" + encodeURIComponent(vId) + "&quantity=1");
             }
 
             var successCount = 0;
-            var chain = Promise.resolve();
+            var index = 0;
 
-            variantsToAdd.forEach(function(vObj) {
-              chain = chain.then(function() {
-                return addToCartRequest(vObj.id).then(function(result) {
-                  if (result.ok) {
-                    successCount++;
-                  }
-                });
-              });
-            });
-
-            chain.then(function() {
-              if (successCount > 0) {
-                setTimeout(function() {
-                  window.location.href = "/comprar";
-                }, 350);
-              } else {
-                buyBtn.disabled = false;
-                if (btnTxt) btnTxt.innerText = textoBoton;
-                alert("Tiendanube no pudo agregar los productos al carrito. Por favor verificá que los productos tengan stock en tu tienda.");
+            function addNext() {
+              if (index >= variantsToAdd.length) {
+                if (successCount > 0) {
+                  setTimeout(function() {
+                    // Redirigir a la URL del producto agregando el hash del carrito nativo
+                    window.location.href = window.location.pathname + "#modal-fullscreen-cart";
+                    // Forzar recarga para que el carrito nativo lea los nuevos productos agregados
+                    setTimeout(function() {
+                      window.location.reload();
+                    }, 100);
+                  }, 400);
+                } else {
+                  buyBtn.disabled = false;
+                  if (btnTxt) btnTxt.innerText = textoBoton;
+                  alert("Tiendanube no pudo procesar la solicitud. Asegurate de que los IDs guardados en el panel de Nevux coincidan con variantes activas.");
+                }
+                return;
               }
-            });
+
+              var currentId = variantsToAdd[index];
+              addToCartAJAX(currentId, function(success) {
+                if (success) {
+                  successCount++;
+                }
+                index++;
+                setTimeout(addNext, 150); // Pequeña pausa de seguridad para no saturar Tiendanube
+              });
+            }
+
+            addNext();
           });
         }
       }
@@ -8543,7 +8548,7 @@
         placementNode.appendChild(div);
       }
     }
-    }
+ }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
