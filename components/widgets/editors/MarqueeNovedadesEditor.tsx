@@ -101,6 +101,7 @@ export default function MarqueeNovedadesEditor({
   existingWidget: ew,
   targetType,
   productId,
+  storeId,
 }: Props) {
   const [cfg, setCfg] = useState<Cfg>(() => parseCfg(ew?.config));
   const [tab, setTab] = useState<"gen" | "style" | "dates">("gen");
@@ -146,6 +147,7 @@ export default function MarqueeNovedadesEditor({
     setErr("");
     try {
       const body = {
+        store_id: storeId,
         widget_slug: wd.slug,
         config: cfg,
         target_type: targetType,
@@ -739,4 +741,4 @@ export default function MarqueeNovedadesEditor({
       </div>
     </div>
   );
-  }
+}
