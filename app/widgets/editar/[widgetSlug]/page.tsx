@@ -5,7 +5,6 @@ import CountdownEditor from '@/components/widgets/editors/CountdownEditor';
 import BadgeCuotasEditor from '@/components/widgets/editors/BadgeCuotasEditor';
 import BadgeEnvioEditor from '@/components/widgets/editors/BadgeEnvioEditor';
 import BadgeTransferenciaEditor from '@/components/widgets/editors/BadgeTransferenciaEditor';
-import BannerDeslizanteEditor from '@/components/widgets/editors/BannerDeslizanteEditor';
 import BarraProgresoEditor from '@/components/widgets/editors/BarraProgresoEditor';
 import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
@@ -327,18 +326,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  if (params.widgetSlug === 'banner-deslizante') {
-    return (
-      <BannerDeslizanteEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
   if (params.widgetSlug === 'barra-progreso') {
     return (
       <BarraProgresoEditor
@@ -472,4 +459,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+}
