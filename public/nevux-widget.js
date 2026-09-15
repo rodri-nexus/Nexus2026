@@ -8135,9 +8135,7 @@
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 16) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 18) + "px";
 
-    // Función para encontrar el contenedor VISIBLE en la página del producto
     function findVisibleProductContainer() {
-      // 1. Buscar botón Comprar visible
       var buyBtn = document.querySelector(".js-addtocart, [data-store='product-buy-button'], .js-prod-submit-form, input[type='submit'].js-addtocart");
       if (buyBtn) {
         var form = buyBtn.closest("form");
@@ -8151,7 +8149,6 @@
         return { node: buyBtn.parentElement, method: "after" };
       }
 
-      // 2. Buscar formularios que NO sean el carrito lateral
       var forms = document.querySelectorAll("form.js-product-form, form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart']");
       for (var i = 0; i < forms.length; i++) {
         var f = forms[i];
@@ -8160,7 +8157,6 @@
         }
       }
 
-      // 3. Contenedores generales de detalle
       var detail = document.querySelector(".js-product-buy-container, .product-buy-panel, .js-product-container, .product-detail");
       if (detail) {
         return { node: detail, method: "append" };
@@ -8240,7 +8236,7 @@
             opacity: 0.65 !important;
             margin: 0 0 14px 0 !important;
           }
-          #nvx-pack-${w.id} .nvx-pk-items-list {
+          #nvx-pk-items-list {
             display: flex !important;
             flex-direction: column !important;
             gap: 8px !important;
@@ -8486,6 +8482,19 @@
             var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
             if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
+            // Detectar formulario nativo de compra
+            var nativeForm = document.querySelector("form.js-product-form, form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart']");
+            var postUrl = (nativeForm && nativeForm.getAttribute("action")) ? nativeForm.getAttribute("action") : "/cart/add";
+
+            // Detectar URL correcta del carrito en la tienda
+            var cartUrl = "/carrito";
+            var cartLink = document.querySelector("a[href*='/carrito'], a[href*='/carrinho'], a[href*='/cart']");
+            if (cartLink && cartLink.getAttribute("href")) {
+              cartUrl = cartLink.getAttribute("href");
+            } else if (window.location.pathname.indexOf("/produtos") !== -1) {
+              cartUrl = "/carrinho";
+            }
+
             var chain = Promise.resolve();
 
             variantsToAdd.forEach(function(vId) {
@@ -8494,7 +8503,7 @@
                 params.append("add_to_cart", vId);
                 params.append("quantity", "1");
 
-                return fetch("/cart/add", {
+                return fetch(postUrl, {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -8510,8 +8519,8 @@
 
             chain.then(function() {
               setTimeout(function() {
-                window.location.href = "/cart";
-              }, 350);
+                window.location.href = cartUrl;
+              }, 400);
             });
           });
         }
@@ -8529,7 +8538,7 @@
         placementNode.appendChild(div);
       }
     }
-                                }
+  }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
