@@ -1622,6 +1622,7 @@
           if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
           if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
           if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
+          if (w.widget_slug === "edicion-limitada") renderEdicionLimitada(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -9857,4 +9858,145 @@ function renderCalculadoraAhorro(w) {
     nvxTrack(w.id, 'impression');
   }
           }
+      /* ═══════════════════════════════════════════
+   WIDGET: STICKER EDICIÓN LIMITADA
+   ═══════════════════════════════════════════ */
+function renderEdicionLimitada(w) {
+  if (document.getElementById('nvx-limitada-' + w.id)) return;
+
+  var cfg = w.config || {};
+  if (cfg.mostrarEnProducto === false) return;
+
+  var CAMPAIGN_COLORS = {
+    'black-friday': { bg: '#111827', text: '#F59E0B', border: '#F59E0B' },
+    'hot-sale': { bg: '#0F172A', text: '#EF4444', border: '#EF4444' },
+    'cyber-monday': { bg: '#090D16', text: '#3B82F6', border: '#3B82F6' },
+    'navidad': { bg: '#064E3B', text: '#EF4444', border: '#EF4444' },
+    'san-valentin': { bg: '#831843', text: '#F43F5E', border: '#F43F5E' },
+    'dia-padre-madre': { bg: '#312E81', text: '#10B981', border: '#10B981' },
+    'liquidacion': { bg: '#7F1D1D', text: '#FBBF24', border: '#FBBF24' }
+  };
+
+  var theme = cfg.campaignTheme && cfg.campaignTheme !== 'none' ? CAMPAIGN_COLORS[cfg.campaignTheme] : null;
+
+  var bg = theme ? theme.bg : (cfg.colorFondo || '#111827');
+  var color = theme ? theme.text : (cfg.colorTexto || '#F59E0B');
+  var borderColor = theme ? theme.border : (cfg.colorBorde || '#F59E0B');
+  var mostrarBorde = cfg.mostrarBorde !== false;
+  var textoPrincipal = cfg.textoPrincipal || 'EDICIÓN LIMITADA';
+  var subtexto = cfg.subtexto || '';
+  var forma = cfg.forma || 'circular';
+  var posicion = cfg.posicion || 'esquina-superior-derecha';
+  var rotacion = typeof cfg.rotacion === 'number' ? cfg.rotacion : -8;
+  var efecto = cfg.efecto || 'brillo-pulsante';
+  var tamano = cfg.tamano || 'mediano';
+
+  var scaleMultiplier = tamano === 'chico' ? 0.85 : (tamano === 'grande' ? 1.15 : 1);
+
+  // Inyectar CSS de animaciones si no existe
+  if (!document.getElementById('nvx-limitada-style')) {
+    var styleTag = document.createElement('style');
+    styleTag.id = 'nvx-limitada-style';
+    styleTag.innerHTML =
+      '@keyframes nvxGlowPulse {' +
+      '0%, 100% { box-shadow: 0 4px 14px rgba(0,0,0,0.2), 0 0 0 0 rgba(245, 158, 11, 0.4); }' +
+      '50% { box-shadow: 0 6px 20px rgba(0,0,0,0.3), 0 0 0 8px rgba(245, 158, 11, 0); }' +
+      '}' +
+      '@keyframes nvxZoomPulse {' +
+      '0%, 100% { transform: scale(1); }' +
+      '50% { transform: scale(1.05); }' +
+      '}' +
+      '.nvx-glow-pulse { animation: nvxGlowPulse 2.5s infinite ease-in-out; }' +
+      '.nvx-zoom-pulse { animation: nvxZoomPulse 2s infinite ease-in-out; }';
+    document.head.appendChild(styleTag);
+  }
+
+  var animClass = '';
+  if (efecto === 'brillo-pulsante') animClass = ' nvx-glow-pulse';
+  else if (efecto === 'zoom-suave') animClass = ' nvx-zoom-pulse';
+
+  var container = document.createElement('div');
+  container.id = 'nvx-limitada-' + w.id;
+  container.className = 'nvx-widget nvx-limitada-wrapper' + animClass;
+
+  var baseTransform = 'rotate(' + rotacion + 'deg) scale(' + scaleMultiplier + ')';
+
+  if (posicion === 'inline-precio') {
+    container.style.cssText = 'display:inline-flex;margin:10px 0;z-index:9;transform:' + baseTransform + ';transform-origin:center center;font-family:system-ui,-apple-system,sans-serif;';
+  } else {
+    var isLeft = posicion === 'esquina-superior-izquierda';
+    container.style.cssText = 'position:absolute;top:12px;' + (isLeft ? 'left:12px;' : 'right:12px;') + 'z-index:15;transform:' + baseTransform + ';transform-origin:center center;pointer-events:none;font-family:system-ui,-apple-system,sans-serif;';
+  }
+
+  var innerHtml = '';
+
+  if (forma === 'circular') {
+    var borderStyle = mostrarBorde ? 'border:2px dashed ' + borderColor + ';' : '';
+    innerHtml =
+      '<div style="width:84px;height:84px;border-radius:50%;background:' + bg + ';color:' + color + ';' + borderStyle + 'display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6px;box-shadow:0 4px 14px rgba(0,0,0,0.18);box-sizing:border-box;">' +
+        '<span style="font-size:13px;line-height:1;">✨</span>' +
+        '<span style="font-size:9.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;line-height:1.1;">' + textoPrincipal + '</span>' +
+        (subtexto ? '<span style="font-size:7.5px;opacity:0.9;margin-top:2px;font-weight:700;line-height:1;">' + subtexto + '</span>' : '') +
+      '</div>';
+  } else if (forma === 'cinta-diagonal') {
+    var borderStyle = mostrarBorde ? 'border-top:1.5px solid ' + borderColor + ';border-bottom:1.5px solid ' + borderColor + ';' : '';
+    innerHtml =
+      '<div style="background:' + bg + ';color:' + color + ';' + borderStyle + 'padding:5px 18px;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;flex-direction:column;align-items:center;text-align:center;">' +
+        '<span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;">✦ ' + textoPrincipal + ' ✦</span>' +
+        (subtexto ? '<span style="font-size:7.5px;opacity:0.9;font-weight:700;">' + subtexto + '</span>' : '') +
+      '</div>';
+  } else if (forma === 'sello-borde') {
+    var outlineStyle = mostrarBorde ? 'outline:1.5px dashed ' + borderColor + ';outline-offset:3px;' : '';
+    innerHtml =
+      '<div style="background:' + bg + ';color:' + color + ';border:2px solid ' + borderColor + ';border-radius:6px;padding:6px 14px;box-shadow:0 3px 10px rgba(0,0,0,0.12);display:flex;flex-direction:column;align-items:center;text-align:center;' + outlineStyle + '">' +
+        '<div style="display:flex;align-items:center;gap:4px;">' +
+          '<span style="font-size:10px;">🏷️</span>' +
+          '<span style="font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;line-height:1.1;">' + textoPrincipal + '</span>' +
+        '</div>' +
+        (subtexto ? '<span style="font-size:8px;opacity:0.9;margin-top:3px;font-weight:700;">' + subtexto + '</span>' : '') +
+      '</div>';
+  } else {
+    // badge-rect
+    var borderStyle = mostrarBorde ? 'border:1.5px solid ' + borderColor + ';' : '';
+    innerHtml =
+      '<div style="background:' + bg + ';color:' + color + ';' + borderStyle + 'border-radius:999px;padding:6px 14px;box-shadow:0 3px 10px rgba(0,0,0,0.12);display:flex;align-items:center;gap:6px;text-align:center;">' +
+        '<span style="font-size:11px;">🔥</span>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-start;">' +
+          '<span style="font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;line-height:1.1;">' + textoPrincipal + '</span>' +
+          (subtexto ? '<span style="font-size:8px;opacity:0.9;font-weight:700;line-height:1;">' + subtexto + '</span>' : '') +
+        '</div>' +
+      '</div>';
+  }
+
+  container.innerHTML = innerHtml;
+
+  // Inserción en DOM
+  if (posicion === 'inline-precio') {
+    var priceEl = document.querySelector('.js-price-display, #price_display, .js-price, [data-price], form[action*="/cart/add"], .js-product-form');
+    if (priceEl && priceEl.parentNode) {
+      priceEl.parentNode.insertBefore(container, priceEl.nextSibling);
+    } else {
+      var form = document.querySelector('form[action*="/cart/add"], .js-product-form');
+      if (form && form.parentNode) form.parentNode.insertBefore(container, form);
+    }
+  } else {
+    // En imagen de producto
+    var imgContainer = document.querySelector(
+      '.js-product-slider, .product-slider, .js-swiper-container, .swiper-container, .js-product-image-container, .product-image-container, .js-product-image, .image-container, [data-component="product.image"]'
+    );
+    if (imgContainer) {
+      var pos = window.getComputedStyle(imgContainer).position;
+      if (pos === 'static' || !pos) imgContainer.style.position = 'relative';
+      imgContainer.appendChild(container);
+    } else {
+      var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container');
+      if (targetEl && targetEl.parentNode) targetEl.parentNode.insertBefore(container, targetEl);
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === 'function') {
+    nvxTrack(w.id, 'impression');
+  }
+    }
 })();
