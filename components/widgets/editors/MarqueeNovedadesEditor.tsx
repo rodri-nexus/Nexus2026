@@ -270,13 +270,17 @@ export default function MarqueeNovedadesEditor({
 }: MarqueeNovedadesEditorProps) {
   const router = useRouter();
 
-  const [config, setConfig] = useState<MarqueeNovedadesConfig>(() => ({
-    ...defaultConfig,
-    ...(existingWidget?.config || {}),
-    messages: existingWidget?.config?.messages?.length > 0 
-      ? existingWidget.config.messages 
-      : defaultConfig.messages,
-  }));
+  const [config, setConfig] = useState<MarqueeNovedadesConfig>(() => {
+    const base = {
+      ...defaultConfig,
+      ...(existingWidget?.config || {}),
+    };
+    if (existingWidget?.config?.messages && Array.isArray(existingWidget.config.messages) && existingWidget.config.messages.length > 0) {
+      base.messages = existingWidget.config.messages;
+    }
+    return base as MarqueeNovedadesConfig;
+  });
+
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
@@ -782,4 +786,4 @@ export default function MarqueeNovedadesEditor({
       </div>
     </div>
   );
-     }
+}
