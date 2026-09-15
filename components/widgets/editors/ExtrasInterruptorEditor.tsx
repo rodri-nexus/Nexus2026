@@ -1,16 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Search, Loader2, Check } from 'lucide-react';
 import {
   ColorPicker,
   Slider,
   FieldInput,
-  FieldSelect,
 } from './EditorFields';
 import EditorTabs from './EditorTabs';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   HELPERS & AUXILIARY FUNCTIONS (Regla #9)
+═══════════════════════════════════════════ */
+const getProductName = (name: any): string => {
+  if (!name) return 'Producto';
+  if (typeof name === 'object') {
+    return String(name.es || Object.values(name)[0] || 'Producto');
+  }
+  return String(name);
+};
 
 /* ═══════════════════════════════════════════
    PRESETS DE FECHAS ESPECIALES
@@ -172,6 +183,13 @@ interface Props {
   targetType: 'product' | 'all';
   productId: number | null;
   storeId: string | number;
+}
+
+interface StoreProduct {
+  id: number;
+  name: string | { es?: string; [key: string]: unknown };
+  images?: Array<{ src: string }>;
+  variants?: Array<{ id: number; price: string | number; promotional_price?: string | number }>;
 }
 
 interface ExtrasInterruptorConfig {
@@ -468,11 +486,54 @@ export default function ExtrasInterruptorEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Selector integrado de Tiendanube
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [searchFilter, setSearchFilter] = useState('');
+
+  useEffect(() => {
+    async function loadStoreProducts() {
+      try {
+        setLoadingProducts(true);
+        const res = await fetch(`/api/products?store_id=${storeId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = Array.isArray(data) ? data : (data.products || data.data || []);
+          setStoreProducts(list);
+        }
+      } catch (err) {
+        console.error('Error cargando productos:', err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+    loadStoreProducts();
+  }, [storeId]);
+
   const updateCfg = <K extends keyof ExtrasInterruptorConfig>(
     key: K,
     val: ExtrasInterruptorConfig[K]
   ) => {
     setConfig((prev) => ({ ...prev, [key]: val }));
+  };
+
+  const handleSelectProduct = (prod: StoreProduct) => {
+    const nameStr = getProductName(prod.name);
+    const firstVariant = (prod.variants && prod.variants.length > 0) ? prod.variants[0] : null;
+    const priceVal = firstVariant ? Number(firstVariant.price) : 0;
+    const variantIdVal = firstVariant ? String(firstVariant.id) : String(prod.id);
+    const imgUrl = (prod.images && prod.images.length > 0) ? prod.images[0].src : '';
+
+    setConfig((prev) => ({
+      ...prev,
+      titulo: nameStr,
+      precioTexto: `$${priceVal.toLocaleString('es-AR')}`,
+      imagenUrl: imgUrl,
+      variantId: variantIdVal,
+    }));
+    setShowPicker(false);
+    setSearchFilter('');
   };
 
   const handleSave = async () => {
@@ -523,6 +584,151 @@ export default function ExtrasInterruptorEditor({
   /* ─── TAB GENERAL ─── */
   const tabGeneral = (
     <div>
+      {/* BOTÓN INTELIGENTE DE SELECCIÓN DE PRODUCTO */}
+      <div style={{ marginBottom: 20 }}>
+        <button
+          type="button"
+          onClick={() => setShowPicker(!showPicker)}
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: '#10B981',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: 12,
+            fontSize: 14,
+            fontWeight: 800,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
+            transition: 'background 0.2s ease',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#059669')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = '#10B981')}
+        >
+          <Search size={18} />
+          {showPicker ? 'Cerrar buscador' : '📦 Elegir de mi tienda'}
+        </button>
+
+        {/* LISTADO FILTRABLE DE PRODUCTOS DE LA TIENDA */}
+        {showPicker && (
+          <div
+            style={{
+              background: '#ffffff',
+              border: '2px solid #10B981',
+              borderRadius: 12,
+              padding: 14,
+              marginTop: 10,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#059669', marginBottom: 8 }}>
+              🔍 Buscá y seleccioná un producto de tu Tiendanube:
+            </div>
+
+            <input
+              type="text"
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              placeholder="Escribí el nombre del producto..."
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: 8,
+                border: '1px solid #cbd5e1',
+                fontSize: 13,
+                marginBottom: 10,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+
+            <div style={{ maxHeight: 200, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {loadingProducts ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#64748b', padding: 8 }}>
+                  <Loader2 size={16} className="animate-spin" />
+                  Cargando productos de tu Tiendanube...
+                </div>
+              ) : storeProducts.length === 0 ? (
+                <div style={{ fontSize: 13, color: '#64748b', padding: 8 }}>No se encontraron productos.</div>
+              ) : (
+                storeProducts
+                  .filter((p) => {
+                    const name = getProductName(p.name);
+                    return name.toLowerCase().includes(searchFilter.toLowerCase());
+                  })
+                  .map((p) => {
+                    const name = getProductName(p.name);
+                    const v = (p.variants && p.variants.length > 0) ? p.variants[0] : null;
+                    const price = v ? Number(v.price) : 0;
+                    const img = (p.images && p.images.length > 0) ? p.images[0].src : '';
+
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => handleSelectProduct(p)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          padding: 8,
+                          borderRadius: 8,
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#ecfdf5';
+                          e.currentTarget.style.borderColor = '#10B981';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#f8fafc';
+                          e.currentTarget.style.borderColor = '#e2e8f0';
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 6,
+                            background: '#e2e8f0',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {img ? (
+                            <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <span style={{ fontSize: 16 }}>🛍️</span>
+                          )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {name}
+                          </div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#10B981', marginTop: 1 }}>
+                            ${price.toLocaleString('es-AR')}
+                          </div>
+                        </div>
+                        <div style={{ background: '#ecfdf5', color: '#059669', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 800 }}>
+                          Elegir
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       <FieldInput
         label="Nombre / Título del producto extra"
         value={config.titulo}
