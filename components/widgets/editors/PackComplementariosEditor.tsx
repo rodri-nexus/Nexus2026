@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   PackagePlus,
@@ -8,10 +8,9 @@ import {
   Trash2,
   Check,
   Eye,
-  Save,
-  Loader2,
-  Sparkles,
   ShoppingBag,
+  Search,
+  ExternalLink,
 } from 'lucide-react';
 import {
   ColorPicker,
@@ -56,6 +55,13 @@ export interface PackItem {
   imagenUrl: string;
   variantId: string;
   incluidoPorDefecto: boolean;
+}
+
+interface StoreProduct {
+  id: number;
+  name: string | { es?: string; [key: string]: unknown };
+  images?: Array<{ src: string }>;
+  variants?: Array<{ id: number; price: string | number; promotional_price?: string | number }>;
 }
 
 interface PackComplementariosConfig {
@@ -162,7 +168,6 @@ function PackComplementariosPreview({
   selectedIndices: number[];
   onToggleItem: (idx: number) => void;
 }) {
-  // Calcular total sin descuento de items seleccionados
   const totalOriginal = config.items.reduce((acc, item, idx) => {
     return selectedIndices.includes(idx) ? acc + (Number(item.precio) || 0) : acc;
   }, 0);
@@ -381,6 +386,31 @@ export default function PackComplementariosEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Selector de productos de Tiendanube
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [activePickerIndex, setActivePickerIndex] = useState<number | null>(null);
+  const [searchFilter, setSearchFilter] = useState('');
+
+  useEffect(() => {
+    async function loadStoreProducts() {
+      try {
+        setLoadingProducts(true);
+        const res = await fetch(`/api/products?store_id=${storeId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = Array.isArray(data) ? data : (data.products || data.data || []);
+          setStoreProducts(list);
+        }
+      } catch (err) {
+        console.log('Error cargando productos de la tienda:', err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+    loadStoreProducts();
+  }, [storeId]);
+
   const updateCfg = <K extends keyof PackComplementariosConfig>(
     key: K,
     val: PackComplementariosConfig[K]
@@ -392,6 +422,27 @@ export default function PackComplementariosEditor({
     const newItems = [...config.items];
     newItems[index] = { ...newItems[index], [field]: value };
     setConfig((prev) => ({ ...prev, items: newItems }));
+  };
+
+  const handleSelectProduct = (productIndex: number, prod: StoreProduct) => {
+    const nameStr = typeof prod.name === 'object' ? (prod.name.es || Object.values(prod.name)[0] || 'Producto') : (prod.name || 'Producto');
+    const firstVariant = (prod.variants && prod.variants.length > 0) ? prod.variants[0] : null;
+    const priceVal = firstVariant ? Number(firstVariant.price) : 0;
+    const variantIdVal = firstVariant ? String(firstVariant.id) : String(prod.id);
+    const imgUrl = (prod.images && prod.images.length > 0) ? prod.images[0].src : '';
+
+    const newItems = [...config.items];
+    newItems[productIndex] = {
+      ...newItems[productIndex],
+      titulo: String(nameStr),
+      precio: priceVal,
+      imagenUrl: imgUrl,
+      variantId: variantIdVal,
+    };
+
+    setConfig((prev) => ({ ...prev, items: newItems }));
+    setActivePickerIndex(null);
+    setSearchFilter('');
   };
 
   const addItem = () => {
@@ -532,7 +583,7 @@ export default function PackComplementariosEditor({
             alignItems: 'center',
           }}
         >
-          <span>Productos complementarios del pack ({config.items.length}/4)</span>
+          <span>Productos del pack ({config.items.length}/4)</span>
           {config.items.length < 4 && (
             <button
               type="button"
@@ -568,20 +619,138 @@ export default function PackComplementariosEditor({
                 padding: 14,
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#000000' }}>
                   Producto #{idx + 1}
                 </span>
-                {config.items.length > 1 && (
+                
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <button
                     type="button"
-                    onClick={() => removeItem(idx)}
-                    style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}
+                    onClick={() => setActivePickerIndex(activePickerIndex === idx ? null : idx)}
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '5px 10px',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
                   >
-                    <Trash2 size={16} />
+                    <Search size={13} />
+                    {activePickerIndex === idx ? 'Cerrar lista' : '📦 Elegir de mi tienda'}
                   </button>
-                )}
+
+                  {config.items.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeItem(idx)}
+                      style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
+
+              {/* MODAL / LISTA DESPLEGABLE DE PRODUCTOS DE LA TIENDA */}
+              {activePickerIndex === idx && (
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1.5px solid #10B981',
+                    borderRadius: 10,
+                    padding: 12,
+                    marginBottom: 12,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#059669', marginBottom: 8 }}>
+                    🔍 Seleccioná un producto de tu Tiendanube:
+                  </div>
+
+                  <input
+                    type="text"
+                    value={searchFilter}
+                    onChange={(e) => setSearchFilter(e.target.value)}
+                    placeholder="Buscar por nombre..."
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: 8,
+                      border: '1px solid #d1d5db',
+                      fontSize: 12,
+                      marginBottom: 8,
+                      boxSizing: 'border-box',
+                    }}
+                  />
+
+                  <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {loadingProducts ? (
+                      <div style={{ fontSize: 12, color: '#6b7280', padding: 8 }}>Cargando tus productos...</div>
+                    ) : storeProducts.length === 0 ? (
+                      <div style={{ fontSize: 12, color: '#6b7280', padding: 8 }}>No se encontraron productos en la tienda.</div>
+                    ) : (
+                      storeProducts
+                        .filter((p) => {
+                          const name = typeof p.name === 'object' ? (p.name.es || '') : (p.name || '');
+                          return name.toLowerCase().includes(searchFilter.toLowerCase());
+                        })
+                        .map((p) => {
+                          const name = typeof p.name === 'object' ? (p.name.es || Object.values(p.name)[0] || '') : (p.name || '');
+                          const v = (p.variants && p.variants.length > 0) ? p.variants[0] : null;
+                          const price = v ? Number(v.price) : 0;
+                          const img = (p.images && p.images.length > 0) ? p.images[0].src : '';
+
+                          return (
+                            <div
+                              key={p.id}
+                              onClick={() => handleSelectProduct(idx, p)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                                padding: 6,
+                                borderRadius: 6,
+                                background: '#f9fafb',
+                                border: '1px solid #e5e7eb',
+                                cursor: 'pointer',
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.background = '#ecfdf5')}
+                              onMouseLeave={(e) => (e.currentTarget.style.background = '#f9fafb')}
+                            >
+                              <div
+                                style={{
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: 4,
+                                  background: '#e5e7eb',
+                                  overflow: 'hidden',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {img ? <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {name}
+                                </div>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>
+                                  ${price.toLocaleString('es-AR')}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10, marginBottom: 8 }}>
                 <input
@@ -645,7 +814,7 @@ export default function PackComplementariosEditor({
           ))}
         </div>
 
-        {/* MINI TUTORIAL ID DE VARIANTE */}
+        {/* MINI TUTORIAL */}
         <div
           style={{
             background: '#f0fdf4',
@@ -655,14 +824,14 @@ export default function PackComplementariosEditor({
             marginTop: 12,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 15 }}>💡</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <span style={{ fontSize: 15 }}>✨</span>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#166534' }}>
-              ¿Cómo obtener el ID de Variante de cada producto en Tiendanube?
+              ¡Selección automática de productos!
             </span>
           </div>
           <p style={{ margin: 0, fontSize: 11, color: '#15803d', lineHeight: 1.5 }}>
-            Entrá a tu panel de Tiendanube → <b>Productos</b> → abrí el producto y copiá el número al final de la URL en tu navegador (ej: <code>.../admin/products/<b>12345678</b></code>). Al colocarlo, cuando el cliente toque "Agregar pack al carrito" se sumarán todos los productos tildados en un solo toque.
+            Tocá en el botón verde <b>"📦 Elegir de mi tienda"</b> en cada producto del combo. Nevux vinculará al instante el ID de variante real de tu Tiendanube para que el carrito se actualice automáticamente con 1 solo toque.
           </p>
         </div>
       </div>
@@ -955,4 +1124,4 @@ export default function PackComplementariosEditor({
       </div>
     </div>
   );
-  }
+}
