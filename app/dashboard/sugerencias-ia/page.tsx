@@ -6,18 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Cpu,
-  Sparkles,
   Loader2,
   CheckCircle2,
   AlertCircle,
   Save,
-  Zap,
-  Plus,
   ShoppingBag,
-  Percent,
   RefreshCw,
   Eye,
-  ShieldCheck,
 } from "lucide-react";
 import DashboardHeader from "../components/DashboardHeader";
 import SideMenu from "../components/SideMenu";
@@ -59,37 +54,35 @@ interface UserStore {
 
 /* ═══════════════════════════════════════════
    DEFAULTS (Regla #9 al inicio)
-══════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: CrossSellConfig = {
   is_active: true,
   discount_percentage: 15,
-  title: "🔥 Llevá el complemento ideal con descuento",
-  subtitle: "Comprados juntos habitualmente con descuento exclusivo:",
-  button_text: "⚡ Agregar combo con descuento al carrito",
+  title: "SACO GRIS",
+  subtitle: "PROMO",
+  button_text: "VER MÁS",
   auto_pilot: true,
 };
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTE: SIMULADOR DE COMBO EN VIVO
+   SUB-COMPONENTE: SIMULADOR DE EXTRAS CON INTERRUPTOR IA
 ═══════════════════════════════════════════ */
-function CrossSellSimulatorPreview({
+function ExtrasIaSimulatorPreview({
   config,
   samplePairing,
 }: {
   config: CrossSellConfig;
   samplePairing: SmartPairing | null;
 }) {
-  const mainName = samplePairing?.mainProductName || "Producto Principal";
-  const mainPrice = samplePairing?.mainProductPrice || 45000;
-  const mainImg = samplePairing?.mainProductImage || "";
+  const [toggleOn, setToggleOn] = useState(true);
 
-  const recName = samplePairing?.recommendedProductName || "Accesorio / Complemento";
-  const recPrice = samplePairing?.recommendedProductPrice || 15000;
+  // Tomar el producto recomendado de la IA
+  const recName = samplePairing?.recommendedProductName || "Saco Gris Premium";
+  const recPrice = samplePairing?.recommendedProductPrice || 45000;
   const recImg = samplePairing?.recommendedProductImage || "";
 
-  const originalTotal = mainPrice + recPrice;
-  const discountedTotal = Math.round(originalTotal * ((100 - config.discount_percentage) / 100));
-  const savings = originalTotal - discountedTotal;
+  // Calcular precio con descuento dinámico configurado
+  const discountedPrice = Math.round(recPrice * ((100 - config.discount_percentage) / 100));
 
   return (
     <div
@@ -107,13 +100,13 @@ function CrossSellSimulatorPreview({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: "1rem",
+          marginBottom: "1.25rem",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
           <Eye size={14} color="#10B981" />
           <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#059669", textTransform: "uppercase" }}>
-            Vista Previa en Ficha de Producto
+            Vista Previa de Extras con Interruptor
           </span>
         </div>
 
@@ -128,152 +121,166 @@ function CrossSellSimulatorPreview({
             borderRadius: "999px",
           }}
         >
-          {config.discount_percentage}% OFF EN COMBO
+          RECOMENDACIÓN DE LA IA
         </span>
       </div>
 
-      {/* Título y Subtítulo */}
-      <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827", marginBottom: "0.25rem" }}>
-        {config.title}
-      </div>
-      <p style={{ margin: "0 0 1rem 0", fontSize: "0.78rem", color: "#6b7280" }}>
-        {config.subtitle}
-      </p>
-
-      {/* Visual de los 2 productos + Signo Más */}
+      {/* Tarjeta Extras con Interruptor Adaptado */}
       <div
         style={{
+          background: "#fffdf5",
+          border: "1.5px solid #fcd34d",
+          borderRadius: "16px",
+          padding: "14px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "0.75rem",
-          background: "#f9fafb",
-          border: "1px solid #e5e7eb",
-          borderRadius: "14px",
-          padding: "0.9rem",
-          marginBottom: "1rem",
+          gap: "12px",
+          boxShadow: "0 4px 14px rgba(0, 0, 0, 0.03)",
         }}
       >
-        {/* Producto 1 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "10px",
-              background: "#e5e7eb",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              overflow: "hidden",
-            }}
-          >
-            {mainImg ? (
-              <img src={mainImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <ShoppingBag size={18} color="#9ca3af" />
-            )}
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {mainName}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>${mainPrice.toLocaleString("es-AR")}</div>
-          </div>
-        </div>
-
-        {/* Plus Icon */}
+        {/* Columna Izquierda: Imagen + Ver Más */}
         <div
           style={{
-            width: "24px",
-            height: "24px",
-            borderRadius: "50%",
-            background: "#10B981",
-            color: "#ffffff",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            fontSize: "0.85rem",
-            fontWeight: 900,
+            gap: "4px",
             flexShrink: 0,
           }}
         >
-          +
-        </div>
-
-        {/* Producto 2 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flex: 1, minWidth: 0 }}>
           <div
             style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "10px",
-              background: "#e5e7eb",
+              width: "54px",
+              height: "54px",
+              borderRadius: "8px",
+              overflow: "hidden",
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              flexShrink: 0,
-              overflow: "hidden",
             }}
           >
             {recImg ? (
-              <img src={recImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img
+                src={recImg}
+                alt=""
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             ) : (
-              <ShoppingBag size={18} color="#9ca3af" />
+              <span style={{ fontSize: "20px" }}>👔</span>
             )}
           </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {recName}
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#10B981", fontWeight: 700 }}>${recPrice.toLocaleString("es-AR")}</div>
+          <span
+            style={{
+              fontSize: "10px",
+              fontWeight: 800,
+              color: "#000000",
+              textDecoration: "underline",
+              letterSpacing: "0.03em",
+            }}
+          >
+            {config.button_text || "VER MÁS"}
+          </span>
+        </div>
+
+        {/* Columna Central: Título + Precio + Badge PROMO */}
+        <div style={{ flex: 1, minWidth: 0, paddingLeft: "4px" }}>
+          <div
+            style={{
+              fontSize: "14px",
+              fontWeight: 800,
+              color: "#1f2937",
+              lineHeight: 1.2,
+              marginBottom: "6px",
+              textTransform: "uppercase",
+              letterSpacing: "-0.01em",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {recName}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+            <span
+              style={{
+                fontSize: "16px",
+                fontWeight: 900,
+                color: "#111827",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              ${discountedPrice.toLocaleString("es-AR")}
+            </span>
+            <span
+              style={{
+                fontSize: "11px",
+                textDecoration: "line-through",
+                color: "#9ca3af",
+                fontWeight: 600,
+              }}
+            >
+              ${recPrice.toLocaleString("es-AR")}
+            </span>
+
+            <span
+              style={{
+                background: "#dc2626",
+                color: "#ffffff",
+                fontSize: "9px",
+                fontWeight: 900,
+                padding: "2px 6px",
+                borderRadius: "4px",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                lineHeight: 1,
+              }}
+            >
+              {config.subtitle} {config.discount_percentage}% OFF
+            </span>
           </div>
         </div>
+
+        {/* Columna Derecha: Interruptor Switch */}
+        <button
+          type="button"
+          onClick={() => setToggleOn(!toggleOn)}
+          aria-label="Toggle extra"
+          style={{
+            width: "54px",
+            height: "30px",
+            borderRadius: "999px",
+            border: "none",
+            cursor: "pointer",
+            background: toggleOn ? "#10B981" : "#e5e7eb",
+            position: "relative",
+            flexShrink: 0,
+            transition: "background 0.2s ease",
+            padding: 0,
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              top: 3,
+              left: toggleOn ? 27 : 3,
+              width: 24,
+              height: 24,
+              borderRadius: "50%",
+              background: "#ffffff",
+              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+              transition: "left 0.2s ease",
+            }}
+          />
+        </button>
       </div>
 
-      {/* Precios y Ahorro */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "1rem",
-          padding: "0 0.25rem",
-        }}
-      >
-        <div>
-          <span style={{ fontSize: "0.75rem", color: "#9ca3af", textDecoration: "line-through", marginRight: "6px" }}>
-            ${originalTotal.toLocaleString("es-AR")}
-          </span>
-          <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#10B981" }}>
-            ${discountedTotal.toLocaleString("es-AR")}
-          </span>
-        </div>
-
-        <span style={{ fontSize: "0.75rem", color: "#059669", fontWeight: 700, background: "#ecfdf5", padding: "3px 8px", borderRadius: "6px" }}>
-          Ahorrás ${savings.toLocaleString("es-AR")}
-        </span>
+      <div style={{ marginTop: "1rem", fontSize: "0.78rem", color: "#6b7280", textAlign: "center", lineHeight: 1.4 }}>
+        💡 Al prender el interruptor, la sugerencia de la IA se agregará de inmediato al carrito de compras del cliente.
       </div>
-
-      {/* Botón CTA */}
-      <button
-        type="button"
-        style={{
-          width: "100%",
-          padding: "0.85rem",
-          borderRadius: "12px",
-          border: "none",
-          background: "#10B981",
-          color: "#ffffff",
-          fontWeight: 800,
-          fontSize: "0.85rem",
-          cursor: "pointer",
-          boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
-        }}
-      >
-        {config.button_text}
-      </button>
     </div>
   );
 }
@@ -292,7 +299,6 @@ export default function SugerenciasIaPage() {
   const [refreshingCat, setRefreshingCat] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
-  // Cargar datos
   const loadData = async (storeId: number) => {
     try {
       const res = await fetch(`/api/ai/cross-sell?store_id=${storeId}&include_pairings=true`);
@@ -383,7 +389,7 @@ export default function SugerenciasIaPage() {
 
       setFeedback({
         type: "success",
-        message: "¡Configuración de Cross-Selling IA guardada con éxito!",
+        message: "¡Configuración de Recomendaciones IA guardada con éxito!",
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error inesperado";
@@ -462,7 +468,7 @@ export default function SugerenciasIaPage() {
             }}
           >
             <Cpu size={13} color="#10B981" />
-            Motor Predictivo Neuronal
+            Motor Predictivo IA
           </div>
 
           <h1
@@ -474,10 +480,10 @@ export default function SugerenciasIaPage() {
               color: "#000000",
             }}
           >
-            Recomendaciones IA (Cross-Selling Predictivo)
+            Recomendaciones IA (Extras Automáticos)
           </h1>
           <p style={{ margin: 0, fontSize: "0.95rem", color: "#6b7280", lineHeight: 1.5 }}>
-            Emparejá automáticamente cada producto con su accesorio o complemento ideal. Aumentá el ticket promedio ofreciendo combos 1-clic con descuento.
+            Emparejá automáticamente cada producto con su accesorio o complemento ideal. Aumentá tu ticket promedio sugiriendo extras con descuento directamente en la ficha del producto.
           </p>
         </motion.div>
 
@@ -526,7 +532,7 @@ export default function SugerenciasIaPage() {
           >
             <Loader2 size={32} color="#10B981" className="animate-spin" />
             <span style={{ fontSize: "0.9rem", color: "#6b7280", fontWeight: 600 }}>
-              Analizando catálogo y generando parejas IA...
+              Generando sugerencias predictivas de extras...
             </span>
           </div>
         ) : (
@@ -602,10 +608,10 @@ export default function SugerenciasIaPage() {
                   }}
                 >
                   <div style={{ fontSize: "0.9rem", fontWeight: 800, color: "#111827", marginBottom: "0.3rem" }}>
-                    Descuento del Combo
+                    Descuento del Extra sugerido
                   </div>
                   <p style={{ margin: "0 0 0.85rem 0", fontSize: "0.78rem", color: "#6b7280" }}>
-                    Incentivo que se aplica automáticamente al sumar ambos productos:
+                    Incentivo que se aplica automáticamente al prender el interruptor:
                   </p>
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.5rem" }}>
@@ -645,12 +651,12 @@ export default function SugerenciasIaPage() {
                 >
                   <div>
                     <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                      Título del Módulo
+                      Etiqueta del Badge (ej: PROMO / IA SUGIERE)
                     </label>
                     <input
                       type="text"
-                      value={config.title}
-                      onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
+                      value={config.subtitle}
+                      onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
                       style={{
                         width: "100%",
                         padding: "0.65rem 0.85rem",
@@ -665,7 +671,7 @@ export default function SugerenciasIaPage() {
 
                   <div>
                     <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                      Texto del Botón CTA
+                      Texto del enlace &quot;Ver más&quot;
                     </label>
                     <input
                       type="text"
@@ -722,7 +728,7 @@ export default function SugerenciasIaPage() {
 
               {/* COLUMNA DERECHA: SIMULADOR EN VIVO */}
               <div style={{ position: "sticky", top: "2rem" }}>
-                <CrossSellSimulatorPreview
+                <ExtrasIaSimulatorPreview
                   config={config}
                   samplePairing={pairings.length > 0 ? pairings[0] : null}
                 />
@@ -751,10 +757,10 @@ export default function SugerenciasIaPage() {
               >
                 <div>
                   <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.15rem", fontWeight: 800 }}>
-                    Emparejamientos Predictivos en Vivo ({pairings.length})
+                    Sugerencias Predictivas de Extras en Vivo ({pairings.length})
                   </h3>
                   <p style={{ margin: 0, fontSize: "0.82rem", color: "#6b7280" }}>
-                    La IA analizó tu catálogo y determinó estas combinaciones óptimas para tu tienda:
+                    La IA analizó tu catálogo y determinó estas parejas óptimas para ofrecer como Extras con Interruptor:
                   </p>
                 </div>
 
@@ -800,71 +806,75 @@ export default function SugerenciasIaPage() {
                     gap: "1rem",
                   }}
                 >
-                  {pairings.map((p, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: "#f9fafb",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "14px",
-                        padding: "1rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "0.75rem",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span
-                          style={{
-                            background: "#ecfdf5",
-                            color: "#059669",
-                            border: "1px solid #a7f3d0",
-                            fontSize: "0.68rem",
-                            fontWeight: 800,
-                            padding: "2px 7px",
-                            borderRadius: "999px",
-                          }}
-                        >
-                          Afinitad: {p.matchScore}%
-                        </span>
-                        <span style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 600 }}>
-                          {p.matchReason}
-                        </span>
-                      </div>
+                  {pairings.map((p, idx) => {
+                    const dynamicDiscountPrice = Math.round(p.recommendedProductPrice * ((100 - config.discount_percentage) / 100));
 
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                            {p.mainProductName}
-                          </div>
-                          <div style={{ fontSize: "0.72rem", color: "#6b7280" }}>${p.mainProductPrice.toLocaleString("es-AR")}</div>
-                        </div>
-
-                        <span style={{ fontSize: "0.85rem", color: "#10B981", fontWeight: 900 }}>+</span>
-
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                            {p.recommendedProductName}
-                          </div>
-                          <div style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 700 }}>${p.recommendedProductPrice.toLocaleString("es-AR")}</div>
-                        </div>
-                      </div>
-
+                    return (
                       <div
+                        key={idx}
                         style={{
-                          borderTop: "1px dashed #e5e7eb",
-                          paddingTop: "0.5rem",
+                          background: "#f9fafb",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "14px",
+                          padding: "1rem",
                           display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          fontSize: "0.75rem",
+                          flexDirection: "column",
+                          gap: "0.75rem",
                         }}
                       >
-                        <span style={{ color: "#6b7280" }}>Total con {config.discount_percentage}% OFF:</span>
-                        <strong style={{ color: "#10B981", fontSize: "0.85rem" }}>${p.comboDiscountPrice.toLocaleString("es-AR")}</strong>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span
+                            style={{
+                              background: "#ecfdf5",
+                              color: "#059669",
+                              border: "1px solid #a7f3d0",
+                              fontSize: "0.68rem",
+                              fontWeight: 800,
+                              padding: "2px 7px",
+                              borderRadius: "999px",
+                            }}
+                          >
+                            Afinidad: {p.matchScore}%
+                          </span>
+                          <span style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 600 }}>
+                            {p.matchReason}
+                          </span>
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ fontSize: "0.7rem", color: "#6b7280", display: "block" }}>En Producto Principal:</span>
+                            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {p.mainProductName}
+                            </div>
+                          </div>
+
+                          <span style={{ fontSize: "0.85rem", color: "#10B981", fontWeight: 900 }}>👉</span>
+
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ fontSize: "0.7rem", color: "#059669", display: "block", fontWeight: 700 }}>Se sugiere Extra:</span>
+                            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {p.recommendedProductName}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            borderTop: "1px dashed #e5e7eb",
+                            paddingTop: "0.5rem",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          <span style={{ color: "#6b7280" }}>Precio sugerido con {config.discount_percentage}% OFF:</span>
+                          <strong style={{ color: "#10B981", fontSize: "0.85rem" }}>${dynamicDiscountPrice.toLocaleString("es-AR")}</strong>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
