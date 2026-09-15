@@ -5965,7 +5965,20 @@
     var exist = document.getElementById("nvx-extras-" + w.id);
     if (exist) return;
 
+    function _esc(s) {
+      if (!s) return "";
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     var cfg = w.config || {};
+    if (typeof cfg === "string") {
+      try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
+    }
+
     var titulo = cfg.titulo || "¡Llevá el producto extra!";
     var precio = cfg.precioTexto || "$0";
     var badge = cfg.badgeTexto || "";
@@ -5976,7 +5989,8 @@
     var txtVerMas = cfg.textoVerMas || "VER MÁS";
     var mostrarVerMas = cfg.mostrarVerMas !== false && txtVerMas !== "";
     var linkVerMas = cfg.linkVerMas || "#";
-    var variantId = cfg.variantId ? String(cfg.variantId).trim() : "";
+    var rawVariantId = cfg.variantId ? String(cfg.variantId).trim() : "";
+    var cleanVariantId = rawVariantId.replace(/\D/g, "");
 
     var colorFondo = cfg.colorFondo || "#fffdf5";
     var colorTitulo = cfg.colorTitulo || "#1f2937";
@@ -6015,254 +6029,278 @@
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : (cfg.padding || 14)) + "px";
     var shadowBox = isCustomTheme ? "0 4px 20px " + colorBorde + "33" : "0 4px 14px rgba(0,0,0,0.05)";
 
-    var target = document.querySelector("form[action*='/cart/add']") || 
-                 document.querySelector(".js-product-buy-container") ||
-                 document.querySelector(".product-buy-panel") ||
-                 document.querySelector(".js-product-form") ||
-                 document.querySelector(".product-form");
-                 
-    if (!target) return;
+    function findVisibleProductContainer() {
+      var buyBtn = document.querySelector(".js-addtocart, [data-store='product-buy-button'], .js-prod-submit-form, input[type='submit'].js-addtocart");
+      if (buyBtn) {
+        var form = buyBtn.closest("form");
+        if (form && !form.classList.contains("js-ajax-cart-panel")) {
+          return { node: form, method: "before" };
+        }
+        var buyContainer = buyBtn.closest(".js-product-buy-container, .product-buy-panel");
+        if (buyContainer) {
+          return { node: buyContainer, method: "before" };
+        }
+        return { node: buyBtn.parentElement, method: "before" };
+      }
 
-    var styleId = "nvx-extras-styles-" + w.id;
-    if (!document.getElementById(styleId)) {
-      var styleEl = document.createElement("style");
-      styleEl.id = styleId;
-      styleEl.innerHTML = `
-        #nvx-extras-${w.id} {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          background: ${colorFondo} !important;
-          border: 2px solid ${colorBorde} !important;
-          border-radius: ${borderRad} !important;
-          padding: ${padInt} !important;
-          margin: 15px 0;
-          box-shadow: ${shadowBox};
-          font-family: system-ui, -apple-system, sans-serif;
-          box-sizing: border-box;
-          transition: all 0.3s ease;
+      var forms = document.querySelectorAll("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], form[action*='cart']");
+      for (var i = 0; i < forms.length; i++) {
+        if (!forms[i].classList.contains("js-ajax-cart-panel") && !forms[i].closest(".js-ajax-cart-container") && !forms[i].closest(".modal")) {
+          return { node: forms[i], method: "before" };
         }
-        #nvx-extras-${w.id} .nvx-extra-img-box {
-          width: 54px;
-          height: 54px;
-          border-radius: 8px;
-          overflow: hidden;
-          background: #ffffff;
-          border: ${isCustomTheme ? `1px solid ${colorBorde}55` : '1px solid #e5e7eb'};
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-        #nvx-extras-${w.id} .nvx-extra-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        #nvx-extras-${w.id} .nvx-extra-title {
-          font-size: 14px;
-          font-weight: 800;
-          color: ${colorTitulo} !important;
-          line-height: 1.2;
-          margin-bottom: 4px;
-          text-transform: uppercase;
-          letter-spacing: -0.01em;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        #nvx-extras-${w.id} .nvx-extra-price {
-          font-size: 15px;
-          font-weight: 900;
-          color: ${colorPrecio} !important;
-          letter-spacing: -0.02em;
-        }
-        #nvx-extras-${w.id} .nvx-extra-badge {
-          background: ${colorBadge} !important;
-          color: ${colorTextoBadge} !important;
-          font-size: 9px;
-          font-weight: 900;
-          padding: 2px 6px;
-          border-radius: 4px;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          line-height: 1;
-        }
-        #nvx-extras-${w.id} .nvx-extra-link {
-          font-size: 10px;
-          font-weight: 800;
-          color: ${colorLink} !important;
-          text-decoration: underline;
-          letter-spacing: 0.03em;
-          cursor: pointer;
-        }
-        #nvx-extras-${w.id} .nvx-switch {
-          position: relative;
-          display: inline-block;
-          width: 50px;
-          height: 28px;
-          flex-shrink: 0;
-        }
-        #nvx-extras-${w.id} .nvx-switch input {
-          opacity: 0;
-          width: 0;
-          height: 0;
-        }
-        #nvx-extras-${w.id} .nvx-slider {
-          position: absolute;
-          cursor: pointer;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background-color: ${colorSwitchOff} !important;
-          transition: background-color 0.2s ease;
-          border-radius: 999px;
-        }
-        #nvx-extras-${w.id} .nvx-slider:before {
-          position: absolute;
-          content: "";
-          height: 22px;
-          width: 22px;
-          left: 3px;
-          bottom: 3px;
-          background-color: #ffffff;
-          transition: transform 0.2s ease;
-          border-radius: 50%;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.25);
-        }
-        #nvx-extras-${w.id} input:checked + .nvx-slider {
-          background-color: ${colorSwitchOn} !important;
-        }
-        #nvx-extras-${w.id} input:checked + .nvx-slider:before {
-          transform: translateX(22px);
-        }
-        .nvx-loader-spin {
-          border: 2px solid #e5e7eb;
-          border-top: 2px solid ${colorSwitchOn};
-          border-radius: 50%;
-          width: 16px;
-          height: 16px;
-          animation: nvxSpin 0.8s linear infinite;
-          display: inline-block;
-        }
-        @keyframes nvxSpin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(styleEl);
+      }
+
+      var detail = document.querySelector(".js-product-buy-container, .product-buy-panel, .js-product-container, .product-detail");
+      if (detail) {
+        return { node: detail, method: "append" };
+      }
+
+      return null;
     }
 
-    var div = document.createElement("div");
-    div.id = "nvx-extras-" + w.id;
+    var attempts = 0;
+    var intervalId = setInterval(function() {
+      attempts++;
+      var targetObj = findVisibleProductContainer();
 
-    var badgeHtml = mostrarBadge ? '<span class="nvx-extra-badge">' + escapeHtml(badge) + '</span>' : '';
-    var linkHtml = mostrarVerMas ? '<a href="' + escapeHtml(linkVerMas) + '" class="nvx-extra-link" target="_blank">' + escapeHtml(txtVerMas) + '</a>' : '';
-    var imgHtml = img 
-      ? '<div class="nvx-extra-img-box"><img class="nvx-extra-img" src="' + escapeHtml(img) + '" alt="" /></div>' 
-      : '<div class="nvx-extra-img-box" style="font-size:22px;">👔</div>';
-
-    div.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0;">
-        ${imgHtml}
-        ${linkHtml}
-      </div>
-      <div style="flex:1; min-width:0; padding-left:4px;">
-        <div class="nvx-extra-title">${escapeHtml(titulo)}</div>
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <span class="nvx-extra-price">${escapeHtml(precio)}</span>
-          ${badgeHtml}
-        </div>
-      </div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span id="nvx-loader-${w.id}" style="display:none;"><span class="nvx-loader-spin"></span></span>
-        <label class="nvx-switch">
-          <input type="checkbox" id="nvx-chk-${w.id}">
-          <span class="nvx-slider"></span>
-        </label>
-      </div>
-    `;
-
-    target.parentNode.insertBefore(div, target);
-
-    var checkbox = div.querySelector("#nvx-chk-" + w.id);
-    var loader = div.querySelector("#nvx-loader-" + w.id);
-
-    checkbox.addEventListener("change", function () {
-      if (checkbox.checked) {
-        if (!variantId) {
-          alert("Por favor configure el ID de Variante en el panel de Nevux.");
-          checkbox.checked = false;
-          return;
+      if (targetObj && targetObj.node) {
+        clearInterval(intervalId);
+        injectExtrasWidget(targetObj.node, targetObj.method);
+      } else if (attempts >= 20) {
+        clearInterval(intervalId);
+        var fallback = document.querySelector("main") || document.querySelector("#main") || document.body;
+        if (fallback) {
+          injectExtrasWidget(fallback, "append");
         }
-
-        loader.style.display = "inline-block";
-        checkbox.disabled = true;
-
-        // 1. Intentar API nativa de JS de Tiendanube si está disponible
-        if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
-          window.LS.cart.add({
-            variant_id: parseInt(variantId, 10) || variantId,
-            quantity: 1
-          }, function() {
-            window.location.reload();
-          });
-          return;
-        }
-
-        // 2. Fetch AJAX estándar compatible con todos los temas de Tiendanube
-        var bodyParams = new URLSearchParams();
-        bodyParams.append("add_to_cart", variantId);
-        bodyParams.append("variant_id", variantId);
-        bodyParams.append("quantity", "1");
-
-        fetch("/cart/add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json, text/javascript, */*; q=0.01"
-          },
-          body: bodyParams.toString()
-        })
-        .then(function(res) {
-          if (res.ok || res.status === 200 || res.status === 201 || res.status === 302) {
-            window.location.reload();
-          } else {
-            throw new Error("HTTP " + res.status);
-          }
-        })
-        .catch(function() {
-          // 3. Fallback infalible vía Form Submit nativo
-          try {
-            var hiddenForm = document.createElement("form");
-            hiddenForm.method = "POST";
-            hiddenForm.action = "/cart/add";
-            hiddenForm.style.display = "none";
-
-            var inputVar = document.createElement("input");
-            inputVar.type = "hidden";
-            inputVar.name = "variant_id";
-            inputVar.value = variantId;
-            hiddenForm.appendChild(inputVar);
-
-            var inputQty = document.createElement("input");
-            inputQty.type = "hidden";
-            inputQty.name = "quantity";
-            inputQty.value = "1";
-            hiddenForm.appendChild(inputQty);
-
-            document.body.appendChild(hiddenForm);
-            hiddenForm.submit();
-          } catch (e) {
-            loader.style.display = "none";
-            checkbox.disabled = false;
-            checkbox.checked = false;
-            alert("No se pudo agregar al carrito. Verifica que el ID de variante sea el correcto.");
-          }
-        });
       }
-    });
-                   }
+    }, 200);
+
+    function injectExtrasWidget(placementNode, method) {
+      if (document.getElementById("nvx-extras-" + w.id)) return;
+
+      var styleId = "nvx-extras-styles-" + w.id;
+      if (!document.getElementById(styleId)) {
+        var styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.innerHTML = `
+          #nvx-extras-${w.id} {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+            background: ${colorFondo} !important;
+            border: 2px solid ${colorBorde} !important;
+            border-radius: ${borderRad} !important;
+            padding: ${padInt} !important;
+            margin: 16px 0 !important;
+            box-shadow: ${shadowBox} !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            transition: all 0.3s ease !important;
+          }
+          #nvx-extras-${w.id} .nvx-extra-img-box {
+            width: 54px !important;
+            height: 54px !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            background: #ffffff !important;
+            border: ${isCustomTheme ? `1px solid ${colorBorde}55` : '1px solid #e5e7eb'} !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+          }
+          #nvx-extras-${w.id} .nvx-extra-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+          }
+          #nvx-extras-${w.id} .nvx-extra-title {
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            color: ${colorTitulo} !important;
+            line-height: 1.2 !important;
+            margin-bottom: 4px !important;
+            text-transform: uppercase !important;
+            letter-spacing: -0.01em !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+          #nvx-extras-${w.id} .nvx-extra-price {
+            font-size: 15px !important;
+            font-weight: 900 !important;
+            color: ${colorPrecio} !important;
+            letter-spacing: -0.02em !important;
+          }
+          #nvx-extras-${w.id} .nvx-extra-badge {
+            background: ${colorBadge} !important;
+            color: ${colorTextoBadge} !important;
+            font-size: 9px !important;
+            font-weight: 900 !important;
+            padding: 2px 6px !important;
+            border-radius: 4px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.04em !important;
+            line-height: 1 !important;
+          }
+          #nvx-extras-${w.id} .nvx-extra-link {
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            color: ${colorLink} !important;
+            text-decoration: underline !important;
+            letter-spacing: 0.03em !important;
+            cursor: pointer !important;
+          }
+          #nvx-extras-${w.id} .nvx-switch {
+            position: relative !important;
+            display: inline-block !important;
+            width: 50px !important;
+            height: 28px !important;
+            flex-shrink: 0 !important;
+          }
+          #nvx-extras-${w.id} .nvx-switch input {
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+          }
+          #nvx-extras-${w.id} .nvx-slider {
+            position: absolute !important;
+            cursor: pointer !important;
+            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+            background-color: ${colorSwitchOff} !important;
+            transition: background-color 0.2s ease !important;
+            border-radius: 999px !important;
+          }
+          #nvx-extras-${w.id} .nvx-slider:before {
+            position: absolute !important;
+            content: "" !important;
+            height: 22px !important;
+            width: 22px !important;
+            left: 3px !important;
+            bottom: 3px !important;
+            background-color: #ffffff !important;
+            transition: transform 0.2s ease !important;
+            border-radius: 50% !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25) !important;
+          }
+          #nvx-extras-${w.id} input:checked + .nvx-slider {
+            background-color: ${colorSwitchOn} !important;
+          }
+          #nvx-extras-${w.id} input:checked + .nvx-slider:before {
+            transform: translateX(22px) !important;
+          }
+          .nvx-loader-spin {
+            border: 2px solid #e5e7eb !important;
+            border-top: 2px solid ${colorSwitchOn} !important;
+            border-radius: 50% !important;
+            width: 16px !important;
+            height: 16px !important;
+            animation: nvxSpin 0.8s linear infinite !important;
+            display: inline-block !important;
+          }
+          @keyframes nvxSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      var div = document.createElement("div");
+      div.id = "nvx-extras-" + w.id;
+
+      var badgeHtml = mostrarBadge ? '<span class="nvx-extra-badge">' + _esc(badge) + '</span>' : '';
+      var linkHtml = mostrarVerMas ? '<a href="' + _esc(linkVerMas) + '" class="nvx-extra-link" target="_blank">' + _esc(txtVerMas) + '</a>' : '';
+      var imgHtml = img 
+        ? '<div class="nvx-extra-img-box"><img class="nvx-extra-img" src="' + _esc(img) + '" alt="" /></div>' 
+        : '<div class="nvx-extra-img-box" style="font-size:22px;">👔</div>';
+
+      div.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0;">
+          ${imgHtml}
+          ${linkHtml}
+        </div>
+        <div style="flex:1; min-width:0; padding-left:4px;">
+          <div class="nvx-extra-title">${_esc(titulo)}</div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="nvx-extra-price">${_esc(precio)}</span>
+            ${badgeHtml}
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="nvx-loader-${w.id}" style="display:none;"><span class="nvx-loader-spin"></span></span>
+          <label class="nvx-switch">
+            <input type="checkbox" id="nvx-chk-${w.id}">
+            <span class="nvx-slider"></span>
+          </label>
+        </div>
+      `;
+
+      if (method === "before" && placementNode.parentNode) {
+        placementNode.parentNode.insertBefore(div, placementNode);
+      } else if (method === "after" && placementNode.parentNode) {
+        if (placementNode.nextSibling) {
+          placementNode.parentNode.insertBefore(div, placementNode.nextSibling);
+        } else {
+          placementNode.parentNode.appendChild(div);
+        }
+      } else {
+        placementNode.appendChild(div);
+      }
+
+      var checkbox = div.querySelector("#nvx-chk-" + w.id);
+      var loader = div.querySelector("#nvx-loader-" + w.id);
+
+      checkbox.addEventListener("change", function () {
+        if (checkbox.checked) {
+          var targetVariant = cleanVariantId;
+
+          if (!targetVariant) {
+            var currInput = document.querySelector("input[name='add_to_cart'], select[name='add_to_cart']");
+            if (currInput && currInput.value) {
+              targetVariant = String(currInput.value).replace(/\D/g, "");
+            }
+          }
+
+          if (!targetVariant) {
+            alert("Por favor seleccioná el producto extra en el panel de Nevux usando 'Elegir de mi tienda'.");
+            checkbox.checked = false;
+            return;
+          }
+
+          loader.style.display = "inline-block";
+          checkbox.disabled = true;
+
+          // Envío nativo a /comprar con credenciales de sesión (sin redirects rotos)
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "/comprar", true);
+          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+          xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+          xhr.withCredentials = true;
+
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+              if (xhr.status >= 200 && xhr.status < 400) {
+                setTimeout(function() {
+                  window.location.href = window.location.pathname + "#modal-fullscreen-cart";
+                  window.location.reload();
+                }, 300);
+              } else {
+                loader.style.display = "none";
+                checkbox.disabled = false;
+                checkbox.checked = false;
+                alert("No se pudo agregar al carrito. Verificá que el producto tenga stock en tu tienda.");
+              }
+            }
+          };
+
+          xhr.send("add_to_cart=" + encodeURIComponent(targetVariant) + "&quantity=1");
+        }
+      });
+    }
+    }
 /* ═══════════════════════════════════════════
      RENDER CONTADOR DE VISITAS
   ═══════════════════════════════════════════ */
