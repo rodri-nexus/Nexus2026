@@ -26,6 +26,7 @@ import MenuCirculosEditor from '@/components/widgets/editors/MenuCirculosEditor'
 import SliderCategoriasEditor from '@/components/widgets/editors/SliderCategoriasEditor';
 import ResenasFotoEditor from '@/components/widgets/editors/ResenasFotoEditor';
 import RuletaDescuentosEditor from '@/components/widgets/editors/RuletaDescuentosEditor';
+import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedadesEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -78,6 +79,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: MARQUEE DE NOVEDADES
+  if (params.widgetSlug === 'marquee-novedades') {
+    return (
+      <MarqueeNovedadesEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: RULETA DE DESCUENTOS
   if (params.widgetSlug === 'ruleta-descuentos') {
@@ -402,4 +416,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+      }
