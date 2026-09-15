@@ -34,7 +34,7 @@ interface Props {
 interface Cfg {
   openTime: string; // "HH:MM"
   closeTime: string; // "HH:MM"
-  workDays: number[]; // [1,2,3,4,5] (Monday to Friday)
+  workDays: number[]; // [1,2,3,4,5]
   openText: string;
   closedText: string;
   bgColor: string;
@@ -72,7 +72,7 @@ const DAYS_NAME = [
 const DEF: Cfg = {
   openTime: "09:00",
   closeTime: "18:00",
-  workDays: [1, 2, 3, 4, 5], // lunes a viernes
+  workDays: [1, 2, 3, 4, 5],
   openText: "🟢 ¡Abierto! Estamos online para ayudarte en tus compras.",
   closedText: "🔴 Cerrado ahora. Pero podés comprar y procesamos tu pedido mañana.",
   bgColor: "#ffffff",
@@ -120,11 +120,10 @@ export default function HorarioAtencionEditor({
   const [err, setErr] = useState("");
   const [isOpenNow, setIsOpenNow] = useState(true);
 
-  // Evaluar si está abierto ahora de forma local para el Preview en tiempo real
   useEffect(() => {
     const checkOpenStatus = () => {
       const now = new Date();
-      const day = now.getDay(); // 0 is Sunday, 1 is Monday...
+      const day = now.getDay();
       
       if (!cfg.workDays.includes(day)) {
         setIsOpenNow(false);
@@ -178,6 +177,7 @@ export default function HorarioAtencionEditor({
     setErr("");
     try {
       const body = {
+        ...(ew?.id ? { id: ew.id } : {}), // Envía el ID para actualizar si ya existe
         store_id: storeId,
         widget_slug: wd.slug,
         config: cfg,
@@ -185,10 +185,9 @@ export default function HorarioAtencionEditor({
         target_product_id: productId,
         is_active: true,
       };
-      const url = ew ? `/api/widgets?id=${ew.id}` : "/api/widgets";
-      const method = ew ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
+      // Usamos POST siempre para Upsert
+      const res = await fetch("/api/widgets", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
@@ -344,6 +343,7 @@ export default function HorarioAtencionEditor({
           ).map(([k, l]) => (
             <button
               key={k}
+              type="button"
               onClick={() => setTab(k)}
               style={{
                 flex: 1,
@@ -423,6 +423,7 @@ export default function HorarioAtencionEditor({
                     return (
                       <button
                         key={d.v}
+                        type="button"
                         onClick={() => toggleDay(d.v)}
                         style={{
                           padding: "6px 12px",
@@ -587,6 +588,7 @@ export default function HorarioAtencionEditor({
                       ...inputStyle,
                       fontFamily: "monospace",
                       fontSize: 12,
+                      width: "100%",
                     }}
                   />
                 </div>
@@ -642,6 +644,7 @@ export default function HorarioAtencionEditor({
               {PRESETS.map((p) => (
                 <button
                   key={p.slug || "none"}
+                  type="button"
                   onClick={() => applyPreset(p.slug)}
                   style={{
                     display: "flex",
@@ -659,6 +662,7 @@ export default function HorarioAtencionEditor({
                         ? "#ecfdf5"
                         : "#fff",
                     textAlign: "left",
+                    width: "100%",
                   }}
                 >
                   {p.bg && (
