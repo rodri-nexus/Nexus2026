@@ -1619,6 +1619,9 @@
           if (w.widget_slug === "slider-categorias") renderSliderCategorias(w);
           if (w.widget_slug === "resenas-foto") renderResenasFoto(w);
           if (w.widget_slug === "ruleta-descuentos") renderRuletaDescuentos(w);
+          if (w.widget_slug === 'marquee-novedades') { renderMarqueeNovedades(w);
+      return;
+              }
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -9626,5 +9629,78 @@
       }
     } catch(e) {}
   }
+/* ═══════════════════════════════════════════
+   WIDGET: MARQUEE DE NOVEDADES
+   ═══════════════════════════════════════════ */
+function renderMarqueeNovedades(w) {
+  if (document.getElementById('nvx-marquee-' + w.id)) return;
 
+  var cfg = w.config || {};
+  var messages = Array.isArray(cfg.messages) && cfg.messages.length > 0
+    ? cfg.messages
+    : ['✨ Nuevo ingreso', '🔥 Más vendido', '📦 Envío gratis hoy'];
+
+  var speed = cfg.speed || 'normal';
+  var direction = cfg.direction || 'left';
+  var bgColor = cfg.bgColor || '#111827';
+  var textColor = cfg.textColor || '#ffffff';
+  var fontSize = (cfg.fontSize || '14') + 'px';
+
+  var dur = speed === 'lento' ? '24s' : speed === 'rapido' ? '8s' : '14s';
+  var animName = direction === 'right' ? 'nvxMqR' : 'nvxMqL';
+
+  // Inyectar keyframes si no existen
+  if (!document.getElementById('nvx-marquee-styles')) {
+    var st = document.createElement('style');
+    st.id = 'nvx-marquee-styles';
+    st.textContent = '@keyframes nvxMqL{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}@keyframes nvxMqR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}';
+    document.head.appendChild(st);
+  }
+
+  var container = document.createElement('div');
+  container.id = 'nvx-marquee-' + w.id;
+  container.className = 'nvx-widget nvx-marquee-wrapper';
+  container.style.cssText = 'width:100%;overflow:hidden;background:' + bgColor + ';padding:10px 0;box-sizing:border-box;margin:8px 0;position:relative;z-index:99;cursor:default;';
+
+  var track = document.createElement('div');
+  track.style.cssText = 'display:flex;white-space:nowrap;width:max-content;animation:' + animName + ' ' + dur + ' linear infinite;';
+  track.onmouseenter = function() { track.style.animationPlayState = 'paused'; };
+  track.onmouseleave = function() { track.style.animationPlayState = 'running'; };
+
+  // Multiplicamos los mensajes para dar efecto de ciclo continuo sin saltos
+  var repeated = messages.concat(messages).concat(messages).concat(messages);
+  var html = '';
+  for (var i = 0; i < repeated.length; i++) {
+    var rawMsg = repeated[i];
+    var safeMsg = String(rawMsg).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    html += '<span style="color:' + textColor + ';font-size:' + fontSize + ';font-weight:700;padding:0 24px;display:inline-flex;align-items:center;letter-spacing:0.02em;font-family:system-ui,-apple-system,sans-serif;">' + safeMsg + '</span>';
+  }
+  track.innerHTML = html;
+  container.appendChild(track);
+
+  // Inserción en el DOM
+  var targetEl = null;
+  if (w.target_type === 'product' && w.target_product_id) {
+    targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl);
+    }
+  } else {
+    // Si es global (Home / Todas las páginas)
+    var header = document.querySelector('header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar');
+    if (header && header.parentNode) {
+      header.parentNode.insertBefore(container, header.nextSibling);
+    } else {
+      var main = document.querySelector('main, #content, .main-content, .js-main-content, body');
+      if (main) {
+        main.insertBefore(container, main.firstChild);
+      }
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === 'function') {
+    nvxTrack(w.id, 'impression');
+  }
+}
 })();
