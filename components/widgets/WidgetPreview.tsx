@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "edicion-limitada":
+      return <EdicionLimitadaPreview />;
     case "calculadora-ahorro":
       return <CalculadoraAhorroPreview />;
     case "horario-atencion":
@@ -93,6 +95,77 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function EdicionLimitadaPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div
+          style={{
+            width: "28px",
+            height: "28px",
+            borderRadius: "6px",
+            background: "#f3f4f6",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "14px",
+          }}
+        >
+          👟
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+          <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827" }}>
+            Edición Especial
+          </div>
+          <div style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>
+            $ 89.990
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: "#111827",
+          color: "#F59E0B",
+          border: "1px dashed #F59E0B",
+          borderRadius: "50%",
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          transform: "rotate(-8deg)",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+          flexShrink: 0,
+        }}
+      >
+        <span style={{ fontSize: "5px", fontWeight: 900, lineHeight: 1, letterSpacing: "0.02em" }}>
+          EDICIÓN
+        </span>
+        <span style={{ fontSize: "5px", fontWeight: 900, lineHeight: 1, letterSpacing: "0.02em" }}>
+          LIMITADA
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function CalculadoraAhorroPreview() {
   return (
@@ -1413,4 +1486,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-            }
+               }
