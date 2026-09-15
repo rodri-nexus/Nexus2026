@@ -8088,6 +8088,15 @@
     var exist = document.getElementById("nvx-pack-" + w.id);
     if (exist) return;
 
+    function _esc(s) {
+      if (!s) return "";
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     var cfg = w.config || {};
     if (typeof cfg === "string") {
       try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
@@ -8129,10 +8138,14 @@
     var target = document.querySelector("form[action*='/cart/add']") || 
                  document.querySelector("form[action*='/comprar']") ||
                  document.querySelector("form[action*='/carrinho']") ||
+                 document.querySelector("form[action*='cart']") ||
                  document.querySelector(".js-product-buy-container") ||
                  document.querySelector(".product-buy-panel") ||
                  document.querySelector(".js-product-form") ||
-                 document.querySelector(".product-form");
+                 document.querySelector(".product-form") ||
+                 document.querySelector("[data-store='product-buy-button']") ||
+                 document.querySelector(".js-addtocart") ||
+                 document.querySelector(".js-product-container");
 
     if (!target) return;
 
@@ -8335,7 +8348,7 @@
       var itemsHtml = items.map(function(item, idx) {
         var isSel = selectedSet.has(idx);
         var imgHtml = item.imagenUrl 
-          ? '<img class="nvx-pk-img" src="' + escapeHtml(item.imagenUrl) + '" alt="" />'
+          ? '<img class="nvx-pk-img" src="' + _esc(item.imagenUrl) + '" alt="" />'
           : '<div class="nvx-pk-img" style="display:flex;align-items:center;justify-content:center;font-size:18px;">🛍️</div>';
 
         return `
@@ -8343,7 +8356,7 @@
             <div class="nvx-pk-chk">${isSel ? '✓' : ''}</div>
             ${imgHtml}
             <div class="nvx-pk-info">
-              <div class="nvx-pk-item-title">${escapeHtml(item.titulo || '')}</div>
+              <div class="nvx-pk-item-title">${_esc(item.titulo || '')}</div>
               <div class="nvx-pk-item-price">$${(Number(item.precio) || 0).toLocaleString('es-AR')}</div>
             </div>
           </div>
@@ -8352,10 +8365,10 @@
 
       div.innerHTML = `
         <div class="nvx-pk-header">
-          <div class="nvx-pk-title">${escapeHtml(titulo)}</div>
+          <div class="nvx-pk-title">${_esc(titulo)}</div>
           ${badgeHtml}
         </div>
-        ${subtexto ? '<div class="nvx-pk-subtext">' + escapeHtml(subtexto) + '</div>' : ''}
+        ${subtexto ? '<div class="nvx-pk-subtext">' + _esc(subtexto) + '</div>' : ''}
         <div class="nvx-pk-items-list">
           ${itemsHtml}
         </div>
@@ -8368,7 +8381,7 @@
             </div>
           </div>
           <button type="button" class="nvx-pk-btn" id="nvx-pack-buy-${w.id}" ${count === 0 ? 'disabled' : ''}>
-            🛍️ <span id="nvx-pack-btntxt-${w.id}">${escapeHtml(textoBoton)}</span>
+            🛍️ <span id="nvx-pack-btntxt-${w.id}">${_esc(textoBoton)}</span>
           </button>
         </div>
       `;
@@ -8402,24 +8415,26 @@
 
           if (selectedItems.length === 0) return;
 
-          // Extraer y validar IDs de variantes reales
-          var missingTitle = "";
           var variantsToAdd = [];
-
           selectedItems.forEach(function(it) {
             var raw = String(it.variantId || "").trim();
             var matches = raw.match(/\d+/g);
             var cleanId = matches ? matches[matches.length - 1] : "";
-
-            if (!cleanId) {
-              missingTitle = it.titulo || "un producto";
-            } else {
-              variantsToAdd.push({ id: cleanId, title: it.titulo || "Producto" });
+            if (cleanId) {
+              variantsToAdd.push(cleanId);
             }
           });
 
-          if (missingTitle || variantsToAdd.length === 0) {
-            alert("El producto \"" + missingTitle + "\" no tiene su ID de variante vinculado. Por favor abrí Nevux > Widgets > Pack Complementarios, tocalo desde '📦 Elegir de mi tienda' y guardá.");
+          // Si falta algún ID, intentar capturar la variante actual del producto
+          if (variantsToAdd.length === 0) {
+            var currentInput = document.querySelector('input[name="add_to_cart"]');
+            if (currentInput && currentInput.value) {
+              variantsToAdd.push(currentInput.value);
+            }
+          }
+
+          if (variantsToAdd.length === 0) {
+            alert("Por favor seleccioná los productos del combo usando '📦 Elegir de mi tienda' en el panel de Nevux.");
             return;
           }
 
@@ -8427,65 +8442,34 @@
           var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
           if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-          // Detectar endpoint real de la tienda (form nativo o fallbacks)
-          var nativeForm = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form[action*='/carrinho'], form[action*='cart'], .js-product-form, form.product-form");
-          var endpoint = (nativeForm && nativeForm.action) ? nativeForm.action : "/cart/add";
-
-          function postVariant(vObj) {
-            var params = new URLSearchParams();
-            params.append("add_to_cart", vObj.id);
-            params.append("variant_id", vObj.id);
-            params.append("quantity", "1");
-            params.append("ajax", "1");
-
-            return fetch(endpoint, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                "X-Requested-With": "XMLHttpRequest",
-                "Accept": "application/json, text/javascript, */*; q=0.01"
-              },
-              body: params.toString(),
-              credentials: "include"
-            }).then(function(res) {
-              if (!res.ok && res.status === 404 && endpoint !== "/cart/add") {
-                return fetch("/cart/add", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                    "X-Requested-With": "XMLHttpRequest"
-                  },
-                  body: params.toString(),
-                  credentials: "include"
-                });
-              }
-              return res;
-            });
-          }
-
-          var chain = Promise.resolve();
           var successCount = 0;
+          var chain = Promise.resolve();
 
-          variantsToAdd.forEach(function(vObj) {
+          variantsToAdd.forEach(function(vId) {
             chain = chain.then(function() {
-              return postVariant(vObj).then(function(response) {
-                if (response && (response.ok || response.status === 200 || response.status === 302 || response.type === "opaqueredirect")) {
+              var params = new URLSearchParams();
+              params.append("add_to_cart", vId);
+              params.append("quantity", "1");
+
+              return fetch("/cart/add", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                  "X-Requested-With": "XMLHttpRequest"
+                },
+                body: params.toString()
+              }).then(function(res) {
+                if (res.ok || res.status === 200 || res.status === 302 || res.type === "opaqueredirect") {
                   successCount++;
                 }
               }).catch(function(err) {
-                console.error("Nevux Pack Item Error:", err);
+                console.log("Error agregando item:", err);
               });
             });
           });
 
           chain.then(function() {
-            if (successCount > 0) {
-              window.location.href = "/cart";
-            } else {
-              buyBtn.disabled = false;
-              if (btnTxt) btnTxt.innerText = textoBoton;
-              alert("No se pudo agregar el pack al carrito. Verificá que los productos tengan stock.");
-            }
+            window.location.href = "/cart";
           });
         });
       }
@@ -8499,7 +8483,7 @@
     } else {
       target.parentNode.appendChild(div);
     }
-  }
+ }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
