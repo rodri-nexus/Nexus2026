@@ -8392,153 +8392,143 @@
             ? '<img class="nvx-pk-img" src="' + _esc(item.imagenUrl) + '" alt="" />'
             : '<div class="nvx-pk-img" style="display:flex;align-items:center;justify-content:center;font-size:18px;">🛍️</div>';
 
-          return `
-            <div class="nvx-pk-item-row ${isSel ? 'selected' : ''}" data-idx="${idx}">
-              <div class="nvx-pk-chk">${isSel ? '✓' : ''}</div>
-              ${imgHtml}
-              <div class="nvx-pk-info">
-                <div class="nvx-pk-item-title">${_esc(item.titulo || '')}</div>
-                <div class="nvx-pk-item-price">$${(Number(item.precio) || 0).toLocaleString('es-AR')}</div>
-              </div>
+        return `
+          <div class="nvx-pk-item-row ${isSel ? 'selected' : ''}" data-idx="${idx}">
+            <div class="nvx-pk-chk">${isSel ? '✓' : ''}</div>
+            ${imgHtml}
+            <div class="nvx-pk-info">
+              <div class="nvx-pk-item-title">${_esc(item.titulo || '')}</div>
+              <div class="nvx-pk-item-price">$${(Number(item.precio) || 0).toLocaleString('es-AR')}</div>
             </div>
-          `;
-        }).join("");
-
-        div.innerHTML = `
-          <div class="nvx-pk-header">
-            <div class="nvx-pk-title">${_esc(titulo)}</div>
-            ${badgeHtml}
-          </div>
-          ${subtexto ? '<div class="nvx-pk-subtext">' + _esc(subtexto) + '</div>' : ''}
-          <div class="nvx-pk-items-list">
-            ${itemsHtml}
-          </div>
-          <div class="nvx-pk-footer">
-            <div>
-              <div class="nvx-pk-total-label">Total por ${count} ${count === 1 ? 'producto' : 'productos'}:</div>
-              <div class="nvx-pk-total-prices">
-                <span class="nvx-pk-total-final">$${totalFinal.toLocaleString('es-AR')}</span>
-                ${tieneDesc ? '<span class="nvx-pk-total-old">$' + totalOriginal.toLocaleString('es-AR') + '</span>' : ''}
-              </div>
-            </div>
-            <button type="button" class="nvx-pk-btn" id="nvx-pack-buy-${w.id}" ${count === 0 ? 'disabled' : ''}>
-              🛍️ <span id="nvx-pack-btntxt-${w.id}">${_esc(textoBoton)}</span>
-            </button>
           </div>
         `;
+      }).join("");
 
-        // Eventos de click en filas
-        var rows = div.querySelectorAll(".nvx-pk-item-row");
-        rows.forEach(function(row) {
-          row.addEventListener("click", function() {
-            var idx = Number(row.getAttribute("data-idx"));
-            if (selectedSet.has(idx)) {
-              selectedSet.delete(idx);
-            } else {
-              selectedSet.add(idx);
-            }
-            renderContent();
-          });
+      div.innerHTML = `
+        <div class="nvx-pk-header">
+          <div class="nvx-pk-title">${_esc(titulo)}</div>
+          ${badgeHtml}
+        </div>
+        ${subtexto ? '<div class="nvx-pk-subtext">' + _esc(subtexto) + '</div>' : ''}
+        <div class="nvx-pk-items-list">
+          ${itemsHtml}
+        </div>
+        <div class="nvx-pk-footer">
+          <div>
+            <div class="nvx-pk-total-label">Total por ${count} ${count === 1 ? 'producto' : 'productos'}:</div>
+            <div class="nvx-pk-total-prices">
+              <span class="nvx-pk-total-final">$${totalFinal.toLocaleString('es-AR')}</span>
+              ${tieneDesc ? '<span class="nvx-pk-total-old">$' + totalOriginal.toLocaleString('es-AR') + '</span>' : ''}
+            </div>
+          </div>
+          <button type="button" class="nvx-pk-btn" id="nvx-pack-buy-${w.id}" ${count === 0 ? 'disabled' : ''}>
+            🛍️ <span id="nvx-pack-btntxt-${w.id}">${_esc(textoBoton)}</span>
+          </button>
+        </div>
+      `;
+
+      // Eventos de click en filas
+      var rows = div.querySelectorAll(".nvx-pk-item-row");
+      rows.forEach(function(row) {
+        row.addEventListener("click", function() {
+          var idx = Number(row.getAttribute("data-idx"));
+          if (selectedSet.has(idx)) {
+            selectedSet.delete(idx);
+          } else {
+            selectedSet.add(idx);
+          }
+          renderContent();
         });
+      });
 
-        // Evento de compra del pack completo
-        var buyBtn = div.querySelector("#nvx-pack-buy-" + w.id);
-        if (buyBtn) {
-          buyBtn.addEventListener("click", function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (selectedSet.size === 0) return;
+      // Evento de compra del pack completo
+      var buyBtn = div.querySelector("#nvx-pack-buy-" + w.id);
+      if (buyBtn) {
+        buyBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (selectedSet.size === 0) return;
 
-            var selectedItems = [];
-            selectedSet.forEach(function(idx) {
-              if (items[idx]) selectedItems.push(items[idx]);
-            });
+          var selectedItems = [];
+          selectedSet.forEach(function(idx) {
+            if (items[idx]) selectedItems.push(items[idx]);
+          });
 
-            if (selectedItems.length === 0) return;
+          if (selectedItems.length === 0) return;
 
-            var variantsToAdd = [];
-            selectedItems.forEach(function(it) {
-              var raw = String(it.variantId || "").trim();
-              var matches = raw.match(/\d+/g);
-              var cleanId = matches ? matches[matches.length - 1] : "";
-              if (cleanId) {
-                variantsToAdd.push(cleanId);
-              }
-            });
-
-            if (variantsToAdd.length === 0) {
-              var currentInput = document.querySelector('input[name="add_to_cart"]');
-              if (currentInput && currentInput.value) {
-                variantsToAdd.push(currentInput.value);
-              }
+          var variantsToAdd = [];
+          selectedItems.forEach(function(it) {
+            var raw = String(it.variantId || "").trim();
+            var matches = raw.match(/\d+/g);
+            var cleanId = matches ? matches[matches.length - 1] : "";
+            if (cleanId) {
+              variantsToAdd.push(cleanId);
             }
+          });
 
-            if (variantsToAdd.length === 0) {
-              alert("Por favor seleccioná los productos del combo usando '📦 Elegir de mi tienda' en el panel de Nevux.");
-              return;
+          if (variantsToAdd.length === 0) {
+            var currentInput = document.querySelector('input[name="add_to_cart"]');
+            if (currentInput && currentInput.value) {
+              variantsToAdd.push(currentInput.value);
             }
+          }
 
-            buyBtn.disabled = true;
-            var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
-            if (btnTxt) btnTxt.innerText = textoBotonCargando;
+          if (variantsToAdd.length === 0) {
+            alert("Por favor seleccioná los productos del combo usando '📦 Elegir de mi tienda' en el panel de Nevux.");
+            return;
+          }
 
-            // Detectar formulario nativo de compra
-            var nativeForm = document.querySelector("form.js-product-form, form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart']");
-            var postUrl = (nativeForm && nativeForm.getAttribute("action")) ? nativeForm.getAttribute("action") : "/cart/add";
+          buyBtn.disabled = true;
+          var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
+          if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-            // Detectar URL correcta del carrito en la tienda
-            var cartUrl = "/carrito";
-            var cartLink = document.querySelector("a[href*='/carrito'], a[href*='/carrinho'], a[href*='/cart']");
-            if (cartLink && cartLink.getAttribute("href")) {
-              cartUrl = cartLink.getAttribute("href");
-            } else if (window.location.pathname.indexOf("/produtos") !== -1) {
-              cartUrl = "/carrinho";
-            }
+          // URL oficial de compra/carrito en Tiendanube
+          var cartUrl = "/comprar";
 
-            var chain = Promise.resolve();
+          var chain = Promise.resolve();
 
-            variantsToAdd.forEach(function(vId) {
-              chain = chain.then(function() {
-                var params = new URLSearchParams();
-                params.append("add_to_cart", vId);
-                params.append("quantity", "1");
+          variantsToAdd.forEach(function(vId) {
+            chain = chain.then(function() {
+              var params = new URLSearchParams();
+              params.append("add_to_cart", vId);
+              params.append("quantity", "1");
 
-                return fetch(postUrl, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                    "X-Requested-With": "XMLHttpRequest"
-                  },
-                  body: params.toString(),
-                  credentials: "same-origin"
-                }).catch(function(err) {
-                  console.log("Error agregando item pack:", err);
-                });
+              return fetch("/cart/add", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                  "X-Requested-With": "XMLHttpRequest"
+                },
+                body: params.toString(),
+                credentials: "same-origin"
+              }).catch(function(err) {
+                console.log("Error agregando item pack:", err);
               });
             });
-
-            chain.then(function() {
-              setTimeout(function() {
-                window.location.href = cartUrl;
-              }, 400);
-            });
           });
-        }
-      }
 
-      renderContent();
-
-      if (method === "after" && placementNode.parentNode) {
-        if (placementNode.nextSibling) {
-          placementNode.parentNode.insertBefore(div, placementNode.nextSibling);
-        } else {
-          placementNode.parentNode.appendChild(div);
-        }
-      } else {
-        placementNode.appendChild(div);
+          chain.then(function() {
+            setTimeout(function() {
+              window.location.href = cartUrl;
+            }, 350);
+          });
+        });
       }
     }
+
+    renderContent();
+
+    if (method === "after" && placementNode.parentNode) {
+      if (placementNode.nextSibling) {
+        placementNode.parentNode.insertBefore(div, placementNode.nextSibling);
+      } else {
+        placementNode.parentNode.appendChild(div);
+      }
+    } else {
+      placementNode.appendChild(div);
+    }
   }
+      }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
