@@ -1620,6 +1620,7 @@
           if (w.widget_slug === "resenas-foto") renderResenasFoto(w);
           if (w.widget_slug === "ruleta-descuentos") renderRuletaDescuentos(w);
           if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
+          if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -9701,4 +9702,80 @@ function renderMarqueeNovedades(w) {
     nvxTrack(w.id, 'impression');
   }
 }
+
+ /* ═══════════════════════════════════════════
+   WIDGET: HORARIO DE ATENCIÓN
+   ═══════════════════════════════════════════ */
+function renderHorarioAtencion(w) {
+  if (document.getElementById('nvx-horario-' + w.id)) return;
+
+  var cfg = w.config || {};
+  var openTime = cfg.openTime || "09:00";
+  var closeTime = cfg.closeTime || "18:00";
+  var workDays = Array.isArray(cfg.workDays) ? cfg.workDays : [1, 2, 3, 4, 5];
+  var openText = cfg.openText || "🟢 ¡Abierto! Estamos online para ayudarte en tus compras.";
+  var closedText = cfg.closedText || "🔴 Cerrado ahora. Pero podés comprar y procesamos tu pedido mañana.";
+  var bgColor = cfg.bgColor || "#ffffff";
+  var textColor = cfg.textColor || "#111827";
+  var borderColor = cfg.borderColor || "#e5e7eb";
+  var showIcon = typeof cfg.showIcon === "boolean" ? cfg.showIcon : true;
+
+  // Cálculo en vivo del estado abierto/cerrado
+  var now = new Date();
+  var day = now.getDay(); // 0: Dom, 1: Lun, etc.
+  var isOpen = false;
+
+  if (workDays.indexOf(day) !== -1) {
+    var openParts = openTime.split(':');
+    var closeParts = closeTime.split(':');
+    var openMin = parseInt(openParts[0], 10) * 60 + parseInt(openParts[1], 10);
+    var closeMin = parseInt(closeParts[0], 10) * 60 + parseInt(closeParts[1], 10);
+    var currentMin = now.getHours() * 60 + now.getMinutes();
+
+    if (currentMin >= openMin && currentMin <= closeMin) {
+      isOpen = true;
+    }
+  }
+
+  var container = document.createElement('div');
+  container.id = 'nvx-horario-' + w.id;
+  container.className = 'nvx-widget nvx-horario-wrapper';
+  container.style.cssText = 'background:' + bgColor + ';border:1.5px solid ' + borderColor + ';border-radius:12px;padding:14px 18px;margin:12px 0;box-sizing:border-box;box-shadow:0 3px 10px rgba(0,0,0,0.03);display:flex;align-items:center;gap:12px;font-family:system-ui,-apple-system,sans-serif;color:' + textColor + ';';
+
+  var iconHtml = showIcon ? '<div style="font-size:26px;line-height:1;flex-shrink:0;">⏰</div>' : '';
+  var statusBadge = isOpen
+    ? '<span style="background:#ecfdf5;color:#059669;font-size:10px;font-weight:900;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block;"></span>ABIERTO AHORA</span>'
+    : '<span style="background:#fef2f2;color:#dc2626;font-size:10px;font-weight:900;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;"></span>CERRADO</span>';
+
+  var mainMsg = isOpen ? openText : closedText;
+
+  container.innerHTML = iconHtml +
+    '<div style="flex:1;min-width:0;">' +
+      '<div>' + statusBadge + '</div>' +
+      '<div style="font-size:13px;font-weight:800;line-height:1.3;margin-bottom:3px;">' + mainMsg + '</div>' +
+      '<div style="font-size:11px;opacity:0.65;font-weight:600;">Atención: Lun a Vie ' + openTime + ' a ' + closeTime + ' hs.</div>' +
+    '</div>';
+
+  // Inserción en el DOM
+  var targetEl = null;
+  if (w.target_type === 'product' && w.target_product_id) {
+    targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl);
+    }
+  } else {
+    var main = document.querySelector('main, #content, .main-content, .js-main-content');
+    if (main) {
+      main.insertBefore(container, main.firstChild);
+    } else {
+      var body = document.body;
+      if (body) body.insertBefore(container, body.firstChild);
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === 'function') {
+    nvxTrack(w.id, 'impression');
+  }
+    } 
 })();
