@@ -8088,6 +8088,14 @@
     var exist = document.getElementById("nvx-pack-" + w.id);
     if (exist) return;
 
+    // Autodetector debug para el celular del creador
+    if (window.location.search.indexOf("debug=1") !== -1) {
+      var dbg = document.createElement("div");
+      dbg.style.cssText = "position:fixed;top:10px;left:10px;background:#10B981;color:#fff;padding:12px;border-radius:8px;z-index:999999;font-size:12px;font-family:sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:300px;";
+      dbg.innerHTML = "<b>Nevux Debugger:</b><br>✓ El widget 'pack-complementarios' llegó desde la base de datos.<br>✓ Intentando inyectar en la página...";
+      document.body.appendChild(dbg);
+    }
+
     function _esc(s) {
       if (!s) return "";
       return String(s)
@@ -8488,7 +8496,7 @@
       var container = document.querySelector("main") || document.body;
       if (container) container.appendChild(div);
     }
-                             }
+}
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
