@@ -147,6 +147,7 @@ export default function MarqueeNovedadesEditor({
     setErr("");
     try {
       const body = {
+        ...(ew?.id ? { id: ew.id } : {}), // Envía el ID para actualizar si ya existe
         store_id: storeId,
         widget_slug: wd.slug,
         config: cfg,
@@ -154,10 +155,9 @@ export default function MarqueeNovedadesEditor({
         target_product_id: productId,
         is_active: true,
       };
-      const url = ew ? `/api/widgets?id=${ew.id}` : "/api/widgets";
-      const method = ew ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
+      // Usamos POST siempre para Upsert
+      const res = await fetch("/api/widgets", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
@@ -312,6 +312,7 @@ export default function MarqueeNovedadesEditor({
           ).map(([k, l]) => (
             <button
               key={k}
+              type="button"
               onClick={() => setTab(k)}
               style={{
                 flex: 1,
@@ -378,6 +379,7 @@ export default function MarqueeNovedadesEditor({
                         style={inputStyle}
                       />
                       <button
+                        type="button"
                         onClick={() => rmMsg(i)}
                         style={{
                           width: 32,
@@ -411,6 +413,7 @@ export default function MarqueeNovedadesEditor({
                     style={inputStyle}
                   />
                   <button
+                    type="button"
                     onClick={addMsg}
                     style={{
                       padding: "8px 16px",
@@ -612,6 +615,7 @@ export default function MarqueeNovedadesEditor({
               {PRESETS.map((p) => (
                 <button
                   key={p.slug || "none"}
+                  type="button"
                   onClick={() => applyPreset(p.slug)}
                   style={{
                     display: "flex",
@@ -629,6 +633,7 @@ export default function MarqueeNovedadesEditor({
                         ? "#ecfdf5"
                         : "#fff",
                     textAlign: "left",
+                    width: "100%",
                   }}
                 >
                   {p.bg && (
