@@ -8106,7 +8106,7 @@
     var subtexto = cfg.subtexto || "Llevate estos productos juntos con un descuento especial";
     var descuentoPorcentaje = Number(cfg.descuentoPorcentaje) || 0;
     var textoBoton = cfg.textoBoton || "Agregar pack al carrito";
-    var textoBotonCargando = cfg.textoBotonCargando || "Agregando pack...";
+    var textoBotonCargando = cfg.textoBotonCargando || "Agregando al carrito...";
 
     var items = Array.isArray(cfg.items) && cfg.items.length > 0 ? cfg.items : [
       {
@@ -8392,143 +8392,164 @@
             ? '<img class="nvx-pk-img" src="' + _esc(item.imagenUrl) + '" alt="" />'
             : '<div class="nvx-pk-img" style="display:flex;align-items:center;justify-content:center;font-size:18px;">🛍️</div>';
 
-        return `
-          <div class="nvx-pk-item-row ${isSel ? 'selected' : ''}" data-idx="${idx}">
-            <div class="nvx-pk-chk">${isSel ? '✓' : ''}</div>
-            ${imgHtml}
-            <div class="nvx-pk-info">
-              <div class="nvx-pk-item-title">${_esc(item.titulo || '')}</div>
-              <div class="nvx-pk-item-price">$${(Number(item.precio) || 0).toLocaleString('es-AR')}</div>
+          return `
+            <div class="nvx-pk-item-row ${isSel ? 'selected' : ''}" data-idx="${idx}">
+              <div class="nvx-pk-chk">${isSel ? '✓' : ''}</div>
+              ${imgHtml}
+              <div class="nvx-pk-info">
+                <div class="nvx-pk-item-title">${_esc(item.titulo || '')}</div>
+                <div class="nvx-pk-item-price">$${(Number(item.precio) || 0).toLocaleString('es-AR')}</div>
+              </div>
             </div>
+          `;
+        }).join("");
+
+        div.innerHTML = `
+          <div class="nvx-pk-header">
+            <div class="nvx-pk-title">${_esc(titulo)}</div>
+            ${badgeHtml}
+          </div>
+          ${subtexto ? '<div class="nvx-pk-subtext">' + _esc(subtexto) + '</div>' : ''}
+          <div class="nvx-pk-items-list">
+            ${itemsHtml}
+          </div>
+          <div class="nvx-pk-footer">
+            <div>
+              <div class="nvx-pk-total-label">Total por ${count} ${count === 1 ? 'producto' : 'productos'}:</div>
+              <div class="nvx-pk-total-prices">
+                <span class="nvx-pk-total-final">$${totalFinal.toLocaleString('es-AR')}</span>
+                ${tieneDesc ? '<span class="nvx-pk-total-old">$' + totalOriginal.toLocaleString('es-AR') + '</span>' : ''}
+              </div>
+            </div>
+            <button type="button" class="nvx-pk-btn" id="nvx-pack-buy-${w.id}" ${count === 0 ? 'disabled' : ''}>
+              🛍️ <span id="nvx-pack-btntxt-${w.id}">${_esc(textoBoton)}</span>
+            </button>
           </div>
         `;
-      }).join("");
 
-      div.innerHTML = `
-        <div class="nvx-pk-header">
-          <div class="nvx-pk-title">${_esc(titulo)}</div>
-          ${badgeHtml}
-        </div>
-        ${subtexto ? '<div class="nvx-pk-subtext">' + _esc(subtexto) + '</div>' : ''}
-        <div class="nvx-pk-items-list">
-          ${itemsHtml}
-        </div>
-        <div class="nvx-pk-footer">
-          <div>
-            <div class="nvx-pk-total-label">Total por ${count} ${count === 1 ? 'producto' : 'productos'}:</div>
-            <div class="nvx-pk-total-prices">
-              <span class="nvx-pk-total-final">$${totalFinal.toLocaleString('es-AR')}</span>
-              ${tieneDesc ? '<span class="nvx-pk-total-old">$' + totalOriginal.toLocaleString('es-AR') + '</span>' : ''}
-            </div>
-          </div>
-          <button type="button" class="nvx-pk-btn" id="nvx-pack-buy-${w.id}" ${count === 0 ? 'disabled' : ''}>
-            🛍️ <span id="nvx-pack-btntxt-${w.id}">${_esc(textoBoton)}</span>
-          </button>
-        </div>
-      `;
-
-      // Eventos de click en filas
-      var rows = div.querySelectorAll(".nvx-pk-item-row");
-      rows.forEach(function(row) {
-        row.addEventListener("click", function() {
-          var idx = Number(row.getAttribute("data-idx"));
-          if (selectedSet.has(idx)) {
-            selectedSet.delete(idx);
-          } else {
-            selectedSet.add(idx);
-          }
-          renderContent();
+        // Eventos de click en filas
+        var rows = div.querySelectorAll(".nvx-pk-item-row");
+        rows.forEach(function(row) {
+          row.addEventListener("click", function() {
+            var idx = Number(row.getAttribute("data-idx"));
+            if (selectedSet.has(idx)) {
+              selectedSet.delete(idx);
+            } else {
+              selectedSet.add(idx);
+            }
+            renderContent();
+          });
         });
-      });
 
-      // Evento de compra del pack completo
-      var buyBtn = div.querySelector("#nvx-pack-buy-" + w.id);
-      if (buyBtn) {
-        buyBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (selectedSet.size === 0) return;
+        // Evento de compra del pack completo
+        var buyBtn = div.querySelector("#nvx-pack-buy-" + w.id);
+        if (buyBtn) {
+          buyBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (selectedSet.size === 0) return;
 
-          var selectedItems = [];
-          selectedSet.forEach(function(idx) {
-            if (items[idx]) selectedItems.push(items[idx]);
-          });
+            var selectedItems = [];
+            selectedSet.forEach(function(idx) {
+              if (items[idx]) selectedItems.push(items[idx]);
+            });
 
-          if (selectedItems.length === 0) return;
+            if (selectedItems.length === 0) return;
 
-          var variantsToAdd = [];
-          selectedItems.forEach(function(it) {
-            var raw = String(it.variantId || "").trim();
-            var matches = raw.match(/\d+/g);
-            var cleanId = matches ? matches[matches.length - 1] : "";
-            if (cleanId) {
-              variantsToAdd.push(cleanId);
+            // Obtener IDs limpios
+            var variantsToAdd = [];
+            selectedItems.forEach(function(it) {
+              var raw = String(it.variantId || "").trim();
+              var matches = raw.match(/\d+/g);
+              var cleanId = matches ? matches[matches.length - 1] : "";
+              if (cleanId) {
+                variantsToAdd.push({ id: cleanId, title: it.titulo || "Producto" });
+              }
+            });
+
+            // Fallback: Si no hay ID en config, usar el del producto actual de la página
+            if (variantsToAdd.length === 0) {
+              var currentInput = document.querySelector('input[name="add_to_cart"], select[name="add_to_cart"]');
+              if (currentInput && currentInput.value) {
+                variantsToAdd.push({ id: currentInput.value, title: "Producto actual" });
+              }
             }
-          });
 
-          if (variantsToAdd.length === 0) {
-            var currentInput = document.querySelector('input[name="add_to_cart"]');
-            if (currentInput && currentInput.value) {
-              variantsToAdd.push(currentInput.value);
+            if (variantsToAdd.length === 0) {
+              alert("Por favor vinculá los productos del combo usando '📦 Elegir de mi tienda' en el panel de Nevux.");
+              return;
             }
-          }
 
-          if (variantsToAdd.length === 0) {
-            alert("Por favor seleccioná los productos del combo usando '📦 Elegir de mi tienda' en el panel de Nevux.");
-            return;
-          }
+            buyBtn.disabled = true;
+            var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
+            if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-          buyBtn.disabled = true;
-          var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
-          if (btnTxt) btnTxt.innerText = textoBotonCargando;
-
-          // URL oficial de compra/carrito en Tiendanube
-          var cartUrl = "/comprar";
-
-          var chain = Promise.resolve();
-
-          variantsToAdd.forEach(function(vId) {
-            chain = chain.then(function() {
-              var params = new URLSearchParams();
-              params.append("add_to_cart", vId);
-              params.append("quantity", "1");
+            // Función para enviar petición nativa Tiendanube
+            function addToCartRequest(vId) {
+              var fd = new FormData();
+              fd.append("add_to_cart", vId);
+              fd.append("quantity", "1");
+              fd.append("ajax", "1");
 
               return fetch("/cart/add", {
                 method: "POST",
+                body: fd,
                 headers: {
-                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                   "X-Requested-With": "XMLHttpRequest"
                 },
-                body: params.toString(),
                 credentials: "same-origin"
+              }).then(function(res) {
+                return res.text().then(function(text) {
+                  return { ok: res.ok, status: res.status, body: text };
+                });
               }).catch(function(err) {
-                console.log("Error agregando item pack:", err);
+                return { ok: false, status: 0, error: err };
+              });
+            }
+
+            var successCount = 0;
+            var chain = Promise.resolve();
+
+            variantsToAdd.forEach(function(vObj) {
+              chain = chain.then(function() {
+                return addToCartRequest(vObj.id).then(function(result) {
+                  if (result.ok || result.status === 200 || result.status === 302) {
+                    successCount++;
+                  } else {
+                    console.log("Error agregando " + vObj.title + " (ID: " + vObj.id + "):", result);
+                  }
+                });
               });
             });
-          });
 
-          chain.then(function() {
-            setTimeout(function() {
-              window.location.href = cartUrl;
-            }, 350);
+            chain.then(function() {
+              if (successCount > 0) {
+                setTimeout(function() {
+                  window.location.href = "/comprar";
+                }, 400);
+              } else {
+                buyBtn.disabled = false;
+                if (btnTxt) btnTxt.innerText = textoBoton;
+                alert("Tiendanube no pudo agregar los productos al carrito. Por favor abrí Nevux > Widgets > Pack Complementarios, tocalos desde '📦 Elegir de mi tienda' y guardá cambios.");
+              }
+            });
           });
-        });
+        }
       }
-    }
 
-    renderContent();
+      renderContent();
 
-    if (method === "after" && placementNode.parentNode) {
-      if (placementNode.nextSibling) {
-        placementNode.parentNode.insertBefore(div, placementNode.nextSibling);
+      if (method === "after" && placementNode.parentNode) {
+        if (placementNode.nextSibling) {
+          placementNode.parentNode.insertBefore(div, placementNode.nextSibling);
+        } else {
+          placementNode.parentNode.appendChild(div);
+        }
       } else {
-        placementNode.parentNode.appendChild(div);
+        placementNode.appendChild(div);
       }
-    } else {
-      placementNode.appendChild(div);
     }
-  }
-      }
+ }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
