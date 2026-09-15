@@ -1623,6 +1623,7 @@
           if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
           if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
           if (w.widget_slug === "edicion-limitada") renderEdicionLimitada(w);
+          if (w.widget_slug === "contador-vendidos") renderContadorVendidos(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -9999,4 +10000,166 @@ function renderEdicionLimitada(w) {
     nvxTrack(w.id, 'impression');
   }
     }
+      /* ═══════════════════════════════════════════
+   WIDGET: CONTADOR DE VENDIDOS
+   ═══════════════════════════════════════════ */
+function renderContadorVendidos(w) {
+  if (document.getElementById('nvx-vendidos-' + w.id)) return;
+
+  var cfg = w.config || {};
+  if (cfg.mostrarEnProducto === false) return;
+
+  var CAMPAIGN_COLORS = {
+    'black-friday': { bg: '#111827', text: '#F59E0B', border: '#F59E0B', icon: '#F59E0B' },
+    'hot-sale': { bg: '#0F172A', text: '#EF4444', border: '#EF4444', icon: '#EF4444' },
+    'cyber-monday': { bg: '#090D16', text: '#3B82F6', border: '#3B82F6', icon: '#3B82F6' },
+    'navidad': { bg: '#064E3B', text: '#EF4444', border: '#EF4444', icon: '#EF4444' },
+    'san-valentin': { bg: '#831843', text: '#F43F5E', border: '#F43F5E', icon: '#F43F5E' },
+    'dia-padre-madre': { bg: '#312E81', text: '#10B981', border: '#10B981', icon: '#10B981' },
+    'liquidacion': { bg: '#7F1D1D', text: '#FBBF24', border: '#FBBF24', icon: '#FBBF24' }
+  };
+
+  var ICON_MAP = {
+    fuego: '🔥',
+    check: '✅',
+    carrito: '🛒',
+    paquete: '📦',
+    estrella: '⭐',
+    personas: '👥',
+    cohete: '🚀'
+  };
+
+  var theme = cfg.campaignTheme && cfg.campaignTheme !== 'none' ? CAMPAIGN_COLORS[cfg.campaignTheme] : null;
+
+  var bg = theme ? theme.bg : (cfg.colorFondo || '#ecfdf5');
+  var textColor = theme ? theme.text : (cfg.colorTexto || '#065f46');
+  var iconColor = theme ? theme.icon : (cfg.colorIcono || '#10B981');
+  var borderColor = theme ? theme.border : (cfg.colorBorde || '#10B981');
+  var iconEmoji = ICON_MAP[cfg.icono] || '🔥';
+  var initialCount = typeof cfg.cantidadVendida === 'number' ? cfg.cantidadVendida : 247;
+  var texto = cfg.texto || 'vendidos en las últimas 24 horas';
+  var estilo = cfg.estiloVisual || 'pildora';
+  var posicion = cfg.posicion || 'debajo-precio';
+  var fontSize = cfg.fontSize || '13px';
+  var puntoPulsante = cfg.puntoPulsante !== false;
+  var autoIncrementar = cfg.autoIncrementar !== false;
+  var intervaloSegundos = cfg.intervaloSegundos || 45;
+  var efecto = cfg.efecto || 'fade-in';
+
+  // Inyectar animaciones si no existen
+  if (!document.getElementById('nvx-vendidos-style')) {
+    var styleTag = document.createElement('style');
+    styleTag.id = 'nvx-vendidos-style';
+    styleTag.innerHTML =
+      '@keyframes nvxPulseDot {' +
+      '0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); transform: scale(1); }' +
+      '50% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); transform: scale(1.15); }' +
+      '}' +
+      '@keyframes nvxVendidosFade {' +
+      'from { opacity: 0; transform: translateY(6px); }' +
+      'to { opacity: 1; transform: translateY(0); }' +
+      '}' +
+      '@keyframes nvxVendidosSlide {' +
+      'from { opacity: 0; transform: translateX(-12px); }' +
+      'to { opacity: 1; transform: translateX(0); }' +
+      '}' +
+      '@keyframes nvxVendidosZoom {' +
+      'from { opacity: 0; transform: scale(0.92); }' +
+      'to { opacity: 1; transform: scale(1); }' +
+      '}' +
+      '.nvx-vendidos-pulse-dot { animation: nvxPulseDot 1.8s infinite ease-in-out; }' +
+      '.nvx-vendidos-fade { animation: nvxVendidosFade 0.4s ease-out; }' +
+      '.nvx-vendidos-slide { animation: nvxVendidosSlide 0.4s ease-out; }' +
+      '.nvx-vendidos-zoom { animation: nvxVendidosZoom 0.4s ease-out; }';
+    document.head.appendChild(styleTag);
+  }
+
+  var animClass = '';
+  if (efecto === 'fade-in') animClass = ' nvx-vendidos-fade';
+  else if (efecto === 'slide') animClass = ' nvx-vendidos-slide';
+  else if (efecto === 'zoom') animClass = ' nvx-vendidos-zoom';
+
+  var container = document.createElement('div');
+  container.id = 'nvx-vendidos-' + w.id;
+  container.className = 'nvx-widget nvx-vendidos-wrapper' + animClass;
+
+  var baseStyle = 'display:inline-flex;align-items:center;gap:8px;font-size:' + fontSize + ';font-weight:600;color:' + textColor + ';font-family:system-ui,-apple-system,sans-serif;line-height:1.3;margin:8px 0;box-sizing:border-box;';
+
+  if (estilo === 'borde') {
+    container.style.cssText = baseStyle + 'background:' + bg + ';border:1.5px solid ' + borderColor + ';border-radius:8px;padding:8px 14px;';
+  } else if (estilo === 'tarjeta') {
+    container.style.cssText = baseStyle + 'background:' + bg + ';border:1px solid ' + borderColor + ';border-radius:12px;padding:10px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);width:100%;';
+  } else if (estilo === 'gradiente') {
+    container.style.cssText = baseStyle + 'background:linear-gradient(135deg,' + bg + ' 0%,#ffffff 100%);border:1px solid ' + borderColor + ';border-radius:999px;padding:6px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.03);';
+  } else {
+    // pildora
+    container.style.cssText = baseStyle + 'background:' + bg + ';border:1px solid transparent;border-radius:999px;padding:6px 14px;';
+  }
+
+  var dotHtml = puntoPulsante
+    ? '<span class="nvx-vendidos-pulse-dot" style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0;"></span>'
+    : '';
+
+  var numId = 'nvx-num-' + w.id;
+
+  container.innerHTML =
+    dotHtml +
+    '<span style="font-size:14px;color:' + iconColor + ';line-height:1;">' + iconEmoji + '</span>' +
+    '<div>' +
+      '<strong id="' + numId + '" style="font-weight:900;">' + initialCount.toLocaleString('es-AR') + '</strong> ' +
+      texto +
+    '</div>';
+
+  // Inserción según posición
+  if (posicion === 'debajo-titulo') {
+    var titleEl = document.querySelector('.js-product-name, .product-name, h1.product-title, h1');
+    if (titleEl && titleEl.parentNode) {
+      titleEl.parentNode.insertBefore(container, titleEl.nextSibling);
+    } else {
+      insertDefault(container);
+    }
+  } else if (posicion === 'debajo-comprar') {
+    var buyBtn = document.querySelector('form[action*="/cart/add"] input[type="submit"], form[action*="/cart/add"] button[type="submit"], .js-prod-submit-form, .js-addtocart, form[action*="/cart/add"]');
+    if (buyBtn && buyBtn.parentNode) {
+      buyBtn.parentNode.insertBefore(container, buyBtn.nextSibling);
+    } else {
+      insertDefault(container);
+    }
+  } else {
+    // debajo-precio
+    var priceEl = document.querySelector('.js-price-display, #price_display, .js-price, [data-price]');
+    if (priceEl && priceEl.parentNode) {
+      priceEl.parentNode.insertBefore(container, priceEl.nextSibling);
+    } else {
+      insertDefault(container);
+    }
+  }
+
+  function insertDefault(el) {
+    var target = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container');
+    if (target && target.parentNode) {
+      target.parentNode.insertBefore(el, target);
+    } else {
+      var main = document.querySelector('main, #content, .main-content');
+      if (main) main.insertBefore(el, main.firstChild);
+    }
+  }
+
+  // Auto-incremento en vivo
+  if (autoIncrementar && intervaloSegundos > 0) {
+    var currentCount = initialCount;
+    setInterval(function() {
+      currentCount += 1;
+      var el = document.getElementById(numId);
+      if (el) {
+        el.innerText = currentCount.toLocaleString('es-AR');
+      }
+    }, intervaloSegundos * 1000);
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === 'function') {
+    nvxTrack(w.id, 'impression');
+  }
+}
 })();
