@@ -8143,11 +8143,14 @@
                  document.querySelector(".product-buy-panel") ||
                  document.querySelector(".js-product-form") ||
                  document.querySelector(".product-form") ||
+                 document.querySelector(".js-product-container") ||
+                 document.querySelector(".product-detail") ||
+                 document.querySelector(".js-product-detail") ||
+                 document.querySelector(".product-detail-container") ||
+                 document.querySelector("[data-store='product-form']") ||
                  document.querySelector("[data-store='product-buy-button']") ||
                  document.querySelector(".js-addtocart") ||
-                 document.querySelector(".js-product-container");
-
-    if (!target) return;
+                 document.querySelector("form");
 
     var styleId = "nvx-pack-styles-" + w.id;
     if (!document.getElementById(styleId)) {
@@ -8425,7 +8428,6 @@
             }
           });
 
-          // Si falta algún ID, intentar capturar la variante actual del producto
           if (variantsToAdd.length === 0) {
             var currentInput = document.querySelector('input[name="add_to_cart"]');
             if (currentInput && currentInput.value) {
@@ -8442,7 +8444,6 @@
           var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
           if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-          var successCount = 0;
           var chain = Promise.resolve();
 
           variantsToAdd.forEach(function(vId) {
@@ -8457,19 +8458,18 @@
                   "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                   "X-Requested-With": "XMLHttpRequest"
                 },
-                body: params.toString()
-              }).then(function(res) {
-                if (res.ok || res.status === 200 || res.status === 302 || res.type === "opaqueredirect") {
-                  successCount++;
-                }
+                body: params.toString(),
+                credentials: "same-origin"
               }).catch(function(err) {
-                console.log("Error agregando item:", err);
+                console.log("Error agregando item pack:", err);
               });
             });
           });
 
           chain.then(function() {
-            window.location.href = "/cart";
+            setTimeout(function() {
+              window.location.href = "/cart";
+            }, 350);
           });
         });
       }
@@ -8477,13 +8477,18 @@
 
     renderContent();
 
-    // Se inyecta justo debajo del formulario de compra
-    if (target.nextSibling) {
-      target.parentNode.insertBefore(div, target.nextSibling);
+    // Inserción universal con fallback
+    if (target) {
+      if (target.nextSibling) {
+        target.parentNode.insertBefore(div, target.nextSibling);
+      } else {
+        target.parentNode.appendChild(div);
+      }
     } else {
-      target.parentNode.appendChild(div);
+      var container = document.querySelector("main") || document.body;
+      if (container) container.appendChild(div);
     }
- }
+                             }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
