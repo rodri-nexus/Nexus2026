@@ -8393,66 +8393,94 @@
           e.stopPropagation();
           if (selectedSet.size === 0) return;
 
-          var rawValues = [];
+          var rawItems = [];
           selectedSet.forEach(function(idx) {
-            var val = String(items[idx].variantId || "").trim();
-            if (val) rawValues.push(val);
+            rawItems.push(items[idx]);
           });
-
-          if (rawValues.length === 0) {
-            alert("Por favor configure los IDs o URLs de los productos en el panel de Nevux.");
-            return;
-          }
 
           buyBtn.disabled = true;
           var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
           if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-          // Función para resolver ID real de variante (acepta ID numérico o URL del producto)
-          function resolveId(val) {
-            if (/^\d+$/.test(val)) {
-              return Promise.resolve(val);
+          // Función universal para resolver el variant_id real
+          function resolveVariant(item) {
+            var raw = String(item.variantId || "").trim();
+
+            // 1. Si no especificó nada o es el producto actual, leer input de la página
+            if (!raw) {
+              var currentInput = document.querySelector('input[name="add_to_cart"]');
+              if (currentInput && currentInput.value) {
+                return Promise.resolve(currentInput.value);
+              }
             }
-            var url = val;
-            if (!url.startsWith("http") && !url.startsWith("/")) {
-              url = "/productos/" + url;
+
+            // 2. Si es una URL o slug de producto, obtener el HTML y extraer el variant_id
+            var isUrl = raw.includes("/") || raw.includes("http") || isNaN(Number(raw));
+            if (isUrl) {
+              var url = raw;
+              if (!url.startsWith("http") && !url.startsWith("/")) {
+                url = "/productos/" + url;
+              }
+              return fetch(url, { credentials: "same-origin" })
+                .then(function(r) { return r.text(); })
+                .then(function(html) {
+                  try {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, "text/html");
+                    var inputEl = doc.querySelector('input[name="add_to_cart"], select[name="add_to_cart"] option, [name="add_to_cart"]');
+                    if (inputEl) {
+                      var found = inputEl.value || inputEl.getAttribute("value");
+                      if (found) return found;
+                    }
+                  } catch(err) {}
+
+                  var m = html.match(/name=["']add_to_cart["'][^>]*value=["'](\d+)["']/i) ||
+                          html.match(/value=["'](\d+)["'][^>]*name=["']add_to_cart["']/i) ||
+                          html.match(/"variant_id":\s*(\d+)/i) ||
+                          html.match(/LS\.variants\s*=\s*\[\s*\{\s*id:\s*(\d+)/i);
+                  return m ? m[1] : null;
+                })
+                .catch(function() { return null; });
             }
-            return fetch(url)
-              .then(function(r) { return r.text(); })
-              .then(function(html) {
-                var m = html.match(/name=["']add_to_cart["'][^>]*value=["'](\d+)["']/i) ||
-                        html.match(/value=["'](\d+)["'][^>]*name=["']add_to_cart["']/i) ||
-                        html.match(/"variant_id":\s*(\d+)/i) ||
-                        html.match(/"variants":\s*\[\s*\{\s*"id":\s*(\d+)/i);
-                return m ? m[1] : val;
-              })
-              .catch(function() { return val; });
+
+            // 3. Es un número directo
+            return Promise.resolve(raw);
           }
 
-          // Resolver todos los IDs y agregarlos secuencialmente a Tiendanube
-          var resolvePromises = rawValues.map(function(v) { return resolveId(v); });
+          var resolvePromises = rawItems.map(function(item) { return resolveVariant(item); });
 
           Promise.all(resolvePromises).then(function(resolvedIds) {
+            var validIds = resolvedIds.filter(function(id) { return id && String(id).trim() !== ""; });
+
+            if (validIds.length === 0) {
+              buyBtn.disabled = false;
+              if (btnTxt) btnTxt.innerText = textoBoton;
+              alert("Por favor copiá y pegá el link de cada producto (ej: /productos/gorra) en el editor del pack en Nevux.");
+              return;
+            }
+
             var addedCount = 0;
             var chain = Promise.resolve();
 
-            resolvedIds.forEach(function(vId) {
+            validIds.forEach(function(vId) {
               chain = chain.then(function() {
-                var bodyData = "add_to_cart=" + encodeURIComponent(vId) + "&quantity=1";
+                var formData = new FormData();
+                formData.append("add_to_cart", vId);
+                formData.append("quantity", "1");
 
                 return fetch("/cart/add", {
                   method: "POST",
+                  body: formData,
                   headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                     "X-Requested-With": "XMLHttpRequest"
                   },
-                  body: bodyData
+                  credentials: "same-origin"
                 }).then(function(res) {
-                  if (res.ok || res.status === 200 || res.status === 302) {
+                  if (res.ok || res.status === 200 || res.status === 302 || res.type === "opaqueredirect") {
                     addedCount++;
                   }
                 }).catch(function(err) {
-                  console.log("Error agregando variante:", vId, err);
+                  console.log("Error al agregar variante:", vId, err);
                 });
               });
             });
@@ -8463,7 +8491,7 @@
               } else {
                 buyBtn.disabled = false;
                 if (btnTxt) btnTxt.innerText = textoBoton;
-                alert("No se pudo agregar el pack al carrito. Verificá que los IDs de variante o links de los productos sean correctos en Nevux.");
+                alert("No se pudo agregar al carrito. Asegurate de pegar el link de la tienda de cada producto en Nevux.");
               }
             });
           });
@@ -8479,7 +8507,7 @@
     } else {
       target.parentNode.appendChild(div);
     }
-                        }
+      }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
