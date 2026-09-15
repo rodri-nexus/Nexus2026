@@ -8079,7 +8079,7 @@
     });
 }
   
-/* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER PACK COMPLEMENTARIOS
   ═══════════════════════════════════════════ */
   function renderPackComplementarios(w) {
@@ -8127,6 +8127,8 @@
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 18) + "px";
 
     var target = document.querySelector("form[action*='/cart/add']") || 
+                 document.querySelector("form[action*='/comprar']") ||
+                 document.querySelector("form[action*='/carrinho']") ||
                  document.querySelector(".js-product-buy-container") ||
                  document.querySelector(".product-buy-panel") ||
                  document.querySelector(".js-product-form") ||
@@ -8390,16 +8392,34 @@
       if (buyBtn) {
         buyBtn.addEventListener("click", function(e) {
           e.preventDefault();
+          e.stopPropagation();
           if (selectedSet.size === 0) return;
 
-          var variantsToAdd = [];
+          var selectedItems = [];
           selectedSet.forEach(function(idx) {
-            var vId = String(items[idx].variantId || "").trim();
-            if (vId) variantsToAdd.push(vId);
+            if (items[idx]) selectedItems.push(items[idx]);
           });
 
-          if (variantsToAdd.length === 0) {
-            alert("Por favor configure los IDs de variantes de los productos en el panel de Nevux.");
+          if (selectedItems.length === 0) return;
+
+          // Extraer y validar IDs de variantes reales
+          var missingTitle = "";
+          var variantsToAdd = [];
+
+          selectedItems.forEach(function(it) {
+            var raw = String(it.variantId || "").trim();
+            var matches = raw.match(/\d+/g);
+            var cleanId = matches ? matches[matches.length - 1] : "";
+
+            if (!cleanId) {
+              missingTitle = it.titulo || "un producto";
+            } else {
+              variantsToAdd.push({ id: cleanId, title: it.titulo || "Producto" });
+            }
+          });
+
+          if (missingTitle || variantsToAdd.length === 0) {
+            alert("El producto \"" + missingTitle + "\" no tiene su ID de variante vinculado. Por favor abrí Nevux > Widgets > Pack Complementarios, tocalo desde '📦 Elegir de mi tienda' y guardá.");
             return;
           }
 
@@ -8407,29 +8427,65 @@
           var btnTxt = div.querySelector("#nvx-pack-btntxt-" + w.id);
           if (btnTxt) btnTxt.innerText = textoBotonCargando;
 
-          // Agregar productos al carrito secuencialmente
-          var promiseChain = Promise.resolve();
-          variantsToAdd.forEach(function(vId) {
-            promiseChain = promiseChain.then(function() {
-              var params = new URLSearchParams();
-              params.append("add_to_cart", vId);
-              params.append("variant_id", vId);
-              params.append("quantity", "1");
+          // Detectar endpoint real de la tienda (form nativo o fallbacks)
+          var nativeForm = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form[action*='/carrinho'], form[action*='cart'], .js-product-form, form.product-form");
+          var endpoint = (nativeForm && nativeForm.action) ? nativeForm.action : "/cart/add";
 
-              return fetch("/cart/add", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                  "X-Requested-With": "XMLHttpRequest",
-                  "Accept": "application/json, text/javascript, */*; q=0.01"
-                },
-                body: params.toString()
-              }).catch(function(e) { console.log("Pack item add err", e); });
+          function postVariant(vObj) {
+            var params = new URLSearchParams();
+            params.append("add_to_cart", vObj.id);
+            params.append("variant_id", vObj.id);
+            params.append("quantity", "1");
+            params.append("ajax", "1");
+
+            return fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json, text/javascript, */*; q=0.01"
+              },
+              body: params.toString(),
+              credentials: "include"
+            }).then(function(res) {
+              if (!res.ok && res.status === 404 && endpoint !== "/cart/add") {
+                return fetch("/cart/add", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                    "X-Requested-With": "XMLHttpRequest"
+                  },
+                  body: params.toString(),
+                  credentials: "include"
+                });
+              }
+              return res;
+            });
+          }
+
+          var chain = Promise.resolve();
+          var successCount = 0;
+
+          variantsToAdd.forEach(function(vObj) {
+            chain = chain.then(function() {
+              return postVariant(vObj).then(function(response) {
+                if (response && (response.ok || response.status === 200 || response.status === 302 || response.type === "opaqueredirect")) {
+                  successCount++;
+                }
+              }).catch(function(err) {
+                console.error("Nevux Pack Item Error:", err);
+              });
             });
           });
 
-          promiseChain.then(function() {
-            window.location.reload();
+          chain.then(function() {
+            if (successCount > 0) {
+              window.location.href = "/cart";
+            } else {
+              buyBtn.disabled = false;
+              if (btnTxt) btnTxt.innerText = textoBoton;
+              alert("No se pudo agregar el pack al carrito. Verificá que los productos tengan stock.");
+            }
           });
         });
       }
@@ -8443,7 +8499,7 @@
     } else {
       target.parentNode.appendChild(div);
     }
-    }
+  }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
