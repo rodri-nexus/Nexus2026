@@ -36,8 +36,6 @@ function renderPreview(slug: string) {
       return <SliderCategoriasPreview />;
     case "menu-circulos":
       return <MenuCirculosPreview />;
-    case "pack-complementarios":
-      return <PackComplementariosPreview />;
     case "tabla-talles":
       return <TablaTallesPreview />;
     case "medios-pago":
@@ -326,56 +324,7 @@ function MenuCirculosPreview() {
   );
 }
 
-function PackComplementariosPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #10B981",
-        borderRadius: "10px",
-        padding: "7px 9px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: "7.5px", fontWeight: 900, color: "#000000" }}>
-          🔥 COMBINÁ TU PACK
-        </span>
-        <span style={{ fontSize: "6.5px", background: "#ecfdf5", color: "#059669", padding: "1px 4px", borderRadius: "999px", fontWeight: 800 }}>
-          -15% OFF
-        </span>
-      </div>
-
-      {/* Items */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "#f9fafb", padding: "2px 4px", borderRadius: "4px" }}>
-          <div style={{ width: "8px", height: "8px", background: "#10B981", borderRadius: "2px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "6px" }}>✓</div>
-          <span style={{ fontSize: "7px", fontWeight: 700, flex: 1, color: "#111827" }}>Remera Oversize</span>
-          <span style={{ fontSize: "7px", fontWeight: 800, color: "#10B981" }}>$25k</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "#f9fafb", padding: "2px 4px", borderRadius: "4px" }}>
-          <div style={{ width: "8px", height: "8px", background: "#10B981", borderRadius: "2px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "6px" }}>✓</div>
-          <span style={{ fontSize: "7px", fontWeight: 700, flex: 1, color: "#111827" }}>Gorra Vintage</span>
-          <span style={{ fontSize: "7px", fontWeight: 800, color: "#10B981" }}>$15k</span>
-        </div>
-      </div>
-
-      {/* Footer Total */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f3f4f6", paddingTop: "3px", marginTop: "1px" }}>
-        <div style={{ fontSize: "7.5px", fontWeight: 900, color: "#000000" }}>
-          Total: <span style={{ color: "#10B981" }}>$34.000</span>
-        </div>
-        <div style={{ background: "#10B981", color: "#ffffff", fontSize: "6.5px", fontWeight: 800, padding: "2px 6px", borderRadius: "4px" }}>
-          + Agregar pack
-        </div>
-      </div>
-    </div>
-  );
-}
+function TablaTallesEditor() { return null; } // Fallback preventivo
 
 function TablaTallesPreview() {
   return (
@@ -555,7 +504,7 @@ function BadgeCuponPreview() {
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "4px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyRules: "space-between", gap: "4px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
           <span style={{ fontSize: "11px" }}>🎟️</span>
           <span style={{ fontSize: "8.5px", fontWeight: 800, color: "#000000" }}>
@@ -1380,4 +1329,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-  }
+        }
