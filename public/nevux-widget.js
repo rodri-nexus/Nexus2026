@@ -8088,20 +8088,6 @@
     var exist = document.getElementById("nvx-pack-" + w.id);
     if (exist) return;
 
-    var isDebug = window.location.search.indexOf("debug=1") !== -1;
-    var dbgEl = null;
-
-    if (isDebug) {
-      dbgEl = document.getElementById("nvx-debug-box");
-      if (!dbgEl) {
-        dbgEl = document.createElement("div");
-        dbgEl.id = "nvx-debug-box";
-        dbgEl.style.cssText = "position:fixed;top:10px;left:10px;background:#10B981;color:#fff;padding:14px;border-radius:10px;z-index:999999;font-size:12px;font-family:sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:320px;line-height:1.5;";
-        document.body.appendChild(dbgEl);
-      }
-      dbgEl.innerHTML = "<b>Nevux Debugger (v140):</b><br>✓ El widget llegó de BD.<br>⏳ Esperando que cargue el diseño de la tienda...";
-    }
-
     function _esc(s) {
       if (!s) return "";
       return String(s)
@@ -8149,26 +8135,49 @@
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 16) + "px";
     var padInt = (cfg.paddingInterno !== undefined ? cfg.paddingInterno : 18) + "px";
 
-    // Reintentador de búsqueda del elemento receptor (hasta 5 segundos)
+    // Función para encontrar el contenedor VISIBLE en la página del producto
+    function findVisibleProductContainer() {
+      // 1. Buscar botón Comprar visible
+      var buyBtn = document.querySelector(".js-addtocart, [data-store='product-buy-button'], .js-prod-submit-form, input[type='submit'].js-addtocart");
+      if (buyBtn) {
+        var form = buyBtn.closest("form");
+        if (form && !form.classList.contains("js-ajax-cart-panel")) {
+          return { node: form, method: "after" };
+        }
+        var buyContainer = buyBtn.closest(".js-product-buy-container, .product-buy-panel");
+        if (buyContainer) {
+          return { node: buyContainer, method: "after" };
+        }
+        return { node: buyBtn.parentElement, method: "after" };
+      }
+
+      // 2. Buscar formularios que NO sean el carrito lateral
+      var forms = document.querySelectorAll("form.js-product-form, form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart']");
+      for (var i = 0; i < forms.length; i++) {
+        var f = forms[i];
+        if (!f.classList.contains("js-ajax-cart-panel") && !f.closest(".js-ajax-cart-container") && !f.closest(".modal")) {
+          return { node: f, method: "after" };
+        }
+      }
+
+      // 3. Contenedores generales de detalle
+      var detail = document.querySelector(".js-product-buy-container, .product-buy-panel, .js-product-container, .product-detail");
+      if (detail) {
+        return { node: detail, method: "append" };
+      }
+
+      return null;
+    }
+
     var attempts = 0;
     var intervalId = setInterval(function() {
       attempts++;
-      
-      var target = document.querySelector("form[action*='/cart/add']") || 
-                   document.querySelector("form[action*='/comprar']") ||
-                   document.querySelector("form[action*='/carrinho']") ||
-                   document.querySelector("form[action*='cart']") ||
-                   document.querySelector(".js-product-form") ||
-                   document.querySelector(".product-form") ||
-                   document.querySelector(".js-product-container") ||
-                   document.querySelector(".product-detail") ||
-                   document.querySelector("[data-store='product-buy-button']") ||
-                   document.querySelector(".js-addtocart");
+      var targetObj = findVisibleProductContainer();
 
-      if (target) {
+      if (targetObj && targetObj.node) {
         clearInterval(intervalId);
-        injectWidget(target, "after");
-      } else if (attempts >= 25) { // Pasaron 5 segundos, inyectamos en fallback
+        injectWidget(targetObj.node, targetObj.method);
+      } else if (attempts >= 25) {
         clearInterval(intervalId);
         var fallback = document.querySelector("main") || document.querySelector("#main") || document.body;
         if (fallback) {
@@ -8180,26 +8189,26 @@
     function injectWidget(placementNode, method) {
       if (document.getElementById("nvx-pack-" + w.id)) return;
 
-      if (isDebug && dbgEl) {
-        var nodeName = placementNode.tagName + (placementNode.className ? "." + placementNode.className.split(" ")[0] : "");
-        dbgEl.innerHTML += "<br>✓ Elemento destino encontrado: <b>" + nodeName + "</b><br>🚀 Dibujando widget en pantalla...";
-      }
-
       var styleId = "nvx-pack-styles-" + w.id;
       if (!document.getElementById(styleId)) {
         var styleEl = document.createElement("style");
         styleEl.id = styleId;
         styleEl.innerHTML = `
           #nvx-pack-${w.id} {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
             background: ${bgColor} !important;
             border: 2px solid ${borderColor} !important;
             border-radius: ${borderRad} !important;
             padding: ${padInt} !important;
-            margin: 18px 0 !important;
+            margin: 20px 0 !important;
             box-shadow: 0 4px 14px rgba(0,0,0,0.04) !important;
             font-family: system-ui, -apple-system, sans-serif !important;
             box-sizing: border-box !important;
             width: 100% !important;
+            position: relative !important;
+            z-index: 10 !important;
           }
           #nvx-pack-${w.id} .nvx-pk-header {
             display: flex !important;
@@ -8519,12 +8528,8 @@
       } else {
         placementNode.appendChild(div);
       }
-
-      if (isDebug && dbgEl) {
-        dbgEl.innerHTML += "<br>🎉 <b>¡Widget inyectado con éxito en pantalla!</b>";
-      }
     }
-    }
+                                }
 /* ═══════════════════════════════════════════
      RENDER MENÚ DE CÍRCULOS (HISTORIAS)
   ═══════════════════════════════════════════ */
