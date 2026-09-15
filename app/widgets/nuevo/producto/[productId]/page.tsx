@@ -57,12 +57,18 @@ export default async function WidgetsNuevoProductoDetailPage({
     }
   }
 
-  // Traer definiciones de widgets activos
-  const { data: definitions } = await supabase
+  // Traer definiciones de widgets activos excluyendo pack-complementarios
+  const { data: rawDefinitions } = await supabase
     .from("widget_definitions")
     .select("*")
     .eq("is_active", true)
+    .neq("slug", "pack-complementarios")
     .order("name");
+
+  // Filtro de seguridad para excluir pack-complementarios
+  const definitions = (rawDefinitions || []).filter(
+    (w) => w.slug !== "pack-complementarios"
+  );
 
   const chip = (
     <div
@@ -96,7 +102,7 @@ export default async function WidgetsNuevoProductoDetailPage({
     >
       <div style={{ maxWidth: "900px", margin: "0 auto", boxSizing: "border-box" }}>
         <WidgetCatalogClient
-          definitions={definitions || []}
+          definitions={definitions}
           title={`¿Qué widget querés agregar a "${productName}"?`}
           chip={chip}
           baseUrl="/widgets/editar"
@@ -106,4 +112,4 @@ export default async function WidgetsNuevoProductoDetailPage({
       </div>
     </div>
   );
-        }
+          }
