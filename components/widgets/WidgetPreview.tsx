@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "horario-atencion":
+      return <HorarioAtencionPreview />;
     case "marquee-novedades":
       return <MarqueeNovedadesPreview />;
     case "ruleta-descuentos":
@@ -89,6 +91,68 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function HorarioAtencionPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1.5px solid #e5e7eb",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <span style={{ fontSize: "11px" }}>⏰</span>
+          <span style={{ fontSize: "8px", fontWeight: 800, color: "#111827" }}>
+            HORARIO DE ATENCIÓN
+          </span>
+        </div>
+        <span
+          style={{
+            background: "#ecfdf5",
+            color: "#059669",
+            fontSize: "6.5px",
+            fontWeight: 900,
+            padding: "1.5px 5px",
+            borderRadius: "999px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "2px",
+          }}
+        >
+          <span style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#10B981" }} />
+          ABIERTO
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "5px 7px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "2px",
+        }}
+      >
+        <div style={{ fontSize: "7px", fontWeight: 700, color: "#111827" }}>
+          Lun a Vie: 09:00 a 18:00 hs
+        </div>
+        <div style={{ fontSize: "6px", color: "#6b7280" }}>
+          ¡Estamos online para responder tus dudas!
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function MarqueeNovedadesPreview() {
   return (
@@ -1291,4 +1355,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-  }
+          }
