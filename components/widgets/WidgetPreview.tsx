@@ -28,6 +28,8 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "calculadora-ahorro":
+      return <CalculadoraAhorroPreview />;
     case "horario-atencion":
       return <HorarioAtencionPreview />;
     case "marquee-novedades":
@@ -91,6 +93,62 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS NUEVOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function CalculadoraAhorroPreview() {
+  return (
+    <div
+      style={{
+        background: "#ecfdf5",
+        border: "1.5px solid #10B981",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+        <span
+          style={{
+            fontSize: "6px",
+            fontWeight: 900,
+            letterSpacing: "0.04em",
+            color: "#059669",
+            textTransform: "uppercase",
+          }}
+        >
+          AHORRO EXCLUSIVO
+        </span>
+        <div style={{ fontSize: "7.5px", fontWeight: 700, color: "#065f46", lineHeight: 1.2 }}>
+          🎉 ¡Ahorrás{" "}
+          <strong style={{ fontSize: "8.5px", fontWeight: 900, color: "#059669" }}>
+            $ 14.500
+          </strong>{" "}
+          hoy!
+        </div>
+      </div>
+      <div
+        style={{
+          width: "22px",
+          height: "22px",
+          borderRadius: "50%",
+          background: "#10B981",
+          color: "#ffffff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "10px",
+          fontWeight: 900,
+          flexShrink: 0,
+        }}
+      >
+        %
+      </div>
+    </div>
+  );
+}
 
 function HorarioAtencionPreview() {
   return (
@@ -1355,4 +1413,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-          }
+            }
