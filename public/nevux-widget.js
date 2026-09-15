@@ -5957,7 +5957,7 @@
     });
   }
   /* ═══════════════════════════════════════════
-     RENDER EXTRAS CON INTERRUPTOR
+     RENDER EXTRAS CON INTERRUPTOR (Motor Infalible)
   ═══════════════════════════════════════════ */
   function renderExtrasInterruptor(w) {
     if (pageType !== "product") return;
@@ -6273,34 +6273,58 @@
           loader.style.display = "inline-block";
           checkbox.disabled = true;
 
-          // Envío nativo a /comprar con credenciales de sesión (sin redirects rotos)
-          var xhr = new XMLHttpRequest();
-          xhr.open("POST", "/comprar", true);
-          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-          xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-          xhr.withCredentials = true;
+          function finishAddToCart() {
+            setTimeout(function() {
+              window.location.href = window.location.pathname + "#modal-fullscreen-cart";
+              window.location.reload();
+            }, 300);
+          }
 
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-              if (xhr.status >= 200 && xhr.status < 400) {
-                setTimeout(function() {
-                  window.location.href = window.location.pathname + "#modal-fullscreen-cart";
-                  window.location.reload();
-                }, 300);
-              } else {
-                loader.style.display = "none";
-                checkbox.disabled = false;
-                checkbox.checked = false;
-                alert("No se pudo agregar al carrito. Verificá que el producto tenga stock en tu tienda.");
-              }
+          // Método 1: Fetch AJAX estándar a /comprar
+          var params = "add_to_cart=" + encodeURIComponent(targetVariant) + "&quantity=1";
+
+          fetch("/comprar", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            body: params,
+            credentials: "same-origin"
+          }).then(function(res) {
+            finishAddToCart();
+          }).catch(function() {
+            // Método 2: Fallback vía Form Submit nativo
+            try {
+              var hiddenForm = document.createElement("form");
+              hiddenForm.method = "POST";
+              hiddenForm.action = "/comprar";
+              hiddenForm.style.display = "none";
+
+              var inputVar = document.createElement("input");
+              inputVar.type = "hidden";
+              inputVar.name = "add_to_cart";
+              inputVar.value = targetVariant;
+              hiddenForm.appendChild(inputVar);
+
+              var inputQty = document.createElement("input");
+              inputQty.type = "hidden";
+              inputQty.name = "quantity";
+              inputQty.value = "1";
+              hiddenForm.appendChild(inputQty);
+
+              document.body.appendChild(hiddenForm);
+              hiddenForm.submit();
+            } catch (e) {
+              loader.style.display = "none";
+              checkbox.disabled = false;
+              checkbox.checked = false;
             }
-          };
-
-          xhr.send("add_to_cart=" + encodeURIComponent(targetVariant) + "&quantity=1");
+          });
         }
       });
     }
-    }
+      }
 /* ═══════════════════════════════════════════
      RENDER CONTADOR DE VISITAS
   ═══════════════════════════════════════════ */
