@@ -46,9 +46,6 @@ function renderPreview(slug: string) {
       return <BadgeCuponPreview />;
     case "info-compra":
       return <InfoCompraPreview />;
-    case "extras-interruptor":
-    case "switch-extras":
-      return <ExtrasInterruptorPreview />;
     case "contador-visitas":
     case "visitor-counter":
       return <ContadorVisitasPreview />;
@@ -610,92 +607,6 @@ function InfoCompraPreview() {
             Descuento automático en el checkout
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function ExtrasInterruptorPreview() {
-  return (
-    <div
-      style={{
-        background: "#fffdf5",
-        border: "1.5px solid #fcd34d",
-        borderRadius: "12px",
-        padding: "8px 10px",
-        width: "92%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "8px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-        <div
-          style={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "6px",
-            background: "#f3f4f6",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "12px",
-          }}
-        >
-          👔
-        </div>
-        <span style={{ fontSize: "6.5px", fontWeight: 800, textDecoration: "underline" }}>
-          VER MÁS
-        </span>
-      </div>
-
-      <div style={{ flex: 1, paddingLeft: "4px" }}>
-        <div style={{ fontSize: "9.5px", fontWeight: 800, color: "#1f2937", lineHeight: 1.1 }}>
-          SACO GRIS
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "3px" }}>
-          <span style={{ fontSize: "10px", fontWeight: 900, color: "#111827" }}>
-            $59.999
-          </span>
-          <span
-            style={{
-              background: "#dc2626",
-              color: "#ffffff",
-              fontSize: "6.5px",
-              fontWeight: 900,
-              padding: "1px 4px",
-              borderRadius: "3px",
-            }}
-          >
-            PROMO
-          </span>
-        </div>
-      </div>
-
-      <div
-        style={{
-          width: "32px",
-          height: "18px",
-          background: "#10B981",
-          borderRadius: "999px",
-          padding: "2px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          flexShrink: 0,
-        }}
-      >
-        <div
-          style={{
-            width: "14px",
-            height: "14px",
-            background: "#ffffff",
-            borderRadius: "50%",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-          }}
-        />
       </div>
     </div>
   );
@@ -1327,4 +1238,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-        }
+  }
