@@ -5957,7 +5957,7 @@
     });
   }
   /* ═══════════════════════════════════════════
-     RENDER EXTRAS CON INTERRUPTOR (Motor Infalible)
+     RENDER EXTRAS CON INTERRUPTOR (Motor Nativo Directo)
   ═══════════════════════════════════════════ */
   function renderExtrasInterruptor(w) {
     if (pageType !== "product") return;
@@ -6273,58 +6273,40 @@
           loader.style.display = "inline-block";
           checkbox.disabled = true;
 
-          function finishAddToCart() {
-            setTimeout(function() {
-              window.location.href = window.location.pathname + "#modal-fullscreen-cart";
-              window.location.reload();
-            }, 300);
-          }
+          // Detección del endpoint nativo de la tienda
+          var nativeForm = document.querySelector("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], form[action*='cart']");
+          var targetAction = (nativeForm && nativeForm.getAttribute("action")) ? nativeForm.getAttribute("action") : "/comprar";
 
-          // Método 1: Fetch AJAX estándar a /comprar
-          var params = "add_to_cart=" + encodeURIComponent(targetVariant) + "&quantity=1";
+          // ENVÍO DE FORMULARIO NATIVO DIRECTO (Persiste sesión 100% en Tiendanube)
+          var form = document.createElement("form");
+          form.method = "POST";
+          form.action = targetAction;
+          form.style.display = "none";
 
-          fetch("/comprar", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-              "X-Requested-With": "XMLHttpRequest"
-            },
-            body: params,
-            credentials: "same-origin"
-          }).then(function(res) {
-            finishAddToCart();
-          }).catch(function() {
-            // Método 2: Fallback vía Form Submit nativo
-            try {
-              var hiddenForm = document.createElement("form");
-              hiddenForm.method = "POST";
-              hiddenForm.action = "/comprar";
-              hiddenForm.style.display = "none";
+          var inputAddToCart = document.createElement("input");
+          inputAddToCart.type = "hidden";
+          inputAddToCart.name = "add_to_cart";
+          inputAddToCart.value = targetVariant;
+          form.appendChild(inputAddToCart);
 
-              var inputVar = document.createElement("input");
-              inputVar.type = "hidden";
-              inputVar.name = "add_to_cart";
-              inputVar.value = targetVariant;
-              hiddenForm.appendChild(inputVar);
+          var inputVariantId = document.createElement("input");
+          inputVariantId.type = "hidden";
+          inputVariantId.name = "variant_id";
+          inputVariantId.value = targetVariant;
+          form.appendChild(inputVariantId);
 
-              var inputQty = document.createElement("input");
-              inputQty.type = "hidden";
-              inputQty.name = "quantity";
-              inputQty.value = "1";
-              hiddenForm.appendChild(inputQty);
+          var inputQty = document.createElement("input");
+          inputQty.type = "hidden";
+          inputQty.name = "quantity";
+          inputQty.value = "1";
+          form.appendChild(inputQty);
 
-              document.body.appendChild(hiddenForm);
-              hiddenForm.submit();
-            } catch (e) {
-              loader.style.display = "none";
-              checkbox.disabled = false;
-              checkbox.checked = false;
-            }
-          });
+          document.body.appendChild(form);
+          form.submit();
         }
       });
     }
-      }
+}
 /* ═══════════════════════════════════════════
      RENDER CONTADOR DE VISITAS
   ═══════════════════════════════════════════ */
