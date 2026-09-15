@@ -1616,7 +1616,6 @@
           if (w.widget_slug === "comparador-marca") renderComparadorMarca(w);
           if (w.widget_slug === "medios-pago") renderMediosPago(w);
           if (w.widget_slug === "tabla-talles") renderTablaTalles(w);
-          if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
           if (w.widget_slug === "menu-circulos") renderMenuCirculos(w);
           if (w.widget_slug === "slider-categorias") renderSliderCategorias(w);
           if (w.widget_slug === "resenas-foto") renderResenasFoto(w);
