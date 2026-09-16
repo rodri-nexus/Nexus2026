@@ -645,8 +645,9 @@ export default function MensajeAlertaEditor({
             >
               <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
+                {/* REMOVIDO EL WHITE-SPACE NOWRAP PARA ELIMINAR EL DESBORDE DE TEXTO EN MOBILE */}
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ whiteSpace: 'nowrap' }}>{preset.label}</span>
+                  <span>{preset.label}</span>
                   {isSelected && (
                     <span style={{
                       background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
@@ -857,4 +858,4 @@ export default function MensajeAlertaEditor({
       </div>
     </div>
   );
-       }
+   }
