@@ -623,7 +623,7 @@ function SliderVideoPreview({ config }: SliderVideoPreviewProps) {
           }}
         >
           {videosArr.map((video, i) => (
-            <VideoCardCirculo key={i} video={video} colorControles={colorControles} />
+            <VideoCardCirculo key={i} video={video} colorControles={colorControles || '#10B981'} />
           ))}
         </div>
       )}
@@ -853,6 +853,123 @@ function ColorPickerField({
           boxSizing: 'border-box',
         }}
       />
+    </div>
+  );
+}
+
+function ToggleField({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label?: string;
+}) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+      <div
+        onClick={() => onChange(!checked)}
+        style={{
+          width: 40,
+          height: 22,
+          borderRadius: 999,
+          background: checked ? '#10B981' : '#D1D5DB',
+          position: 'relative',
+          transition: 'background 0.15s',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: '50%',
+            background: '#FFFFFF',
+            position: 'absolute',
+            top: 2,
+            left: checked ? 20 : 2,
+            transition: 'left 0.15s',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+          }}
+        />
+      </div>
+      {label && <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>}
+    </label>
+  );
+}
+
+function RangeSlider({
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  marks,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  marks?: number[];
+}) {
+  return (
+    <div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{ width: '100%', accentColor: '#10B981' }}
+      />
+      {marks && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+            color: '#000000',
+            opacity: 0.6,
+            marginTop: 4,
+          }}
+        >
+          {marks.map((m, i) => (
+            <span key={i}>{m}px</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SectionCard({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
+        <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>{title}</div>
+          <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
+            {description}
+          </div>
+        </div>
+      </div>
+      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -1196,79 +1313,8 @@ function VideoRow({
   );
 }
 
-function ToggleFieldComponent({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label?: string;
-}) {
-  return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-      <div
-        onClick={() => onChange(!checked)}
-        style={{
-          width: 40,
-          height: 22,
-          borderRadius: 999,
-          background: checked ? '#10B981' : '#D1D5DB',
-          position: 'relative',
-          transition: 'background 0.15s',
-          flexShrink: 0,
-        }}
-      >
-        <div
-          style={{
-            width: 18,
-            height: 18,
-            borderRadius: '50%',
-            background: '#FFFFFF',
-            position: 'absolute',
-            top: 2,
-            left: checked ? 20 : 2,
-            transition: 'left 0.15s',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-          }}
-        />
-      </div>
-      {label && <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>}
-    </label>
-  );
-}
-
-function SectionCardComponent({
-  icon,
-  title,
-  description,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20, marginBottom: 16 }}>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
-        <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>{title}</div>
-          <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
-            {description}
-          </div>
-        </div>
-      </div>
-      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
+   COMPONENTE PRINCIPAL (EXPORT DEFAULT)
 ═══════════════════════════════════════════ */
 export default function SliderVideoEditor({
   widgetDefinition,
@@ -1488,7 +1534,7 @@ export default function SliderVideoEditor({
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
-        {/* Chip scope */}
+        {/* Scope Chip */}
         {targetType === 'all' ? (
           <div
             style={{
@@ -1717,7 +1763,7 @@ export default function SliderVideoEditor({
           {/* TAB: ESTILOS */}
           {tab === 'estilos' && (
             <div>
-              <SectionCardComponent icon={<IconLayout />} title="Diseño del widget" description="Elegí cómo se presentan los videos y su estilo de interacción.">
+              <SectionCard icon={<IconLayout />} title="Diseño del widget" description="Elegí cómo se presentan los videos y su estilo de interacción.">
                 <div>
                   <FieldLabel>Formato de visualización</FieldLabel>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
@@ -1739,9 +1785,9 @@ export default function SliderVideoEditor({
                     </button>
                   </div>
                 </div>
-              </SectionCardComponent>
+              </SectionCard>
 
-              <SectionCardComponent icon={<IconPalette />} title="Colores principales" description="Configurá la paleta general del slider, título y fondo.">
+              <SectionCard icon={<IconPalette />} title="Colores principales" description="Configurá la paleta general del slider, título y fondo.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de controles del slider</FieldLabel>
@@ -1757,9 +1803,9 @@ export default function SliderVideoEditor({
                     <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
                   </div>
                 </div>
-              </SectionCardComponent>
+              </SectionCard>
 
-              <SectionCardComponent icon={<IconType />} title="Tipografías" description="Ajustá los tamaños del título y del subtítulo.">
+              <SectionCard icon={<IconType />} title="Tipografías" description="Ajustá los tamaños del título y del subtítulo.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño del título</FieldLabel>
@@ -1774,9 +1820,9 @@ export default function SliderVideoEditor({
                     <SelectField value={config.alineacion} onChange={(v) => updateConfig('alineacion', v)} options={[{ value: 'izquierda', label: 'Izquierda' }, { value: 'centrado', label: 'Centrado' }, { value: 'derecha', label: 'Derecha' }]} />
                   </div>
                 </div>
-              </SectionCardComponent>
+              </SectionCard>
 
-              <SectionCardComponent icon={<IconSliders />} title="Comportamiento y estructura" description="Ajustá reproducción, productos inline y bordes de video.">
+              <SectionCard icon={<IconSliders />} title="Comportamiento y estructura" description="Ajustá reproducción, productos inline y bordes de video.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Reproducción automática</FieldLabel>
@@ -1804,9 +1850,9 @@ export default function SliderVideoEditor({
                     <SelectField value={config.mostrarBotonCarrito ? 'si' : 'no'} onChange={(v) => updateConfig('mostrarBotonCarrito', v === 'si')} options={[{ value: 'si', label: 'Mostrar' }, { value: 'no', label: 'Ocultar' }]} />
                   </div>
                 </div>
-              </SectionCardComponent>
+              </SectionCard>
 
-              <SectionCardComponent icon={<IconSend />} title="Botón de acción" description="Definí colores y redondeado del botón asociado a cada video.">
+              <SectionCard icon={<IconSend />} title="Botón de acción" description="Definí colores y redondeado del botón asociado a cada video.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de fondo</FieldLabel>
@@ -1821,14 +1867,14 @@ export default function SliderVideoEditor({
                     <RangeSlider value={config.radioBordeBoton} onChange={(v) => updateConfig('radioBordeBoton', v)} min={0} max={25} marks={[0, 8, 25]} />
                   </div>
                 </div>
-              </SectionCardComponent>
+              </SectionCard>
             </div>
           )}
 
           {/* FOOTER */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, paddingTop: 20, borderTop: '1px solid #E5E7EB', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ToggleFieldComponent checked={isActive} onChange={setIsActive} label="Widget activo" />
+              <ToggleField checked={isActive} onChange={setIsActive} label="Widget activo" />
               <IconInfo />
             </div>
             <button
@@ -1857,4 +1903,4 @@ export default function SliderVideoEditor({
       )}
     </div>
   );
-   }
+}
