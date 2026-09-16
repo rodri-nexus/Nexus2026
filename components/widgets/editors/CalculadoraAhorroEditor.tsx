@@ -1,4 +1,3 @@
-// components/widgets/editors/CalculadoraAhorroEditor.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -352,7 +351,7 @@ export default function CalculadoraAhorroEditor({
       </div>
 
       {/* Prefix & Suffix */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 24 }}>
         <div>
           <FieldLabel>Texto Inicial</FieldLabel>
           <TextInput
@@ -386,10 +385,15 @@ export default function CalculadoraAhorroEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS ═══ */
+  /* ═══ TAB ESTILOS (DISEÑO RE-ACOMODADO AUTOPROFESIONAL) ═══ */
   const tabEstilos = (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
+        gap: 20, 
+        marginBottom: 20 
+      }}>
         <div>
           <FieldLabel>Color de fondo</FieldLabel>
           <ColorPickerField value={config.bgColor} onChange={(v) => update('bgColor', v)} />
@@ -398,9 +402,6 @@ export default function CalculadoraAhorroEditor({
           <FieldLabel>Color de texto</FieldLabel>
           <ColorPickerField value={config.textColor} onChange={(v) => update('textColor', v)} />
         </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div>
           <FieldLabel>Color del borde</FieldLabel>
           <ColorPickerField value={config.borderColor} onChange={(v) => update('borderColor', v)} />
