@@ -1,14 +1,14 @@
+// components/widgets/editors/MensajeAlertaEditor.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import MensajeAlertaPreview from './MensajeAlertaPreview';
 import { Toggle, ColorPicker, Slider } from './EditorFields';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS Y CONFIGURACIONES POR DEFECTO (Regla #9)
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 interface EditorProps {
   widgetDefinition: {
@@ -31,19 +31,45 @@ interface EditorProps {
   storeId: string;
 }
 
-const DEFAULT_CONFIG = {
+interface MensajeAlertaConfig {
+  mensaje: string;
+  icono: 'circulo' | 'corazon' | 'alerta' | 'emoji' | 'imagen' | 'nada';
+  emojiCustom: string;
+  imagenUrl: string;
+  posicion: 'antes-titulo' | 'despues-precio';
+  color: 'verde' | 'rojo' | 'amarillo' | 'personalizado';
+  colorPersonalizadoFondo: string;
+  colorPersonalizadoTexto: string;
+  tamanoTexto: number;
+  estiloTexto: 'normal' | 'resaltado';
+  efecto: 'aureola' | 'zoom' | 'ninguno';
+  aplicarEfectoA: 'icono' | 'completo';
+  bordesRedondeados: number;
+  paddingInterno: number;
+  mostrarBorde: boolean;
+  campaignTheme: string;
+}
+
+interface MensajeAlertaPreviewProps {
+  config: MensajeAlertaConfig;
+}
+
+/* ═══════════════════════════════════════════
+   CONSTANTES Y PRESETS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const DEFAULT_CONFIG: MensajeAlertaConfig = {
   mensaje: '¡Apurate, quedan pocos en stock!',
-  icono: 'circulo' as 'circulo' | 'corazon' | 'alerta' | 'emoji' | 'imagen' | 'nada',
+  icono: 'circulo',
   emojiCustom: '🔥',
   imagenUrl: '',
-  posicion: 'antes-titulo' as 'antes-titulo' | 'despues-precio',
-  color: 'amarillo' as 'verde' | 'rojo' | 'amarillo' | 'personalizado',
+  posicion: 'antes-titulo',
+  color: 'amarillo',
   colorPersonalizadoFondo: '#f59e0b',
   colorPersonalizadoTexto: '#ffffff',
   tamanoTexto: 14,
-  estiloTexto: 'normal' as 'normal' | 'resaltado',
-  efecto: 'zoom' as 'aureola' | 'zoom' | 'ninguno',
-  aplicarEfectoA: 'icono' as 'icono' | 'completo',
+  estiloTexto: 'normal',
+  efecto: 'zoom',
+  aplicarEfectoA: 'icono',
   bordesRedondeados: 25,
   paddingInterno: 10,
   mostrarBorde: false,
@@ -60,6 +86,16 @@ const CAMPAIGN_PRESETS = [
   { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
   { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
 ];
+
+const THEMES: Record<string, { themeColor: string; accentColor: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+};
 
 const ICONOS_OPCIONES = [
   { id: 'circulo', label: 'Círculo', preview: <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: '50%', background: '#f59e0b' }} /> },
@@ -84,6 +120,301 @@ const EFECTO_OPCIONES = [
 ];
 
 /* ═══════════════════════════════════════════
+   HELPERS GLOBALES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function getColores(
+  color: string,
+  personalizadoFondo: string,
+  personalizadoTexto: string
+): { fondo: string; texto: string; borde: string; circulo: string; shadow: string } {
+  switch (color) {
+    case 'verde':
+      return {
+        fondo: '#10B981',
+        texto: '#ffffff',
+        borde: '#059669',
+        circulo: '#ffffff',
+        shadow: 'rgba(16, 185, 129, 0.3)',
+      };
+    case 'rojo':
+      return {
+        fondo: '#EF4444',
+        texto: '#ffffff',
+        borde: '#DC2626',
+        circulo: '#ffffff',
+        shadow: 'rgba(239, 68, 68, 0.3)',
+      };
+    case 'amarillo':
+      return {
+        fondo: '#F59E0B',
+        texto: '#ffffff',
+        borde: '#D97706',
+        circulo: '#ffffff',
+        shadow: 'rgba(245, 158, 11, 0.3)',
+      };
+    case 'personalizado':
+      return {
+        fondo: personalizadoFondo || '#10B981',
+        texto: personalizadoTexto || '#ffffff',
+        borde: personalizadoFondo || '#059669',
+        circulo: personalizadoTexto || '#ffffff',
+        shadow: 'rgba(0, 0, 0, 0.15)',
+      };
+    default:
+      return {
+        fondo: '#10B981',
+        texto: '#ffffff',
+        borde: '#059669',
+        circulo: '#ffffff',
+        shadow: 'rgba(16, 185, 129, 0.3)',
+      };
+  }
+}
+
+function darkenColor(hex: string, percent: number): string {
+  try {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max(0, (num >> 16) - amt);
+    const G = Math.max(0, ((num >> 8) & 0x00ff) - amt);
+    const B = Math.max(0, (num & 0x0000ff) - amt);
+    return (
+      '#' +
+      (0x1000000 + R * 0x10000 + G * 0x100 + B)
+        .toString(16)
+        .slice(1)
+        .padStart(6, '0')
+    );
+  } catch {
+    return hex;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ICONOS SVG (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l1-5h16l1 5" />
+    <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
+    <path d="M9 21V13h6v8" />
+  </svg>
+);
+
+const IconInfo = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes MensajeAlertaPreview.tsx)
+═══════════════════════════════════════════ */
+function MensajeAlertaPreview({ config }: MensajeAlertaPreviewProps) {
+  let colores = getColores(
+    config.color,
+    config.colorPersonalizadoFondo,
+    config.colorPersonalizadoTexto
+  );
+
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  if (activeTheme) {
+    colores = {
+      fondo: activeTheme.themeColor,
+      texto: '#ffffff',
+      borde: activeTheme.accentColor,
+      circulo: activeTheme.accentColor,
+      shadow: activeTheme.themeColor + '44',
+    };
+  }
+
+  const bordeColor = activeTheme
+    ? activeTheme.accentColor
+    : config.color === 'personalizado'
+      ? darkenColor(config.colorPersonalizadoFondo || '#10B981', 15)
+      : colores.borde;
+
+  const renderIcono = () => {
+    const size = (config.tamanoTexto || 14) + 2;
+
+    switch (config.icono) {
+      case 'circulo':
+        return (
+          <span
+            style={{
+              display: 'inline-block',
+              width: size * 0.65,
+              height: size * 0.65,
+              borderRadius: '50%',
+              background: colores.circulo,
+              flexShrink: 0,
+              boxShadow: '0 0 6px rgba(255,255,255,0.6)',
+            }}
+          />
+        );
+      case 'corazon':
+        return <span style={{ fontSize: size }}>❤️</span>;
+      case 'alerta':
+        return <span style={{ fontSize: size }}>⚠️</span>;
+      case 'emoji':
+        return (
+          <span style={{ fontSize: size }}>{config.emojiCustom || '🔥'}</span>
+        );
+      case 'imagen':
+        return config.imagenUrl ? (
+          <img
+            src={config.imagenUrl}
+            alt=""
+            style={{
+              width: size,
+              height: size,
+              objectFit: 'contain',
+              flexShrink: 0,
+            }}
+          />
+        ) : (
+          <span style={{ fontSize: size }}>🖼️</span>
+        );
+      case 'nada':
+      default:
+        return null;
+    }
+  };
+
+  const iconoNode = renderIcono();
+
+  const animacionIcono =
+    config.efecto === 'zoom' && config.aplicarEfectoA === 'icono'
+      ? 'nvxMaZoom 2s ease-in-out infinite'
+      : 'none';
+
+  const animacionCompleta =
+    config.efecto === 'zoom' && config.aplicarEfectoA === 'completo'
+      ? 'nvxMaZoom 2s ease-in-out infinite'
+      : 'none';
+
+  const mostrarAureolaIcono =
+    config.efecto === 'aureola' && config.aplicarEfectoA === 'icono';
+  const mostrarAureolaCompleto =
+    config.efecto === 'aureola' && config.aplicarEfectoA === 'completo';
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '24px 16px',
+        background: '#ffffff',
+        borderRadius: 14,
+        minHeight: 90,
+      }}
+    >
+      <style>{`
+        @keyframes nvxMaZoom {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.04); }
+        }
+        @keyframes nvxMaAureola {
+          0%, 100% { box-shadow: 0 0 0 0 ${colores.shadow}; }
+          50% { box-shadow: 0 0 0 10px rgba(0,0,0,0); }
+        }
+      `}</style>
+
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 10,
+          background: colores.fondo,
+          color: colores.texto,
+          padding: `${config.paddingInterno || 10}px ${(config.paddingInterno || 10) + 8}px`,
+          borderRadius: config.bordesRedondeados || 12,
+          border: (config.mostrarBorde || activeTheme) ? `1.5px solid ${bordeColor}` : 'none',
+          fontSize: config.tamanoTexto || 14,
+          fontWeight: config.estiloTexto === 'resaltado' ? 800 : 600,
+          lineHeight: 1.3,
+          letterSpacing: '-0.01em',
+          animation: animacionCompleta,
+          boxShadow: `0 4px 14px ${colores.shadow}`,
+          ...(mostrarAureolaCompleto && {
+            animation: 'nvxMaAureola 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }),
+        }}
+      >
+        {iconoNode && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              animation: animacionIcono,
+              borderRadius: '50%',
+              ...(mostrarAureolaIcono && {
+                animation: 'nvxMaAureola 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              }),
+            }}
+          >
+            {iconoNode}
+          </span>
+        )}
+        <span>{config.mensaje || '¡Apurate, quedan pocos en stock!'}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES AUXILIARES DEL EDITOR (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function RadioBox({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        border: selected ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
+        background: selected ? '#ecfdf5' : '#ffffff',
+        borderRadius: 12,
+        padding: '14px 12px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        cursor: 'pointer',
+        color: '#000000',
+        fontSize: 15,
+        fontWeight: 600,
+        textAlign: 'left',
+        transition: 'all 0.2s',
+      }}
+    >
+      <div
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: '50%',
+          border: selected ? '6px solid #10B981' : '2px solid #d1d5db',
+          background: '#ffffff',
+          flexShrink: 0,
+          transition: 'all 0.2s',
+        }}
+      />
+      <span>{label}</span>
+    </button>
+  );
+}
+
+/* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function MensajeAlertaEditor({
@@ -97,7 +428,7 @@ export default function MensajeAlertaEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
 
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<any>({
     ...DEFAULT_CONFIG,
     ...(existingWidget?.config || {}),
   });
@@ -202,11 +533,7 @@ export default function MensajeAlertaEditor({
               marginBottom: 14,
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2">
-              <path d="M3 9l1-5h16l1 5" />
-              <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
-              <path d="M9 21V13h6v8" />
-            </svg>
+            <IconStore />
             Todos los productos
           </div>
         ) : (
@@ -313,7 +640,7 @@ export default function MensajeAlertaEditor({
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 10 }}>
                   Ícono Destacado
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 10 }}>
                   {ICONOS_OPCIONES.map((op) => {
                     const selected = config.icono === op.id;
                     return (
@@ -568,7 +895,7 @@ export default function MensajeAlertaEditor({
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
                   Efecto de Animación
                 </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12, marginBottom: 16 }}>
                   {EFECTO_OPCIONES.map((op) => {
                     const selected = config.efecto === op.id;
                     return (
@@ -623,7 +950,7 @@ export default function MensajeAlertaEditor({
                 Unificá la estética del widget con colores temáticos de alto impacto optimizados para campañas.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                 {CAMPAIGN_PRESETS.map((preset) => {
                   const isSelected = (config.campaignTheme || 'none') === preset.id;
                   return (
@@ -637,7 +964,8 @@ export default function MensajeAlertaEditor({
                         padding: '12px 14px',
                         cursor: 'pointer',
                         display: 'flex',
-                        alignItems: 'center',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
                         gap: 12,
                         transition: 'all 0.2s ease',
                         boxSizing: 'border-box',
@@ -645,22 +973,27 @@ export default function MensajeAlertaEditor({
                         width: '100%',
                       }}
                     >
-                      <div style={{ fontSize: 22, flexShrink: 0 }}>{preset.emoji}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          <span>{preset.label}</span>
-                          {isSelected && (
-                            <span style={{
-                              background: '#ecfdf5', color: '#10B981', fontSize: 10, fontWeight: 800,
-                              padding: '1px 6px', borderRadius: 999, border: '1px solid #10B981',
-                            }}>
-                              ACTIVO
-                            </span>
-                          )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ fontSize: 22, flexShrink: 0 }}>{preset.emoji}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <span>{preset.label}</span>
+                            {isSelected && (
+                              <span style={{
+                                background: '#ecfdf5', color: '#10B981', fontSize: 10, fontWeight: 800,
+                                padding: '1px 6px', borderRadius: 999, border: '1px solid #10B981',
+                              }}>
+                                ACTIVO
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
+                      <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.4, flex: 1 }}>
+                        {preset.desc}
+                      </div>
                       {preset.id !== 'none' && (
-                        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                        <div style={{ display: 'flex', gap: 4, flexShrink: 0, marginTop: 4 }}>
                           <div style={{ width: 14, height: 14, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
                           <div style={{ width: 14, height: 14, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
                         </div>
@@ -729,4 +1062,4 @@ export default function MensajeAlertaEditor({
       </div>
     </div>
   );
-     }
+   }
