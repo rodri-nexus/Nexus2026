@@ -1,36 +1,14 @@
 // components/widgets/editors/BundleCantidadEditor.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import BundleCantidadPreview from './BundleCantidadPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS Y INTERFACES (Regla de Oro #9)
+   TIPOS Y CONSTANTES CORE (Regla #9)
 ═══════════════════════════════════════════ */
-interface EditorProps {
-  widgetDefinition: {
-    id: string;
-    slug: string;
-    name: string;
-    description: string;
-    category: string;
-    icon: string;
-  };
-  existingWidget: {
-    id: string;
-    config: any;
-    is_active: boolean;
-    target_type: string;
-    target_product_id: number | null;
-  } | null;
-  targetType: 'product' | 'all';
-  productId: number | null;
-  storeId: string;
-}
-
 interface UnidadConfig {
   subtitulo: string;
   descuento: number;
@@ -42,6 +20,63 @@ interface UnidadConfig {
   ocultarComp1: boolean;
   ocultarComp2: boolean;
   agregarRegalo: boolean;
+}
+
+interface BundleCantidadConfig {
+  titulo: string;
+  cantidadUnidades: number;
+  etiqueta: string;
+  mostrarPrecio: 'total' | 'individual';
+  textoBoton: string;
+  unidades: UnidadConfig[];
+  producto1: { id: number | null; nombre: string } | null;
+  producto2: { id: number | null; nombre: string } | null;
+  compDefault: boolean;
+  reemplazarBoton: boolean;
+  colorBoton: string;
+  botonDegradado: boolean;
+  colorBoton2: string;
+  colorPrecio: string;
+  colorSubtitulos: string;
+  fondoSubtitulo: string;
+  colorTextoRegalo: string;
+  colorPrecioRegalo: string;
+  fondoRegalo: string;
+  colorBadgeEnvio: string;
+  colorBadgePersonalizado: string;
+  colorBadgeMasVendido: string;
+  colorUnidadSeleccionada: string;
+  bordeBoton: number;
+  bordeUnidad: number;
+  fuenteEtiqueta: number;
+  fuentePrecio: number;
+  fuenteSubtitulo: number;
+  efectoBoton: 'sin-efecto' | 'zoom';
+  pulsante: boolean;
+  campaignTheme?: string;
+}
+
+interface ExistingWidget {
+  id: string;
+  config: any;
+  is_active: boolean;
+  target_type: string;
+  target_product_id: number | null;
+}
+
+interface EditorProps {
+  widgetDefinition: {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+    category: string;
+    icon: string;
+  };
+  existingWidget: ExistingWidget | null;
+  targetType: 'product' | 'all';
+  productId: number | null;
+  storeId: string;
 }
 
 const DEFAULT_UNIDAD: UnidadConfig = {
@@ -57,11 +92,11 @@ const DEFAULT_UNIDAD: UnidadConfig = {
   agregarRegalo: false,
 };
 
-const DEFAULT_CONFIG = {
+const DEFAULT_CONFIG: BundleCantidadConfig = {
   titulo: '',
   cantidadUnidades: 2,
   etiqueta: 'Lleva #',
-  mostrarPrecio: 'total' as 'total' | 'individual',
+  mostrarPrecio: 'total',
   textoBoton: '',
   unidades: [
     { ...DEFAULT_UNIDAD, porDefecto: true },
@@ -69,9 +104,9 @@ const DEFAULT_CONFIG = {
     { ...DEFAULT_UNIDAD },
     { ...DEFAULT_UNIDAD },
     { ...DEFAULT_UNIDAD },
-  ] as UnidadConfig[],
-  producto1: null as { id: number | null; nombre: string } | null,
-  producto2: null as { id: number | null; nombre: string } | null,
+  ],
+  producto1: null,
+  producto2: null,
   compDefault: false,
   reemplazarBoton: false,
   colorBoton: '#10B981',
@@ -92,13 +127,45 @@ const DEFAULT_CONFIG = {
   fuenteEtiqueta: 16,
   fuentePrecio: 18,
   fuenteSubtitulo: 14,
-  efectoBoton: 'sin-efecto' as 'sin-efecto' | 'zoom',
+  efectoBoton: 'sin-efecto',
   pulsante: false,
   campaignTheme: 'none',
 };
 
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBg: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBg: '#F59E0B' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBg: '#3B82F6' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBg: '#F43F5E' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBg: '#10B981' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBg: '#FBBF24' },
+};
+
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilo.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
+
 /* ═══════════════════════════════════════════
-   HELPERS UI Y ICONOS (Regla de Oro #9)
+   HELPERS GLOBALES (Regla #9)
+═══════════════════════════════════════════ */
+function formatEtiqueta(etiqueta: string, cantidad: number): string {
+  return etiqueta.replace(/#/g, String(cantidad));
+}
+
+function formatMoney(n: number): string {
+  return '$' + Math.round(n).toLocaleString('es-AR');
+}
+
+/* ═══════════════════════════════════════════
+   ICONOS AUXILIARES (Regla #9)
 ═══════════════════════════════════════════ */
 function IconStore({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
   return (
@@ -120,6 +187,316 @@ function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: str
   );
 }
 
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes BundleCantidadPreview.tsx)
+═══════════════════════════════════════════ */
+function BundleCantidadPreview({ config, precioProducto = 30000 }: { config: BundleCantidadConfig; precioProducto?: number }) {
+  const [seleccionada, setSeleccionada] = useState<number>(() => {
+    const idx = config.unidades.findIndex((u) => u?.porDefecto);
+    return idx >= 0 ? idx : 0;
+  });
+
+  useEffect(() => {
+    const idx = config.unidades.findIndex((u) => u?.porDefecto);
+    if (idx >= 0) setSeleccionada(idx);
+  }, [config.unidades]);
+
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  const cantidadReal = Math.max(1, Math.min(5, config.cantidadUnidades || 2));
+  const unidadesVisibles: number[] = [];
+  for (let i = 0; i < cantidadReal; i++) {
+    if (!config.unidades[i]?.ocultar) unidadesVisibles.push(i);
+  }
+
+  const colorBoton = activeTheme ? activeTheme.accentColor : (config.colorBoton || '#10B981');
+  const colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : (config.colorUnidadSeleccionada || '#10B981');
+  const colorPrecio = activeTheme ? activeTheme.themeColor : (config.colorPrecio || '#000000');
+
+  const colorTextoBoton = activeTheme
+    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+    : '#ffffff';
+
+  const bgBoton = config.botonDegradado && !activeTheme
+    ? `linear-gradient(90deg, ${config.colorBoton || '#10B981'}, ${config.colorBoton2 || '#059669'})`
+    : colorBoton;
+
+  return (
+    <div
+      style={{
+        border: '1px solid rgba(0,0,0,0.08)',
+        borderRadius: 16,
+        padding: 18,
+        background: '#FFFFFF',
+        width: '100%',
+        boxSizing: 'border-box',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
+      }}
+    >
+      <style>{`
+        @keyframes nevux-widget-bundle-pulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25); }
+          50% { transform: scale(1.02); box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4); }
+        }
+      `}</style>
+
+      {config.titulo && config.titulo.trim() !== '' && (
+        <div
+          style={{
+            fontSize: 16,
+            fontWeight: 800,
+            color: '#000000',
+            marginBottom: 14,
+            textAlign: 'center',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {config.titulo}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {unidadesVisibles.map((i) => {
+          const u = config.unidades[i] || ({} as UnidadConfig);
+          const cantidad = i + 1;
+          const isSelected = seleccionada === i;
+          const descuento = Number(u.descuento) || 0;
+          const precioUnitario = precioProducto * (1 - descuento / 100);
+          const precioTotalOriginal = precioProducto * cantidad;
+          const precioTotalConDesc = precioUnitario * cantidad;
+
+          const mostrarTachado = descuento > 0;
+          const precioMostrar =
+            config.mostrarPrecio === 'individual' ? precioUnitario : precioTotalConDesc;
+          const precioTachadoMostrar =
+            config.mostrarPrecio === 'individual' ? precioProducto : precioTotalOriginal;
+
+          const colorActivo = colorUnidadSeleccionada;
+
+          const badges: { label: string; color: string }[] = [];
+          if (u.badgeEnvioGratis) badges.push({ label: 'Envío gratis', color: config.colorBadgeEnvio || '#10B981' });
+          if (u.badgeMasVendido) badges.push({ label: 'Más vendido', color: config.colorBadgeMasVendido || '#000000' });
+          if (u.badgePersonalizado)
+            badges.push({ label: 'Oferta Especial', color: config.colorBadgePersonalizado || '#059669' });
+
+          return (
+            <div
+              key={i}
+              onClick={() => setSeleccionada(i)}
+              style={{
+                border: `2px solid ${isSelected ? colorActivo : '#E5E7EB'}`,
+                borderRadius: config.bordeUnidad || 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                background: isSelected ? '#ecfdf5' : '#FFFFFF',
+                position: 'relative',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: isSelected ? 'scale(1.01)' : 'scale(1)',
+                boxShadow: isSelected
+                  ? `0 6px 18px ${colorActivo}22`
+                  : '0 2px 6px rgba(0,0,0,0.02)',
+                opacity: isSelected ? 1 : 0.85,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      border: `2px solid ${isSelected ? colorActivo : '#9CA3AF'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      background: '#FFFFFF',
+                    }}
+                  >
+                    {isSelected && (
+                      <div
+                        style={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          background: colorActivo,
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: config.fuenteEtiqueta || 14,
+                        fontWeight: 800,
+                        color: '#000000',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {formatEtiqueta(config.etiqueta, cantidad)}
+                    </div>
+                    {u.subtitulo && u.subtitulo.trim() !== '' && (
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          marginTop: 4,
+                          fontSize: config.fuenteSubtitulo || 12,
+                          color: config.colorSubtitulos || '#059669',
+                          background: config.fondoSubtitulo || '#a7f3d0',
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {u.subtitulo}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  {mostrarTachado && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: '#9CA3AF',
+                        textDecoration: 'line-through',
+                        lineHeight: 1.2,
+                        fontWeight: 500,
+                      }}
+                    >
+                      {formatMoney(precioTachadoMostrar)}
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      fontSize: config.fuentePrecio || 15,
+                      fontWeight: 800,
+                      color: colorPrecio,
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {formatMoney(precioMostrar)}
+                  </div>
+                </div>
+              </div>
+
+              {badges.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  {badges.map((b, k) => (
+                    <span
+                      key={k}
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 800,
+                        color: '#FFFFFF',
+                        background: b.color,
+                        padding: '3px 8px',
+                        borderRadius: 999,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      {b.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {u.agregarRegalo && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: '8px 10px',
+                    background: config.fondoRegalo || '#ecfdf5',
+                    border: '1px solid #a7f3d0',
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ fontSize: 12, color: config.colorTextoRegalo || '#000000', fontWeight: 700 }}>
+                    🎁 Producto de regalo
+                  </div>
+                  <div style={{ fontSize: 12, color: config.colorPrecioRegalo || '#059669', fontWeight: 800 }}>
+                    GRATIS
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <button
+          type="button"
+          style={{
+            width: '100%',
+            padding: '14px 20px',
+            background: bgBoton,
+            color: colorTextoBoton,
+            fontSize: 16,
+            fontWeight: 800,
+            border: 'none',
+            borderRadius: config.bordeBoton || 12,
+            cursor: 'pointer',
+            boxShadow: `0 4px 14px ${colorUnidadSeleccionada}44`,
+            animation: config.pulsante ? 'nevux-widget-bundle-pulse 1.8s ease-in-out infinite' : 'none',
+          }}
+        >
+          {config.textoBoton && config.textoBoton.trim() !== '' ? config.textoBoton : 'Agregar al carrito'}
+        </button>
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          paddingTop: 12,
+          borderTop: '1px solid #E5E7EB',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 8,
+          color: '#6B7280',
+          fontSize: 12,
+          fontWeight: 500,
+        }}
+      >
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          style={{ flexShrink: 0, marginTop: 1 }}
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <span>
+          {config.reemplazarBoton
+            ? 'El formulario original de Tiendanube quedará oculto.'
+            : 'El formulario original de Tiendanube permanecerá visible y funcional.'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES REUTILIZABLES (Regla #9)
+═══════════════════════════════════════════ */
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
@@ -546,7 +923,7 @@ function SectionCard({
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
         <div style={{ flex: 1 }}>
           <div
-            style={{ fontSize: 16, fontWeight: 700, color: '#000000', textAlign: 'center' }}
+            style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}
           >
             {title}
           </div>
@@ -572,7 +949,7 @@ function SectionCard({
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
+   COMPONENTE PRINCIPAL (BundleCantidadEditor)
 ═══════════════════════════════════════════ */
 export default function BundleCantidadEditor({
   widgetDefinition,
@@ -583,7 +960,7 @@ export default function BundleCantidadEditor({
 }: EditorProps) {
   const router = useRouter();
 
-  const initialConfig = React.useMemo(() => {
+  const initialConfig = useMemo(() => {
     const cfg = { ...DEFAULT_CONFIG, ...(existingWidget?.config || {}) };
     const unidades: UnidadConfig[] = [];
     for (let i = 0; i < 5; i++) {
@@ -593,11 +970,11 @@ export default function BundleCantidadEditor({
     return cfg;
   }, [existingWidget]);
 
-  const [config, setConfig] = React.useState(initialConfig);
-  const [isActive, setIsActive] = React.useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = React.useState<'general' | 'ubicacion' | 'estilo' | 'fechas'>('general');
-  const [saving, setSaving] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [config, setConfig] = useState<BundleCantidadConfig>(initialConfig);
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [tab, setTab] = useState<'general' | 'ubicacion' | 'estilo' | 'fechas'>('general');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const updateConfig = (k: string, v: any) => setConfig((c: any) => ({ ...c, [k]: v }));
 
@@ -653,20 +1030,8 @@ export default function BundleCantidadEditor({
   };
 
   const cantidadReal = Math.max(2, Math.min(5, Number(config.cantidadUnidades) || 2));
-  const scopeLabel = targetType === 'all' ? 'General' : 'Producto';
 
   /* ─── TAB FECHAS ESPECIALES ─── */
-  const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilo.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
-  ];
-
   const tabFechasEspeciales = (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -676,7 +1041,7 @@ export default function BundleCantidadEditor({
         </p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
         {CAMPAIGN_PRESETS.map((preset) => {
           const isSelected = (config.campaignTheme || 'none') === preset.id;
           return (
@@ -690,30 +1055,35 @@ export default function BundleCantidadEditor({
                 padding: '16px',
                 cursor: 'pointer',
                 display: 'flex',
-                alignItems: 'center',
-                gap: 16,
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 12,
                 transition: 'all 0.2s ease',
+                boxSizing: 'border-box',
+                minWidth: 0,
               }}
             >
-              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {preset.label}
-                  {isSelected && (
-                    <span style={{
-                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
-                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
-                    }}>
-                      ACTIVO
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
-                  {preset.desc}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {preset.label}
+                    {isSelected && (
+                      <span style={{
+                        background: '#ecfdf5', color: '#10B981', fontSize: 10, fontWeight: 800,
+                        padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                      }}>
+                        ACTIVO
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
+              <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.4, flex: 1 }}>
+                {preset.desc}
+              </div>
               {preset.id !== 'none' && (
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginTop: 4 }}>
                   <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
                   <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
                 </div>
@@ -1246,8 +1616,8 @@ export default function BundleCantidadEditor({
                 title="Estructura y bordes"
                 description="Ajustá el redondeado del botón y de cada unidad."
               >
-                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+                  <div>
                     <FieldLabel>Borde del botón "Agregar"</FieldLabel>
                     <RangeSlider
                       value={config.bordeBoton}
@@ -1257,7 +1627,7 @@ export default function BundleCantidadEditor({
                       marks={[0, 25, config.bordeBoton]}
                     />
                   </div>
-                  <div style={{ flex: 1, minWidth: 180 }}>
+                  <div>
                     <FieldLabel>Borde de la unidad</FieldLabel>
                     <RangeSlider
                       value={config.bordeUnidad}
@@ -1327,7 +1697,7 @@ export default function BundleCantidadEditor({
               >
                 <div>
                   <FieldLabel>Efecto del botón</FieldLabel>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                     <RadioCard
                       checked={config.efectoBoton === 'sin-efecto'}
                       onChange={() => updateConfig('efectoBoton', 'sin-efecto')}
@@ -1341,7 +1711,7 @@ export default function BundleCantidadEditor({
                   </div>
                   <div
                     style={{
-                      marginTop: 10,
+                      marginTop: 20,
                       padding: 14,
                       border: '1px solid #E5E7EB',
                       borderRadius: 10,
@@ -1434,4 +1804,4 @@ export default function BundleCantidadEditor({
       )}
     </div>
   );
-     }
+   }
