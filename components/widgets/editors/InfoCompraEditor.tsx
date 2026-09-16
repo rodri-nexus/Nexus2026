@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
+/* ═══════════════════════════════════════════
+   TIPOS
+═══════════════════════════════════════════ */
 interface EditorProps {
   widgetDefinition: {
     id: string;
@@ -58,8 +61,12 @@ interface InfoCompraConfig {
   colorBorde: string;
   bordesRedondeados: number;
   paddingInterno: number;
+  campaignTheme?: string;
 }
 
+/* ═══════════════════════════════════════════
+   CONFIG POR DEFECTO
+═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: InfoCompraConfig = {
   mostrarEnvio: true,
   mostrarCuotas: true,
@@ -88,8 +95,12 @@ const DEFAULT_CONFIG: InfoCompraConfig = {
   colorBorde: '#1f2937',
   bordesRedondeados: 16,
   paddingInterno: 16,
+  campaignTheme: 'none',
 };
 
+/* ═══════════════════════════════════════════
+   COMPONENTES REUTILIZABLES (Regla #9)
+═══════════════════════════════════════════ */
 function InfoCompraPreview({ config }: { config: InfoCompraConfig }) {
   const hasAny = config.mostrarCuotas || config.mostrarTransferencia || config.mostrarEnvio;
 
@@ -411,6 +422,9 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
   );
 }
 
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL DEL EDITOR
+═══════════════════════════════════════════ */
 export default function InfoCompraEditor({
   widgetDefinition,
   existingWidget,
@@ -422,7 +436,6 @@ export default function InfoCompraEditor({
 
   const initialConfig = useMemo(() => {
     const raw = existingWidget?.config || {};
-    // Compatibilidad: si venía con nombres viejos del script, los mapeamos
     return {
       ...DEFAULT_CONFIG,
       ...raw,
@@ -439,25 +452,58 @@ export default function InfoCompraEditor({
       badgeEnvio: raw.badgeEnvio || '',
       colorSubtexto: raw.colorSubtexto || DEFAULT_CONFIG.colorSubtexto,
       colorBadgeTransferencia: raw.colorBadgeTransferencia || DEFAULT_CONFIG.colorBadgeTransferencia,
+      campaignTheme: raw.campaignTheme || 'none',
     } as InfoCompraConfig;
   }, [existingWidget]);
 
   const [config, setConfig] = useState<InfoCompraConfig>(initialConfig);
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = useState<'secciones' | 'estilos'>('secciones');
+  const [tab, setTab] = useState<'secciones' | 'estilos' | 'fechas'>('secciones');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const updateCfg = (k: keyof InfoCompraConfig, v: any) => setConfig((c) => ({ ...c, [k]: v }));
 
+  const applyPreset = (slug: string) => {
+    const PRESETS_DATA: Record<string, Partial<InfoCompraConfig>> = {
+      'black-friday': { colorFondo: '#111827', colorTexto: '#ffffff', colorSubtexto: '#9ca3af', colorBorde: '#F59E0B', colorBadgeFondo: '#F59E0B', colorBadgeTexto: '#111827', colorBadgeTransferencia: '#F59E0B', colorIconos: '#F59E0B' },
+      'hot-sale': { colorFondo: '#0F172A', colorTexto: '#ffffff', colorSubtexto: '#9ca3af', colorBorde: '#EF4444', colorBadgeFondo: '#EF4444', colorBadgeTexto: '#ffffff', colorBadgeTransferencia: '#EF4444', colorIconos: '#EF4444' },
+      'cyber-monday': { colorFondo: '#090D16', colorTexto: '#ffffff', colorSubtexto: '#9ca3af', colorBorde: '#3B82F6', colorBadgeFondo: '#3B82F6', colorBadgeTexto: '#ffffff', colorBadgeTransferencia: '#3B82F6', colorIconos: '#3B82F6' },
+      'navidad': { colorFondo: '#064E3B', colorTexto: '#ffffff', colorSubtexto: '#a7f3d0', colorBorde: '#EF4444', colorBadgeFondo: '#EF4444', colorBadgeTexto: '#ffffff', colorBadgeTransferencia: '#EF4444', colorIconos: '#EF4444' },
+      'san-valentin': { colorFondo: '#831843', colorTexto: '#ffffff', colorSubtexto: '#fbcfe8', colorBorde: '#F43F5E', colorBadgeFondo: '#F43F5E', colorBadgeTexto: '#ffffff', colorBadgeTransferencia: '#F43F5E', colorIconos: '#F43F5E' },
+      'dia-padre-madre': { colorFondo: '#312E81', colorTexto: '#ffffff', colorSubtexto: '#c7d2fe', colorBorde: '#10B981', colorBadgeFondo: '#10B981', colorBadgeTexto: '#ffffff', colorBadgeTransferencia: '#10B981', colorIconos: '#10B981' },
+      'liquidacion': { colorFondo: '#7F1D1D', colorTexto: '#ffffff', colorSubtexto: '#fca5a5', colorBorde: '#FBBF24', colorBadgeFondo: '#FBBF24', colorBadgeTexto: '#7F1D1D', colorBadgeTransferencia: '#FBBF24', colorIconos: '#FBBF24' },
+    };
+
+    if (slug === 'none') {
+      setConfig((prev) => ({
+        ...prev,
+        campaignTheme: slug,
+        colorFondo: DEFAULT_CONFIG.colorFondo,
+        colorTexto: DEFAULT_CONFIG.colorTexto,
+        colorSubtexto: DEFAULT_CONFIG.colorSubtexto,
+        colorBorde: DEFAULT_CONFIG.colorBorde,
+        colorBadgeFondo: DEFAULT_CONFIG.colorBadgeFondo,
+        colorBadgeTexto: DEFAULT_CONFIG.colorBadgeTexto,
+        colorBadgeTransferencia: DEFAULT_CONFIG.colorBadgeTransferencia,
+        colorIconos: DEFAULT_CONFIG.colorIconos,
+      }));
+    } else if (PRESETS_DATA[slug]) {
+      const p = PRESETS_DATA[slug];
+      setConfig((prev) => ({
+        ...prev,
+        campaignTheme: slug,
+        ...p,
+      }));
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError(null);
     try {
-      // Guardamos con los nombres que el script de la tienda va a leer
       const configToSave = {
         ...config,
-        // aliases para el script (por si acaso)
         tituloCuotas: config.textoCuotas,
         subtituloCuotas: config.subtextoCuotas,
         tituloTransferencia: config.textoTransferencia,
@@ -485,12 +531,24 @@ export default function InfoCompraEditor({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Error al guardar');
 
-      router.push('/dashboard');
+      router.push('/widgets');
     } catch (e: any) {
       setError(e.message || 'Error al guardar el widget');
       setSaving(false);
     }
   };
+
+  /* ═══ CAMPAIGN PRESETS LIST ═══ */
+  const CAMPAIGN_PRESETS = [
+    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro con dorado de alto contraste.', themeColor: '#111827', accentColor: '#F59E0B' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
@@ -522,7 +580,7 @@ export default function InfoCompraEditor({
             color: '#FFFFFF',
           }}
         >
-          NX
+          RL
         </div>
       </div>
 
@@ -558,7 +616,11 @@ export default function InfoCompraEditor({
 
         <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 20 }}>
           <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: 20 }}>
-            {(['secciones', 'estilos'] as const).map((t) => (
+            {([
+              ['secciones', '⚙️ Secciones & Contenido'],
+              ['estilos', '🎨 Estilos & Colores'],
+              ['fechas', '🔥 Fechas Especiales'],
+            ] as const).map(([t, label]) => (
               <button
                 key={t}
                 type="button"
@@ -573,9 +635,10 @@ export default function InfoCompraEditor({
                   fontWeight: tab === t ? 700 : 500,
                   fontSize: 14,
                   cursor: 'pointer',
+                  transition: 'all 0.2s ease',
                 }}
               >
-                {t === 'secciones' ? '⚙️ Secciones & Contenido' : '🎨 Estilos & Colores'}
+                {label}
               </button>
             ))}
           </div>
@@ -708,45 +771,109 @@ export default function InfoCompraEditor({
           {tab === 'estilos' && (
             <div>
               <SectionCard title="Colores generales" description="Personalizá la paleta del bloque unificado.">
-                <div>
-                  <FieldLabel>Color de fondo</FieldLabel>
-                  <ColorPickerField value={config.colorFondo} onChange={(v) => updateCfg('colorFondo', v)} />
+                {/* Colores — Grid Autoadaptable Premium */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: 20,
+                  marginBottom: 16
+                }}>
+                  <div>
+                    <FieldLabel>Color de fondo</FieldLabel>
+                    <ColorPickerField value={config.colorFondo} onChange={(v) => updateCfg('colorFondo', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color del texto principal</FieldLabel>
+                    <ColorPickerField value={config.colorTexto} onChange={(v) => updateCfg('colorTexto', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color del subtexto</FieldLabel>
+                    <ColorPickerField value={config.colorSubtexto} onChange={(v) => updateCfg('colorSubtexto', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color badge Cuotas</FieldLabel>
+                    <ColorPickerField value={config.colorBadgeFondo} onChange={(v) => updateCfg('colorBadgeFondo', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color badge Transferencia</FieldLabel>
+                    <ColorPickerField value={config.colorBadgeTransferencia} onChange={(v) => updateCfg('colorBadgeTransferencia', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color de íconos</FieldLabel>
+                    <ColorPickerField value={config.colorIconos} onChange={(v) => updateCfg('colorIconos', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color del borde</FieldLabel>
+                    <ColorPickerField value={config.colorBorde} onChange={(v) => updateCfg('colorBorde', v)} />
+                  </div>
                 </div>
-                <div>
-                  <FieldLabel>Color del texto principal</FieldLabel>
-                  <ColorPickerField value={config.colorTexto} onChange={(v) => updateCfg('colorTexto', v)} />
-                </div>
-                <div>
-                  <FieldLabel>Color del subtexto</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorSubtexto}
-                    onChange={(v) => updateCfg('colorSubtexto', v)}
+
+                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16, marginTop: 16 }}>
+                  <ToggleField
+                    label="Mostrar borde"
+                    checked={config.activarBorde}
+                    onChange={(v) => updateCfg('activarBorde', v)}
                   />
                 </div>
-                <div>
-                  <FieldLabel>Color badge Cuotas (PROMO)</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorBadgeFondo}
-                    onChange={(v) => updateCfg('colorBadgeFondo', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color badge Transferencia</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorBadgeTransferencia}
-                    onChange={(v) => updateCfg('colorBadgeTransferencia', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color del borde</FieldLabel>
-                  <ColorPickerField value={config.colorBorde} onChange={(v) => updateCfg('colorBorde', v)} />
-                </div>
-                <ToggleField
-                  label="Mostrar borde"
-                  checked={config.activarBorde}
-                  onChange={(v) => updateCfg('activarBorde', v)}
-                />
               </SectionCard>
+            </div>
+          )}
+
+          {tab === 'fechas' && (
+            <div>
+              <div style={{ marginBottom: 20 }}>
+                <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+                <HelpText>
+                  Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para todo el bloque de información.
+                </HelpText>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {CAMPAIGN_PRESETS.map((preset) => {
+                  const isSelected = (config.campaignTheme || 'none') === preset.id;
+                  return (
+                    <div
+                      key={preset.id}
+                      onClick={() => applyPreset(preset.id)}
+                      style={{
+                        background: '#ffffff',
+                        border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                        borderRadius: 12,
+                        padding: '16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {preset.label}
+                          {isSelected && (
+                            <span style={{
+                              background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                              padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                            }}>
+                              ACTIVO
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
+                          {preset.desc}
+                        </div>
+                      </div>
+                      {preset.id !== 'none' && (
+                        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                          <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                          <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
