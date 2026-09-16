@@ -1,14 +1,31 @@
+// components/widgets/editors/EdicionLimitadaEditor.tsx
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import EdicionLimitadaPreview, { EdicionLimitadaConfig } from './EdicionLimitadaPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
+export interface EdicionLimitadaConfig {
+  textoPrincipal: string;
+  subtexto: string;
+  forma: 'circular' | 'badge-rect' | 'cinta-diagonal' | 'sello-borde';
+  posicion: 'esquina-superior-derecha' | 'esquina-superior-izquierda' | 'inline-precio';
+  rotacion: number;
+  efecto: 'sin-efecto' | 'brillo-pulsante' | 'zoom-suave';
+  tamano: 'chico' | 'mediano' | 'grande';
+  colorFondo: string;
+  colorTexto: string;
+  colorBorde: string;
+  mostrarBorde: boolean;
+  mostrarEnProducto: boolean;
+  mostrarEnGrilla: boolean;
+  campaignTheme?: string;
+}
+
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -35,7 +52,7 @@ interface EdicionLimitadaEditorProps {
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO
+   CONSTANTES Y PRESETS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const defaultConfig: EdicionLimitadaConfig = {
   textoPrincipal: 'EDICIÓN LIMITADA',
@@ -54,11 +71,32 @@ const defaultConfig: EdicionLimitadaConfig = {
   campaignTheme: 'none',
 };
 
+const CAMPAIGN_COLORS: Record<string, { bg: string; text: string; border: string; label?: string }> = {
+  'black-friday': { bg: '#111827', text: '#F59E0B', border: '#F59E0B' },
+  'hot-sale': { bg: '#0F172A', text: '#EF4444', border: '#EF4444' },
+  'cyber-monday': { bg: '#090D16', text: '#3B82F6', border: '#3B82F6' },
+  'navidad': { bg: '#064E3B', text: '#EF4444', border: '#EF4444' },
+  'san-valentin': { bg: '#831843', text: '#F43F5E', border: '#F43F5E' },
+  'dia-padre-madre': { bg: '#312E81', text: '#10B981', border: '#10B981' },
+  'liquidacion': { bg: '#7F1D1D', text: '#FBBF24', border: '#FBBF24' },
+};
+
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro mate con dorado metalizado.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo nocturno y acento azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
+
 /* ═══════════════════════════════════════════
-   ICONOS
+   ICONOS SVG (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
     <line x1="2" y1="7" x2="22" y2="7"/>
     <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
@@ -73,7 +111,231 @@ const IconInfo = () => (
 );
 
 /* ═══════════════════════════════════════════
-   COMPONENTES AUXILIARES DE FORMULARIO
+   PREVIEW INTEGRADO (antes EdicionLimitadaPreview.tsx)
+═══════════════════════════════════════════ */
+function EdicionLimitadaPreview({ config }: { config: EdicionLimitadaConfig }) {
+  const theme = config.campaignTheme && config.campaignTheme !== 'none'
+    ? CAMPAIGN_COLORS[config.campaignTheme]
+    : null;
+
+  const bg = theme ? theme.bg : config.colorFondo;
+  const color = theme ? theme.text : config.colorTexto;
+  const borderColor = theme ? theme.border : config.colorBorde;
+
+  const scaleMultiplier = config.tamano === 'chico' ? 0.85 : config.tamano === 'grande' ? 1.15 : 1;
+
+  const renderSticker = () => {
+    const rotationStyle = {
+      transform: `rotate(${config.rotacion}deg) scale(${scaleMultiplier})`,
+      transformOrigin: 'center center',
+      transition: 'all 0.2s ease',
+    };
+
+    if (config.forma === 'circular') {
+      return (
+        <div
+          style={{
+            ...rotationStyle,
+            width: 82,
+            height: 82,
+            borderRadius: '50%',
+            background: bg,
+            color: color,
+            border: config.mostrarBorde ? `2px dashed ${borderColor}` : 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: 6,
+            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+            boxSizing: 'border-box',
+          }}
+        >
+          <span style={{ fontSize: 13, lineHeight: 1 }}>✨</span>
+          <span style={{ fontSize: 9.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.1 }}>
+            {config.textoPrincipal || 'EDICIÓN LIMITADA'}
+          </span>
+          {config.subtexto && (
+            <span style={{ fontSize: 7.5, opacity: 0.9, marginTop: 2, fontWeight: 700, lineHeight: 1 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    if (config.forma === 'cinta-diagonal') {
+      return (
+        <div
+          style={{
+            ...rotationStyle,
+            background: bg,
+            color: color,
+            borderTop: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
+            borderBottom: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
+            padding: '4px 18px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
+            ✦ {config.textoPrincipal || 'EDICIÓN LIMITADA'} ✦
+          </span>
+          {config.subtexto && (
+            <span style={{ fontSize: 7.5, opacity: 0.9, fontWeight: 700 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    if (config.forma === 'sello-borde') {
+      return (
+        <div
+          style={{
+            ...rotationStyle,
+            background: bg,
+            color: color,
+            border: `2px solid ${borderColor}`,
+            borderRadius: 6,
+            padding: '6px 12px',
+            boxShadow: '0 3px 10px rgba(0,0,0,0.12)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            outline: config.mostrarBorde ? `1.5px dashed ${borderColor}` : 'none',
+            outlineOffset: 3,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 10 }}>🏷️</span>
+            <span style={{ fontSize: 10.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1.1 }}>
+              {config.textoPrincipal || 'EDICIÓN LIMITADA'}
+            </span>
+          </div>
+          {config.subtexto && (
+            <span style={{ fontSize: 8, opacity: 0.9, marginTop: 3, fontWeight: 700 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        style={{
+          ...rotationStyle,
+          background: bg,
+          color: color,
+          border: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
+          borderRadius: 999,
+          padding: '6px 14px',
+          boxShadow: '0 3px 10px rgba(0,0,0,0.12)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          textAlign: 'center',
+        }}
+      >
+        <span style={{ fontSize: 11 }}>🔥</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 10.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.1 }}>
+            {config.textoPrincipal || 'EDICIÓN LIMITADA'}
+          </span>
+          {config.subtexto && (
+            <span style={{ fontSize: 8, opacity: 0.9, fontWeight: 700, lineHeight: 1 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1.5px solid #e5e7eb',
+        borderRadius: 14,
+        padding: 16,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+      }}
+    >
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+        VISTA PREVIA EN PRODUCTO
+      </div>
+
+      <div
+        style={{
+          background: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          borderRadius: 12,
+          padding: 14,
+          position: 'relative',
+          overflow: 'hidden',
+          minHeight: 180,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: 110,
+            background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 28,
+          }}
+        >
+          👟
+          {config.posicion !== 'inline-precio' && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 8,
+                ...(config.posicion === 'esquina-superior-izquierda' ? { left: 8 } : { right: 8 }),
+                zIndex: 2,
+              }}
+            >
+              {renderSticker()}
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>
+            Zapatillas Air Edition Pro
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#10B981', marginTop: 2 }}>
+            $ 89.990
+          </div>
+
+          {config.posicion === 'inline-precio' && (
+            <div style={{ marginTop: 10, display: 'inline-flex' }}>
+              {renderSticker()}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTES DE FORMULARIO (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -398,7 +660,6 @@ export default function EdicionLimitadaEditor({
   /* ═══ TAB GENERAL ═══ */
   const tabGeneral = (
     <div>
-      {/* Texto principal */}
       <div style={{ marginBottom: 20 }}>
         <FieldLabel required>Texto principal del sticker</FieldLabel>
         <TextInput
@@ -410,7 +671,6 @@ export default function EdicionLimitadaEditor({
         <FieldHelper>Frase destacada en mayúsculas para generar impacto visual.</FieldHelper>
       </div>
 
-      {/* Subtexto opcional */}
       <div style={{ marginBottom: 24 }}>
         <FieldLabel>Subtexto (opcional)</FieldLabel>
         <TextInput
@@ -422,7 +682,6 @@ export default function EdicionLimitadaEditor({
         <FieldHelper>Información secundaria de escasez o exclusividad.</FieldHelper>
       </div>
 
-      {/* Forma del sticker */}
       <div style={{ marginBottom: 24 }}>
         <FieldLabel>Forma del sticker</FieldLabel>
         <div style={{ marginTop: 12 }}>
@@ -453,8 +712,7 @@ export default function EdicionLimitadaEditor({
         </div>
       </div>
 
-      {/* Tamaño y Efecto */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 24 }}>
         <div>
           <FieldLabel>Tamaño</FieldLabel>
           <SelectField
@@ -481,7 +739,6 @@ export default function EdicionLimitadaEditor({
         </div>
       </div>
 
-      {/* Inclinación */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <FieldLabel>Inclinación / Rotación ({config.rotacion}°)</FieldLabel>
@@ -544,7 +801,7 @@ export default function EdicionLimitadaEditor({
   /* ═══ TAB ESTILOS ═══ */
   const tabEstilos = (
     <div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 20 }}>
         <div>
           <FieldLabel>Color de fondo</FieldLabel>
           <ColorPickerField value={config.colorFondo} onChange={(v) => update('colorFondo', v)} />
@@ -570,17 +827,6 @@ export default function EdicionLimitadaEditor({
   );
 
   /* ═══ TAB FECHAS ESPECIALES ═══ */
-  const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro mate con dorado metalizado.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo nocturno y acento azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
-  ];
-
   const tabFechasEspeciales = (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -590,7 +836,7 @@ export default function EdicionLimitadaEditor({
         </FieldHelper>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
         {CAMPAIGN_PRESETS.map((preset) => {
           const isSelected = (config.campaignTheme || 'none') === preset.id;
           return (
@@ -604,27 +850,32 @@ export default function EdicionLimitadaEditor({
                 padding: '16px',
                 cursor: 'pointer',
                 display: 'flex',
-                alignItems: 'center',
-                gap: 16,
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 12,
                 transition: 'all 0.2s ease',
+                minWidth: 0,
+                boxSizing: 'border-box',
               }}
             >
-              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {preset.label}
-                  {isSelected && (
-                    <span style={{
-                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
-                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
-                    }}>
-                      ACTIVO
-                    </span>
-                  )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {preset.label}
+                    {isSelected && (
+                      <span style={{
+                        background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                        padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                      }}>
+                        ACTIVO
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
-                  {preset.desc}
-                </div>
+              </div>
+              <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.4, flex: 1 }}>
+                {preset.desc}
               </div>
               {preset.id !== 'none' && (
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -820,4 +1071,4 @@ export default function EdicionLimitadaEditor({
       </div>
     </div>
   );
-      }
+              }
