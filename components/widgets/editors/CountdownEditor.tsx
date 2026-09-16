@@ -674,6 +674,21 @@ function CountdownPreview({ config }: { config: CountdownConfig }) {
 /* ═══════════════════════════════════════════
    ICONOS SVG DEL EDITOR (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+    <line x1="2" y1="7" x2="22" y2="7"/>
+    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
+    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
+  </svg>
+);
+
+const IconInfo = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
 const IconClock = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -689,7 +704,7 @@ const IconLayers = () => (
 const IconPalette = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/>
-    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.9-4.5-9-10-9z"/>
+    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/>
   </svg>
 );
 
@@ -1101,7 +1116,7 @@ function ChoiceButtons({
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
+   COMPONENTE PRINCIPAL (EXPORT DEFAULT)
 ═══════════════════════════════════════════ */
 export default function CountdownEditor({
   widgetDefinition,
@@ -1688,7 +1703,7 @@ export default function CountdownEditor({
             <span>{infoBoxText}</span>
           </div>
 
-          {/* TABS */}
+          {/* TABS (4 PESTAÑAS) */}
           <div
             style={{
               display: 'flex',
