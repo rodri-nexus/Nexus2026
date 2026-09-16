@@ -1,7 +1,7 @@
 // components/widgets/editors/MensajeGarantiaEditor.tsx
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ColorPicker,
@@ -10,12 +10,11 @@ import {
   FieldSelect,
 } from './EditorFields';
 import EditorTabs from './EditorTabs';
-import MensajeGarantiaPreview from './MensajeGarantiaPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
@@ -59,7 +58,7 @@ interface MensajeGarantiaConfig {
 }
 
 /* ═══════════════════════════════════════════
-   DEFAULTS
+   CONSTANTES Y CONFIGURACIONES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const DEFAULT_CONFIG: MensajeGarantiaConfig = {
   titulo: '🛡️ Garantía de 60 días',
@@ -97,8 +96,219 @@ const UBICACION_OPTIONS = [
   { value: 'product-end', label: 'Al final del detalle del producto' },
 ];
 
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
+
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; titleColor: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#d1d5db', titleColor: '#ffffff' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#cbd5e1', titleColor: '#ffffff' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#cbd5e1', titleColor: '#ffffff' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#a7f3d0', titleColor: '#ffffff' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#fbcfe8', titleColor: '#ffffff' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#c7d2fe', titleColor: '#ffffff' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#fca5a5', titleColor: '#ffffff' },
+};
+
 /* ═══════════════════════════════════════════
-   COMPONENTE: SECTION CARD
+   HELPERS GLOBALES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function parseTextoConMarkdown(texto: string): string {
+  if (!texto) return '';
+
+  let out = texto
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  const lineas = out.split('\n');
+  const bloques: string[] = [];
+  let bufferLista: string[] = [];
+
+  const flushLista = () => {
+    if (bufferLista.length > 0) {
+      bloques.push(
+        '<ul style="margin:6px 0;padding-left:18px;">' +
+          bufferLista.map((it) => `<li style="margin-bottom:3px;">${it}</li>`).join('') +
+          '</ul>'
+      );
+      bufferLista = [];
+    }
+  };
+
+  for (const linea of lineas) {
+    const trimmed = linea.trim();
+    if (trimmed.startsWith('- ')) {
+      bufferLista.push(trimmed.substring(2));
+    } else {
+      flushLista();
+      bloques.push(linea);
+    }
+  }
+  flushLista();
+
+  out = bloques.join('\n');
+  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  out = out.replace(/__(.+?)__/g, '<u>$1</u>');
+  out = out.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  out = out.replace(/\n/g, '<br/>');
+  out = out.replace(/<br\/>\s*<ul/g, '<ul');
+  out = out.replace(/<\/ul>\s*<br\/>/g, '</ul>');
+
+  return out;
+}
+
+/* ═══════════════════════════════════════════
+   ICONOS SVG (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l1-5h16l1 5" />
+    <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
+    <path d="M9 21V13h6v8" />
+  </svg>
+);
+
+const IconInfo = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes MensajeGarantiaPreview.tsx)
+═══════════════════════════════════════════ */
+function MensajeGarantiaPreview({ config }: { config: MensajeGarantiaConfig }) {
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  const colorFondo = activeTheme ? activeTheme.themeColor : config.colorFondo;
+  const colorBorde = activeTheme ? activeTheme.accentColor : config.colorBorde;
+  const colorTitulo = activeTheme ? activeTheme.titleColor : config.colorTitulo;
+  const colorTexto = activeTheme ? activeTheme.textColor : config.colorTexto;
+
+  const tieneImagen = config.imagenBase64 && config.imagenBase64.trim() !== '';
+  const tieneTitulo = config.titulo && config.titulo.trim() !== '';
+  const tieneTexto = config.texto && config.texto.trim() !== '';
+
+  const textoHtml = parseTextoConMarkdown(config.texto);
+
+  return (
+    <div
+      style={{
+        background: colorFondo || '#FFFFFF',
+        border: `1.5px solid ${colorBorde || 'rgba(16, 185, 129, 0.2)'}`,
+        borderRadius: `${config.bordesRedondeados || 14}px`,
+        padding: `${config.paddingInterno || 16}px`,
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '14px',
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        lineHeight: 1.5,
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.6)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <style>{`
+        @keyframes nvxShieldGlow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+          50% { box-shadow: 0 0 10px 2px rgba(16, 185, 129, 0.15); }
+        }
+      `}</style>
+
+      {/* ICONO ESCUDO O IMAGEN CLIENTE */}
+      <div
+        style={{
+          flexShrink: 0,
+          width: '52px',
+          height: '52px',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: activeTheme ? `${activeTheme.accentColor}22` : '#ecfdf5',
+          border: `1px solid ${activeTheme ? activeTheme.accentColor : '#a7f3d0'}`,
+          animation: 'nvxShieldGlow 3s ease-in-out infinite',
+        }}
+      >
+        {tieneImagen ? (
+          <img
+            src={config.imagenBase64}
+            alt=""
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+          />
+        ) : (
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={activeTheme ? activeTheme.accentColor : '#10B981'}
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+        )}
+      </div>
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {tieneTitulo && (
+          <div
+            style={{
+              fontSize: config.tamanoTitulo || '15px',
+              fontWeight: 800,
+              color: colorTitulo || '#000000',
+              lineHeight: 1.3,
+              marginBottom: tieneTexto ? '6px' : 0,
+              wordBreak: 'break-word',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {config.titulo}
+          </div>
+        )}
+
+        {tieneTexto && (
+          <div
+            style={{
+              fontSize: config.tamanoTexto || '13px',
+              color: colorTexto || '#000000',
+              lineHeight: 1.5,
+              wordBreak: 'break-word',
+              fontWeight: 500,
+              opacity: 0.9,
+            }}
+            dangerouslySetInnerHTML={{ __html: textoHtml }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES AUXILIARES DEL EDITOR (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function SectionCard({
   icon,
@@ -137,9 +347,6 @@ function SectionCard({
   );
 }
 
-/* ═══════════════════════════════════════════
-   COMPONENTE: RICH TEXT AREA
-═══════════════════════════════════════════ */
 function RichTextArea({
   label,
   description,
@@ -292,9 +499,6 @@ function RichTextArea({
   );
 }
 
-/* ═══════════════════════════════════════════
-   COMPONENTE: IMAGE UPLOADER
-═══════════════════════════════════════════ */
 function ImageUploader({
   label,
   description,
@@ -433,7 +637,7 @@ function ImageUploader({
             transition: 'all 0.2s ease',
           }}
         >
-          <div style={{ fontSize: 32, marginBottom: 8, color: '#000000', opacity: 0.4 }}>⬆️</div>
+          <div style={{ fontSize: 32, marginBottom: 8, color: '#000000', opacity: 0.4 }}>Upload</div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#000000', marginBottom: 4 }}>
             Arrastrá una imagen o hacé clic para subir
           </div>
@@ -583,7 +787,7 @@ export default function MensajeGarantiaEditor({
     </div>
   );
 
-  /* ─── TAB ESTILOS ─── */
+  /* ─── TAB ESTILOS (Rule #17 grid pickers/styles) ─── */
   const tabEstilos = (
     <div>
       <SectionCard
@@ -593,9 +797,9 @@ export default function MensajeGarantiaEditor({
       >
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: 20,
           }}
         >
           <ColorPicker
@@ -629,8 +833,8 @@ export default function MensajeGarantiaEditor({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 14,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: 20,
           }}
         >
           <FieldSelect
@@ -653,36 +857,27 @@ export default function MensajeGarantiaEditor({
         title="Comportamiento y diseño"
         description="Bordes redondeados y margen interno del widget."
       >
-        <Slider
-          label="Bordes redondeados"
-          value={config.bordesRedondeados}
-          min={0}
-          max={25}
-          onChange={(v) => updateCfg('bordesRedondeados', v)}
-        />
-        <Slider
-          label="Margen interno (padding)"
-          value={config.paddingInterno}
-          min={0}
-          max={40}
-          onChange={(v) => updateCfg('paddingInterno', v)}
-        />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+          <Slider
+            label="Bordes redondeados"
+            value={config.bordesRedondeados}
+            min={0}
+            max={25}
+            onChange={(v) => updateCfg('bordesRedondeados', v)}
+          />
+          <Slider
+            label="Margen interno (padding)"
+            value={config.paddingInterno}
+            min={0}
+            max={40}
+            onChange={(v) => updateCfg('paddingInterno', v)}
+          />
+        </div>
       </SectionCard>
     </div>
   );
 
-  /* ─── TAB FECHAS ESPECIALES ─── */
-  const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
-  ];
-
+  /* ─── TAB FECHAS ESPECIALES (Rule #18 anti-desborde/wrap) ─── */
   const tabFechasEspeciales = (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -692,7 +887,7 @@ export default function MensajeGarantiaEditor({
         </p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
         {CAMPAIGN_PRESETS.map((preset) => {
           const isSelected = (config.campaignTheme || 'none') === preset.id;
           return (
@@ -706,30 +901,35 @@ export default function MensajeGarantiaEditor({
                 padding: '16px',
                 cursor: 'pointer',
                 display: 'flex',
-                alignItems: 'center',
-                gap: 16,
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 12,
                 transition: 'all 0.2s ease',
+                minWidth: 0,
+                boxSizing: 'border-box',
               }}
             >
-              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {preset.label}
-                  {isSelected && (
-                    <span style={{
-                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
-                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
-                    }}>
-                      ACTIVO
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
-                  {preset.desc}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span>{preset.label}</span>
+                    {isSelected && (
+                      <span style={{
+                        background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                        padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                      }}>
+                        ACTIVO
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
+              <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.4, flex: 1, marginTop: 4 }}>
+                {preset.desc}
+              </div>
               {preset.id !== 'none' && (
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginTop: 8 }}>
                   <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
                   <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
                 </div>
@@ -795,11 +995,7 @@ export default function MensajeGarantiaEditor({
               marginBottom: 14,
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2">
-              <path d="M3 9l1-5h16l1 5" />
-              <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
-              <path d="M9 21V13h6v8" />
-            </svg>
+            <IconStore />
             Todos los productos
           </div>
         ) : (
@@ -861,7 +1057,7 @@ export default function MensajeGarantiaEditor({
               gap: 8,
             }}
           >
-            <span style={{ color: '#10B981', flexShrink: 0 }}>ⓘ</span>
+            <span style={{ color: '#10B981', flexShrink: 0 }}><IconInfo /></span>
             <span>
               {config.ubicacion === 'product-end' 
                 ? 'El mensaje aparecerá al final del detalle o descripción de tu producto.' 
@@ -942,7 +1138,7 @@ export default function MensajeGarantiaEditor({
                 title="Si está inactivo, el widget no se mostrará en la tienda"
                 style={{ fontSize: 14, color: '#000000', opacity: 0.5, cursor: 'help' }}
               >
-                ⓘ
+                <IconInfo />
               </span>
             </div>
 
@@ -995,4 +1191,4 @@ export default function MensajeGarantiaEditor({
       </div>
     </div>
   );
-  }
+}
