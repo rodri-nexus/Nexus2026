@@ -1,10 +1,36 @@
+// components/widgets/editors/CajaOpinionesEditor.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import CajaOpinionesPreview from './CajaOpinionesPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9)
+═══════════════════════════════════════════ */
+interface Opinion {
+  nombre: string;
+  estrellas: number;
+  texto: string;
+  foto: string;
+  compraVerificada: boolean;
+}
+
+interface CajaOpinionesConfig {
+  opiniones: Opinion[];
+  colorFondo: string;
+  colorTexto: string;
+  colorEstrellas: string;
+  mostrarBorde: boolean;
+  colorBorde: string;
+  fuenteNombre: number;
+  fuenteOpinion: number;
+  bordeRedondeado: number;
+  padding: number;
+  tamanoAvatar: number;
+  ubicacion: 'arriba_carrito' | 'abajo_descripcion';
+}
 
 interface EditorProps {
   widgetDefinition: {
@@ -27,14 +53,13 @@ interface EditorProps {
   storeId: string;
 }
 
-interface Opinion {
-  nombre: string;
-  estrellas: number;
-  texto: string;
-  foto: string;
-  compraVerificada: boolean;
+interface PreviewProps {
+  config: CajaOpinionesConfig;
 }
 
+/* ═══════════════════════════════════════════
+   CONSTANTES POR DEFECTO
+═══════════════════════════════════════════ */
 const DEFAULT_OPINION: Opinion = {
   nombre: '',
   estrellas: 5,
@@ -43,8 +68,8 @@ const DEFAULT_OPINION: Opinion = {
   compraVerificada: false,
 };
 
-const DEFAULT_CONFIG = {
-  opiniones: [{ ...DEFAULT_OPINION }] as Opinion[],
+const DEFAULT_CONFIG: CajaOpinionesConfig = {
+  opiniones: [{ ...DEFAULT_OPINION }],
   colorFondo: '#f7f7f7',
   colorTexto: '#333333',
   colorEstrellas: '#f5b301',
@@ -55,11 +80,291 @@ const DEFAULT_CONFIG = {
   bordeRedondeado: 10,
   padding: 20,
   tamanoAvatar: 44,
-  ubicacion: 'arriba_carrito', // 'arriba_carrito' | 'abajo_descripcion'
+  ubicacion: 'arriba_carrito',
 };
 
-/* ================= HELPERS UI ================= */
+/* ═══════════════════════════════════════════
+   HELPERS DEL PREVIEW (Regla #9)
+═══════════════════════════════════════════ */
+function getInitial(nombre: string): string {
+  const n = (nombre || '').trim();
+  if (!n) return '?';
+  return n.charAt(0).toUpperCase();
+}
 
+function getAvatarBg(nombre: string): string {
+  const palette = [
+    '#ecfdf5', // verde esmeralda suave
+    '#f0fdf4', // verde claro
+    '#eff6ff', // azul suave
+    '#fef3c7', // ámbar suave
+    '#f3f4f6', // gris suave
+  ];
+  const n = (nombre || '').trim();
+  if (!n) return '#f3f4f6';
+  let sum = 0;
+  for (let i = 0; i < n.length; i++) sum += n.charCodeAt(i);
+  return palette[sum % palette.length];
+}
+
+function getAvatarTextColor(nombre: string): string {
+  const palette = [
+    '#059669', // verde oscuro
+    '#166534', // verde bosque
+    '#1d4ed8', // azul
+    '#b45309', // ámbar
+    '#374151', // gris
+  ];
+  const n = (nombre || '').trim();
+  if (!n) return '#374151';
+  let sum = 0;
+  for (let i = 0; i < n.length; i++) sum += n.charCodeAt(i);
+  return palette[sum % palette.length];
+}
+
+/* ═══════════════════════════════════════════
+   ICONOS Y ELEMENTOS DEL PREVIEW (Regla #9)
+═══════════════════════════════════════════ */
+function VerifiedBadge({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="#10B981"
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z" />
+      <path
+        d="M9 12l2 2 4-4"
+        stroke="#FFFFFF"
+        strokeWidth="2.2"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function Avatar({
+  nombre,
+  foto,
+  size,
+}: {
+  nombre: string;
+  foto: string;
+  size: number;
+}) {
+  if (foto) {
+    return (
+      <img
+        src={foto}
+        alt={nombre || 'Avatar'}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+          objectFit: 'cover',
+          flexShrink: 0,
+          display: 'block',
+          border: '1px solid rgba(0,0,0,0.08)',
+        }}
+      />
+    );
+  }
+
+  const bg = getAvatarBg(nombre);
+  const color = getAvatarTextColor(nombre);
+  const initial = getInitial(nombre);
+  const fontSize = Math.round(size * 0.42);
+
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: bg,
+        color: color,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: fontSize,
+        fontWeight: 800,
+        flexShrink: 0,
+        userSelect: 'none',
+        border: '1px solid rgba(0,0,0,0.05)',
+      }}
+    >
+      {initial}
+    </div>
+  );
+}
+
+function Stars({
+  count,
+  color,
+  size = 16,
+}: {
+  count: number;
+  color: string;
+  size?: number;
+}) {
+  const stars = [];
+  const starColor = color || '#F59E0B';
+
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <span
+        key={i}
+        style={{
+          color: i <= count ? starColor : '#E5E7EB',
+          fontSize: size,
+          lineHeight: 1,
+        }}
+      >
+        ★
+      </span>
+    );
+  }
+  return (
+    <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
+      {stars}
+    </span>
+  );
+}
+
+function OpinionCard({
+  opinion,
+  config,
+}: {
+  opinion: Opinion;
+  config: CajaOpinionesConfig;
+}) {
+  const nombre = opinion.nombre?.trim() || 'Cliente';
+  const texto = opinion.texto?.trim() || '';
+  const starSize = Math.max(14, Math.round(config.fuenteNombre * 0.95));
+
+  return (
+    <div
+      style={{
+        background: config.colorFondo || '#FFFFFF',
+        color: config.colorTexto || '#000000',
+        borderRadius: config.bordeRedondeado || 14,
+        padding: config.padding || 16,
+        border: config.mostrarBorde ? `1px solid ${config.colorBorde}` : '1px solid rgba(0,0,0,0.06)',
+        boxSizing: 'border-box',
+        width: '100%',
+        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.03)',
+        transition: 'transform 0.2s ease',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: texto ? 10 : 0,
+        }}
+      >
+        <Avatar nombre={nombre} foto={opinion.foto} size={config.tamanoAvatar || 40} />
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            flexWrap: 'wrap',
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
+          <span
+            style={{
+              fontSize: config.fuenteNombre || 14,
+              fontWeight: 800,
+              color: config.colorTexto || '#000000',
+              lineHeight: 1.2,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {nombre}
+          </span>
+
+          <Stars
+            count={opinion.estrellas}
+            color={config.colorEstrellas}
+            size={starSize}
+          />
+
+          {opinion.compraVerificada && <VerifiedBadge size={16} />}
+        </div>
+      </div>
+
+      {texto && (
+        <div
+          style={{
+            fontSize: config.fuenteOpinion || 13,
+            color: config.colorTexto || '#000000',
+            lineHeight: 1.5,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            fontWeight: 500,
+            opacity: 0.9,
+          }}
+        >
+          "{texto}"
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes CajaOpinionesPreview.tsx)
+═══════════════════════════════════════════ */
+function CajaOpinionesPreview({ config }: PreviewProps) {
+  const opiniones = Array.isArray(config.opiniones) ? config.opiniones : [];
+
+  if (opiniones.length === 0) {
+    return (
+      <div
+        style={{
+          background: '#FFFFFF',
+          border: '1px dashed #E5E7EB',
+          borderRadius: 14,
+          padding: 24,
+          textAlign: 'center',
+          color: '#6B7280',
+          fontSize: 14,
+          fontWeight: 500,
+        }}
+      >
+        Agregá al menos una opinión para ver la vista previa.
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        width: '100%',
+      }}
+    >
+      {opiniones.map((op, i) => (
+        <OpinionCard key={i} opinion={op} config={config} />
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   ICONOS Y ELEMENTOS DEL EDITOR (Regla #9)
+═══════════════════════════════════════════ */
 function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -76,22 +381,6 @@ function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: str
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="16" x2="12" y2="12" />
       <line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-  );
-}
-
-function VerifiedBadge({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="#10B981" style={{ flexShrink: 0 }}>
-      <path d="M12 2l2.09 2.26L17 4l.74 2.91L20 8l-1.26 2.5L20 13l-2.26 1.09L17 17l-2.91-.74L12 18l-2.5-1.26L7 17l-.74-2.91L4 13l1.26-2.5L4 8l2.26-1.09L7 4l2.91.74L12 2z" />
-      <path
-        d="M9 12l2 2 4-4"
-        stroke="#FFFFFF"
-        strokeWidth="2"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
     </svg>
   );
 }
@@ -458,8 +747,9 @@ function SectionCard({
   );
 }
 
-/* ================= DROPZONE FOTO ================= */
-
+/* ═══════════════════════════════════════════
+   DROPZONE DE FOTOS
+═══════════════════════════════════════════ */
 function PhotoDropzone({
   value,
   onChange,
@@ -467,8 +757,8 @@ function PhotoDropzone({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const [error, setError] = React.useState<string | null>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (file: File) => {
     setError(null);
@@ -589,8 +879,9 @@ function PhotoDropzone({
   );
 }
 
-/* ================= EDITOR ================= */
-
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function CajaOpinionesEditor({
   widgetDefinition,
   existingWidget,
@@ -600,7 +891,7 @@ export default function CajaOpinionesEditor({
 }: EditorProps) {
   const router = useRouter();
 
-  const initialConfig = React.useMemo(() => {
+  const initialConfig = useMemo(() => {
     const cfg = { ...DEFAULT_CONFIG, ...(existingWidget?.config || {}) };
     if (!Array.isArray(cfg.opiniones) || cfg.opiniones.length === 0) {
       cfg.opiniones = [{ ...DEFAULT_OPINION }];
@@ -616,11 +907,11 @@ export default function CajaOpinionesEditor({
     return cfg;
   }, [existingWidget]);
 
-  const [config, setConfig] = React.useState(initialConfig);
-  const [isActive, setIsActive] = React.useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = React.useState<'general' | 'estilo'>('general');
-  const [saving, setSaving] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [config, setConfig] = useState<CajaOpinionesConfig>(initialConfig);
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [tab, setTab] = useState<'general' | 'estilo'>('general');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const updateConfig = (k: string, v: any) => setConfig((c: any) => ({ ...c, [k]: v }));
 
@@ -741,7 +1032,7 @@ export default function CajaOpinionesEditor({
               marginBottom: 14,
             }}
           >
-            <IconStore />
+            <IconStore color="#FFFFFF" />
             Todos los productos
           </div>
         ) : (
@@ -851,8 +1142,8 @@ export default function CajaOpinionesEditor({
                     value={config.ubicacion || 'arriba_carrito'}
                     onChange={(v) => updateConfig('ubicacion', v)}
                     options={[
-                      { value: 'arriba_carrito', label: '📍 Arriba del botón "Agregar al carrito" (Estándar)' },
-                      { value: 'abajo_descripcion', label: '📄 Debajo de la descripción del producto (Dar respiro)' },
+                      { value: 'arriba_carrito', label: 'Arriba del botón "Agregar al carrito" (Estándar)' },
+                      { value: 'abajo_descripcion', label: 'Debajo de la descripción del producto (Dar respiro)' },
                     ]}
                   />
                 </div>
@@ -980,7 +1271,6 @@ export default function CajaOpinionesEditor({
             </div>
           )}
 
-          {/* TAB ESTILO */}
           {tab === 'estilo' && (
             <div>
               <SectionCard
@@ -1106,8 +1396,8 @@ export default function CajaOpinionesEditor({
                 title="Diseño"
                 description="Configurá el borde redondeado y el margen interno de la caja."
               >
-                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+                  <div>
                     <FieldLabel>Borde redondeado de la caja</FieldLabel>
                     <RangeSlider
                       value={config.bordeRedondeado}
@@ -1117,7 +1407,7 @@ export default function CajaOpinionesEditor({
                       marks={[0, 10, 25]}
                     />
                   </div>
-                  <div style={{ flex: 1, minWidth: 180 }}>
+                  <div>
                     <FieldLabel>Margen interno (padding)</FieldLabel>
                     <RangeSlider
                       value={config.padding}
@@ -1202,4 +1492,4 @@ export default function CajaOpinionesEditor({
       )}
     </div>
   );
-  }
+       }
