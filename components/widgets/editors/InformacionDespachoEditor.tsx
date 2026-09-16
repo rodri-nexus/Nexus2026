@@ -115,8 +115,23 @@ const CAMPAIGN_PRESETS = [
 ];
 
 /* ═══════════════════════════════════════════
-   PREVIEW ELEMENTOS E ICONOS (Regla #9 al inicio)
+   ICONOS SVG (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+    <line x1="2" y1="7" x2="22" y2="7"/>
+    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
+    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
+  </svg>
+);
+
+const IconInfo = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
 function IconoCirculo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
@@ -335,7 +350,7 @@ function InformacionDespachoPreview({ config }: { config: InformacionDespachoCon
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTES AUXILIARES DEL EDITOR (Regla #9)
+   COMPONENTES AUXILIARES DEL EDITOR (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -485,33 +500,23 @@ function ColorPickerField({
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
       <div
+        onClick={() => {
+          const input = document.createElement('input');
+          input.type = 'color';
+          input.value = colorForPicker;
+          input.onchange = (e) => onChange((e.target as HTMLInputElement).value);
+          input.click();
+        }}
         style={{
-          position: 'relative',
           width: 56,
           height: 44,
           borderRadius: 10,
           border: '1px solid #e5e7eb',
-          overflow: 'hidden',
           background: value || '#FFFFFF',
+          cursor: 'pointer',
+          flexShrink: 0,
         }}
-      >
-        <input
-          type="color"
-          value={colorForPicker}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            padding: 0,
-            background: 'transparent',
-            opacity: 0,
-            cursor: 'pointer',
-          }}
-        />
-      </div>
+      />
       <input
         type="text"
         value={value}
@@ -527,6 +532,7 @@ function ColorPickerField({
           background: '#FFFFFF',
           outline: 'none',
           fontFamily: 'monospace',
+          boxSizing: 'border-box',
         }}
       />
     </div>
@@ -892,7 +898,7 @@ export default function InformacionDespachoEditor({
     };
   }, [existingWidget]);
 
-  const [config, setConfig] = useState<any>(initialConfig);
+  const [config, setConfig] = useState<InformacionDespachoConfig>(initialConfig);
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
   const [tab, setTab] = useState<'general' | 'ubicacion' | 'estilos' | 'fechas'>('general');
   const [saving, setSaving] = useState(false);
@@ -971,7 +977,7 @@ export default function InformacionDespachoEditor({
                 gap: 12,
                 transition: 'all 0.2s ease',
                 minWidth: 0,
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1125,7 +1131,7 @@ export default function InformacionDespachoEditor({
               lineHeight: 1.5,
             }}
           >
-            <IconInfo size={16} color="#10B981" />
+            <IconInfo />
             <span>
               {config.posicion === 'encima-form'
                 ? 'El mensaje aparecerá justo encima del formulario de compra.'
