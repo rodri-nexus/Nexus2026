@@ -1,15 +1,44 @@
 // components/widgets/editors/InformacionDespachoEditor.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import InformacionDespachoPreview from './InformacionDespachoPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS Y CONFIGURACIONES
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
+interface InformacionDespachoConfig {
+  horaCorte: string;
+  diasDespacho: {
+    lun: boolean;
+    mar: boolean;
+    mie: boolean;
+    jue: boolean;
+    vie: boolean;
+    sab: boolean;
+    dom: boolean;
+  };
+  ocultarSiPasoCorte: boolean;
+  agregarBadge: boolean;
+  posicion: 'encima-form' | 'antes-descripcion';
+  icono: 'circulo' | 'corazon' | 'alerta' | 'emoji' | 'nada';
+  efecto: 'aureola' | 'zoom' | 'sin-efecto';
+  aplicarEfectoA: 'solo-icono' | 'mensaje-completo';
+  tamanoFuente: number;
+  estiloTexto: 'normal' | 'negrita';
+  colorFondo: string;
+  fondoDegradado: boolean;
+  colorTexto: string;
+  colorBadge: string;
+  colorTextoBadge: string;
+  bordesRedondeados: number;
+  paddingInterno: number;
+  activarBorde: boolean;
+  campaignTheme: string;
+}
+
 interface EditorProps {
   widgetDefinition: {
     id: string;
@@ -31,8 +60,10 @@ interface EditorProps {
   storeId: string;
 }
 
-const DEFAULT_CONFIG = {
-  // General
+/* ═══════════════════════════════════════════
+   CONFIG POR DEFECTO Y PRESETS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const DEFAULT_CONFIG: InformacionDespachoConfig = {
   horaCorte: '18:00',
   diasDespacho: {
     lun: true,
@@ -45,14 +76,12 @@ const DEFAULT_CONFIG = {
   },
   ocultarSiPasoCorte: false,
   agregarBadge: false,
-  // Ubicación
-  posicion: 'encima-form' as 'encima-form' | 'antes-descripcion',
-  // Estilos
-  icono: 'circulo' as 'circulo' | 'corazon' | 'alerta' | 'emoji' | 'nada',
-  efecto: 'zoom' as 'aureola' | 'zoom' | 'sin-efecto',
-  aplicarEfectoA: 'solo-icono' as 'solo-icono' | 'mensaje-completo',
+  posicion: 'encima-form',
+  icono: 'circulo',
+  efecto: 'zoom',
+  aplicarEfectoA: 'solo-icono',
   tamanoFuente: 15,
-  estiloTexto: 'negrita' as 'normal' | 'negrita',
+  estiloTexto: 'negrita',
   colorFondo: '#10B981',
   fondoDegradado: false,
   colorTexto: '#ffffff',
@@ -64,28 +93,250 @@ const DEFAULT_CONFIG = {
   campaignTheme: 'none',
 };
 
-/* ================= HELPERS UI ================= */
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBg: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBg: '#F59E0B' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBg: '#3B82F6' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBg: '#F43F5E' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBg: '#10B981' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBg: '#FBBF24' },
+};
 
-function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M3 9l1-5h16l1 5" />
-      <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
-      <path d="M9 21V13h6v8" />
-    </svg>
-  );
-}
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
 
-function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
+/* ═══════════════════════════════════════════
+   PREVIEW ELEMENTOS E ICONOS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function IconoCirculo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
       <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
   );
 }
 
+function IconoCorazon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#EF4444">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+function IconoAlerta({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#F59E0B">
+      <path d="M12 2L1 21h22L12 2zm0 5l7.53 13H4.47L12 7zm-1 5v4h2v-4h-2zm0 5v2h2v-2h-2z" />
+    </svg>
+  );
+}
+
+function renderIcono(tipo: string, size: number, colorCirculo: string) {
+  switch (tipo) {
+    case 'circulo':
+      return <IconoCirculo size={size} color={colorCirculo} />;
+    case 'corazon':
+      return <IconoCorazon size={size + 2} />;
+    case 'alerta':
+      return <IconoAlerta size={size + 2} />;
+    case 'emoji':
+      return <span style={{ fontSize: size + 4, lineHeight: 1 }}>📦</span>;
+    case 'nada':
+    default:
+      return null;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes InformacionDespachoPreview.tsx)
+═══════════════════════════════════════════ */
+function InformacionDespachoPreview({ config }: { config: InformacionDespachoConfig }) {
+  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  const fontWeight = config.estiloTexto === 'negrita' ? 800 : 600;
+  const fontSize = config.tamanoFuente || 14;
+
+  const colorFondo = activeTheme ? activeTheme.themeColor : config.colorFondo || '#10B981';
+  const colorTexto = activeTheme ? activeTheme.textColor : config.colorTexto || '#ffffff';
+
+  const background = config.fondoDegradado
+    ? `linear-gradient(135deg, ${colorFondo} 0%, ${colorFondo}dd 100%)`
+    : colorFondo;
+
+  const border = (config.activarBorde || activeTheme)
+    ? `1.5px solid ${activeTheme ? activeTheme.accentColor : (config.colorTexto || '#000000') + '22'}`
+    : '1px solid rgba(0,0,0,0.06)';
+
+  const badgeBg = activeTheme
+    ? activeTheme.badgeBg
+    : config.colorBadge && config.colorBadge.trim() !== ''
+    ? config.colorBadge
+    : 'rgba(0,0,0,0.18)';
+
+  const colorTextoBadge = activeTheme
+    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
+    : config.colorTextoBadge || '#ffffff';
+
+  const efectoIcono =
+    config.efecto === 'aureola'
+      ? 'nvx-despacho-aureola 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+      : config.efecto === 'zoom'
+      ? 'nvx-despacho-zoom 2.5s ease-in-out infinite'
+      : 'none';
+
+  const aplicarASoloIcono = config.aplicarEfectoA === 'solo-icono';
+  const animacionCard = !aplicarASoloIcono ? efectoIcono : 'none';
+  const animacionIcono = aplicarASoloIcono ? efectoIcono : 'none';
+
+  const iconoSize = fontSize + 2;
+  const colorCirculo = activeTheme ? activeTheme.accentColor : '#10B981';
+  const iconoNode = renderIcono(config.icono, iconoSize, colorCirculo);
+
+  return (
+    <>
+      <style>{`
+        @keyframes nvx-despacho-aureola {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+          50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+        @keyframes nvx-despacho-zoom {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.03); }
+        }
+      `}</style>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          background: background,
+          color: colorTexto,
+          borderRadius: config.bordesRedondeados || 14,
+          padding: `${(config.paddingInterno || 10) + 4}px ${(config.paddingInterno || 10) + 8}px`,
+          border: border,
+          animation: animacionCard,
+          boxSizing: 'border-box',
+          width: '100%',
+          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.04)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
+          {iconoNode && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                flexShrink: 0,
+                animation: animacionIcono,
+              }}
+            >
+              {iconoNode}
+            </div>
+          )}
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              minWidth: 0,
+              flex: 1,
+            }}
+          >
+            <span
+              style={{
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                lineHeight: 1.25,
+                color: colorTexto,
+                letterSpacing: '-0.01em',
+              }}
+            >
+              Comprando ahora tu pedido se despacha
+            </span>
+
+            <span
+              style={{
+                display: 'inline-block',
+                alignSelf: 'flex-start',
+                background: badgeBg,
+                color: colorTextoBadge,
+                fontSize: Math.max(10, fontSize - 4),
+                fontWeight: 800,
+                padding: '3px 9px',
+                borderRadius: 6,
+                letterSpacing: '0.04em',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              HOY
+            </span>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: badgeBg,
+            color: colorTextoBadge,
+            padding: '8px 12px',
+            borderRadius: 10,
+            flexShrink: 0,
+            minWidth: 80,
+            lineHeight: 1.15,
+            boxShadow: '0 3px 10px rgba(0, 0, 0, 0.15)',
+          }}
+        >
+          <span
+            style={{
+              fontSize: Math.max(9, fontSize - 5),
+              opacity: 0.9,
+              fontWeight: 600,
+            }}
+          >
+            Te quedan
+          </span>
+          <span
+            style={{
+              fontSize: Math.max(13, fontSize),
+              fontWeight: 900,
+            }}
+          >
+            2h 30m
+          </span>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTES AUXILIARES DEL EDITOR (Regla #9)
+═══════════════════════════════════════════ */
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
@@ -328,8 +579,6 @@ function RangeSlider({
   );
 }
 
-/* ================= CHECKBOX CARD ================= */
-
 function CheckboxCard({
   checked,
   onChange,
@@ -379,8 +628,6 @@ function CheckboxCard({
   );
 }
 
-/* ================= CHECKBOX CHIP ================= */
-
 function DayChip({
   checked,
   onChange,
@@ -420,8 +667,6 @@ function DayChip({
     </label>
   );
 }
-
-/* ================= RADIO CARD ================= */
 
 function RadioCard({
   checked,
@@ -533,8 +778,6 @@ function RadioCardEfecto({
   );
 }
 
-/* ================= ICONO OPTION ================= */
-
 function IconoOption({
   selected,
   onClick,
@@ -587,8 +830,6 @@ function IconoOption({
   );
 }
 
-/* ================= TOGGLE BUTTON ================= */
-
 function ToggleButton({
   selected,
   onClick,
@@ -627,8 +868,9 @@ function ToggleButton({
   );
 }
 
-/* ================= EDITOR ================= */
-
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function InformacionDespachoEditor({
   widgetDefinition,
   existingWidget,
@@ -638,7 +880,7 @@ export default function InformacionDespachoEditor({
 }: EditorProps) {
   const router = useRouter();
 
-  const initialConfig = React.useMemo(() => {
+  const initialConfig = useMemo(() => {
     const raw = existingWidget?.config || {};
     return {
       ...DEFAULT_CONFIG,
@@ -650,11 +892,11 @@ export default function InformacionDespachoEditor({
     };
   }, [existingWidget]);
 
-  const [config, setConfig] = React.useState<any>(initialConfig);
-  const [isActive, setIsActive] = React.useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = React.useState<'general' | 'ubicacion' | 'estilos' | 'fechas'>('general');
-  const [saving, setSaving] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [config, setConfig] = useState<any>(initialConfig);
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [tab, setTab] = useState<'general' | 'ubicacion' | 'estilos' | 'fechas'>('general');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const updateConfig = (k: string, v: any) => setConfig((c: any) => ({ ...c, [k]: v }));
   const updateDia = (k: string, v: boolean) =>
@@ -701,17 +943,6 @@ export default function InformacionDespachoEditor({
   const scopeLabel = targetType === 'all' ? 'General' : 'Producto';
 
   /* ─── TAB FECHAS ESPECIALES ─── */
-  const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
-  ];
-
   const tabFechasEspeciales = (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -721,7 +952,7 @@ export default function InformacionDespachoEditor({
         </p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
         {CAMPAIGN_PRESETS.map((preset) => {
           const isSelected = (config.campaignTheme || 'none') === preset.id;
           return (
@@ -735,27 +966,32 @@ export default function InformacionDespachoEditor({
                 padding: '16px',
                 cursor: 'pointer',
                 display: 'flex',
-                alignItems: 'center',
-                gap: 16,
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: 12,
                 transition: 'all 0.2s ease',
+                minWidth: 0,
+                boxSizing: 'border-box'
               }}
             >
-              <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {preset.label}
-                  {isSelected && (
-                    <span style={{
-                      background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
-                      padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
-                    }}>
-                      ACTIVO
-                    </span>
-                  )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {preset.label}
+                    {isSelected && (
+                      <span style={{
+                        background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
+                        padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
+                      }}>
+                        ACTIVO
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
-                  {preset.desc}
-                </div>
+              </div>
+              <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.4, flex: 1 }}>
+                {preset.desc}
               </div>
               {preset.id !== 'none' && (
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -960,7 +1196,7 @@ export default function InformacionDespachoEditor({
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))',
                     gap: 10,
                   }}
                 >
@@ -1047,7 +1283,7 @@ export default function InformacionDespachoEditor({
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
                     gap: 10,
                   }}
                 >
@@ -1076,7 +1312,7 @@ export default function InformacionDespachoEditor({
                   <IconoOption
                     selected={config.icono === 'emoji'}
                     onClick={() => updateConfig('icono', 'emoji')}
-                    visual={<span style={{ fontSize: 20 }}>✏️</span>}
+                    visual={<span style={{ fontSize: 20 }}>📦</span>}
                     label="Emoji"
                   />
                   <IconoOption
@@ -1091,7 +1327,7 @@ export default function InformacionDespachoEditor({
               {/* EFECTO */}
               <div>
                 <FieldLabel>Efecto</FieldLabel>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
                   <RadioCardEfecto
                     checked={config.efecto === 'aureola'}
                     onChange={() => updateConfig('efecto', 'aureola')}
@@ -1133,8 +1369,8 @@ export default function InformacionDespachoEditor({
               </div>
 
               {/* TAMAÑO + ESTILO TEXTO */}
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: 160 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+                <div>
                   <FieldLabel>Tamaño de fuente</FieldLabel>
                   <SelectField
                     value={config.tamanoFuente}
@@ -1145,7 +1381,7 @@ export default function InformacionDespachoEditor({
                     }))}
                   />
                 </div>
-                <div style={{ flex: 1, minWidth: 160 }}>
+                <div>
                   <FieldLabel>Estilo del texto</FieldLabel>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <ToggleButton
@@ -1168,54 +1404,56 @@ export default function InformacionDespachoEditor({
 
               <div style={{ height: 1, background: '#e5e7eb' }} />
 
-              {/* COLORES */}
-              <div>
-                <FieldLabel>Color de fondo</FieldLabel>
-                <ColorPickerField
-                  value={config.colorFondo}
-                  onChange={(v) => updateConfig('colorFondo', v)}
-                />
-                <div style={{ marginTop: 12 }}>
-                  <ToggleField
-                    checked={config.fondoDegradado}
-                    onChange={(v) => updateConfig('fondoDegradado', v)}
-                    label="Fondo en degradé"
+              {/* COLORES (Rule #17) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+                <div>
+                  <FieldLabel>Color de fondo</FieldLabel>
+                  <ColorPickerField
+                    value={config.colorFondo}
+                    onChange={(v) => updateConfig('colorFondo', v)}
+                  />
+                  <div style={{ marginTop: 12 }}>
+                    <ToggleField
+                      checked={config.fondoDegradado}
+                      onChange={(v) => updateConfig('fondoDegradado', v)}
+                      label="Fondo en degradé"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <FieldLabel>Color de texto</FieldLabel>
+                  <ColorPickerField
+                    value={config.colorTexto}
+                    onChange={(v) => updateConfig('colorTexto', v)}
+                  />
+                </div>
+
+                <div>
+                  <FieldLabel>
+                    Color del badge{' '}
+                    <span style={{ color: '#000000', opacity: 0.6, fontWeight: 400 }}>(HOY / contador)</span>
+                  </FieldLabel>
+                  <ColorPickerField
+                    value={config.colorBadge}
+                    onChange={(v) => updateConfig('colorBadge', v)}
+                    supportsRgba
+                  />
+                  <HelpText>Soporta rgba. Dejar vacío para oscuro automático.</HelpText>
+                </div>
+
+                <div>
+                  <FieldLabel>Color de texto del badge</FieldLabel>
+                  <ColorPickerField
+                    value={config.colorTextoBadge}
+                    onChange={(v) => updateConfig('colorTextoBadge', v)}
                   />
                 </div>
               </div>
 
-              <div>
-                <FieldLabel>Color de texto</FieldLabel>
-                <ColorPickerField
-                  value={config.colorTexto}
-                  onChange={(v) => updateConfig('colorTexto', v)}
-                />
-              </div>
-
-              <div>
-                <FieldLabel>
-                  Color del badge{' '}
-                  <span style={{ color: '#000000', opacity: 0.6, fontWeight: 400 }}>(HOY / contador)</span>
-                </FieldLabel>
-                <ColorPickerField
-                  value={config.colorBadge}
-                  onChange={(v) => updateConfig('colorBadge', v)}
-                  supportsRgba
-                />
-                <HelpText>Soporta rgba. Dejar vacío para oscuro automático.</HelpText>
-              </div>
-
-              <div>
-                <FieldLabel>Color de texto del badge</FieldLabel>
-                <ColorPickerField
-                  value={config.colorTextoBadge}
-                  onChange={(v) => updateConfig('colorTextoBadge', v)}
-                />
-              </div>
-
               {/* BORDES + PADDING */}
-              <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: 180 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+                <div>
                   <FieldLabel>Bordes redondeados</FieldLabel>
                   <RangeSlider
                     value={config.bordesRedondeados}
@@ -1225,7 +1463,7 @@ export default function InformacionDespachoEditor({
                     marks={[0, 12, 50]}
                   />
                 </div>
-                <div style={{ flex: 1, minWidth: 180 }}>
+                <div>
                   <FieldLabel>Margen interno (padding)</FieldLabel>
                   <RangeSlider
                     value={config.paddingInterno}
@@ -1337,4 +1575,4 @@ export default function InformacionDespachoEditor({
       )}
     </div>
   );
-}
+   }
