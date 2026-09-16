@@ -1,24 +1,72 @@
+// components/widgets/editors/BarraProgresoEditor.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import BarraProgresoPreview from './BarraProgresoPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   PRESETS DE FECHAS ESPECIALES (Regla #9)
+   TIPOS Y CONSTANTES CORE
 ═══════════════════════════════════════════ */
+interface Objetivo {
+  nombre: string;
+  monto: number;
+  icono: string;
+}
+
+interface BarraConfig {
+  objetivos: Objetivo[];
+  textoFaltante: string;
+  textoCumplido: string;
+  posicionFicha: 'debajo-boton' | 'encima-form' | 'no-mostrar';
+  elementoFlotante: boolean;
+  enCarrito: boolean;
+  formatoObjetivos: 'automatico' | 'lista';
+  bordesRedondeados: number;
+  rellenoInterno: number;
+  colorBarraVacia: string;
+  colorBarraLlena: string;
+  colorFondo: string;
+  colorTexto: string;
+  colorMonto: string;
+  colorObjetivos: string;
+  tamanoFuenteObjetivos: number;
+  tamanoFuenteTexto: number;
+  campaignTheme?: string;
+}
+
+interface EditorProps {
+  widgetDefinition: {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+    category: string;
+    icon: string;
+  };
+  existingWidget: {
+    id: string;
+    config: any;
+    is_active: boolean;
+    target_type: string;
+    target_product_id: number | null;
+  } | null;
+  targetType: 'product' | 'all';
+  productId: number | null;
+  storeId: string;
+}
+
 const BARRA_CAMPAIGN_THEMES: Record<
   string,
   {
     name: string;
     themeColor: string;
-    accentColor: string;
-    cardBg: string;
-    textColor: string;
-    priceColor: string;
-    barVacia: string;
+    accentColor: string; // Barra llena
+    cardBg: string; // Fondo widget
+    textColor: string; // Texto general
+    priceColor: string; // Texto destacado / {x}
+    barVacia: string; // Barra vacía / fondo de hit inactivo
     tag: string;
     description: string;
   }
@@ -113,58 +161,6 @@ const BARRA_CAMPAIGN_THEMES: Record<
   },
 };
 
-// ═══════════════════════════════════════════════════════════
-// TIPOS
-// ═══════════════════════════════════════════════════════════
-
-interface EditorProps {
-  widgetDefinition: {
-    id: string;
-    slug: string;
-    name: string;
-    description: string;
-    category: string;
-    icon: string;
-  };
-  existingWidget: {
-    id: string;
-    config: any;
-    is_active: boolean;
-    target_type: string;
-    target_product_id: number | null;
-  } | null;
-  targetType: 'product' | 'all';
-  productId: number | null;
-  storeId: string;
-}
-
-interface Objetivo {
-  nombre: string;
-  monto: number;
-  icono: string;
-}
-
-interface BarraConfig {
-  objetivos: Objetivo[];
-  textoFaltante: string;
-  textoCumplido: string;
-  posicionFicha: 'debajo-boton' | 'encima-form' | 'no-mostrar';
-  elementoFlotante: boolean;
-  enCarrito: boolean;
-  formatoObjetivos: 'automatico' | 'lista';
-  bordesRedondeados: number;
-  rellenoInterno: number;
-  colorBarraVacia: string;
-  colorBarraLlena: string;
-  colorFondo: string;
-  colorTexto: string;
-  colorMonto: string;
-  colorObjetivos: string;
-  tamanoFuenteObjetivos: number;
-  tamanoFuenteTexto: number;
-  campaignTheme?: string;
-}
-
 const DEFAULT_CONFIG: BarraConfig = {
   objetivos: [{ nombre: 'Envío gratis', monto: 50000, icono: 'none' }],
   textoFaltante: 'Te faltan {x} para {objetivo}',
@@ -203,10 +199,1639 @@ const ICONOS_DISPONIBLES = [
   { id: 'smile', label: 'Sonrisa' },
 ];
 
-// ═══════════════════════════════════════════════════════════
-// COMPONENTE PRINCIPAL
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   HELPERS GLOBALES
+═══════════════════════════════════════════ */
+function formatMoney(n: number): string {
+  if (n === null || n === undefined || isNaN(n)) return '$0';
+  try {
+    return '$' + n.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  } catch {
+    return '$' + Math.round(n);
+  }
+}
 
+function renderIcono(icono: string, size: number, color: string): React.ReactNode {
+  const stroke = color;
+  const props = {
+    width: size,
+    height: size,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke,
+    strokeWidth: 2.4,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+  switch (icono) {
+    case 'truck':
+      return (
+        <svg {...props}>
+          <path d="M10 17h4V5H2v12h3" />
+          <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" />
+          <circle cx="7.5" cy="17.5" r="2.5" />
+          <circle cx="17.5" cy="17.5" r="2.5" />
+        </svg>
+      );
+    case 'gift':
+      return (
+        <svg {...props}>
+          <polyline points="20 12 20 22 4 22 4 12" />
+          <rect x="2" y="7" width="20" height="5" />
+          <line x1="12" y1="22" x2="12" y2="7" />
+          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+        </svg>
+      );
+    case 'tag':
+      return (
+        <svg {...props}>
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+          <line x1="7" y1="7" x2="7.01" y2="7" />
+        </svg>
+      );
+    case 'star':
+      return (
+        <svg {...props}>
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      );
+    case 'percent':
+      return (
+        <svg {...props}>
+          <line x1="19" y1="5" x2="5" y2="19" />
+          <circle cx="6.5" cy="6.5" r="2.5" />
+          <circle cx="17.5" cy="17.5" r="2.5" />
+        </svg>
+      );
+    case 'check':
+      return (
+        <svg {...props}>
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      );
+    case 'shield':
+      return (
+        <svg {...props}>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      );
+    case 'bolt':
+      return (
+        <svg {...props}>
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      );
+    case 'heart':
+      return (
+        <svg {...props}>
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      );
+    case 'coffee':
+      return (
+        <svg {...props}>
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+          <line x1="6" y1="1" x2="6" y2="4" />
+          <line x1="10" y1="1" x2="10" y2="4" />
+          <line x1="14" y1="1" x2="14" y2="4" />
+        </svg>
+      );
+    case 'hexagon':
+      return (
+        <svg {...props}>
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        </svg>
+      );
+    case 'card':
+      return (
+        <svg {...props}>
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
+      );
+    case 'smile':
+      return (
+        <span style={{ fontSize: size + 2, lineHeight: 1 }}>😊</span>
+      );
+    case 'none':
+    default:
+      return null;
+  }
+}
+
+function renderIconoBtn(icono: string, size: number): React.ReactNode {
+  const props = {
+    width: size,
+    height: size,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 2,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+  switch (icono) {
+    case 'none':
+      return (
+        <svg {...props}>
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      );
+    case 'truck':
+      return (
+        <svg {...props}>
+          <path d="M10 17h4V5H2v12h3" />
+          <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" />
+          <circle cx="7.5" cy="17.5" r="2.5" />
+          <circle cx="17.5" cy="17.5" r="2.5" />
+        </svg>
+      );
+    case 'gift':
+      return (
+        <svg {...props}>
+          <polyline points="20 12 20 22 4 22 4 12" />
+          <rect x="2" y="7" width="20" height="5" />
+          <line x1="12" y1="22" x2="12" y2="7" />
+          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+        </svg>
+      );
+    case 'tag':
+      return (
+        <svg {...props}>
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+          <line x1="7" y1="7" x2="7.01" y2="7" />
+        </svg>
+      );
+    case 'star':
+      return (
+        <svg {...props}>
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      );
+    case 'percent':
+      return (
+        <svg {...props}>
+          <line x1="19" y1="5" x2="5" y2="19" />
+          <circle cx="6.5" cy="6.5" r="2.5" />
+          <circle cx="17.5" cy="17.5" r="2.5" />
+        </svg>
+      );
+    case 'check':
+      return (
+        <svg {...props}>
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      );
+    case 'shield':
+      return (
+        <svg {...props}>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      );
+    case 'bolt':
+      return (
+        <svg {...props}>
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      );
+    case 'heart':
+      return (
+        <svg {...props}>
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      );
+    case 'coffee':
+      return (
+        <svg {...props}>
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+          <line x1="6" y1="1" x2="6" y2="4" />
+          <line x1="10" y1="1" x2="10" y2="4" />
+          <line x1="14" y1="1" x2="14" y2="4" />
+        </svg>
+      );
+    case 'hexagon':
+      return (
+        <svg {...props}>
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        </svg>
+      );
+    case 'card':
+      return (
+        <svg {...props}>
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
+      );
+    case 'smile':
+      return <span style={{ fontSize: size + 2, lineHeight: 1 }}>😊</span>;
+    default:
+      return null;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes BarraProgresoPreview.tsx)
+═══════════════════════════════════════════ */
+interface BarraProgresoPreviewProps {
+  config: {
+    objetivos?: Objetivo[];
+    textoFaltante?: string;
+    textoCumplido?: string;
+    formatoObjetivos?: 'automatico' | 'lista';
+    bordesRedondeados?: number;
+    rellenoInterno?: number;
+    colorBarraVacia?: string;
+    colorBarraLlena?: string;
+    colorFondo?: string;
+    colorTexto?: string;
+    colorMonto?: string;
+    colorObjetivos?: string;
+    tamanoFuenteObjetivos?: number;
+    tamanoFuenteTexto?: number;
+    campaignTheme?: string;
+  };
+  subtotalDemo?: number;
+}
+
+function BarraProgresoPreview({ config, subtotalDemo = 0 }: BarraProgresoPreviewProps) {
+  const objetivos: Objetivo[] =
+    config.objetivos && config.objetivos.length > 0
+      ? config.objetivos
+      : [{ nombre: 'Envío gratis', monto: 50000, icono: 'truck' }];
+
+  const textoFaltante = config.textoFaltante || 'Te faltan {x} para {objetivo}';
+  const textoCumplido = config.textoCumplido || '¡{objetivo} desbloqueado! 🎉';
+  const bordesRedondeados = config.bordesRedondeados ?? 12;
+  const rellenoInterno = config.rellenoInterno ?? 14;
+
+  const themeKey = config.campaignTheme || 'none';
+  const theme = BARRA_CAMPAIGN_THEMES[themeKey] || BARRA_CAMPAIGN_THEMES.none;
+  const isCustomTheme = themeKey !== 'none';
+
+  const colorFondo = isCustomTheme && theme.cardBg ? theme.cardBg : (config.colorFondo || '#ffffff');
+  const colorBarraLlena = isCustomTheme && theme.accentColor ? theme.accentColor : (config.colorBarraLlena || '#10B981');
+  const colorBarraVacia = isCustomTheme && theme.barVacia ? theme.barVacia : (config.colorBarraVacia || '#e5e7eb');
+  const colorTexto = isCustomTheme && theme.textColor ? theme.textColor : (config.colorTexto || '#000000');
+  const colorMonto = isCustomTheme && theme.priceColor ? theme.priceColor : (config.colorMonto || '#059669');
+  const colorObjetivos = isCustomTheme && theme.textColor ? theme.textColor : (config.colorObjetivos || '#000000');
+  
+  const tamanoFuenteObjetivos = config.tamanoFuenteObjetivos ?? 11;
+  const tamanoFuenteTexto = config.tamanoFuenteTexto ?? 13;
+
+  const objetivosOrdenados = [...objetivos].sort((a, b) => a.monto - b.monto);
+  const montoMax = objetivosOrdenados[objetivosOrdenados.length - 1].monto;
+
+  const proximoObj = objetivosOrdenados.find((o) => subtotalDemo < o.monto);
+  const ultimoCumplido = [...objetivosOrdenados].reverse().find((o) => subtotalDemo >= o.monto);
+
+  const faltante = proximoObj ? proximoObj.monto - subtotalDemo : 0;
+  const porcentaje = Math.min(100, Math.max(0, (subtotalDemo / montoMax) * 100));
+
+  let textoPrincipal: React.ReactNode = null;
+  if (proximoObj) {
+    const parts = textoFaltante.split(/(\{x\}|\{objetivo\})/g);
+    textoPrincipal = parts.map((p, i) => {
+      if (p === '{x}') {
+        return (
+          <strong key={i} style={{ color: colorMonto, fontWeight: 800 }}>
+            {formatMoney(faltante)}
+          </strong>
+        );
+      }
+      if (p === '{objetivo}') {
+        return (
+          <strong key={i} style={{ color: colorObjetivos, fontWeight: 800 }}>
+            {proximoObj.nombre}
+          </strong>
+        );
+      }
+      return <span key={i}>{p}</span>;
+    });
+  } else if (ultimoCumplido) {
+    const parts = textoCumplido.split(/(\{objetivo\})/g);
+    textoPrincipal = parts.map((p, i) => {
+      if (p === '{objetivo}') {
+        return (
+          <strong key={i} style={{ color: colorObjetivos, fontWeight: 800 }}>
+            {ultimoCumplido.nombre}
+          </strong>
+        );
+      }
+      return <span key={i}>{p}</span>;
+    });
+  }
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        background: colorFondo,
+        borderRadius: `${bordesRedondeados}px`,
+        padding: `${rellenoInterno}px ${rellenoInterno + 4}px`,
+        boxSizing: 'border-box',
+        border: isCustomTheme ? `1px solid ${colorBarraLlena}55` : '1px solid rgba(0, 0, 0, 0.06)',
+        boxShadow: isCustomTheme
+          ? `0 4px 20px ${colorBarraLlena}22`
+          : '0 4px 12px rgba(0, 0, 0, 0.03)',
+        transition: 'all 0.3s ease',
+      }}
+    >
+      <style>{`
+        @keyframes nvxProgressBarFlow {
+          0% { background-position: 0 0; }
+          100% { background-position: 30px 0; }
+        }
+        @keyframes nvxPulseHit {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.12); }
+        }
+      `}</style>
+
+      {/* Texto principal */}
+      <div
+        style={{
+          color: colorTexto,
+          fontSize: `${tamanoFuenteTexto}px`,
+          lineHeight: 1.4,
+          marginBottom: 12,
+          fontWeight: 600,
+          letterSpacing: '-0.01em',
+          transition: 'color 0.3s ease',
+        }}
+      >
+        {textoPrincipal}
+      </div>
+
+      {/* Barra + hits */}
+      <div style={{ position: 'relative', width: '100%', paddingRight: 22, boxSizing: 'border-box' }}>
+        {/* Barra vacía (fondo) */}
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: 10,
+            background: colorBarraVacia,
+            borderRadius: 999,
+            overflow: 'visible',
+            transition: 'background 0.3s ease',
+          }}
+        >
+          {/* Barra llena con patrón fluido dinámico */}
+          <div
+            style={{
+              width: `${porcentaje}%`,
+              height: '100%',
+              background: `linear-gradient(90deg, ${colorBarraLlena} 0%, ${colorBarraLlena}dd 100%)`,
+              backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent)`,
+              backgroundSize: '16px 16px',
+              animation: 'nvxProgressBarFlow 2s linear infinite',
+              borderRadius: 999,
+              transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease',
+              position: 'relative',
+              boxShadow: `0 0 10px ${colorBarraLlena}66`,
+            }}
+          >
+            {/* Cabeza luminosa de avance */}
+            {porcentaje > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  height: '100%',
+                  width: '8px',
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  boxShadow: '0 0 8px #ffffff',
+                }}
+              />
+            )}
+          </div>
+
+          {/* Hits (marcas de cada objetivo) */}
+          {objetivosOrdenados.map((o, i) => {
+            const isLast = i === objetivosOrdenados.length - 1;
+            const posPct = isLast ? 100 : (o.monto / montoMax) * 100;
+            const cumplido = subtotalDemo >= o.monto;
+            const hitBgColor = cumplido ? colorBarraLlena : (isCustomTheme ? theme.barVacia : '#d1d5db');
+            
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `${posPct}%`,
+                  transform: 'translate(-50%, -50%)',
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  background: hitBgColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  boxShadow: cumplido
+                    ? `0 0 10px ${colorBarraLlena}88`
+                    : '0 2px 4px rgba(0,0,0,0.1)',
+                  transition: 'all 0.3s ease',
+                  animation: cumplido ? 'nvxPulseHit 3s ease-in-out infinite' : 'none',
+                  zIndex: 2,
+                }}
+                title={o.nombre}
+              >
+                {renderIcono(o.icono, 12, '#fff')}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Labels de objetivos (solo en formato lista) */}
+        {config.formatoObjetivos === 'lista' && (
+          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {objetivosOrdenados.map((o, i) => {
+              const cumplido = subtotalDemo >= o.monto;
+              const pointBg = cumplido ? colorBarraLlena : (isCustomTheme ? theme.barVacia : '#d1d5db');
+              return (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: `${tamanoFuenteObjetivos}px`,
+                    color: colorObjetivos,
+                    opacity: cumplido ? 1 : 0.65,
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      background: pointBg,
+                      display: 'inline-block',
+                      boxShadow: cumplido ? `0 0 6px ${colorBarraLlena}aa` : 'none',
+                      transition: 'background 0.3s ease',
+                    }}
+                  />
+                  <span style={{ fontWeight: cumplido ? 700 : 500 }}>
+                    {o.nombre} — {formatMoney(o.monto)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES AUXILIARES DEL EDITOR
+═══════════════════════════════════════════ */
+function VarChip({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        background: '#ecfdf5',
+        color: '#059669',
+        padding: '2px 6px',
+        borderRadius: 4,
+        fontFamily: 'monospace',
+        fontSize: 12,
+        fontWeight: 600,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        flexShrink: 0,
+        background: 'none',
+        border: 'none',
+        padding: '14px 12px',
+        fontSize: 15,
+        fontWeight: active ? 700 : 500,
+        color: active ? '#10B981' : '#000000',
+        opacity: active ? 1 : 0.6,
+        cursor: 'pointer',
+        borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
+        fontFamily: 'inherit',
+        transition: 'all 0.2s',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ColorPickerField({
+  label,
+  value,
+  onChange,
+  clearable,
+  onClear,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  clearable?: boolean;
+  onClear?: () => void;
+}) {
+  return (
+    <div>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 14, marginBottom: 8, lineHeight: 1.3 }}>
+        {label}
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input
+          type="color"
+          value={value === 'transparent' ? '#ffffff' : value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            width: 44,
+            height: 40,
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 8,
+            cursor: 'pointer',
+            padding: 2,
+            background: '#ffffff',
+            flexShrink: 0,
+          }}
+        />
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 8,
+            background: '#ffffff',
+            paddingRight: clearable ? 8 : 0,
+          }}
+        >
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            style={{
+              flex: 1,
+              padding: '10px 12px',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 13,
+              color: '#000000',
+              background: 'transparent',
+              outline: 'none',
+              minWidth: 0,
+              fontFamily: 'monospace',
+            }}
+          />
+          {clearable && onClear && (
+            <button
+              onClick={onClear}
+              aria-label="Limpiar"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#000000',
+                opacity: 0.5,
+                cursor: 'pointer',
+                padding: 4,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  options: number[];
+}) {
+  return (
+    <div>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 14, marginBottom: 8 }}>{label}</div>
+      <div style={{ position: 'relative' }}>
+        <select
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          style={{
+            width: '100%',
+            padding: '12px 36px 12px 14px',
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 10,
+            fontSize: 15,
+            color: '#000000',
+            background: '#ffffff',
+            appearance: 'none',
+            outline: 'none',
+            cursor: 'pointer',
+            boxSizing: 'border-box',
+            fontFamily: 'inherit',
+          }}
+        >
+          {options.map((n) => (
+            <option key={n} value={n}>
+              {n} píxeles
+            </option>
+          ))}
+        </select>
+        <div
+          style={{
+            position: 'absolute',
+            right: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            pointerEvents: 'none',
+            color: '#000000',
+            opacity: 0.5,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ToggleField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+      <div
+        onClick={() => onChange(!value)}
+        style={{
+          width: 44,
+          height: 26,
+          borderRadius: 999,
+          background: value ? '#10B981' : '#d1d5db',
+          position: 'relative',
+          transition: 'background 0.25s',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: 3,
+            left: value ? 21 : 3,
+            width: 20,
+            height: 20,
+            borderRadius: '50%',
+            background: '#ffffff',
+            transition: 'left 0.25s',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+          }}
+        />
+      </div>
+      <span style={{ color: '#000000', fontWeight: 600, fontSize: 15 }}>{label}</span>
+    </label>
+  );
+}
+
+function RangeSlider({
+  min,
+  max,
+  step,
+  value,
+  onChange,
+  labels,
+}: {
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  onChange: (v: number) => void;
+  labels: string[];
+}) {
+  return (
+    <div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{
+          width: '100%',
+          accentColor: '#10B981',
+          cursor: 'pointer',
+        }}
+      />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginTop: 6,
+          fontSize: 12,
+          color: '#000000',
+          opacity: 0.6,
+          padding: '0 2px',
+        }}
+      >
+        {labels.map((l, i) => (
+          <span key={i}>{l}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function IconInfo() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   VISTAS DE TABS INTERNAS
+═══════════════════════════════════════════ */
+function GeneralTab({
+  config,
+  onUpdate,
+  onAddObjetivo,
+  onRemoveObjetivo,
+  onUpdateObjetivo,
+}: {
+  config: BarraConfig;
+  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
+  onAddObjetivo: () => void;
+  onRemoveObjetivo: (i: number) => void;
+  onUpdateObjetivo: <K extends keyof Objetivo>(i: number, key: K, value: Objetivo[K]) => void;
+}) {
+  return (
+    <div>
+      {/* OBJETIVOS */}
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 4 }}>
+        Objetivos <span style={{ fontWeight: 400, opacity: 0.6, fontSize: 14 }}>(mínimo 1, máximo 5)</span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14 }}>
+        {config.objetivos.map((obj, i) => (
+          <div
+            key={i}
+            style={{
+              background: '#ffffff',
+              borderRadius: 12,
+              border: '1px solid #e5e7eb',
+              padding: 18,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 14,
+              }}
+            >
+              <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>
+                Objetivo {i + 1}
+              </div>
+              {config.objetivos.length > 1 && (
+                <button
+                  onClick={() => onRemoveObjetivo(i)}
+                  aria-label="Eliminar objetivo"
+                  style={{
+                    background: '#fee2e2',
+                    border: 'none',
+                    borderRadius: 8,
+                    width: 38,
+                    height: 36,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: '#991b1b',
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Nombre + Monto */}
+            <div style={{ display: 'flex', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 200px' }}>
+                <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 6 }}>
+                  Nombre del objetivo
+                </div>
+                <input
+                  type="text"
+                  value={obj.nombre}
+                  onChange={(e) => onUpdateObjetivo(i, 'nombre', e.target.value)}
+                  placeholder="Ej: Envío gratis"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1.5px solid #e5e7eb',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    color: '#000000',
+                    background: '#ffffff',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit',
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+                />
+              </div>
+              <div style={{ flex: '1 1 140px' }}>
+                <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 6 }}>
+                  Monto ($)
+                </div>
+                <input
+                  type="number"
+                  value={obj.monto || ''}
+                  onChange={(e) => onUpdateObjetivo(i, 'monto', Number(e.target.value) || 0)}
+                  placeholder="50000"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1.5px solid #e5e7eb',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    color: '#000000',
+                    background: '#ffffff',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    fontFamily: 'inherit',
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+                />
+              </div>
+            </div>
+
+            {/* Icono */}
+            <div>
+              <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 8 }}>
+                Icono <span style={{ opacity: 0.6, fontWeight: 400 }}>(opcional)</span>
+              </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(40px, 1fr))',
+                  gap: 8,
+                }}
+              >
+                {ICONOS_DISPONIBLES.map((ic) => {
+                  const isSelected = obj.icono === ic.id;
+                  return (
+                    <button
+                      key={ic.id}
+                      onClick={() => onUpdateObjetivo(i, 'icono', ic.id)}
+                      title={ic.label}
+                      style={{
+                        aspectRatio: '1 / 1',
+                        background: isSelected ? '#ecfdf5' : '#ffffff',
+                        border: `1.5px solid ${
+                          isSelected ? '#10B981' : '#e5e7eb'
+                        }`,
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        color: isSelected ? '#10B981' : '#000000',
+                      }}
+                    >
+                      {renderIconoBtn(ic.id, 18)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* AGREGAR OBJETIVO */}
+      {config.objetivos.length < 5 && (
+        <button
+          onClick={onAddObjetivo}
+          style={{
+            marginTop: 14,
+            background: '#ffffff',
+            border: '1.5px solid #10B981',
+            color: '#10B981',
+            padding: '12px 24px',
+            borderRadius: 999,
+            fontWeight: 700,
+            fontSize: 15,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontFamily: 'inherit',
+          }}
+        >
+          <span style={{ fontSize: 18, lineHeight: 1 }}>+</span> Agregar objetivo
+        </button>
+      )}
+
+      {/* INFO SUTIL */}
+      <div
+        style={{
+          marginTop: 20,
+          background: '#ecfdf5',
+          border: '1px solid #a7f3d0',
+          borderRadius: 12,
+          padding: '14px 18px',
+          color: '#000000',
+          fontSize: 14,
+          lineHeight: 1.5,
+        }}
+      >
+        💡 <strong>Recordá</strong> crear las promociones y límites en el panel de control de Tiendanube.
+      </div>
+
+      {/* TEXTO CUANDO FALTA MONTO */}
+      <div style={{ marginTop: 22 }}>
+        <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 8 }}>
+          Texto cuando falta monto
+        </div>
+        <input
+          type="text"
+          value={config.textoFaltante}
+          onChange={(e) => onUpdate('textoFaltante', e.target.value)}
+          placeholder="Te faltan {x} para {objetivo}"
+          style={{
+            width: '100%',
+            padding: '12px 14px',
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 10,
+            fontSize: 15,
+            color: '#000000',
+            background: '#ffffff',
+            outline: 'none',
+            boxSizing: 'border-box',
+            fontFamily: 'inherit',
+          }}
+          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+          onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+        />
+        <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
+          <VarChip>{'{x}'}</VarChip>= monto faltante &nbsp;|&nbsp;{' '}
+          <VarChip>{'{objetivo}'}</VarChip>= nombre del objetivo
+        </div>
+      </div>
+
+      {/* TEXTO CUANDO SE CUMPLE */}
+      <div style={{ marginTop: 22 }}>
+        <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 8 }}>
+          Texto cuando se cumple un objetivo
+        </div>
+        <input
+          type="text"
+          value={config.textoCumplido}
+          onChange={(e) => onUpdate('textoCumplido', e.target.value)}
+          placeholder="¡{objetivo} desbloqueado! 🎉"
+          style={{
+            width: '100%',
+            padding: '12px 14px',
+            border: '1.5px solid #e5e7eb',
+            borderRadius: 10,
+            fontSize: 15,
+            color: '#000000',
+            background: '#ffffff',
+            outline: 'none',
+            boxSizing: 'border-box',
+            fontFamily: 'inherit',
+          }}
+          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
+          onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
+        />
+        <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
+          <VarChip>{'{objetivo}'}</VarChip>= nombre del objetivo alcanzado
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UbicacionTab({
+  config,
+  onUpdate,
+}: {
+  config: BarraConfig;
+  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 0 }}>
+        Posición en la ficha del producto
+      </div>
+
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid #e5e7eb',
+          overflow: 'hidden',
+        }}
+      >
+        {[
+          {
+            id: 'debajo-boton' as const,
+            title: 'Debajo del botón "Agregar al carrito"',
+            desc: 'Se inserta debajo del botón de agregar al carrito.',
+          },
+          {
+            id: 'encima-form' as const,
+            title: 'Por encima del formulario de compra',
+            desc: 'Se inserta justo antes del formulario (encima del botón "Agregar al carrito").',
+          },
+          {
+            id: 'no-mostrar' as const,
+            title: 'No mostrar en ficha de producto',
+            desc: 'El widget no se muestra en la página del producto.',
+          },
+        ].map((opt, idx) => (
+          <label
+            key={opt.id}
+            style={{
+              display: 'flex',
+              gap: 12,
+              alignItems: 'flex-start',
+              cursor: 'pointer',
+              padding: '16px',
+              borderTop: idx === 0 ? 'none' : '1px solid #e5e7eb',
+              background: config.posicionFicha === opt.id ? '#ecfdf5' : '#ffffff',
+            }}
+          >
+            <div
+              onClick={() => onUpdate('posicionFicha', opt.id)}
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                border: config.posicionFicha === opt.id ? '6px solid #10B981' : '2px solid #d1d5db',
+                background: '#ffffff',
+                cursor: 'pointer',
+                marginTop: 2,
+                flexShrink: 0,
+                transition: 'all 0.2s',
+              }}
+            />
+            <div>
+              <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>
+                {opt.title}
+              </div>
+              <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
+                {opt.desc}
+              </div>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      <div
+        style={{
+          background: config.elementoFlotante ? '#ecfdf5' : '#ffffff',
+          borderRadius: 12,
+          border: config.elementoFlotante ? '1.5px solid #10B981' : '1px solid #e5e7eb',
+          padding: 16,
+          transition: 'border-color 0.2s',
+        }}
+      >
+        <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
+          <div
+            onClick={() => onUpdate('elementoFlotante', !config.elementoFlotante)}
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 5,
+              background: config.elementoFlotante ? '#10B981' : '#ffffff',
+              border: config.elementoFlotante ? '2px solid #10B981' : '2px solid #d1d5db',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              marginTop: 1,
+              transition: 'all 0.2s',
+            }}
+          >
+            {config.elementoFlotante && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>
+              Elemento flotante
+            </div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
+              Se muestra como un widget flotante fijo en la esquina de la pantalla.
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <div
+        style={{
+          background: config.enCarrito ? '#ecfdf5' : '#ffffff',
+          borderRadius: 12,
+          border: config.enCarrito ? '1.5px solid #10B981' : '1px solid #e5e7eb',
+          padding: 16,
+          transition: 'border-color 0.2s',
+        }}
+      >
+        <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
+          <div
+            onClick={() => onUpdate('enCarrito', !config.enCarrito)}
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 5,
+              background: config.enCarrito ? '#10B981' : '#ffffff',
+              border: config.enCarrito ? '2px solid #10B981' : '2px solid #d1d5db',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              marginTop: 1,
+              transition: 'all 0.2s',
+            }}
+          >
+            {config.enCarrito && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>Del carrito</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
+              Se muestra dentro del carrito, antes del botón de iniciar compra.
+            </div>
+          </div>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function EstilosTab({
+  config,
+  onUpdate,
+}: {
+  config: BarraConfig;
+  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid #e5e7eb',
+          padding: 18,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="7" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+              <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" strokeWidth="2" />
+              <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Diseño y estructura</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+              Definí cómo se muestran los objetivos en escritorio y móvil.
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 18 }}>
+          <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
+            Formato de objetivos
+          </div>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {[
+              { id: 'automatico' as const, title: 'Automático', desc: 'Escritorio: barra con hits en línea. Móvil: lista.' },
+              { id: 'lista' as const, title: 'Siempre lista', desc: 'Muestra formato lista en móvil y escritorio.' },
+            ].map((opt) => (
+              <label
+                key={opt.id}
+                style={{
+                  flex: '1 1 140px',
+                  cursor: 'pointer',
+                  background: config.formatoObjetivos === opt.id ? '#ecfdf5' : '#ffffff',
+                  border: `1.5px solid ${config.formatoObjetivos === opt.id ? '#10B981' : '#e5e7eb'}`,
+                  borderRadius: 10,
+                  padding: 14,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  alignItems: 'center',
+                  textAlign: 'center',
+                }}
+              >
+                <div
+                  onClick={() => onUpdate('formatoObjetivos', opt.id)}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    border: config.formatoObjetivos === opt.id ? '5px solid #10B981' : '2px solid #d1d5db',
+                    background: '#ffffff',
+                  }}
+                />
+                <div style={{ fontWeight: 700, color: '#000000', fontSize: 14 }}>{opt.title}</div>
+                <div style={{ color: '#000000', opacity: 0.6, fontSize: 12, lineHeight: 1.4 }}>{opt.desc}</div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+          <div>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
+              Bordes redondeados
+            </div>
+            <RangeSlider
+              min={0}
+              max={20}
+              step={1}
+              value={config.bordesRedondeados}
+              onChange={(v) => onUpdate('bordesRedondeados', v)}
+              labels={['0px', '8px', '20px']}
+            />
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
+              Relleno interno
+            </div>
+            <RangeSlider
+              min={0}
+              max={28}
+              step={1}
+              value={config.rellenoInterno}
+              onChange={(v) => onUpdate('rellenoInterno', v)}
+              labels={['0px', '14px', '28px']}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid #e5e7eb',
+          padding: 18,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
+          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" />
+              <circle cx="17.5" cy="10.5" r="1.5" fill="currentColor" />
+              <circle cx="8.5" cy="7.5" r="1.5" fill="currentColor" />
+              <circle cx="6.5" cy="12.5" r="1.5" fill="currentColor" />
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-4.96-4.5-9-10-9z" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Colores</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+              Personalizá barra, fondo y textos.
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: 20,
+          }}
+        >
+          <ColorPickerField
+            label="Color de la barra (vacía)"
+            value={config.colorBarraVacia}
+            onChange={(v) => onUpdate('colorBarraVacia', v)}
+          />
+          <ColorPickerField
+            label="Color de la barra (llena)"
+            value={config.colorBarraLlena}
+            onChange={(v) => onUpdate('colorBarraLlena', v)}
+          />
+          <ColorPickerField
+            label="Color de fondo del widget"
+            value={config.colorFondo}
+            onChange={(v) => onUpdate('colorFondo', v)}
+            clearable
+            onClear={() => onUpdate('colorFondo', 'transparent')}
+          />
+          <ColorPickerField
+            label="Color del texto"
+            value={config.colorTexto}
+            onChange={(v) => onUpdate('colorTexto', v)}
+          />
+          <ColorPickerField
+            label="Color del monto ({x})"
+            value={config.colorMonto}
+            onChange={(v) => onUpdate('colorMonto', v)}
+          />
+          <ColorPickerField
+            label="Color de los objetivos"
+            value={config.colorObjetivos}
+            onChange={(v) => onUpdate('colorObjetivos', v)}
+          />
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          border: '1px solid #e5e7eb',
+          padding: 18,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
+          <div
+            style={{
+              color: '#10B981',
+              flexShrink: 0,
+              marginTop: 2,
+              fontWeight: 800,
+              fontSize: 20,
+            }}
+          >
+            Aa
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Tipografía</div>
+            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
+              Ajustá el tamaño de textos y etiquetas.
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: 20,
+          }}
+        >
+          <SelectField
+            label="Tamaño fuente objetivos"
+            value={config.tamanoFuenteObjetivos}
+            onChange={(v) => onUpdate('tamanoFuenteObjetivos', v)}
+            options={[9, 10, 11, 12, 13, 14, 16]}
+          />
+          <SelectField
+            label="Tamaño fuente texto"
+            value={config.tamanoFuenteTexto}
+            onChange={(v) => onUpdate('tamanoFuenteTexto', v)}
+            options={[11, 12, 13, 14, 15, 16, 18, 20]}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FechasTab({
+  config,
+  onUpdate,
+}: {
+  config: BarraConfig;
+  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
+}) {
+  return (
+    <div>
+      <div
+        style={{
+          background:
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#eff6ff'
+              : '#f8fafc',
+          border: `1px solid ${
+            config.campaignTheme && config.campaignTheme !== 'none'
+              ? '#bfdbfe'
+              : '#e2e8f0'
+          }`,
+          borderRadius: 14,
+          padding: 16,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <span style={{ fontSize: 24 }}>
+          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? `Evento activo: ${BARRA_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
+              : 'Diseño Normal activo'}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+            {config.campaignTheme && config.campaignTheme !== 'none'
+              ? 'La barra adaptará automáticamente sus bordes, burbujas e indicadores visuales a la fecha comercial elegida.'
+              : 'La barra respeta fielmente los colores personalizados configurados en la pestaña Estilos.'}
+          </div>
+        </div>
+        {config.campaignTheme && config.campaignTheme !== 'none' && (
+          <button
+            type="button"
+            onClick={() => onUpdate('campaignTheme', 'none')}
+            style={{
+              padding: '6px 12px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#475569',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Restablecer
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 20,
+        }}
+      >
+        {Object.entries(BARRA_CAMPAIGN_THEMES).map(([key, theme]) => {
+          const isSelected = (config.campaignTheme || 'none') === key;
+          return (
+            <div
+              key={key}
+              onClick={() => onUpdate('campaignTheme', key)}
+              style={{
+                background: isSelected ? '#ffffff' : '#fafafa',
+                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                borderRadius: 12,
+                padding: '14px 16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
+                minWidth: 0,
+                boxSizing: 'border-box',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: isSelected ? '#10B981' : '#111827',
+                  }}
+                >
+                  {theme.name}
+                </span>
+                {isSelected && (
+                  <span
+                    style={{
+                      background: '#10B981',
+                      color: '#ffffff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                    }}
+                  >
+                    ACTIVO
+                  </span>
+                )}
+              </div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: '#6b7280',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                {theme.description}
+              </p>
+              {key !== 'none' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.cardBg,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de fondo"
+                  />
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: theme.accentColor,
+                      border: '1px solid #d1d5db',
+                    }}
+                    title="Color de barra"
+                  />
+                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
+                    Paleta del evento
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function BarraProgresoEditor({
   widgetDefinition,
   existingWidget,
@@ -543,1268 +2168,4 @@ export default function BarraProgresoEditor({
       )}
     </div>
   );
-}
-
-// ═══════════════════════════════════════════════════════════
-// TAB GENERAL
-// ═══════════════════════════════════════════════════════════
-
-function GeneralTab({
-  config,
-  onUpdate,
-  onAddObjetivo,
-  onRemoveObjetivo,
-  onUpdateObjetivo,
-}: {
-  config: BarraConfig;
-  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
-  onAddObjetivo: () => void;
-  onRemoveObjetivo: (i: number) => void;
-  onUpdateObjetivo: <K extends keyof Objetivo>(i: number, key: K, value: Objetivo[K]) => void;
-}) {
-  return (
-    <div>
-      {/* OBJETIVOS */}
-      <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 4 }}>
-        Objetivos <span style={{ fontWeight: 400, opacity: 0.6, fontSize: 14 }}>(mínimo 1, máximo 5)</span>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14 }}>
-        {config.objetivos.map((obj, i) => (
-          <div
-            key={i}
-            style={{
-              background: '#ffffff',
-              borderRadius: 12,
-              border: '1px solid #e5e7eb',
-              padding: 18,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 14,
-              }}
-            >
-              <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>
-                Objetivo {i + 1}
-              </div>
-              {config.objetivos.length > 1 && (
-                <button
-                  onClick={() => onRemoveObjetivo(i)}
-                  aria-label="Eliminar objetivo"
-                  style={{
-                    background: '#fee2e2',
-                    border: 'none',
-                    borderRadius: 8,
-                    width: 38,
-                    height: 36,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    color: '#991b1b',
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-
-            {/* Nombre + Monto */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
-              <div style={{ flex: '1 1 200px' }}>
-                <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 6 }}>
-                  Nombre del objetivo
-                </div>
-                <input
-                  type="text"
-                  value={obj.nombre}
-                  onChange={(e) => onUpdateObjetivo(i, 'nombre', e.target.value)}
-                  placeholder="Ej: Envío gratis"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1.5px solid #e5e7eb',
-                    borderRadius: 10,
-                    fontSize: 15,
-                    color: '#000000',
-                    background: '#ffffff',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    fontFamily: 'inherit',
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
-                />
-              </div>
-              <div style={{ flex: '1 1 140px' }}>
-                <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 6 }}>
-                  Monto ($)
-                </div>
-                <input
-                  type="number"
-                  value={obj.monto || ''}
-                  onChange={(e) => onUpdateObjetivo(i, 'monto', Number(e.target.value) || 0)}
-                  placeholder="50000"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1.5px solid #e5e7eb',
-                    borderRadius: 10,
-                    fontSize: 15,
-                    color: '#000000',
-                    background: '#ffffff',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    fontFamily: 'inherit',
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-                  onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
-                />
-              </div>
-            </div>
-
-            {/* Icono */}
-            <div>
-              <div style={{ fontWeight: 600, color: '#000000', fontSize: 14, marginBottom: 8 }}>
-                Icono <span style={{ opacity: 0.6, fontWeight: 400 }}>(opcional)</span>
-              </div>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(7, 1fr)',
-                  gap: 8,
-                }}
-              >
-                {ICONOS_DISPONIBLES.map((ic) => {
-                  const isSelected = obj.icono === ic.id;
-                  return (
-                    <button
-                      key={ic.id}
-                      onClick={() => onUpdateObjetivo(i, 'icono', ic.id)}
-                      title={ic.label}
-                      style={{
-                        aspectRatio: '1 / 1',
-                        background: isSelected ? '#ecfdf5' : '#ffffff',
-                        border: `1.5px solid ${
-                          isSelected ? '#10B981' : '#e5e7eb'
-                        }`,
-                        borderRadius: 8,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        color: isSelected ? '#10B981' : '#000000',
-                      }}
-                    >
-                      {renderIconoBtn(ic.id, 18)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* AGREGAR OBJETIVO */}
-      {config.objetivos.length < 5 && (
-        <button
-          onClick={onAddObjetivo}
-          style={{
-            marginTop: 14,
-            background: '#ffffff',
-            border: '1.5px solid #10B981',
-            color: '#10B981',
-            padding: '12px 24px',
-            borderRadius: 999,
-            fontWeight: 700,
-            fontSize: 15,
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontFamily: 'inherit',
-          }}
-        >
-          <span style={{ fontSize: 18, lineHeight: 1 }}>+</span> Agregar objetivo
-        </button>
-      )}
-
-      {/* INFO SUTIL */}
-      <div
-        style={{
-          marginTop: 20,
-          background: '#ecfdf5',
-          border: '1px solid #a7f3d0',
-          borderRadius: 12,
-          padding: '14px 18px',
-          color: '#000000',
-          fontSize: 14,
-          lineHeight: 1.5,
-        }}
-      >
-        💡 <strong>Recordá</strong> crear las promociones y límites en el panel de control de Tiendanube.
-      </div>
-
-      {/* TEXTO CUANDO FALTA MONTO */}
-      <div style={{ marginTop: 22 }}>
-        <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 8 }}>
-          Texto cuando falta monto
-        </div>
-        <input
-          type="text"
-          value={config.textoFaltante}
-          onChange={(e) => onUpdate('textoFaltante', e.target.value)}
-          placeholder="Te faltan {x} para {objetivo}"
-          style={{
-            width: '100%',
-            padding: '12px 14px',
-            border: '1.5px solid #e5e7eb',
-            borderRadius: 10,
-            fontSize: 15,
-            color: '#000000',
-            background: '#ffffff',
-            outline: 'none',
-            boxSizing: 'border-box',
-            fontFamily: 'inherit',
-          }}
-          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-          onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
-        />
-        <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
-          <VarChip>{'{x}'}</VarChip>= monto faltante &nbsp;|&nbsp;{' '}
-          <VarChip>{'{objetivo}'}</VarChip>= nombre del objetivo
-        </div>
-      </div>
-
-      {/* TEXTO CUANDO SE CUMPLE */}
-      <div style={{ marginTop: 22 }}>
-        <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 8 }}>
-          Texto cuando se cumple un objetivo
-        </div>
-        <input
-          type="text"
-          value={config.textoCumplido}
-          onChange={(e) => onUpdate('textoCumplido', e.target.value)}
-          placeholder="¡{objetivo} desbloqueado! 🎉"
-          style={{
-            width: '100%',
-            padding: '12px 14px',
-            border: '1.5px solid #e5e7eb',
-            borderRadius: 10,
-            fontSize: 15,
-            color: '#000000',
-            background: '#ffffff',
-            outline: 'none',
-            boxSizing: 'border-box',
-            fontFamily: 'inherit',
-          }}
-          onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-          onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
-        />
-        <div style={{ marginTop: 8, fontSize: 13, color: '#000000', opacity: 0.6 }}>
-          <VarChip>{'{objetivo}'}</VarChip>= nombre del objetivo alcanzado
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// TAB UBICACIÓN
-// ═══════════════════════════════════════════════════════════
-
-function UbicacionTab({
-  config,
-  onUpdate,
-}: {
-  config: BarraConfig;
-  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontWeight: 700, color: '#000000', fontSize: 16, marginBottom: 0 }}>
-        Posición en la ficha del producto
-      </div>
-
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: 12,
-          border: '1px solid #e5e7eb',
-          overflow: 'hidden',
-        }}
-      >
-        {[
-          {
-            id: 'debajo-boton' as const,
-            title: 'Debajo del botón "Agregar al carrito"',
-            desc: 'Se inserta debajo del botón de agregar al carrito.',
-          },
-          {
-            id: 'encima-form' as const,
-            title: 'Por encima del formulario de compra',
-            desc: 'Se inserta justo antes del formulario (encima del botón "Agregar al carrito").',
-          },
-          {
-            id: 'no-mostrar' as const,
-            title: 'No mostrar en ficha de producto',
-            desc: 'El widget no se muestra en la página del producto.',
-          },
-        ].map((opt, idx) => (
-          <label
-            key={opt.id}
-            style={{
-              display: 'flex',
-              gap: 12,
-              alignItems: 'flex-start',
-              cursor: 'pointer',
-              padding: '16px',
-              borderTop: idx === 0 ? 'none' : '1px solid #e5e7eb',
-              background: config.posicionFicha === opt.id ? '#ecfdf5' : '#ffffff',
-            }}
-          >
-            <div
-              onClick={() => onUpdate('posicionFicha', opt.id)}
-              style={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                border: config.posicionFicha === opt.id ? '6px solid #10B981' : '2px solid #d1d5db',
-                background: '#ffffff',
-                cursor: 'pointer',
-                marginTop: 2,
-                flexShrink: 0,
-                transition: 'all 0.2s',
-              }}
-            />
-            <div>
-              <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>
-                {opt.title}
-              </div>
-              <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
-                {opt.desc}
-              </div>
-            </div>
-          </label>
-        ))}
-      </div>
-
-      <div
-        style={{
-          background: config.elementoFlotante ? '#ecfdf5' : '#ffffff',
-          borderRadius: 12,
-          border: config.elementoFlotante ? '1.5px solid #10B981' : '1px solid #e5e7eb',
-          padding: 16,
-          transition: 'border-color 0.2s',
-        }}
-      >
-        <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-          <div
-            onClick={() => onUpdate('elementoFlotante', !config.elementoFlotante)}
-            style={{
-              width: 22,
-              height: 22,
-              borderRadius: 5,
-              background: config.elementoFlotante ? '#10B981' : '#ffffff',
-              border: config.elementoFlotante ? '2px solid #10B981' : '2px solid #d1d5db',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              marginTop: 1,
-              transition: 'all 0.2s',
-            }}
-          >
-            {config.elementoFlotante && (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            )}
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>
-              Elemento flotante
-            </div>
-            <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
-              Se muestra como un widget flotante fijo en la esquina de la pantalla.
-            </div>
-          </div>
-        </label>
-      </div>
-
-      <div
-        style={{
-          background: config.enCarrito ? '#ecfdf5' : '#ffffff',
-          borderRadius: 12,
-          border: config.enCarrito ? '1.5px solid #10B981' : '1px solid #e5e7eb',
-          padding: 16,
-          transition: 'border-color 0.2s',
-        }}
-      >
-        <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer' }}>
-          <div
-            onClick={() => onUpdate('enCarrito', !config.enCarrito)}
-            style={{
-              width: 22,
-              height: 22,
-              borderRadius: 5,
-              background: config.enCarrito ? '#10B981' : '#ffffff',
-              border: config.enCarrito ? '2px solid #10B981' : '2px solid #d1d5db',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              marginTop: 1,
-              transition: 'all 0.2s',
-            }}
-          >
-            {config.enCarrito && (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            )}
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15 }}>Del carrito</div>
-            <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, marginTop: 4, lineHeight: 1.5 }}>
-              Se muestra dentro del carrito, antes del botón de iniciar compra.
-            </div>
-          </div>
-        </label>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// TAB ESTILOS
-// ═══════════════════════════════════════════════════════════
-
-function EstilosTab({
-  config,
-  onUpdate,
-}: {
-  config: BarraConfig;
-  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: 12,
-          border: '1px solid #e5e7eb',
-          padding: 18,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="7" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
-              <rect x="14" y="3" width="7" height="9" rx="1" stroke="currentColor" strokeWidth="2" />
-              <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Diseño y estructura</div>
-            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
-              Definí cómo se muestran los objetivos en escritorio y móvil.
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
-            Formato de objetivos
-          </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {[
-              { id: 'automatico' as const, title: 'Automático', desc: 'Escritorio: barra con hits en línea. Móvil: lista.' },
-              { id: 'lista' as const, title: 'Siempre lista', desc: 'Muestra formato lista en móvil y escritorio.' },
-            ].map((opt) => (
-              <label
-                key={opt.id}
-                style={{
-                  flex: '1 1 140px',
-                  cursor: 'pointer',
-                  background: config.formatoObjetivos === opt.id ? '#ecfdf5' : '#ffffff',
-                  border: `1.5px solid ${config.formatoObjetivos === opt.id ? '#10B981' : '#e5e7eb'}`,
-                  borderRadius: 10,
-                  padding: 14,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
-                  alignItems: 'center',
-                  textAlign: 'center',
-                }}
-              >
-                <div
-                  onClick={() => onUpdate('formatoObjetivos', opt.id)}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: '50%',
-                    border: config.formatoObjetivos === opt.id ? '5px solid #10B981' : '2px solid #d1d5db',
-                    background: '#ffffff',
-                  }}
-                />
-                <div style={{ fontWeight: 700, color: '#000000', fontSize: 14 }}>{opt.title}</div>
-                <div style={{ color: '#000000', opacity: 0.6, fontSize: 12, lineHeight: 1.4 }}>{opt.desc}</div>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 200px' }}>
-            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
-              Bordes redondeados
-            </div>
-            <RangeSlider
-              min={0}
-              max={20}
-              step={1}
-              value={config.bordesRedondeados}
-              onChange={(v) => onUpdate('bordesRedondeados', v)}
-              labels={['0px', '8px', '20px']}
-            />
-          </div>
-          <div style={{ flex: '1 1 200px' }}>
-            <div style={{ fontWeight: 700, color: '#000000', fontSize: 15, marginBottom: 10 }}>
-              Relleno interno
-            </div>
-            <RangeSlider
-              min={0}
-              max={28}
-              step={1}
-              value={config.rellenoInterno}
-              onChange={(v) => onUpdate('rellenoInterno', v)}
-              labels={['0px', '14px', '28px']}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: 12,
-          border: '1px solid #e5e7eb',
-          padding: 18,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" />
-              <circle cx="17.5" cy="10.5" r="1.5" fill="currentColor" />
-              <circle cx="8.5" cy="7.5" r="1.5" fill="currentColor" />
-              <circle cx="6.5" cy="12.5" r="1.5" fill="currentColor" />
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-4.96-4.5-9-10-9z" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Colores</div>
-            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
-              Personalizá barra, fondo y textos.
-            </div>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 16,
-          }}
-        >
-          <ColorPickerField
-            label="Color de la barra (vacía)"
-            value={config.colorBarraVacia}
-            onChange={(v) => onUpdate('colorBarraVacia', v)}
-          />
-          <ColorPickerField
-            label="Color de la barra (llena)"
-            value={config.colorBarraLlena}
-            onChange={(v) => onUpdate('colorBarraLlena', v)}
-          />
-          <ColorPickerField
-            label="Color de fondo del widget"
-            value={config.colorFondo}
-            onChange={(v) => onUpdate('colorFondo', v)}
-            clearable
-            onClear={() => onUpdate('colorFondo', 'transparent')}
-          />
-          <ColorPickerField
-            label="Color del texto"
-            value={config.colorTexto}
-            onChange={(v) => onUpdate('colorTexto', v)}
-          />
-          <ColorPickerField
-            label="Color del monto ({x})"
-            value={config.colorMonto}
-            onChange={(v) => onUpdate('colorMonto', v)}
-          />
-          <ColorPickerField
-            label="Color de los objetivos"
-            value={config.colorObjetivos}
-            onChange={(v) => onUpdate('colorObjetivos', v)}
-          />
-        </div>
-      </div>
-
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: 12,
-          border: '1px solid #e5e7eb',
-          padding: 18,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 18 }}>
-          <div
-            style={{
-              color: '#10B981',
-              flexShrink: 0,
-              marginTop: 2,
-              fontWeight: 800,
-              fontSize: 20,
-            }}
-          >
-            Aa
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, color: '#000000', fontSize: 16 }}>Tipografía</div>
-            <div style={{ color: '#000000', opacity: 0.6, fontSize: 14, marginTop: 4, lineHeight: 1.5 }}>
-              Ajustá el tamaño de textos y etiquetas.
-            </div>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 16,
-          }}
-        >
-          <SelectField
-            label="Tamaño fuente objetivos"
-            value={config.tamanoFuenteObjetivos}
-            onChange={(v) => onUpdate('tamanoFuenteObjetivos', v)}
-            options={[9, 10, 11, 12, 13, 14, 16]}
-          />
-          <SelectField
-            label="Tamaño fuente texto"
-            value={config.tamanoFuenteTexto}
-            onChange={(v) => onUpdate('tamanoFuenteTexto', v)}
-            options={[11, 12, 13, 14, 15, 16, 18, 20]}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// TAB FECHAS ESPECIALES
-// ═══════════════════════════════════════════════════════════
-
-function FechasTab({
-  config,
-  onUpdate,
-}: {
-  config: BarraConfig;
-  onUpdate: <K extends keyof BarraConfig>(key: K, value: BarraConfig[K]) => void;
-}) {
-  return (
-    <div>
-      <div
-        style={{
-          background:
-            config.campaignTheme && config.campaignTheme !== 'none'
-              ? '#eff6ff'
-              : '#f8fafc',
-          border: `1px solid ${
-            config.campaignTheme && config.campaignTheme !== 'none'
-              ? '#bfdbfe'
-              : '#e2e8f0'
-          }`,
-          borderRadius: 14,
-          padding: 16,
-          marginBottom: 20,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
-        <span style={{ fontSize: 24 }}>
-          {config.campaignTheme && config.campaignTheme !== 'none' ? '🔥' : '✨'}
-        </span>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
-            {config.campaignTheme && config.campaignTheme !== 'none'
-              ? `Evento activo: ${BARRA_CAMPAIGN_THEMES[config.campaignTheme]?.name || 'Personalizado'}`
-              : 'Diseño Normal activo'}
-          </div>
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
-            {config.campaignTheme && config.campaignTheme !== 'none'
-              ? 'La barra adaptará automáticamente sus bordes, burbujas e indicadores visuales a la fecha comercial elegida.'
-              : 'La barra respeta fielmente los colores personalizados configurados en la pestaña Estilos.'}
-          </div>
-        </div>
-        {config.campaignTheme && config.campaignTheme !== 'none' && (
-          <button
-            type="button"
-            onClick={() => onUpdate('campaignTheme', 'none')}
-            style={{
-              padding: '6px 12px',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 700,
-              color: '#475569',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-          >
-            Restablecer
-          </button>
-        )}
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 12,
-        }}
-      >
-        {Object.entries(BARRA_CAMPAIGN_THEMES).map(([key, theme]) => {
-          const isSelected = (config.campaignTheme || 'none') === key;
-          return (
-            <div
-              key={key}
-              onClick={() => onUpdate('campaignTheme', key)}
-              style={{
-                background: isSelected ? '#ffffff' : '#fafafa',
-                border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
-                borderRadius: 12,
-                padding: '14px 16px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                position: 'relative',
-                boxShadow: isSelected ? '0 4px 12px rgba(16, 185, 129, 0.12)' : 'none',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 6,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 800,
-                    color: isSelected ? '#10B981' : '#111827',
-                  }}
-                >
-                  {theme.name}
-                </span>
-                {isSelected && (
-                  <span
-                    style={{
-                      background: '#10B981',
-                      color: '#ffffff',
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: '2px 8px',
-                      borderRadius: 999,
-                    }}
-                  >
-                    ACTIVO
-                  </span>
-                )}
-              </div>
-              <p
-                style={{
-                  fontSize: 12,
-                  color: '#6b7280',
-                  margin: '0 0 10px 0',
-                  lineHeight: 1.4,
-                }}
-              >
-                {theme.description}
-              </p>
-              {key !== 'none' && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div
-                    style={{
-                      width: 14,
-                      height: 14,
-                      borderRadius: '50%',
-                      background: theme.cardBg,
-                      border: '1px solid #d1d5db',
-                    }}
-                    title="Color de fondo"
-                  />
-                  <div
-                    style={{
-                      width: 14,
-                      height: 14,
-                      borderRadius: '50%',
-                      background: theme.accentColor,
-                      border: '1px solid #d1d5db',
-                    }}
-                    title="Color de barra"
-                  />
-                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 4 }}>
-                    Paleta del evento
-                  </span>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// COMPONENTES REUTILIZABLES AUXILIARES
-// ═══════════════════════════════════════════════════════════
-
-function VarChip({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        background: '#ecfdf5',
-        color: '#059669',
-        padding: '2px 6px',
-        borderRadius: 4,
-        fontFamily: 'monospace',
-        fontSize: 12,
-        fontWeight: 600,
-      }}
-    >
-      {children}
-    </span>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        flexShrink: 0,
-        background: 'none',
-        border: 'none',
-        padding: '14px 12px',
-        fontSize: 15,
-        fontWeight: active ? 700 : 500,
-        color: active ? '#10B981' : '#000000',
-        opacity: active ? 1 : 0.6,
-        cursor: 'pointer',
-        borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
-        fontFamily: 'inherit',
-        transition: 'all 0.2s',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function ColorPickerField({
-  label,
-  value,
-  onChange,
-  clearable,
-  onClear,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  clearable?: boolean;
-  onClear?: () => void;
-}) {
-  return (
-    <div>
-      <div style={{ fontWeight: 700, color: '#000000', fontSize: 14, marginBottom: 8, lineHeight: 1.3 }}>
-        {label}
-      </div>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <input
-          type="color"
-          value={value === 'transparent' ? '#ffffff' : value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            width: 44,
-            height: 40,
-            border: '1.5px solid #e5e7eb',
-            borderRadius: 8,
-            cursor: 'pointer',
-            padding: 2,
-            background: '#ffffff',
-            flexShrink: 0,
-          }}
-        />
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            border: '1.5px solid #e5e7eb',
-            borderRadius: 8,
-            background: '#ffffff',
-            paddingRight: clearable ? 8 : 0,
-          }}
-        >
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            style={{
-              flex: 1,
-              padding: '10px 12px',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 13,
-              color: '#000000',
-              background: 'transparent',
-              outline: 'none',
-              minWidth: 0,
-              fontFamily: 'monospace',
-            }}
-          />
-          {clearable && onClear && (
-            <button
-              onClick={onClear}
-              aria-label="Limpiar"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#000000',
-                opacity: 0.5,
-                cursor: 'pointer',
-                padding: 4,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  options: number[];
-}) {
-  return (
-    <div>
-      <div style={{ fontWeight: 700, color: '#000000', fontSize: 14, marginBottom: 8 }}>{label}</div>
-      <div style={{ position: 'relative' }}>
-        <select
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          style={{
-            width: '100%',
-            padding: '12px 36px 12px 14px',
-            border: '1.5px solid #e5e7eb',
-            borderRadius: 10,
-            fontSize: 15,
-            color: '#000000',
-            background: '#ffffff',
-            appearance: 'none',
-            outline: 'none',
-            cursor: 'pointer',
-            boxSizing: 'border-box',
-            fontFamily: 'inherit',
-          }}
-        >
-          {options.map((n) => (
-            <option key={n} value={n}>
-              {n} píxeles
-            </option>
-          ))}
-        </select>
-        <div
-          style={{
-            position: 'absolute',
-            right: 12,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            pointerEvents: 'none',
-            color: '#000000',
-            opacity: 0.5,
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ToggleField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-      <div
-        onClick={() => onChange(!value)}
-        style={{
-          width: 44,
-          height: 26,
-          borderRadius: 999,
-          background: value ? '#10B981' : '#d1d5db',
-          position: 'relative',
-          transition: 'background 0.25s',
-          flexShrink: 0,
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: 3,
-            left: value ? 21 : 3,
-            width: 20,
-            height: 20,
-            borderRadius: '50%',
-            background: '#ffffff',
-            transition: 'left 0.25s',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-          }}
-        />
-      </div>
-      <span style={{ color: '#000000', fontWeight: 600, fontSize: 15 }}>{label}</span>
-    </label>
-  );
-}
-
-function RangeSlider({
-  min,
-  max,
-  step,
-  value,
-  onChange,
-  labels,
-}: {
-  min: number;
-  max: number;
-  step: number;
-  value: number;
-  onChange: (v: number) => void;
-  labels: string[];
-}) {
-  return (
-    <div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{
-          width: '100%',
-          accentColor: '#10B981',
-          cursor: 'pointer',
-        }}
-      />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: 6,
-          fontSize: 12,
-          color: '#000000',
-          opacity: 0.6,
-          padding: '0 2px',
-        }}
-      >
-        {labels.map((l, i) => (
-          <span key={i}>{l}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function IconInfo() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" style={{ flexShrink: 0, marginTop: 1 }}>
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// ÍCONOS PARA EL GRID DE SELECCIÓN
-// ═══════════════════════════════════════════════════════════
-
-function renderIconoBtn(icono: string, size: number): React.ReactNode {
-  const props = {
-    width: size,
-    height: size,
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-  };
-  switch (icono) {
-    case 'none':
-      return (
-        <svg {...props}>
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      );
-    case 'truck':
-      return (
-        <svg {...props}>
-          <path d="M10 17h4V5H2v12h3" />
-          <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" />
-          <circle cx="7.5" cy="17.5" r="2.5" />
-          <circle cx="17.5" cy="17.5" r="2.5" />
-        </svg>
-      );
-    case 'gift':
-      return (
-        <svg {...props}>
-          <polyline points="20 12 20 22 4 22 4 12" />
-          <rect x="2" y="7" width="20" height="5" />
-          <line x1="12" y1="22" x2="12" y2="7" />
-          <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
-          <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
-        </svg>
-      );
-    case 'tag':
-      return (
-        <svg {...props}>
-          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-          <line x1="7" y1="7" x2="7.01" y2="7" />
-        </svg>
-      );
-    case 'star':
-      return (
-        <svg {...props}>
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      );
-    case 'percent':
-      return (
-        <svg {...props}>
-          <line x1="19" y1="5" x2="5" y2="19" />
-          <circle cx="6.5" cy="6.5" r="2.5" />
-          <circle cx="17.5" cy="17.5" r="2.5" />
-        </svg>
-      );
-    case 'check':
-      return (
-        <svg {...props}>
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      );
-    case 'shield':
-      return (
-        <svg {...props}>
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      );
-    case 'bolt':
-      return (
-        <svg {...props}>
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-        </svg>
-      );
-    case 'heart':
-      return (
-        <svg {...props}>
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-      );
-    case 'coffee':
-      return (
-        <svg {...props}>
-          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-          <line x1="6" y1="1" x2="6" y2="4" />
-          <line x1="10" y1="1" x2="10" y2="4" />
-          <line x1="14" y1="1" x2="14" y2="4" />
-        </svg>
-      );
-    case 'hexagon':
-      return (
-        <svg {...props}>
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-        </svg>
-      );
-    case 'card':
-      return (
-        <svg {...props}>
-          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-          <line x1="1" y1="10" x2="23" y2="10" />
-        </svg>
-      );
-    case 'smile':
-      return <span style={{ fontSize: size + 2, lineHeight: 1 }}>😊</span>;
-    default:
-      return null;
-  }
-  }
+   }
