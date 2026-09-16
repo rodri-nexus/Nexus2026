@@ -1,4 +1,3 @@
-// components/widgets/editors/MensajeAlertaEditor.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -10,7 +9,7 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS Y CONFIGURACIONES POR DEFECTO
+   TIPOS Y CONFIGURACIONES POR DEFECTO (Regla #9)
 ═══════════════════════════════════════════ */
 interface EditorProps {
   widgetDefinition: {
@@ -51,6 +50,17 @@ const DEFAULT_CONFIG = {
   mostrarBorde: false,
   campaignTheme: 'none',
 };
+
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
 
 /* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL
@@ -179,7 +189,7 @@ export default function MensajeAlertaEditor({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
           gap: 8,
         }}
       >
@@ -202,6 +212,7 @@ export default function MensajeAlertaEditor({
                 borderRadius: 10,
                 cursor: 'pointer',
                 minHeight: 80,
+                boxSizing: 'border-box',
               }}
             >
               {op.preview}
@@ -300,6 +311,7 @@ export default function MensajeAlertaEditor({
               borderRadius: 10,
               marginBottom: 10,
               cursor: 'pointer',
+              boxSizing: 'border-box',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -338,8 +350,8 @@ export default function MensajeAlertaEditor({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 10,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 16,
           marginBottom: 20,
         }}
       >
@@ -353,15 +365,20 @@ export default function MensajeAlertaEditor({
                 alignItems: 'center',
                 gap: 8,
                 cursor: 'pointer',
+                background: '#ffffff',
+                padding: '10px 14px',
+                borderRadius: 10,
+                border: '1.5px solid #e5e7eb',
+                boxSizing: 'border-box',
               }}
             >
               <input
                 type="radio"
                 checked={selected}
                 onChange={() => updateConfig('color', op.id)}
-                style={{ accentColor: '#10B981', width: 16, height: 16 }}
+                style={{ accentColor: '#10B981', width: 16, height: 16, margin: 0 }}
               />
-              <span style={{ fontSize: 14, color: '#000000', flex: 1 }}>
+              <span style={{ fontSize: 14, color: '#000000', flex: 1, fontWeight: 600 }}>
                 {op.label}
               </span>
               {op.color === 'gradient' ? (
@@ -392,7 +409,7 @@ export default function MensajeAlertaEditor({
       </div>
 
       {config.color === 'personalizado' && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 20 }}>
           <ColorPicker
             label="Color de fondo"
             value={config.colorPersonalizadoFondo}
@@ -409,8 +426,8 @@ export default function MensajeAlertaEditor({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 12,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 20,
           marginBottom: 20,
         }}
       >
@@ -423,7 +440,7 @@ export default function MensajeAlertaEditor({
             onChange={(e) => updateConfig('tamanoTexto', Number(e.target.value))}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '12px 14px',
               border: '1px solid #e5e7eb',
               borderRadius: 8,
               fontSize: 14,
@@ -458,7 +475,7 @@ export default function MensajeAlertaEditor({
                   onClick={() => updateConfig('estiloTexto', op.id)}
                   style={{
                     flex: 1,
-                    padding: '10px 8px',
+                    padding: '12px 8px',
                     background: selected ? '#ecfdf5' : '#FFFFFF',
                     border: selected ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                     borderRadius: 8,
@@ -467,6 +484,7 @@ export default function MensajeAlertaEditor({
                     color: selected ? '#10B981' : '#000000',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
+                    boxSizing: 'border-box',
                   }}
                 >
                   {op.label}
@@ -493,6 +511,7 @@ export default function MensajeAlertaEditor({
               borderRadius: 10,
               marginBottom: 10,
               cursor: 'pointer',
+              boxSizing: 'border-box',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -548,6 +567,7 @@ export default function MensajeAlertaEditor({
                 fontWeight: 500,
                 color: selected ? '#10B981' : '#000000',
                 cursor: 'pointer',
+                boxSizing: 'border-box',
               }}
             >
               {op.label}
@@ -588,19 +608,8 @@ export default function MensajeAlertaEditor({
   );
 
   /* ═══════════════════════════════════════
-     TAB: Fechas Especiales
+     TAB: Fechas Especiales — Grid Autoadaptable Premium y Ultra Responsivo
   ═══════════════════════════════════════ */
-  const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
-  ];
-
   const tabFechasEspeciales = (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -629,12 +638,15 @@ export default function MensajeAlertaEditor({
                 alignItems: 'center',
                 gap: 16,
                 transition: 'all 0.2s ease',
+                boxSizing: 'border-box',
+                minWidth: 0,
+                width: '100%',
               }}
             >
               <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {preset.label}
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ whiteSpace: 'nowrap' }}>{preset.label}</span>
                   {isSelected && (
                     <span style={{
                       background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
@@ -763,6 +775,7 @@ export default function MensajeAlertaEditor({
             borderRadius: 16,
             padding: 20,
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxSizing: 'border-box',
           }}
         >
           <div style={{ marginBottom: 14 }}>
@@ -844,4 +857,4 @@ export default function MensajeAlertaEditor({
       </div>
     </div>
   );
-          }
+       }
