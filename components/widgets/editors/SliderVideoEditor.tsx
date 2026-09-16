@@ -1,4 +1,4 @@
-// components/widgets/editors/SliderVideoEditor.tsx
+// components/widgets/editors/SliderVideoEditor.tsx .
 'use client';
 
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
