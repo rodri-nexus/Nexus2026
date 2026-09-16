@@ -623,7 +623,7 @@ function SliderVideoPreview({ config }: SliderVideoPreviewProps) {
           }}
         >
           {videosArr.map((video, i) => (
-            <VideoCardCirculo key={i} video={video} color={colorControles} />
+            <VideoCardCirculo key={i} video={video} colorControles={colorControles} />
           ))}
         </div>
       )}
@@ -634,6 +634,229 @@ function SliderVideoPreview({ config }: SliderVideoPreviewProps) {
 /* ═══════════════════════════════════════════
    UI AUXILIARES DEL EDITOR (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
+      {children}
+    </div>
+  );
+}
+
+function FieldHint({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.4 }}>
+      {children}
+    </div>
+  );
+}
+
+function TextInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{
+        width: '100%',
+        padding: '12px 14px',
+        border: '1px solid #E5E7EB',
+        borderRadius: 10,
+        fontSize: 15,
+        color: '#000000',
+        background: '#FFFFFF',
+        outline: 'none',
+        boxSizing: 'border-box',
+      }}
+    />
+  );
+}
+
+function SelectField({
+  value,
+  onChange,
+  options,
+}: {
+  value: string | number;
+  onChange: (v: string) => void;
+  options: { value: string | number; label: string }[];
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '12px 14px',
+        border: '1px solid #E5E7EB',
+        borderRadius: 10,
+        fontSize: 15,
+        color: '#000000',
+        background: '#FFFFFF',
+        outline: 'none',
+        boxSizing: 'border-box',
+        appearance: 'none',
+        backgroundImage:
+          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 14px center',
+        paddingRight: 40,
+      }}
+    >
+      {options.map((o) => (
+        <option key={String(o.value)} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function RadioCard({
+  checked,
+  onChange,
+  label,
+  description,
+  icon,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  label: React.ReactNode;
+  description?: React.ReactNode;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div
+      onClick={onChange}
+      style={{
+        background: '#FFFFFF',
+        border: checked ? '1.5px solid #10B981' : '1px solid #E5E7EB',
+        borderRadius: 12,
+        padding: 16,
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <div
+          style={{
+            width: 20,
+            height: 20,
+            borderRadius: '50%',
+            border: checked ? '2px solid #10B981' : '2px solid #D1D5DB',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            marginTop: 2,
+          }}
+        >
+          {checked && (
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                background: '#10B981',
+              }}
+            />
+          )}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#000000',
+              lineHeight: 1.4,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            {icon}
+            {label}
+          </div>
+          {description && (
+            <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
+              {description}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ColorPickerField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', minWidth: 0 }}>
+      <div
+        style={{
+          position: 'relative',
+          width: 44,
+          height: 40,
+          borderRadius: 8,
+          border: '1px solid #E5E7EB',
+          overflow: 'hidden',
+          background: value,
+          flexShrink: 0,
+        }}
+      >
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            padding: 0,
+            background: 'transparent',
+            opacity: 0,
+            cursor: 'pointer',
+          }}
+        />
+      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          flex: 1,
+          minWidth: 0,
+          width: '100%',
+          padding: '10px 12px',
+          border: '1px solid #E5E7EB',
+          borderRadius: 8,
+          fontSize: 13,
+          color: '#000000',
+          background: '#FFFFFF',
+          outline: 'none',
+          fontFamily: 'monospace',
+          boxSizing: 'border-box',
+        }}
+      />
+    </div>
+  );
+}
+
 function MarkdownTextarea({
   value,
   onChange,
@@ -973,10 +1196,7 @@ function VideoRow({
   );
 }
 
-/* ═══════════════════════════════════════════
-   COMPONENTES AUXILIARES DEL EDITOR (Regla #9 al inicio)
-═══════════════════════════════════════════ */
-function ToggleField({
+function ToggleFieldComponent({
   checked,
   onChange,
   label,
@@ -1018,44 +1238,7 @@ function ToggleField({
   );
 }
 
-function RangeSlider({
-  value,
-  onChange,
-  min,
-  max,
-  step = 1,
-  marks,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step?: number;
-  marks?: number[];
-}) {
-  return (
-    <div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#10B981' }}
-      />
-      {marks && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 4 }}>
-          {marks.map((m, i) => (
-            <span key={i}>{m}px</span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SectionCard({
+function SectionCardComponent({
   icon,
   title,
   description,
@@ -1534,7 +1717,7 @@ export default function SliderVideoEditor({
           {/* TAB: ESTILOS */}
           {tab === 'estilos' && (
             <div>
-              <SectionCard icon={<IconLayout />} title="Diseño del widget" description="Elegí cómo se presentan los videos y su estilo de interacción.">
+              <SectionCardComponent icon={<IconLayout />} title="Diseño del widget" description="Elegí cómo se presentan los videos y su estilo de interacción.">
                 <div>
                   <FieldLabel>Formato de visualización</FieldLabel>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
@@ -1556,9 +1739,9 @@ export default function SliderVideoEditor({
                     </button>
                   </div>
                 </div>
-              </SectionCard>
+              </SectionCardComponent>
 
-              <SectionCard icon={<IconPalette />} title="Colores principales" description="Configurá la paleta general del slider, título y fondo.">
+              <SectionCardComponent icon={<IconPalette />} title="Colores principales" description="Configurá la paleta general del slider, título y fondo.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de controles del slider</FieldLabel>
@@ -1574,9 +1757,9 @@ export default function SliderVideoEditor({
                     <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
                   </div>
                 </div>
-              </SectionCard>
+              </SectionCardComponent>
 
-              <SectionCard icon={<IconType />} title="Tipografías" description="Ajustá los tamaños del título y del subtítulo.">
+              <SectionCardComponent icon={<IconType />} title="Tipografías" description="Ajustá los tamaños del título y del subtítulo.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño del título</FieldLabel>
@@ -1591,9 +1774,9 @@ export default function SliderVideoEditor({
                     <SelectField value={config.alineacion} onChange={(v) => updateConfig('alineacion', v)} options={[{ value: 'izquierda', label: 'Izquierda' }, { value: 'centrado', label: 'Centrado' }, { value: 'derecha', label: 'Derecha' }]} />
                   </div>
                 </div>
-              </SectionCard>
+              </SectionCardComponent>
 
-              <SectionCard icon={<IconSliders />} title="Comportamiento y estructura" description="Ajustá reproducción, productos inline y bordes de video.">
+              <SectionCardComponent icon={<IconSliders />} title="Comportamiento y estructura" description="Ajustá reproducción, productos inline y bordes de video.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Reproducción automática</FieldLabel>
@@ -1621,9 +1804,9 @@ export default function SliderVideoEditor({
                     <SelectField value={config.mostrarBotonCarrito ? 'si' : 'no'} onChange={(v) => updateConfig('mostrarBotonCarrito', v === 'si')} options={[{ value: 'si', label: 'Mostrar' }, { value: 'no', label: 'Ocultar' }]} />
                   </div>
                 </div>
-              </SectionCard>
+              </SectionCardComponent>
 
-              <SectionCard icon={<IconSend />} title="Botón de acción" description="Definí colores y redondeado del botón asociado a cada video.">
+              <SectionCardComponent icon={<IconSend />} title="Botón de acción" description="Definí colores y redondeado del botón asociado a cada video.">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de fondo</FieldLabel>
@@ -1638,14 +1821,14 @@ export default function SliderVideoEditor({
                     <RangeSlider value={config.radioBordeBoton} onChange={(v) => updateConfig('radioBordeBoton', v)} min={0} max={25} marks={[0, 8, 25]} />
                   </div>
                 </div>
-              </SectionCard>
+              </SectionCardComponent>
             </div>
           )}
 
           {/* FOOTER */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, paddingTop: 20, borderTop: '1px solid #E5E7EB', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ToggleField checked={isActive} onChange={setIsActive} label="Widget activo" />
+              <ToggleFieldComponent checked={isActive} onChange={setIsActive} label="Widget activo" />
               <IconInfo />
             </div>
             <button
@@ -1674,4 +1857,4 @@ export default function SliderVideoEditor({
       )}
     </div>
   );
-   }
+                      }
