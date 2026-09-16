@@ -1,9 +1,8 @@
 // components/widgets/editors/CountdownEditor.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import CountdownPreview from './CountdownPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
@@ -97,6 +96,18 @@ interface CampaignThemePreset {
   tagline: string;
 }
 
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  totalSeconds: number;
+  isFinished: boolean;
+  percentConsumed: number;
+}
+
+type UrgencyState = 'normal' | 'medium' | 'critical';
+
 /* ═══════════════════════════════════════════
    PRESETS DE CAMPAÑAS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
@@ -167,6 +178,16 @@ const CAMPAIGN_THEMES: CampaignThemePreset[] = [
   },
 ];
 
+const THEME_PRESETS: Record<string, { themeColor: string; accentColor: string; badge: string; emoji: string }> = {
+  "black-friday": { themeColor: "#111827", accentColor: "#F59E0B", badge: "🔥 BLACK FRIDAY", emoji: "🔥" },
+  "hot-sale": { themeColor: "#0F172A", accentColor: "#EF4444", badge: "⚡ HOT SALE", emoji: "⚡" },
+  "cyber-monday": { themeColor: "#090D16", accentColor: "#3B82F6", badge: "🚀 CYBER MONDAY", emoji: "🚀" },
+  "navidad": { themeColor: "#064E3B", accentColor: "#EF4444", badge: "🎄 ESPECIAL NAVIDAD", emoji: "🎄" },
+  "san-valentin": { themeColor: "#831843", accentColor: "#F43F5E", badge: "💘 SAN VALENTÍN", emoji: "💘" },
+  "dia-madre-padre": { themeColor: "#312E81", accentColor: "#10B981", badge: "🎁 REGALO ESPECIAL", emoji: "🎁" },
+  "liquidacion": { themeColor: "#7F1D1D", accentColor: "#FBBF24", badge: "🏷️ SALE FINAL", emoji: "🏷️" },
+};
+
 /* ═══════════════════════════════════════════
    CONFIG POR DEFECTO (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
@@ -232,23 +253,427 @@ const defaultConfig: CountdownConfig = {
 };
 
 /* ═══════════════════════════════════════════
-   ICONOS SVG (Regla #9 al inicio)
+   PREVIEW HOOKS Y HELPERS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
-    <line x1="2" y1="7" x2="22" y2="7"/>
-    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
-    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
-  </svg>
-);
+function useTimeLeft(config: CountdownConfig): TimeLeft {
+  const startTime = useRef<number>(Date.now());
+  const totalDuration = useRef<number>((config.durationMinutes || 15) * 60 * 1000);
 
-const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-  </svg>
-);
+  useEffect(() => {
+    startTime.current = Date.now();
+    totalDuration.current = (config.durationMinutes || 15) * 60 * 1000;
+  }, [config.mode, config.durationMinutes]);
 
+  const getEndTime = (): { end: number; total: number } => {
+    if (config.mode === 'duration') {
+      return {
+        end: startTime.current + totalDuration.current,
+        total: totalDuration.current,
+      };
+    }
+
+    if (config.endDate) {
+      const t = new Date(config.endDate).getTime();
+      if (!isNaN(t) && t > Date.now()) {
+        const total = t - (Date.now() - 7 * 24 * 60 * 60 * 1000);
+        return { end: t, total };
+      }
+    }
+
+    return {
+      end: startTime.current + 15 * 60 * 1000,
+      total: 15 * 60 * 1000,
+    };
+  };
+
+  const calc = (): TimeLeft => {
+    const { end, total } = getEndTime();
+    const now = Date.now();
+    const diff = end - now;
+
+    if (diff <= 0) {
+      return {
+        days: 0, hours: 0, minutes: 0, seconds: 0,
+        totalSeconds: 0, isFinished: true, percentConsumed: 100,
+      };
+    }
+
+    const t = Math.floor(diff / 1000);
+    const consumed = Math.max(0, Math.min(100, ((total - diff) / total) * 100));
+
+    return {
+      days: Math.floor(t / 86400),
+      hours: Math.floor((t % 86400) / 3600),
+      minutes: Math.floor((t % 3600) / 60),
+      seconds: t % 60,
+      totalSeconds: t,
+      isFinished: false,
+      percentConsumed: consumed,
+    };
+  };
+
+  const [time, setTime] = useState<TimeLeft>(calc);
+
+  useEffect(() => {
+    setTime(calc());
+
+    const int = setInterval(() => {
+      const next = calc();
+
+      if (next.isFinished && config.autoRestart) {
+        startTime.current = Date.now();
+        totalDuration.current = (config.durationMinutes || 15) * 60 * 1000;
+        setTime(calc());
+      } else {
+        setTime(next);
+      }
+    }, 1000);
+
+    return () => clearInterval(int);
+  }, [config.endDate, config.autoRestart, config.durationMinutes, config.mode]);
+
+  return time;
+}
+
+function getUrgencyState(percentConsumed: number, enabled: boolean): UrgencyState {
+  if (!enabled) return 'normal';
+  if (percentConsumed >= 67) return 'critical';
+  if (percentConsumed >= 34) return 'medium';
+  return 'normal';
+}
+
+function getClockBgColor(config: CountdownConfig, state: UrgencyState): string {
+  if (state === 'critical') return config.colorClockBgCritical || '#dc2626';
+  if (state === 'medium') return config.colorClockBgMedium || '#f59e0b';
+  return config.colorClockBg || '#10B981';
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW SUB-COMPONENTS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function DigitClasico({
+  value, config, bgColor, isCritical, numbersColor,
+}: {
+  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean; numbersColor: string;
+}) {
+  const size = parseInt(config.fontSizeClock, 10) || 16;
+  return (
+    <div
+      style={{
+        minWidth: size * 2.4,
+        minHeight: size * 2.4,
+        background: bgColor,
+        color: numbersColor,
+        borderRadius: config.borderRadiusClock || 10,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: config.fontSizeClock,
+        fontWeight: 800,
+        fontVariantNumeric: 'tabular-nums',
+        padding: `${config.paddingClock || 8}px ${config.paddingClock + 4}px`,
+        lineHeight: 1,
+        transition: 'background-color 0.4s ease',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
+        animation: isCritical ? 'nvxCriticalPulse 1s ease-in-out infinite' : 'none',
+      }}
+    >
+      {value}
+    </div>
+  );
+}
+
+function DigitRetro({
+  value, config, bgColor, isCritical, numbersColor,
+}: {
+  value: string; config: CountdownConfig; bgColor: string; isCritical: boolean; numbersColor: string;
+}) {
+  const prevRef = useRef(value);
+  const [flip, setFlip] = useState(false);
+
+  useEffect(() => {
+    if (prevRef.current !== value) {
+      setFlip(true);
+      const t = setTimeout(() => setFlip(false), 400);
+      prevRef.current = value;
+      return () => clearTimeout(t);
+    }
+  }, [value]);
+
+  const size = parseInt(config.fontSizeClock, 10) || 16;
+
+  return (
+    <div style={{ display: 'inline-flex', gap: 3 }}>
+      {value.split('').map((d, i) => (
+        <div
+          key={i}
+          style={{
+            width: size * 1.4,
+            height: size * 2.4,
+            background: `linear-gradient(180deg, ${bgColor} 0%, ${bgColor} 49%, rgba(0,0,0,0.35) 50%, ${bgColor} 51%, ${bgColor} 100%)`,
+            borderRadius: config.borderRadiusClock || 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: config.fontSizeClock,
+            fontWeight: 900,
+            color: numbersColor,
+            fontFamily: "monospace",
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
+            position: 'relative',
+            overflow: 'hidden',
+            transition: 'background 0.4s ease',
+            animation: flip
+              ? 'nvxRetroFlip 0.3s ease'
+              : isCritical
+                ? 'nvxCriticalPulse 1s ease-in-out infinite'
+                : 'none',
+          }}
+        >
+          {d}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ClockUnit({
+  value, label, config, bgColor, isCritical, labelColor, numbersColor,
+}: {
+  value: number; label: string; config: CountdownConfig;
+  bgColor: string; isCritical: boolean; labelColor: string; numbersColor: string;
+}) {
+  const s = String(value).padStart(2, '0');
+  const Digit = config.style === 'retro' ? DigitRetro : DigitClasico;
+  const labelSize = Math.max(9, Math.round((parseInt(config.fontSizeClock, 10) || 16) * 0.55));
+
+  return (
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+      <Digit value={s} config={config} bgColor={bgColor} isCritical={isCritical} numbersColor={numbersColor} />
+      {config.showLabels && (
+        <span style={{
+          fontSize: labelSize,
+          fontWeight: 800,
+          color: labelColor,
+          opacity: 0.85,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+        }}>
+          {label}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function Separator({ dotColor, config }: { dotColor: string; config: CountdownConfig }) {
+  const [on, setOn] = useState(true);
+  useEffect(() => {
+    const i = setInterval(() => setOn((v) => !v), 600);
+    return () => clearInterval(i);
+  }, []);
+
+  const size = parseInt(config.fontSizeClock, 10) || 16;
+  const dotSize = Math.max(4, Math.round(size * 0.2));
+
+  return (
+    <div style={{
+      display: 'inline-flex',
+      flexDirection: 'column',
+      gap: dotSize,
+      paddingBottom: config.showLabels ? Math.round(size * 0.85) : 0,
+      opacity: on ? 1 : 0.25,
+      transition: 'opacity 0.2s ease',
+    }}>
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: dotColor, opacity: 0.85 }} />
+      <div style={{ width: dotSize, height: dotSize, borderRadius: '50%', background: dotColor, opacity: 0.85 }} />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW COMPONENT (antes CountdownPreview.tsx)
+═══════════════════════════════════════════ */
+function CountdownPreview({ config }: { config: CountdownConfig }) {
+  const time = useTimeLeft(config);
+
+  const urgencyState = getUrgencyState(time.percentConsumed, !!config.urgencyEnabled);
+  const baseClockBg = getClockBgColor(config, urgencyState);
+  const isCritical = urgencyState === 'critical';
+
+  const activeTheme = config.campaignTheme && config.campaignTheme !== 'none'
+    ? THEME_PRESETS[config.campaignTheme]
+    : null;
+
+  const effectiveBg = activeTheme
+    ? activeTheme.themeColor
+    : config.bgType === 'gradient'
+    ? `linear-gradient(${config.gradientDirection || 'to bottom right'}, ${config.colorWidgetBg || '#05070B'}, ${config.colorWidgetBg2 || '#10B981'})`
+    : config.colorWidgetBg || '#ffffff';
+
+  const effectiveTitleColor = activeTheme ? '#ffffff' : config.colorTitle || '#000000';
+  const effectiveClockBg = activeTheme ? activeTheme.accentColor : baseClockBg;
+  const effectiveNumbersColor = activeTheme
+    ? (['black-friday', 'liquidacion'].includes(config.campaignTheme || '') ? '#111827' : '#ffffff')
+    : config.colorNumbers || '#ffffff';
+  const effectiveLabelColor = activeTheme ? activeTheme.accentColor : config.colorTitle || '#000000';
+
+  const units: { v: number; l: string }[] = useMemo(() => {
+    const arr: { v: number; l: string }[] = [];
+    const showDaysActive = config.showDays && time.days > 0;
+
+    if (showDaysActive) arr.push({ v: time.days, l: 'DÍAS' });
+
+    if (config.showHours !== false) {
+      const hoursValue = showDaysActive ? time.hours : time.hours + time.days * 24;
+      arr.push({ v: hoursValue, l: 'HRS' });
+    }
+    if (config.showMinutes !== false) arr.push({ v: time.minutes, l: 'MIN' });
+    if (config.showSeconds !== false) arr.push({ v: time.seconds, l: 'SEG' });
+    return arr;
+  }, [time, config.showDays, config.showHours, config.showMinutes, config.showSeconds]);
+
+  if (units.length === 0) {
+    return (
+      <div style={{
+        padding: 20, background: '#fef2f2',
+        border: '1.5px dashed #dc2626',
+        borderRadius: 12, textAlign: 'center',
+        fontSize: 13, color: '#dc2626', fontWeight: 700,
+      }}>
+        ⚠️ Activá al menos una unidad de tiempo
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <style>{`
+        @keyframes nvxRetroFlip {
+          0% { transform: scaleY(1); opacity: 1; }
+          40%,60% { transform: scaleY(0); opacity: 0.5; }
+          100% { transform: scaleY(1); opacity: 1; }
+        }
+        @keyframes nvxCriticalPulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+          }
+        }
+      `}</style>
+
+      <div style={{
+        background: effectiveBg,
+        borderRadius: config.borderRadiusWidget || 16,
+        padding: config.paddingWidget || 18,
+        textAlign: config.alignment || 'center',
+        border: activeTheme ? `1.5px solid ${activeTheme.accentColor}44` : '1px solid rgba(0,0,0,0.06)',
+        boxShadow: activeTheme ? `0 8px 24px ${activeTheme.themeColor}55` : '0 6px 20px rgba(0, 0, 0, 0.04)',
+        transition: 'all 0.3s ease',
+      }}>
+        {activeTheme && (
+          <div style={{
+            marginBottom: 10,
+            textAlign: config.alignment === 'center' ? 'center' : 'left',
+          }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              background: activeTheme.accentColor,
+              color: ['black-friday', 'liquidacion'].includes(config.campaignTheme || '') ? '#111827' : '#ffffff',
+              fontSize: '11px',
+              fontWeight: 900,
+              padding: '3px 10px',
+              borderRadius: 999,
+              letterSpacing: '0.04em',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            }}>
+              {activeTheme.badge}
+            </span>
+          </div>
+        )}
+
+        {config.title && (
+          <div style={{
+            fontSize: config.fontSizeTitle || '18px',
+            fontWeight: 800,
+            color: effectiveTitleColor,
+            marginBottom: 12,
+            lineHeight: 1.2,
+            textAlign: config.alignment === 'center' ? 'center' : 'left',
+            letterSpacing: '-0.01em',
+          }}>
+            {config.title}
+          </div>
+        )}
+
+        {config.subtitle && (
+          <div style={{
+            marginBottom: 14,
+            textAlign: config.alignment === 'center' ? 'center' : 'left',
+          }}>
+            <span style={{
+              display: 'inline-block',
+              background: activeTheme ? `${activeTheme.accentColor}22` : (config.colorSubtitleBg || '#ecfdf5'),
+              color: activeTheme ? activeTheme.accentColor : (config.colorSubtitle || '#059669'),
+              fontSize: config.fontSizeSubtitle || '12px',
+              fontWeight: 800,
+              padding: '4px 12px',
+              borderRadius: 8,
+              border: activeTheme ? `1px solid ${activeTheme.accentColor}55` : '1px solid #a7f3d0',
+            }}>
+              {config.subtitle}
+            </span>
+          </div>
+        )}
+
+        {time.isFinished ? (
+          <div style={{
+            padding: 12,
+            color: effectiveTitleColor,
+            opacity: 0.8,
+            fontWeight: 800,
+            textAlign: 'center',
+          }}>
+            ⏰ ¡La oferta terminó!
+          </div>
+        ) : (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: config.alignment === 'center' ? 'center' : 'flex-start',
+            gap: 8,
+            flexWrap: 'wrap',
+          }}>
+            {units.map((u, i) => (
+              <div key={u.l} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <ClockUnit
+                  value={u.v}
+                  label={u.l}
+                  config={config}
+                  bgColor={effectiveClockBg}
+                  isCritical={isCritical}
+                  labelColor={effectiveLabelColor}
+                  numbersColor={effectiveNumbersColor}
+                />
+                {i < units.length - 1 && <Separator dotColor={effectiveLabelColor} config={config} />}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   ICONOS SVG DEL EDITOR (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 const IconClock = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -264,25 +689,13 @@ const IconLayers = () => (
 const IconPalette = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/>
-    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/>
+    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.9-4.5-9-10-9z"/>
   </svg>
 );
 
-const IconType = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
-  </svg>
-);
-
-const IconSpacing = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/>
-  </svg>
-);
-
-const IconFire = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+const IconClockSmall = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
   </svg>
 );
 
@@ -290,12 +703,6 @@ const IconRotate = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-  </svg>
-);
-
-const IconClockSmall = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
   </svg>
 );
 
@@ -342,7 +749,7 @@ const IconBolt = () => (
 );
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTES REUTILIZABLES (Regla #9 al inicio)
+   SUB-COMPONENTES REUTILIZABLES DEL EDITOR (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -694,7 +1101,7 @@ function ChoiceButtons({
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL (EXPORT DEFAULT)
+   COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function CountdownEditor({
   widgetDefinition,
@@ -989,8 +1396,8 @@ export default function CountdownEditor({
             />
           </>
         ) : (
-          <>
-            <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+            <div>
               <FieldLabel>Color inicial</FieldLabel>
               <ColorPickerField
                 value={config.colorWidgetBg}
@@ -999,7 +1406,7 @@ export default function CountdownEditor({
               />
             </div>
 
-            <div style={{ marginBottom: 16 }}>
+            <div>
               <FieldLabel>Color final</FieldLabel>
               <ColorPickerField
                 value={config.colorWidgetBg2}
@@ -1008,7 +1415,7 @@ export default function CountdownEditor({
               />
             </div>
 
-            <div>
+            <div style={{ gridColumn: '1 / -1' }}>
               <FieldLabel>Dirección del degradé</FieldLabel>
               <ChoiceButtons
                 value={config.gradientDirection}
@@ -1020,7 +1427,7 @@ export default function CountdownEditor({
                 ]}
               />
             </div>
-          </>
+          </div>
         )}
       </SectionCard>
 
@@ -1029,37 +1436,39 @@ export default function CountdownEditor({
         title="Colores"
         helper="Definí los colores de textos y fondos."
       >
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Color de fondo del reloj</FieldLabel>
-          <ColorPickerField
-            value={config.colorClockBg}
-            onChange={(v) => update('colorClockBg', v)}
-            showClear={false}
-          />
-        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+          <div>
+            <FieldLabel>Color de fondo del reloj</FieldLabel>
+            <ColorPickerField
+              value={config.colorClockBg}
+              onChange={(v) => update('colorClockBg', v)}
+              showClear={false}
+            />
+          </div>
 
-        <div style={{ marginBottom: 16 }}>
-          <FieldLabel>Color de fuente del título</FieldLabel>
-          <ColorPickerField
-            value={config.colorTitle}
-            onChange={(v) => update('colorTitle', v)}
-            showClear={false}
-          />
-        </div>
+          <div>
+            <FieldLabel>Color de fuente del título</FieldLabel>
+            <ColorPickerField
+              value={config.colorTitle}
+              onChange={(v) => update('colorTitle', v)}
+              showClear={false}
+            />
+          </div>
 
-        <div>
-          <FieldLabel>Color de números</FieldLabel>
-          <ColorPickerField
-            value={config.colorNumbers}
-            onChange={(v) => update('colorNumbers', v)}
-            showClear={false}
-          />
+          <div>
+            <FieldLabel>Color de números</FieldLabel>
+            <ColorPickerField
+              value={config.colorNumbers}
+              onChange={(v) => update('colorNumbers', v)}
+              showClear={false}
+            />
+          </div>
         </div>
       </SectionCard>
     </div>
   );
 
-  /* ═══ TAB FECHAS ESPECIALES (NUEVO TAB #4) ═══ */
+  /* ═══ TAB FECHAS ESPECIALES ═══ */
   const tabFechasEspeciales = (
     <div>
       <div
@@ -1080,7 +1489,7 @@ export default function CountdownEditor({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
         {CAMPAIGN_THEMES.map((theme) => {
           const isSelected = config.campaignTheme === theme.slug;
           return (
@@ -1096,6 +1505,9 @@ export default function CountdownEditor({
                 transition: 'all 0.15s ease',
                 boxShadow: isSelected ? '0 4px 14px rgba(16, 185, 129, 0.15)' : 'none',
                 position: 'relative',
+                flexWrap: 'wrap',
+                minWidth: 0,
+                boxSizing: 'border-box'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -1253,7 +1665,7 @@ export default function CountdownEditor({
         >
           {/* PREVIEW */}
           <div style={{ marginBottom: 14 }}>
-            <CountdownPreview config={config as any} />
+            <CountdownPreview config={config} />
           </div>
 
           {/* NOTA INFO */}
@@ -1276,7 +1688,7 @@ export default function CountdownEditor({
             <span>{infoBoxText}</span>
           </div>
 
-          {/* TABS (4 PESTAÑAS) */}
+          {/* TABS */}
           <div
             style={{
               display: 'flex',
