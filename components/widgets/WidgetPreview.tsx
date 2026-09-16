@@ -73,12 +73,6 @@ function renderPreview(slug: string) {
       return <MensajeGarantiaPreview />;
     case "resenas-clientes":
       return <ResenasPreview />;
-    case "badge-envio":
-      return <BadgeEnvioPreview />;
-    case "badge-cuotas":
-      return <BadgeCuotasPreview />;
-    case "badge-transferencia":
-      return <BadgeTransferenciaPreview />;
     case "caja-opiniones":
       return <CajaOpinionesPreview />;
     case "info-envio":
@@ -281,7 +275,7 @@ function HorarioAtencionPreview() {
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", alignItems: "center", justifycontent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <span style={{ fontSize: "11px" }}>⏰</span>
           <span style={{ fontSize: "8px", fontWeight: 800, color: "#111827" }}>
@@ -399,7 +393,6 @@ function RuletaDescuentosPreview() {
         🎡 ¡GIRÁ Y GANÁ!
       </div>
       
-      {/* Mini Rueda */}
       <div
         style={{
           width: "36px",
@@ -1198,84 +1191,6 @@ function ResenasPreview() {
   );
 }
 
-function BadgeEnvioPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #000000",
-        borderRadius: "8px",
-        padding: "8px 12px",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-      }}
-    >
-      <div style={{ fontSize: "20px" }}>🚚</div>
-      <div>
-        <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#000000" }}>
-          Envío GRATIS
-        </div>
-        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.6 }}>
-          En compras superiores a $50.000
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BadgeCuotasPreview() {
-  return (
-    <div
-      style={{
-        background: "#ecfdf5",
-        border: "1.5px solid #10B981",
-        borderRadius: "8px",
-        padding: "8px 12px",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-      }}
-    >
-      <div style={{ fontSize: "20px" }}>💳</div>
-      <div>
-        <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#059669" }}>
-          Hasta 12 cuotas fijas
-        </div>
-        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.7 }}>
-          Con todas las tarjetas bancarias
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BadgeTransferenciaPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #000000",
-        borderRadius: "8px",
-        padding: "8px 12px",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-      }}
-    >
-      <div style={{ fontSize: "20px" }}>💰</div>
-      <div>
-        <div style={{ fontSize: "10.5px", fontWeight: 800, color: "#000000" }}>
-          15% OFF abonando con Transferencia
-        </div>
-        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.6 }}>
-          Descuento automático al pagar
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function CajaOpinionesPreview() {
   return (
     <div
@@ -1501,4 +1416,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-                   }
+  }
