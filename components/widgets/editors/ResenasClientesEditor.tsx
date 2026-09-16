@@ -1,11 +1,14 @@
+// components/widgets/editors/ResenasClientesEditor.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import ResenasClientesPreview from './ResenasClientesPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 interface EditorProps {
   widgetDefinition: {
     id: string;
@@ -27,13 +30,50 @@ interface EditorProps {
   storeId: string;
 }
 
-const DEFAULT_CONFIG = {
-  // General
+interface ResenasClientesConfig {
+  titulo: string;
+  textoBoton: string;
+  subtitulo: string;
+  mensajeAgradecimiento: string;
+  ofrecerCupon: boolean;
+  codigoCupon: string;
+  aprobarAutomaticamente: boolean;
+  notificarPendientes: boolean;
+  mostrarTodasLasResenas: boolean;
+  activarPreguntaTalle: boolean;
+  ocultarBotonEscribir: boolean;
+  ocultarSiNoHayResenas: boolean;
+  mostrarFecha: boolean;
+  mostrarPuntuacionBajoTitulo: boolean;
+  disenoWidget: 'cuadricula' | 'lista';
+  reviewsPorPagina: number;
+  bordeBotones: number;
+  mostrarOpinionPrimero: boolean;
+  colorBotones: string;
+  colorFondo: string;
+  colorTitulo: string;
+  colorSubtitulo: string;
+  fondoSubtitulo: string;
+  colorFondoResena: string;
+  colorNombre: string;
+  colorEstrellas: string;
+  colorTextoResena: string;
+  colorFecha: string;
+  tamanoTitulo: number;
+  tamanoSubtitulo: number;
+  tamanoEstrellas: number;
+  tamanoNombre: number;
+  estiloNombre: 'normal' | 'resaltado';
+}
+
+/* ═══════════════════════════════════════════
+   CONFIG POR DEFECTO Y MOCKS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const DEFAULT_CONFIG: ResenasClientesConfig = {
   titulo: '',
   textoBoton: 'Escribir reseña',
   subtitulo: '',
-  mensajeAgradecimiento:
-    '¡Gracias! Tu reseña fue enviada y será publicada luego de ser revisada.',
+  mensajeAgradecimiento: '¡Gracias! Tu reseña fue enviada y será publicada luego de ser revisada.',
   ofrecerCupon: false,
   codigoCupon: '',
   aprobarAutomaticamente: true,
@@ -43,17 +83,11 @@ const DEFAULT_CONFIG = {
   ocultarBotonEscribir: false,
   ocultarSiNoHayResenas: false,
   mostrarFecha: false,
-
-  // Ubicaciones
   mostrarPuntuacionBajoTitulo: true,
-
-  // Estilos
   disenoWidget: 'cuadricula',
   reviewsPorPagina: 8,
   bordeBotones: 25,
   mostrarOpinionPrimero: false,
-
-  // Colores
   colorBotones: '#10B981',
   colorFondo: 'transparent',
   colorTitulo: '#000000',
@@ -64,8 +98,6 @@ const DEFAULT_CONFIG = {
   colorEstrellas: '#f5b300',
   colorTextoResena: '#333333',
   colorFecha: '#999999',
-
-  // Tipografías
   tamanoTitulo: 22,
   tamanoSubtitulo: 16,
   tamanoEstrellas: 16,
@@ -73,56 +105,359 @@ const DEFAULT_CONFIG = {
   estiloNombre: 'resaltado',
 };
 
-/* ================= HELPERS UI ================= */
+const RESENAS_MOCK = [
+  {
+    id: 'mock-1',
+    nombre: 'Valentina P.',
+    estrellas: 5,
+    verificada: true,
+    texto: 'La chaqueta es preciosa. Definitivamente volvería a comprar.',
+    foto_url: null,
+    fecha: 'Hace 2 días',
+    talle: 'M',
+    ajuste_talle: 'como_esperaba',
+  },
+  {
+    id: 'mock-2',
+    nombre: 'Noa S.',
+    estrellas: 5,
+    verificada: false,
+    texto: 'Lo usé en un evento y recibí muchos comentarios. Excelente calidad y llegó rápido.',
+    foto_url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop',
+    fecha: 'Hace 5 días',
+    talle: null,
+    ajuste_talle: null,
+  },
+  {
+    id: 'mock-3',
+    nombre: 'Camila R.',
+    estrellas: 4,
+    verificada: true,
+    texto: 'Muy buena relación calidad-precio. El talle es fiel a la descripción.',
+    foto_url: null,
+    fecha: 'Hace 1 semana',
+    talle: 'S',
+    ajuste_talle: 'como_esperaba',
+  },
+  {
+    id: 'mock-4',
+    nombre: 'Martín G.',
+    estrellas: 5,
+    verificada: true,
+    texto: 'Superó mis expectativas. Recomendado 100%.',
+    foto_url: null,
+    fecha: 'Hace 2 semanas',
+    talle: null,
+    ajuste_talle: null,
+  },
+];
 
-function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
+/* ═══════════════════════════════════════════
+   PREVIEW HOOKS Y HELPERS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function calcularPromedio(reviews: typeof RESENAS_MOCK): number {
+  if (reviews.length === 0) return 0;
+  const suma = reviews.reduce((acc, r) => acc + r.estrellas, 0);
+  return parseFloat((suma / reviews.length).toFixed(1));
+}
+
+function renderEstrellas(cantidad: number, color: string, size: number) {
+  const estrellas = [];
+  for (let i = 1; i <= 5; i++) {
+    estrellas.push(
+      <span
+        key={i}
+        style={{
+          color: i <= cantidad ? color : '#e5e5e5',
+          fontSize: `${size}px`,
+          lineHeight: 1,
+        }}
+      >
+        ★
+      </span>
+    );
+  }
+  return <span style={{ display: 'inline-flex', gap: '2px' }}>{estrellas}</span>;
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes ResenasClientesPreview.tsx)
+═══════════════════════════════════════════ */
+function ResenasClientesPreview({ config }: { config: ResenasClientesConfig }) {
+  const {
+    titulo = '',
+    textoBoton = 'Escribir reseña',
+    subtitulo = '',
+    ocultarBotonEscribir = false,
+    ocultarSiNoHayResenas = false,
+    mostrarFecha = false,
+    disenoWidget = 'cuadricula',
+    estiloNombre = 'resaltado',
+    colorBotones = '#10B981',
+    colorFondo = 'transparent',
+    colorTitulo = '#10B981',
+    colorSubtitulo = '#1a1a1a',
+    fondoSubtitulo = 'transparent',
+    colorFondoResena = '#fafafa',
+    colorNombre = '#1a1a1a',
+    colorEstrellas = '#f5b300',
+    colorTextoResena = '#555555',
+    colorFecha = '#999999',
+    tamanoTitulo = 22,
+    tamanoSubtitulo = 16,
+    tamanoEstrellas = 16,
+    tamanoNombre = 16,
+    bordeBotones = 25,
+  } = config || {};
+
+  const reviews = RESENAS_MOCK;
+  const promedio = calcularPromedio(reviews);
+  const totalReviews = reviews.length;
+
+  if (ocultarSiNoHayResenas && totalReviews === 0) {
+    return (
+      <div
+        style={{
+          padding: '32px 16px',
+          textAlign: 'center',
+          color: '#9ca3af',
+          fontSize: '13px',
+          fontStyle: 'italic',
+        }}
+      >
+        (El widget está oculto porque no hay reseñas visibles)
+      </div>
+    );
+  }
+
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M3 9l1-5h16l1 5" />
-      <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
-      <path d="M9 21V13h6v8" />
-    </svg>
+    <div
+      style={{
+        background: colorFondo === 'transparent' ? 'transparent' : colorFondo,
+        padding: '20px',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+      }}
+    >
+      {titulo && (
+        <h3
+          style={{
+            fontSize: `${tamanoTitulo}px`,
+            fontWeight: 700,
+            color: colorTitulo,
+            margin: '0 0 4px 0',
+          }}
+        >
+          {titulo}
+        </h3>
+      )}
+
+      {subtitulo && (
+        <div
+          style={{
+            display: 'inline-block',
+            fontSize: `${tamanoSubtitulo}px`,
+            color: colorSubtitulo,
+            background: fondoSubtitulo === 'transparent' ? 'transparent' : fondoSubtitulo,
+            padding: fondoSubtitulo === 'transparent' ? '0' : '4px 10px',
+            borderRadius: fondoSubtitulo === 'transparent' ? '0' : '6px',
+            marginBottom: '16px',
+          }}
+        >
+          {subtitulo}
+        </div>
+      )}
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+          padding: '16px 0',
+          borderBottom: '1px solid #f0f0f0',
+          marginBottom: '20px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              fontSize: '36px',
+              fontWeight: 700,
+              color: colorTitulo,
+              lineHeight: 1,
+            }}
+          >
+            {promedio.toString().replace('.', ',')}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {renderEstrellas(Math.round(promedio), colorEstrellas, tamanoEstrellas + 4)}
+            <div style={{ fontSize: '13px', color: '#999' }}>
+              {totalReviews} reseñas
+            </div>
+          </div>
+        </div>
+
+        {!ocultarBotonEscribir && (
+          <button
+            style={{
+              background: colorBotones,
+              color: '#fff',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: `${bordeBotones}px`,
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            {textoBoton}
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: disenoWidget === 'lista' ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: '12px',
+        }}
+      >
+        {reviews.map((r) => (
+          <div
+            key={r.id}
+            style={{
+              background: colorFondoResena,
+              borderRadius: '12px',
+              padding: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+            }}
+          >
+            {r.foto_url && (
+              <div
+                style={{
+                  width: '100%',
+                  aspectRatio: '4 / 3',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  background: '#eee',
+                }}
+              >
+                <img
+                  src={r.foto_url}
+                  alt=""
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span
+                style={{
+                  fontSize: `${tamanoNombre}px`,
+                  fontWeight: estiloNombre === 'resaltado' ? 700 : 500,
+                  color: colorNombre,
+                }}
+              >
+                {r.nombre}
+              </span>
+              {r.verificada && (
+                <span
+                  title="Compra verificada"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    background: '#1d9bf0',
+                    color: '#fff',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                  }}
+                >
+                  ✓
+                </span>
+              )}
+            </div>
+
+            {renderEstrellas(r.estrellas, colorEstrellas, tamanoEstrellas)}
+
+            <p
+              style={{
+                fontSize: '14px',
+                color: colorTextoResena,
+                margin: 0,
+                lineHeight: 1.5,
+              }}
+            >
+              {r.texto}
+            </p>
+
+            {mostrarFecha && (
+              <div style={{ fontSize: '12px', color: colorFecha, marginTop: '4px' }}>
+                {r.fecha}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-  );
-}
+/* ═══════════════════════════════════════════
+   ICONOS SVG (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l1-5h16l1 5" />
+    <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
+    <path d="M9 21V13h6v8" />
+  </svg>
+);
 
-function IconLink({ size = 18, color = '#10B981' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
-      <path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1" />
-    </svg>
-  );
-}
+const IconInfo = ({ size = 14, color = '#10B981' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
 
-function IconCopy({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <rect x="9" y="9" width="13" height="13" rx="2" />
-      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-    </svg>
-  );
-}
+const IconLink = ({ size = 18, color = '#10B981' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1" />
+    <path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1" />
+  </svg>
+);
 
-function IconUpload({ size = 18, color = '#000000' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-      <polyline points="17 8 12 3 7 8" />
-      <line x1="12" y1="3" x2="12" y2="15" />
-    </svg>
-  );
-}
+const IconCopy = ({ size = 16, color = '#10B981' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" />
+    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+  </svg>
+);
 
+const IconUpload = ({ size = 18, color = '#000000' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </svg>
+);
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES AUXILIARES DEL EDITOR (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
@@ -315,40 +650,7 @@ function CheckboxCard({
   );
 }
 
-function CheckboxSimple({
-  checked,
-  onChange,
-  label,
-  icon,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <label
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        cursor: 'pointer',
-        padding: '6px 0',
-      }}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        style={{ width: 18, height: 18, accentColor: '#10B981', cursor: 'pointer' }}
-      />
-      {icon}
-      <span style={{ fontSize: 15, color: '#000000', lineHeight: 1.4, fontWeight: 500 }}>{label}</span>
-    </label>
-  );
-}
-
-/* ===== COLOR PICKER PROFESIONAL (fácil de tocar en celular) ===== */
+/* ===== COLOR PICKER PROFESIONAL (fácil de tocar en celular - Regla #17) ===== */
 function ColorPickerField({
   label,
   value,
@@ -387,7 +689,6 @@ function ColorPickerField({
           boxSizing: 'border-box',
         }}
       >
-        {/* Swatch grande + área táctil ampliada */}
         <div
           style={{
             position: 'relative',
@@ -425,7 +726,6 @@ function ColorPickerField({
           />
         </div>
 
-        {/* Input HEX */}
         <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
           <input
             type="text"
@@ -619,8 +919,9 @@ function SectionCard({
   );
 }
 
-/* ================= EDITOR ================= */
-
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function ResenasClientesEditor({
   widgetDefinition,
   existingWidget,
@@ -630,27 +931,27 @@ export default function ResenasClientesEditor({
 }: EditorProps) {
   const router = useRouter();
 
-  const initialConfig = React.useMemo(() => {
+  const initialConfig = useMemo(() => {
     return { ...DEFAULT_CONFIG, ...(existingWidget?.config || {}) };
   }, [existingWidget]);
 
-  const [config, setConfig] = React.useState<any>(initialConfig);
-  const [isActive, setIsActive] = React.useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = React.useState<'general' | 'ubicaciones' | 'resenas' | 'estilos'>('general');
-  const [saving, setSaving] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const [copiado, setCopiado] = React.useState(false);
-  const [csvUploading, setCsvUploading] = React.useState(false);
-  const [csvResult, setCsvResult] = React.useState<{
+  const [config, setConfig] = useState<any>(initialConfig);
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [tab, setTab] = useState<'general' | 'ubicaciones' | 'resenas' | 'estilos'>('general');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState(false);
+  const [csvUploading, setCsvUploading] = useState(false);
+  const [csvResult, setCsvResult] = useState<{
     importadas: number;
     salteadas: number;
     errores: { fila: number; motivo: string }[];
   } | null>(null);
-  const csvInputRef = React.useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   const updateConfig = (k: string, v: any) => setConfig((c: any) => ({ ...c, [k]: v }));
 
-  const linkCalificar = React.useMemo(() => {
+  const linkCalificar = useMemo(() => {
     const base = typeof window !== 'undefined' ? window.location.origin : 'https://mitienda.com';
     if (targetType === 'product' && productId) {
       return `${base}/productos/${productId}?calificar`;
@@ -889,7 +1190,7 @@ export default function ResenasClientesEditor({
               marginBottom: 8,
             }}
           >
-            <IconInfo size={16} color="#10B981" />
+            <IconInfo />
             <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
               Las reseñas aparecerán debajo de la sección del producto.
             </span>
@@ -1190,7 +1491,6 @@ export default function ResenasClientesEditor({
           {/* ============ TAB: RESEÑAS ============ */}
           {tab === 'resenas' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Estado vacío */}
               <div
                 style={{
                   background: '#FFFFFF',
@@ -1222,7 +1522,6 @@ export default function ResenasClientesEditor({
                 </div>
               </div>
 
-              {/* Botón importar CSV */}
               <div
                 style={{
                   background: '#FFFFFF',
@@ -1281,14 +1580,11 @@ export default function ResenasClientesEditor({
                 </div>
               </div>
 
-              {/* Resultado de importación */}
               {csvResult && (
                 <div
                   style={{
                     background: csvResult.errores.length > 0 ? '#FEF3C7' : '#D1FAE5',
-                    border: `1px solid ${
-                      csvResult.errores.length > 0 ? '#FCD34D' : '#6EE7B7'
-                    }`,
+                    border: `1px solid ${csvResult.errores.length > 0 ? '#FCD34D' : '#6EE7B7'}`,
                     borderRadius: 12,
                     padding: 16,
                   }}
@@ -1355,14 +1651,7 @@ export default function ResenasClientesEditor({
             <div>
               <SectionCard
                 icon={
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#10B981"
-                    strokeWidth="2"
-                  >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <line x1="4" y1="6" x2="20" y2="6" />
                     <line x1="4" y1="12" x2="14" y2="12" />
                     <line x1="4" y1="18" x2="18" y2="18" />
@@ -1373,19 +1662,15 @@ export default function ResenasClientesEditor({
               >
                 <div>
                   <FieldLabel>Diseño del widget</FieldLabel>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
                     <button
                       type="button"
                       onClick={() => updateConfig('disenoWidget', 'cuadricula')}
                       style={{
                         padding: '14px 12px',
                         borderRadius: 10,
-                        border:
-                          config.disenoWidget === 'cuadricula'
-                            ? '1.5px solid #10B981'
-                            : '1px solid #e5e7eb',
-                        background:
-                          config.disenoWidget === 'cuadricula' ? '#ecfdf5' : '#FFFFFF',
+                        border: config.disenoWidget === 'cuadricula' ? '1.5px solid #10B981' : '1px solid #e5e7eb',
+                        background: config.disenoWidget === 'cuadricula' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1410,10 +1695,7 @@ export default function ResenasClientesEditor({
                       style={{
                         padding: '14px 12px',
                         borderRadius: 10,
-                        border:
-                          config.disenoWidget === 'lista'
-                            ? '1.5px solid #10B981'
-                            : '1px solid #e5e7eb',
+                        border: config.disenoWidget === 'lista' ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                         background: config.disenoWidget === 'lista' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
@@ -1438,7 +1720,7 @@ export default function ResenasClientesEditor({
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div>
                     <FieldLabel>Reviews por página</FieldLabel>
                     <SelectField
@@ -1474,14 +1756,7 @@ export default function ResenasClientesEditor({
 
               <SectionCard
                 icon={
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#10B981"
-                    strokeWidth="2"
-                  >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <circle cx="13.5" cy="6.5" r="1.5" />
                     <circle cx="17.5" cy="10.5" r="1.5" />
                     <circle cx="8.5" cy="7.5" r="1.5" />
@@ -1492,8 +1767,7 @@ export default function ResenasClientesEditor({
                 title="Colores principales"
                 description="Personalizá los colores de botones, fondo, título, subtítulo y reseñas."
               >
-                {/* 1 color por fila = fácil de tocar y se ve profesional en celular */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <ColorPickerField
                     label="Color de los botones"
                     value={config.colorBotones}
@@ -1549,14 +1823,7 @@ export default function ResenasClientesEditor({
 
               <SectionCard
                 icon={
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#10B981"
-                    strokeWidth="2"
-                  >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
                     <polyline points="4 7 4 4 20 4 20 7" />
                     <line x1="9" y1="20" x2="15" y2="20" />
                     <line x1="12" y1="4" x2="12" y2="20" />
@@ -1565,7 +1832,7 @@ export default function ResenasClientesEditor({
                 title="Tipografías"
                 description="Ajustá el tamaño de fuente del título y del subtítulo."
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div>
                     <FieldLabel>Tamaño de fuente del título</FieldLabel>
                     <SelectField
@@ -1614,17 +1881,14 @@ export default function ResenasClientesEditor({
 
                 <div>
                   <FieldLabel>Estilo del nombre de la reseña</FieldLabel>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
                     <button
                       type="button"
                       onClick={() => updateConfig('estiloNombre', 'normal')}
                       style={{
                         padding: '14px 12px',
                         borderRadius: 10,
-                        border:
-                          config.estiloNombre === 'normal'
-                            ? '1.5px solid #10B981'
-                            : '1px solid #e5e7eb',
+                        border: config.estiloNombre === 'normal' ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                         background: config.estiloNombre === 'normal' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
@@ -1643,10 +1907,7 @@ export default function ResenasClientesEditor({
                       style={{
                         padding: '14px 12px',
                         borderRadius: 10,
-                        border:
-                          config.estiloNombre === 'resaltado'
-                            ? '1.5px solid #10B981'
-                            : '1px solid #e5e7eb',
+                        border: config.estiloNombre === 'resaltado' ? '1.5px solid #10B981' : '1px solid #e5e7eb',
                         background: config.estiloNombre === 'resaltado' ? '#ecfdf5' : '#FFFFFF',
                         cursor: 'pointer',
                         display: 'flex',
@@ -1735,4 +1996,4 @@ export default function ResenasClientesEditor({
       )}
     </div>
   );
-                   }
+  }
