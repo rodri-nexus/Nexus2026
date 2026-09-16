@@ -1,4 +1,3 @@
-// app/components/landing/FeatureWidgets.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -53,14 +52,14 @@ interface ProToolItem {
 }
 
 /* ═══════════════════════════════════════════
-   DATOS DE LOS 27 WIDGETS POR OBJETIVO
+   DATOS DE LOS 29 WIDGETS POR OBJETIVO
 ═══════════════════════════════════════════ */
 const WIDGETS_DATA: WidgetItem[] = [
   // 💰 AUMENTO DE TICKET PROMEDIO (AOV)
   {
     id: "bundle-promociones",
     nombre: "Bundle Promociones",
-    problemaSolucion: "Incentiva a llevar 2 o 3 unidades ofreciendo descuentos automáticos por volumen.",
+    problemaSolucion: "Incentiva a llevar 2 o 3 unidades del mismo producto ofreciendo descuentos automáticos por volumen.",
     categoria: "aov",
     badge: "Más Facturación",
     icono: "📦",
@@ -68,41 +67,33 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "bundle-cantidad",
     nombre: "Bundle por Cantidad",
-    problemaSolucion: "Escala de precios por unidad para que el cliente siempre elija la opción más grande.",
+    problemaSolucion: "Escala visual de precios para que el cliente siempre elija llevar mayor cantidad de artículos.",
     categoria: "aov",
     badge: "Ticket Alto",
     icono: "🔢",
   },
   {
-    id: "pack-complementarios",
-    nombre: "Pack 'Comprados Juntos'",
-    problemaSolucion: "Suma productos relacionados (ej: remera + cinturón) al carrito en un solo toque.",
-    categoria: "aov",
-    badge: "Cross-Selling",
-    icono: "🛍️",
-  },
-  {
-    id: "extras-interruptor",
-    nombre: "Extras con Switch",
-    problemaSolucion: "Ofrece packaging de regalo o garantía extendida con un interruptor directo al carrito.",
-    categoria: "aov",
-    badge: "Margen Extra",
-    icono: "🔘",
-  },
-  {
     id: "barra-progreso",
     nombre: "Barra de Envío Gratis",
-    problemaSolucion: "Muestra '¡Te faltan $X para Envío Gratis!' motivando a sumar un producto más.",
+    problemaSolucion: "Muestra la barra interactiva con '¡Te faltan $X para Envío Gratis!', motivando a sumar más productos.",
     categoria: "aov",
     badge: "Cero Dudas",
     icono: "📊",
+  },
+  {
+    id: "calculadora-ahorro",
+    nombre: "Calculadora de Ahorro",
+    problemaSolucion: "Mide y muestra de forma clara cuánto dinero se ahorra el cliente si compra hoy con descuento.",
+    categoria: "aov",
+    badge: "Ahorro Directo",
+    icono: "💰",
   },
 
   // ⚡ URGENCIA Y CIERRE INMEDIATO
   {
     id: "cuenta-regresiva",
     nombre: "Cuenta Regresiva",
-    problemaSolucion: "Crea FOMO con un reloj dinámico de liquidación para que no pospongan la compra.",
+    problemaSolucion: "Crea FOMO con un reloj dinámico de liquidación para que los usuarios no pospongan su decisión.",
     categoria: "urgencia",
     badge: "Venta Rápida",
     icono: "⏳",
@@ -110,41 +101,49 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "contador-visitas",
     nombre: "Contador de Personas en Vivo",
-    problemaSolucion: "Muestra cuántos visitantes miran el producto ahora, demostrando alta demanda.",
+    problemaSolucion: "Muestra de manera elegante cuántos visitantes están mirando el producto en este preciso instante.",
     categoria: "urgencia",
     badge: "Prueba Social",
     icono: "👀",
   },
   {
+    id: "contador-vendidos",
+    nombre: "Contador de Vendidos",
+    problemaSolucion: "Destaca el éxito del artículo mostrando la cantidad vendida recientemente y simulación en vivo.",
+    categoria: "urgencia",
+    badge: "Alta Demanda",
+    icono: "📈",
+  },
+  {
     id: "mensaje-alerta",
     nombre: "Aviso de Últimas Unidades",
-    problemaSolucion: "Destaca escasez real ('¡Últimas 2 unidades en stock!') para cerrar en el momento.",
+    problemaSolucion: "Destaca urgencia y escasez extrema ('¡Últimas 3 unidades!') impulsando una compra instantánea.",
     categoria: "urgencia",
     badge: "Escasez",
     icono: "🚨",
   },
   {
+    id: "edicion-limitada",
+    nombre: "Sticker Edición Limitada",
+    problemaSolucion: "Aplica un sello visual premium sobre la imagen del producto para comunicar exclusividad única.",
+    categoria: "urgencia",
+    badge: "Exclusivo",
+    icono: "✨",
+  },
+  {
     id: "badge-cupon",
     nombre: "Cupón Troquelado",
-    problemaSolucion: "Código de descuento visual con botón de copiado en 1 clic para usar en el checkout.",
+    problemaSolucion: "Código de descuento visual con botón interactivo de copiado rápido en un clic.",
     categoria: "urgencia",
     badge: "1 Clic",
     icono: "🎟️",
-  },
-  {
-    id: "banner-deslizante",
-    nombre: "Banner Ticker Infinito",
-    problemaSolucion: "Cinta continua con promociones y cuotas pasando en la cabecera sin molestar.",
-    categoria: "urgencia",
-    badge: "Visual",
-    icono: "📢",
   },
 
   // 🛡️ CONFIANZA Y ANTIDEVOLUCIONES
   {
     id: "tabla-talles",
-    nombre: "Tabla de Talles Inteligente",
-    problemaSolucion: "El cliente elige su talle y se selecciona automáticamente en la tienda. Cero cambios.",
+    nombre: "Tabla de Talles INTERACTIVA",
+    problemaSolucion: "El cliente visualiza y calcula su medida exacta de forma interactiva. Reduce reclamos y devoluciones.",
     categoria: "confianza",
     badge: "Antidevolución",
     icono: "📏",
@@ -152,7 +151,7 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "resenas-foto",
     nombre: "Muro de Fotos Reales (UGC)",
-    problemaSolucion: "Tus clientes suben fotos reales de cómo les queda el producto desde su celular.",
+    problemaSolucion: "Tus clientes suben opiniones con fotos de cómo les queda puesto el producto desde su celular.",
     categoria: "confianza",
     badge: "+45% Confianza",
     icono: "📸",
@@ -160,7 +159,7 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "resenas-clientes",
     nombre: "Calificaciones de Clientes",
-    problemaSolucion: "Puntaje de 5 estrellas verificado y testimonios destacados cerca del botón de compra.",
+    problemaSolucion: "Muestra puntaje estelar y reseñas destacadas cerca del botón de compra para derribar objeciones.",
     categoria: "confianza",
     badge: "Reputación",
     icono: "⭐",
@@ -168,15 +167,15 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "caja-opiniones",
     nombre: "Caja de Opiniones",
-    problemaSolucion: "Comentarios reales y preguntas frecuentes justo donde el cliente toma la decisión.",
+    problemaSolucion: "Muestra comentarios de valor y preguntas frecuentes que facilitan la toma de decisión.",
     categoria: "confianza",
     badge: "Claridad",
     icono: "💬",
   },
   {
     id: "comparador-marca",
-    nombre: "Tabla Comparativa",
-    problemaSolucion: "Demuestra por qué tu producto es superior vs otras marcas genéricas.",
+    nombre: "Tabla Comparativa de Marca",
+    problemaSolucion: "Diferencia de forma contundente por qué tu marca es superior frente a alternativas genéricas.",
     categoria: "confianza",
     badge: "Autoridad",
     icono: "⚖️",
@@ -184,91 +183,107 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "info-compra",
     nombre: "Tarjeta de Compra Unificada",
-    problemaSolucion: "Envío, cuotas y descuento por transferencia resumidos en una sola tarjeta elegante.",
+    problemaSolucion: "Consolida envío, cuotas y descuento por transferencia en un bloque premium de alto impacto.",
     categoria: "confianza",
     badge: "Todo en Uno",
-    icono: "✨",
+    icono: "💳",
   },
   {
     id: "medios-pago",
-    nombre: "Medios de Pago y Tarjetas",
-    problemaSolucion: "Muestra claramente con qué tarjetas, pasarelas y bancos pueden pagar.",
+    nombre: "Medios de Pago y Financiación",
+    problemaSolucion: "Expone claramente las opciones de pago bancario, tarjetas y cuotas aceptadas.",
     categoria: "confianza",
-    badge: "Financiación",
-    icono: "💳",
+    badge: "Transparencia",
+    icono: "🏧",
   },
   {
     id: "info-envio",
     nombre: "Plazos de Envío Claros",
-    problemaSolucion: "Informa tiempos estimados de entrega para que no teman demoras en el paquete.",
+    problemaSolucion: "Informa tiempos aproximados de entrega en base al código postal del cliente.",
     categoria: "confianza",
-    badge: "Logística",
+    badge: "Seguridad",
     icono: "🚚",
   },
   {
     id: "info-despacho",
-    nombre: "Aviso 'Despachamos en 24hs'",
-    problemaSolucion: "Tranquiliza al comprador asegurando despacho rápido en el día.",
+    nombre: "Aviso de Despacho en 24hs",
+    problemaSolucion: "Brinda tranquilidad al comprador indicando que el producto sale del depósito de inmediato.",
     categoria: "confianza",
-    badge: "Velocidad",
+    badge: "Logística",
     icono: "⏱️",
   },
   {
     id: "mensaje-garantia",
     nombre: "Sello de Garantía Oficial",
-    problemaSolucion: "Garantía de devolución o cambio sin preguntas para eliminar el miedo al riesgo.",
+    problemaSolucion: "Elimina por completo el miedo al riesgo ofreciendo cambio o devolución fácil sin cargo.",
     categoria: "confianza",
     badge: "Cero Riesgo",
     icono: "🛡️",
   },
   {
     id: "badge-cuotas",
-    nombre: "Badge Cuotas sin Interés",
-    problemaSolucion: "Destaca 3, 6, 9 o 12 cuotas para compras de valor alto.",
+    nombre: "Badge de Cuotas sin Interés",
+    problemaSolucion: "Insignia elegante que resalta la financiación disponible en tu comercio.",
     categoria: "confianza",
-    badge: "Facilidades",
+    badge: "Atracción",
     icono: "🏷️",
   },
   {
     id: "badge-envio",
-    nombre: "Badge Envío Gratis",
-    problemaSolucion: "Insignia visual atractiva para productos con envío bonificado.",
+    nombre: "Badge de Envío Gratis",
+    problemaSolucion: "Destaca a primera vista los productos que cuentan con envío 100% bonificado.",
     categoria: "confianza",
     badge: "Beneficio",
     icono: "✈️",
   },
   {
     id: "badge-transferencia",
-    nombre: "Badge Descuento Transferencia",
-    problemaSolucion: "Destaca el porcentaje de ahorro pagando con transferencia bancaria.",
+    nombre: "Badge de Transferencia",
+    problemaSolucion: "Llama la atención hacia el descuento adicional por pagar con transferencia bancaria.",
     categoria: "confianza",
     badge: "Ahorro",
     icono: "🏦",
+  },
+  {
+    id: "horario-atencion",
+    nombre: "Horario de Atención",
+    problemaSolucion: "Comunica el horario de atención online e indica si estás abierto/cerrado con un detector en vivo.",
+    categoria: "confianza",
+    badge: "Atención Humana",
+    icono: "⏰",
   },
 
   // 🎡 INTERACTIVOS Y GAMIFICACIÓN
   {
     id: "ruleta-descuentos",
     nombre: "Ruleta Popup Inteligente",
-    problemaSolucion: "Captura emails entregando cupones con blindaje anti-saturación (no molesta al cliente).",
+    problemaSolucion: "Captura correos electrónicos de nuevos visitantes entregando cupones con sistema anti-saturación.",
     categoria: "gamificacion",
     badge: "Captura Leads",
     icono: "🎡",
+  },
+  {
+    id: "marquee-novedades",
+    nombre: "Marquee de Novedades",
+    problemaSolucion: "Cinta animada horizontal sin pausas para anunciar lanzamientos y promociones especiales.",
+    categoria: "gamificacion",
+    badge: "Anuncios",
+    icono: "📣",
   },
 
   // 📱 EXPERIENCIA APP EN CELULARES
   {
     id: "menu-circulos",
     nombre: "Historias en la Home",
-    problemaSolucion: "Círculos estilo Instagram en tu inicio para navegar colecciones de forma visual.",
+    problemaSolucion: "Menú circular estilo Historias de Instagram en tu inicio para navegar categorías visualmente.",
     categoria: "home",
     badge: "Mobile First",
     icono: "⭕",
   },
   {
     id: "slider-categorias",
-    nombre: "Slider de Categorías",
-    problemaSolucion: "Carrusel moderno de colecciones para encontrar rápido lo que buscan.",
+    nombre: "Slider de Colecciones",
+    problemaSolucion: "Carrusel moderno de categorías visuales para acceder rápido a los productos clave.",
     categoria: "home",
     badge: "Navegación",
     icono: "🗂️",
@@ -276,7 +291,7 @@ const WIDGETS_DATA: WidgetItem[] = [
   {
     id: "slider-video",
     nombre: "Slider de Video Vertical",
-    problemaSolucion: "Reels y videos de producto para mostrar cómo queda puesto en formato celular.",
+    problemaSolucion: "TikTok y Reels de producto directamente en la tienda para mostrar el calce perfecto.",
     categoria: "home",
     badge: "Estilo TikTok",
     icono: "🎬",
@@ -284,11 +299,11 @@ const WIDGETS_DATA: WidgetItem[] = [
 ];
 
 const CATEGORIAS: CategoriaItem[] = [
-  { id: "todos", label: "Todos los Widgets (27)", icon: Sparkles },
+  { id: "todos", label: "Todos los Widgets (29)", icon: Sparkles },
   { id: "aov", label: "💰 Aumentar Ticket", icon: TrendingUp },
   { id: "urgencia", label: "⚡ Generar Urgencia", icon: Flame },
   { id: "confianza", label: "🛡️ Confianza & Talles", icon: ShieldCheck },
-  { id: "gamificacion", label: "🎡 Gamificación", icon: Gift },
+  { id: "gamificacion", label: "🎡 Interactivos", icon: Gift },
   { id: "home", label: "📱 Estilo App", icon: Smartphone },
 ];
 
@@ -296,13 +311,13 @@ const PRO_TOOLS: ProToolItem[] = [
   {
     titulo: "NevuxBot AI CRM (WhatsApp)",
     badge: "RECUPERO DE VENTAS",
-    descripcion: "Detección inteligente de carritos caídos. La IA redacta el mensaje persuasivo exacto y dispara directo a WhatsApp en 1 clic.",
+    descripcion: "Detección inteligente de carritos abandonados. La IA redacta el mensaje persuasivo y lo envía directo a WhatsApp en 1 clic.",
     icono: Bot,
   },
   {
     titulo: "Live Analytics & ROI Tracker",
     badge: "FACTURACIÓN EN VIVO",
-    descripcion: "Telemetría en tiempo real que mide con exactitud cuántos pesos extra generó cada widget activado en tu tienda.",
+    descripcion: "Telemetría en tiempo real que mide con exactitud cuántos pesos extra generó cada widget activado en tu Tiendanube.",
     icono: BarChart3,
   },
   {
@@ -429,7 +444,7 @@ export default function FeatureWidgets() {
               fontWeight: 500,
             }}
           >
-            Elegí qué querés mejorar hoy en tu tienda: subir el ticket promedio, eliminar dudas de medidas o generar compras rápidas.
+            Elegí qué querés mejorar hoy en tu tienda: subir el ticket promedio, eliminar dudas de medidas o generar compras rápidas en caliente.
           </p>
         </div>
 
@@ -814,4 +829,4 @@ export default function FeatureWidgets() {
       </div>
     </section>
   );
-    }
+      }
