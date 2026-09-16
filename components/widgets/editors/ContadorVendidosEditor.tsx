@@ -742,7 +742,7 @@ export default function ContadorVendidosEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS ═══ */
+  /* ═══ TAB ESTILOS (DISEÑO RE-ACOMODADO ADAPTABLE) ═══ */
   const tabEstilos = (
     <div>
       {/* Estilo visual */}
@@ -776,8 +776,13 @@ export default function ContadorVendidosEditor({
         </div>
       </div>
 
-      {/* Colores */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+      {/* Colores — Grid Autoadaptable Premium */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
+        gap: 20, 
+        marginBottom: 20 
+      }}>
         <div>
           <FieldLabel>Color de fondo</FieldLabel>
           <ColorPickerField value={config.colorFondo} onChange={(v) => update('colorFondo', v)} />
@@ -796,8 +801,13 @@ export default function ContadorVendidosEditor({
         </div>
       </div>
 
-      {/* Punto pulsante & Tamaño */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      {/* Punto pulsante & Tamaño — Grid Autoadaptable Premium */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
+        gap: 20, 
+        marginBottom: 24 
+      }}>
         <div>
           <FieldLabel>Tamaño de fuente</FieldLabel>
           <SelectField
@@ -1087,4 +1097,4 @@ export default function ContadorVendidosEditor({
       </div>
     </div>
   );
-  }
+     }
