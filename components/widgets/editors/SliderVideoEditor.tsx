@@ -1857,4 +1857,4 @@ export default function SliderVideoEditor({
       )}
     </div>
   );
-                      }
+}
