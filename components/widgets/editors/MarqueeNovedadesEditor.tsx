@@ -1,4 +1,3 @@
-// components/widgets/editors/MarqueeNovedadesEditor.tsx
 'use client';
 
 import { useState } from 'react';
@@ -471,10 +470,15 @@ export default function MarqueeNovedadesEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS ═══ */
+  /* ═══ TAB ESTILOS (Grid adaptativo sin desbordes corregido) ═══ */
   const tabEstilos = (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
+        gap: 20, 
+        marginBottom: 24 
+      }}>
         <div>
           <FieldLabel>Color de fondo</FieldLabel>
           <ColorPickerField value={config.bgColor} onChange={(v) => update('bgColor', v)} />
