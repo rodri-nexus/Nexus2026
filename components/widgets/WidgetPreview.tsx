@@ -275,7 +275,7 @@ function HorarioAtencionPreview() {
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifycontent: "space-between" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <span style={{ fontSize: "11px" }}>⏰</span>
           <span style={{ fontSize: "8px", fontWeight: 800, color: "#111827" }}>
@@ -1416,4 +1416,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-  }
+    }
