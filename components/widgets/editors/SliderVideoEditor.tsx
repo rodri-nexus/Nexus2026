@@ -1,10 +1,34 @@
+// components/widgets/editors/SliderVideoEditor.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import SliderVideoPreview from './SliderVideoPreview';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+interface VideoItem {
+  url?: string;
+  path?: string;
+  nombre?: string;
+  tamanoBytes: number;
+  productoId?: number | null;
+  productoData?: {
+    id: number;
+    name: string;
+    price: number;
+    image?: string;
+  } | null;
+}
+
+interface ProductoAPI {
+  id: number;
+  name: string;
+  price: string;
+  image?: string;
+}
 
 interface EditorProps {
   widgetDefinition: {
@@ -27,27 +51,36 @@ interface EditorProps {
   storeId: string;
 }
 
-interface VideoItem {
-  url: string;
-  path: string;
-  nombre: string;
-  tamanoBytes: number;
-  productoId: number | null;
-  productoData: {
-    id: number;
-    name: string;
-    price: number;
-    image?: string;
-  } | null;
+interface SliderVideoPreviewProps {
+  config: {
+    titulo?: string;
+    subtitulo?: string;
+    videos?: VideoItem[];
+    posicion?: 'antes' | 'despues';
+    formato?: 'slider' | 'circulos';
+    colorControles?: string;
+    colorTitulo?: string;
+    colorFondo?: string;
+    tamanoTitulo?: string;
+    tamanoSubtitulo?: string;
+    alineacion?: 'izquierda' | 'centrado' | 'derecha';
+    reproduccionAutomatica?: boolean;
+    desactivarExpandir?: boolean;
+    productosBajoVideo?: boolean;
+    radioBordeVideos?: number;
+    mostrarPrecio?: boolean;
+    mostrarBotonCarrito?: boolean;
+    colorBotonFondo?: string;
+    colorBotonTexto?: string;
+    radioBordeBoton?: number;
+    pulsante?: boolean;
+    efectoBoton?: 'sin-efecto' | 'zoom';
+  };
 }
 
-interface ProductoAPI {
-  id: number;
-  name: string;
-  price: string;
-  image?: string;
-}
-
+/* ═══════════════════════════════════════════
+   CONSTANTES Y DEFAULTS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 const MAX_VIDEOS = 10;
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_EXTS = ['mp4', 'mov', 'avi', 'wmv', 'webm'];
@@ -75,324 +108,874 @@ const DEFAULT_CONFIG = {
   radioBordeBoton: 8,
 };
 
-const GRID_RESPONSIVE_2COL: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-  gap: 14,
-};
+/* ═══════════════════════════════════════════
+   HELPERS GLOBALES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function parseMarkdownLigero(texto: string): string {
+  if (!texto) return '';
+  let html = texto
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 
-/* ================= HELPERS UI ================= */
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/__(.+?)__/g, '<u>$1</u>');
+  html = html.replace(/\n/g, '<br />');
 
-function IconStore({ size = 16, color = '#FFFFFF' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <path d="M3 9l1-5h16l1 5" />
-      <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
-      <path d="M9 21V13h6v8" />
-    </svg>
-  );
+  return html;
 }
 
-function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-  );
+function formatPrecio(precio: number): string {
+  try {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      maximumFractionDigits: 0,
+    }).format(precio);
+  } catch {
+    return `$${precio}`;
+  }
 }
 
-function IconUploadCloud({ size = 40, color = '#000000' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5">
-      <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
-      <polyline points="12 12 12 18" />
-      <polyline points="9 15 12 12 15 15" />
-    </svg>
-  );
-}
+/* ═══════════════════════════════════════════
+   ICONOS SVG (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const IconStore = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l1-5h16l1 5" />
+    <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
+    <path d="M9 21V13h6v8" />
+  </svg>
+);
 
-function IconLayout() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-      <rect x="3" y="3" width="7" height="18" rx="1" />
-      <rect x="14" y="3" width="7" height="9" rx="1" />
-      <rect x="14" y="15" width="7" height="6" rx="1" />
-    </svg>
-  );
-}
+const IconInfo = ({ size = 14, color = '#10B981' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
 
-function IconPalette() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-      <circle cx="13.5" cy="6.5" r="1.5" />
-      <circle cx="17.5" cy="10.5" r="1.5" />
-      <circle cx="8.5" cy="7.5" r="1.5" />
-      <circle cx="6.5" cy="12.5" r="1.5" />
-      <path d="M12 2a10 10 0 100 20 1 1 0 001-1v-.5a2 2 0 012-2h1.5a2.5 2.5 0 002.5-2.5A9 9 0 0012 2z" />
-    </svg>
-  );
-}
+const IconUploadCloud = ({ size = 40, color = '#000000' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" />
+    <polyline points="12 12 12 18" />
+    <polyline points="9 15 12 12 15 15" />
+  </svg>
+);
 
-function IconType() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-      <polyline points="4 7 4 4 20 4 20 7" />
-      <line x1="9" y1="20" x2="15" y2="20" />
-      <line x1="12" y1="4" x2="12" y2="20" />
-    </svg>
-  );
-}
+const IconLayout = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="18" rx="1" />
+    <rect x="14" y="3" width="7" height="9" rx="1" />
+    <rect x="14" y="15" width="7" height="6" rx="1" />
+  </svg>
+);
 
-function IconSliders() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-      <line x1="4" y1="21" x2="4" y2="14" />
-      <line x1="4" y1="10" x2="4" y2="3" />
-      <line x1="12" y1="21" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12" y2="3" />
-      <line x1="20" y1="21" x2="20" y2="16" />
-      <line x1="20" y1="12" x2="20" y2="3" />
-      <line x1="1" y1="14" x2="7" y2="14" />
-      <line x1="9" y1="8" x2="15" y2="8" />
-      <line x1="17" y1="16" x2="23" y2="16" />
-    </svg>
-  );
-}
+const IconPalette = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="13.5" cy="6.5" r="1.5" />
+    <circle cx="17.5" cy="10.5" r="1.5" />
+    <circle cx="8.5" cy="7.5" r="1.5" />
+    <circle cx="6.5" cy="12.5" r="1.5" />
+    <path d="M12 2a10 10 0 100 20 1 1 0 001-1v-.5a2 2 0 012-2h1.5a2.5 2.5 0 002.5-2.5A9 9 0 0012 2z" />
+  </svg>
+);
 
-function IconSend() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-      <line x1="22" y1="2" x2="11" y2="13" />
-      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-    </svg>
-  );
-}
+const IconType = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="4 7 4 4 20 4 20 7" />
+    <line x1="9" y1="20" x2="15" y2="20" />
+    <line x1="12" y1="4" x2="12" y2="20" />
+  </svg>
+);
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
+const IconSliders = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="4" y1="21" x2="4" y2="14" />
+    <line x1="4" y1="10" x2="4" y2="3" />
+    <line x1="12" y1="21" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12" y2="3" />
+    <line x1="20" y1="21" x2="20" y2="16" />
+    <line x1="20" y1="12" x2="20" y2="3" />
+    <line x1="1" y1="14" x2="7" y2="14" />
+    <line x1="9" y1="8" x2="15" y2="8" />
+    <line x1="17" y1="16" x2="23" y2="16" />
+  </svg>
+);
+
+const IconSend = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const IconPlay = ({ size = 48, color = '#ffffff' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
+    <path d="M10 8L16 12L10 16V8Z" fill={color} />
+  </svg>
+);
+
+const IconArrow = ({ direction, color }: { direction: 'left' | 'right'; color: string }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    style={{ transform: direction === 'left' ? 'rotate(180deg)' : 'none' }}
+  >
+    <path d="M9 6L15 12L9 18" stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconCart = ({ color = '#ffffff' }: { color?: string }) => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path
+      d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.07 15.93 4.52 17 5.4 17H17M17 17C15.9 17 15 17.9 15 19C15 20.1 15.9 21 17 21C18.1 21 19 20.1 19 19C19 17.9 18.1 17 17 17ZM9 19C9 20.1 8.1 21 7 21C5.9 21 5 20.1 5 19C5 17.9 5.9 17 7 17C8.1 17 9 17.9 9 19Z"
+      stroke={color}
+      strokeWidth="2.2"
+    />
+  </svg>
+);
+
+/* ═══════════════════════════════════════════
+   PREVIEW SUB-COMPONENTES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function ProductoCard({
+  producto,
+  config,
+}: {
+  producto: NonNullable<VideoItem['productoData']>;
+  config: any;
+}) {
+  const {
+    mostrarPrecio = true,
+    mostrarBotonCarrito = true,
+    colorBotonFondo = '#10B981',
+    colorBotonTexto = '#ffffff',
+    radioBordeBoton = 10,
+  } = config;
+
   return (
-    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
-      {children}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 10px',
+        background: '#ffffff',
+        borderRadius: 12,
+        border: '1px solid rgba(0,0,0,0.08)',
+        marginTop: 10,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+      }}
+    >
+      {producto.image ? (
+        <img
+          src={producto.image}
+          alt={producto.name}
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: 8,
+            objectFit: 'cover',
+            flexShrink: 0,
+          }}
+        />
+      ) : (
+        <div style={{ width: 42, height: 42, borderRadius: 8, background: '#f3f4f6', flexShrink: 0 }} />
+      )}
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {producto.name}
+        </div>
+        {mostrarPrecio && (
+          <div style={{ fontSize: 12, color: '#059669', fontWeight: 800, marginTop: 1 }}>
+            {formatPrecio(producto.price)}
+          </div>
+        )}
+      </div>
+
+      {mostrarBotonCarrito && (
+        <button
+          type="button"
+          style={{
+            background: colorBotonFondo || '#10B981',
+            color: colorBotonTexto,
+            border: 'none',
+            padding: '7px 11px',
+            borderRadius: radioBordeBoton,
+            fontSize: 11,
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            cursor: 'pointer',
+            flexShrink: 0,
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+          }}
+        >
+          <IconCart color={colorBotonTexto} />
+          Agregar
+        </button>
+      )}
     </div>
   );
 }
 
-function FieldHint({ children }: { children: React.ReactNode }) {
+function VideoCardSlider({
+  video,
+  config,
+}: {
+  video: VideoItem;
+  config: any;
+}) {
+  const { radioBordeVideos = 18, productosBajoVideo = false } = config;
+
   return (
-    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.4 }}>
-      {children}
+    <div style={{ flex: '0 0 auto', width: 165, display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '9 / 16',
+          borderRadius: radioBordeVideos,
+          overflow: 'hidden',
+          background: '#05070B',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          border: '1px solid rgba(255,255,255,0.15)',
+        }}
+      >
+        {video.url ? (
+          <video
+            src={video.url}
+            preload="metadata"
+            muted
+            playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #05070B 0%, #10B981 100%)' }} />
+        )}
+
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%)',
+            pointerEvents: 'none',
+          }}
+        >
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.25)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: '50%',
+              width: 44,
+              height: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid rgba(255,255,255,0.4)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+            }}
+          >
+            <IconPlay size={22} color="#ffffff" />
+          </div>
+        </div>
+      </div>
+
+      {productosBajoVideo && video.productoData && (
+        <ProductoCard producto={video.productoData} config={config} />
+      )}
     </div>
   );
 }
 
-function TextInput({
+function VideoCardCirculo({
+  video,
+  colorControles,
+}: {
+  video: VideoItem;
+  colorControles: string;
+}) {
+  const activeColor = colorControles || '#10B981';
+
+  return (
+    <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div
+        style={{
+          padding: 3,
+          borderRadius: '50%',
+          background: `linear-gradient(135deg, ${activeColor} 0%, #059669 100%)`,
+          boxShadow: `0 4px 12px ${activeColor}44`,
+        }}
+      >
+        <div
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: '50%',
+            overflow: 'hidden',
+            background: '#05070B',
+            border: '2.5px solid #ffffff',
+            position: 'relative',
+          }}
+        >
+          {video.url ? (
+            <video
+              src={video.url}
+              preload="metadata"
+              muted
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          ) : (
+            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #05070B 0%, #10B981 100%)' }} />
+          )}
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)' }}>
+            <IconPlay size={20} color="#ffffff" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO (antes SliderVideoPreview.tsx)
+═══════════════════════════════════════════ */
+function SliderVideoPreview({ config }: SliderVideoPreviewProps) {
+  const {
+    titulo = '',
+    subtitulo = '',
+    videos = [],
+    posicion = 'despues',
+    formato = 'slider',
+    colorControles = '#10B981',
+    colorTitulo = '#000000',
+    colorFondo = '#ffffff',
+    tamanoTitulo = '20px',
+    tamanoSubtitulo = '15px',
+    alineacion = 'centrado',
+  } = config || {};
+
+  const videosArr: VideoItem[] = Array.isArray(videos) ? videos : [];
+  const hayVideos = videosArr.length > 0;
+
+  const textAlign =
+    alineacion === 'izquierda'
+      ? 'left'
+      : alineacion === 'derecha'
+      ? 'right'
+      : 'center';
+
+  const fondoAplicado = posicion === 'despues' ? colorFondo : 'transparent';
+
+  if (!hayVideos) {
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          border: '1px dashed #e5e7eb',
+          borderRadius: 16,
+          padding: '48px 20px',
+          textAlign: 'center',
+          minHeight: 260,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 14,
+        }}
+      >
+        <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <IconPlay size={32} color="#10B981" />
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000' }}>
+          Subí videos para ver la vista previa en vivo
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        background: fondoAplicado,
+        padding: posicion === 'despues' ? '20px 16px' : '12px 0',
+        borderRadius: posicion === 'despues' ? 16 : 0,
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
+      {titulo && (
+        <div
+          style={{
+            fontSize: tamanoTitulo,
+            fontWeight: 800,
+            color: colorTitulo,
+            textAlign,
+            marginBottom: subtitulo ? 4 : 14,
+            lineHeight: 1.2,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {titulo}
+        </div>
+      )}
+
+      {subtitulo && (
+        <div
+          style={{
+            fontSize: tamanoSubtitulo,
+            color: colorTitulo,
+            opacity: 0.75,
+            textAlign,
+            marginBottom: 16,
+            lineHeight: 1.4,
+            fontWeight: 500,
+          }}
+          dangerouslySetInnerHTML={{ __html: parseMarkdownLigero(subtitulo) }}
+        />
+      )}
+
+      {formato === 'slider' && (
+        <div style={{ position: 'relative' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 14,
+              overflowX: 'auto',
+              paddingBottom: 8,
+              scrollbarWidth: 'none',
+            }}
+          >
+            {videosArr.map((video, i) => (
+              <VideoCardSlider key={i} video={video} config={config} />
+            ))}
+          </div>
+
+          {videosArr.length > 1 && (
+            <>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: -8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  pointerEvents: 'none',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  zIndex: 10,
+                }}
+              >
+                <IconArrow direction="left" color={colorControles || '#10B981'} />
+              </div>
+              <div
+                style={{
+                  position: 'absolute',
+                  right: -8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  pointerEvents: 'none',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                  zIndex: 10,
+                }}
+              >
+                <IconArrow direction="right" color={colorControles || '#10B981'} />
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {formato === 'circulos' && (
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            overflowX: 'auto',
+            paddingBottom: 6,
+            justifyContent: videosArr.length <= 3 ? 'center' : 'flex-start',
+            scrollbarWidth: 'none',
+          }}
+        >
+          {videosArr.map((video, i) => (
+            <VideoCardCirculo key={i} video={video} color={colorControles} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   UI AUXILIARES DEL EDITOR (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function MarkdownTextarea({
   value,
   onChange,
   placeholder,
+  rows = 3,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  rows?: number;
 }) {
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      style={{
-        width: '100%',
-        padding: '12px 14px',
-        border: '1px solid #E5E7EB',
-        borderRadius: 10,
-        fontSize: 15,
-        color: '#000000',
-        background: '#FFFFFF',
-        outline: 'none',
-        boxSizing: 'border-box',
-      }}
-    />
-  );
-}
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-function SelectField({
-  value,
-  onChange,
-  options,
-}: {
-  value: string | number;
-  onChange: (v: string) => void;
-  options: { value: string | number; label: string }[];
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{
-        width: '100%',
-        padding: '12px 14px',
-        border: '1px solid #E5E7EB',
-        borderRadius: 10,
-        fontSize: 15,
-        color: '#000000',
-        background: '#FFFFFF',
-        outline: 'none',
-        boxSizing: 'border-box',
-        appearance: 'none',
-        backgroundImage:
-          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'right 14px center',
-        paddingRight: 40,
-      }}
-    >
-      {options.map((o) => (
-        <option key={String(o.value)} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
-  );
-}
+  const applyMarker = (marker: string) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = value.substring(start, end);
+    const before = value.substring(0, start);
+    const after = value.substring(end);
 
-function RadioCard({
-  checked,
-  onChange,
-  label,
-  description,
-  icon,
-}: {
-  checked: boolean;
-  onChange: () => void;
-  label: React.ReactNode;
-  description?: React.ReactNode;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <div
-      onClick={onChange}
-      style={{
-        background: '#FFFFFF',
-        border: checked ? '1.5px solid #10B981' : '1px solid #E5E7EB',
-        borderRadius: 12,
-        padding: 16,
-        cursor: 'pointer',
-        transition: 'all 0.15s',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-        <div
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: '50%',
-            border: checked ? '2px solid #10B981' : '2px solid #D1D5DB',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            marginTop: 2,
-          }}
-        >
-          {checked && (
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: '#10B981',
-              }}
-            />
-          )}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: 700,
-              color: '#000000',
-              lineHeight: 1.4,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-            }}
-          >
-            {icon}
-            {label}
-          </div>
-          {description && (
-            <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
-              {description}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+    const newText = selected
+      ? `${before}${marker}${selected}${marker}${after}`
+      : `${before}${marker}${marker}${after}`;
 
-function ColorPickerField({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
+    onChange(newText);
+
+    setTimeout(() => {
+      ta.focus();
+      const pos = selected
+        ? start + marker.length + selected.length + marker.length
+        : start + marker.length;
+      ta.setSelectionRange(pos, pos);
+    }, 0);
+  };
+
+  const btnStyle: React.CSSProperties = {
+    background: 'transparent',
+    border: 'none',
+    padding: '6px 10px',
+    cursor: 'pointer',
+    fontSize: 14,
+    color: '#000000',
+    borderRadius: 4,
+  };
+
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center', minWidth: 0 }}>
+    <div style={{ border: '1px solid #E5E7EB', borderRadius: 10, overflow: 'hidden', background: '#FFFFFF' }}>
       <div
         style={{
-          position: 'relative',
-          width: 44,
-          height: 40,
-          borderRadius: 8,
-          border: '1px solid #E5E7EB',
-          overflow: 'hidden',
-          background: value,
-          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          padding: '6px 8px',
+          borderBottom: '1px solid #E5E7EB',
+          background: '#FAFAFA',
+          flexWrap: 'wrap',
         }}
       >
-        <input
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            padding: 0,
-            background: 'transparent',
-            opacity: 0,
-            cursor: 'pointer',
-          }}
-        />
+        <button type="button" onClick={() => applyMarker('**')} style={{ ...btnStyle, fontWeight: 800 }} title="Negrita">B</button>
+        <button type="button" onClick={() => applyMarker('*')} style={{ ...btnStyle, fontStyle: 'italic' }} title="Cursiva">I</button>
+        <button type="button" onClick={() => applyMarker('__')} style={{ ...btnStyle, textDecoration: 'underline' }} title="Subrayado">U</button>
+        <div style={{ width: 1, height: 18, background: '#E5E7EB', margin: '0 4px' }} />
+        <span style={{ fontSize: 12, color: '#000000', opacity: 0.5 }}>
+          Usá **negrita**, *cursiva*, __subrayado__
+        </span>
       </div>
-      <input
-        type="text"
+      <textarea
+        ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={rows}
         style={{
-          flex: 1,
-          minWidth: 0,
           width: '100%',
-          padding: '10px 12px',
-          border: '1px solid #E5E7EB',
-          borderRadius: 8,
-          fontSize: 13,
+          padding: '12px 14px',
+          border: 'none',
+          fontSize: 15,
           color: '#000000',
           background: '#FFFFFF',
           outline: 'none',
-          fontFamily: 'monospace',
           boxSizing: 'border-box',
+          resize: 'vertical',
+          fontFamily: 'inherit',
+          lineHeight: 1.5,
         }}
       />
     </div>
   );
 }
 
+/* ================= PRODUCTO SELECTOR INLINE ================= */
+function ProductoSelectorInline({
+  storeId,
+  onClose,
+  onSelect,
+}: {
+  storeId: string;
+  onClose: () => void;
+  onSelect: (p: { id: number; name: string; price: number; image?: string }) => void;
+}) {
+  const [search, setSearch] = useState('');
+  const [productos, setProductos] = useState<ProductoAPI[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorLoad, setErrorLoad] = useState<string | null>(null);
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    setErrorLoad(null);
+    try {
+      const res = await fetch(`/api/products?storeId=${storeId}&q=${encodeURIComponent(search)}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Error ${res.status}`);
+      }
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error('Respuesta inválida');
+      setProductos(
+        data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          price: p.variants?.[0]?.price || '0',
+          image: p.images?.[0]?.src,
+        }))
+      );
+    } catch (e: any) {
+      setErrorLoad(e.message || 'Error cargando productos');
+      setProductos([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [storeId, search]);
+
+  useEffect(() => {
+    cargar();
+  }, []);
+
+  return (
+    <div style={{ marginTop: 10, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 10, padding: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000' }}>Seleccionar producto</div>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{ background: 'transparent', border: 'none', color: '#000000', opacity: 0.6, fontSize: 20, cursor: 'pointer', padding: 2, lineHeight: 1 }}
+        >
+          ×
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              cargar();
+            }
+          }}
+          placeholder="Buscar producto…"
+          style={{ flex: 1, minWidth: 0, padding: '8px 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, outline: 'none', background: '#FFFFFF' }}
+        />
+        <button
+          type="button"
+          onClick={cargar}
+          style={{ background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}
+        >
+          Buscar
+        </button>
+      </div>
+
+      <div style={{ maxHeight: 220, overflowY: 'auto', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 8 }}>
+        {loading ? (
+          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#000000', opacity: 0.6 }}>Cargando productos…</div>
+        ) : errorLoad ? (
+          <div style={{ padding: 16, textAlign: 'center', fontSize: 13, color: '#DC2626' }}>{errorLoad}</div>
+        ) : productos.length === 0 ? (
+          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#000000', opacity: 0.6 }}>No se encontraron productos</div>
+        ) : (
+          productos.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => onSelect({ id: p.id, name: p.name, price: parseFloat(p.price) || 0, image: p.image })}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: 'none', borderBottom: '1px solid #F3F4F6', background: '#FFFFFF', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+            >
+              {p.image ? (
+                <img src={p.image} alt={p.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
+              ) : (
+                <div style={{ width: 36, height: 36, borderRadius: 6, background: '#F3F4F6', flexShrink: 0 }} />
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                <div style={{ fontSize: 12, color: '#000000', opacity: 0.6 }}>${p.price}</div>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ================= VIDEO ROW ================= */
+function VideoRow({
+  video,
+  index,
+  total,
+  onRemove,
+  onMove,
+  productosBajoVideo,
+  onOpenSelector,
+  onQuitarProducto,
+  selectorAbierto,
+  onCloseSelector,
+  onSelectProducto,
+  storeId,
+}: {
+  video: VideoItem;
+  index: number;
+  total: number;
+  onRemove: () => void;
+  onMove: (dir: -1 | 1) => void;
+  productosBajoVideo: boolean;
+  onOpenSelector: () => void;
+  onQuitarProducto: () => void;
+  selectorAbierto: boolean;
+  onCloseSelector: () => void;
+  onSelectProducto: (p: { id: number; name: string; price: number; image?: string }) => void;
+  storeId: string;
+}) {
+  const sizeMB = (video.tamanoBytes / (1024 * 1024)).toFixed(2);
+
+  return (
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: 12 }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div style={{ width: 56, height: 80, borderRadius: 8, overflow: 'hidden', background: '#000000', flexShrink: 0 }}>
+          <video src={video.url} preload="metadata" muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Video {index + 1}
+          </div>
+          <div style={{ fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {video.nombre} · {sizeMB} MB
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <button
+            type="button"
+            onClick={() => onMove(-1)}
+            disabled={index === 0}
+            style={{ background: '#F3F4F6', border: 'none', borderRadius: 6, width: 28, height: 22, cursor: index === 0 ? 'not-allowed' : 'pointer', opacity: index === 0 ? 0.4 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Subir"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => onMove(1)}
+            disabled={index === total - 1}
+            style={{ background: '#F3F4F6', border: 'none', borderRadius: 6, width: 28, height: 22, cursor: index === total - 1 ? 'not-allowed' : 'pointer', opacity: index === total - 1 ? 0.4 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Bajar"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={onRemove}
+          style={{ background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 8, padding: '8px 10px', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}
+          title="Eliminar"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+          </svg>
+        </button>
+      </div>
+
+      {productosBajoVideo && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #E5E7EB' }}>
+          {video.productoData ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {video.productoData.image ? (
+                <img src={video.productoData.image} alt={video.productoData.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />
+              ) : (
+                <div style={{ width: 36, height: 36, borderRadius: 6, background: '#F3F4F6', flexShrink: 0 }} />
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{video.productoData.name}</div>
+                <div style={{ fontSize: 12, color: '#000000', opacity: 0.6 }}>${video.productoData.price}</div>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenSelector}
+                style={{ background: 'transparent', border: '1px solid #E5E7EB', color: '#000000', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cambiar
+              </button>
+              <button
+                type="button"
+                onClick={onQuitarProducto}
+                style={{ background: 'transparent', border: 'none', color: '#DC2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '6px 4px' }}
+              >
+                Quitar
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenSelector}
+              style={{ background: '#FFFFFF', border: '1px dashed #D1D5DB', color: '#10B981', borderRadius: 8, padding: '10px 12px', fontSize: 13, fontWeight: 600, cursor: 'pointer', width: '100%' }}
+            >
+              + Asociar producto a este video
+            </button>
+          )}
+
+          {selectorAbierto && (
+            <ProductoSelectorInline storeId={storeId} onClose={onCloseSelector} onSelect={onSelectProducto} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTES AUXILIARES DEL EDITOR (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 function ToggleField({
   checked,
   onChange,
@@ -462,16 +1045,7 @@ function RangeSlider({
         style={{ width: '100%', accentColor: '#10B981' }}
       />
       {marks && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-            color: '#000000',
-            opacity: 0.6,
-            marginTop: 4,
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#000000', opacity: 0.6, marginTop: 4 }}>
           {marks.map((m, i) => (
             <span key={i}>{m}px</span>
           ))}
@@ -493,28 +1067,12 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
-        borderRadius: 12,
-        padding: 20,
-        marginBottom: 16,
-      }}
-    >
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20, marginBottom: 16 }}>
       <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
         <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>{title}</div>
-          <div
-            style={{
-              fontSize: 14,
-              color: '#000000',
-              opacity: 0.6,
-              marginTop: 6,
-              lineHeight: 1.5,
-            }}
-          >
+          <div style={{ fontSize: 14, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
             {description}
           </div>
         </div>
@@ -526,130 +1084,9 @@ function SectionCard({
   );
 }
 
-/* ================= TOOLBAR MARKDOWN ================= */
-
-function MarkdownTextarea({
-  value,
-  onChange,
-  placeholder,
-  rows = 3,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  rows?: number;
-}) {
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-
-  const applyMarker = (marker: string) => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = value.substring(start, end);
-    const before = value.substring(0, start);
-    const after = value.substring(end);
-
-    const newText = selected
-      ? `${before}${marker}${selected}${marker}${after}`
-      : `${before}${marker}${marker}${after}`;
-
-    onChange(newText);
-
-    setTimeout(() => {
-      ta.focus();
-      const pos = selected
-        ? start + marker.length + selected.length + marker.length
-        : start + marker.length;
-      ta.setSelectionRange(pos, pos);
-    }, 0);
-  };
-
-  const btnStyle: React.CSSProperties = {
-    background: 'transparent',
-    border: 'none',
-    padding: '6px 10px',
-    cursor: 'pointer',
-    fontSize: 14,
-    color: '#000000',
-    borderRadius: 4,
-  };
-
-  return (
-    <div
-      style={{
-        border: '1px solid #E5E7EB',
-        borderRadius: 10,
-        overflow: 'hidden',
-        background: '#FFFFFF',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
-          padding: '6px 8px',
-          borderBottom: '1px solid #E5E7EB',
-          background: '#FAFAFA',
-          flexWrap: 'wrap',
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => applyMarker('**')}
-          style={{ ...btnStyle, fontWeight: 800 }}
-          title="Negrita"
-        >
-          B
-        </button>
-        <button
-          type="button"
-          onClick={() => applyMarker('*')}
-          style={{ ...btnStyle, fontStyle: 'italic' }}
-          title="Cursiva"
-        >
-          I
-        </button>
-        <button
-          type="button"
-          onClick={() => applyMarker('__')}
-          style={{ ...btnStyle, textDecoration: 'underline' }}
-          title="Subrayado"
-        >
-          U
-        </button>
-        <div style={{ width: 1, height: 18, background: '#E5E7EB', margin: '0 4px' }} />
-        <span style={{ fontSize: 12, color: '#000000', opacity: 0.5 }}>
-          Usá **negrita**, *cursiva*, __subrayado__
-        </span>
-      </div>
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        rows={rows}
-        style={{
-          width: '100%',
-          padding: '12px 14px',
-          border: 'none',
-          fontSize: 15,
-          color: '#000000',
-          background: '#FFFFFF',
-          outline: 'none',
-          boxSizing: 'border-box',
-          resize: 'vertical',
-          fontFamily: 'inherit',
-          lineHeight: 1.5,
-        }}
-      />
-    </div>
-  );
-}
-
-/* ================= EDITOR ================= */
-
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function SliderVideoEditor({
   widgetDefinition,
   existingWidget,
@@ -659,32 +1096,27 @@ export default function SliderVideoEditor({
 }: EditorProps) {
   const router = useRouter();
 
-  const initialConfig = React.useMemo(() => {
+  const initialConfig = useMemo(() => {
     const cfg = { ...DEFAULT_CONFIG, ...(existingWidget?.config || {}) };
     if (!Array.isArray(cfg.videos)) cfg.videos = [];
     return cfg;
   }, [existingWidget]);
 
-  const [config, setConfig] = React.useState<any>(initialConfig);
-  const [isActive, setIsActive] = React.useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = React.useState<'general' | 'ubicacion' | 'estilos'>('general');
-  const [saving, setSaving] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const [uploading, setUploading] = React.useState(false);
-  const [uploadProgress, setUploadProgress] = React.useState<{
-    current: number;
-    total: number;
-  } | null>(null);
-  const [needsSaveFirst, setNeedsSaveFirst] = React.useState(false);
-  const [productoSelectorAbierto, setProductoSelectorAbierto] = React.useState<number | null>(null);
+  const [config, setConfig] = useState<any>(initialConfig);
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [tab, setTab] = useState<'general' | 'ubicacion' | 'estilos'>('general');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [needsSaveFirst, setNeedsSaveFirst] = useState(false);
+  const [productoSelectorAbierto, setProductoSelectorAbierto] = useState<number | null>(null);
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateConfig = (k: string, v: any) => setConfig((c: any) => ({ ...c, [k]: v }));
 
   const videos: VideoItem[] = Array.isArray(config.videos) ? config.videos : [];
-
-  /* ============ UPLOAD ============ */
 
   const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -795,8 +1227,6 @@ export default function SliderVideoEditor({
     });
   };
 
-  /* ============ SAVE ============ */
-
   const handleSave = async () => {
     setSaving(true);
     setError(null);
@@ -839,7 +1269,7 @@ export default function SliderVideoEditor({
 
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
-      {/* HEADER CON LOGO OFICIAL NEVUX */}
+      {/* HEADER */}
       <div
         style={{
           position: 'sticky',
@@ -875,7 +1305,7 @@ export default function SliderVideoEditor({
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
-        {/* Scope Chip en Verde */}
+        {/* Chip scope */}
         {targetType === 'all' ? (
           <div
             style={{
@@ -915,52 +1345,20 @@ export default function SliderVideoEditor({
           </div>
         )}
 
-        <h1
-          style={{
-            fontSize: 26,
-            fontWeight: 800,
-            color: '#000000',
-            marginBottom: 20,
-            lineHeight: 1.2,
-          }}
-        >
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: '#000000', marginBottom: 20, lineHeight: 1.2 }}>
           {existingWidget ? 'Editar widget: ' : 'Nuevo widget: '}
           {widgetDefinition.name} ({scopeLabel})
         </h1>
 
         {/* CARD PRINCIPAL */}
-        <div
-          style={{
-            background: '#FFFFFF',
-            border: '1px solid #E5E7EB',
-            borderRadius: 16,
-            padding: 16,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          }}
-        >
+        <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 16, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           {/* PREVIEW */}
-          <div
-            style={{
-              marginBottom: 16,
-              background: '#FFFFFF',
-              borderRadius: 12,
-              overflow: 'hidden',
-              border: '1px solid #F3F4F6',
-            }}
-          >
+          <div style={{ marginBottom: 16, background: '#FFFFFF', borderRadius: 12, overflow: 'hidden', border: '1px solid #F3F4F6' }}>
             <SliderVideoPreview config={config} />
           </div>
 
           {/* Aclaraciones */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-              padding: '10px 4px',
-              marginBottom: 8,
-            }}
-          >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '10px 4px', marginBottom: 8 }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <IconInfo size={16} color="#10B981" />
               <span style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.5 }}>
@@ -976,17 +1374,9 @@ export default function SliderVideoEditor({
           </div>
 
           {/* TABS */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 0,
-              borderBottom: '1px solid #E5E7EB',
-              marginBottom: 20,
-            }}
-          >
+          <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #E5E7EB', marginBottom: 20 }}>
             {(['general', 'ubicacion', 'estilos'] as const).map((t) => {
-              const label =
-                t === 'general' ? 'General' : t === 'ubicacion' ? 'Ubicación' : 'Estilos';
+              const label = t === 'general' ? 'General' : t === 'ubicacion' ? 'Ubicación' : 'Estilos';
               const active = tab === t;
               return (
                 <button
@@ -1017,64 +1407,28 @@ export default function SliderVideoEditor({
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
                 <FieldLabel>Título del widget</FieldLabel>
-                <TextInput
-                  value={config.titulo}
-                  onChange={(v) => updateConfig('titulo', v)}
-                  placeholder="Ej: Mira nuestros productos en acción"
-                />
+                <TextInput value={config.titulo} onChange={(v) => updateConfig('titulo', v)} placeholder="Ej: Mira nuestros productos en acción" />
                 <FieldHint>Dejar vacío para no mostrar título</FieldHint>
               </div>
 
               <div>
-                <FieldLabel>
-                  Subtítulo <span style={{ fontWeight: 400, opacity: 0.6 }}>(opcional)</span>
-                </FieldLabel>
-                <MarkdownTextarea
-                  value={config.subtitulo}
-                  onChange={(v) => updateConfig('subtitulo', v)}
-                  placeholder=""
-                  rows={3}
-                />
+                <FieldLabel>Subtítulo <span style={{ fontWeight: 400, opacity: 0.6 }}>(opcional)</span></FieldLabel>
+                <MarkdownTextarea value={config.subtitulo} onChange={(v) => updateConfig('subtitulo', v)} placeholder="" rows={3} />
                 <FieldHint>Texto que aparece debajo del título. Dejar vacío para no mostrar.</FieldHint>
               </div>
 
-              {/* Tip Verde sutil */}
-              <div
-                style={{
-                  background: '#ecfdf5',
-                  border: '1px solid #a7f3d0',
-                  borderRadius: 12,
-                  padding: 14,
-                  display: 'flex',
-                  gap: 10,
-                  alignItems: 'flex-start',
-                }}
-              >
+              <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 12, padding: 14, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <IconInfo size={18} color="#10B981" />
                 <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-                  Recordá comprimir los videos antes de subirlos para mejorar la velocidad de
-                  carga y visualización.
+                  Recordá comprimir los videos antes de subirlos para mejorar la velocidad de carga y visualización.
                 </span>
               </div>
 
-              {/* Contador y videos */}
               <div>
-                <FieldLabel>
-                  Videos {videos.length}/{MAX_VIDEOS}{' '}
-                  <span style={{ fontWeight: 400, opacity: 0.6 }}>
-                    (mínimo 1, máximo {MAX_VIDEOS})
-                  </span>
-                </FieldLabel>
+                <FieldLabel>Videos {videos.length}/{MAX_VIDEOS} <span style={{ fontWeight: 400, opacity: 0.6 }}>(mínimo 1, máximo {MAX_VIDEOS})</span></FieldLabel>
 
                 {videos.length > 0 && (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 10,
-                      marginBottom: 14,
-                    }}
-                  >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
                     {videos.map((v, i) => (
                       <VideoRow
                         key={i}
@@ -1101,22 +1455,9 @@ export default function SliderVideoEditor({
                 {videos.length < MAX_VIDEOS && (
                   <div
                     onClick={() => !uploading && fileInputRef.current?.click()}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      if (!uploading) handleFileSelect(e.dataTransfer.files);
-                    }}
-                    style={{
-                      border: '2px dashed #D1D5DB',
-                      borderRadius: 12,
-                      padding: '28px 16px',
-                      background: '#FAFAFA',
-                      textAlign: 'center',
-                      cursor: uploading ? 'wait' : 'pointer',
-                      opacity: uploading ? 0.7 : 1,
-                    }}
+                    onDragOver={(e) => { e.preventDefault(); }}
+                    onDrop={(e) => { e.preventDefault(); if (!uploading) handleFileSelect(e.dataTransfer.files); }}
+                    style={{ border: '2px dashed #D1D5DB', borderRadius: 12, padding: '28px 16px', background: '#FAFAFA', textAlign: 'center', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.7 : 1 }}
                   >
                     <div style={{ marginBottom: 10 }}>
                       <IconUploadCloud size={44} />
@@ -1128,42 +1469,17 @@ export default function SliderVideoEditor({
                           : 'Subiendo…'
                         : 'Arrastra videos aquí o haz clic para seleccionar'}
                     </div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: '#000000',
-                        opacity: 0.6,
-                        marginTop: 10,
-                        lineHeight: 1.6,
-                      }}
-                    >
+                    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 10, lineHeight: 1.6 }}>
                       Mínimo 1, máximo {MAX_VIDEOS} videos.
                       <br />
                       Recomendado 3 o más
                       <br />
                       Tamaño máximo: 5 MB por video · Formatos: MP4, MOV, AVI, WMV, WEBM
                     </div>
-                    <div
-                      style={{
-                        marginTop: 14,
-                        paddingTop: 14,
-                        borderTop: '1px solid #E5E7EB',
-                        fontSize: 14,
-                        color: '#000000',
-                        fontWeight: 700,
-                      }}
-                    >
+                    <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #E5E7EB', fontSize: 14, color: '#000000', fontWeight: 700 }}>
                       Tips para mejores resultados:
                     </div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: '#000000',
-                        opacity: 0.6,
-                        marginTop: 6,
-                        lineHeight: 1.6,
-                      }}
-                    >
+                    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.6 }}>
                       Resolución recomendada: 480×854 (vertical 9:16)
                       <br />
                       Duración ideal: entre 10 y 20 segundos
@@ -1181,32 +1497,14 @@ export default function SliderVideoEditor({
                 />
 
                 {needsSaveFirst && (
-                  <div
-                    style={{
-                      background: '#FEF3C7',
-                      border: '1px solid #FCD34D',
-                      color: '#92400E',
-                      padding: 12,
-                      borderRadius: 10,
-                      fontSize: 13,
-                      marginTop: 10,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    Para subir videos primero necesitás crear el widget. Configurá los ajustes
-                    básicos y tocá &quot;Crear widget&quot;. Luego volvé a editarlo para cargar
-                    los videos.
+                  <div style={{ background: '#FEF3C7', border: '1px solid #FCD34D', color: '#92400E', padding: 12, borderRadius: 10, fontSize: 13, marginTop: 10, lineHeight: 1.5 }}>
+                    Para subir videos primero necesitás crear el widget. Configurá los ajustes básicos y tocá &quot;Crear widget&quot;. Luego volvé a editarlo para cargar los videos.
                   </div>
                 )}
 
                 <FieldHint>
                   ¿El video pesa más de 5 MB?{' '}
-                  <a
-                    href="https://www.veed.io/tools/video-compressor"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: '#10B981', fontWeight: 600, textDecoration: 'none' }}
-                  >
+                  <a href="https://www.veed.io/tools/video-compressor" target="_blank" rel="noopener noreferrer" style={{ color: '#10B981', fontWeight: 600, textDecoration: 'none' }}>
                     Te enseñamos cómo comprimirlo.
                   </a>
                 </FieldHint>
@@ -1217,22 +1515,13 @@ export default function SliderVideoEditor({
           {/* TAB: UBICACION */}
           {tab === 'ubicacion' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>
-                Posición del widget
-              </div>
-
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}>Posición del widget</div>
               <RadioCard
                 checked={config.posicion === 'antes'}
                 onChange={() => updateConfig('posicion', 'antes')}
                 label="Antes de la descripción"
-                description={
-                  <>
-                    El slider aparece debajo del botón &quot;Agregar al carrito&quot;, dentro de la
-                    columna del producto.
-                  </>
-                }
+                description={<>El slider aparece debajo del botón &quot;Agregar al carrito&quot;, dentro de la columna del producto.</>}
               />
-
               <RadioCard
                 checked={config.posicion === 'despues'}
                 onChange={() => updateConfig('posicion', 'despues')}
@@ -1245,283 +1534,116 @@ export default function SliderVideoEditor({
           {/* TAB: ESTILOS */}
           {tab === 'estilos' && (
             <div>
-              <SectionCard
-                icon={<IconLayout />}
-                title="Diseño del widget"
-                description="Elegí cómo se presentan los videos y su estilo de interacción."
-              >
+              <SectionCard icon={<IconLayout />} title="Diseño del widget" description="Elegí cómo se presentan los videos y su estilo de interacción.">
                 <div>
                   <FieldLabel>Formato de visualización</FieldLabel>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
                     <button
                       type="button"
                       onClick={() => updateConfig('formato', 'slider')}
-                      style={{
-                        padding: '14px 12px',
-                        borderRadius: 10,
-                        border:
-                          config.formato === 'slider'
-                            ? '1.5px solid #10B981'
-                            : '1px solid #E5E7EB',
-                        background: config.formato === 'slider' ? '#ecfdf5' : '#FFFFFF',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: config.formato === 'slider' ? '#10B981' : '#000000',
-                      }}
+                      style={{ padding: '14px 12px', borderRadius: 10, border: config.formato === 'slider' ? '1.5px solid #10B981' : '1px solid #E5E7EB', background: config.formato === 'slider' ? '#ecfdf5' : '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600, color: config.formato === 'slider' ? '#10B981' : '#000000' }}
                     >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <rect x="3" y="6" width="18" height="12" rx="2" />
-                        <polygon points="10 9 15 12 10 15 10 9" fill="currentColor" />
-                      </svg>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="6" width="18" height="12" rx="2" /><polygon points="10 9 15 12 10 15 10 9" fill="currentColor" /></svg>
                       Slider
                     </button>
                     <button
                       type="button"
                       onClick={() => updateConfig('formato', 'circulos')}
-                      style={{
-                        padding: '14px 12px',
-                        borderRadius: 10,
-                        border:
-                          config.formato === 'circulos'
-                            ? '1.5px solid #10B981'
-                            : '1px solid #E5E7EB',
-                        background: config.formato === 'circulos' ? '#ecfdf5' : '#FFFFFF',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: config.formato === 'circulos' ? '#10B981' : '#000000',
-                      }}
+                      style={{ padding: '14px 12px', borderRadius: 10, border: config.formato === 'circulos' ? '1.5px solid #10B981' : '1px solid #E5E7EB', background: config.formato === 'circulos' ? '#ecfdf5' : '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600, color: config.formato === 'circulos' ? '#10B981' : '#000000' }}
                     >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <circle cx="12" cy="12" r="9" />
-                        <circle cx="12" cy="12" r="3" fill="currentColor" />
-                      </svg>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" fill="currentColor" /></svg>
                       Círculos
                     </button>
                   </div>
                 </div>
               </SectionCard>
 
-              <SectionCard
-                icon={<IconPalette />}
-                title="Colores principales"
-                description="Configurá la paleta general del slider, título y fondo."
-              >
-                <div style={GRID_RESPONSIVE_2COL}>
+              <SectionCard icon={<IconPalette />} title="Colores principales" description="Configurá la paleta general del slider, título y fondo.">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de controles del slider</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorControles}
-                      onChange={(v) => updateConfig('colorControles', v)}
-                    />
+                    <ColorPickerField value={config.colorControles} onChange={(v) => updateConfig('colorControles', v)} />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del título</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorTitulo}
-                      onChange={(v) => updateConfig('colorTitulo', v)}
-                    />
+                    <ColorPickerField value={config.colorTitulo} onChange={(v) => updateConfig('colorTitulo', v)} />
                   </div>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <FieldLabel>Color de fondo de la sección</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorFondo}
-                    onChange={(v) => updateConfig('colorFondo', v)}
-                  />
-                  <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
+                  <div style={{ minWidth: 0 }}>
+                    <FieldLabel>Color de fondo de la sección</FieldLabel>
+                    <ColorPickerField value={config.colorFondo} onChange={(v) => updateConfig('colorFondo', v)} />
+                    <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
+                  </div>
                 </div>
               </SectionCard>
 
-              <SectionCard
-                icon={<IconType />}
-                title="Tipografías"
-                description="Ajustá los tamaños del título y del subtítulo."
-              >
-                <div style={GRID_RESPONSIVE_2COL}>
+              <SectionCard icon={<IconType />} title="Tipografías" description="Ajustá los tamaños del título y del subtítulo.">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño del título</FieldLabel>
-                    <SelectField
-                      value={config.tamanoTitulo}
-                      onChange={(v) => updateConfig('tamanoTitulo', v)}
-                      options={['14px', '16px', '18px', '20px', '22px', '24px', '28px', '32px'].map(
-                        (v) => ({ value: v, label: v })
-                      )}
-                    />
+                    <SelectField value={config.tamanoTitulo} onChange={(v) => updateConfig('tamanoTitulo', v)} options={['14px', '16px', '18px', '20px', '22px', '24px', '28px', '32px'].map((v) => ({ value: v, label: v }))} />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Tamaño del subtítulo</FieldLabel>
-                    <SelectField
-                      value={config.tamanoSubtitulo}
-                      onChange={(v) => updateConfig('tamanoSubtitulo', v)}
-                      options={['12px', '14px', '16px', '18px', '20px'].map((v) => ({
-                        value: v,
-                        label: v,
-                      }))}
-                    />
+                    <SelectField value={config.tamanoSubtitulo} onChange={(v) => updateConfig('tamanoSubtitulo', v)} options={['12px', '14px', '16px', '18px', '20px'].map((v) => ({ value: v, label: v }))} />
                   </div>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <FieldLabel>Alineación del título y subtítulo</FieldLabel>
-                  <SelectField
-                    value={config.alineacion}
-                    onChange={(v) => updateConfig('alineacion', v)}
-                    options={[
-                      { value: 'izquierda', label: 'Izquierda' },
-                      { value: 'centrado', label: 'Centrado' },
-                      { value: 'derecha', label: 'Derecha' },
-                    ]}
-                  />
+                  <div style={{ minWidth: 0, gridColumn: '1 / -1' }}>
+                    <FieldLabel>Alineación del título y subtítulo</FieldLabel>
+                    <SelectField value={config.alineacion} onChange={(v) => updateConfig('alineacion', v)} options={[{ value: 'izquierda', label: 'Izquierda' }, { value: 'centrado', label: 'Centrado' }, { value: 'derecha', label: 'Derecha' }]} />
+                  </div>
                 </div>
               </SectionCard>
 
-              <SectionCard
-                icon={<IconSliders />}
-                title="Comportamiento y estructura"
-                description="Ajustá reproducción, productos inline y bordes de video."
-              >
-                <div style={GRID_RESPONSIVE_2COL}>
+              <SectionCard icon={<IconSliders />} title="Comportamiento y estructura" description="Ajustá reproducción, productos inline y bordes de video.">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Reproducción automática</FieldLabel>
-                    <SelectField
-                      value={config.reproduccionAutomatica ? 'si' : 'no'}
-                      onChange={(v) => updateConfig('reproduccionAutomatica', v === 'si')}
-                      options={[
-                        { value: 'no', label: 'No' },
-                        { value: 'si', label: 'Sí' },
-                      ]}
-                    />
+                    <SelectField value={config.reproduccionAutomatica ? 'si' : 'no'} onChange={(v) => updateConfig('reproduccionAutomatica', v === 'si')} options={[{ value: 'no', label: 'No' }, { value: 'si', label: 'Sí' }]} />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Desactivar expandir video</FieldLabel>
-                    <SelectField
-                      value={config.desactivarExpandir ? 'si' : 'no'}
-                      onChange={(v) => updateConfig('desactivarExpandir', v === 'si')}
-                      options={[
-                        { value: 'no', label: 'No (mostrar en modal)' },
-                        { value: 'si', label: 'Sí (reproducir inline)' },
-                      ]}
-                    />
+                    <SelectField value={config.desactivarExpandir ? 'si' : 'no'} onChange={(v) => updateConfig('desactivarExpandir', v === 'si')} options={[{ value: 'no', label: 'No (mostrar en modal)' }, { value: 'si', label: 'Sí (reproducir inline)' }]} />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Productos bajo el video</FieldLabel>
-                    <SelectField
-                      value={config.productosBajoVideo ? 'si' : 'no'}
-                      onChange={(v) => updateConfig('productosBajoVideo', v === 'si')}
-                      options={[
-                        { value: 'no', label: 'No mostrar' },
-                        { value: 'si', label: 'Mostrar' },
-                      ]}
-                    />
+                    <SelectField value={config.productosBajoVideo ? 'si' : 'no'} onChange={(v) => updateConfig('productosBajoVideo', v === 'si')} options={[{ value: 'no', label: 'No mostrar' }, { value: 'si', label: 'Mostrar' }]} />
                     <FieldHint>Solo con posición &quot;Después de la descripción&quot;</FieldHint>
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Radio de borde de los videos</FieldLabel>
-                    <SelectField
-                      value={String(config.radioBordeVideos)}
-                      onChange={(v) => updateConfig('radioBordeVideos', Number(v))}
-                      options={['0', '4', '8', '12', '16', '20', '24', '32'].map((v) => ({
-                        value: v,
-                        label: `${v}px`,
-                      }))}
-                    />
+                    <SelectField value={String(config.radioBordeVideos)} onChange={(v) => updateConfig('radioBordeVideos', Number(v))} options={['0', '4', '8', '12', '16', '20', '24', '32'].map((v) => ({ value: v, label: `${v}px` }))} />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Precio de productos</FieldLabel>
-                    <SelectField
-                      value={config.mostrarPrecio ? 'si' : 'no'}
-                      onChange={(v) => updateConfig('mostrarPrecio', v === 'si')}
-                      options={[
-                        { value: 'si', label: 'Mostrar' },
-                        { value: 'no', label: 'Ocultar' },
-                      ]}
-                    />
+                    <SelectField value={config.mostrarPrecio ? 'si' : 'no'} onChange={(v) => updateConfig('mostrarPrecio', v === 'si')} options={[{ value: 'si', label: 'Mostrar' }, { value: 'no', label: 'Ocultar' }]} />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Botón agregar al carrito</FieldLabel>
-                    <SelectField
-                      value={config.mostrarBotonCarrito ? 'si' : 'no'}
-                      onChange={(v) => updateConfig('mostrarBotonCarrito', v === 'si')}
-                      options={[
-                        { value: 'si', label: 'Mostrar' },
-                        { value: 'no', label: 'Ocultar' },
-                      ]}
-                    />
+                    <SelectField value={config.mostrarBotonCarrito ? 'si' : 'no'} onChange={(v) => updateConfig('mostrarBotonCarrito', v === 'si')} options={[{ value: 'si', label: 'Mostrar' }, { value: 'no', label: 'Ocultar' }]} />
                   </div>
                 </div>
               </SectionCard>
 
-              <SectionCard
-                icon={<IconSend />}
-                title="Botón de acción"
-                description="Definí colores y redondeado del botón asociado a cada video."
-              >
-                <div style={GRID_RESPONSIVE_2COL}>
+              <SectionCard icon={<IconSend />} title="Botón de acción" description="Definí colores y redondeado del botón asociado a cada video.">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color de fondo</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorBotonFondo}
-                      onChange={(v) => updateConfig('colorBotonFondo', v)}
-                    />
+                    <ColorPickerField value={config.colorBotonFondo} onChange={(v) => updateConfig('colorBotonFondo', v)} />
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <FieldLabel>Color del texto</FieldLabel>
-                    <ColorPickerField
-                      value={config.colorBotonTexto}
-                      onChange={(v) => updateConfig('colorBotonTexto', v)}
-                    />
+                    <ColorPickerField value={config.colorBotonTexto} onChange={(v) => updateConfig('colorBotonTexto', v)} />
                   </div>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <FieldLabel>Radio de borde del botón ({config.radioBordeBoton}px)</FieldLabel>
-                  <RangeSlider
-                    value={config.radioBordeBoton}
-                    onChange={(v) => updateConfig('radioBordeBoton', v)}
-                    min={0}
-                    max={25}
-                    marks={[0, 8, 25]}
-                  />
+                  <div style={{ minWidth: 0, gridColumn: '1 / -1' }}>
+                    <FieldLabel>Radio de borde del botón ({config.radioBordeBoton}px)</FieldLabel>
+                    <RangeSlider value={config.radioBordeBoton} onChange={(v) => updateConfig('radioBordeBoton', v)} min={0} max={25} marks={[0, 8, 25]} />
+                  </div>
                 </div>
               </SectionCard>
             </div>
           )}
 
-          {/* FOOTER ACCIONES DE GUARDADO */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 20,
-              paddingTop: 20,
-              borderTop: '1px solid #E5E7EB',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
-          >
+          {/* FOOTER */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, paddingTop: 20, borderTop: '1px solid #E5E7EB', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <ToggleField checked={isActive} onChange={setIsActive} label="Widget activo" />
               <IconInfo />
@@ -1530,24 +1652,14 @@ export default function SliderVideoEditor({
               type="button"
               disabled={saving}
               onClick={handleSave}
-              style={{
-                background: '#10B981',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: 999,
-                padding: '12px 24px',
-                fontSize: 15,
-                fontWeight: 700,
-                cursor: saving ? 'wait' : 'pointer',
-                opacity: saving ? 0.7 : 1,
-              }}
+              style={{ background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: 999, padding: '12px 24px', fontSize: 15, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
             >
               {saving ? 'Guardando…' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
             </button>
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        {/* CENTRO DE AYUDA */}
         <div style={{ marginTop: 40, width: '100%' }}>
           <CentroAyuda />
         </div>
@@ -1555,539 +1667,11 @@ export default function SliderVideoEditor({
 
       {/* ERROR TOAST */}
       {error && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            left: 20,
-            right: 20,
-            background: '#FEE2E2',
-            border: '1px solid #FCA5A5',
-            color: '#991B1B',
-            padding: 14,
-            borderRadius: 10,
-            fontSize: 14,
-            zIndex: 50,
-            maxWidth: 500,
-            margin: '0 auto',
-          }}
-        >
+        <div style={{ position: 'fixed', bottom: 20, left: 20, right: 20, background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', padding: 14, borderRadius: 10, fontSize: 14, zIndex: 50, maxWidth: 500, margin: '0 auto' }}>
           {error}
-          <button
-            type="button"
-            onClick={() => setError(null)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#991B1B',
-              fontWeight: 700,
-              cursor: 'pointer',
-              marginLeft: 10,
-              float: 'right',
-            }}
-          >
-            ×
-          </button>
+          <button type="button" onClick={() => setError(null)} style={{ background: 'transparent', border: 'none', color: '#991B1B', fontWeight: 700, cursor: 'pointer', marginLeft: 10, float: 'right' }}>×</button>
         </div>
       )}
     </div>
   );
-}
-
-/* ================= VIDEO ROW ================= */
-
-function VideoRow({
-  video,
-  index,
-  total,
-  onRemove,
-  onMove,
-  productosBajoVideo,
-  onOpenSelector,
-  onQuitarProducto,
-  selectorAbierto,
-  onCloseSelector,
-  onSelectProducto,
-  storeId,
-}: {
-  video: VideoItem;
-  index: number;
-  total: number;
-  onRemove: () => void;
-  onMove: (dir: -1 | 1) => void;
-  productosBajoVideo: boolean;
-  onOpenSelector: () => void;
-  onQuitarProducto: () => void;
-  selectorAbierto: boolean;
-  onCloseSelector: () => void;
-  onSelectProducto: (p: { id: number; name: string; price: number; image?: string }) => void;
-  storeId: string;
-}) {
-  const sizeMB = (video.tamanoBytes / (1024 * 1024)).toFixed(2);
-
-  return (
-    <div
-      style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
-        borderRadius: 12,
-        padding: 12,
-      }}
-    >
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <div
-          style={{
-            width: 56,
-            height: 80,
-            borderRadius: 8,
-            overflow: 'hidden',
-            background: '#000000',
-            flexShrink: 0,
-          }}
-        >
-          <video
-            src={video.url}
-            preload="metadata"
-            muted
-            playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </div>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#000000',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            Video {index + 1}
-          </div>
-          <div
-            style={{
-              fontSize: 12,
-              color: '#000000',
-              opacity: 0.6,
-              marginTop: 2,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {video.nombre} · {sizeMB} MB
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <button
-            type="button"
-            onClick={() => onMove(-1)}
-            disabled={index === 0}
-            style={{
-              background: '#F3F4F6',
-              border: 'none',
-              borderRadius: 6,
-              width: 28,
-              height: 22,
-              cursor: index === 0 ? 'not-allowed' : 'pointer',
-              opacity: index === 0 ? 0.4 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            title="Subir"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3">
-              <polyline points="18 15 12 9 6 15" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => onMove(1)}
-            disabled={index === total - 1}
-            style={{
-              background: '#F3F4F6',
-              border: 'none',
-              borderRadius: 6,
-              width: 28,
-              height: 22,
-              cursor: index === total - 1 ? 'not-allowed' : 'pointer',
-              opacity: index === total - 1 ? 0.4 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            title="Bajar"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-        </div>
-
-        <button
-          type="button"
-          onClick={onRemove}
-          style={{
-            background: '#FEE2E2',
-            color: '#991B1B',
-            border: 'none',
-            borderRadius: 8,
-            padding: '8px 10px',
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-          title="Eliminar"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6" />
-            <path d="M10 11v6" />
-            <path d="M14 11v6" />
-          </svg>
-        </button>
-      </div>
-
-      {productosBajoVideo && (
-        <div
-          style={{
-            marginTop: 12,
-            paddingTop: 12,
-            borderTop: '1px dashed #E5E7EB',
-          }}
-        >
-          {video.productoData ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {video.productoData.image ? (
-                <img
-                  src={video.productoData.image}
-                  alt={video.productoData.name}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 6,
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 6,
-                    background: '#F3F4F6',
-                    flexShrink: 0,
-                  }}
-                />
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#000000',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {video.productoData.name}
-                </div>
-                <div style={{ fontSize: 12, color: '#000000', opacity: 0.6 }}>
-                  ${video.productoData.price}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={onOpenSelector}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid #E5E7EB',
-                  color: '#000000',
-                  borderRadius: 8,
-                  padding: '6px 10px',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Cambiar
-              </button>
-              <button
-                type="button"
-                onClick={onQuitarProducto}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#DC2626',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  padding: '6px 4px',
-                }}
-              >
-                Quitar
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={onOpenSelector}
-              style={{
-                background: '#FFFFFF',
-                border: '1px dashed #D1D5DB',
-                color: '#10B981',
-                borderRadius: 8,
-                padding: '10px 12px',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                width: '100%',
-              }}
-            >
-              + Asociar producto a este video
-            </button>
-          )}
-
-          {selectorAbierto && (
-            <ProductoSelectorInline
-              storeId={storeId}
-              onClose={onCloseSelector}
-              onSelect={onSelectProducto}
-            />
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ================= PRODUCTO SELECTOR INLINE ================= */
-
-function ProductoSelectorInline({
-  storeId,
-  onClose,
-  onSelect,
-}: {
-  storeId: string;
-  onClose: () => void;
-  onSelect: (p: { id: number; name: string; price: number; image?: string }) => void;
-}) {
-  const [search, setSearch] = React.useState('');
-  const [productos, setProductos] = React.useState<ProductoAPI[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [errorLoad, setErrorLoad] = React.useState<string | null>(null);
-
-  const cargar = React.useCallback(async () => {
-    setLoading(true);
-    setErrorLoad(null);
-    try {
-      const res = await fetch(
-        `/api/products?storeId=${storeId}&q=${encodeURIComponent(search)}`
-      );
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Error ${res.status}`);
-      }
-      const data = await res.json();
-      if (!Array.isArray(data)) throw new Error('Respuesta inválida');
-      setProductos(
-        data.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          price: p.variants?.[0]?.price || '0',
-          image: p.images?.[0]?.src,
-        }))
-      );
-    } catch (e: any) {
-      setErrorLoad(e.message || 'Error cargando productos');
-      setProductos([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [storeId, search]);
-
-  React.useEffect(() => {
-    cargar();
-  }, []);
-
-  return (
-    <div
-      style={{
-        marginTop: 10,
-        background: '#F9FAFB',
-        border: '1px solid #E5E7EB',
-        borderRadius: 10,
-        padding: 12,
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 10,
-        }}
-      >
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#000000' }}>
-          Seleccionar producto
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#000000',
-            opacity: 0.6,
-            fontSize: 20,
-            cursor: 'pointer',
-            padding: 2,
-            lineHeight: 1,
-          }}
-        >
-          ×
-        </button>
-      </div>
-
-      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              cargar();
-            }
-          }}
-          placeholder="Buscar producto…"
-          style={{
-            flex: 1,
-            minWidth: 0,
-            padding: '8px 12px',
-            border: '1px solid #E5E7EB',
-            borderRadius: 8,
-            fontSize: 13,
-            outline: 'none',
-            background: '#FFFFFF',
-          }}
-        />
-        <button
-          type="button"
-          onClick={cargar}
-          style={{
-            background: '#10B981',
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: 8,
-            padding: '8px 14px',
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-        >
-          Buscar
-        </button>
-      </div>
-
-      <div
-        style={{
-          maxHeight: 220,
-          overflowY: 'auto',
-          background: '#FFFFFF',
-          border: '1px solid #E5E7EB',
-          borderRadius: 8,
-        }}
-      >
-        {loading ? (
-          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#000000', opacity: 0.6 }}>
-            Cargando productos…
-          </div>
-        ) : errorLoad ? (
-          <div style={{ padding: 16, textAlign: 'center', fontSize: 13, color: '#DC2626' }}>
-            {errorLoad}
-          </div>
-        ) : productos.length === 0 ? (
-          <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#000000', opacity: 0.6 }}>
-            No se encontraron productos
-          </div>
-        ) : (
-          productos.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() =>
-                onSelect({
-                  id: p.id,
-                  name: p.name,
-                  price: parseFloat(p.price) || 0,
-                  image: p.image,
-                })
-              }
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 12px',
-                border: 'none',
-                borderBottom: '1px solid #F3F4F6',
-                background: '#FFFFFF',
-                cursor: 'pointer',
-                width: '100%',
-                textAlign: 'left',
-              }}
-            >
-              {p.image ? (
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 6,
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 6,
-                    background: '#F3F4F6',
-                    flexShrink: 0,
-                  }}
-                />
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#000000',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {p.name}
-                </div>
-                <div style={{ fontSize: 12, color: '#000000', opacity: 0.6 }}>${p.price}</div>
-              </div>
-            </button>
-          ))
-        )}
-      </div>
-    </div>
-  );
-    }
+               }
