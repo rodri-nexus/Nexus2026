@@ -6,9 +6,6 @@ import {
   Smartphone,
   Download,
   Award,
-  Layers,
-  Sparkles,
-  Zap,
 } from "lucide-react";
 
 type TabId = "marketing_assets" | "carousels";
@@ -202,7 +199,7 @@ function drawRoundedRect(
   ctx.arcTo(x + w, y, x + w, y + h, radius);
   ctx.arcTo(x + w, y + h, x, y + h, radius);
   ctx.arcTo(x, y + h, x, y, radius);
-  ctx.arcTo(x, y + w, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
   ctx.closePath();
 }
 
@@ -218,16 +215,16 @@ function wrapText(
   let line = "";
   let cy = y;
   for (let n = 0; n < words.length; n++) {
-    const test = line + words[n] + " ";
-    if (ctx.measureText(test).width > maxWidth && n > 0) {
-      ctx.fillText(line, x, cy);
+    const testLine = line + words[n] + " ";
+    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, cy);
       line = words[n] + " ";
       cy += lineHeight;
     } else {
-      line = test;
+      line = testLine;
     }
   }
-  ctx.fillText(line, x, cy);
+  ctx.fillText(line.trim(), x, cy);
   return cy;
 }
 
@@ -354,7 +351,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── EXPORTADOR DE IMÁGENES CANVAS HD 1080x1920 (Regla #14 Genéricos) ─── */
+  /* ─── EXPORTADOR DE IMÁGENES CANVAS HD 1080x1920 ─── */
   const downloadMarketingAsset = async (assetId: string) => {
     const asset = MARKETING_ASSETS.find((a) => a.id === assetId);
     if (!asset) return;
@@ -974,4 +971,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-    }
+  }
