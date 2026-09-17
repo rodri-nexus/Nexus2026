@@ -3,24 +3,15 @@
 
 import React, { useState } from "react";
 import {
-  ChevronLeft,
-  Video,
-  Flame,
-  Palette,
-  BarChart3,
-  Bot,
-  Sparkles,
-  Download,
   Smartphone,
-  Check,
-  Gift,
-  Trophy,
-  Gem,
+  Download,
   Award,
+  Layers,
+  Sparkles,
+  Zap,
 } from "lucide-react";
-import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
-type TabId = "appstore5" | "partners" | "stories" | "covers" | "carousels" | "marketing_assets";
+type TabId = "marketing_assets" | "carousels";
 
 /* ═══════════════════════════════════════════
    ESTILOS Y CONSTANTES MAESTRAS (Regla #9 al inicio)
@@ -188,6 +179,11 @@ const DEFAULT_CAROUSEL: CarouselSlide[] = [
     title: "Urgencia real que acelera la decisión de compra",
     desc: "El cliente ve que la oferta termina. El miedo a perderse la oportunidad (FOMO) reduce el tiempo de decisión a minutos.",
   },
+  {
+    badge: "CIERRE",
+    title: "Probá Nevux Gratis 7 Días",
+    desc: "Instalación en 1 clic para Tiendanube. Link en la biografía.",
+  },
 ];
 
 function drawRoundedRect(
@@ -206,7 +202,7 @@ function drawRoundedRect(
   ctx.arcTo(x + w, y, x + w, y + h, radius);
   ctx.arcTo(x + w, y + h, x, y + h, radius);
   ctx.arcTo(x, y + h, x, y, radius);
-  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.arcTo(x, y + w, y, radius);
   ctx.closePath();
 }
 
@@ -247,8 +243,116 @@ export default function BannersPage() {
 
   const tabs = [
     { id: "marketing_assets", label: "Hooks y Cierres Reels", icon: "🎬" },
-    { id: "carousels", label: "Carruseles Instagram", icon: "Carousel" },
+    { id: "carousels", label: "Carruseles Instagram", icon: "🎠" },
   ];
+
+  /* ─── EXPORTADOR DE CARRUSELES CANVAS HD (1080x1350) ─── */
+  const downloadSlideAsImage = async (slideIndex: number) => {
+    const slide = DEFAULT_CAROUSEL[slideIndex];
+    if (!slide) return;
+
+    setIsDownloading(true);
+
+    try {
+      const width = 1080;
+      const height = 1350;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        const S = width / 340;
+
+        ctx.fillStyle = "#060913";
+        ctx.fillRect(0, 0, width, height);
+
+        const grad = ctx.createRadialGradient(width / 2, height / 2, 20 * S, width / 2, height / 2, 220 * S);
+        grad.addColorStop(0, "rgba(16, 185, 129, 0.15)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Header Sello Nevux
+        ctx.fillStyle = "#10B981";
+        drawRoundedRect(ctx, 40 * S, 30 * S, 32 * S, 32 * S, 8 * S);
+        ctx.fill();
+        ctx.fillStyle = "#000000";
+        ctx.font = `950 ${16 * S}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("N", 56 * S, 46 * S);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `900 ${14 * S}px sans-serif`;
+        ctx.textAlign = "left";
+        ctx.fillText("NEVUX", 80 * S, 46 * S);
+
+        // Slide Counter
+        ctx.fillStyle = "#10B981";
+        ctx.font = `900 ${11 * S}px sans-serif`;
+        ctx.textAlign = "right";
+        ctx.fillText(`0${slideIndex + 1} / 0${DEFAULT_CAROUSEL.length}`, width - 40 * S, 46 * S);
+
+        // Badge
+        const badgeW = 140 * S;
+        const badgeH = 24 * S;
+        const badgeX = 40 * S;
+        const badgeY = 100 * S;
+        ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+        ctx.strokeStyle = "#10B981";
+        ctx.lineWidth = 1.5 * S;
+        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 12 * S);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#10B981";
+        ctx.font = `900 ${9 * S}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(slide.badge, badgeX + badgeW / 2, badgeY + badgeH / 2);
+
+        // Título
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `900 ${22 * S}px sans-serif`;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        wrapText(ctx, slide.title, 40 * S, 140 * S, width - 80 * S, 30 * S);
+
+        // Caja de descripción
+        const boxY = height - 160 * S;
+        const boxH = 100 * S;
+        ctx.fillStyle = "rgba(10, 12, 16, 0.9)";
+        ctx.strokeStyle = "rgba(16, 185, 129, 0.3)";
+        ctx.lineWidth = 2 * S;
+        drawRoundedRect(ctx, 40 * S, boxY, width - 80 * S, boxH, 16 * S);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#d1fae5";
+        ctx.font = `600 ${12 * S}px sans-serif`;
+        wrapText(ctx, slide.desc, 56 * S, boxY + 20 * S, width - 112 * S, 18 * S);
+
+        // Footer Swipe
+        ctx.fillStyle = "#10B981";
+        ctx.font = `900 ${11 * S}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillText("DESLIZÁ PARA CONTINUAR ➔", width / 2, height - 30 * S);
+      }
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.download = `nevux-carrusel-slide-${slideIndex + 1}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Error al exportar slide de carrusel:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   /* ─── EXPORTADOR DE IMÁGENES CANVAS HD 1080x1920 (Regla #14 Genéricos) ─── */
   const downloadMarketingAsset = async (assetId: string) => {
@@ -266,9 +370,8 @@ export default function BannersPage() {
       const ctx = canvas.getContext("2d");
 
       if (ctx) {
-        const S = width / 340; // Factor de escala
+        const S = width / 340;
 
-        // 1. Configuración de Fondos según el tema
         if (asset.theme === "danger") {
           ctx.fillStyle = "#0c0307";
           ctx.fillRect(0, 0, width, height);
@@ -300,7 +403,6 @@ export default function BannersPage() {
           ctx.arc(width / 2, height / 2, 220 * S, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          // Dark
           ctx.fillStyle = "#060913";
           ctx.fillRect(0, 0, width, height);
           const grad = ctx.createRadialGradient(width / 2, height / 2, 20 * S, width / 2, height / 2, 220 * S);
@@ -312,25 +414,7 @@ export default function BannersPage() {
           ctx.fill();
         }
 
-        // Dibujar rejilla decorativa
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.02)";
-        ctx.lineWidth = 1;
-        for (let x = 0; x < width; x += 40 * S) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, height);
-          ctx.stroke();
-        }
-        for (let y = 0; y < height; y += 40 * S) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(width, y);
-          ctx.stroke();
-        }
-
-        // Lógica de diseño según tipo
         if (asset.id === "hook_dolor") {
-          // Split screen Visitas vs Ventas
           const leftW = width / 2;
           ctx.fillStyle = "rgba(239, 68, 68, 0.05)";
           ctx.fillRect(0, 0, leftW, height);
@@ -342,7 +426,6 @@ export default function BannersPage() {
           ctx.lineTo(leftW, height - 100 * S);
           ctx.stroke();
 
-          // Textos internos ilustrativos
           ctx.fillStyle = "#ef4444";
           ctx.font = `900 ${48 * S}px sans-serif`;
           ctx.textAlign = "center";
@@ -360,7 +443,6 @@ export default function BannersPage() {
           ctx.fillStyle = "#ffffff";
           ctx.fillText("CON NEVUX 🔥", leftW + leftW / 2, height / 2 + 45 * S);
         } else {
-          // Emoji gigante al centro para el resto de templates
           ctx.fillStyle = "#ffffff";
           ctx.font = `900 ${76 * S}px sans-serif`;
           ctx.textAlign = "center";
@@ -368,7 +450,6 @@ export default function BannersPage() {
           ctx.fillText(asset.emoji, width / 2, height / 2 - 100 * S);
         }
 
-        // 2. Caja contenedora flotante (Sticker)
         const boxW = width - 48 * S;
         const boxH = 320 * S;
         const boxX = (width - boxW) / 2;
@@ -381,7 +462,6 @@ export default function BannersPage() {
         ctx.fill();
         ctx.stroke();
 
-        // 3. Badge interno
         const badgeText = isPt ? asset.badgePt : asset.badgeEs;
         ctx.font = `900 ${10 * S}px sans-serif`;
         ctx.textAlign = "center";
@@ -399,7 +479,6 @@ export default function BannersPage() {
         ctx.textBaseline = "middle";
         ctx.fillText(badgeText, width / 2, bY + bH / 2);
 
-        // 4. Título Principal
         const titleText = isPt ? asset.titlePt : asset.titleEs;
         ctx.font = `900 ${18 * S}px sans-serif`;
         ctx.fillStyle = asset.theme === "green" ? "#000000" : "#ffffff";
@@ -407,14 +486,12 @@ export default function BannersPage() {
         const titleStartY = boxY + 70 * S;
         wrapText(ctx, titleText, width / 2, titleStartY, boxW - 40 * S, 26 * S);
 
-        // 5. Descripción sutil
         const descText = isPt ? asset.descPt : asset.descEs;
         ctx.font = `600 ${11.5 * S}px sans-serif`;
         ctx.fillStyle = asset.theme === "green" ? "rgba(0,0,0,0.7)" : "#9ca3af";
         const descStartY = boxY + 195 * S;
         wrapText(ctx, descText, width / 2, descStartY, boxW - 40 * S, 18 * S);
 
-        // Sello inferior "nevux.ar"
         ctx.font = `900 ${11 * S}px sans-serif`;
         ctx.fillStyle = asset.theme === "green" ? "#000000" : "#10B981";
         ctx.fillText("nevux.ar", width / 2, boxY + boxH - 30 * S);
@@ -572,7 +649,7 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* 🎬 TAB 1: HOOKS Y CIERRES REELS (10 ASSETS GIGANTES CATEGORIZADOS) */}
+      {/* 🎬 TAB 1: HOOKS Y CIERRES REELS */}
       {activeTab === "marketing_assets" && (
         <div
           style={{
@@ -584,7 +661,7 @@ export default function BannersPage() {
             boxSizing: "border-box",
           }}
         >
-          {/* CATEGORÍA 1: GANCHOS (HOOKS) */}
+          {/* CATEGORÍA 1: GANCHOS */}
           <div>
             <h3
               style={{
@@ -653,7 +730,7 @@ export default function BannersPage() {
                     }}
                   >
                     <Download size={13} />
-                    <span>Descargar HD</span>
+                    <span>Descargar HD (1080x1920)</span>
                   </button>
                 </div>
               ))}
@@ -729,14 +806,14 @@ export default function BannersPage() {
                     }}
                   >
                     <Download size={13} />
-                    <span>Descargar HD</span>
+                    <span>Descargar HD (1080x1920)</span>
                   </button>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* CATEGORÍA 3: CTAS (CIERRES) */}
+          {/* CATEGORÍA 3: CTAS */}
           <div>
             <h3
               style={{
@@ -749,7 +826,7 @@ export default function BannersPage() {
                 textAlign: "left",
               }}
             >
-              🎯 Llamados a la Acción (Cierre Exitoso con Derivación de Tráfico)
+              🎯 Llamados a la Acción (Cierre con Derivación de Tráfico)
             </h3>
             <div
               style={{
@@ -805,7 +882,7 @@ export default function BannersPage() {
                     }}
                   >
                     <Download size={13} />
-                    <span>Descargar HD</span>
+                    <span>Descargar HD (1080x1920)</span>
                   </button>
                 </div>
               ))}
@@ -814,7 +891,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* TAB 2: CARRUSELES INSTAGRAM */}
+      {/* 🎠 TAB 2: CARRUSELES INSTAGRAM */}
       {activeTab === "carousels" && (
         <div
           style={{
@@ -833,7 +910,7 @@ export default function BannersPage() {
             Generador de Carruseles Multi-Slide
           </h2>
           <p style={{ fontSize: "13px", color: "#a7f3d0", margin: "0 0 20px 0" }}>
-            Cargá plantillas dinámicas paso a paso para carruseles de Instagram.
+            Descargá cada slide en HD listo para publicar en Instagram (formato 4:5 vertical).
           </p>
 
           <div
@@ -884,10 +961,11 @@ export default function BannersPage() {
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   <Download size={12} />
-                  <span>Guardar</span>
+                  <span>Guardar HD</span>
                 </button>
               </div>
             ))}
