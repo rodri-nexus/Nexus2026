@@ -1,4 +1,4 @@
-// public/nevux-widget.js
+// public/nevux-widget.js .
 (function () {
   "use strict";
 
