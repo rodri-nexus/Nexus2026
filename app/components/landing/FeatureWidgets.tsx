@@ -44,7 +44,7 @@ interface WidgetItem {
   category: CategoryId;
   badge: string;
   description: string;
-  icon: React.ComponentType<{ size: number; color?: string }>;
+  icon: React.ElementType;
   tag: string;
   hasSpecialDates?: boolean;
 }
