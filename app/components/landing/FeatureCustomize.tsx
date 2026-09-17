@@ -1,9 +1,9 @@
 // app/components/landing/FeatureCustomize.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Palette, Sparkles, Check, Wand2 } from "lucide-react";
+import { Palette, Sparkles, Check, Wand2, Sliders, Eye, Zap } from "lucide-react";
 
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
@@ -41,7 +41,7 @@ interface PackOptionProps {
 ═══════════════════════════════════════════ */
 const buttonColors: ButtonColor[] = [
   { name: "Verde Nevux", value: "#10b981", gradient: "linear-gradient(135deg, #10b981, #059669)" },
-  { name: "Negro Elegante", value: "#111827", gradient: "linear-gradient(135deg, #111827, #374151)" },
+  { name: "Negro Elegante", value: "#1e293b", gradient: "linear-gradient(135deg, #1e293b, #0f172a)" },
   { name: "Azul Royal", value: "#3b82f6", gradient: "linear-gradient(135deg, #3b82f6, #2563eb)" },
   { name: "Menta Fresco", value: "#34d399", gradient: "linear-gradient(135deg, #34d399, #059669)" },
   { name: "Naranja Atractivo", value: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b, #d97706)" },
@@ -60,11 +60,35 @@ const buttonEffects: EffectOption[] = [
   { name: "Aureola de Luz", value: "pulse" },
 ];
 
+const containerStyle: React.CSSProperties = {
+  position: "relative",
+  background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(16, 185, 129, 0.08), #07090e 80%)",
+  padding: "6rem 1.25rem 7rem 1.25rem",
+  overflow: "hidden",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  color: "#ffffff",
+};
+
+const cardStyle: React.CSSProperties = {
+  background: "rgba(18, 20, 26, 0.8)",
+  borderRadius: "24px",
+  padding: "2rem",
+  boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.7)",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  display: "flex",
+  flexDirection: "column",
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
+  boxSizing: "border-box",
+  minWidth: 0,
+};
+
 const labelStyle: React.CSSProperties = {
-  fontSize: "0.8rem",
-  color: "#111827",
+  fontSize: "0.82rem",
+  color: "#e5e7eb",
   fontWeight: 800,
   display: "block",
+  letterSpacing: "0.02em",
 };
 
 /* ═══════════════════════════════════════════
@@ -86,26 +110,26 @@ function PackOption({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "0.65rem",
-        padding: "0.65rem 0.75rem",
-        background: selected ? `${buttonColor.value}15` : "#ffffff",
+        gap: "0.75rem",
+        padding: "0.85rem 1rem",
+        background: selected ? `${buttonColor.value}18` : "rgba(255, 255, 255, 0.03)",
         border: selected
           ? `1.5px solid ${buttonColor.value}`
-          : "1.5px solid #e5e7eb",
+          : "1.5px solid rgba(255, 255, 255, 0.06)",
         borderRadius: borderRadius === "999px" ? "16px" : borderRadius,
-        transition: "all 0.2s",
+        transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
         boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          width: "16px",
-          height: "16px",
+          width: "18px",
+          height: "18px",
           borderRadius: "50%",
           border: selected
             ? `2px solid ${buttonColor.value}`
-            : "2px solid #d1d5db",
-          background: selected ? buttonColor.value : "#ffffff",
+            : "2px solid rgba(255, 255, 255, 0.2)",
+          background: selected ? buttonColor.value : "transparent",
           flexShrink: 0,
           display: "flex",
           alignItems: "center",
@@ -115,8 +139,8 @@ function PackOption({
         {selected && (
           <div
             style={{
-              width: "5px",
-              height: "5px",
+              width: "6px",
+              height: "6px",
               borderRadius: "50%",
               background: "#ffffff",
             }}
@@ -128,22 +152,22 @@ function PackOption({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "0.35rem",
+            gap: "0.45rem",
             flexWrap: "wrap",
           }}
         >
-          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#000000" }}>
+          <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#ffffff" }}>
             {title}
           </span>
           {badge && (
             <span
               style={{
-                fontSize: "0.55rem",
+                fontSize: "0.62rem",
                 fontWeight: 800,
-                padding: "0.1rem 0.35rem",
+                padding: "0.15rem 0.45rem",
                 background: badgeBg,
                 color: badgeColor,
-                borderRadius: "4px",
+                borderRadius: "6px",
                 letterSpacing: "0.02em",
               }}
             >
@@ -151,9 +175,11 @@ function PackOption({
             </span>
           )}
         </div>
-        <div style={{ fontSize: "0.65rem", color: "#000000", opacity: 0.6 }}>{subtitle}</div>
+        <div style={{ fontSize: "0.72rem", color: "#9ca3af", marginTop: "2px" }}>
+          {subtitle}
+        </div>
       </div>
-      <div style={{ fontSize: "0.85rem", fontWeight: 800, color: "#000000" }}>
+      <div style={{ fontSize: "0.95rem", fontWeight: 900, color: "#ffffff" }}>
         ${price}
       </div>
     </div>
@@ -169,14 +195,8 @@ export default function FeatureCustomize() {
   const [selectedEffect, setSelectedEffect] = useState<EffectOption>(buttonEffects[2]);
 
   return (
-    <section
-      style={{
-        padding: "5rem 1.25rem",
-        background: "#ffffff",
-        fontFamily: "system-ui, -apple-system, sans-serif",
-      }}
-    >
-      <div style={{ maxWidth: "1150px", margin: "0 auto" }}>
+    <section id="estilo" style={containerStyle}>
+      <div style={{ maxWidth: "1150px", margin: "0 auto", position: "relative", zIndex: 2 }}>
         {/* Badge superior */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -194,18 +214,19 @@ export default function FeatureCustomize() {
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              padding: "0.45rem 1rem",
-              background: "#ecfdf5",
+              padding: "6px 16px",
+              background: "rgba(16, 185, 129, 0.1)",
               borderRadius: "999px",
-              fontSize: "0.8rem",
-              color: "#059669",
+              fontSize: "0.78rem",
+              color: "#10B981",
               fontWeight: 800,
-              letterSpacing: "0.03em",
-              border: "1px solid #a7f3d0",
+              letterSpacing: "0.05em",
+              border: "1px solid rgba(16, 185, 129, 0.3)",
+              textTransform: "uppercase",
             }}
           >
             <Palette size={14} />
-            MOTOR DE ESTILO DE MARCA INTELIGENTE
+            MOTOR DE ESTILO DE MARCA SINCRONIZADO
           </div>
         </motion.div>
 
@@ -216,17 +237,25 @@ export default function FeatureCustomize() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
           style={{
-            fontSize: "clamp(1.8rem, 5vw, 2.85rem)",
+            fontSize: "clamp(2rem, 5vw, 3.2rem)",
             fontWeight: 900,
-            color: "#111827",
+            color: "#ffffff",
             textAlign: "center",
             margin: "0 0 1rem 0",
-            letterSpacing: "-0.03em",
-            lineHeight: 1.15,
+            letterSpacing: "-0.035em",
+            lineHeight: 1.12,
           }}
         >
           Sincronizá todos los widgets con la{" "}
-          <span style={{ color: "#10B981" }}>identidad de tu marca</span>
+          <span
+            style={{
+              background: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            identidad visual de tu tienda
+          </span>
         </motion.h2>
 
         {/* Descripción */}
@@ -236,35 +265,39 @@ export default function FeatureCustomize() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{
-            fontSize: "clamp(1rem, 2vw, 1.15rem)",
-            color: "#4b5563",
+            fontSize: "clamp(1rem, 2vw, 1.18rem)",
+            color: "#9ca3af",
             textAlign: "center",
             lineHeight: 1.6,
-            maxWidth: "760px",
+            maxWidth: "780px",
             margin: "0 auto 1rem auto",
-            fontWeight: 500,
+            fontWeight: 400,
           }}
         >
-          Definí tus colores principales, bordes y tipografía una sola vez. 
-          Nevux armoniza automáticamente los <b>27 widgets</b> y tus <b>asistentes de IA</b> para que se vean 100% nativos como parte original de tu tienda.
+          Definí tu paleta de colores, curvatura de botones y tipografía una sola vez. 
+          Nevux armoniza automáticamente los <strong style={{ color: "#ffffff" }}>26 widgets</strong> y tus <strong style={{ color: "#10B981" }}>asistentes de IA</strong> para que se sientan 100% nativos del diseño de tu Tiendanube.
         </motion.p>
 
-        {/* Tip en vivo */}
-        <motion.p
+        {/* Tip en vivo interactivo */}
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}
           style={{
-            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
             fontSize: "0.85rem",
             color: "#10B981",
-            fontWeight: 800,
-            margin: "0 0 3rem 0",
+            fontWeight: 700,
+            margin: "0 0 3.5rem 0",
           }}
         >
-          ✨ Probá tocar los ajustes de estilo y mirá el botón sincronizarse en tiempo real
-        </motion.p>
+          <Sparkles size={16} />
+          <span>Probá tocar los controles de abajo y mirá la sincronización en vivo</span>
+        </motion.div>
 
         {/* Layout mockups interactivos */}
         <motion.div
@@ -274,83 +307,87 @@ export default function FeatureCustomize() {
           transition={{ duration: 0.6, delay: 0.4 }}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-            gap: "1.5rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "1.75rem",
             alignItems: "stretch",
           }}
         >
-          {/* PREVIEW del bundle */}
-          <div
-            style={{
-              background: "#ffffff",
-              borderRadius: "24px",
-              padding: "1.75rem",
-              boxShadow: "0 10px 30px rgba(16, 185, 129, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04)",
-              border: "1.5px solid #e5e7eb",
-              display: "flex",
-              flexDirection: "column",
-              boxSizing: "border-box",
-            }}
-          >
+          {/* PREVIEW EN VIVO */}
+          <div style={cardStyle}>
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginBottom: "1.25rem",
-                paddingBottom: "0.75rem",
-                borderBottom: "1px solid #f3f4f6",
+                marginBottom: "1.5rem",
+                paddingBottom: "1rem",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
               }}
             >
               <div>
                 <div
                   style={{
-                    fontSize: "0.7rem",
-                    color: "#6b7280",
+                    fontSize: "0.72rem",
+                    color: "#10B981",
                     fontWeight: 800,
-                    letterSpacing: "0.05em",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
                   }}
                 >
                   SIMULADOR EN VIVO
                 </div>
                 <div
                   style={{
-                    fontSize: "1rem",
+                    fontSize: "1.15rem",
                     fontWeight: 900,
-                    color: "#111827",
-                    marginTop: "0.15rem",
+                    color: "#ffffff",
+                    marginTop: "0.2rem",
                   }}
                 >
                   Bundle Promocional
                 </div>
               </div>
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
+              <div
                 style={{
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  background: "#10b981",
-                  boxShadow: "0 0 0 4px rgba(16, 185, 129, 0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "4px 10px",
+                  background: "rgba(16, 185, 129, 0.12)",
+                  borderRadius: "999px",
+                  border: "1px solid rgba(16, 185, 129, 0.25)",
                 }}
-              />
+              >
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: "#10B981",
+                    boxShadow: "0 0 10px #10B981",
+                    display: "inline-block",
+                  }}
+                />
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#10B981" }}>
+                  En Vivo
+                </span>
+              </div>
             </div>
 
-            {/* Bundle preview */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", flex: 1 }}>
+            {/* Bundle preview items */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flex: 1 }}>
               <PackOption
                 title="1 Unidad"
                 subtitle="Precio regular"
-                price="12.000"
+                price="24.900"
                 selected={false}
                 buttonColor={selectedColor}
                 borderRadius={selectedRadius.value}
               />
               <PackOption
                 title="Pack x2 (Ahorrás 15%)"
-                subtitle="El más elegido por clientes"
-                price="20.400"
+                subtitle="La opción más elegida"
+                price="42.300"
                 badge="MÁS VENDIDO"
                 badgeColor="#ffffff"
                 badgeBg="#10B981"
@@ -361,44 +398,48 @@ export default function FeatureCustomize() {
               <PackOption
                 title="Pack x3 (Ahorrás 25%)"
                 subtitle="Máximo ahorro en envío"
-                price="27.000"
+                price="56.000"
                 badge="RECOMENDADO"
                 badgeColor="#ffffff"
-                badgeBg="#111827"
+                badgeBg="#3b82f6"
                 selected={false}
                 buttonColor={selectedColor}
                 borderRadius={selectedRadius.value}
               />
             </div>
 
-            {/* Botón Agregar - se actualiza en vivo */}
+            {/* Botón CTA Dinámico */}
             <motion.button
               key={`${selectedColor.value}-${selectedRadius.value}-${selectedEffect.value}`}
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.2 }}
               style={{
-                marginTop: "1.25rem",
-                padding: "0.95rem",
+                marginTop: "1.5rem",
+                padding: "1.1rem",
                 background: selectedColor.gradient,
                 color: "#ffffff",
                 border: "none",
                 borderRadius: selectedRadius.value,
-                fontSize: "0.95rem",
-                fontWeight: 800,
+                fontSize: "1rem",
+                fontWeight: 900,
                 cursor: "pointer",
                 fontFamily: "inherit",
-                boxShadow: `0 8px 24px ${selectedColor.value}44`,
+                boxShadow: `0 8px 25px ${selectedColor.value}55`,
                 position: "relative",
                 overflow: "visible",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
               }}
             >
-              {/* Efecto pulse (aureola) */}
+              {/* Efecto aureola pulse */}
               {selectedEffect.value === "pulse" && (
                 <motion.div
                   animate={{
-                    scale: [1, 1.15, 1.3],
-                    opacity: [0.5, 0.25, 0],
+                    scale: [1, 1.12, 1.25],
+                    opacity: [0.6, 0.2, 0],
                   }}
                   transition={{
                     duration: 1.8,
@@ -418,82 +459,76 @@ export default function FeatureCustomize() {
               {/* Efecto zoom */}
               {selectedEffect.value === "zoom" ? (
                 <motion.span
-                  animate={{ scale: [1, 1.04, 1] }}
+                  animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
-                  style={{ display: "inline-block" }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
                 >
-                  Agregar al Carrito
+                  <Zap size={18} />
+                  <span>Agregar al Carrito</span>
                 </motion.span>
               ) : (
-                <span>Agregar al Carrito</span>
+                <>
+                  <Zap size={18} />
+                  <span>Agregar al Carrito</span>
+                </>
               )}
             </motion.button>
 
             <p
               style={{
-                fontSize: "0.75rem",
+                fontSize: "0.78rem",
                 color: "#6b7280",
                 textAlign: "center",
-                marginTop: "0.85rem",
+                marginTop: "1rem",
                 marginBottom: 0,
-                lineHeight: 1.4,
+                lineHeight: 1.45,
               }}
             >
-              Los cambios impactan al instante en tu Tiendanube sin demoras ni recargas.
+              ⚡ Los cambios se sincronizan en tu tienda al instante sin recargar la página.
             </p>
           </div>
 
-          {/* PANEL DE CONFIGURACIÓN */}
-          <div
-            style={{
-              background: "#ffffff",
-              borderRadius: "24px",
-              padding: "1.75rem",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.04)",
-              border: "1.5px solid #e5e7eb",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.25rem",
-              boxSizing: "border-box",
-            }}
-          >
+          {/* PANEL DE CONTROLES */}
+          <div style={cardStyle}>
             <div
               style={{
-                paddingBottom: "0.75rem",
-                borderBottom: "1px solid #f3f4f6",
+                paddingBottom: "1rem",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                marginBottom: "1.25rem",
               }}
             >
               <div
                 style={{
-                  fontSize: "0.7rem",
-                  color: "#6b7280",
+                  fontSize: "0.72rem",
+                  color: "#10B981",
                   fontWeight: 800,
-                  letterSpacing: "0.05em",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
                 }}
               >
-                CONTROLES GLOBALES
+                CONFIGURACIÓN GLOBAL
               </div>
               <div
                 style={{
-                  fontSize: "1rem",
+                  fontSize: "1.15rem",
                   fontWeight: 900,
-                  color: "#111827",
-                  marginTop: "0.15rem",
+                  color: "#ffffff",
+                  marginTop: "0.2rem",
                 }}
               >
-                Estilo visual del botón
+                Personalización en 1 Clic
               </div>
             </div>
 
             {/* Color del botón */}
-            <div>
-              <label style={labelStyle}>Color de Marca Primario</label>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={labelStyle}>Color Principal de Marca</label>
               <div
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(6, 1fr)",
-                  gap: "0.5rem",
-                  marginTop: "0.5rem",
+                  gap: "0.6rem",
+                  marginTop: "0.6rem",
                 }}
               >
                 {buttonColors.map((color) => (
@@ -506,13 +541,14 @@ export default function FeatureCustomize() {
                       background: color.gradient,
                       border:
                         selectedColor.value === color.value
-                          ? "3px solid #111827"
-                          : "3px solid transparent",
-                      borderRadius: "10px",
+                          ? "2.5px solid #ffffff"
+                          : "1px solid rgba(255, 255, 255, 0.15)",
+                      borderRadius: "12px",
                       cursor: "pointer",
-                      transition: "all 0.15s",
+                      transition: "all 0.15s ease",
                       position: "relative",
                       padding: 0,
+                      boxShadow: selectedColor.value === color.value ? `0 0 15px ${color.value}` : "none",
                     }}
                   >
                     {selectedColor.value === color.value && (
@@ -524,8 +560,6 @@ export default function FeatureCustomize() {
                           alignItems: "center",
                           justifyContent: "center",
                           color: "#ffffff",
-                          fontSize: "0.85rem",
-                          fontWeight: 900,
                         }}
                       >
                         <Check size={16} strokeWidth={3} />
@@ -538,24 +572,23 @@ export default function FeatureCustomize() {
                 style={{
                   marginTop: "0.5rem",
                   fontSize: "0.75rem",
-                  color: "#6b7280",
-                  fontFamily: "monospace",
-                  fontWeight: 700,
+                  color: "#9ca3af",
+                  fontWeight: 600,
                 }}
               >
-                Tono seleccionado: {selectedColor.value} ({selectedColor.name})
+                Tono activo: <strong style={{ color: "#ffffff" }}>{selectedColor.name}</strong> ({selectedColor.value})
               </div>
             </div>
 
-            {/* Borde del botón */}
-            <div>
-              <label style={labelStyle}>Radio de Curvatura</label>
+            {/* Radio de Curvatura */}
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={labelStyle}>Curvatura de Bordes</label>
               <div
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: "0.4rem",
-                  marginTop: "0.5rem",
+                  gap: "0.5rem",
+                  marginTop: "0.6rem",
                 }}
               >
                 {borderRadiusOptions.map((option) => (
@@ -563,25 +596,25 @@ export default function FeatureCustomize() {
                     key={option.value}
                     onClick={() => setSelectedRadius(option)}
                     style={{
-                      padding: "0.6rem 0.5rem",
+                      padding: "0.75rem 0.5rem",
                       background:
                         selectedRadius.value === option.value
-                          ? "#ecfdf5"
-                          : "#ffffff",
+                          ? "rgba(16, 185, 129, 0.15)"
+                          : "rgba(255, 255, 255, 0.04)",
                       border:
                         selectedRadius.value === option.value
                           ? "1.5px solid #10B981"
-                          : "1.5px solid #e5e7eb",
-                      borderRadius: "10px",
-                      fontSize: "0.75rem",
-                      fontWeight: 800,
+                          : "1.5px solid rgba(255, 255, 255, 0.08)",
+                      borderRadius: "12px",
+                      fontSize: "0.8rem",
+                      fontWeight: 700,
                       color:
                         selectedRadius.value === option.value
-                          ? "#059669"
-                          : "#374151",
+                          ? "#10B981"
+                          : "#9ca3af",
                       cursor: "pointer",
                       fontFamily: "inherit",
-                      transition: "all 0.15s",
+                      transition: "all 0.15s ease",
                     }}
                   >
                     {option.name}
@@ -590,15 +623,15 @@ export default function FeatureCustomize() {
               </div>
             </div>
 
-            {/* Efecto del botón */}
-            <div>
-              <label style={labelStyle}>Animación y Efecto de Conversión</label>
+            {/* Efecto de Animación */}
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={labelStyle}>Animación y Efecto Psicológico</label>
               <div
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: "0.4rem",
-                  marginTop: "0.5rem",
+                  gap: "0.5rem",
+                  marginTop: "0.6rem",
                 }}
               >
                 {buttonEffects.map((effect) => (
@@ -606,25 +639,25 @@ export default function FeatureCustomize() {
                     key={effect.value}
                     onClick={() => setSelectedEffect(effect)}
                     style={{
-                      padding: "0.6rem 0.5rem",
+                      padding: "0.75rem 0.5rem",
                       background:
                         selectedEffect.value === effect.value
-                          ? "#ecfdf5"
-                          : "#ffffff",
+                          ? "rgba(16, 185, 129, 0.15)"
+                          : "rgba(255, 255, 255, 0.04)",
                       border:
                         selectedEffect.value === effect.value
                           ? "1.5px solid #10B981"
-                          : "1.5px solid #e5e7eb",
-                      borderRadius: "10px",
-                      fontSize: "0.75rem",
-                      fontWeight: 800,
+                          : "1.5px solid rgba(255, 255, 255, 0.08)",
+                      borderRadius: "12px",
+                      fontSize: "0.8rem",
+                      fontWeight: 700,
                       color:
                         selectedEffect.value === effect.value
-                          ? "#059669"
-                          : "#374151",
+                          ? "#10B981"
+                          : "#9ca3af",
                       cursor: "pointer",
                       fontFamily: "inherit",
-                      transition: "all 0.15s",
+                      transition: "all 0.15s ease",
                     }}
                   >
                     {effect.name}
@@ -633,22 +666,22 @@ export default function FeatureCustomize() {
               </div>
             </div>
 
-            {/* Nota inferior */}
+            {/* Banner de Sincronización Automática */}
             <div
               style={{
                 marginTop: "auto",
-                padding: "0.85rem",
-                background: "#ecfdf5",
-                borderRadius: "12px",
-                border: "1px solid #a7f3d0",
+                padding: "1rem",
+                background: "rgba(16, 185, 129, 0.08)",
+                borderRadius: "14px",
+                border: "1px solid rgba(16, 185, 129, 0.2)",
                 display: "flex",
                 alignItems: "flex-start",
-                gap: "0.5rem",
+                gap: "0.75rem",
               }}
             >
-              <Wand2 size={16} color="#059669" style={{ marginTop: "2px", flexShrink: 0 }} />
-              <p style={{ fontSize: "0.75rem", color: "#065f46", margin: 0, lineHeight: 1.45, fontWeight: 600 }}>
-                <strong>Sincronización Total:</strong> Cuando guardás tus estilos en el panel de Nevux, se aplican a todos los widgets de tu tienda automáticamente.
+              <Wand2 size={18} color="#10B981" style={{ marginTop: "2px", flexShrink: 0 }} />
+              <p style={{ fontSize: "0.8rem", color: "#d1fae5", margin: 0, lineHeight: 1.45, fontWeight: 500 }}>
+                <strong style={{ color: "#ffffff" }}>Sincronización Universal:</strong> Cuando elegís tus colores en Nevux, se aplican a los 26 widgets automáticamente sin tocar código.
               </p>
             </div>
           </div>
@@ -656,4 +689,4 @@ export default function FeatureCustomize() {
       </div>
     </section>
   );
-}
+                   }
