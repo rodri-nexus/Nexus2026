@@ -1,832 +1,691 @@
+// app/components/landing/FeatureWidgets.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Zap,
-  Sparkles,
-  Flame,
-  ShieldCheck,
-  Gift,
-  Smartphone,
-  Copy,
-  Check,
-  Clock,
-  ArrowRight,
+  Timer,
   TrendingUp,
+  Layers,
+  Package,
+  MessageSquare,
+  Truck,
+  AlertTriangle,
+  ShieldCheck,
+  Star,
+  Video,
+  Eye,
+  CreditCard,
   Tag,
-  Bot,
-  BarChart3,
-  Mic,
-  Palette,
-  Globe,
-  Cpu,
-  type LucideIcon,
+  Columns,
+  Wallet,
+  Ruler,
+  LayoutGrid,
+  Sliders,
+  Camera,
+  Gift,
+  Megaphone,
+  Clock,
+  Calculator,
+  Flame,
+  ShoppingBag,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════
-   TIPOS E INTERFACES (Regla #9 al inicio)
+   ESTILOS Y CONSTANTES AL INICIO (Regla #9)
 ═══════════════════════════════════════════ */
-type Categoria = "todos" | "aov" | "urgencia" | "confianza" | "gamificacion" | "home";
+type CategoryId = "todos" | "urgencia" | "aov" | "confianza" | "info" | "engagement";
 
 interface WidgetItem {
   id: string;
-  nombre: string;
-  problemaSolucion: string;
-  categoria: Categoria;
+  name: string;
+  category: CategoryId;
   badge: string;
-  icono: string;
+  description: string;
+  icon: React.ComponentType<{ size: number; color?: string }>;
+  tag: string;
+  hasSpecialDates?: boolean;
 }
 
-interface CategoriaItem {
-  id: Categoria;
-  label: string;
-  icon: LucideIcon;
-}
+const CATEGORIES: { id: CategoryId; label: string; icon: string }[] = [
+  { id: "todos", label: "Todos (26)", icon: "⚡" },
+  { id: "urgencia", label: "Urgencia & Escasez", icon: "🔥" },
+  { id: "aov", label: "Aumentar Ticket (AOV)", icon: "📦" },
+  { id: "confianza", label: "Confianza & Social Proof", icon: "🛡️" },
+  { id: "info", label: "Información & Checkout", icon: "ℹ️" },
+  { id: "engagement", label: "Engagement & Visual", icon: "✨" },
+];
 
-interface ProToolItem {
-  titulo: string;
-  badge: string;
-  descripcion: string;
-  icono: LucideIcon;
-}
-
-/* ═══════════════════════════════════════════
-   DATOS DE LOS 29 WIDGETS POR OBJETIVO
-═══════════════════════════════════════════ */
-const WIDGETS_DATA: WidgetItem[] = [
-  // 💰 AUMENTO DE TICKET PROMEDIO (AOV)
-  {
-    id: "bundle-promociones",
-    nombre: "Bundle Promociones",
-    problemaSolucion: "Incentiva a llevar 2 o 3 unidades del mismo producto ofreciendo descuentos automáticos por volumen.",
-    categoria: "aov",
-    badge: "Más Facturación",
-    icono: "📦",
-  },
-  {
-    id: "bundle-cantidad",
-    nombre: "Bundle por Cantidad",
-    problemaSolucion: "Escala visual de precios para que el cliente siempre elija llevar mayor cantidad de artículos.",
-    categoria: "aov",
-    badge: "Ticket Alto",
-    icono: "🔢",
-  },
-  {
-    id: "barra-progreso",
-    nombre: "Barra de Envío Gratis",
-    problemaSolucion: "Muestra la barra interactiva con '¡Te faltan $X para Envío Gratis!', motivando a sumar más productos.",
-    categoria: "aov",
-    badge: "Cero Dudas",
-    icono: "📊",
-  },
-  {
-    id: "calculadora-ahorro",
-    nombre: "Calculadora de Ahorro",
-    problemaSolucion: "Mide y muestra de forma clara cuánto dinero se ahorra el cliente si compra hoy con descuento.",
-    categoria: "aov",
-    badge: "Ahorro Directo",
-    icono: "💰",
-  },
-
-  // ⚡ URGENCIA Y CIERRE INMEDIATO
+const WIDGETS_LIST: WidgetItem[] = [
+  // 1. Urgencia & Escasez
   {
     id: "cuenta-regresiva",
-    nombre: "Cuenta Regresiva",
-    problemaSolucion: "Crea FOMO con un reloj dinámico de liquidación para que los usuarios no pospongan su decisión.",
-    categoria: "urgencia",
-    badge: "Venta Rápida",
-    icono: "⏳",
+    name: "Cuenta Regresiva",
+    category: "urgencia",
+    badge: "Urgencia",
+    description: "Temporizador de ofertas límite con reinicio dinámico y llamada a la acción irresistible.",
+    icon: Timer,
+    tag: "Producto / Global",
+    hasSpecialDates: true,
   },
   {
     id: "contador-visitas",
-    nombre: "Contador de Personas en Vivo",
-    problemaSolucion: "Muestra de manera elegante cuántos visitantes están mirando el producto en este preciso instante.",
-    categoria: "urgencia",
-    badge: "Prueba Social",
-    icono: "👀",
+    name: "Contador de Visitas",
+    category: "urgencia",
+    badge: "Social Proof",
+    description: "Muestra cuántas personas están mirando el producto en tiempo real para generar FOMO.",
+    icon: Eye,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
   },
   {
     id: "contador-vendidos",
-    nombre: "Contador de Vendidos",
-    problemaSolucion: "Destaca el éxito del artículo mostrando la cantidad vendida recientemente y simulación en vivo.",
-    categoria: "urgencia",
+    name: "Contador de Vendidos",
+    category: "urgencia",
     badge: "Alta Demanda",
-    icono: "📈",
-  },
-  {
-    id: "mensaje-alerta",
-    nombre: "Aviso de Últimas Unidades",
-    problemaSolucion: "Destaca urgencia y escasez extrema ('¡Últimas 3 unidades!') impulsando una compra instantánea.",
-    categoria: "urgencia",
-    badge: "Escasez",
-    icono: "🚨",
+    description: "Exhibe la cantidad de unidades despachadas en las últimas horas para acelerar la compra.",
+    icon: Flame,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
   },
   {
     id: "edicion-limitada",
-    nombre: "Sticker Edición Limitada",
-    problemaSolucion: "Aplica un sello visual premium sobre la imagen del producto para comunicar exclusividad única.",
-    categoria: "urgencia",
-    badge: "Exclusivo",
-    icono: "✨",
+    name: "Sticker Edición Limitada",
+    category: "urgencia",
+    badge: "Exclusividad",
+    description: "Sello flotante con micro-animaciones para destacar stock exclusivo o lanzamientos.",
+    icon: Sparkles,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
+  },
+  {
+    id: "mensaje-alerta",
+    name: "Mensaje de Alerta",
+    category: "urgencia",
+    badge: "Aviso Clave",
+    description: "Banner estratégico de último momento para notificar pocas unidades o envíos prioritarios.",
+    icon: AlertTriangle,
+    tag: "Producto / Global",
+    hasSpecialDates: true,
+  },
+
+  // 2. Aumentar Ticket (AOV)
+  {
+    id: "bundle-promociones",
+    name: "Bundle Promociones",
+    category: "aov",
+    badge: "+35% Ticket",
+    description: "Combina productos complementarios con descuento directo para duplicar el carrito.",
+    icon: Layers,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
+  },
+  {
+    id: "bundle-cantidad",
+    name: "Bundle por Cantidad",
+    category: "aov",
+    badge: "Volumen",
+    description: "Escala de descuentos por llevar 2, 3 o más unidades del mismo producto (Llevá 3 pagá 2).",
+    icon: Package,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
+  },
+  {
+    id: "calculadora-ahorro",
+    name: "Calculadora de Ahorro",
+    category: "aov",
+    badge: "Conversión",
+    description: "Calcula en vivo cuánto dinero ahorra el cliente comprando hoy o pagando en efectivo.",
+    icon: Calculator,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
+  },
+  {
+    id: "barra-progreso",
+    name: "Barra de Envío Gratis",
+    category: "aov",
+    badge: "Envío Gratis",
+    description: "Barra interactiva que muestra cuánto le falta al cliente para desbloquear el envío gratuito.",
+    icon: TrendingUp,
+    tag: "Global / Header",
+    hasSpecialDates: true,
   },
   {
     id: "badge-cupon",
-    nombre: "Cupón Troquelado",
-    problemaSolucion: "Código de descuento visual con botón interactivo de copiado rápido en un clic.",
-    categoria: "urgencia",
-    badge: "1 Clic",
-    icono: "🎟️",
+    name: "Badge de Cupón de Descuento",
+    category: "aov",
+    badge: "Copiar en 1 Clic",
+    description: "Caja de cupón interactiva que permite copiar el código con un solo toque.",
+    icon: Tag,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
   },
 
-  // 🛡️ CONFIANZA Y ANTIDEVOLUCIONES
-  {
-    id: "tabla-talles",
-    nombre: "Tabla de Talles INTERACTIVA",
-    problemaSolucion: "El cliente visualiza y calcula su medida exacta de forma interactiva. Reduce reclamos y devoluciones.",
-    categoria: "confianza",
-    badge: "Antidevolución",
-    icono: "📏",
-  },
+  // 3. Confianza & Social Proof
   {
     id: "resenas-foto",
-    nombre: "Muro de Fotos Reales (UGC)",
-    problemaSolucion: "Tus clientes suben opiniones con fotos de cómo les queda puesto el producto desde su celular.",
-    categoria: "confianza",
-    badge: "+45% Confianza",
-    icono: "📸",
-  },
-  {
-    id: "resenas-clientes",
-    nombre: "Calificaciones de Clientes",
-    problemaSolucion: "Muestra puntaje estelar y reseñas destacadas cerca del botón de compra para derribar objeciones.",
-    categoria: "confianza",
-    badge: "Reputación",
-    icono: "⭐",
+    name: "Reseñas con Foto (UGC)",
+    category: "confianza",
+    badge: "Máxima Confianza",
+    description: "Muro de valoraciones de compradores reales con fotos de producto para eliminar dudas.",
+    icon: Camera,
+    tag: "Página de Producto",
   },
   {
     id: "caja-opiniones",
-    nombre: "Caja de Opiniones",
-    problemaSolucion: "Muestra comentarios de valor y preguntas frecuentes que facilitan la toma de decisión.",
-    categoria: "confianza",
-    badge: "Claridad",
-    icono: "💬",
+    name: "Caja de Opiniones",
+    category: "confianza",
+    badge: "Social Proof",
+    description: "Resumen de estrellas y valoraciones verificadas listo para incrustar en el checkout.",
+    icon: MessageSquare,
+    tag: "Página de Producto",
   },
   {
-    id: "comparador-marca",
-    nombre: "Tabla Comparativa de Marca",
-    problemaSolucion: "Diferencia de forma contundente por qué tu marca es superior frente a alternativas genéricas.",
-    categoria: "confianza",
-    badge: "Autoridad",
-    icono: "⚖️",
-  },
-  {
-    id: "info-compra",
-    nombre: "Tarjeta de Compra Unificada",
-    problemaSolucion: "Consolida envío, cuotas y descuento por transferencia en un bloque premium de alto impacto.",
-    categoria: "confianza",
-    badge: "Todo en Uno",
-    icono: "💳",
-  },
-  {
-    id: "medios-pago",
-    nombre: "Medios de Pago y Financiación",
-    problemaSolucion: "Expone claramente las opciones de pago bancario, tarjetas y cuotas aceptadas.",
-    categoria: "confianza",
-    badge: "Transparencia",
-    icono: "🏧",
-  },
-  {
-    id: "info-envio",
-    nombre: "Plazos de Envío Claros",
-    problemaSolucion: "Informa tiempos aproximados de entrega en base al código postal del cliente.",
-    categoria: "confianza",
-    badge: "Seguridad",
-    icono: "🚚",
-  },
-  {
-    id: "info-despacho",
-    nombre: "Aviso de Despacho en 24hs",
-    problemaSolucion: "Brinda tranquilidad al comprador indicando que el producto sale del depósito de inmediato.",
-    categoria: "confianza",
-    badge: "Logística",
-    icono: "⏱️",
+    id: "resenas-clientes",
+    name: "Reseñas de Clientes",
+    category: "confianza",
+    badge: "Testimonios",
+    description: "Carrusel de opiniones de satisfacción con puntuación y fecha verificada.",
+    icon: Star,
+    tag: "Página de Producto",
   },
   {
     id: "mensaje-garantia",
-    nombre: "Sello de Garantía Oficial",
-    problemaSolucion: "Elimina por completo el miedo al riesgo ofreciendo cambio o devolución fácil sin cargo.",
-    categoria: "confianza",
-    badge: "Cero Riesgo",
-    icono: "🛡️",
+    name: "Mensaje de Garantía",
+    category: "confianza",
+    badge: "Seguridad",
+    description: "Sello de compra protegida, devolución sin costo y garantía de satisfacción oficial.",
+    icon: ShieldCheck,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
   },
   {
-    id: "badge-cuotas",
-    nombre: "Badge de Cuotas sin Interés",
-    problemaSolucion: "Insignia elegante que resalta la financiación disponible en tu comercio.",
-    categoria: "confianza",
-    badge: "Atracción",
-    icono: "🏷️",
+    id: "comparador-marca",
+    name: "Comparador vs Competencia",
+    category: "confianza",
+    badge: "Autoridad",
+    description: "Tabla visual que compara tu producto contra las alternativas genéricas del mercado.",
+    icon: Columns,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
+  },
+
+  // 4. Información Estratégica & Checkout
+  {
+    id: "info-compra",
+    name: "Info de Compra Unificada (3 en 1)",
+    category: "info",
+    badge: "Estrella ⚡",
+    description: "Consolida en una sola tarjeta elegante: Cuotas sin interés, Envío gratis y Descuento por transferencia.",
+    icon: Wallet,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
   },
   {
-    id: "badge-envio",
-    nombre: "Badge de Envío Gratis",
-    problemaSolucion: "Destaca a primera vista los productos que cuentan con envío 100% bonificado.",
-    categoria: "confianza",
-    badge: "Beneficio",
-    icono: "✈️",
+    id: "tabla-talles",
+    name: "Tabla de Talles Interactiva",
+    category: "info",
+    badge: "Anti-Devoluciones",
+    description: "Guía de medidas y equivalencias inteligente para indumentaria y calzado.",
+    icon: Ruler,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
   },
   {
-    id: "badge-transferencia",
-    nombre: "Badge de Transferencia",
-    problemaSolucion: "Llama la atención hacia el descuento adicional por pagar con transferencia bancaria.",
-    categoria: "confianza",
-    badge: "Ahorro",
-    icono: "🏦",
+    id: "info-despacho",
+    name: "Información de Despacho",
+    category: "info",
+    badge: "Claridad",
+    description: "Indica la fecha y hora estimada en la que se despacha el paquete si compra hoy.",
+    icon: Truck,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
+  },
+  {
+    id: "info-envio",
+    name: "Información de Envío",
+    category: "info",
+    badge: "Logística",
+    description: "Detalle de empresas de correo disponibles, tiempos de entrega y cobertura nacional.",
+    icon: ShoppingBag,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
+  },
+  {
+    id: "medios-pago",
+    name: "Medios de Pago Aceptados",
+    category: "info",
+    badge: "Pasarelas",
+    description: "Logos oficiales de tarjetas, bancos, billeteras virtuales y transferencias aceptadas.",
+    icon: CreditCard,
+    tag: "Página de Producto",
+    hasSpecialDates: true,
   },
   {
     id: "horario-atencion",
-    nombre: "Horario de Atención",
-    problemaSolucion: "Comunica el horario de atención online e indica si estás abierto/cerrado con un detector en vivo.",
-    categoria: "confianza",
-    badge: "Atención Humana",
-    icono: "⏰",
+    name: "Horario de Atención",
+    category: "info",
+    badge: "Soporte",
+    description: "Informa los días y horarios del equipo de soporte humano para generar cercanía.",
+    icon: Clock,
+    tag: "Global / Footer",
+    hasSpecialDates: true,
   },
 
-  // 🎡 INTERACTIVOS Y GAMIFICACIÓN
-  {
-    id: "ruleta-descuentos",
-    nombre: "Ruleta Popup Inteligente",
-    problemaSolucion: "Captura correos electrónicos de nuevos visitantes entregando cupones con sistema anti-saturación.",
-    categoria: "gamificacion",
-    badge: "Captura Leads",
-    icono: "🎡",
-  },
-  {
-    id: "marquee-novedades",
-    nombre: "Marquee de Novedades",
-    problemaSolucion: "Cinta animada horizontal sin pausas para anunciar lanzamientos y promociones especiales.",
-    categoria: "gamificacion",
-    badge: "Anuncios",
-    icono: "📣",
-  },
-
-  // 📱 EXPERIENCIA APP EN CELULARES
+  // 5. Engagement & Navegación
   {
     id: "menu-circulos",
-    nombre: "Historias en la Home",
-    problemaSolucion: "Menú circular estilo Historias de Instagram en tu inicio para navegar categorías visualmente.",
-    categoria: "home",
-    badge: "Mobile First",
-    icono: "⭕",
+    name: "Menú de Historias / Círculos",
+    category: "engagement",
+    badge: "Tipo Instagram",
+    description: "Navegación visual interactiva en la cabecera estilo Stories de Instagram.",
+    icon: LayoutGrid,
+    tag: "Página de Inicio (Home)",
+    hasSpecialDates: true,
   },
   {
     id: "slider-categorias",
-    nombre: "Slider de Colecciones",
-    problemaSolucion: "Carrusel moderno de categorías visuales para acceder rápido a los productos clave.",
-    categoria: "home",
+    name: "Slider de Categorías",
+    category: "engagement",
     badge: "Navegación",
-    icono: "🗂️",
+    description: "Carrusel deslizante con fotos de colecciones para guiar al comprador en mobile.",
+    icon: Sliders,
+    tag: "Página de Inicio (Home)",
+    hasSpecialDates: true,
   },
   {
     id: "slider-video",
-    nombre: "Slider de Video Vertical",
-    problemaSolucion: "TikTok y Reels de producto directamente en la tienda para mostrar el calce perfecto.",
-    categoria: "home",
-    badge: "Estilo TikTok",
-    icono: "🎬",
+    name: "Slider de Video",
+    category: "engagement",
+    badge: "Video UGC",
+    description: "Carrusel de videos verticales en bucle mostrando el producto en uso real.",
+    icon: Video,
+    tag: "Página de Producto",
+  },
+  {
+    id: "ruleta-descuentos",
+    name: "Ruleta de Premios & Descuentos",
+    category: "engagement",
+    badge: "Gamificación",
+    description: "Juego interactivo para captar correos y entregar cupones antes de que salgan de la tienda.",
+    icon: Gift,
+    tag: "Global Flotante",
+    hasSpecialDates: true,
+  },
+  {
+    id: "marquee-novedades",
+    name: "Marquee Cinta Deslizante",
+    category: "engagement",
+    badge: "Cinta Infinita",
+    description: "Texto infinito en movimiento continuo para anunciar promociones, cuotas y novedades.",
+    icon: Megaphone,
+    tag: "Global / Top Bar",
+    hasSpecialDates: true,
   },
 ];
 
-const CATEGORIAS: CategoriaItem[] = [
-  { id: "todos", label: "Todos los Widgets (29)", icon: Sparkles },
-  { id: "aov", label: "💰 Aumentar Ticket", icon: TrendingUp },
-  { id: "urgencia", label: "⚡ Generar Urgencia", icon: Flame },
-  { id: "confianza", label: "🛡️ Confianza & Talles", icon: ShieldCheck },
-  { id: "gamificacion", label: "🎡 Interactivos", icon: Gift },
-  { id: "home", label: "📱 Estilo App", icon: Smartphone },
-];
+const containerStyle: React.CSSProperties = {
+  position: "relative",
+  background: "#07090e",
+  padding: "6rem 1.25rem 7rem 1.25rem",
+  overflow: "hidden",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  color: "#ffffff",
+};
 
-const PRO_TOOLS: ProToolItem[] = [
-  {
-    titulo: "NevuxBot AI CRM (WhatsApp)",
-    badge: "RECUPERO DE VENTAS",
-    descripcion: "Detección inteligente de carritos abandonados. La IA redacta el mensaje persuasivo y lo envía directo a WhatsApp en 1 clic.",
-    icono: Bot,
-  },
-  {
-    titulo: "Live Analytics & ROI Tracker",
-    badge: "FACTURACIÓN EN VIVO",
-    descripcion: "Telemetría en tiempo real que mide con exactitud cuántos pesos extra generó cada widget activado en tu Tiendanube.",
-    icono: BarChart3,
-  },
-  {
-    titulo: "Vendedor Virtual IA 24/7",
-    badge: "ATENCIÓN INTELIGENTE",
-    descripcion: "Asesor virtual interactivo que conoce tu catálogo al detalle, derriba dudas y recomienda el producto ideal al comprador.",
-    icono: Cpu,
-  },
-  {
-    titulo: "Búsqueda por Voz IA",
-    badge: "MOBILE FIRST",
-    descripcion: "Permite a tus clientes buscar productos hablando directamente desde su celular en lenguaje natural y sin escribir.",
-    icono: Mic,
-  },
-  {
-    titulo: "Multi-Idioma Automático IA",
-    badge: "EXPANSIÓN GLOBAL",
-    descripcion: "Detección inteligente del idioma del visitante (Español, Portugués e Inglés) y traducción neuronal de toda la app en milisegundos.",
-    icono: Globe,
-  },
-  {
-    titulo: "Estilo Marca Sincronizado",
-    badge: "DISEÑO 1 CLIC",
-    descripcion: "Armoniza colores, tipografías, botones y radios de todos los widgets con la identidad visual de tu marca automáticamente.",
-    icono: Palette,
-  },
-];
+const filterButtonStyle = (active: boolean): React.CSSProperties => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "8px",
+  padding: "10px 18px",
+  borderRadius: "999px",
+  fontSize: "0.88rem",
+  fontWeight: 700,
+  cursor: "pointer",
+  transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+  background: active ? "#10B981" : "rgba(255, 255, 255, 0.04)",
+  color: active ? "#000000" : "#9ca3af",
+  border: active ? "1px solid #10B981" : "1px solid rgba(255, 255, 255, 0.08)",
+  boxShadow: active ? "0 4px 20px rgba(16, 185, 129, 0.35)" : "none",
+  whiteSpace: "nowrap",
+});
+
+const widgetCardStyle: React.CSSProperties = {
+  background: "rgba(18, 20, 26, 0.75)",
+  border: "1px solid rgba(255, 255, 255, 0.07)",
+  borderRadius: "20px",
+  padding: "1.5rem",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  position: "relative",
+  backdropFilter: "blur(16px)",
+  WebkitBackdropFilter: "blur(16px)",
+  transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+  boxSizing: "border-box",
+  minWidth: 0,
+};
 
 /* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function FeatureWidgets() {
-  const [categoriaActiva, setCategoriaActiva] = useState<Categoria>("todos");
-  const [copied, setCopied] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({ hours: 3, minutes: 42, seconds: 15 });
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>("todos");
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        let { hours, minutes, seconds } = prev;
-        seconds--;
-        if (seconds < 0) {
-          seconds = 59;
-          minutes--;
-          if (minutes < 0) {
-            minutes = 59;
-            hours--;
-            if (hours < 0) hours = 23;
-          }
-        }
-        return { hours, minutes, seconds };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleCopyCoupon = () => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText("NEVUX20");
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const widgetsFiltrados =
-    categoriaActiva === "todos"
-      ? WIDGETS_DATA
-      : WIDGETS_DATA.filter((w) => w.categoria === categoriaActiva);
+  const filteredWidgets =
+    selectedCategory === "todos"
+      ? WIDGETS_LIST
+      : WIDGETS_LIST.filter((w) => w.category === selectedCategory);
 
   return (
-    <section
-      id="widgets"
-      style={{
-        padding: "5rem 1.25rem",
-        background: "#ffffff",
-        fontFamily: "system-ui, -apple-system, sans-serif",
-      }}
-    >
-      <div style={{ maxWidth: "1150px", margin: "0 auto" }}>
-        
-        {/* Encabezado Principal */}
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+    <section id="widgets" style={containerStyle}>
+      {/* Resplandor ambiental */}
+      <div
+        style={{
+          position: "absolute",
+          top: "20%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "min(900px, 100vw)",
+          height: "500px",
+          background: "radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      />
+
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        {/* Cabecera de la Sección */}
+        <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
           <div
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.45rem 1rem",
-              background: "#ecfdf5",
+              gap: "8px",
+              padding: "6px 14px",
+              background: "rgba(16, 185, 129, 0.1)",
+              border: "1px solid rgba(16, 185, 129, 0.3)",
               borderRadius: "999px",
-              fontSize: "0.8rem",
-              color: "#059669",
+              fontSize: "0.78rem",
+              color: "#10B981",
               fontWeight: 800,
-              letterSpacing: "0.03em",
-              border: "1px solid #a7f3d0",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
               marginBottom: "1rem",
             }}
           >
-            <Zap size={14} />
-            HERRAMIENTAS DISEÑADAS PARA CERRAR VENTAS
+            <Sparkles size={14} />
+            <span>CATÁLOGO COMPLETO DE CONVERSIÓN</span>
           </div>
 
           <h2
             style={{
-              fontSize: "clamp(1.8rem, 5vw, 2.85rem)",
+              fontSize: "clamp(2rem, 5vw, 3.4rem)",
               fontWeight: 900,
-              color: "#111827",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.15,
+              color: "#ffffff",
+              lineHeight: 1.1,
+              letterSpacing: "-0.035em",
               margin: "0 0 1rem 0",
             }}
           >
-            Cada widget resuelve un{" "}
-            <span style={{ color: "#10B981" }}>obstáculo de compra</span>
+            26 Widgets Diseñados para{" "}
+            <span
+              style={{
+                background: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Destruir Dudas y Multiplicar Ventas
+            </span>
           </h2>
 
           <p
             style={{
               fontSize: "clamp(1rem, 2vw, 1.15rem)",
-              color: "#6b7280",
-              lineHeight: 1.6,
-              maxWidth: "720px",
+              color: "#9ca3af",
+              maxWidth: "760px",
               margin: "0 auto",
-              fontWeight: 500,
+              lineHeight: 1.5,
             }}
           >
-            Elegí qué querés mejorar hoy en tu tienda: subir el ticket promedio, eliminar dudas de medidas o generar compras rápidas en caliente.
+            Cada widget resuelve un problema psicológico real del comprador online: falta de urgencia, desconfianza, dudas con el talle o compras de bajo valor.
           </p>
         </div>
 
-        {/* FILTROS POR OBJETIVO */}
+        {/* Filtros por Categoría */}
         <div
           style={{
             display: "flex",
-            gap: "0.5rem",
-            overflowX: "auto",
-            paddingBottom: "1.25rem",
-            marginBottom: "2rem",
+            alignItems: "center",
             justifyContent: "flex-start",
+            gap: "0.6rem",
+            overflowX: "auto",
+            paddingBottom: "1.5rem",
+            marginBottom: "2.5rem",
             WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
           }}
         >
-          {CATEGORIAS.map((cat) => {
-            const IconComponent = cat.icon;
-            const isSelected = categoriaActiva === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setCategoriaActiva(cat.id)}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.6rem 1.15rem",
-                  borderRadius: "999px",
-                  fontSize: "0.85rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  border: isSelected ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
-                  background: isSelected ? "#ecfdf5" : "#ffffff",
-                  color: isSelected ? "#059669" : "#374151",
-                  transition: "all 0.15s ease",
-                  boxShadow: isSelected ? "0 2px 8px rgba(16, 185, 129, 0.15)" : "none",
-                }}
-              >
-                <IconComponent size={14} />
-                <span>{cat.label}</span>
-              </button>
-            );
-          })}
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              style={filterButtonStyle(selectedCategory === cat.id)}
+            >
+              <span>{cat.icon}</span>
+              <span>{cat.label}</span>
+            </button>
+          ))}
         </div>
 
-        {/* GRILLA DE WIDGETS */}
+        {/* Grilla Autoadaptable de Widgets (Reglas #17 y #18) */}
         <motion.div
           layout
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
             gap: "1.25rem",
-            marginBottom: "5rem",
           }}
         >
           <AnimatePresence>
-            {widgetsFiltrados.map((item) => (
-              <motion.div
-                layout
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #e5e7eb",
-                  borderRadius: "18px",
-                  padding: "1.35rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-                  transition: "all 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-3px)";
-                  e.currentTarget.style.borderColor = "#10B981";
-                  e.currentTarget.style.boxShadow = "0 8px 24px rgba(16, 185, 129, 0.12)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.85rem" }}>
-                    <span style={{ fontSize: "1.85rem" }}>{item.icono}</span>
-                    <span
+            {filteredWidgets.map((widget) => {
+              const IconComp = widget.icon;
+              return (
+                <motion.div
+                  key={widget.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25 }}
+                  style={widgetCardStyle}
+                >
+                  <div>
+                    {/* Header de la Tarjeta */}
+                    <div
                       style={{
-                        fontSize: "0.7rem",
-                        fontWeight: 800,
-                        padding: "0.25rem 0.65rem",
-                        borderRadius: "999px",
-                        background: "#ecfdf5",
-                        color: "#059669",
-                        border: "1px solid #a7f3d0",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        justifyContent: "space-between",
+                        gap: "0.75rem",
+                        marginBottom: "1rem",
                       }}
                     >
-                      {item.badge}
-                    </span>
+                      <div
+                        style={{
+                          width: "44px",
+                          height: "44px",
+                          borderRadius: "12px",
+                          background: "rgba(16, 185, 129, 0.12)",
+                          border: "1px solid rgba(16, 185, 129, 0.25)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#10B981",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <IconComp size={22} />
+                      </div>
+
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", justifyContent: "flex-end" }}>
+                        <span
+                          style={{
+                            padding: "4px 10px",
+                            borderRadius: "999px",
+                            fontSize: "0.72rem",
+                            fontWeight: 800,
+                            background: "rgba(16, 185, 129, 0.15)",
+                            color: "#10B981",
+                            border: "1px solid rgba(16, 185, 129, 0.3)",
+                          }}
+                        >
+                          {widget.badge}
+                        </span>
+
+                        {widget.hasSpecialDates && (
+                          <span
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "999px",
+                              fontSize: "0.68rem",
+                              fontWeight: 700,
+                              background: "rgba(245, 158, 11, 0.12)",
+                              color: "#f59e0b",
+                              border: "1px solid rgba(245, 158, 11, 0.3)",
+                            }}
+                            title="Compatible con modo Black Friday, Hot Sale, Navidad, etc."
+                          >
+                            ⚡ 7 Presets
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Título y Descripción */}
+                    <h3
+                      style={{
+                        fontSize: "1.15rem",
+                        fontWeight: 800,
+                        color: "#ffffff",
+                        margin: "0 0 0.5rem 0",
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      {widget.name}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "0.88rem",
+                        color: "#9ca3af",
+                        lineHeight: 1.45,
+                        margin: 0,
+                      }}
+                    >
+                      {widget.description}
+                    </p>
                   </div>
 
-                  <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#111827", margin: "0 0 0.4rem 0" }}>
-                    {item.nombre}
-                  </h3>
-
-                  <p style={{ fontSize: "0.85rem", color: "#6b7280", lineHeight: 1.45, margin: 0 }}>
-                    {item.problemaSolucion}
-                  </p>
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "1.25rem",
-                    paddingTop: "0.85rem",
-                    borderTop: "1px solid #f3f4f6",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    color: "#10B981",
-                  }}
-                >
-                  <span>Activalo en 1 clic</span>
-                  <Check size={15} />
-                </div>
-              </motion.div>
-            ))}
+                  {/* Footer de Tarjeta */}
+                  <div
+                    style={{
+                      marginTop: "1.25rem",
+                      paddingTop: "0.85rem",
+                      borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      fontSize: "0.78rem",
+                      color: "#6b7280",
+                    }}
+                  >
+                    <span>Ubicación: <strong style={{ color: "#d1d5db" }}>{widget.tag}</strong></span>
+                    <span style={{ color: "#10B981", fontWeight: 700 }}>Activo en 1 clic</span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 
-        {/* ═══════════════════════════════════════════
-           SECCIÓN: SUITE DE HERRAMIENTAS PRO & IA EN VIVO
-        ═══════════════════════════════════════════ */}
+        {/* Banner Inferior: Modo Fechas Especiales 3.0 */}
         <div
           style={{
-            background: "linear-gradient(135deg, #111827 0%, #030712 100%)",
-            borderRadius: "28px",
-            border: "1.5px solid #1f2937",
-            padding: "clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 2.5rem)",
-            color: "#ffffff",
-            marginBottom: "5rem",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
+            marginTop: "3.5rem",
+            background: "linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(9, 13, 22, 0.8) 100%)",
+            border: "1px solid rgba(16, 185, 129, 0.3)",
+            borderRadius: "24px",
+            padding: "2rem",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1.5rem",
           }}
         >
-          <div style={{ textAlign: "center", maxWidth: "760px", margin: "0 auto 3rem auto" }}>
+          <div style={{ maxWidth: "680px" }}>
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "0.4rem",
-                padding: "0.35rem 0.85rem",
-                background: "rgba(16, 185, 129, 0.15)",
-                border: "1px solid rgba(16, 185, 129, 0.3)",
-                borderRadius: "999px",
+                gap: "6px",
                 fontSize: "0.75rem",
                 fontWeight: 800,
                 color: "#10B981",
-                marginBottom: "0.75rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: "0.5rem",
               }}
             >
-              <Sparkles size={14} />
-              SUITE DE CONVERSIÓN ULTRA-PRO
+              <span>🔥 MODO FECHAS ESPECIALES 3.0 INCLUIDO</span>
             </div>
-
-            <h3 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, margin: "0 0 0.75rem 0" }}>
-              Inteligencia Artificial y analíticas integradas
-            </h3>
-
-            <p style={{ fontSize: "0.95rem", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
-              Nevux no son solo widgets estáticos. Tu plan incluye automáticamente el paquete completo de tecnologías avanzadas para potenciar tu Tiendanube sin pagar apps extras.
+            <h4
+              style={{
+                fontSize: "1.4rem",
+                fontWeight: 900,
+                color: "#ffffff",
+                margin: "0 0 0.5rem 0",
+              }}
+            >
+              Transformá el diseño de tus widgets para Black Friday o Hot Sale en 1 Clic
+            </h4>
+            <p style={{ fontSize: "0.9rem", color: "#9ca3af", margin: 0, lineHeight: 1.45 }}>
+              7 Presets cromáticos profesionales prediseñados: Black Friday, Hot Sale, Cyber Monday, Navidad & Reyes, San Valentín, Día de la Madre/Padre y Liquidación Total.
             </p>
           </div>
 
-          <div
+          <a
+            href="/registro"
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "1.25rem",
+              padding: "0.95rem 1.75rem",
+              background: "#10B981",
+              color: "#000000",
+              borderRadius: "999px",
+              fontSize: "0.95rem",
+              fontWeight: 800,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              boxShadow: "0 6px 20px rgba(16, 185, 129, 0.35)",
+              flexShrink: 0,
             }}
           >
-            {PRO_TOOLS.map((tool, idx) => {
-              const IconComp = tool.icono;
-              return (
-                <div
-                  key={idx}
-                  style={{
-                    background: "#1f2937",
-                    border: "1px solid #374151",
-                    borderRadius: "18px",
-                    padding: "1.5rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                      <div style={{ background: "#ecfdf5", padding: "8px", borderRadius: "10px", color: "#059669" }}>
-                        <IconComp size={22} />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "14px", fontWeight: 800 }}>{tool.titulo}</div>
-                        <span style={{ fontSize: "10px", color: "#10B981", fontWeight: 800 }}>● {tool.badge}</span>
-                      </div>
-                    </div>
-                    <p style={{ fontSize: "12.5px", color: "#9ca3af", lineHeight: 1.5, margin: 0 }}>
-                      {tool.descripcion}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+            <span>Probar Gratis</span>
+            <ArrowRight size={16} />
+          </a>
         </div>
-
-        {/* ═══════════════════════════════════════════
-           MOCKUPS INTERACTIVOS EN VIVO
-        ═══════════════════════════════════════════ */}
-        <div
-          style={{
-            background: "#f9fafb",
-            borderRadius: "28px",
-            border: "1.5px solid #e5e7eb",
-            padding: "2.5rem 1.5rem",
-          }}
-        >
-          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-            <h3 style={{ fontSize: "clamp(1.4rem, 3vw, 2rem)", fontWeight: 900, color: "#111827", margin: "0 0 0.5rem 0" }}>
-              Así interactúan tus clientes con Nevux
-            </h3>
-            <p style={{ fontSize: "0.9rem", color: "#6b7280", margin: 0 }}>
-              Probá los botones interactivos directamente desde acá
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "1.5rem",
-            }}
-          >
-            {/* Mockup 1: Cupón */}
-            <div style={{ background: "#ffffff", borderRadius: "20px", padding: "1.5rem", border: "1.5px solid #e5e7eb", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                  <div style={{ background: "#10B981", borderRadius: "8px", padding: "0.35rem", color: "#ffffff", display: "flex" }}>
-                    <Tag size={16} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>CIERRE DE VENTA</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>Badge Cupón Troquelado</div>
-                  </div>
-                </div>
-
-                <div style={{ background: "linear-gradient(135deg, #10b981, #059669)", borderRadius: "14px", padding: "1.25rem 1rem", color: "#ffffff", textAlign: "center", position: "relative", marginBottom: "1rem" }}>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 800, opacity: 0.9 }}>CUPÓN ESPECIAL HOY</div>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 900, fontFamily: "monospace", letterSpacing: "0.08em" }}>
-                    NEVUX20
-                  </div>
-                  <div style={{ fontSize: "0.7rem", opacity: 0.85 }}>20% OFF en tu compra</div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleCopyCoupon}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  background: copied ? "#059669" : "#111827",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: "10px",
-                  fontSize: "0.85rem",
-                  fontWeight: 800,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.4rem",
-                  transition: "all 0.2s",
-                }}
-              >
-                {copied ? <Check size={16} /> : <Copy size={16} />}
-                <span>{copied ? "¡Cupón Copiado!" : "Copiar Cupón (Probar Clic)"}</span>
-              </button>
-            </div>
-
-            {/* Mockup 2: Contador de Oferta */}
-            <div style={{ background: "linear-gradient(135deg, #111827, #1f2937)", borderRadius: "20px", padding: "1.5rem", color: "#ffffff", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.3rem 0.75rem", background: "rgba(16, 185, 129, 0.2)", border: "1px solid rgba(16, 185, 129, 0.4)", borderRadius: "999px", fontSize: "0.7rem", fontWeight: 800, color: "#a7f3d0", margin: "0 auto 0.75rem auto" }}>
-                <Clock size={12} />
-                URGENCIA EN TIEMPO REAL
-              </div>
-
-              <div style={{ fontSize: "1.25rem", fontWeight: 900, marginBottom: "0.25rem" }}>
-                ¡Oferta de Despacho Inmediato! 🔥
-              </div>
-              <div style={{ fontSize: "0.8rem", opacity: 0.7, marginBottom: "1.25rem" }}>
-                Comprá antes de que se agoten las unidades
-              </div>
-
-              <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
-                <div style={{ background: "rgba(255,255,255,0.1)", padding: "0.5rem 0.75rem", borderRadius: "10px", minWidth: "50px" }}>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 900, fontFamily: "monospace" }}>
-                    {timeLeft.hours.toString().padStart(2, "0")}
-                  </div>
-                  <div style={{ fontSize: "0.6rem", opacity: 0.6, fontWeight: 700 }}>HORAS</div>
-                </div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#10B981", alignSelf: "center" }}>:</div>
-                <div style={{ background: "rgba(255,255,255,0.1)", padding: "0.5rem 0.75rem", borderRadius: "10px", minWidth: "50px" }}>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 900, fontFamily: "monospace" }}>
-                    {timeLeft.minutes.toString().padStart(2, "0")}
-                  </div>
-                  <div style={{ fontSize: "0.6rem", opacity: 0.6, fontWeight: 700 }}>MIN</div>
-                </div>
-                <div style={{ fontSize: "1.4rem", fontWeight: 900, color: "#10B981", alignSelf: "center" }}>:</div>
-                <div style={{ background: "rgba(255,255,255,0.1)", padding: "0.5rem 0.75rem", borderRadius: "10px", minWidth: "50px" }}>
-                  <div style={{ fontSize: "1.4rem", fontWeight: 900, fontFamily: "monospace" }}>
-                    {timeLeft.seconds.toString().padStart(2, "0")}
-                  </div>
-                  <div style={{ fontSize: "0.6rem", opacity: 0.6, fontWeight: 700 }}>SEG</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mockup 3: Tabla Interactiva y Gamificación */}
-            <div style={{ background: "#ffffff", borderRadius: "20px", padding: "1.5rem", border: "1.5px solid #e5e7eb", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                  <div style={{ background: "#10B981", borderRadius: "8px", padding: "0.35rem", color: "#ffffff", display: "flex" }}>
-                    <ShieldCheck size={16} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 700 }}>EXPERIENCIA SIN FRICCIÓN</div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>Talles + Ruleta</div>
-                  </div>
-                </div>
-
-                <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "10px", marginBottom: "8px" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#166534" }}>📏 Talles con Selección Real</div>
-                  <div style={{ fontSize: "0.75rem", color: "#15803d" }}>El cliente elige el talle y se selecciona automáticamente en el carrito.</div>
-                </div>
-
-                <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "10px" }}>
-                  <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1e293b" }}>🎡 Ruleta Anti-Saturación</div>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Captura leads y sólo se muestra una vez por cliente para no molestar.</div>
-                </div>
-              </div>
-
-              <a
-                href="/registro"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.4rem",
-                  padding: "0.75rem",
-                  background: "#10B981",
-                  color: "#ffffff",
-                  borderRadius: "10px",
-                  fontSize: "0.85rem",
-                  fontWeight: 800,
-                  textDecoration: "none",
-                  marginTop: "1rem",
-                }}
-              >
-                <span>Probar Nevux 7 días gratis</span>
-                <ArrowRight size={16} />
-              </a>
-            </div>
-          </div>
-        </div>
-
       </div>
     </section>
   );
-      }
+    }
