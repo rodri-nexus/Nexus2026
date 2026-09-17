@@ -1,160 +1,189 @@
+// app/components/landing/Footer.tsx
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MessageCircle, Heart } from "lucide-react";
+import { MessageCircle, Heart, ShieldCheck, Sparkles, Award } from "lucide-react";
 import NevuxLogo from "./NevuxLogo";
 
+/* ═══════════════════════════════════════════
+   ESTILOS Y CONSTANTES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const containerStyle: React.CSSProperties = {
+  background: "#05070a",
+  borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+  padding: "4.5rem 1.25rem 2rem 1.25rem",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  color: "#ffffff",
+  position: "relative",
+  overflow: "hidden",
+};
+
+const columnTitleStyle: React.CSSProperties = {
+  fontSize: "0.8rem",
+  fontWeight: 800,
+  color: "#ffffff",
+  margin: "0 0 1.25rem 0",
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+};
+
+const listStyle: React.CSSProperties = {
+  listStyle: "none",
+  padding: 0,
+  margin: 0,
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.75rem",
+};
+
+const linkStyle: React.CSSProperties = {
+  color: "#9ca3af",
+  textDecoration: "none",
+  fontSize: "0.88rem",
+  fontWeight: 500,
+  transition: "color 0.2s ease",
+  display: "inline-block",
+};
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer
-      style={{
-        background: "#ffffff",
-        borderTop: "1px solid #e5e7eb",
-        padding: "3.5rem 1.25rem 1.5rem 1.25rem",
-      }}
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        {/* Sección superior */}
+    <footer style={containerStyle}>
+      <div style={{ maxWidth: "1150px", margin: "0 auto", position: "relative", zIndex: 2 }}>
+        {/* Sección superior en grilla autoadaptable */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: "2.5rem",
-            marginBottom: "3rem",
+            marginBottom: "3.5rem",
           }}
         >
-          {/* Columna 1: Marca */}
+          {/* Columna 1: Marca y Propuesta */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div style={{ marginBottom: "1rem" }}>
+            <div style={{ marginBottom: "1.25rem" }}>
               <NevuxLogo size="medium" />
             </div>
             <p
               style={{
-                fontSize: "0.9rem",
-                color: "#000000",
-                opacity: 0.6,
+                fontSize: "0.88rem",
+                color: "#9ca3af",
                 lineHeight: 1.6,
-                margin: "0 0 1.25rem 0",
-                maxWidth: "280px",
+                margin: "0 0 1.5rem 0",
+                maxWidth: "300px",
               }}
             >
-              Aumentá tu ticket promedio con widgets interactivos, bundles y
-              ofertas especiales para tu Tiendanube.
+              La suite integral de optimización para Tiendanube. 26 widgets de conversión probados y asistentes de Inteligencia Artificial para multiplicar tu ticket promedio.
             </p>
 
-            {/* Badge Tiendanube */}
+            {/* Badge Oficial Tiendanube */}
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "0.4rem",
-                padding: "0.4rem 0.75rem",
-                background: "#ffffff",
-                border: "1px solid #e5e7eb",
+                gap: "8px",
+                padding: "6px 12px",
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
                 borderRadius: "999px",
                 fontSize: "0.75rem",
-                color: "#000000",
-                opacity: 0.6,
+                color: "#d1d5db",
                 fontWeight: 600,
               }}
             >
-              <span>Hecho para</span>
-              <svg
-                width="75"
-                height="14"
-                viewBox="0 0 120 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="10" cy="10" r="4" fill="#2CA9E1" />
-                <circle cx="16" cy="10" r="5" fill="#0084C7" opacity="0.85" />
-                <text
-                  x="28"
-                  y="14"
-                  fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
-                  fontSize="12"
-                  fontWeight="700"
-                  fill="#0084C7"
-                >
-                  tiendanube
-                </text>
-              </svg>
+              <Award size={14} color="#10B981" />
+              <span>App Oficial Tiendanube • ID #37382</span>
             </div>
           </motion.div>
 
-          {/* Columna 2: Producto */}
+          {/* Columna 2: Ecosistema de Conversión */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h4 style={columnTitleStyle}>Producto</h4>
+            <h4 style={columnTitleStyle}>Ecosistema</h4>
             <ul style={listStyle}>
               <li>
-                <Link href="/registro" style={linkStyle}>
-                  Probar gratis
-                </Link>
+                <a href="#widgets" style={linkStyle}>
+                  26 Widgets de Conversión
+                </a>
               </li>
               <li>
-                <Link href="/login" style={linkStyle}>
-                  Iniciar sesión
-                </Link>
+                <a href="#ia" style={linkStyle}>
+                  NevuxBot CRM WhatsApp
+                </a>
               </li>
               <li>
-                <Link href="/registro" style={linkStyle}>
-                  Crear cuenta
-                </Link>
+                <a href="#ia" style={linkStyle}>
+                  Vendedor Virtual con IA
+                </a>
+              </li>
+              <li>
+                <a href="#ia" style={linkStyle}>
+                  Búsqueda por Voz Inteligente
+                </a>
+              </li>
+              <li>
+                <a href="#estilo" style={linkStyle}>
+                  Modo Fechas Especiales 3.0
+                </a>
               </li>
             </ul>
           </motion.div>
 
-          {/* Columna 3: Ayuda */}
+          {/* Columna 3: Plataforma */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h4 style={columnTitleStyle}>Ayuda</h4>
+            <h4 style={columnTitleStyle}>Plataforma</h4>
             <ul style={listStyle}>
               <li>
-                <a
-                  href="https://wa.me/5493434163999"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={linkStyle}
-                >
-                  Soporte
+                <Link href="/registro" style={linkStyle}>
+                  Prueba Gratis (7 Días)
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" style={linkStyle}>
+                  Iniciar Sesión
+                </Link>
+              </li>
+              <li>
+                <a href="#precios" style={linkStyle}>
+                  Precios ($35.000 ARS)
                 </a>
               </li>
               <li>
-                <a
-                  href="mailto:soportenevux@gmail.com"
-                  style={linkStyle}
-                >
-                  Contacto
-                </a>
+                <Link href="/registro" style={linkStyle}>
+                  Crear Cuenta Nueva
+                </Link>
               </li>
             </ul>
           </motion.div>
 
-          {/* Columna 4: Legal + WhatsApp CTA */}
+          {/* Columna 4: Soporte & Contacto */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <h4 style={columnTitleStyle}>Legal</h4>
+            <h4 style={columnTitleStyle}>Soporte & Legal</h4>
             <ul style={listStyle}>
               <li>
                 <Link href="/terminos" style={linkStyle}>
@@ -166,9 +195,14 @@ export default function Footer() {
                   Política de Privacidad
                 </Link>
               </li>
+              <li>
+                <a href="mailto:soportenevux@gmail.com" style={linkStyle}>
+                  soportenevux@gmail.com
+                </a>
+              </li>
             </ul>
 
-            {/* CTA WhatsApp (verde oficial) */}
+            {/* CTA WhatsApp Oficial */}
             <a
               href="https://wa.me/5493434163999"
               target="_blank"
@@ -176,35 +210,35 @@ export default function Footer() {
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "0.5rem",
+                gap: "8px",
                 marginTop: "1.25rem",
-                padding: "0.65rem 1rem",
-                background: "#10B981",
-                color: "#ffffff",
-                borderRadius: "12px",
+                padding: "0.75rem 1.25rem",
+                background: "rgba(16, 185, 129, 0.12)",
+                border: "1px solid rgba(16, 185, 129, 0.3)",
+                color: "#10B981",
+                borderRadius: "14px",
                 fontSize: "0.85rem",
-                fontWeight: 700,
+                fontWeight: 800,
                 textDecoration: "none",
-                boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
-                transition: "all 0.2s",
+                transition: "all 0.2s ease",
               }}
             >
               <MessageCircle size={16} />
-              Chateanos por WhatsApp
+              <span>Soporte por WhatsApp</span>
             </a>
           </motion.div>
         </div>
 
-        {/* Divider */}
+        {/* Divisor sutil */}
         <div
           style={{
             height: "1px",
-            background: "linear-gradient(90deg, transparent, #e5e7eb, transparent)",
-            marginBottom: "1.5rem",
+            background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent)",
+            marginBottom: "2rem",
           }}
         />
 
-        {/* Copyright */}
+        {/* Copyright y Créditos */}
         <div
           style={{
             display: "flex",
@@ -216,9 +250,8 @@ export default function Footer() {
         >
           <p
             style={{
-              fontSize: "0.85rem",
-              color: "#000000",
-              opacity: 0.6,
+              fontSize: "0.82rem",
+              color: "#6b7280",
               margin: 0,
               fontWeight: 500,
             }}
@@ -228,9 +261,8 @@ export default function Footer() {
 
           <p
             style={{
-              fontSize: "0.8rem",
-              color: "#000000",
-              opacity: 0.5,
+              fontSize: "0.82rem",
+              color: "#6b7280",
               margin: 0,
               display: "flex",
               alignItems: "center",
@@ -238,45 +270,11 @@ export default function Footer() {
               fontWeight: 600,
             }}
           >
-            Hecho con{" "}
-            <Heart
-              size={13}
-              fill="#10B981"
-              color="#10B981"
-              strokeWidth={0}
-            />{" "}
-            en Argentina 🇦🇷
+            Impulsando el comercio electrónico con{" "}
+            <Heart size={13} fill="#10B981" color="#10B981" strokeWidth={0} /> en Argentina 🇦🇷 y LATAM
           </p>
         </div>
       </div>
     </footer>
   );
-}
-
-// Estilos compartidos
-const columnTitleStyle: React.CSSProperties = {
-  fontSize: "0.85rem",
-  fontWeight: 800,
-  color: "#000000",
-  margin: "0 0 1rem 0",
-  letterSpacing: "0.02em",
-  textTransform: "uppercase",
-};
-
-const listStyle: React.CSSProperties = {
-  listStyle: "none",
-  padding: 0,
-  margin: 0,
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.65rem",
-};
-
-const linkStyle: React.CSSProperties = {
-  color: "#000000",
-  opacity: 0.7,
-  textDecoration: "none",
-  fontSize: "0.9rem",
-  fontWeight: 500,
-  transition: "color 0.15s",
-};
+  }
