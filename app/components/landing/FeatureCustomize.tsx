@@ -1,4 +1,4 @@
-// app/components/landing/FeatureCustomize.tsx .
+// app/components/landing/FeatureCustomize.tsx
 "use client";
 
 import React, { useState } from "react";
