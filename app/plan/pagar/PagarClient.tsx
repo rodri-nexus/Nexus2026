@@ -56,7 +56,7 @@ const COUNTRIES_CONFIG: CountryPaymentConfig[] = [
     flag: "🇦🇷",
     name: "Argentina",
     currency: "ARS",
-    amount: "$30.000",
+    amount: "$35.000",
     title: "Transferencia local o Naranja X",
     instructions: "Transferí el monto exacto en pesos argentinos por CBU o Alias.",
     fields: [
@@ -975,4 +975,4 @@ export default function PagarClient({ email }: PagarClientProps) {
       </div>
     </div>
   );
-  }
+       }
