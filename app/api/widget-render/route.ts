@@ -196,9 +196,12 @@ function getProductImageUrl(p: any): string {
 
 function getProductVariantId(p: any): string {
   if (Array.isArray(p.variants) && p.variants.length > 0) {
-    return String(p.variants[0].id || "");
+    const firstVariant = p.variants[0];
+    if (firstVariant && typeof firstVariant === "object") {
+      return String(firstVariant.id || "");
+    }
   }
-  return "";
+  return String(p.id || ""); // Fallback seguro al ID del producto si no hay variantes explícitas
 }
 
 function computeAiPairings(
@@ -214,25 +217,23 @@ function computeAiPairings(
     price: extractProductPrice(p),
     image: getProductImageUrl(p),
     variantId: getProductVariantId(p),
-  })).filter((p) => p.id > 0 && p.price > 0 && p.variantId !== "");
+  })).filter((p) => p.id > 0 && p.price > 0 && p.id !== mainProductId);
 
-  if (parsed.length < 2) return [];
+  if (parsed.length === 0) return [];
 
-  const mainProduct = parsed.find(p => p.id === mainProductId);
-  if (!mainProduct) {
-    return parsed.slice(0, 2).map(p => ({
-      titulo: p.name,
-      precio: p.price,
-      imagenUrl: p.image,
-      variantId: p.variantId,
-      incluidoPorDefecto: true
-    }));
-  }
+  const mainProductRaw = products.find(p => Number(p.id) === mainProductId);
+  if (!mainProductRaw) return [];
 
-  const candidates = parsed.filter(p => p.id !== mainProductId);
-  const scoredCandidates = candidates.map(candidate => {
+  const mainProduct = {
+    id: Number(mainProductRaw.id) || 0,
+    name: parseProductName(mainProductRaw.name),
+    price: extractProductPrice(mainProductRaw),
+  };
+
+  // Calcular afinidad de los candidatos
+  const scoredCandidates = parsed.map(candidate => {
     let score = 50;
-    const ratio = candidate.price / mainProduct.price;
+    const ratio = candidate.price / (mainProduct.price || 1);
     if (ratio >= 0.15 && ratio <= 0.65) {
       score += 35;
     } else if (ratio < 1.0) {
@@ -247,15 +248,20 @@ function computeAiPairings(
     return { candidate, score };
   });
 
+  // Ordenar de mayor a menor afinidad
   scoredCandidates.sort((a, b) => b.score - a.score);
 
-  return scoredCandidates.slice(0, 1).map(item => ({
-    titulo: item.candidate.name,
-    precio: item.candidate.price,
-    imagenUrl: item.candidate.image,
-    variantId: item.candidate.variantId,
+  // Devolver el candidato número 1 como combo IA
+  const best = scoredCandidates[0].candidate;
+
+  return [{
+    id: best.id,
+    titulo: best.name,
+    precio: best.price,
+    imagenUrl: best.image,
+    variantId: best.variantId,
     incluidoPorDefecto: true
-  }));
+  }];
 }
 
 export async function OPTIONS() {
@@ -424,7 +430,7 @@ export async function GET(req: NextRequest) {
 
               const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
 
-              // Calcular complementario óptimo de forma dinámica por IA (el método devuelve 1 producto para Bundle Promociones ideal)
+              // Calcular complementario óptimo de forma dinámica por IA
               const aiRecommendedItems = computeAiPairings(productList, productId, discount);
 
               if (aiRecommendedItems.length > 0) {
@@ -444,7 +450,7 @@ export async function GET(req: NextRequest) {
                     items: aiRecommendedItems,
                   },
                   definition: {
-                    id: 3, // ID correspondiente a bundle-promociones en la base
+                    id: 3,
                     name: "Bundle Promociones",
                     slug: "bundle-promociones",
                     category: "AOV",
@@ -569,4 +575,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-       }
+   }
