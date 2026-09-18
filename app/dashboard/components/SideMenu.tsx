@@ -15,7 +15,6 @@ import {
   X,
   TrendingUp,
   Palette,
-  Cpu,
   Globe,
   Mic,
   type LucideIcon,
@@ -53,7 +52,6 @@ const menuItems: MenuItem[] = [
 const proMenuItems: MenuItem[] = [
   { label: "Live Analytics", href: "/dashboard/analytics", icon: TrendingUp },
   { label: "Estilo Marca", href: "/dashboard/estilo-marca", icon: Palette },
-  { label: "Sugerencias IA", href: "/dashboard/sugerencias-ia", icon: Cpu },
   { label: "Multi-Idioma IA", href: "/dashboard/idiomas-ia", icon: Globe },
   { label: "Búsqueda por Voz", href: "/dashboard/busqueda-voz", icon: Mic },
   { label: "Vendedor Virtual IA", href: "/dashboard/vendedor-ia", icon: Bot, badge: "NUEVO" },
@@ -431,4 +429,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-              }
+    }
