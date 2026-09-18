@@ -10,9 +10,12 @@ import {
   CheckCircle2,
   AlertCircle,
   Save,
-  ShoppingBag,
   RefreshCw,
   Eye,
+  Sparkles,
+  Package,
+  Zap,
+  TrendingUp,
 } from "lucide-react";
 import DashboardHeader from "../components/DashboardHeader";
 import SideMenu from "../components/SideMenu";
@@ -22,7 +25,7 @@ import { createClient } from "@/lib/supabase-browser";
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-interface CrossSellConfig {
+interface BundleAiConfig {
   is_active: boolean;
   discount_percentage: number;
   title: string;
@@ -52,37 +55,56 @@ interface UserStore {
   user_id: string;
 }
 
+interface FeedbackState {
+  type: "success" | "error";
+  message: string;
+}
+
 /* ═══════════════════════════════════════════
    DEFAULTS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-const DEFAULT_CONFIG: CrossSellConfig = {
+const DEFAULT_CONFIG: BundleAiConfig = {
   is_active: true,
   discount_percentage: 15,
-  title: "SACO GRIS",
-  subtitle: "PROMO",
-  button_text: "VER MÁS",
+  title: "COMBO PERFECTO",
+  subtitle: "COMBO IA",
+  button_text: "LO QUIERO",
   auto_pilot: true,
 };
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTE: SIMULADOR DE EXTRAS CON INTERRUPTOR IA
+   HELPERS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-function ExtrasIaSimulatorPreview({
+function formatPrice(value: number): string {
+  return value.toLocaleString("es-AR");
+}
+
+function calcComboPrices(priceA: number, priceB: number, discountPct: number) {
+  const original = priceA + priceB;
+  const combo = Math.round(original * ((100 - discountPct) / 100));
+  const savings = original - combo;
+  return { original, combo, savings };
+}
+
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTE: PREVIEW BUNDLE PROMOCIONES IA
+═══════════════════════════════════════════ */
+function BundleAiPreview({
   config,
   samplePairing,
 }: {
-  config: CrossSellConfig;
+  config: BundleAiConfig;
   samplePairing: SmartPairing | null;
 }) {
-  const [toggleOn, setToggleOn] = useState(true);
+  const nameA = samplePairing?.mainProductName || "Producto Principal";
+  const priceA = samplePairing?.mainProductPrice || 30000;
+  const imgA = samplePairing?.mainProductImage || "";
 
-  // Tomar el producto recomendado de la IA
-  const recName = samplePairing?.recommendedProductName || "Saco Gris Premium";
-  const recPrice = samplePairing?.recommendedProductPrice || 45000;
-  const recImg = samplePairing?.recommendedProductImage || "";
+  const nameB = samplePairing?.recommendedProductName || "Producto Sugerido IA";
+  const priceB = samplePairing?.recommendedProductPrice || 20000;
+  const imgB = samplePairing?.recommendedProductImage || "";
 
-  // Calcular precio con descuento dinámico configurado
-  const discountedPrice = Math.round(recPrice * ((100 - config.discount_percentage) / 100));
+  const { original, combo, savings } = calcComboPrices(priceA, priceB, config.discount_percentage);
 
   return (
     <div
@@ -101,12 +123,21 @@ function ExtrasIaSimulatorPreview({
           alignItems: "center",
           justifyContent: "space-between",
           marginBottom: "1.25rem",
+          flexWrap: "wrap",
+          gap: "0.5rem",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
           <Eye size={14} color="#10B981" />
-          <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#059669", textTransform: "uppercase" }}>
-            Vista Previa de Extras con Interruptor
+          <span
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 800,
+              color: "#059669",
+              textTransform: "uppercase",
+            }}
+          >
+            Vista Previa Bundle IA
           </span>
         </div>
 
@@ -121,100 +152,172 @@ function ExtrasIaSimulatorPreview({
             borderRadius: "999px",
           }}
         >
-          RECOMENDACIÓN DE LA IA
+          RECOMENDACIÓN IA
         </span>
       </div>
 
-      {/* Tarjeta Extras con Interruptor Adaptado */}
+      {/* Card Bundle Promociones simulada */}
       <div
         style={{
-          background: "#fffdf5",
-          border: "1.5px solid #fcd34d",
+          background: "#f9fafb",
+          border: "2px solid #10B981",
           borderRadius: "16px",
-          padding: "14px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "12px",
-          boxShadow: "0 4px 14px rgba(0, 0, 0, 0.03)",
+          padding: "16px",
+          boxShadow: "0 4px 14px rgba(16, 185, 129, 0.12)",
         }}
       >
-        {/* Columna Izquierda: Imagen + Ver Más */}
+        {/* Título del bundle */}
+        <div style={{ textAlign: "center", marginBottom: "14px" }}>
+          <div
+            style={{
+              display: "inline-block",
+              background: "#10B981",
+              color: "#ffffff",
+              fontSize: "10px",
+              fontWeight: 900,
+              padding: "3px 10px",
+              borderRadius: "999px",
+              letterSpacing: "0.04em",
+              marginBottom: "6px",
+            }}
+          >
+            {config.subtitle || "COMBO IA"}
+          </div>
+          <div
+            style={{
+              fontSize: "15px",
+              fontWeight: 900,
+              color: "#111827",
+              letterSpacing: "-0.01em",
+              textTransform: "uppercase",
+            }}
+          >
+            {config.title || "COMBO PERFECTO"}
+          </div>
+        </div>
+
+        {/* Productos */}
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            gap: "4px",
-            flexShrink: 0,
+            justifyContent: "center",
+            gap: "8px",
+            marginBottom: "14px",
           }}
         >
+          {/* Producto A */}
+          <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+            <div
+              style={{
+                width: "100%",
+                aspectRatio: "1 / 1",
+                borderRadius: "10px",
+                overflow: "hidden",
+                background: "#ffffff",
+                border: "1px solid #e5e7eb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: "6px",
+              }}
+            >
+              {imgA ? (
+                <img
+                  src={imgA}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <span style={{ fontSize: "26px" }}>📦</span>
+              )}
+            </div>
+            <div
+              style={{
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "#374151",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {nameA}
+            </div>
+          </div>
+
+          {/* Símbolo + */}
           <div
             style={{
-              width: "54px",
-              height: "54px",
-              borderRadius: "8px",
-              overflow: "hidden",
-              background: "#ffffff",
-              border: "1px solid #e5e7eb",
+              width: "26px",
+              height: "26px",
+              borderRadius: "50%",
+              background: "#10B981",
+              color: "#ffffff",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              fontSize: "16px",
+              fontWeight: 900,
+              flexShrink: 0,
             }}
           >
-            {recImg ? (
-              <img
-                src={recImg}
-                alt=""
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            ) : (
-              <span style={{ fontSize: "20px" }}>👔</span>
-            )}
-          </div>
-          <span
-            style={{
-              fontSize: "10px",
-              fontWeight: 800,
-              color: "#000000",
-              textDecoration: "underline",
-              letterSpacing: "0.03em",
-            }}
-          >
-            {config.button_text || "VER MÁS"}
-          </span>
-        </div>
-
-        {/* Columna Central: Título + Precio + Badge PROMO */}
-        <div style={{ flex: 1, minWidth: 0, paddingLeft: "4px" }}>
-          <div
-            style={{
-              fontSize: "14px",
-              fontWeight: 800,
-              color: "#1f2937",
-              lineHeight: 1.2,
-              marginBottom: "6px",
-              textTransform: "uppercase",
-              letterSpacing: "-0.01em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {recName}
+            +
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-            <span
+          {/* Producto B */}
+          <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+            <div
               style={{
-                fontSize: "16px",
-                fontWeight: 900,
-                color: "#111827",
-                letterSpacing: "-0.02em",
+                width: "100%",
+                aspectRatio: "1 / 1",
+                borderRadius: "10px",
+                overflow: "hidden",
+                background: "#ffffff",
+                border: "1px solid #e5e7eb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: "6px",
               }}
             >
-              ${discountedPrice.toLocaleString("es-AR")}
-            </span>
+              {imgB ? (
+                <img
+                  src={imgB}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <span style={{ fontSize: "26px" }}>🎁</span>
+              )}
+            </div>
+            <div
+              style={{
+                fontSize: "10px",
+                fontWeight: 700,
+                color: "#374151",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {nameB}
+            </div>
+          </div>
+        </div>
+
+        {/* Precio combo */}
+        <div
+          style={{
+            background: "#ffffff",
+            borderRadius: "10px",
+            padding: "10px",
+            textAlign: "center",
+            marginBottom: "10px",
+            border: "1px dashed #d1fae5",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", flexWrap: "wrap" }}>
             <span
               style={{
                 fontSize: "11px",
@@ -223,63 +326,69 @@ function ExtrasIaSimulatorPreview({
                 fontWeight: 600,
               }}
             >
-              ${recPrice.toLocaleString("es-AR")}
+              ${formatPrice(original)}
             </span>
-
+            <span
+              style={{
+                fontSize: "20px",
+                fontWeight: 900,
+                color: "#10B981",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              ${formatPrice(combo)}
+            </span>
             <span
               style={{
                 background: "#dc2626",
                 color: "#ffffff",
-                fontSize: "9px",
+                fontSize: "10px",
                 fontWeight: 900,
                 padding: "2px 6px",
                 borderRadius: "4px",
                 letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                lineHeight: 1,
               }}
             >
-              {config.subtitle} {config.discount_percentage}% OFF
+              -{config.discount_percentage}%
             </span>
+          </div>
+          <div style={{ fontSize: "10px", color: "#059669", fontWeight: 700, marginTop: "4px" }}>
+            💚 Ahorrás ${formatPrice(savings)}
           </div>
         </div>
 
-        {/* Columna Derecha: Interruptor Switch */}
+        {/* CTA */}
         <button
           type="button"
-          onClick={() => setToggleOn(!toggleOn)}
-          aria-label="Toggle extra"
           style={{
-            width: "54px",
-            height: "30px",
-            borderRadius: "999px",
+            width: "100%",
+            padding: "10px",
+            borderRadius: "10px",
             border: "none",
+            background: "#10B981",
+            color: "#ffffff",
+            fontWeight: 900,
+            fontSize: "13px",
+            letterSpacing: "0.04em",
             cursor: "pointer",
-            background: toggleOn ? "#10B981" : "#e5e7eb",
-            position: "relative",
-            flexShrink: 0,
-            transition: "background 0.2s ease",
-            padding: 0,
+            textTransform: "uppercase",
+            boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
           }}
         >
-          <span
-            style={{
-              position: "absolute",
-              top: 3,
-              left: toggleOn ? 27 : 3,
-              width: 24,
-              height: 24,
-              borderRadius: "50%",
-              background: "#ffffff",
-              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-              transition: "left 0.2s ease",
-            }}
-          />
+          {config.button_text || "LO QUIERO"}
         </button>
       </div>
 
-      <div style={{ marginTop: "1rem", fontSize: "0.78rem", color: "#6b7280", textAlign: "center", lineHeight: 1.4 }}>
-        💡 Al prender el interruptor, la sugerencia de la IA se agregará de inmediato al carrito de compras del cliente.
+      <div
+        style={{
+          marginTop: "1rem",
+          fontSize: "0.78rem",
+          color: "#6b7280",
+          textAlign: "center",
+          lineHeight: 1.4,
+        }}
+      >
+        💡 Así se verán los combos IA cuando los crees como widget <strong>Bundle Promociones</strong> en la ficha de cada producto.
       </div>
     </div>
   );
@@ -292,12 +401,12 @@ export default function SugerenciasIaPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [store, setStore] = useState<UserStore | null>(null);
-  const [config, setConfig] = useState<CrossSellConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<BundleAiConfig>(DEFAULT_CONFIG);
   const [pairings, setPairings] = useState<SmartPairing[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [refreshingCat, setRefreshingCat] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
 
   const loadData = async (storeId: number) => {
     try {
@@ -319,7 +428,7 @@ export default function SugerenciasIaPage() {
         }
       }
     } catch (err) {
-      console.error("Error cargando Cross-Sell IA:", err);
+      console.error("Error cargando Bundles IA:", err);
     }
   };
 
@@ -389,7 +498,7 @@ export default function SugerenciasIaPage() {
 
       setFeedback({
         type: "success",
-        message: "¡Configuración de Recomendaciones IA guardada con éxito!",
+        message: "¡Motor de Bundles IA guardado con éxito!",
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error inesperado";
@@ -467,7 +576,7 @@ export default function SugerenciasIaPage() {
               letterSpacing: "0.04em",
             }}
           >
-            <Cpu size={13} color="#10B981" />
+            <Sparkles size={13} color="#10B981" />
             Motor Predictivo IA
           </div>
 
@@ -480,10 +589,10 @@ export default function SugerenciasIaPage() {
               color: "#000000",
             }}
           >
-            Recomendaciones IA (Extras Automáticos)
+            Generador IA de Bundles Inteligentes
           </h1>
           <p style={{ margin: 0, fontSize: "0.95rem", color: "#6b7280", lineHeight: 1.5 }}>
-            Emparejá automáticamente cada producto con su accesorio o complemento ideal. Aumentá tu ticket promedio sugiriendo extras con descuento directamente en la ficha del producto.
+            La IA analiza todo tu catálogo, detecta combinaciones ganadoras y las prepara listas para que las crees como widget <strong>Bundle Promociones</strong>. Aumentá tu ticket promedio con combos perfectos y descuentos calculados automáticamente.
           </p>
         </motion.div>
 
@@ -532,7 +641,7 @@ export default function SugerenciasIaPage() {
           >
             <Loader2 size={32} color="#10B981" className="animate-spin" />
             <span style={{ fontSize: "0.9rem", color: "#6b7280", fontWeight: 600 }}>
-              Generando sugerencias predictivas de extras...
+              Analizando catálogo y generando combos predictivos...
             </span>
           </div>
         ) : (
@@ -557,14 +666,15 @@ export default function SugerenciasIaPage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
+                    gap: "1rem",
                   }}
                 >
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827" }}>
-                      Auto-Piloto IA Activo
+                      Motor de Bundles IA Activo
                     </div>
                     <div style={{ fontSize: "0.78rem", color: "#6b7280", marginTop: "2px" }}>
-                      La IA empareja todo el catálogo sin configuración manual
+                      La IA empareja todo el catálogo automáticamente
                     </div>
                   </div>
 
@@ -580,6 +690,7 @@ export default function SugerenciasIaPage() {
                       border: "none",
                       cursor: "pointer",
                       transition: "all 0.2s",
+                      flexShrink: 0,
                     }}
                   >
                     <div
@@ -607,11 +718,18 @@ export default function SugerenciasIaPage() {
                     padding: "1.25rem",
                   }}
                 >
-                  <div style={{ fontSize: "0.9rem", fontWeight: 800, color: "#111827", marginBottom: "0.3rem" }}>
-                    Descuento del Extra sugerido
+                  <div
+                    style={{
+                      fontSize: "0.9rem",
+                      fontWeight: 800,
+                      color: "#111827",
+                      marginBottom: "0.3rem",
+                    }}
+                  >
+                    Descuento sugerido del Combo
                   </div>
                   <p style={{ margin: "0 0 0.85rem 0", fontSize: "0.78rem", color: "#6b7280" }}>
-                    Incentivo que se aplica automáticamente al prender el interruptor:
+                    Incentivo aplicado al precio total del bundle:
                   </p>
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.5rem" }}>
@@ -650,13 +768,22 @@ export default function SugerenciasIaPage() {
                   }}
                 >
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                      Etiqueta del Badge (ej: PROMO / IA SUGIERE)
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
+                        marginBottom: "0.3rem",
+                        color: "#111827",
+                      }}
+                    >
+                      Título persuasivo del Bundle
                     </label>
                     <input
                       type="text"
-                      value={config.subtitle}
-                      onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
+                      value={config.title}
+                      onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
+                      placeholder="Ej: COMBO PERFECTO"
                       style={{
                         width: "100%",
                         padding: "0.65rem 0.85rem",
@@ -670,13 +797,51 @@ export default function SugerenciasIaPage() {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                      Texto del enlace &quot;Ver más&quot;
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
+                        marginBottom: "0.3rem",
+                        color: "#111827",
+                      }}
+                    >
+                      Etiqueta del Badge (ej: COMBO IA / PROMO)
+                    </label>
+                    <input
+                      type="text"
+                      value={config.subtitle}
+                      onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
+                      placeholder="Ej: COMBO IA"
+                      style={{
+                        width: "100%",
+                        padding: "0.65rem 0.85rem",
+                        borderRadius: "10px",
+                        border: "1.5px solid #e5e7eb",
+                        fontSize: "0.85rem",
+                        boxSizing: "border-box",
+                        fontFamily: "inherit",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
+                        marginBottom: "0.3rem",
+                        color: "#111827",
+                      }}
+                    >
+                      Texto del botón CTA
                     </label>
                     <input
                       type="text"
                       value={config.button_text}
                       onChange={(e) => setConfig((prev) => ({ ...prev, button_text: e.target.value }))}
+                      placeholder="Ej: LO QUIERO"
                       style={{
                         width: "100%",
                         padding: "0.65rem 0.85rem",
@@ -726,16 +891,16 @@ export default function SugerenciasIaPage() {
                 </button>
               </div>
 
-              {/* COLUMNA DERECHA: SIMULADOR EN VIVO */}
+              {/* COLUMNA DERECHA: PREVIEW EN VIVO */}
               <div style={{ position: "sticky", top: "2rem" }}>
-                <ExtrasIaSimulatorPreview
+                <BundleAiPreview
                   config={config}
                   samplePairing={pairings.length > 0 ? pairings[0] : null}
                 />
               </div>
             </div>
 
-            {/* SECCIÓN DE EMPAREJAMIENTOS GENERADOS EN VIVO */}
+            {/* SECCIÓN DE COMBOS GENERADOS EN VIVO */}
             <div
               style={{
                 background: "#ffffff",
@@ -755,12 +920,23 @@ export default function SugerenciasIaPage() {
                   marginBottom: "1.5rem",
                 }}
               >
-                <div>
-                  <h3 style={{ margin: "0 0 0.25rem 0", fontSize: "1.15rem", fontWeight: 800 }}>
-                    Sugerencias Predictivas de Extras en Vivo ({pairings.length})
+                <div style={{ minWidth: 0 }}>
+                  <h3
+                    style={{
+                      margin: "0 0 0.25rem 0",
+                      fontSize: "1.15rem",
+                      fontWeight: 800,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Package size={18} color="#10B981" />
+                    Combos IA Listos para Crear ({pairings.length})
                   </h3>
                   <p style={{ margin: 0, fontSize: "0.82rem", color: "#6b7280" }}>
-                    La IA analizó tu catálogo y determinó estas parejas óptimas para ofrecer como Extras con Interruptor:
+                    La IA analizó tu catálogo y detectó estas parejas perfectas. Creá cada combo como widget Bundle Promociones en 1 clic.
                   </p>
                 </div>
 
@@ -780,6 +956,7 @@ export default function SugerenciasIaPage() {
                     fontWeight: 700,
                     color: "#374151",
                     cursor: refreshingCat ? "not-allowed" : "pointer",
+                    flexShrink: 0,
                   }}
                 >
                   <RefreshCw size={13} className={refreshingCat ? "animate-spin" : ""} />
@@ -802,12 +979,16 @@ export default function SugerenciasIaPage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
                     gap: "1rem",
                   }}
                 >
                   {pairings.map((p, idx) => {
-                    const dynamicDiscountPrice = Math.round(p.recommendedProductPrice * ((100 - config.discount_percentage) / 100));
+                    const { original, combo, savings } = calcComboPrices(
+                      p.mainProductPrice,
+                      p.recommendedProductPrice,
+                      config.discount_percentage
+                    );
 
                     return (
                       <div
@@ -822,7 +1003,16 @@ export default function SugerenciasIaPage() {
                           gap: "0.75rem",
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        {/* Header afinidad */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: "0.4rem",
+                          }}
+                        >
                           <span
                             style={{
                               background: "#ecfdf5",
@@ -832,33 +1022,122 @@ export default function SugerenciasIaPage() {
                               fontWeight: 800,
                               padding: "2px 7px",
                               borderRadius: "999px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "3px",
                             }}
                           >
+                            <TrendingUp size={10} />
                             Afinidad: {p.matchScore}%
                           </span>
-                          <span style={{ fontSize: "0.7rem", color: "#6b7280", fontWeight: 600 }}>
+                          <span
+                            style={{
+                              fontSize: "0.7rem",
+                              color: "#6b7280",
+                              fontWeight: 600,
+                              textAlign: "right",
+                              minWidth: 0,
+                            }}
+                          >
                             {p.matchReason}
                           </span>
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <span style={{ fontSize: "0.7rem", color: "#6b7280", display: "block" }}>En Producto Principal:</span>
-                            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {/* Productos */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          {/* Producto A */}
+                          <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+                            <div
+                              style={{
+                                width: "100%",
+                                aspectRatio: "1 / 1",
+                                borderRadius: "8px",
+                                overflow: "hidden",
+                                background: "#ffffff",
+                                border: "1px solid #e5e7eb",
+                                marginBottom: "4px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {p.mainProductImage ? (
+                                <img
+                                  src={p.mainProductImage}
+                                  alt=""
+                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: "20px" }}>📦</span>
+                              )}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "0.7rem",
+                                fontWeight: 700,
+                                color: "#111827",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               {p.mainProductName}
                             </div>
                           </div>
 
-                          <span style={{ fontSize: "0.85rem", color: "#10B981", fontWeight: 900 }}>👉</span>
+                          <span
+                            style={{
+                              fontSize: "1.2rem",
+                              color: "#10B981",
+                              fontWeight: 900,
+                              flexShrink: 0,
+                            }}
+                          >
+                            +
+                          </span>
 
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <span style={{ fontSize: "0.7rem", color: "#059669", display: "block", fontWeight: 700 }}>Se sugiere Extra:</span>
-                            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {/* Producto B */}
+                          <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+                            <div
+                              style={{
+                                width: "100%",
+                                aspectRatio: "1 / 1",
+                                borderRadius: "8px",
+                                overflow: "hidden",
+                                background: "#ffffff",
+                                border: "1px solid #e5e7eb",
+                                marginBottom: "4px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {p.recommendedProductImage ? (
+                                <img
+                                  src={p.recommendedProductImage}
+                                  alt=""
+                                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: "20px" }}>🎁</span>
+                              )}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "0.7rem",
+                                fontWeight: 700,
+                                color: "#111827",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               {p.recommendedProductName}
                             </div>
                           </div>
                         </div>
 
+                        {/* Precio combo */}
                         <div
                           style={{
                             borderTop: "1px dashed #e5e7eb",
@@ -867,11 +1146,68 @@ export default function SugerenciasIaPage() {
                             alignItems: "center",
                             justifyContent: "space-between",
                             fontSize: "0.75rem",
+                            flexWrap: "wrap",
+                            gap: "0.3rem",
                           }}
                         >
-                          <span style={{ color: "#6b7280" }}>Precio sugerido con {config.discount_percentage}% OFF:</span>
-                          <strong style={{ color: "#10B981", fontSize: "0.85rem" }}>${dynamicDiscountPrice.toLocaleString("es-AR")}</strong>
+                          <div style={{ display: "flex", flexDirection: "column" }}>
+                            <span
+                              style={{
+                                textDecoration: "line-through",
+                                color: "#9ca3af",
+                                fontSize: "0.72rem",
+                                fontWeight: 600,
+                              }}
+                            >
+                              ${formatPrice(original)}
+                            </span>
+                            <strong style={{ color: "#10B981", fontSize: "0.95rem" }}>
+                              ${formatPrice(combo)}
+                            </strong>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <span
+                              style={{
+                                background: "#dc2626",
+                                color: "#ffffff",
+                                fontSize: "0.68rem",
+                                fontWeight: 900,
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                display: "inline-block",
+                              }}
+                            >
+                              -{config.discount_percentage}%
+                            </span>
+                            <div style={{ fontSize: "0.7rem", color: "#059669", fontWeight: 700, marginTop: "2px" }}>
+                              Ahorro ${formatPrice(savings)}
+                            </div>
+                          </div>
                         </div>
+
+                        {/* CTA Crear Bundle */}
+                        <Link
+                          href="/widgets/nuevo/producto"
+                          style={{
+                            width: "100%",
+                            padding: "0.65rem",
+                            borderRadius: "10px",
+                            background: "#10B981",
+                            color: "#ffffff",
+                            fontWeight: 800,
+                            fontSize: "0.8rem",
+                            textAlign: "center",
+                            textDecoration: "none",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.35rem",
+                            boxShadow: "0 4px 12px rgba(16, 185, 129, 0.2)",
+                          }}
+                        >
+                          <Zap size={13} />
+                          Crear Bundle con este combo
+                        </Link>
                       </div>
                     );
                   })}
@@ -888,4 +1224,4 @@ export default function SugerenciasIaPage() {
       </main>
     </div>
   );
-}
+      }
