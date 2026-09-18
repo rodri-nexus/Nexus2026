@@ -2598,13 +2598,41 @@
 /* ═══════════════════════════════════════════
      RENDER BUNDLE PROMOCIONES (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
-  function renderBundlePromociones(widget) {
+    function renderBundlePromociones(widget) {
     if (pageType !== "product") return;
+
+    // 🧠 INTERCEPCIÓN IA: Si es el combo virtual predictivo, adaptamos su config al vuelo
+    if (widget.id === 'virtual-ai-bundle-promociones' && widget.config) {
+      var aiCfg = widget.config;
+      var discount = aiCfg.descuentoPorcentaje || 15;
+
+      // Crear promoción tier virtual
+      aiCfg.promociones = [{
+        tipo: "1x1",
+        formatoEtiqueta: aiCfg.titulo || "Llevá el complemento ideal",
+        subtitulo: "Ahorrá " + discount + "% llevando el combo recomendado",
+        badges: {
+          envioGratis: false,
+          masVendido: true,
+          personalizado: true,
+          personalizadoTexto: "SUGERIDO IA ⚡"
+        },
+        ocultarComp1: false,
+        ocultarComp2: false,
+        marcarPorDefecto: true
+      }];
+
+      // Mapear el producto sugerido por la IA como producto complementario
+      if (aiCfg.items && aiCfg.items.length > 1) {
+        aiCfg.complementarios = [aiCfg.items[1]];
+        aiCfg.complementariosDefault = true;
+      }
+    }
+
     var cfg = normalizeBundlePromocionesConfig(widget.config || {});
     if (!cfg.promociones || cfg.promociones.length === 0) return;
     mountBundlePromociones(widget, cfg);
-  }
-
+    }
   function normalizeBundlePromocionesConfig(raw) {
     function n(v, fb) {
       if (v === undefined || v === null || v === "") return fb;
