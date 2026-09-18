@@ -9622,7 +9622,7 @@ function renderContadorVendidos(w) {
     nvxTrack(w.id, 'impression');
   }
 }
-  /* ═══════════════════════════════════════════
+    /* ═══════════════════════════════════════════
      SOCIAL PROOF IA — NOTIFICACIONES EN VIVO
   ═══════════════════════════════════════════ */
   function renderSocialProof(spData) {
@@ -9674,17 +9674,17 @@ function renderContadorVendidos(w) {
       }
 
       var imgHtml = ev.productImage
-        ? '<img src="' + escapeHtml(ev.productImage) + '" style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;flex-shrink:0;" />'
-        : '<div style="width:42px;height:42px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (ev.icon || "🛒") + '</div>';
+        ? '<img src="' + escapeHtml(ev.productImage) + '" style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:' + borderStyle + ';flex-shrink:0;" />'
+        : '<div style="width:42px;height:42px;border-radius:10px;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ';display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (ev.icon || "🛒") + '</div>';
 
-      var cardHtml = '<div id="' + NS + '-sp-card" style="background:' + bgStyle + ';' + backdrop + 'color:' + textColor + ';border:' + borderStyle + ';border-radius:16px;padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 30px rgba(0,0,0,0.15);pointer-events:auto;transition:transform 0.35s ease, opacity 0.35s ease;transform:translateY(20px);opacity:0;">' +
+      var cardHtml = '<div id="' + NS + '-sp-card" style="background:' + bgStyle + ';' + backdrop + 'color:' + textColor + ';border:' + borderStyle + ';border-radius:16px;padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 30px rgba(0,0,0,0.18);pointer-events:auto;transition:transform 0.35s ease, opacity 0.35s ease;transform:translateY(20px);opacity:0;">' +
         imgHtml +
         '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:12px;font-weight:800;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(ev.title) + '</div>' +
-          '<div style="font-size:11px;color:' + subColor + ';line-height:1.2;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(ev.subtitle) + '</div>' +
-          (ev.timeAgo ? '<div style="font-size:10px;color:#10B981;font-weight:700;margin-top:3px;">⚡ ' + escapeHtml(ev.timeAgo) + '</div>' : '') +
+          '<div style="font-size:12px;font-weight:800;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + textColor + ' !important;">' + escapeHtml(ev.title) + '</div>' +
+          '<div style="font-size:11px;color:' + subColor + ' !important;line-height:1.2;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(ev.subtitle) + '</div>' +
+          (ev.timeAgo ? '<div style="font-size:10px;color:#10B981 !important;font-weight:700;margin-top:3px;">⚡ ' + escapeHtml(ev.timeAgo) + '</div>' : '') +
         '</div>' +
-        '<button type="button" id="' + NS + '-sp-close" style="background:none;border:none;color:' + subColor + ';cursor:pointer;padding:2px;font-size:14px;line-height:1;margin-left:4px;flex-shrink:0;">✕</button>' +
+        '<button type="button" id="' + NS + '-sp-close" style="background:none;border:none;color:' + subColor + ' !important;cursor:pointer;padding:2px;font-size:14px;line-height:1;margin-left:4px;flex-shrink:0;">✕</button>' +
       '</div>';
 
       container.innerHTML = cardHtml;
@@ -9721,5 +9721,5 @@ function renderContadorVendidos(w) {
     }
 
     setTimeout(showNextEvent, 2500);
-      }
+        }
 })();
