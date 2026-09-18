@@ -67,6 +67,24 @@ function jsonResponse(data: unknown, status = 200) {
   });
 }
 
+function parseErrorMessage(err: unknown): string {
+  if (!err) return "Error desconocido";
+  if (typeof err === "string") return err;
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object" && err !== null) {
+    const obj = err as Record<string, unknown>;
+    if (obj.message) return String(obj.message);
+    if (obj.details) return String(obj.details);
+    if (obj.error_description) return String(obj.error_description);
+    try {
+      return JSON.stringify(obj);
+    } catch {
+      return "Error procesando respuesta";
+    }
+  }
+  return "Error procesando respuesta";
+}
+
 function getRandomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -188,7 +206,6 @@ export async function GET(req: NextRequest) {
 
     const storeId = parseInt(storeIdParam, 10);
 
-    // Consultar de la tabla widgets nativa
     const { data: widgetRow } = await supabase
       .from("widgets")
       .select("id, is_active, config")
@@ -196,19 +213,19 @@ export async function GET(req: NextRequest) {
       .eq("widget_slug", "social-proof")
       .maybeSingle();
 
-    const cfg = widgetRow?.config || {};
+    const cfg = (widgetRow?.config || {}) as Record<string, unknown>;
 
     const currentSettings: SocialProofSettingsPayload = {
       store_id: storeId,
       is_active: widgetRow ? widgetRow.is_active : false,
-      position: cfg.position || "bottom-left",
+      position: (cfg.position as any) || "bottom-left",
       display_duration: Number(cfg.display_duration) || 5,
       delay_between: Number(cfg.delay_between) || 8,
-      enable_recent_sales: cfg.enable_recent_sales ?? true,
-      enable_live_visitors: cfg.enable_live_visitors ?? true,
-      enable_low_stock: cfg.enable_low_stock ?? true,
-      theme_style: cfg.theme_style || "light",
-      custom_cities: cfg.custom_cities || LATAM_CITIES,
+      enable_recent_sales: cfg.enable_recent_sales !== false,
+      enable_live_visitors: cfg.enable_live_visitors !== false,
+      enable_low_stock: cfg.enable_low_stock !== false,
+      theme_style: (cfg.theme_style as any) || "light",
+      custom_cities: (cfg.custom_cities as string[]) || LATAM_CITIES,
     };
 
     let events: SocialProofEvent[] = [];
@@ -239,8 +256,7 @@ export async function GET(req: NextRequest) {
       events,
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Error interno";
-    return jsonResponse({ error: msg }, 500);
+    return jsonResponse({ error: parseErrorMessage(error) }, 500);
   }
 }
 
@@ -256,7 +272,7 @@ export async function POST(req: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return jsonResponse({ error: "No autorizado" }, 401);
+      return jsonResponse({ error: "No autorizado. Iniciá sesión nuevamente." }, 401);
     }
 
     const body: SocialProofSettingsPayload = await req.json().catch(() => ({}));
@@ -277,13 +293,35 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ error: "Falta store_id obligatorio" }, 400);
     }
 
-    // Buscar si ya existe la fila en la tabla widgets
-    const { data: existingWidget } = await supabase
+    const storeIdNum = Number(store_id);
+
+    // 1. Verificar tienda con .maybeSingle()
+    const { data: store, error: storeErr } = await supabase
+      .from("stores")
+      .select("id, store_id, user_id")
+      .eq("user_id", user.id)
+      .eq("store_id", storeIdNum)
+      .maybeSingle();
+
+    if (storeErr) {
+      throw storeErr;
+    }
+
+    if (!store) {
+      return jsonResponse({ error: "Tienda no encontrada o no autorizada" }, 403);
+    }
+
+    // 2. Buscar widget 'social-proof' existente
+    const { data: existingWidget, error: widgetSearchErr } = await supabase
       .from("widgets")
       .select("id")
-      .eq("store_id", store_id)
+      .eq("store_id", storeIdNum)
       .eq("widget_slug", "social-proof")
       .maybeSingle();
+
+    if (widgetSearchErr) {
+      throw widgetSearchErr;
+    }
 
     const configPayload = {
       position,
@@ -299,11 +337,10 @@ export async function POST(req: NextRequest) {
     const nowIso = new Date().toISOString();
 
     if (existingWidget) {
-      // Actualizar existente
       const { error: updateError } = await supabase
         .from("widgets")
         .update({
-          is_active,
+          is_active: Boolean(is_active),
           config: configPayload,
           updated_at: nowIso,
         })
@@ -311,15 +348,15 @@ export async function POST(req: NextRequest) {
 
       if (updateError) throw updateError;
     } else {
-      // Insertar nuevo
       const { error: insertError } = await supabase
         .from("widgets")
         .insert({
-          store_id,
+          user_id: user.id,
+          store_id: storeIdNum,
           widget_slug: "social-proof",
           widget_type: "social-proof",
           target_type: "all",
-          is_active,
+          is_active: Boolean(is_active),
           config: configPayload,
           updated_at: nowIso,
         });
@@ -332,7 +369,6 @@ export async function POST(req: NextRequest) {
       message: "Configuración de Social Proof IA guardada con éxito",
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Error interno";
-    return jsonResponse({ error: msg }, 500);
+    return jsonResponse({ error: parseErrorMessage(error) }, 500);
   }
-}
+     }
