@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { buildPlanInfo, type StorePlanData, type PlanInfo, type RawPlanStatus } from "@/lib/plan";
@@ -110,6 +111,14 @@ export default async function DashboardPage() {
       }
     : null;
 
+  // ─── CERROJO DE SEGURIDAD v11 ───────────────────────
+  // Si el comerciante tiene tienda activa pero su plan no le permite usar la app,
+  // lo expulsamos directamente a la pantalla de expirado/pagos.
+  // ───────────────────────────────────────────────────
+  if (planInfo && !planInfo.canUseApp) {
+    redirect("/plan/expirado");
+  }
+
   const planSerialized = planInfo
     ? {
         status: planInfo.status,
@@ -143,4 +152,4 @@ export default async function DashboardPage() {
       plan={planSerialized}
     />
   );
-}
+      }
