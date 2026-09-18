@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isStorePlanActive } from '@/lib/plan'
+import { getProducts } from '@/lib/tiendanube'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -31,12 +32,10 @@ function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
   if (!text || typeof text !== "string") return "";
   const lower = text.trim().toLowerCase();
 
-  // Búsqueda directa en diccionario
   if (ECOMMERCE_DICTIONARY[lower]) {
     return ECOMMERCE_DICTIONARY[lower][targetLang];
   }
 
-  // Traducción contextual por patrones
   if (targetLang === "pt") {
     return text
       .replace(/envío gratis/gi, "Frete grátis")
@@ -109,6 +108,103 @@ function translateWidgetConfig(
 }
 
 /* ═══════════════════════════════════════════
+   HELPERS DE SOCIAL PROOF (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const LATAM_NAMES = ["María L.", "Sofía G.", "Agustina K.", "Lucas M.", "Camila R.", "Valentina B.", "Mateo T.", "Facundo S."];
+const LATAM_CITIES = ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "La Plata", "Tucumán", "Mar del Plata", "Salta"];
+const RECENT_TIMES = ["hace un momento", "hace 3 minutos", "hace 7 minutos", "hace 12 minutos", "hace 18 minutos"];
+
+function getRandomItem<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function parseProductName(raw: unknown): string {
+  if (!raw) return "Producto de la tienda";
+  if (typeof raw === "string") return raw;
+  if (typeof raw === "object" && raw !== null) {
+    const obj = raw as Record<string, unknown>;
+    return String(obj.es || obj.pt || Object.values(obj)[0] || "Producto de la tienda");
+  }
+  return "Producto de la tienda";
+}
+
+function getProductImageUrl(p: Record<string, unknown>): string {
+  if (typeof p.image_url === "string") return p.image_url;
+  if (Array.isArray(p.images) && p.images.length > 0) {
+    const first = p.images[0];
+    if (typeof first === "string") return first;
+    if (typeof first === "object" && first !== null && "src" in first) {
+      return String((first as { src: unknown }).src || "");
+    }
+  }
+  return "";
+}
+
+function generateSocialProofEvents(products: unknown[], settings: Record<string, any>) {
+  const events: any[] = [];
+  const parsedProducts = (Array.isArray(products) ? products : [])
+    .map((item) => {
+      const p = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+      return { id: Number(p.id) || 0, name: parseProductName(p.name), image: getProductImageUrl(p) };
+    })
+    .filter((p) => p.id > 0);
+
+  const availableProducts = parsedProducts.length > 0
+    ? parsedProducts
+    : [{ id: 1, name: "Producto destacado", image: "" }];
+
+  if (settings.enable_recent_sales !== false) {
+    for (let i = 0; i < 4; i++) {
+      const prod = getRandomItem(availableProducts);
+      const name = getRandomItem(LATAM_NAMES);
+      const city = getRandomItem(settings.custom_cities || LATAM_CITIES);
+      const timeAgo = getRandomItem(RECENT_TIMES);
+
+      events.push({
+        id: `sale-${i}-${Date.now()}`,
+        type: "sale",
+        title: `${name} de ${city}`,
+        subtitle: `Compró ${prod.name}`,
+        timeAgo,
+        icon: "🛒",
+        productName: prod.name,
+        productImage: prod.image,
+        location: city,
+      });
+    }
+  }
+
+  if (settings.enable_live_visitors !== false) {
+    const count = Math.floor(Math.random() * 18) + 8;
+    events.push({
+      id: `visitor-${Date.now()}`,
+      type: "visitor",
+      title: "🔥 ¡Alta demanda!",
+      subtitle: `${count} personas están viendo este producto en vivo`,
+      icon: "👀",
+      count,
+    });
+  }
+
+  if (settings.enable_low_stock !== false && availableProducts.length > 0) {
+    const prod = getRandomItem(availableProducts);
+    const stock = Math.floor(Math.random() * 4) + 2;
+    events.push({
+      id: `stock-${Date.now()}`,
+      type: "stock",
+      title: "⚠️ Quedan pocas unidades",
+      subtitle: `Solo quedan ${stock} unidades de ${prod.name}`,
+      icon: "⚡",
+      productName: prod.name,
+      productImage: prod.image,
+      count: stock,
+    });
+  }
+
+  return events.sort(() => Math.random() - 0.5);
+}
+
+/* ═══════════════════════════════════════════
    FUNCIONES AUXILIARES Y TIPOS DEL SISTEMA (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const corsHeaders = {
@@ -167,7 +263,7 @@ export async function GET(req: NextRequest) {
 
     if (!storeIdParam) {
       return NextResponse.json(
-        { error: 'store_id es requerido', widgets: [], voiceSearch: null, virtualSalesman: null },
+        { error: 'store_id es requerido', widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -175,7 +271,7 @@ export async function GET(req: NextRequest) {
     const storeId = parseInt(storeIdParam, 10)
     if (isNaN(storeId)) {
       return NextResponse.json(
-        { error: 'store_id inválido', widgets: [], voiceSearch: null, virtualSalesman: null },
+        { error: 'store_id inválido', widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null },
         { status: 400, headers: corsHeaders }
       )
     }
@@ -186,7 +282,7 @@ export async function GET(req: NextRequest) {
     const isActivePlan = await isStorePlanActive(storeId)
     if (!isActivePlan) {
       return NextResponse.json(
-        { widgets: [], voiceSearch: null, virtualSalesman: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
+        { widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
         { status: 200, headers: corsHeaders }
       )
     }
@@ -234,6 +330,48 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
+    // 🔥 Obtener ajustes de Social Proof IA
+    const { data: socialProofRow } = await supabase
+      .from('store_social_proof_settings')
+      .select('*')
+      .eq('store_id', storeId)
+      .maybeSingle()
+
+    let socialProofData = socialProofRow || {
+      is_active: false,
+      position: "bottom-left",
+      display_duration: 5,
+      delay_between: 8,
+      enable_recent_sales: true,
+      enable_live_visitors: true,
+      enable_low_stock: true,
+      theme_style: "light",
+      events: [],
+    }
+
+    if (socialProofData.is_active) {
+      const { data: storeRow } = await supabase
+        .from('stores')
+        .select('access_token')
+        .eq('store_id', storeId)
+        .maybeSingle()
+
+      let rawProds: unknown[] = []
+      if (storeRow?.access_token) {
+        try {
+          const prods = await getProducts(storeId, storeRow.access_token)
+          rawProds = Array.isArray(prods) ? prods : (prods as { products?: unknown[] })?.products || []
+        } catch (e) {
+          console.error('[Nevux Social Proof] Error obteniendo productos:', e)
+        }
+      }
+
+      socialProofData = {
+        ...socialProofData,
+        events: generateSocialProofEvents(rawProds, socialProofData),
+      }
+    }
+
     // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
     let query = supabase
       .from('widgets')
@@ -255,7 +393,7 @@ export async function GET(req: NextRequest) {
     if (widgetsError) {
       console.error('Error obteniendo widgets:', widgetsError)
       return NextResponse.json(
-        { error: widgetsError.message, widgets: [], voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData },
+        { error: widgetsError.message, widgets: [], voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData, socialProof: socialProofData },
         { status: 500, headers: corsHeaders }
       )
     }
@@ -346,7 +484,6 @@ export async function GET(req: NextRequest) {
       const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
       const savedTranslations = langSettings.translations || {};
 
-      // Decidir idioma de destino (target)
       let targetLang: "es" | "pt" | "en" = defaultLang;
       if (autoDetect && clientLangParam) {
         const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
@@ -355,19 +492,16 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      // Si el idioma final no es Español, aplicamos las traducciones
       if (targetLang !== "es") {
         enrichedWidgets = enrichedWidgets.map((w) => {
           let translatedConfig = { ...w.config };
 
-          // 1. Prioridad: Traducción pre-generada en panel (1 Clic)
           if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
             translatedConfig = {
               ...translatedConfig,
               ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
             };
           } else {
-            // 2. Fallback: Traducción al vuelo en milisegundos con el diccionario
             translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
           }
 
@@ -376,7 +510,6 @@ export async function GET(req: NextRequest) {
             config: translatedConfig,
           };
         });
-        console.log(`[Nevux IA Language] Traducidos ${enrichedWidgets.length} widgets automáticamente a idioma:`, targetLang);
       }
     }
 
@@ -385,6 +518,7 @@ export async function GET(req: NextRequest) {
         widgets: enrichedWidgets, 
         voiceSearch: voiceSearchData,
         virtualSalesman: virtualSalesmanData,
+        socialProof: socialProofData,
         ts: Date.now() 
       },
       { status: 200, headers: corsHeaders }
@@ -392,8 +526,8 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Error en GET /api/widget-render:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message, widgets: [], voiceSearch: null, virtualSalesman: null },
+      { error: 'Error interno del servidor', details: error?.message, widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null },
       { status: 500, headers: corsHeaders }
     )
   }
-       }
+   }
