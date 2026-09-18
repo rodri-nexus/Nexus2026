@@ -330,23 +330,27 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 🔥 Obtener ajustes de Social Proof IA
+    // 🔥 Obtener ajustes de Social Proof IA desde la tabla nativa 'widgets'
     const { data: socialProofRow } = await supabase
-      .from('store_social_proof_settings')
-      .select('*')
+      .from('widgets')
+      .select('is_active, config')
       .eq('store_id', storeId)
+      .eq('widget_slug', 'social-proof')
       .maybeSingle()
 
-    let socialProofData = socialProofRow || {
-      is_active: false,
-      position: "bottom-left",
-      display_duration: 5,
-      delay_between: 8,
-      enable_recent_sales: true,
-      enable_live_visitors: true,
-      enable_low_stock: true,
-      theme_style: "light",
-      events: [],
+    const cfg = socialProofRow?.config || {}
+
+    let socialProofData = {
+      is_active: socialProofRow ? socialProofRow.is_active : false,
+      position: cfg.position || "bottom-left",
+      display_duration: Number(cfg.display_duration) || 5,
+      delay_between: Number(cfg.delay_between) || 8,
+      enable_recent_sales: cfg.enable_recent_sales ?? true,
+      enable_live_visitors: cfg.enable_live_visitors ?? true,
+      enable_low_stock: cfg.enable_low_stock ?? true,
+      theme_style: cfg.theme_style || "light",
+      custom_cities: cfg.custom_cities || LATAM_CITIES,
+      events: [] as any[],
     }
 
     if (socialProofData.is_active) {
@@ -366,10 +370,7 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      socialProofData = {
-        ...socialProofData,
-        events: generateSocialProofEvents(rawProds, socialProofData),
-      }
+      socialProofData.events = generateSocialProofEvents(rawProds, socialProofData)
     }
 
     // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
@@ -530,4 +531,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-   }
+       }
