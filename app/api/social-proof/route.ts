@@ -12,8 +12,8 @@ export interface SocialProofSettingsPayload {
   store_id: number;
   is_active?: boolean;
   position?: "bottom-left" | "bottom-right" | "top-left" | "top-right";
-  display_duration?: number; // segundos en pantalla
-  delay_between?: number; // segundos entre notificaciones
+  display_duration?: number;
+  delay_between?: number;
   enable_recent_sales?: boolean;
   enable_live_visitors?: boolean;
   enable_low_stock?: boolean;
@@ -93,9 +93,6 @@ function getProductImageUrl(p: Record<string, unknown>): string {
   return "";
 }
 
-/**
- * Genera eventos de Social Proof inteligentes basados en el catálogo
- */
 function generateSocialEvents(
   products: unknown[],
   settings: SocialProofSettingsPayload
@@ -117,7 +114,6 @@ function generateSocialEvents(
     ? parsedProducts
     : [{ id: 1, name: "Producto de la tienda", image: "" }];
 
-  // 1. Eventos de Venta Reciente (si está activado)
   if (settings.enable_recent_sales !== false) {
     for (let i = 0; i < Math.min(4, availableProducts.length * 2); i++) {
       const prod = getRandomItem(availableProducts);
@@ -139,9 +135,8 @@ function generateSocialEvents(
     }
   }
 
-  // 2. Eventos de Visitantes en Vivo (si está activado)
   if (settings.enable_live_visitors !== false) {
-    const visitorCount = Math.floor(Math.random() * 19) + 7; // 7 a 25 personas
+    const visitorCount = Math.floor(Math.random() * 19) + 7;
     events.push({
       id: `visitor-${Date.now()}`,
       type: "visitor",
@@ -152,10 +147,9 @@ function generateSocialEvents(
     });
   }
 
-  // 3. Evento de Stock Crítico (si está activado)
   if (settings.enable_low_stock !== false && availableProducts.length > 0) {
     const lowProd = getRandomItem(availableProducts);
-    const remainingStock = Math.floor(Math.random() * 4) + 2; // 2 a 5 unidades
+    const remainingStock = Math.floor(Math.random() * 4) + 2;
 
     events.push({
       id: `stock-${Date.now()}`,
@@ -169,7 +163,6 @@ function generateSocialEvents(
     });
   }
 
-  // Mezclar eventos para variedad
   return events.sort(() => Math.random() - 0.5);
 }
 
@@ -181,7 +174,7 @@ export async function OPTIONS() {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT GET: OBTENER AJUSTES Y EVENTOS EN VIVO
+   ENDPOINT GET: OBTENER AJUSTES Y EVENTOS
 ═══════════════════════════════════════════ */
 export async function GET(req: NextRequest) {
   try {
@@ -195,7 +188,6 @@ export async function GET(req: NextRequest) {
 
     const storeId = parseInt(storeIdParam, 10);
 
-    // 1. Obtener configuración guardada
     const { data: settings } = await supabase
       .from("store_social_proof_settings")
       .select("*")
@@ -217,7 +209,6 @@ export async function GET(req: NextRequest) {
 
     let events: SocialProofEvent[] = [];
 
-    // 2. Si el módulo está activo, consultar catálogo para armar notificaciones
     if (currentSettings.is_active) {
       const { data: store } = await supabase
         .from("stores")
@@ -282,7 +273,6 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ error: "Falta store_id obligatorio" }, 400);
     }
 
-    // Validar propiedad de la tienda
     const { data: store, error: storeError } = await supabase
       .from("stores")
       .select("id, store_id")
@@ -332,4 +322,4 @@ export async function POST(req: NextRequest) {
     const msg = error instanceof Error ? error.message : "Error interno";
     return jsonResponse({ error: msg }, 500);
   }
-      }
+                            }
