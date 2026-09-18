@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isStorePlanActive } from '@/lib/plan'
-import { getProducts } from "@/lib/tiendanube"
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -152,118 +151,6 @@ function calcularStats(reviews: any[]) {
   return { total, promedio, distribucion }
 }
 
-function parseProductName(raw: any): string {
-  if (!raw) return "Producto Complementario";
-  if (typeof raw === "string") return raw;
-  if (typeof raw === "object" && raw !== null) {
-    return String(raw.es || raw.pt || Object.values(raw)[0] || "Producto Complementario");
-  }
-  return "Producto Complementario";
-}
-
-function parseProductPrice(price: any): number {
-  if (typeof price === "number") return price;
-  if (!price) return 0;
-  const cleaned = String(price).replace(/[^0-9.]/g, "");
-  const num = parseFloat(cleaned);
-  return isNaN(num) ? 0 : num;
-}
-
-function extractProductPrice(p: any): number {
-  if (p.price) return parseProductPrice(p.price);
-  if (p.promotional_price) return parseProductPrice(p.promotional_price);
-  if (Array.isArray(p.variants) && p.variants.length > 0) {
-    const v = p.variants[0];
-    if (typeof v === "object" && v !== null) {
-      const vPrice = v.promotional_price || v.price;
-      if (vPrice) return parseProductPrice(vPrice);
-    }
-  }
-  return 0;
-}
-
-function getProductImageUrl(p: any): string {
-  if (typeof p.image_url === "string") return p.image_url;
-  if (Array.isArray(p.images) && p.images.length > 0) {
-    const first = p.images[0];
-    if (typeof first === "string") return first;
-    if (typeof first === "object" && first !== null && "src" in first) {
-      return String(first.src || "");
-    }
-  }
-  return "";
-}
-
-function getProductVariantId(p: any): string {
-  if (Array.isArray(p.variants) && p.variants.length > 0) {
-    const firstVariant = p.variants[0];
-    if (firstVariant && typeof firstVariant === "object") {
-      return String(firstVariant.id || "");
-    }
-  }
-  return String(p.id || ""); // Fallback seguro al ID del producto si no hay variantes explícitas
-}
-
-function computeAiPairings(
-  products: any[],
-  mainProductId: number,
-  discountPercentage: number
-): any[] {
-  if (!Array.isArray(products) || products.length < 2) return [];
-
-  const parsed = products.map((p) => ({
-    id: Number(p.id) || 0,
-    name: parseProductName(p.name),
-    price: extractProductPrice(p),
-    image: getProductImageUrl(p),
-    variantId: getProductVariantId(p),
-  })).filter((p) => p.id > 0 && p.price > 0 && p.id !== mainProductId);
-
-  if (parsed.length === 0) return [];
-
-  const mainProductRaw = products.find(p => Number(p.id) === mainProductId);
-  if (!mainProductRaw) return [];
-
-  const mainProduct = {
-    id: Number(mainProductRaw.id) || 0,
-    name: parseProductName(mainProductRaw.name),
-    price: extractProductPrice(mainProductRaw),
-  };
-
-  // Calcular afinidad de los candidatos
-  const scoredCandidates = parsed.map(candidate => {
-    let score = 50;
-    const ratio = candidate.price / (mainProduct.price || 1);
-    if (ratio >= 0.15 && ratio <= 0.65) {
-      score += 35;
-    } else if (ratio < 1.0) {
-      score += 15;
-    }
-    const mainWords = mainProduct.name.toLowerCase().split(/\s+/);
-    const candWords = candidate.name.toLowerCase().split(/\s+/);
-    const sharesKeywords = mainWords.some(w => w.length > 3 && candWords.includes(w));
-    if (sharesKeywords) {
-      score += 20;
-    }
-    return { candidate, score };
-  });
-
-  // Ordenar de mayor a menor afinidad
-  scoredCandidates.sort((a, b) => b.score - a.score);
-
-  // Devolver el candidato número 1 como combo IA
-  const best = scoredCandidates[0].candidate;
-
-  return [{
-    id: best.id,
-    titulo: best.name,
-    precio: best.price,
-    imagenUrl: best.image,
-    variantId: best.variantId,
-    incluidoPorDefecto: true
-  }];
-}
-
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
@@ -400,72 +287,6 @@ export async function GET(req: NextRequest) {
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
 
-    // 🧠 INTERCEPCIÓN IA: Inyección de Bundle Promociones Virtual generado 100% por IA si el motor de IA está activo
-    if (productId) {
-      const { data: aiSettings } = await supabase
-        .from('ai_cross_sell_settings')
-        .select('*')
-        .eq('store_id', storeId)
-        .maybeSingle();
-
-      const aiActive = aiSettings ? aiSettings.is_active : false;
-
-      if (aiActive) {
-        // Para no sobrecargar ni duplicar, solo inyectamos si el cliente NO tiene un widget 'bundle-promociones' manual para este producto
-        const hasManualBundle = enrichedWidgets.some(w => w.widget_slug === 'bundle-promociones');
-
-        if (!hasManualBundle) {
-          const { data: storeRow } = await supabase
-            .from('stores')
-            .select('access_token')
-            .eq('store_id', storeId)
-            .maybeSingle();
-
-          if (storeRow && storeRow.access_token) {
-            try {
-              const rawProducts = await getProducts(storeId, storeRow.access_token);
-              const productList = Array.isArray(rawProducts)
-                ? rawProducts
-                : (rawProducts as { products?: any[] })?.products || [];
-
-              const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
-
-              // Calcular complementario óptimo de forma dinámica por IA
-              const aiRecommendedItems = computeAiPairings(productList, productId, discount);
-
-              if (aiRecommendedItems.length > 0) {
-                // Inyectamos el widget virtual de bundle-promociones con los datos de IA
-                enrichedWidgets.push({
-                  id: 'virtual-ai-bundle-promociones',
-                  widget_slug: 'bundle-promociones',
-                  widget_type: 'bundle-promociones',
-                  target_type: 'product',
-                  target_product_id: productId,
-                  is_active: true,
-                  config: {
-                    titulo: aiSettings?.title || "COMBO PERFECTO",
-                    subtexto: aiSettings?.subtitle || "COMBO IA",
-                    textoBoton: aiSettings?.button_text || "LO QUIERO",
-                    descuentoPorcentaje: discount,
-                    items: aiRecommendedItems,
-                  },
-                  definition: {
-                    id: 3,
-                    name: "Bundle Promociones",
-                    slug: "bundle-promociones",
-                    category: "AOV",
-                  }
-                });
-                console.log(`[Nevux AI] Inyectado Bundle Promociones Virtual IA para el producto: ${productId}`);
-              }
-            } catch (aiError) {
-              console.error("[Nevux AI] Error inyectando sugerencias predictivas de IA:", aiError);
-            }
-          }
-        }
-      }
-    }
-
     // Enriquecer widgets de reseñas si existen
     const widgetsResenas = enrichedWidgets.filter(
       (w) => w.widget_slug === 'resenas-clientes'
@@ -575,4 +396,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-   }
+       }
