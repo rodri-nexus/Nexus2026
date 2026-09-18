@@ -249,7 +249,7 @@ function computeAiPairings(
 
   scoredCandidates.sort((a, b) => b.score - a.score);
 
-  return scoredCandidates.slice(0, 2).map(item => ({
+  return scoredCandidates.slice(0, 1).map(item => ({
     titulo: item.candidate.name,
     precio: item.candidate.price,
     imagenUrl: item.candidate.image,
@@ -394,10 +394,8 @@ export async function GET(req: NextRequest) {
       definition: definitions.find((d) => d.slug === w.widget_slug) || null,
     }))
 
-    // 🧠 INTERCEPCIÓN IA: Dinamizar el widget pack-complementarios con Cross-Selling predictivo si está activo
-    const packWidgetIndex = enrichedWidgets.findIndex(w => w.widget_slug === 'pack-complementarios');
-
-    if (packWidgetIndex !== -1 && productId) {
+    // 🧠 INTERCEPCIÓN IA: Inyección de Bundle Promociones Virtual generado 100% por IA si el motor de IA está activo
+    if (productId) {
       const { data: aiSettings } = await supabase
         .from('ai_cross_sell_settings')
         .select('*')
@@ -407,37 +405,56 @@ export async function GET(req: NextRequest) {
       const aiActive = aiSettings ? aiSettings.is_active : false;
 
       if (aiActive) {
-        const { data: storeRow } = await supabase
-          .from('stores')
-          .select('access_token')
-          .eq('store_id', storeId)
-          .maybeSingle();
+        // Para no sobrecargar ni duplicar, solo inyectamos si el cliente NO tiene un widget 'bundle-promociones' manual para este producto
+        const hasManualBundle = enrichedWidgets.some(w => w.widget_slug === 'bundle-promociones');
 
-        if (storeRow && storeRow.access_token) {
-          try {
-            const rawProducts = await getProducts(storeId, storeRow.access_token);
-            const productList = Array.isArray(rawProducts)
-              ? rawProducts
-              : (rawProducts as { products?: any[] })?.products || [];
+        if (!hasManualBundle) {
+          const { data: storeRow } = await supabase
+            .from('stores')
+            .select('access_token')
+            .eq('store_id', storeId)
+            .maybeSingle();
 
-            const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
+          if (storeRow && storeRow.access_token) {
+            try {
+              const rawProducts = await getProducts(storeId, storeRow.access_token);
+              const productList = Array.isArray(rawProducts)
+                ? rawProducts
+                : (rawProducts as { products?: any[] })?.products || [];
 
-            // Calcular complementarios óptimos de forma dinámica por IA
-            const aiRecommendedItems = computeAiPairings(productList, productId, discount);
+              const discount = aiSettings ? Number(aiSettings.discount_percentage) : 15;
 
-            if (aiRecommendedItems.length > 0) {
-              const currentConfig = enrichedWidgets[packWidgetIndex].config || {};
-              enrichedWidgets[packWidgetIndex].config = {
-                ...currentConfig,
-                titulo: aiSettings?.title || currentConfig.titulo || "🔥 COMBINÁ Y AHORRÁ EN TU PACK",
-                subtexto: aiSettings?.subtitle || currentConfig.subtexto || "Llevate estos productos juntos con un descuento especial",
-                textoBoton: aiSettings?.button_text || currentConfig.textoBoton || "Agregar pack al carrito",
-                descuentoPorcentaje: discount,
-                items: aiRecommendedItems
-              };
+              // Calcular complementario óptimo de forma dinámica por IA (el método devuelve 1 producto para Bundle Promociones ideal)
+              const aiRecommendedItems = computeAiPairings(productList, productId, discount);
+
+              if (aiRecommendedItems.length > 0) {
+                // Inyectamos el widget virtual de bundle-promociones con los datos de IA
+                enrichedWidgets.push({
+                  id: 'virtual-ai-bundle-promociones',
+                  widget_slug: 'bundle-promociones',
+                  widget_type: 'bundle-promociones',
+                  target_type: 'product',
+                  target_product_id: productId,
+                  is_active: true,
+                  config: {
+                    titulo: aiSettings?.title || "COMBO PERFECTO",
+                    subtexto: aiSettings?.subtitle || "COMBO IA",
+                    textoBoton: aiSettings?.button_text || "LO QUIERO",
+                    descuentoPorcentaje: discount,
+                    items: aiRecommendedItems,
+                  },
+                  definition: {
+                    id: 3, // ID correspondiente a bundle-promociones en la base
+                    name: "Bundle Promociones",
+                    slug: "bundle-promociones",
+                    category: "AOV",
+                  }
+                });
+                console.log(`[Nevux AI] Inyectado Bundle Promociones Virtual IA para el producto: ${productId}`);
+              }
+            } catch (aiError) {
+              console.error("[Nevux AI] Error inyectando sugerencias predictivas de IA:", aiError);
             }
-          } catch (aiError) {
-            console.error("[Nevux AI] Error inyectando sugerencias predictivas:", aiError);
           }
         }
       }
@@ -552,4 +569,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-               }
+       }
