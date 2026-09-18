@@ -1530,8 +1530,7 @@
     `;
     document.head.appendChild(style);
         }
-
-  /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════ */
   const storeId = detectStoreId();
@@ -1558,7 +1557,7 @@
   fetch(url)
     .then(function (r) { return r.json(); })
     .then(function (data) {
-// 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
+      // 🌟 INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
       if (data.activeCampaign) {
         renderAtmosphericEffects(data.activeCampaign);
       }
@@ -1581,6 +1580,17 @@
         } else {
           document.addEventListener("DOMContentLoaded", function() {
             renderNevuxSalesmanUI(data.virtualSalesman);
+          });
+        }
+      }
+
+      // 🔥 INYECCIÓN UNIFICADA DE SOCIAL PROOF IA
+      if (data.socialProof && data.socialProof.is_active) {
+        if (document.body) {
+          renderSocialProof(data.socialProof);
+        } else {
+          document.addEventListener("DOMContentLoaded", function() {
+            renderSocialProof(data.socialProof);
           });
         }
       }
@@ -9612,4 +9622,104 @@ function renderContadorVendidos(w) {
     nvxTrack(w.id, 'impression');
   }
 }
+  /* ═══════════════════════════════════════════
+     SOCIAL PROOF IA — NOTIFICACIONES EN VIVO
+  ═══════════════════════════════════════════ */
+  function renderSocialProof(spData) {
+    if (!spData || !spData.is_active || !Array.isArray(spData.events) || spData.events.length === 0) return;
+    var existingContainer = qs("#" + NS + "-social-proof-root");
+    if (existingContainer) return;
+
+    var container = document.createElement("div");
+    container.id = NS + "-social-proof-root";
+    container.className = NS + "-root";
+    
+    var pos = spData.position || "bottom-left";
+    var posStyles = "position:fixed;z-index:999998;max-width:300px;width:calc(100% - 24px);pointer-events:none;";
+    if (pos.indexOf("bottom") !== -1) posStyles += "bottom:16px;";
+    if (pos.indexOf("top") !== -1) posStyles += "top:16px;";
+    if (pos.indexOf("left") !== -1) posStyles += "left:16px;";
+    if (pos.indexOf("right") !== -1) posStyles += "right:16px;";
+
+    container.style.cssText = posStyles;
+    document.body.appendChild(container);
+
+    var currentIdx = 0;
+    var displayMs = (spData.display_duration || 5) * 1000;
+    var delayMs = (spData.delay_between || 8) * 1000;
+    var theme = spData.theme_style || "light";
+
+    function showNextEvent() {
+      if (!spData.events || spData.events.length === 0) return;
+      var ev = spData.events[currentIdx];
+      currentIdx = (currentIdx + 1) % spData.events.length;
+
+      var bgStyle = "#ffffff";
+      var textColor = "#111827";
+      var subColor = "#6b7280";
+      var borderStyle = "1px solid #e5e7eb";
+      var backdrop = "none";
+
+      if (theme === "dark") {
+        bgStyle = "#111827";
+        textColor = "#ffffff";
+        subColor = "#9ca3af";
+        borderStyle = "1px solid #374151";
+      } else if (theme === "glass") {
+        bgStyle = "rgba(255, 255, 255, 0.88)";
+        textColor = "#111827";
+        subColor = "#4b5563";
+        borderStyle = "1px solid rgba(255, 255, 255, 0.6)";
+        backdrop = "backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);";
+      }
+
+      var imgHtml = ev.productImage
+        ? '<img src="' + escapeHtml(ev.productImage) + '" style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;flex-shrink:0;" />'
+        : '<div style="width:42px;height:42px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (ev.icon || "🛒") + '</div>';
+
+      var cardHtml = '<div id="' + NS + '-sp-card" style="background:' + bgStyle + ';' + backdrop + 'color:' + textColor + ';border:' + borderStyle + ';border-radius:16px;padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 30px rgba(0,0,0,0.15);pointer-events:auto;transition:transform 0.35s ease, opacity 0.35s ease;transform:translateY(20px);opacity:0;">' +
+        imgHtml +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:12px;font-weight:800;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(ev.title) + '</div>' +
+          '<div style="font-size:11px;color:' + subColor + ';line-height:1.2;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(ev.subtitle) + '</div>' +
+          (ev.timeAgo ? '<div style="font-size:10px;color:#10B981;font-weight:700;margin-top:3px;">⚡ ' + escapeHtml(ev.timeAgo) + '</div>' : '') +
+        '</div>' +
+        '<button type="button" id="' + NS + '-sp-close" style="background:none;border:none;color:' + subColor + ';cursor:pointer;padding:2px;font-size:14px;line-height:1;margin-left:4px;flex-shrink:0;">✕</button>' +
+      '</div>';
+
+      container.innerHTML = cardHtml;
+
+      var cardEl = qs("#" + NS + "-sp-card", container);
+      var closeBtn = qs("#" + NS + "-sp-close", container);
+
+      if (closeBtn) {
+        closeBtn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          if (cardEl) {
+            cardEl.style.opacity = "0";
+            cardEl.style.transform = "translateY(20px)";
+          }
+        });
+      }
+
+      // Animar entrada
+      setTimeout(function() {
+        if (cardEl) {
+          cardEl.style.opacity = "1";
+          cardEl.style.transform = "translateY(0)";
+        }
+      }, 50);
+
+      // Animar salida
+      setTimeout(function() {
+        if (cardEl) {
+          cardEl.style.opacity = "0";
+          cardEl.style.transform = "translateY(20px)";
+        }
+        setTimeout(showNextEvent, delayMs);
+      }, displayMs);
+    }
+
+    setTimeout(showNextEvent, 2500);
+      }
 })();
