@@ -7,12 +7,6 @@ import PagarClient from "./PagarClient";
 
 export const dynamic = "force-dynamic";
 
-interface PendingPaymentRecord {
-  id: string;
-  status: string;
-  created_at: string;
-}
-
 export default async function PagarPage() {
   const supabase = createClient();
   const {
@@ -35,8 +29,12 @@ export default async function PagarPage() {
     } else {
       const { plan } = planData;
 
-      // Si NO necesita pagar (está en trial activo o ya tiene plan activo)
-      if (plan.canUseApp) {
+      // ─── LÓGICA CORREGIDA v11 ───────────────────────
+      // Solo redirigir si tiene plan ACTIVO (pagado) con
+      // más de 5 días restantes. Los usuarios en trial
+      // SIEMPRE deben poder acceder a la página de pago.
+      // ─────────────────────────────────────────────────
+      if (plan.status === "active" && plan.daysRemaining > 5) {
         redirectTo = "/dashboard";
       } else if (plan.needsFeedback) {
         // Si todavía no completó el feedback obligatorio
