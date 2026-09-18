@@ -2596,49 +2596,10 @@
     }
         }
 /* ═══════════════════════════════════════════
-     RENDER BUNDLE PROMOCIONES (CON FECHAS ESPECIALES 3.0 + IA VISUAL)
+     RENDER BUNDLE PROMOCIONES (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderBundlePromociones(widget) {
     if (pageType !== "product") return;
-
-    // 🧠 INTERCEPCIÓN IA: Si es el combo virtual predictivo, adaptamos su config al vuelo
-    if (widget.id === 'virtual-ai-bundle-promociones' && widget.config) {
-      var aiCfg = widget.config;
-      var discount = aiCfg.descuentoPorcentaje || 15;
-      var recItem = (aiCfg.items && aiCfg.items.length > 1) ? aiCfg.items[1] : null;
-
-      var recName = recItem ? (recItem.titulo || recItem.name || recItem.nombre || "Producto sugerido") : "Producto sugerido";
-
-      if (recItem) {
-        recItem.name = recName;
-        recItem.nombre = recName;
-        recItem.titulo = recName;
-      }
-
-      aiCfg.titulo = aiCfg.titulo || "🔥 COMBINÁ Y AHORRÁ EN TU PACK";
-
-      // Crear promoción tier virtual
-      aiCfg.promociones = [{
-        tipo: "1x1",
-        formatoEtiqueta: "Llevá con " + discount + "% OFF: " + recName,
-        subtitulo: "Ahorrá " + discount + "% llevando el combo recomendado",
-        badges: {
-          envioGratis: false,
-          masVendido: true,
-          personalizado: true,
-          personalizadoTexto: "SUGERIDO IA ⚡"
-        },
-        ocultarComp1: false,
-        ocultarComp2: false,
-        marcarPorDefecto: true
-      }];
-
-      if (recItem) {
-        aiCfg.complementarios = [recItem];
-        aiCfg.complementariosDefault = true;
-      }
-    }
-
     var cfg = normalizeBundlePromocionesConfig(widget.config || {});
     if (!cfg.promociones || cfg.promociones.length === 0) return;
     mountBundlePromociones(widget, cfg);
@@ -2841,7 +2802,7 @@
     var precio = detectProductPrice() || 0;
 
     var titleHtml = cfg.titulo
-      ? '<div class="' + NS + '-bundle-title" style="color:#000;font-size:16px;font-weight:800;margin-bottom:8px;">' + escapeHtml(cfg.titulo) + '</div>'
+      ? '<div class="' + NS + '-bundle-title" style="color:#000;font-size:16px;">' + escapeHtml(cfg.titulo) + '</div>'
       : "";
 
     var cardsHtml = "";
@@ -2892,44 +2853,32 @@
         for (var cc = 0; cc < compsToShow.length; cc++) {
           var comp = compsToShow[cc];
           var chk = state.comps[comp.idx] ? "checked" : "";
-          var nombreComp = comp.prod.titulo || comp.prod.name || comp.prod.nombre || ("Producto " + (comp.idx + 1));
-          var imgComp = comp.prod.imagenUrl || comp.prod.image || comp.prod.foto_url || "";
-          var imgTag = imgComp
-            ? '<img src="' + escapeHtml(imgComp) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;flex-shrink:0;" />'
-            : '<div style="width:42px;height:42px;border-radius:8px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎁</div>';
-
-          compsInner += '<label class="' + NS + '-bundle-comp" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;margin-top:10px;cursor:pointer;">' +
-            '<input type="checkbox" data-comp-idx="' + comp.idx + '" ' + chk + ' style="accent-color:#10B981;width:18px;height:18px;cursor:pointer;flex-shrink:0;" />' +
-            imgTag +
-            '<div style="flex:1;min-width:0;">' +
-              '<span style="font-size:10px;color:#059669;display:block;font-weight:800;text-transform:uppercase;letter-spacing:0.03em;">+ Incluir en el Combo IA:</span>' +
-              '<span style="font-size:13px;font-weight:800;color:#111827;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(nombreComp) + '</span>' +
-            '</div>' +
-          '</label>';
+          var nombreComp = comp.prod.name || comp.prod.nombre || comp.prod.titulo || ("Producto " + (comp.idx + 1));
+          compsInner += '<label class="' + NS + '-bundle-comp"><input type="checkbox" data-comp-idx="' + comp.idx + '" ' + chk + '/>' + escapeHtml(nombreComp) + '</label>';
         }
         compsHtml = '<div class="' + NS + '-bundle-comps">' + compsInner + '</div>';
       }
 
       var giftHtml = "";
       if (p.agregarRegalo) {
-        giftHtml = '<div class="' + NS + '-bundle-gift" style="background:' + cfg.fondoRegalo + ';color:' + cfg.colorTextoRegalo + ';border-radius:6px;padding:8px;margin-top:8px;">' +
+        giftHtml = '<div class="' + NS + '-bundle-gift" style="background:' + cfg.fondoRegalo + ';color:' + cfg.colorTextoRegalo + ';border-radius:6px;">' +
           '<span class="' + NS + '-bundle-gift-label">🎁 Producto de regalo</span>' +
           '<span style="color:' + cfg.colorPrecioRegalo + ';font-weight:700;">Gratis</span>' +
         '</div>';
       }
 
       cardsHtml +=
-        '<div class="' + NS + '-bundle-card' + (isSelected ? ' selected' : '') + '" data-idx="' + i + '" style="border-color:' + borderColor + ';border-radius:' + cfg.bordeUnidad + 'px;padding:12px;">' +
+        '<div class="' + NS + '-bundle-card' + (isSelected ? ' selected' : '') + '" data-idx="' + i + '" style="border-color:' + borderColor + ';border-radius:' + cfg.bordeUnidad + 'px;">' +
           '<div style="display:flex;align-items:center;gap:12px;width:100%;">' +
             '<div class="' + NS + '-bundle-radio" style="border-color:' + borderColor + ';"><div class="' + NS + '-bundle-radio-dot" style="background:' + colorUnidadSeleccionada + ';"></div></div>' +
-            '<div class="' + NS + '-bundle-info" style="flex:1;min-width:0;">' +
-              '<div class="' + NS + '-bundle-label" style="font-size:' + cfg.tamanoEtiqueta + ';font-weight:800;">' + escapeHtml(etiqueta) + '</div>' +
+            '<div class="' + NS + '-bundle-info">' +
+              '<div class="' + NS + '-bundle-label" style="font-size:' + cfg.tamanoEtiqueta + ';">' + escapeHtml(etiqueta) + '</div>' +
               subtitleHtml +
               badgesHtml +
             '</div>' +
-            '<div class="' + NS + '-bundle-prices" style="text-align:right;">' +
+            '<div class="' + NS + '-bundle-prices">' +
               (ratio.lleva !== ratio.paga ? '<span class="' + NS + '-bundle-price-old">' + formatMoney(precioTotalNormal) + '</span>' : "") +
-              '<span class="' + NS + '-bundle-price-new" style="color:' + colorPrecio + ';font-size:' + cfg.tamanoPrecio + ';font-weight:900;">' + formatMoney(precioTotalPromo) + '</span>' +
+              '<span class="' + NS + '-bundle-price-new" style="color:' + colorPrecio + ';font-size:' + cfg.tamanoPrecio + ';">' + formatMoney(precioTotalPromo) + '</span>' +
             '</div>' +
           '</div>' +
           (compsHtml || giftHtml ? '<div style="width:100%;">' + compsHtml + giftHtml + '</div>' : "") +
@@ -2943,10 +2892,10 @@
     if (cfg.efectoBoton === "zoom") btnClass += " zoom";
     if (cfg.botonPulsante) btnClass += " pulse";
 
-    var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:' + colorTextoBoton + ';font-size:' + cfg.tamanoEtiqueta + ';border-radius:' + cfg.bordeBoton + 'px;font-weight:700;margin-top:12px;">' + escapeHtml(cfg.textoBoton || "Agregar al carrito") + '</button>';
+    var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:' + colorTextoBoton + ';font-size:' + cfg.tamanoEtiqueta + ';border-radius:' + cfg.bordeBoton + 'px;font-weight:700;">' + escapeHtml(cfg.textoBoton || "Agregar al carrito") + '</button>';
 
     var infoHtml = !cfg.reemplazarBoton
-      ? '<div class="' + NS + '-bundle-info-note" style="margin-top:8px;"><span style="opacity:0.7;">ⓘ</span><span>El formulario original de Tiendanube permanecerá visible y funcional.</span></div>'
+      ? '<div class="' + NS + '-bundle-info-note"><span style="opacity:0.7;">ⓘ</span><span>El formulario original de Tiendanube permanecerá visible y funcional.</span></div>'
       : "";
 
     return '<div class="' + NS + '-bundle">' +
@@ -2955,8 +2904,7 @@
       btnHtml +
       infoHtml +
     '</div>';
-      }
-
+                    }
 /* ═══════════════════════════════════════════
      RENDER BUNDLE DE CANTIDAD (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
