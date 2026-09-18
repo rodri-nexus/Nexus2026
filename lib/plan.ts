@@ -1,6 +1,6 @@
 // lib/plan.ts
 // ─────────────────────────────────────────────
-// Sistema de planes de Nevux
+// Sistema de planes de Nevux v11
 // Funciones puras + server-side para calcular
 // el estado real del plan de cada usuario.
 // ─────────────────────────────────────────────
@@ -52,11 +52,11 @@ export interface PlanInfo {
   canCreateWidgets: boolean;
 }
 
-// ─── CONSTANTES ──────────────────────────────
+// ─── CONSTANTES UNIFICADAS v11 ────────────────
 
 export const TRIAL_DURATION_DAYS = 7;
 export const PLAN_DURATION_DAYS = 30;
-export const PLAN_PRICE_ARS = 30000;
+export const PLAN_PRICE_ARS = 35000; // ← Corregido a $35.000 ARS oficial v11
 export const TRIAL_WARNING_DAYS = 2;
 export const PLAN_WARNING_DAYS = 3;
 
@@ -294,4 +294,4 @@ export async function syncPlanStatusIfNeeded(
 
 export function formatPrice(amount: number = PLAN_PRICE_ARS): string {
   return `$${amount.toLocaleString("es-AR")}`;
-  }
+                      }
