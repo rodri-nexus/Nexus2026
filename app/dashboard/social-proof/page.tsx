@@ -213,7 +213,7 @@ function SocialProofSimulatorPreview({
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
-                border: "1px solid #e5e7eb",
+                border: isDark ? "1px solid #374151" : "1px solid #e5e7eb",
               }}
             >
               {event.productImage ? (
@@ -236,6 +236,7 @@ function SocialProofSimulatorPreview({
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
+                  color: isDark ? "#ffffff" : "#111827",
                 }}
               >
                 {event.title}
@@ -243,7 +244,7 @@ function SocialProofSimulatorPreview({
               <div
                 style={{
                   fontSize: "0.72rem",
-                  color: isDark ? "#9ca3af" : "#6b7280",
+                  color: isDark ? "#9ca3af" : isGlass ? "#4b5563" : "#6b7280",
                   lineHeight: 1.2,
                   marginTop: "2px",
                   whiteSpace: "nowrap",
