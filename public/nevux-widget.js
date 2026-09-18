@@ -1894,12 +1894,15 @@
       res.bgType = "solid";
       res.colorTitle = "#ffffff";
       res.colorClockBg = theme.accentColor;
+      res.colorClockBgMedium = theme.accentColor;
+      res.colorClockBgCritical = theme.accentColor;
+      res.colorSubtitleBg = theme.accentColor + "22";
+      res.colorSubtitle = theme.accentColor;
       res.colorNumbers = (res.campaignTheme === "black-friday" || res.campaignTheme === "liquidacion") ? "#111827" : "#ffffff";
       res.campaignBadge = theme.badge;
       res.campaignBadgeColor = theme.accentColor;
       res.campaignBadgeTextColor = (res.campaignTheme === "black-friday" || res.campaignTheme === "liquidacion") ? "#111827" : "#ffffff";
     }
-
     return res;
   }
 
@@ -1949,11 +1952,15 @@
     return "normal";
   }
 
-  function getClockBg(cfg, urgencyState) {
+ function getClockBg(cfg, urgencyState) {
+    // Si hay Fecha Especial activa, SIEMPRE usa el color del preset (igual que el Editor)
+    if (cfg.campaignTheme && cfg.campaignTheme !== "none") {
+      return cfg.colorClockBg;
+    }
     if (urgencyState === "critical") return cfg.colorClockBgCritical;
     if (urgencyState === "medium") return cfg.colorClockBgMedium;
     return cfg.colorClockBg;
-  }
+ }
 
   function update(container, cfg, state, widgetId) {
     const time = calcTime(state);
