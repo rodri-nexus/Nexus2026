@@ -6,7 +6,8 @@ import { supabaseAdmin } from "@/lib/supabase";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ADMIN_EMAIL = "nevux340@gmail.com";
+// Unificado v11 con el email oficial de administración de Nevux
+const ADMIN_EMAIL = "nevuxapp@gmail.com";
 
 export async function POST(request: Request) {
   console.log("🔵 [admin/reject-payment] INICIO");
@@ -127,4 +128,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-         }
+}
