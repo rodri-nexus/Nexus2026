@@ -18,6 +18,7 @@ import {
   Globe,
   Mic,
   Flame,
+  MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
@@ -39,24 +40,55 @@ interface MenuItem {
 }
 
 /* ═══════════════════════════════════════════
-   LISTA DE ITEMS DEL MENÚ
+   LISTA DE ITEMS DEL MENÚ RECONFIGURADA v11
 ═══════════════════════════════════════════ */
 const menuItems: MenuItem[] = [
   { label: "Inicio", href: "/dashboard", icon: Home },
   { label: "Widgets", href: "/widgets", icon: Puzzle },
   { label: "Productos", href: "/productos", icon: Package },
-  { label: "NevuxBot AI", href: "/dashboard/nevuxbot", icon: Bot, badge: "NUEVO" },
   { label: "Mi Tienda", href: "/mi-tienda", icon: Store },
   { label: "Mi Cuenta", href: "/mi-cuenta", icon: User },
 ];
 
 const proMenuItems: MenuItem[] = [
-  { label: "Live Analytics", href: "/dashboard/analytics", icon: TrendingUp },
-  { label: "Estilo Marca", href: "/dashboard/estilo-marca", icon: Palette },
-  { label: "Social Proof IA", href: "/dashboard/social-proof", icon: Flame, badge: "NUEVO" },
-  { label: "Multi-Idioma IA", href: "/dashboard/idiomas-ia", icon: Globe },
-  { label: "Búsqueda por Voz", href: "/dashboard/busqueda-voz", icon: Mic },
-  { label: "Vendedor Virtual IA", href: "/dashboard/vendedor-ia", icon: Bot, badge: "NUEVO" },
+  { 
+    label: "📈 Métricas en Vivo", 
+    href: "/dashboard/analytics", 
+    icon: TrendingUp 
+  },
+  { 
+    label: "🎨 Diseño y Colores", 
+    href: "/dashboard/estilo-marca", 
+    icon: Palette 
+  },
+  { 
+    label: "🔔 Notificaciones de Compras", 
+    href: "/dashboard/social-proof", 
+    icon: Flame, 
+    badge: "NUEVO" 
+  },
+  { 
+    label: "🌐 Traductor de Tienda (IA)", 
+    href: "/dashboard/idiomas-ia", 
+    icon: Globe 
+  },
+  { 
+    label: "🎙️ Buscador por Voz", 
+    href: "/dashboard/busqueda-voz", 
+    icon: Mic 
+  },
+  { 
+    label: "💬 Asistente de Ventas (IA)", 
+    href: "/dashboard/vendedor-ia", 
+    icon: MessageSquare, 
+    badge: "NUEVO" 
+  },
+  { 
+    label: "🤖 Asistente de Soporte (IA)", 
+    href: "/dashboard/nevuxbot", 
+    icon: Bot, 
+    badge: "IA" 
+  },
 ];
 
 /* ═══════════════════════════════════════════
@@ -431,4 +463,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-                }
+            }
