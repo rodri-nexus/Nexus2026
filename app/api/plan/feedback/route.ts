@@ -3,6 +3,23 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
+/* ═══════════════════════════════════════════
+   HELPER DE ERRORES SUPABASE v11 (Regla #9 y #22)
+═══════════════════════════════════════════ */
+function parseErrorMessage(error: any): string {
+  if (!error) return "Error desconocido";
+  if (typeof error === "string") return error;
+  if (error.message) return error.message;
+  if (error.error_description) return error.error_description;
+  if (error.details) return error.details;
+  return JSON.stringify(error);
+}
+
+/* ═══════════════════════════════════════════
+   ENDPOINT POST
+═══════════════════════════════════════════ */
 export async function POST(request: Request) {
   console.log("🔵 [/api/plan/feedback] INICIO");
 
@@ -58,7 +75,7 @@ export async function POST(request: Request) {
     if (storeError) {
       console.error("❌ [/api/plan/feedback] Error buscando store:", storeError);
       return NextResponse.json(
-        { error: `Error buscando tienda: ${storeError.message}` },
+        { error: `Error buscando tienda: ${parseErrorMessage(storeError)}` },
         { status: 500 }
       );
     }
@@ -66,32 +83,27 @@ export async function POST(request: Request) {
     if (!store) {
       console.error("❌ [/api/plan/feedback] No se encontró tienda para user:", user.id);
       return NextResponse.json(
-        { error: "No se encontró tienda vinculada" },
+        { error: "No se encontró tienda vinculada activa" },
         { status: 404 }
       );
     }
 
     // Guardar el feedback inicial en la tabla feedback
     console.log("🔵 [/api/plan/feedback] Insertando feedback...");
-    const { data: insertedFeedback, error: feedbackError } = await supabaseAdmin
+    const { error: feedbackError } = await supabaseAdmin
       .from("feedback")
       .insert({
         store_id: store.store_id,
         user_id: user.id,
-        user_email: user.email,
+        user_email: user.email || null,
         liked_app: liked,
-      })
-      .select()
-      .single();
-
-    console.log("🔵 [/api/plan/feedback] insertedFeedback:", insertedFeedback);
+      });
 
     if (feedbackError) {
       console.error("❌ [/api/plan/feedback] Error insertando feedback:", feedbackError);
       return NextResponse.json(
         {
-          error: `Error al guardar feedback: ${feedbackError.message}`,
-          details: feedbackError,
+          error: `Error al guardar feedback: ${parseErrorMessage(feedbackError)}`,
         },
         { status: 500 }
       );
@@ -109,6 +121,7 @@ export async function POST(request: Request) {
 
     if (updateError) {
       console.error("❌ [/api/plan/feedback] Error actualizando feedback_shown:", updateError);
+      // No frenamos el flujo por este update, ya que el feedback principal ya se guardó.
     }
 
     console.log(
@@ -123,10 +136,9 @@ export async function POST(request: Request) {
     console.error("❌ [/api/plan/feedback] Error CATCH:", error);
     return NextResponse.json(
       {
-        error: `Error interno: ${error?.message || "desconocido"}`,
-        stack: error?.stack,
+        error: `Error interno: ${parseErrorMessage(error)}`,
       },
       { status: 500 }
     );
   }
-  }
+                    }
