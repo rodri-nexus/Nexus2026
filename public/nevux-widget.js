@@ -9092,7 +9092,7 @@
     } catch(e) {}
   }
 /* ═══════════════════════════════════════════
-   WIDGET: MARQUEE DE NOVEDADES (v11 Ubicación Dinámica)
+   WIDGET: MARQUEE DE NOVEDADES (v11 Ubicación Dinámica Ultra-Compatible)
    ═══════════════════════════════════════════ */
 function renderMarqueeNovedades(w) {
   if (document.getElementById('nvx-marquee-' + w.id)) return;
@@ -9107,7 +9107,7 @@ function renderMarqueeNovedades(w) {
   var bgColor = cfg.bgColor || '#111827';
   var textColor = cfg.textColor || '#ffffff';
   var fontSize = (cfg.fontSize || '14') + 'px';
-  var pos = cfg.position || 'above_form'; // ← Posición dinámica guardada
+  var pos = cfg.position || 'above_form'; 
 
   var dur = speed === 'lento' ? '24s' : speed === 'rapido' ? '8s' : '14s';
   var animName = direction === 'right' ? 'nvxMqR' : 'nvxMqL';
@@ -9130,7 +9130,6 @@ function renderMarqueeNovedades(w) {
   track.onmouseenter = function() { track.style.animationPlayState = 'paused'; };
   track.onmouseleave = function() { track.style.animationPlayState = 'running'; };
 
-  // Multiplicamos los mensajes para dar efecto de ciclo continuo sin saltos
   var repeated = messages.concat(messages).concat(messages).concat(messages);
   var html = '';
   for (var i = 0; i < repeated.length; i++) {
@@ -9143,31 +9142,52 @@ function renderMarqueeNovedades(w) {
 
   // Inserción en el DOM con Inteligencia de Ubicación Tiendanube
   var targetEl = null;
-  var insertMethod = 'before'; // 'before' o 'after'
+  var insertMethod = 'before'; 
 
   if (w.target_type === 'product' && w.target_product_id) {
-    var buyForm = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+    // Buscamos el formulario de compra real (NUNCA la caja contenedora externa .js-product-container)
+    var buyForm = document.querySelector('form[action*="/cart/add"], form.js-product-buyform, .js-product-form, .product-buy-container');
 
     if (pos === 'below_image') {
-      targetEl = document.querySelector('.js-product-image-container, .product-image-container, .js-product-slide-container, #product-image-container, .js-product-viewport, .product-gallery, .js-product-img-holder');
+      // Intentar capturar contenedor de fotos
+      targetEl = document.querySelector(
+        '.js-product-image-container, .product-image-container, .js-product-slide-container, ' +
+        '#product-image-container, .js-product-viewport, .product-gallery, .js-product-img-holder, ' +
+        '.product-slider, .js-product-slider, .product-images, .js-product-images-container, ' +
+        '.gallery-container, .js-gallery-container, .product-gallery-container'
+      );
+      
+      // Si no lo encuentra, busca el elemento img de producto directamente y toma su div contenedor
+      if (!targetEl) {
+        var mainImg = document.querySelector('img[itemprop="image"], img.product-image, img.js-product-slide-image, .js-product-slide img, .product-gallery img');
+        if (mainImg) {
+          targetEl = mainImg.closest('div'); 
+        }
+      }
       insertMethod = 'after';
     } else if (pos === 'above_price') {
-      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container');
+      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container');
       insertMethod = 'before';
     } else if (pos === 'below_price') {
-      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container');
+      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container');
       insertMethod = 'after';
     } else if (pos === 'above_buy') {
-      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button');
+      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button, .btn-add-to-cart, .js-add-to-cart-form input[type="submit"]');
       insertMethod = 'before';
     } else if (pos === 'below_buy') {
-      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button');
+      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button, .btn-add-to-cart, .js-add-to-cart-form input[type="submit"]');
       insertMethod = 'after';
     }
 
-    // Fallback absoluto: si el elemento elegido no existe en la plantilla del cliente, lo inserta arriba del form de compra
+    // Fallback de seguridad: si fallan los selectores específicos, lo colocamos arriba del formulario de compra
     if (!targetEl) {
       targetEl = buyForm;
+      insertMethod = 'before';
+    }
+
+    // Último recurso desesperado: buscar cualquier botón de compra
+    if (!targetEl) {
+      targetEl = document.querySelector('input[type="submit"], button[type="submit"], .btn-primary');
       insertMethod = 'before';
     }
 
@@ -9175,7 +9195,11 @@ function renderMarqueeNovedades(w) {
       if (insertMethod === 'before') {
         targetEl.parentNode.insertBefore(container, targetEl);
       } else {
-        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+        if (targetEl.nextSibling) {
+          targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+        } else {
+          targetEl.parentNode.appendChild(container);
+        }
       }
     }
   } else {
@@ -9195,7 +9219,7 @@ function renderMarqueeNovedades(w) {
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
-}
+ }
  /* ═══════════════════════════════════════════
    WIDGET: HORARIO DE ATENCIÓN
    ═══════════════════════════════════════════ */
