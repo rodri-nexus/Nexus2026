@@ -1,4 +1,3 @@
-// components/widgets/editors/BundleCantidadEditor.tsx
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -54,6 +53,7 @@ interface BundleCantidadConfig {
   efectoBoton: 'sin-efecto' | 'zoom';
   pulsante: boolean;
   campaignTheme?: string;
+  position?: string; // NUEVO v12
 }
 
 interface ExistingWidget {
@@ -93,43 +93,44 @@ const DEFAULT_UNIDAD: UnidadConfig = {
 };
 
 const DEFAULT_CONFIG: BundleCantidadConfig = {
-  titulo: '',
-  cantidadUnidades: 2,
+  titulo: '🔥 Oferta exclusiva por cantidad',
+  cantidadUnidades: 3,
   etiqueta: 'Lleva #',
   mostrarPrecio: 'total',
-  textoBoton: '',
+  textoBoton: 'COMPRAR AHORA',
   unidades: [
-    { ...DEFAULT_UNIDAD, porDefecto: true },
-    { ...DEFAULT_UNIDAD, descuento: 40 },
-    { ...DEFAULT_UNIDAD },
+    { ...DEFAULT_UNIDAD, subtitulo: 'Precio Regular', porDefecto: true },
+    { ...DEFAULT_UNIDAD, subtitulo: '10% de Ahorro', descuento: 10, badgeMasVendido: true },
+    { ...DEFAULT_UNIDAD, subtitulo: 'Envío Gratis + 20% OFF', descuento: 20, badgeEnvioGratis: true },
     { ...DEFAULT_UNIDAD },
     { ...DEFAULT_UNIDAD },
   ],
   producto1: null,
   producto2: null,
   compDefault: false,
-  reemplazarBoton: false,
+  reemplazarBoton: true,
   colorBoton: '#10B981',
-  botonDegradado: false,
-  colorBoton2: '#10B981',
-  colorPrecio: '#000000',
-  colorSubtitulos: '#059669',
-  fondoSubtitulo: '',
-  colorTextoRegalo: '#000000',
-  colorPrecioRegalo: '#16a34a',
-  fondoRegalo: '#ecfdf5',
+  botonDegradado: true,
+  colorBoton2: '#059669',
+  colorPrecio: '#111827',
+  colorSubtitulos: '#047857',
+  fondoSubtitulo: '#ecfdf5',
+  colorTextoRegalo: '#065f46',
+  colorPrecioRegalo: '#10B981',
+  fondoRegalo: '#f0fdf4',
   colorBadgeEnvio: '#10B981',
   colorBadgePersonalizado: '#F59E0B',
   colorBadgeMasVendido: '#EF4444',
   colorUnidadSeleccionada: '#10B981',
-  bordeBoton: 25,
-  bordeUnidad: 8,
+  bordeBoton: 10,
+  bordeUnidad: 12,
   fuenteEtiqueta: 16,
   fuentePrecio: 18,
-  fuenteSubtitulo: 14,
-  efectoBoton: 'sin-efecto',
-  pulsante: false,
+  fuenteSubtitulo: 13,
+  efectoBoton: 'zoom',
+  pulsante: true,
   campaignTheme: 'none',
+  position: 'above_buy', // Default v12
 };
 
 const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBg: string }> = {
@@ -164,9 +165,6 @@ function formatMoney(n: number): string {
   return '$' + Math.round(n).toLocaleString('es-AR');
 }
 
-/* ═══════════════════════════════════════════
-   ICONOS AUXILIARES (Regla #9)
-═══════════════════════════════════════════ */
 function IconStore({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
@@ -187,319 +185,9 @@ function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: str
   );
 }
 
-/* ═══════════════════════════════════════════
-   PREVIEW INTEGRADO (antes BundleCantidadPreview.tsx)
-═══════════════════════════════════════════ */
-function BundleCantidadPreview({ config, precioProducto = 30000 }: { config: BundleCantidadConfig; precioProducto?: number }) {
-  const [seleccionada, setSeleccionada] = useState<number>(() => {
-    const idx = config.unidades.findIndex((u) => u?.porDefecto);
-    return idx >= 0 ? idx : 0;
-  });
-
-  useEffect(() => {
-    const idx = config.unidades.findIndex((u) => u?.porDefecto);
-    if (idx >= 0) setSeleccionada(idx);
-  }, [config.unidades]);
-
-  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
-  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
-
-  const cantidadReal = Math.max(1, Math.min(5, config.cantidadUnidades || 2));
-  const unidadesVisibles: number[] = [];
-  for (let i = 0; i < cantidadReal; i++) {
-    if (!config.unidades[i]?.ocultar) unidadesVisibles.push(i);
-  }
-
-  const colorBoton = activeTheme ? activeTheme.accentColor : (config.colorBoton || '#10B981');
-  const colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : (config.colorUnidadSeleccionada || '#10B981');
-  const colorPrecio = activeTheme ? activeTheme.themeColor : (config.colorPrecio || '#000000');
-
-  const colorTextoBoton = activeTheme
-    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
-    : '#ffffff';
-
-  const bgBoton = config.botonDegradado && !activeTheme
-    ? `linear-gradient(90deg, ${config.colorBoton || '#10B981'}, ${config.colorBoton2 || '#059669'})`
-    : colorBoton;
-
-  return (
-    <div
-      style={{
-        border: '1px solid rgba(0,0,0,0.08)',
-        borderRadius: 16,
-        padding: 18,
-        background: '#FFFFFF',
-        width: '100%',
-        boxSizing: 'border-box',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
-      }}
-    >
-      <style>{`
-        @keyframes nevux-widget-bundle-pulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25); }
-          50% { transform: scale(1.02); box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4); }
-        }
-      `}</style>
-
-      {config.titulo && config.titulo.trim() !== '' && (
-        <div
-          style={{
-            fontSize: 16,
-            fontWeight: 800,
-            color: '#000000',
-            marginBottom: 14,
-            textAlign: 'center',
-            letterSpacing: '-0.01em',
-          }}
-        >
-          {config.titulo}
-        </div>
-      )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {unidadesVisibles.map((i) => {
-          const u = config.unidades[i] || ({} as UnidadConfig);
-          const cantidad = i + 1;
-          const isSelected = seleccionada === i;
-          const descuento = Number(u.descuento) || 0;
-          const precioUnitario = precioProducto * (1 - descuento / 100);
-          const precioTotalOriginal = precioProducto * cantidad;
-          const precioTotalConDesc = precioUnitario * cantidad;
-
-          const mostrarTachado = descuento > 0;
-          const precioMostrar =
-            config.mostrarPrecio === 'individual' ? precioUnitario : precioTotalConDesc;
-          const precioTachadoMostrar =
-            config.mostrarPrecio === 'individual' ? precioProducto : precioTotalOriginal;
-
-          const colorActivo = colorUnidadSeleccionada;
-
-          const badges: { label: string; color: string }[] = [];
-          if (u.badgeEnvioGratis) badges.push({ label: 'Envío gratis', color: config.colorBadgeEnvio || '#10B981' });
-          if (u.badgeMasVendido) badges.push({ label: 'Más vendido', color: config.colorBadgeMasVendido || '#000000' });
-          if (u.badgePersonalizado)
-            badges.push({ label: 'Oferta Especial', color: config.colorBadgePersonalizado || '#059669' });
-
-          return (
-            <div
-              key={i}
-              onClick={() => setSeleccionada(i)}
-              style={{
-                border: `2px solid ${isSelected ? colorActivo : '#E5E7EB'}`,
-                borderRadius: config.bordeUnidad || 12,
-                padding: '14px 16px',
-                cursor: 'pointer',
-                background: isSelected ? '#ecfdf5' : '#FFFFFF',
-                position: 'relative',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isSelected ? 'scale(1.01)' : 'scale(1)',
-                boxShadow: isSelected
-                  ? `0 6px 18px ${colorActivo}22`
-                  : '0 2px 6px rgba(0,0,0,0.02)',
-                opacity: isSelected ? 1 : 0.85,
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      border: `2px solid ${isSelected ? colorActivo : '#9CA3AF'}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      background: '#FFFFFF',
-                    }}
-                  >
-                    {isSelected && (
-                      <div
-                        style={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          background: colorActivo,
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div
-                      style={{
-                        fontSize: config.fuenteEtiqueta || 14,
-                        fontWeight: 800,
-                        color: '#000000',
-                        letterSpacing: '-0.01em',
-                      }}
-                    >
-                      {formatEtiqueta(config.etiqueta, cantidad)}
-                    </div>
-                    {u.subtitulo && u.subtitulo.trim() !== '' && (
-                      <div
-                        style={{
-                          display: 'inline-block',
-                          marginTop: 4,
-                          fontSize: config.fuenteSubtitulo || 12,
-                          color: config.colorSubtitulos || '#059669',
-                          background: config.fondoSubtitulo || '#a7f3d0',
-                          padding: '2px 8px',
-                          borderRadius: 6,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {u.subtitulo}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  {mostrarTachado && (
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: '#9CA3AF',
-                        textDecoration: 'line-through',
-                        lineHeight: 1.2,
-                        fontWeight: 500,
-                      }}
-                    >
-                      {formatMoney(precioTachadoMostrar)}
-                    </div>
-                  )}
-                  <div
-                    style={{
-                      fontSize: config.fuentePrecio || 15,
-                      fontWeight: 800,
-                      color: colorPrecio,
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {formatMoney(precioMostrar)}
-                  </div>
-                </div>
-              </div>
-
-              {badges.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-                  {badges.map((b, k) => (
-                    <span
-                      key={k}
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 800,
-                        color: '#FFFFFF',
-                        background: b.color,
-                        padding: '3px 8px',
-                        borderRadius: 999,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.04em',
-                      }}
-                    >
-                      {b.label}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {u.agregarRegalo && (
-                <div
-                  style={{
-                    marginTop: 10,
-                    padding: '8px 10px',
-                    background: config.fondoRegalo || '#ecfdf5',
-                    border: '1px solid #a7f3d0',
-                    borderRadius: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ fontSize: 12, color: config.colorTextoRegalo || '#000000', fontWeight: 700 }}>
-                    🎁 Producto de regalo
-                  </div>
-                  <div style={{ fontSize: 12, color: config.colorPrecioRegalo || '#059669', fontWeight: 800 }}>
-                    GRATIS
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        <button
-          type="button"
-          style={{
-            width: '100%',
-            padding: '14px 20px',
-            background: bgBoton,
-            color: colorTextoBoton,
-            fontSize: 16,
-            fontWeight: 800,
-            border: 'none',
-            borderRadius: config.bordeBoton || 12,
-            cursor: 'pointer',
-            boxShadow: `0 4px 14px ${colorUnidadSeleccionada}44`,
-            animation: config.pulsante ? 'nevux-widget-bundle-pulse 1.8s ease-in-out infinite' : 'none',
-          }}
-        >
-          {config.textoBoton && config.textoBoton.trim() !== '' ? config.textoBoton : 'Agregar al carrito'}
-        </button>
-      </div>
-
-      <div
-        style={{
-          marginTop: 14,
-          paddingTop: 12,
-          borderTop: '1px solid #E5E7EB',
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: 8,
-          color: '#6B7280',
-          fontSize: 12,
-          fontWeight: 500,
-        }}
-      >
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          style={{ flexShrink: 0, marginTop: 1 }}
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="16" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12.01" y2="8" />
-        </svg>
-        <span>
-          {config.reemplazarBoton
-            ? 'El formulario original de Tiendanube quedará oculto.'
-            : 'El formulario original de Tiendanube permanecerá visible y funcional.'}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   SUB-COMPONENTES REUTILIZABLES (Regla #9)
-═══════════════════════════════════════════ */
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
+    <div style={{ fontSize: 14, fontWeight: 700, color: '#1f2937', marginBottom: 6 }}>
       {children}
     </div>
   );
@@ -507,7 +195,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function FieldHelper({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.4 }}>{children}</div>
+    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.4 }}>{children}</div>
   );
 }
 
@@ -533,18 +221,16 @@ function TextInput({
       maxLength={maxLength}
       style={{
         width: '100%',
-        padding: '12px 14px',
+        padding: '10px 12px',
         border: '1.5px solid #E5E7EB',
-        borderRadius: 10,
-        fontSize: 15,
-        color: '#000000',
+        borderRadius: 8,
+        fontSize: 14,
+        color: '#111827',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
         fontFamily: 'inherit',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-      onBlur={(e) => (e.target.style.borderColor = '#E5E7EB')}
     />
   );
 }
@@ -564,20 +250,14 @@ function SelectField({
       onChange={(e) => onChange(e.target.value)}
       style={{
         width: '100%',
-        padding: '12px 14px',
+        padding: '10px 12px',
         border: '1.5px solid #E5E7EB',
-        borderRadius: 10,
-        fontSize: 15,
-        color: '#000000',
+        borderRadius: 8,
+        fontSize: 14,
+        color: '#111827',
         background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
-        appearance: 'none',
-        backgroundImage:
-          'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'><path fill=\'none\' stroke=\'%23000000\' stroke-width=\'2\' d=\'M1 1l5 5 5-5\'/></svg>")',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'right 14px center',
-        paddingRight: 40,
         fontFamily: 'inherit',
       }}
     >
@@ -590,47 +270,52 @@ function SelectField({
   );
 }
 
-function CheckboxCard({
-  checked,
+function ColorPickerField({
+  value,
   onChange,
-  label,
-  description,
 }: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-  description?: string;
+  value: string;
+  onChange: (v: string) => void;
 }) {
   return (
-    <label
-      style={{
-        display: 'flex',
-        gap: 12,
-        padding: 14,
-        border: `1.5px solid ${checked ? '#10B981' : '#E5E7EB'}`,
-        borderRadius: 10,
+    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+      <div style={{
+        width: 38,
+        height: 38,
+        borderRadius: 6,
+        border: '1px solid #E5E7EB',
+        background: value,
         cursor: 'pointer',
-        background: checked ? '#ecfdf5' : '#FFFFFF',
-        transition: 'all 0.2s',
-      }}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        style={{ marginTop: 3, width: 16, height: 16, accentColor: '#10B981', cursor: 'pointer' }}
-      />
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.3 }}>
-          {label}
-        </div>
-        {description && (
-          <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
-            {description}
-          </div>
-        )}
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            cursor: 'pointer',
+            width: '100%',
+            height: '100%'
+          }}
+        />
       </div>
-    </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          flex: 1,
+          padding: '8px 10px',
+          border: '1.5px solid #E5E7EB',
+          borderRadius: 6,
+          fontSize: 13,
+          fontFamily: 'monospace'
+        }}
+      />
+    </div>
   );
 }
 
@@ -644,169 +329,15 @@ function CheckboxSimple({
   label: string;
 }) {
   return (
-    <label
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        cursor: 'pointer',
-        padding: '6px 0',
-      }}
-    >
+    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '4px 0' }}>
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{ width: 18, height: 18, accentColor: '#10B981', cursor: 'pointer' }}
+        style={{ width: 16, height: 16, accentColor: '#10B981', cursor: 'pointer' }}
       />
-      <span style={{ fontSize: 15, color: '#000000', fontWeight: 500, lineHeight: 1.4 }}>{label}</span>
+      <span style={{ fontSize: 13, color: '#374151', fontWeight: 600 }}>{label}</span>
     </label>
-  );
-}
-
-function RadioCard({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-}) {
-  return (
-    <label
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        padding: '16px 10px',
-        border: `1.5px solid ${checked ? '#10B981' : '#E5E7EB'}`,
-        borderRadius: 10,
-        cursor: 'pointer',
-        background: checked ? '#ecfdf5' : '#FFFFFF',
-        textAlign: 'center',
-        transition: 'all 0.2s',
-      }}
-    >
-      <div
-        style={{
-          width: 20,
-          height: 20,
-          borderRadius: '50%',
-          border: `2px solid ${checked ? '#10B981' : '#D1D5DB'}`,
-          background: '#FFFFFF',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {checked && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10B981' }} />}
-      </div>
-      <span
-        style={{
-          fontSize: 14,
-          fontWeight: 700,
-          color: checked ? '#10B981' : '#000000',
-          lineHeight: 1.3,
-        }}
-        onClick={onChange}
-      >
-        {label}
-      </span>
-      <input
-        type="radio"
-        checked={checked}
-        onChange={onChange}
-        style={{ display: 'none' }}
-      />
-    </label>
-  );
-}
-
-function ColorPickerField({
-  value,
-  onChange,
-  allowTransparent = false,
-  transparentLabel = 'Transparente',
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  allowTransparent?: boolean;
-  transparentLabel?: string;
-}) {
-  const isEmpty = allowTransparent && (!value || value === '' || value === 'transparent');
-  return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-      <div
-        style={{
-          position: 'relative',
-          width: 56,
-          height: 44,
-          borderRadius: 10,
-          border: '1.5px solid #E5E7EB',
-          overflow: 'hidden',
-          background: isEmpty
-            ? 'repeating-conic-gradient(#F3F4F6 0% 25%, #FFFFFF 0% 50%) 50% / 12px 12px'
-            : value,
-        }}
-      >
-        <input
-          type="color"
-          value={isEmpty ? '#FFFFFF' : value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            padding: 0,
-            background: 'transparent',
-            opacity: 0,
-            cursor: 'pointer',
-          }}
-        />
-      </div>
-      <input
-        type="text"
-        value={isEmpty ? '' : value}
-        placeholder={allowTransparent ? transparentLabel : ''}
-        onChange={(e) => onChange(e.target.value)}
-        style={{
-          flex: 1,
-          padding: '12px 14px',
-          border: '1.5px solid #E5E7EB',
-          borderRadius: 10,
-          fontSize: 15,
-          color: '#000000',
-          background: '#FFFFFF',
-          outline: 'none',
-          fontFamily: 'monospace',
-        }}
-      />
-      {allowTransparent && !isEmpty && (
-        <button
-          type="button"
-          onClick={() => onChange('')}
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 8,
-            border: '1px solid #E5E7EB',
-            background: '#FFFFFF',
-            color: '#000000',
-            opacity: 0.6,
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 700,
-          }}
-        >
-          ✕
-        </button>
-      )}
-    </div>
   );
 }
 
@@ -820,136 +351,175 @@ function ToggleField({
   label: string;
 }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
       <div
         onClick={() => onChange(!checked)}
         style={{
-          width: 44,
-          height: 26,
+          width: 38,
+          height: 22,
           borderRadius: 999,
           background: checked ? '#10B981' : '#D1D5DB',
           position: 'relative',
-          transition: 'background 0.25s',
+          transition: 'background 0.2s',
           flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: '50%',
-            background: '#FFFFFF',
-            position: 'absolute',
-            top: 3,
-            left: checked ? 21 : 3,
-            transition: 'left 0.25s',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-          }}
-        />
+        <div style={{
+          width: 16,
+          height: 16,
+          borderRadius: '50%',
+          background: '#FFFFFF',
+          position: 'absolute',
+          top: 3,
+          left: checked ? 19 : 3,
+          transition: 'left 0.2s',
+        }} />
       </div>
-      <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: 14, color: '#111827', fontWeight: 600 }}>{label}</span>
     </label>
   );
 }
 
-function RangeSlider({
-  value,
-  onChange,
-  min,
-  max,
-  step = 1,
-  marks,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
-  step?: number;
-  marks?: number[];
-}) {
+/* ═══════════════════════════════════════════
+   PREVIEW INTEGRADO PREMIUM
+═══════════════════════════════════════════ */
+function BundleCantidadPreview({ config, precioProducto = 25000 }: { config: BundleCantidadConfig; precioProducto?: number }) {
+  const [selected, setSelected] = useState<number>(0);
+
+  useEffect(() => {
+    const idx = config.unidades.findIndex((u) => u?.porDefecto);
+    if (idx >= 0) setSelected(idx);
+  }, [config.unidades]);
+
+  const currentCampaign = config.campaignTheme !== 'none' ? config.campaignTheme : null;
+  const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
+
+  const colorBoton = activeTheme ? activeTheme.accentColor : config.colorBoton;
+  const colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : config.colorUnidadSeleccionada;
+  const colorPrecio = activeTheme ? activeTheme.themeColor : config.colorPrecio;
+
+  const bgBoton = config.botonDegradado && !activeTheme
+    ? `linear-gradient(90deg, ${config.colorBoton}, ${config.colorBoton2})`
+    : colorBoton;
+
+  const visibleCount = Math.max(2, Math.min(5, config.cantidadUnidades));
+
   return (
-    <div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ width: '100%', accentColor: '#10B981' }}
-      />
-      {marks && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-            color: '#000000',
-            opacity: 0.6,
-            marginTop: 4,
-          }}
-        >
-          {marks.map((m) => (
-            <span key={m}>{m}px</span>
-          ))}
+    <div style={{
+      border: '1.5px solid #e5e7eb',
+      borderRadius: 16,
+      padding: 16,
+      background: '#FFFFFF',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+    }}>
+      {config.titulo && (
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 12, textAlign: 'center' }}>
+          {config.titulo}
         </div>
       )}
-    </div>
-  );
-}
 
-function SectionCard({
-  icon,
-  title,
-  description,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5E7EB',
-        borderRadius: 12,
-        padding: 20,
-        marginBottom: 16,
-      }}
-    >
-      <div style={{ display: 'flex', gap: 12, marginBottom: 6, alignItems: 'flex-start' }}>
-        <div style={{ flexShrink: 0, marginTop: 2 }}>{icon}</div>
-        <div style={{ flex: 1 }}>
-          <div
-            style={{ fontSize: 16, fontWeight: 700, color: '#000000' }}
-          >
-            {title}
-          </div>
-          <div
-            style={{
-              fontSize: 14,
-              color: '#000000',
-              opacity: 0.6,
-              marginTop: 6,
-              lineHeight: 1.5,
-              textAlign: 'left',
-            }}
-          >
-            {description}
-          </div>
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {Array.from({ length: visibleCount }).map((_, i) => {
+          const u = config.unidades[i] || DEFAULT_UNIDAD;
+          if (u.ocultar) return null;
+
+          const cantidad = i + 1;
+          const isSelected = selected === i;
+          const discount = u.descuento || 0;
+          const unitPrice = precioProducto * (1 - discount / 100);
+          const totalOriginal = precioProducto * cantidad;
+          const totalDiscounted = unitPrice * cantidad;
+
+          const displayPrice = config.mostrarPrecio === 'individual' ? unitPrice : totalDiscounted;
+          const displayCompare = config.mostrarPrecio === 'individual' ? precioProducto : totalOriginal;
+
+          return (
+            <div
+              key={i}
+              onClick={() => setSelected(i)}
+              style={{
+                border: `2px solid ${isSelected ? colorUnidadSeleccionada : '#e5e7eb'}`,
+                borderRadius: config.bordeUnidad,
+                padding: '12px 14px',
+                background: isSelected ? '#f0fdf4' : '#FFFFFF',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                position: 'relative',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: '50%',
+                    border: `2.5px solid ${isSelected ? colorUnidadSeleccionada : '#d1d5db'}`,
+                    background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    {isSelected && <div style={{ width: 8, height: 8, borderRadius: '50%', background: colorUnidadSeleccionada }} />}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: config.fuenteEtiqueta, fontWeight: 800, color: '#111827' }}>
+                      {formatEtiqueta(config.etiqueta, cantidad)}
+                    </div>
+                    {u.subtitulo && (
+                      <span style={{
+                        fontSize: config.fuenteSubtitulo,
+                        color: config.colorSubtitulos,
+                        background: config.fondoSubtitulo || '#ecfdf5',
+                        padding: '2px 6px',
+                        borderRadius: 4,
+                        fontWeight: 700,
+                        display: 'inline-block',
+                        marginTop: 4
+                      }}>
+                        {u.subtitulo}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'right' }}>
+                  {discount > 0 && (
+                    <div style={{ fontSize: 11, color: '#9ca3af', textDecoration: 'line-through' }}>
+                      {formatMoney(displayCompare)}
+                    </div>
+                  )}
+                  <div style={{ fontSize: config.fuentePrecio, fontWeight: 900, color: colorPrecio }}>
+                    {formatMoney(displayPrice)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Badges */}
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 8 }}>
+                {u.badgeEnvioGratis && <span style={{ fontSize: 9, fontWeight: 900, background: config.colorBadgeEnvio, color: '#fff', padding: '2px 6px', borderRadius: 4 }}>ENVÍO GRATIS</span>}
+                {u.badgeMasVendido && <span style={{ fontSize: 9, fontWeight: 900, background: config.colorBadgeMasVendido, color: '#fff', padding: '2px 6px', borderRadius: 4 }}>MÁS VENDIDO</span>}
+                {u.badgePersonalizado && <span style={{ fontSize: 9, fontWeight: 900, background: config.colorBadgePersonalizado, color: '#fff', padding: '2px 6px', borderRadius: 4 }}>PROMO</span>}
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {children}
-      </div>
+
+      <button style={{
+        width: '100%',
+        padding: '12px',
+        background: bgBoton,
+        color: '#FFFFFF',
+        fontWeight: 800,
+        fontSize: 15,
+        border: 'none',
+        borderRadius: config.bordeBoton,
+        marginTop: 14,
+        cursor: 'pointer'
+      }}>
+        {config.textoBoton || 'COMPRAR AHORA'}
+      </button>
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL (BundleCantidadEditor)
+   COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function BundleCantidadEditor({
   widgetDefinition,
@@ -960,35 +530,27 @@ export default function BundleCantidadEditor({
 }: EditorProps) {
   const router = useRouter();
 
-  const initialConfig = useMemo(() => {
-    const cfg = { ...DEFAULT_CONFIG, ...(existingWidget?.config || {}) };
-    const unidades: UnidadConfig[] = [];
-    for (let i = 0; i < 5; i++) {
-      unidades.push({ ...DEFAULT_UNIDAD, ...(cfg.unidades?.[i] || {}) });
-    }
-    cfg.unidades = unidades;
-    return cfg;
-  }, [existingWidget]);
+  const [config, setConfig] = useState<BundleCantidadConfig>(() => ({
+    ...DEFAULT_CONFIG,
+    ...(existingWidget?.config || {}),
+  }));
 
-  const [config, setConfig] = useState<BundleCantidadConfig>(initialConfig);
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
-  const [tab, setTab] = useState<'general' | 'ubicacion' | 'estilo' | 'fechas'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'unidades' | 'estilos' | 'fechas'>('general');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateConfig = (k: string, v: any) => setConfig((c: any) => ({ ...c, [k]: v }));
+  const update = <K extends keyof BundleCantidadConfig>(key: K, value: BundleCantidadConfig[K]) => {
+    setConfig((prev) => ({ ...prev, [key]: value }));
+  };
 
-  const updateUnidad = (idx: number, k: keyof UnidadConfig, v: any) => {
-    setConfig((c: any) => {
-      const arr = [...c.unidades];
-      arr[idx] = { ...arr[idx], [k]: v };
-      if (k === 'porDefecto' && v === true) {
-        arr.forEach((u, i) => {
-          if (i !== idx) u.porDefecto = false;
-        });
-      }
-      return { ...c, unidades: arr };
-    });
+  const updateUnidad = (idx: number, key: keyof UnidadConfig, value: any) => {
+    const nextUnidades = [...config.unidades];
+    nextUnidades[idx] = { ...nextUnidades[idx], [key]: value };
+    if (key === 'porDefecto' && value === true) {
+      nextUnidades.forEach((u, i) => { if (i !== idx) u.porDefecto = false; });
+    }
+    update('unidades', nextUnidades);
   };
 
   const handleSave = async () => {
@@ -1008,86 +570,222 @@ export default function BundleCantidadEditor({
           is_active: isActive,
         }),
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al guardar el widget');
-      }
-
-      if (data.action === 'created') {
-        const params = new URLSearchParams();
-        params.set('created', widgetDefinition.slug);
-        if (targetType === 'product' && productId) {
-          params.set('product', String(productId));
-        }
-        router.push(`/widgets?${params.toString()}`);
-      } else {
-        router.push('/widgets');
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Error al guardar');
+      router.push('/widgets');
     } catch (e: any) {
-      setError(e.message || 'Error al guardar');
+      setError(e.message || 'Error inesperado');
       setSaving(false);
     }
   };
 
-  const cantidadReal = Math.max(2, Math.min(5, Number(config.cantidadUnidades) || 2));
-
-  /* ─── TAB FECHAS ESPECIALES ─── */
-  const tabFechasEspeciales = (
-    <div>
-      <div style={{ marginBottom: 20 }}>
-        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
-        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 12, lineHeight: 1.5 }}>
-          Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para este widget.
+  /* ═══ VISTA TAB GENERAL ═══ */
+  const tabGeneral = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Selector de posición estrella v12 (Regla #23) */}
+      <div style={{
+        background: '#f0fdf4',
+        borderLeft: '4px solid #10B981',
+        borderRadius: 12,
+        padding: 18,
+        boxSizing: 'border-box'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#10B981', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>📍 Ubicación del Widget</span>
+            <span style={{
+              background: '#10B981',
+              color: '#ffffff',
+              fontSize: 10,
+              fontWeight: 900,
+              padding: '3px 8px',
+              borderRadius: 999,
+              letterSpacing: '0.05em'
+            }}>
+              ¡NUEVO!
+            </span>
+          </span>
+        </div>
+        <p style={{ fontSize: 13, color: '#065f46', marginTop: 0, marginBottom: 12, lineHeight: 1.4 }}>
+          Elegí dónde querés inyectar el bundle. Se integrará automáticamente con el botón de compra nativo.
         </p>
+        <select
+          value={config.position || 'above_buy'}
+          onChange={(e) => update('position', e.target.value)}
+          style={{
+            width: '100%', padding: '10px 12px', fontSize: 14, fontWeight: 600,
+            border: '1.5px solid #10B981', borderRadius: 8, outline: 'none', cursor: 'pointer'
+          }}
+        >
+          <option value="below_image">🖼️ Abajo de la foto del producto</option>
+          <option value="above_price">💵 Arriba del precio</option>
+          <option value="below_price">💵 Abajo del precio</option>
+          <option value="above_buy">🛒 Arriba del botón de agregar al carrito (Recomendado)</option>
+          <option value="below_buy">🛒 Abajo del botón de agregar al carrito</option>
+        </select>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+      <div>
+        <FieldLabel>Título del Bloque</FieldLabel>
+        <TextInput value={config.titulo} onChange={(v) => update('titulo', v)} placeholder="Ej: Oferta por cantidad" />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+        <div>
+          <FieldLabel>Cantidad de Unidades</FieldLabel>
+          <SelectField value={config.cantidadUnidades} onChange={(v) => update('cantidadUnidades', Number(v))} options={[
+            { value: 2, label: 'Llevar hasta 2 unidades' },
+            { value: 3, label: 'Llevar hasta 3 unidades' },
+            { value: 4, label: 'Llevar hasta 4 unidades' },
+          ]} />
+        </div>
+        <div>
+          <FieldLabel>Texto del Botón</FieldLabel>
+          <TextInput value={config.textoBoton} onChange={(v) => update('textoBoton', v)} placeholder="Ej: COMPRAR AHORA" />
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+        <div>
+          <FieldLabel>Formato Etiqueta</FieldLabel>
+          <SelectField value={config.etiqueta} onChange={(v) => update('etiqueta', v)} options={[
+            { value: 'Lleva #', label: 'Lleva #' },
+            { value: 'Llevate #', label: 'Llevate #' },
+            { value: '# Unidades', label: '# Unidades' },
+          ]} />
+        </div>
+        <div>
+          <FieldLabel>Mostrar Precio</FieldLabel>
+          <SelectField value={config.mostrarPrecio} onChange={(v) => update('mostrarPrecio', v as any)} options={[
+            { value: 'total', label: 'Precio Total de la Promo' },
+            { value: 'individual', label: 'Precio Individual por Unidad' },
+          ]} />
+        </div>
+      </div>
+
+      <div style={{ background: '#f9fafb', borderRadius: 10, padding: 12 }}>
+        <CheckboxSimple
+          checked={config.reemplazarBoton}
+          onChange={(v) => update('reemplazarBoton', v)}
+          label="Ocultar/Reemplazar botón de compra nativo"
+        />
+        <FieldHelper>Recomendado: Nevux se encargará de realizar el submit de forma limpia.</FieldHelper>
+      </div>
+    </div>
+  );
+
+  /* ═══ VISTA TAB UNIDADES ═══ */
+  const tabUnidades = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {Array.from({ length: config.cantidadUnidades }).map((_, i) => {
+        const u = config.unidades[i] || DEFAULT_UNIDAD;
+        return (
+          <div key={i} style={{ border: '1px solid #e5e7eb', borderRadius: 12, padding: 14, background: '#fff' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>Configuración Unidad {i + 1}</span>
+              <CheckboxSimple checked={u.porDefecto} onChange={(v) => updateUnidad(i, 'porDefecto', v)} label="Por defecto" />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 10 }}>
+              <div>
+                <FieldLabel>Subtítulo / Ahorro</FieldLabel>
+                <TextInput value={u.subtitulo} onChange={(v) => updateUnidad(i, 'subtitulo', v)} placeholder="Ej: 10% OFF" />
+              </div>
+              <div>
+                <FieldLabel>Descuento (%)</FieldLabel>
+                <TextInput type="number" value={u.descuento} onChange={(v) => updateUnidad(i, 'descuento', Number(v))} placeholder="0" />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', borderTop: '1.5px dashed #f3f4f6', paddingTop: 10 }}>
+              <CheckboxSimple checked={u.badgeEnvioGratis} onChange={(v) => updateUnidad(i, 'badgeEnvioGratis', v)} label="Envío Gratis" />
+              <CheckboxSimple checked={u.badgeMasVendido} onChange={(v) => updateUnidad(i, 'badgeMasVendido', v)} label="Más Vendido" />
+              <CheckboxSimple checked={u.badgePersonalizado} onChange={(v) => updateUnidad(i, 'badgePersonalizado', v)} label="Badge Especial" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  /* ═══ VISTA TAB ESTILOS (GRID AUTOADAPTABLE Rule #17) ═══ */
+  const tabEstilos = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gap: 20,
+      }}>
+        <div>
+          <FieldLabel>Color Botón Principal</FieldLabel>
+          <ColorPickerField value={config.colorBoton} onChange={(v) => update('colorBoton', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color Botón Degradado (Fin)</FieldLabel>
+          <ColorPickerField value={config.colorBoton2} onChange={(v) => update('colorBoton2', v)} />
+          <div style={{ marginTop: 6 }}>
+            <CheckboxSimple checked={config.botonDegradado} onChange={(v) => update('botonDegradado', v)} label="Habilitar Degradado" />
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Color del Precio</FieldLabel>
+          <ColorPickerField value={config.colorPrecio} onChange={(v) => update('colorPrecio', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color Borde Seleccionado</FieldLabel>
+          <ColorPickerField value={config.colorUnidadSeleccionada} onChange={(v) => update('colorUnidadSeleccionada', v)} />
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+          <div>
+            <FieldLabel>Redondeado Botón (px)</FieldLabel>
+            <input type="range" min="0" max="25" value={config.bordeBoton} onChange={(e) => update('bordeBoton', Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
+          </div>
+          <div>
+            <FieldLabel>Redondeado Tarjetas (px)</FieldLabel>
+            <input type="range" min="0" max="25" value={config.bordeUnidad} onChange={(e) => update('bordeUnidad', Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ═══ VISTA TAB FECHAS ESPECIALES ═══ */
+  const tabFechasEspeciales = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <p style={{ fontSize: 13, color: '#4b5563', margin: 0, lineHeight: 1.5 }}>
+        Elegí un preset activo de temporada. Nevux vestirá el bundle automáticamente con colores optimizados de alto impacto para potenciar la conversión.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {CAMPAIGN_PRESETS.map((preset) => {
           const isSelected = (config.campaignTheme || 'none') === preset.id;
           return (
             <div
               key={preset.id}
-              onClick={() => updateConfig('campaignTheme', preset.id)}
+              onClick={() => update('campaignTheme', preset.id)}
               style={{
                 background: '#ffffff',
                 border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
                 borderRadius: 12,
-                padding: '16px',
+                padding: '12px 16px',
                 cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
+                alignItems: 'center',
                 gap: 12,
-                transition: 'all 0.2s ease',
-                boxSizing: 'border-box',
-                minWidth: 0,
+                transition: 'all 0.15s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    {preset.label}
-                    {isSelected && (
-                      <span style={{
-                        background: '#ecfdf5', color: '#10B981', fontSize: 10, fontWeight: 800,
-                        padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
-                      }}>
-                        ACTIVO
-                      </span>
-                    )}
-                  </div>
+              <span style={{ fontSize: 22 }}>{preset.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {preset.label}
+                  {isSelected && <span style={{ background: '#ecfdf5', color: '#10B981', fontSize: 10, fontWeight: 800, padding: '1px 6px', borderRadius: 999, border: '1px solid #10B981' }}>ACTIVO</span>}
                 </div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{preset.desc}</div>
               </div>
-              <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.4, flex: 1 }}>
-                {preset.desc}
-              </div>
-              {preset.id !== 'none' && (
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginTop: 4 }}>
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
-                </div>
-              )}
             </div>
           );
         })}
@@ -1096,166 +794,63 @@ export default function BundleCantidadEditor({
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
-      {/* HEADER CON LOGO OFICIAL */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 30,
-          background: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
-          padding: '14px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
+      {/* HEADER */}
+      <div style={{
+        background: '#ffffff', borderBottom: '1px solid #e5e7eb',
+        padding: '14px 20px', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20,
+      }}>
         <NevuxLogo size="medium" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: '50%',
-              background: '#000000',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#FFFFFF',
-            }}
-          >
-            RL
-          </div>
-        </div>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#6b7280' }}>Nevux Studio 🚀</span>
       </div>
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 60px' }}>
-        {/* Chip scope */}
-        {targetType === 'all' ? (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: '#10B981',
-              color: '#FFFFFF',
-              padding: '8px 14px',
-              borderRadius: 999,
-              fontSize: 14,
-              fontWeight: 700,
-              marginBottom: 14,
-            }}
-          >
-            <IconStore />
-            Todos los productos
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              background: '#FFFFFF',
-              border: '1px solid #E5E7EB',
-              padding: '8px 14px',
-              borderRadius: 10,
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#000000',
-              marginBottom: 14,
-            }}
-          >
-            <span style={{ fontSize: 18 }}>🛍</span>
-            NEVUX Widget
-          </div>
-        )}
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
+        {/* Scope chip */}
+        <div style={{
+          background: '#10B981', color: '#ffffff',
+          borderRadius: 999, padding: '6px 12px',
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          marginBottom: 16, fontSize: 13, fontWeight: 700,
+        }}>
+          <IconStore color="#fff" />
+          <span>{isForAll ? 'Aplicado a toda la tienda' : 'Configuración de Producto'}</span>
+        </div>
 
-        <h1
-          style={{
-            fontSize: 26,
-            fontWeight: 800,
-            color: '#000000',
-            marginBottom: 20,
-            lineHeight: 1.2,
-          }}
-        >
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#111827', margin: '0 0 16px', lineHeight: 1.2 }}>
           {existingWidget ? 'Editar widget: ' : 'Nuevo widget: '}
           {widgetDefinition.name}
         </h1>
 
-        {/* CARD PRINCIPAL */}
-        <div
-          style={{
-            background: '#FFFFFF',
-            border: '1px solid #E5E7EB',
-            borderRadius: 16,
-            padding: 16,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          }}
-        >
-          {/* PREVIEW */}
+        {/* CONTAINER EDITOR */}
+        <div style={{
+          background: '#ffffff', border: '1px solid #e5e7eb',
+          borderRadius: 16, padding: 18, marginBottom: 20,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        }}>
+          {/* Live Preview Directo */}
           <div style={{ marginBottom: 20 }}>
             <BundleCantidadPreview config={config} />
           </div>
 
-          {/* Nota info debajo del preview */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 8,
-              fontSize: 13,
-              color: '#000000',
-              opacity: 0.6,
-              marginBottom: 16,
-              lineHeight: 1.5,
-            }}
-          >
-            <IconInfo size={16} color="#10B981" />
-            <span>
-              {config.reemplazarBoton
-                ? 'El formulario original de Tiendanube quedará oculto.'
-                : 'El formulario original de Tiendanube permanecerá visible y funcional.'}
-            </span>
-          </div>
-
           {/* TABS */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 0,
-              borderBottom: '1px solid #E5E7EB',
-              marginBottom: 20,
-            }}
-          >
+          <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: 20 }}>
             {[
-              { id: 'general', label: 'General' },
-              { id: 'ubicacion', label: 'Ubicación' },
-              { id: 'estilo', label: 'Estilo' },
-              { id: 'fechas', label: '🔥 Fechas Especiales' }
+              { id: 'general', label: 'Config' },
+              { id: 'unidades', label: 'Ofertas' },
+              { id: 'estilos', label: 'Diseño' },
+              { id: 'fechas', label: '🔥 Eventos' },
             ].map((t) => {
-              const active = tab === t.id;
+              const act = activeTab === t.id;
               return (
                 <button
                   key={t.id}
-                  type="button"
-                  onClick={() => setTab(t.id as any)}
+                  onClick={() => setActiveTab(t.id as any)}
                   style={{
-                    flex: 1,
-                    background: 'transparent',
-                    border: 'none',
-                    borderBottom: active ? '2px solid #10B981' : '2px solid transparent',
-                    padding: '14px 10px',
-                    fontSize: 14,
-                    fontWeight: active ? 700 : 500,
-                    color: active ? '#10B981' : '#000000',
-                    opacity: active ? 1 : 0.6,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s',
+                    flex: 1, padding: '12px 6px', background: 'none', border: 'none',
+                    borderBottom: act ? '2.5px solid #10B981' : '2.5px solid transparent',
+                    color: act ? '#10B981' : '#4b5563',
+                    fontSize: 14, fontWeight: act ? 800 : 500, cursor: 'pointer'
                   }}
                 >
                   {t.label}
@@ -1264,544 +859,47 @@ export default function BundleCantidadEditor({
             })}
           </div>
 
-          {/* TAB GENERAL */}
-          {tab === 'general' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div>
-                <FieldLabel>Título</FieldLabel>
-                <TextInput
-                  value={config.titulo}
-                  onChange={(v) => updateConfig('titulo', v)}
-                  placeholder="Ej: Ofertas especiales por cantidad"
-                />
-                <FieldHelper>Dejá vacío para no mostrar título</FieldHelper>
-              </div>
+          {/* CONTENIDOS TABS */}
+          <div>
+            {activeTab === 'general' && tabGeneral}
+            {activeTab === 'unidades' && tabUnidades}
+            {activeTab === 'estilos' && tabEstilos}
+            {activeTab === 'fechas' && tabFechasEspeciales}
+          </div>
 
-              <div>
-                <FieldLabel>Cantidad de unidades</FieldLabel>
-                <SelectField
-                  value={config.cantidadUnidades}
-                  onChange={(v) => updateConfig('cantidadUnidades', Number(v))}
-                  options={[
-                    { value: 2, label: 'Hasta 2 unidades' },
-                    { value: 3, label: 'Hasta 3 unidades' },
-                    { value: 4, label: 'Hasta 4 unidades' },
-                    { value: 5, label: 'Hasta 5 unidades' },
-                  ]}
-                />
-              </div>
+          {/* FOOTER */}
+          <div style={{
+            marginTop: 24, paddingTop: 16, borderTop: '1px solid #e5e7eb',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap'
+          }}>
+            <ToggleField checked={isActive} onChange={setIsActive} label="Widget activo en tienda" />
 
-              <div>
-                <FieldLabel>Etiqueta</FieldLabel>
-                <SelectField
-                  value={config.etiqueta}
-                  onChange={(v) => updateConfig('etiqueta', v)}
-                  options={[
-                    { value: 'Lleva #', label: 'Lleva #' },
-                    { value: 'Llevate #', label: 'Llevate #' },
-                    { value: 'Compra #', label: 'Compra #' },
-                    { value: '# unidades', label: '# unidades' },
-                  ]}
-                />
-              </div>
-
-              <div>
-                <FieldLabel>Mostrar precio</FieldLabel>
-                <SelectField
-                  value={config.mostrarPrecio}
-                  onChange={(v) => updateConfig('mostrarPrecio', v)}
-                  options={[
-                    { value: 'total', label: 'Precio total (por cantidad)' },
-                    { value: 'individual', label: 'Precio individual por unidad' },
-                  ]}
-                />
-                <FieldHelper>Elegí si mostrar el precio total o el precio individual por unidad</FieldHelper>
-              </div>
-
-              <div>
-                <FieldLabel>Texto del botón</FieldLabel>
-                <TextInput
-                  value={config.textoBoton}
-                  onChange={(v) => updateConfig('textoBoton', v)}
-                  placeholder="Agregar al carrito"
-                />
-                <FieldHelper>Dejá vacío para usar "Agregar al carrito"</FieldHelper>
-              </div>
-
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#000000', marginTop: 4 }}>
-                Configuración por unidad
-              </div>
-
-              {Array.from({ length: cantidadReal }).map((_, i) => {
-                const u = config.unidades[i];
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: 12,
-                      padding: 16,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 14,
-                    }}
-                  >
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#000000' }}>
-                      Unidad {i + 1}
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#000000', marginBottom: 6 }}>
-                        Subtítulo
-                      </div>
-                      <TextInput
-                        value={u.subtitulo}
-                        onChange={(v) => updateUnidad(i, 'subtitulo', v)}
-                        placeholder="Ej: Ahorrá 10%"
-                      />
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#000000', marginBottom: 6 }}>
-                        ¿Tiene descuento? (%)
-                      </div>
-                      <TextInput
-                        type="number"
-                        value={u.descuento}
-                        onChange={(v) => updateUnidad(i, 'descuento', Number(v) || 0)}
-                        placeholder="0"
-                      />
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
-                        Badges
-                      </div>
-                      <CheckboxSimple
-                        checked={u.badgeEnvioGratis}
-                        onChange={(v) => updateUnidad(i, 'badgeEnvioGratis', v)}
-                        label="Envío gratis"
-                      />
-                      <CheckboxSimple
-                        checked={u.badgeMasVendido}
-                        onChange={(v) => updateUnidad(i, 'badgeMasVendido', v)}
-                        label="Más vendido"
-                      />
-                      <CheckboxSimple
-                        checked={u.badgePersonalizado}
-                        onChange={(v) => updateUnidad(i, 'badgePersonalizado', v)}
-                        label="Personalizado"
-                      />
-                    </div>
-
-                    <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 12 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 4 }}>
-                        Configuración extra
-                      </div>
-                      <CheckboxSimple
-                        checked={u.ocultar}
-                        onChange={(v) => updateUnidad(i, 'ocultar', v)}
-                        label="Ocultar esta unidad"
-                      />
-                      <CheckboxSimple
-                        checked={u.porDefecto}
-                        onChange={(v) => updateUnidad(i, 'porDefecto', v)}
-                        label="Marcar por defecto"
-                      />
-                      <CheckboxSimple
-                        checked={u.ocultarComp1}
-                        onChange={(v) => updateUnidad(i, 'ocultarComp1', v)}
-                        label="Ocultar producto complementario 1 en esta unidad"
-                      />
-                      <CheckboxSimple
-                        checked={u.ocultarComp2}
-                        onChange={(v) => updateUnidad(i, 'ocultarComp2', v)}
-                        label="Ocultar producto complementario 2 en esta unidad"
-                      />
-                      <CheckboxSimple
-                        checked={u.agregarRegalo}
-                        onChange={(v) => updateUnidad(i, 'agregarRegalo', v)}
-                        label="Agregar producto de regalo en esta unidad"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-
-              <div>
-                <FieldLabel>Productos complementarios</FieldLabel>
-                <FieldHelper>Se mostrarán debajo de cada tarjeta con un checkbox (máximo 2)</FieldHelper>
-              </div>
-
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>
-                  Producto 1
-                </div>
-                <TextInput
-                  value={config.producto1?.nombre || ''}
-                  onChange={(v) =>
-                    updateConfig('producto1', v ? { id: null, nombre: v } : null)
-                  }
-                  placeholder="Buscar un producto…"
-                />
-              </div>
-
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 6 }}>
-                  Producto 2
-                </div>
-                <TextInput
-                  value={config.producto2?.nombre || ''}
-                  onChange={(v) =>
-                    updateConfig('producto2', v ? { id: null, nombre: v } : null)
-                  }
-                  placeholder="Buscar un producto…"
-                />
-              </div>
-
-              <CheckboxSimple
-                checked={config.compDefault}
-                onChange={(v) => updateConfig('compDefault', v)}
-                label="Marcar como checkeado por defecto"
-              />
-            </div>
-          )}
-
-          {/* TAB UBICACIÓN */}
-          {tab === 'ubicacion' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <CheckboxCard
-                checked={config.reemplazarBoton}
-                onChange={(v) => updateConfig('reemplazarBoton', v)}
-                label="Reemplazar por el botón de agregar al carrito de Tiendanube"
-                description="Cuando está activo, el widget reemplaza el formulario original de Tiendanube. Al desactivarlo, el formulario original permanece visible y funcional."
-              />
-            </div>
-          )}
-
-          {/* TAB ESTILO */}
-          {tab === 'estilo' && (
-            <div>
-              <SectionCard
-                icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                    <circle cx="13.5" cy="6.5" r="1.5" />
-                    <circle cx="17.5" cy="10.5" r="1.5" />
-                    <circle cx="8.5" cy="7.5" r="1.5" />
-                    <circle cx="6.5" cy="12.5" r="1.5" />
-                    <path d="M12 2a10 10 0 100 20 1 1 0 001-1v-.5a2 2 0 012-2h1.5a2.5 2.5 0 002.5-2.5A9 9 0 0012 2z" />
-                  </svg>
-                }
-                title="Colores principales"
-                description="Definí la paleta del bloque principal y del botón de compra."
-              >
-                <div>
-                  <FieldLabel>Color del botón "Agregar"</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorBoton}
-                    onChange={(v) => updateConfig('colorBoton', v)}
-                  />
-                  <div style={{ marginTop: 10 }}>
-                    <ToggleField
-                      checked={config.botonDegradado}
-                      onChange={(v) => updateConfig('botonDegradado', v)}
-                      label="Fondo en degradé"
-                    />
-                    {config.botonDegradado && (
-                      <div style={{ marginTop: 10 }}>
-                        <ColorPickerField
-                          value={config.colorBoton2}
-                          onChange={(v) => updateConfig('colorBoton2', v)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <FieldLabel>Color del precio</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorPrecio}
-                    onChange={(v) => updateConfig('colorPrecio', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color de subtítulos</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorSubtitulos}
-                    onChange={(v) => updateConfig('colorSubtitulos', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Fondo del subtítulo</FieldLabel>
-                  <ColorPickerField
-                    value={config.fondoSubtitulo}
-                    onChange={(v) => updateConfig('fondoSubtitulo', v)}
-                    allowTransparent
-                    transparentLabel="Transparente"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color texto regalo</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorTextoRegalo}
-                    onChange={(v) => updateConfig('colorTextoRegalo', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color precio regalo</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorPrecioRegalo}
-                    onChange={(v) => updateConfig('colorPrecioRegalo', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Fondo del regalo</FieldLabel>
-                  <ColorPickerField
-                    value={config.fondoRegalo}
-                    onChange={(v) => updateConfig('fondoRegalo', v)}
-                  />
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
-                    <line x1="7" y1="7" x2="7.01" y2="7" />
-                  </svg>
-                }
-                title="Badges y etiquetas"
-                description="Personalizá los colores de destacados y estado seleccionado."
-              >
-                <div>
-                  <FieldLabel>Color badge envío gratis</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorBadgeEnvio}
-                    onChange={(v) => updateConfig('colorBadgeEnvio', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color badge personalizado</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorBadgePersonalizado}
-                    onChange={(v) => updateConfig('colorBadgePersonalizado', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color badge más vendido</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorBadgeMasVendido}
-                    onChange={(v) => updateConfig('colorBadgeMasVendido', v)}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Color unidad seleccionada</FieldLabel>
-                  <ColorPickerField
-                    value={config.colorUnidadSeleccionada}
-                    onChange={(v) => updateConfig('colorUnidadSeleccionada', v)}
-                  />
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                    <rect x="3" y="3" width="7" height="7" />
-                    <rect x="14" y="3" width="7" height="7" />
-                    <rect x="14" y="14" width="7" height="7" />
-                    <rect x="3" y="14" width="7" height="7" />
-                  </svg>
-                }
-                title="Estructura y bordes"
-                description="Ajustá el redondeado del botón y de cada unidad."
-              >
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
-                  <div>
-                    <FieldLabel>Borde del botón "Agregar"</FieldLabel>
-                    <RangeSlider
-                      value={config.bordeBoton}
-                      onChange={(v) => updateConfig('bordeBoton', v)}
-                      min={0}
-                      max={25}
-                      marks={[0, 25, config.bordeBoton]}
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel>Borde de la unidad</FieldLabel>
-                    <RangeSlider
-                      value={config.bordeUnidad}
-                      onChange={(v) => updateConfig('bordeUnidad', v)}
-                      min={0}
-                      max={25}
-                      marks={[0, config.bordeUnidad, 25]}
-                    />
-                  </div>
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                    <polyline points="4 7 4 4 20 4 20 7" />
-                    <line x1="9" y1="20" x2="15" y2="20" />
-                    <line x1="12" y1="4" x2="12" y2="20" />
-                  </svg>
-                }
-                title="Tipografía"
-                description="Definí el tamaño de texto para etiqueta, precio y subtítulo."
-              >
-                <div>
-                  <FieldLabel>Etiqueta</FieldLabel>
-                  <SelectField
-                    value={config.fuenteEtiqueta}
-                    onChange={(v) => updateConfig('fuenteEtiqueta', Number(v))}
-                    options={[12, 14, 16, 18, 20, 24].map((n) => ({
-                      value: n,
-                      label: `${n}px`,
-                    }))}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Precio</FieldLabel>
-                  <SelectField
-                    value={config.fuentePrecio}
-                    onChange={(v) => updateConfig('fuentePrecio', Number(v))}
-                    options={[12, 14, 16, 18, 20, 24].map((n) => ({
-                      value: n,
-                      label: `${n}px`,
-                    }))}
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Subtítulo</FieldLabel>
-                  <SelectField
-                    value={config.fuenteSubtitulo}
-                    onChange={(v) => updateConfig('fuenteSubtitulo', Number(v))}
-                    options={[12, 14, 16, 18, 20, 24].map((n) => ({
-                      value: n,
-                      label: `${n}px`,
-                    }))}
-                  />
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-                    <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
-                  </svg>
-                }
-                title="Efectos y animaciones"
-                description="Elegí cómo se comporta visualmente el botón al interactuar."
-              >
-                <div>
-                  <FieldLabel>Efecto del botón</FieldLabel>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
-                    <RadioCard
-                      checked={config.efectoBoton === 'sin-efecto'}
-                      onChange={() => updateConfig('efectoBoton', 'sin-efecto')}
-                      label="Sin efecto"
-                    />
-                    <RadioCard
-                      checked={config.efectoBoton === 'zoom'}
-                      onChange={() => updateConfig('efectoBoton', 'zoom')}
-                      label="Zoom al cursor"
-                    />
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 20,
-                      padding: 14,
-                      border: '1px solid #E5E7EB',
-                      borderRadius: 10,
-                      background: '#FFFFFF',
-                    }}
-                  >
-                    <ToggleField
-                      checked={config.pulsante}
-                      onChange={(v) => updateConfig('pulsante', v)}
-                      label="Pulsante"
-                    />
-                  </div>
-                </div>
-              </SectionCard>
-            </div>
-          )}
-
-          {/* TAB FECHAS ESPECIALES */}
-          {tab === 'fechas' && tabFechasEspeciales}
-
-          {/* FOOTER ACCIONES DE GUARDADO */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 20,
-              paddingTop: 20,
-              borderTop: '1px solid #E5E7EB',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ToggleField
-                checked={isActive}
-                onChange={setIsActive}
-                label="Widget activo"
-              />
-              <IconInfo />
-            </div>
             <button
-              type="button"
-              disabled={saving}
               onClick={handleSave}
+              disabled={saving}
               style={{
-                background: '#10B981',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: 999,
-                padding: '12px 24px',
-                fontSize: 15,
-                fontWeight: 700,
-                cursor: saving ? 'wait' : 'pointer',
-                opacity: saving ? 0.7 : 1,
+                padding: '10px 24px', borderRadius: 999, border: 'none',
+                background: '#10B981', color: '#fff', fontSize: 14, fontWeight: 700,
+                cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1
               }}
             >
-              {saving ? 'Guardando…' : existingWidget ? 'Guardar cambios' : 'Crear widget'}
+              {saving ? 'Guardando...' : existingWidget ? 'Guardar Cambios' : 'Crear Widget'}
             </button>
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
-        <div style={{ marginTop: 40, width: '100%' }}>
-          <CentroAyuda />
-        </div>
-      </div>
+        <CentroAyuda />
 
-      {/* ERROR TOAST */}
-      {error && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            left: 20,
-            right: 20,
-            background: '#FEE2E2',
-            border: '1px solid #FCA5A5',
-            color: '#991B1B',
-            padding: 14,
-            borderRadius: 10,
-            fontSize: 14,
-            zIndex: 50,
-            maxWidth: 500,
-            margin: '0 auto',
-          }}
-        >
-          {error}
-        </div>
-      )}
+        {error && (
+          <div style={{
+            position: 'fixed', bottom: 20, left: 16, right: 16, maxWidth: 500, margin: '0 auto',
+            background: '#fee2e2', color: '#991b1b', padding: '12px', borderRadius: 10,
+            fontSize: 13, fontWeight: 600, border: '1px solid #fecaca', zIndex: 100
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+      </div>
     </div>
   );
-   }
+}
