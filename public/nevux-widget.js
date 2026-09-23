@@ -9344,7 +9344,7 @@ function renderHorarioAtencion(w) {
     nvxTrack(w.id, 'impression');
   }
     } 
-  /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    WIDGET: CALCULADORA DE AHORRO
    ═══════════════════════════════════════════ */
 function renderCalculadoraAhorro(w) {
@@ -9359,6 +9359,7 @@ function renderCalculadoraAhorro(w) {
   var textColor = cfg.textColor || "#065f46";
   var borderColor = cfg.borderColor || "#10B981";
   var accentColor = cfg.accentColor || "#059669";
+  var position = cfg.position || "below_price"; // Por defecto
 
   // Intentar calcular el ahorro real leyendo los precios del producto en Tiendanube
   var displaySavings = exampleAmount;
@@ -9385,16 +9386,23 @@ function renderCalculadoraAhorro(w) {
     displaySavings = exampleAmount;
   }
 
+  // Crear el contenedor principal
   var container = document.createElement('div');
   container.id = 'nvx-ahorro-' + w.id;
   container.className = 'nvx-widget nvx-ahorro-wrapper';
-  container.style.cssText = 'background:' + bgColor + ';border:1.5px solid ' + borderColor + ';border-radius:12px;padding:14px 18px;margin:12px 0;box-sizing:border-box;box-shadow:0 3px 10px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:system-ui,-apple-system,sans-serif;color:' + textColor + ';';
+  
+  // Regla #24: Reset de contenedor de bloque para evitar colisiones Flex locales
+  container.style.cssText = 'display:block;width:100%;clear:both;box-sizing:border-box;margin:14px 0;';
+
+  // Contenido interno con estilos inline camelCase nativos
+  var innerContainer = document.createElement('div');
+  innerContainer.style.cssText = 'background:' + bgColor + ';border:1.5px solid ' + borderColor + ';border-radius:12px;padding:14px 18px;box-shadow:0 3px 10px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:system-ui,-apple-system,sans-serif;color:' + textColor + ';width:100%;box-sizing:border-box;';
 
   var badgeHtml = badgeText
     ? '<span style="font-size:10px;font-weight:900;letter-spacing:0.04em;color:' + accentColor + ';text-transform:uppercase;display:block;margin-bottom:2px;">' + badgeText + '</span>'
     : '';
 
-  container.innerHTML =
+  innerContainer.innerHTML =
     '<div style="flex:1;min-width:0;">' +
       badgeHtml +
       '<div style="font-size:14px;font-weight:700;line-height:1.3;">' +
@@ -9403,17 +9411,75 @@ function renderCalculadoraAhorro(w) {
     '</div>' +
     '<div style="width:36px;height:36px;border-radius:50%;background:' + accentColor + ';color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0;">%</div>';
 
-  // Inserción en el DOM
-  var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
-  if (targetEl && targetEl.parentNode) {
-    targetEl.parentNode.insertBefore(container, targetEl);
-  } else {
-    var main = document.querySelector('main, #content, .main-content, .js-main-content');
-    if (main) {
-      main.insertBefore(container, main.firstChild);
+  container.appendChild(innerContainer);
+
+  // ═══════════════════════════════════════════
+  // MOTOR MILITAR DE UBICACIÓN DINÁMICA (v12)
+  // ═══════════════════════════════════════════
+  var injected = false;
+
+  // Selectores de referencia principales
+  var imgEl = document.querySelector('.js-product-image-container, .product-image-container, .js-product-slide, .product-slider, .glide__slides, .js-slider-wrapper, .js-product-slider, img[itemprop="image"]');
+  var priceEl = document.querySelector('.js-price-display, #price_display, .js-price-container, .product-price-container, .price-container, .price-display, [data-price], .price');
+  var buyBlock = document.querySelector('form[action*="/cart/add"], form.js-product-buyform, .js-product-form, .product-form, .js-product-container, .product-buy-form');
+
+  try {
+    if (position === 'below_image' && imgEl) {
+      // Si el selector dio una imagen directa, escalamos a su contenedor más cercano
+      var targetImgContainer = imgEl.tagName === 'IMG' ? (imgEl.closest('div') || imgEl) : imgEl;
+      if (targetImgContainer.parentNode) {
+        targetImgContainer.parentNode.insertBefore(container, targetImgContainer.nextSibling);
+        injected = true;
+      }
+    } 
+    else if (position === 'above_price' && priceEl) {
+      var targetPriceContainer = priceEl.closest('div') || priceEl;
+      if (targetPriceContainer.parentNode) {
+        targetPriceContainer.parentNode.insertBefore(container, targetPriceContainer);
+        injected = true;
+      }
+    } 
+    else if (position === 'below_price' && priceEl) {
+      var targetPriceContainer = priceEl.closest('div') || priceEl;
+      if (targetPriceContainer.parentNode) {
+        targetPriceContainer.parentNode.insertBefore(container, targetPriceContainer.nextSibling);
+        injected = true;
+      }
+    } 
+    else if (position === 'above_buy' && buyBlock) {
+      if (buyBlock.parentNode) {
+        buyBlock.parentNode.insertBefore(container, buyBlock);
+        injected = true;
+      }
+    } 
+    else if (position === 'below_buy' && buyBlock) {
+      if (buyBlock.parentNode) {
+        buyBlock.parentNode.insertBefore(container, buyBlock.nextSibling);
+        injected = true;
+      }
+    }
+  } catch (err) {
+    console.warn("[Nevux] Error al inyectar en posición elegida, aplicando fallback militar:", err);
+  }
+
+  // Fallback definitivo si el selector falló o no existe en la plantilla actual
+  if (!injected) {
+    if (priceEl) {
+      var fallbackPrice = priceEl.closest('div') || priceEl;
+      if (fallbackPrice.parentNode) {
+        fallbackPrice.parentNode.insertBefore(container, fallbackPrice.nextSibling);
+        injected = true;
+      }
+    } else if (buyBlock && buyBlock.parentNode) {
+      buyBlock.parentNode.insertBefore(container, buyBlock);
+      injected = true;
     } else {
-      var body = document.body;
-      if (body) body.insertBefore(container, body.firstChild);
+      var main = document.querySelector('main, #content, .main-content, .js-main-content');
+      if (main) {
+        main.insertBefore(container, main.firstChild);
+      } else if (document.body) {
+        document.body.insertBefore(container, document.body.firstChild);
+      }
     }
   }
 
@@ -9421,7 +9487,7 @@ function renderCalculadoraAhorro(w) {
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
-          }
+    }
       /* ═══════════════════════════════════════════
    WIDGET: STICKER EDICIÓN LIMITADA
    ═══════════════════════════════════════════ */
