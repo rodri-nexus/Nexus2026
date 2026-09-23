@@ -41,6 +41,7 @@ interface MarqueeNovedadesConfig {
   textColor: string;
   fontSize: string;
   campaignTheme?: string;
+  position?: string; // ← Agregado v11 para ubicación dinámica
 }
 
 /* ═══════════════════════════════════════════
@@ -54,6 +55,7 @@ const defaultConfig: MarqueeNovedadesConfig = {
   textColor: '#ffffff',
   fontSize: '14',
   campaignTheme: 'none',
+  position: 'above_form', // Default: arriba de la caja de compra
 };
 
 const DUR: Record<string, string> = {
@@ -441,6 +443,28 @@ export default function MarqueeNovedadesEditor({
         </div>
       </div>
 
+      {/* Selector de Posición (Dinámico para Producto) */}
+      {!isForAll && (
+        <div style={{ marginBottom: 24 }}>
+          <FieldLabel>Ubicación en la tienda</FieldLabel>
+          <FieldHelper>Elegí dónde querés que se muestre el marquee dentro de la página del producto.</FieldHelper>
+          <div style={{ marginTop: 12 }}>
+            <SelectField
+              value={config.position || 'above_form'}
+              onChange={(v) => update('position', v)}
+              options={[
+                { value: 'above_form', label: 'Arriba del bloque de compra (Por defecto)' },
+                { value: 'below_image', label: '🖼️ Abajo de la foto del producto' },
+                { value: 'above_price', label: '💵 Arriba del precio' },
+                { value: 'below_price', label: '💵 Abajo del precio' },
+                { value: 'above_buy', label: '🛒 Arriba del botón de comprar' },
+                { value: 'below_buy', label: '🛒 Abajo del botón de comprar' },
+              ]}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Velocidad y Dirección */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div>
@@ -470,7 +494,7 @@ export default function MarqueeNovedadesEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS (Grid adaptativo sin desbordes corregido) ═══ */
+  /* ═══ TAB ESTILOS (Grid adaptativo sin desbordes) ═══ */
   const tabEstilos = (
     <div>
       <div style={{ 
@@ -695,7 +719,7 @@ export default function MarqueeNovedadesEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              El marquee se muestra como una cinta animada arriba del contenido de la tienda con tus mensajes destacados.
+              El marquee se muestra como una cinta animada arriba o en la ubicación elegida de la tienda con tus mensajes destacados.
             </span>
           </div>
 
@@ -790,4 +814,4 @@ export default function MarqueeNovedadesEditor({
       </div>
     </div>
   );
-}
+                     }
