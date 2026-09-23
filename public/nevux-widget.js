@@ -2606,315 +2606,329 @@
     }
         }
 /* ═══════════════════════════════════════════
-     RENDER BUNDLE PROMOCIONES (CON FECHAS ESPECIALES 3.0)
-  ═══════════════════════════════════════════ */
-  function renderBundlePromociones(widget) {
-    if (pageType !== "product") return;
-    var cfg = normalizeBundlePromocionesConfig(widget.config || {});
-    if (!cfg.promociones || cfg.promociones.length === 0) return;
-    mountBundlePromociones(widget, cfg);
+   WIDGET: BUNDLE PROMOCIONES
+   ═══════════════════════════════════════════ */
+function renderBundlePromociones(widget) {
+  if (pageType !== "product") return;
+  var cfg = normalizeBundlePromocionesConfig(widget.config || {});
+  if (!cfg.promociones || cfg.promociones.length === 0) return;
+  mountBundlePromociones(widget, cfg);
+}
+
+function normalizeBundlePromocionesConfig(raw) {
+  function n(v, fb) {
+    if (v === undefined || v === null || v === "") return fb;
+    var p = typeof v === "string" ? parseInt(v, 10) : v;
+    return isNaN(p) ? fb : p;
   }
 
-  function normalizeBundlePromocionesConfig(raw) {
-    function n(v, fb) {
-      if (v === undefined || v === null || v === "") return fb;
-      var p = typeof v === "string" ? parseInt(v, 10) : v;
-      return isNaN(p) ? fb : p;
-    }
+  var promosRaw = Array.isArray(raw.promociones) ? raw.promociones : ['2x1'];
+  var promosNorm = [];
+  
+  promosRaw.forEach(function(pKey) {
+    var u = (raw.configPromos && raw.configPromos[pKey]) || {};
+    promosNorm.push({
+      tipo: pKey,
+      formatoEtiqueta: u.formatoEtiqueta || "Lleva # paga #",
+      subtitulo: u.subtitulo || "",
+      badgeEnvioGratis: u.badgeEnvioGratis === true,
+      badgeMasVendido: u.badgeMasVendido === true,
+      badgePersonalizado: u.badgePersonalizado === true,
+      marcarPorDefecto: u.marcarPorDefecto === true,
+      ocultarEsta: u.ocultarEsta === true,
+    });
+  });
 
-    var promos = Array.isArray(raw.promociones) ? raw.promociones : [];
-    promos = promos.map(function (p) {
-      return {
-        tipo: String(p.tipo || "2x1"),
-        formatoEtiqueta: p.formatoEtiqueta || "Lleva # paga #",
-        subtitulo: p.subtitulo || "",
-        badges: {
-          envioGratis: !!(p.badges && p.badges.envioGratis),
-          masVendido: !!(p.badges && p.badges.masVendido),
-          personalizado: !!(p.badges && p.badges.personalizado),
-          personalizadoTexto: (p.badges && p.badges.personalizadoTexto) || "",
-        },
-        ocultarComp1: p.ocultarComp1 === true,
-        ocultarComp2: p.ocultarComp2 === true,
-        agregarRegalo: p.agregarRegalo === true,
-        marcarPorDefecto: p.marcarPorDefecto === true,
-        ocultarUnidad: p.ocultarUnidad === true,
-      };
+  return {
+    titulo: raw.titulo || "",
+    textoBoton: raw.textoBoton || "COMPRAR PROMO",
+    promociones: promosNorm,
+    reemplazarBoton: raw.reemplazarBoton === true,
+    colorBoton: raw.colorBoton || "#10B981",
+    botonDegradado: raw.botonDegradado === true,
+    colorBoton2: raw.colorBoton2 || "#059669",
+    colorPrecio: raw.colorPrecio || "#111827",
+    colorSubtitulos: raw.colorSubtitulos || "#047857",
+    fondoSubtitulo: raw.fondoSubtitulo || "#ecfdf5",
+    colorBadgeEnvio: raw.colorBadgeEnvio || "#10B981",
+    colorBadgePersonalizado: raw.colorBadgePersonalizado || "#F59E0B",
+    colorBadgeMasVendido: raw.colorBadgeMasVendido || "#EF4444",
+    colorUnidadSeleccionada: raw.colorUnidadSeleccionada || "#10B981",
+    bordeBoton: n(raw.bordeBoton, 10),
+    bordeUnidad: n(raw.bordeUnidad, 12),
+    fuenteEtiqueta: n(raw.fuenteEtiqueta, 16),
+    fuentePrecio: n(raw.fuentePrecio, 18),
+    fuenteSubtitulo: n(raw.fuenteSubtitulo, 13),
+    efectoBoton: raw.efectoBoton === "zoom" ? "zoom" : "sin-efecto",
+    pulsante: raw.pulsante === true,
+    campaignTheme: raw.campaignTheme || "none",
+    position: raw.position || "above_buy"
+  };
+}
+
+function parsePromoRatio(tipo) {
+  var parts = String(tipo).split('x');
+  return {
+    lleva: parseInt(parts[0], 10) || 1,
+    paga: parseInt(parts[1], 10) || 1
+  };
+}
+
+function formatEtiquetaPromo(formato, ratio) {
+  var parts = String(formato).split("#");
+  var out = "";
+  var vals = [ratio.lleva, ratio.paga];
+  var v = 0;
+  for (var i = 0; i < parts.length; i++) {
+    out += parts[i];
+    if (i < parts.length - 1) {
+      out += (v < vals.length ? vals[v] : "");
+      v++;
+    }
+  }
+  return out;
+}
+
+function mountBundlePromociones(widget, cfg) {
+  var uniqueId = NS + "-bundleprom-" + widget.id;
+  if (document.getElementById(uniqueId)) return;
+
+  var container = document.createElement("div");
+  container.id = uniqueId;
+  container.className = NS + "-root";
+  container.style.cssText = "display:block !important;width:100% !important;clear:both !important;box-sizing:border-box !important;margin:15px 0 !important;";
+
+  // Selectores de referencia de inyección militares (v12)
+  var imgWrapper = document.querySelector('[data-component="product.images"], .js-product-images-container, .js-product-slider-container, .product-gallery, .js-product-gallery');
+  var priceWrapper = document.querySelector('[data-store="product-price"], .js-price-display, #price_display, .price-container, .product-price-container, .price');
+  var buyForm = document.querySelector('form[action*="/cart/add"], form.js-product-form, form.js-product-buyform, form.product-form');
+
+  var injected = false;
+  var position = cfg.position || "above_buy";
+
+  try {
+    if (position === 'below_image' && imgWrapper) {
+      imgWrapper.insertAdjacentElement('afterend', container);
+      injected = true;
+    } 
+    else if (position === 'above_price' && priceWrapper) {
+      var targetPrice = priceWrapper.closest('div') || priceWrapper;
+      targetPrice.insertAdjacentElement('beforebegin', container);
+      injected = true;
+    } 
+    else if (position === 'below_price' && priceWrapper) {
+      var targetPrice = priceWrapper.closest('div') || priceWrapper;
+      targetPrice.insertAdjacentElement('afterend', container);
+      injected = true;
+    } 
+    else if (position === 'above_buy' && buyForm) {
+      buyForm.insertAdjacentElement('beforebegin', container);
+      injected = true;
+    } 
+    else if (position === 'below_buy' && buyForm) {
+      buyForm.insertAdjacentElement('afterend', container);
+      injected = true;
+    }
+  } catch (err) {
+    injected = false;
+  }
+
+  if (!injected) {
+    if (buyForm) {
+      buyForm.insertAdjacentElement('beforebegin', container);
+    } else if (priceWrapper) {
+      priceWrapper.insertAdjacentElement('afterend', container);
+    } else {
+      var main = document.querySelector('main, #content');
+      if (main) main.insertBefore(container, main.firstChild);
+    }
+  }
+
+  // Ocultar botón original si se eligió reemplazar
+  if (cfg.reemplazarBoton && buyForm) {
+    var nativeBtn = buyForm.querySelector('button[type="submit"], input[type="submit"], .js-addtocart-btn, .product-buy-button');
+    if (nativeBtn) nativeBtn.style.display = "none";
+  }
+
+  var idxDefault = 0;
+  for (var i = 0; i < cfg.promociones.length; i++) {
+    if (cfg.promociones[i].marcarPorDefecto) {
+      idxDefault = i;
+      break;
+    }
+  }
+
+  var state = { selectedIdx: idxDefault };
+
+  function render() {
+    container.innerHTML = buildBundlePromocionesHtml(cfg, state);
+    wireEvents();
+  }
+
+  function wireEvents() {
+    container.querySelectorAll("." + NS + "-bundle-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        var idx = parseInt(card.dataset.idx, 10);
+        if (!isNaN(idx)) {
+          state.selectedIdx = idx;
+          render();
+        }
+      });
     });
 
-    var complementarios = Array.isArray(raw.complementarios) ? raw.complementarios : [];
+    var btn = container.querySelector("." + NS + "-bundle-btn");
+    if (btn && buyForm) {
+      btn.addEventListener("click", function () {
+        var activePromo = cfg.promociones[state.selectedIdx];
+        var ratio = parsePromoRatio(activePromo.tipo);
+        var unitsToBuy = ratio.lleva; // Sincroniza cantidad nativa
 
-    return {
-      titulo: raw.titulo || "",
-      textoBoton: raw.textoBoton || "Agregar al carrito",
-      promociones: promos,
-      complementarios: complementarios.slice(0, 2),
-      complementariosDefault: raw.complementariosDefault === true,
-      reemplazarBoton: raw.reemplazarBoton === true,
-      colorBoton: raw.colorBoton || "#000000",
-      botonDegradado: raw.botonDegradado === true,
-      colorPrecio: raw.colorPrecio || "#000000",
-      colorSubtitulo: raw.colorSubtitulo || "#059669",
-      fondoSubtitulo: raw.fondoSubtitulo || "transparent",
-      colorTextoRegalo: raw.colorTextoRegalo || "#000000",
-      colorPrecioRegalo: raw.colorPrecioRegalo || "#16a34a",
-      fondoRegalo: raw.fondoRegalo || "#f5fff7",
-      colorBadgeEnvio: raw.colorBadgeEnvio || "#10B981",
-      colorBadgePersonalizado: raw.colorBadgePersonalizado || "#F59E0B",
-      colorBadgeMasVendido: raw.colorBadgeMasVendido || "#EF4444",
-      colorUnidadSeleccionada: raw.colorUnidadSeleccionada || "#000000",
-      bordeBoton: n(raw.bordeBoton, 25),
-      bordeUnidad: n(raw.bordeUnidad, 8),
-      tamanoEtiqueta: raw.tamanoEtiqueta || "16px",
-      tamanoPrecio: raw.tamanoPrecio || "18px",
-      tamanoSubtitulo: raw.tamanoSubtitulo || "14px",
-      efectoBoton: raw.efectoBoton === "zoom" ? "zoom" : "sin-efecto",
-      botonPulsante: raw.botonPulsante === true,
-      campaignTheme: raw.campaignTheme || "none"
-    };
-  }
-
-  function parsePromoRatio(tipo) {
-    var m = String(tipo).toLowerCase().match(/(\d+)x(\d+)/);
-    if (!m) return { lleva: 1, paga: 1 };
-    return { lleva: parseInt(m[1], 10), paga: parseInt(m[2], 10) };
-  }
-
-  function formatEtiquetaPromo(formato, ratio) {
-    var partes = String(formato).split("#");
-    var out = "";
-    var vals = [ratio.lleva, ratio.paga];
-    var v = 0;
-    for (var i = 0; i < partes.length; i++) {
-      out += partes[i];
-      if (i < partes.length - 1) {
-        out += (v < vals.length ? vals[v] : "");
-        v++;
-      }
-    }
-    return out;
-  }
-
-  function mountBundlePromociones(widget, cfg) {
-    var uniqueId = NS + "-bundle-" + widget.id;
-    if (qs("#" + uniqueId)) return;
-
-    var target = findProductTarget("before-button");
-    if (!target) {
-      console.warn("[Nevux] No se encontró target para bundle en producto");
-      return;
-    }
-
-    var container = document.createElement("div");
-    container.id = uniqueId;
-    container.className = NS + "-root";
-
-    target.node.parentNode.insertBefore(container, target.node);
-
-    if (cfg.reemplazarBoton && target.node) {
-      target.node.style.display = "none";
-    }
-
-    var idxDefault = 0;
-    for (var i = 0; i < cfg.promociones.length; i++) {
-      if (cfg.promociones[i].marcarPorDefecto) { idxDefault = i; break; }
-    }
-
-    var state = {
-      selectedIdx: idxDefault,
-      comps: cfg.complementarios.map(function () { return cfg.complementariosDefault; }),
-    };
-
-    function render() {
-      container.innerHTML = buildBundlePromocionesHtml(cfg, state);
-      wireEvents();
-    }
-
-    function wireEvents() {
-      qsa("." + NS + "-bundle-card", container).forEach(function (card) {
-        card.addEventListener("click", function (e) {
-          if (e.target && (e.target.tagName === "INPUT" || e.target.closest("." + NS + "-bundle-comp"))) return;
-          var idx = parseInt(card.dataset.idx, 10);
-          if (!isNaN(idx)) {
-            state.selectedIdx = idx;
-            render();
-          }
-        });
-      });
-
-      qsa("." + NS + "-bundle-comp input", container).forEach(function (chk) {
-        chk.addEventListener("change", function () {
-          var idx = parseInt(chk.dataset.compIdx, 10);
-          if (!isNaN(idx)) {
-            state.comps[idx] = chk.checked;
-          }
-        });
-      });
-
-      var btn = qs("." + NS + "-bundle-btn", container);
-      if (btn) {
-        btn.addEventListener("click", function () {
-          var origForm = null;
-          var origBtn = null;
-          if (target.node) {
-            if (target.node.tagName === "FORM") {
-              origForm = target.node;
-            } else {
-              origForm = target.node.closest ? target.node.closest("form") : null;
-              origBtn = target.node;
-            }
-          }
-          if (origForm) {
+        // Sincronizar todos los inputs de cantidad del formulario
+        var qtyInputs = buyForm.querySelectorAll('input[name="quantity"], select[name="quantity"], input.js-quantity-input, select.js-quantity-select, .js-quantity-input, .quantity-input');
+        
+        if (qtyInputs.length > 0) {
+          qtyInputs.forEach(function(el) {
+            el.value = unitsToBuy;
             try {
-              if (typeof origForm.requestSubmit === "function") {
-                origForm.requestSubmit();
-              } else {
-                origForm.submit();
+              el.dispatchEvent(new Event('change', { bubbles: true }));
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+            } catch (err) {
+              if (document.createEvent) {
+                var evt = document.createEvent('HTMLEvents');
+                evt.initEvent('change', true, true);
+                el.dispatchEvent(evt);
               }
-            } catch (e) {
-              var submitBtn = qs('button[type="submit"], input[type="submit"]', origForm);
-              if (submitBtn) submitBtn.click();
             }
-          } else if (origBtn) {
-            origBtn.click();
+          });
+        } else {
+          var hiddenQty = buyForm.querySelector('input[name="quantity"][type="hidden"]');
+          if (!hiddenQty) {
+            hiddenQty = document.createElement('input');
+            hiddenQty.type = 'hidden';
+            hiddenQty.name = 'quantity';
+            buyForm.appendChild(hiddenQty);
           }
-        });
-      }
-    }
+          hiddenQty.value = unitsToBuy;
+        }
 
-    render();
-    console.log("[Nevux] Bundle promociones montado");
+        // Simular click nativo con delay de asimilación
+        setTimeout(function() {
+          var nativeBtn = buyForm.querySelector('button[type="submit"], input[type="submit"], .js-addtocart-btn, .js-buy-button, [data-store="product-buy-button"]');
+          if (nativeBtn) {
+            nativeBtn.click();
+          } else {
+            buyForm.submit();
+          }
+        }, 50);
+      });
+    }
   }
 
-  function buildBundlePromocionesHtml(cfg, state) {
-    var THEMES = {
-      'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff' },
-      'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff' },
-      'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff' },
-      'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff' },
-      'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff' },
-      'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff' },
-      'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff' }
-    };
+  render();
+}
 
-    var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
-    var activeTheme = currentCampaign && THEMES[currentCampaign] ? THEMES[currentCampaign] : null;
+function buildBundlePromocionesHtml(cfg, state) {
+  var THEMES = {
+    'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff' },
+    'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff' },
+    'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff' },
+    'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff' },
+    'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff' },
+    'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff' },
+    'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff' }
+  };
 
-    var colorBoton = activeTheme ? activeTheme.accentColor : cfg.colorBoton;
-    var colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : cfg.colorUnidadSeleccionada;
-    var colorPrecio = activeTheme ? activeTheme.themeColor : cfg.colorPrecio;
+  var currentCampaign = cfg.campaignTheme && cfg.campaignTheme !== "none" ? cfg.campaignTheme : null;
+  var activeTheme = currentCampaign && THEMES[currentCampaign] ? THEMES[currentCampaign] : null;
 
-    var colorTextoBoton = "#ffffff";
-    if (activeTheme) {
-      colorTextoBoton = (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion') ? '#000000' : '#ffffff';
+  var colorBoton = activeTheme ? activeTheme.accentColor : cfg.colorBoton;
+  var colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : cfg.colorUnidadSeleccionada;
+  var colorPrecio = activeTheme ? activeTheme.themeColor : cfg.colorPrecio;
+
+  var colorTextoBoton = "#ffffff";
+  if (activeTheme) {
+    colorTextoBoton = (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion') ? '#000000' : '#ffffff';
+  }
+
+  var precio = detectProductPrice() || 25000;
+
+  var titleHtml = cfg.titulo
+    ? '<div class="' + NS + '-bundle-title" style="color:#111827;font-size:16px;font-weight:800;text-align:center;margin-bottom:12px;">' + escapeHtml(cfg.titulo) + '</div>'
+    : "";
+
+  var cardsHtml = "";
+  for (var i = 0; i < cfg.promociones.length; i++) {
+    var p = cfg.promociones[i];
+    if (p.ocultarEsta) continue;
+
+    var ratio = parsePromoRatio(p.tipo);
+    var etiqueta = formatEtiquetaPromo(p.formatoEtiqueta, ratio);
+
+    var totalOriginal = precio * ratio.lleva;
+    var totalPromo = precio * ratio.paga;
+
+    var isSelected = i === state.selectedIdx;
+    var borderColor = isSelected ? colorUnidadSeleccionada : "#e5e7eb";
+
+    var badgesHtml = "";
+    if (p.badgeEnvioGratis) {
+      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeEnvio + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">Envío gratis</span>';
+    }
+    if (p.badgeMasVendido) {
+      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeMasVendido + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">Más vendido</span>';
+    }
+    if (p.badgePersonalizado) {
+      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgePersonalizado + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">Promo</span>';
+    }
+    if (badgesHtml) {
+      badgesHtml = '<div class="' + NS + '-bundle-badges" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">' + badgesHtml + '</div>';
     }
 
-    var precio = detectProductPrice() || 0;
+    var subtitleHtml = "";
+    if (p.subtitulo) {
+      var bgSub = (cfg.fondoSubtitulo && cfg.fondoSubtitulo !== "transparent" && cfg.fondoSubtitulo !== "")
+        ? 'background:' + cfg.fondoSubtitulo + ';padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;'
+        : "margin-top:4px;";
+      subtitleHtml = '<div class="' + NS + '-bundle-subtitle" style="color:' + cfg.colorSubtitulos + ';font-size:' + cfg.fuenteSubtitulo + 'px;font-weight:700;' + bgSub + '">' + escapeHtml(p.subtitulo) + '</div>';
+    }
 
-    var titleHtml = cfg.titulo
-      ? '<div class="' + NS + '-bundle-title" style="color:#000;font-size:16px;">' + escapeHtml(cfg.titulo) + '</div>'
-      : "";
-
-    var cardsHtml = "";
-    for (var i = 0; i < cfg.promociones.length; i++) {
-      var p = cfg.promociones[i];
-      if (p.ocultarUnidad) continue;
-
-      var ratio = parsePromoRatio(p.tipo);
-      var etiqueta = formatEtiquetaPromo(p.formatoEtiqueta, ratio);
-
-      var precioTotalNormal = precio * ratio.lleva;
-      var precioTotalPromo = precio * ratio.paga;
-
-      var isSelected = i === state.selectedIdx;
-      var borderColor = isSelected ? colorUnidadSeleccionada : "#e5e7eb";
-
-      var badgesHtml = "";
-      if (p.badges.envioGratis) {
-        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeEnvio + ';">Envío gratis</span>';
-      }
-      if (p.badges.masVendido) {
-        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeMasVendido + ';">Más vendido</span>';
-      }
-      if (p.badges.personalizado) {
-        var txtPers = p.badges.personalizadoTexto || "Destacado";
-        badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgePersonalizado + ';">' + escapeHtml(txtPers) + '</span>';
-      }
-      if (badgesHtml) {
-        badgesHtml = '<div class="' + NS + '-bundle-badges">' + badgesHtml + '</div>';
-      }
-
-      var subtitleHtml = "";
-      if (p.subtitulo) {
-        var bgSub = (cfg.fondoSubtitulo && cfg.fondoSubtitulo !== "transparent")
-          ? 'background:' + cfg.fondoSubtitulo + ';padding:2px 6px;border-radius:4px;display:inline-block;'
-          : "";
-        subtitleHtml = '<div class="' + NS + '-bundle-subtitle" style="color:' + cfg.colorSubtitulo + ';font-size:' + cfg.tamanoSubtitulo + ';' + bgSub + '">' + escapeHtml(p.subtitulo) + '</div>';
-      }
-
-      var compsHtml = "";
-      var compsToShow = [];
-      for (var c = 0; c < cfg.complementarios.length; c++) {
-        var oculto = (c === 0 && p.ocultarComp1) || (c === 1 && p.ocultarComp2);
-        if (!oculto && cfg.complementarios[c]) compsToShow.push({ idx: c, prod: cfg.complementarios[c] });
-      }
-      if (compsToShow.length > 0) {
-        var compsInner = "";
-        for (var cc = 0; cc < compsToShow.length; cc++) {
-          var comp = compsToShow[cc];
-          var chk = state.comps[comp.idx] ? "checked" : "";
-          var nombreComp = comp.prod.name || comp.prod.nombre || comp.prod.titulo || ("Producto " + (comp.idx + 1));
-          compsInner += '<label class="' + NS + '-bundle-comp"><input type="checkbox" data-comp-idx="' + comp.idx + '" ' + chk + '/>' + escapeHtml(nombreComp) + '</label>';
-        }
-        compsHtml = '<div class="' + NS + '-bundle-comps">' + compsInner + '</div>';
-      }
-
-      var giftHtml = "";
-      if (p.agregarRegalo) {
-        giftHtml = '<div class="' + NS + '-bundle-gift" style="background:' + cfg.fondoRegalo + ';color:' + cfg.colorTextoRegalo + ';border-radius:6px;">' +
-          '<span class="' + NS + '-bundle-gift-label">🎁 Producto de regalo</span>' +
-          '<span style="color:' + cfg.colorPrecioRegalo + ';font-weight:700;">Gratis</span>' +
-        '</div>';
-      }
-
-      cardsHtml +=
-        '<div class="' + NS + '-bundle-card' + (isSelected ? ' selected' : '') + '" data-idx="' + i + '" style="border-color:' + borderColor + ';border-radius:' + cfg.bordeUnidad + 'px;">' +
-          '<div style="display:flex;align-items:center;gap:12px;width:100%;">' +
-            '<div class="' + NS + '-bundle-radio" style="border-color:' + borderColor + ';"><div class="' + NS + '-bundle-radio-dot" style="background:' + colorUnidadSeleccionada + ';"></div></div>' +
-            '<div class="' + NS + '-bundle-info">' +
-              '<div class="' + NS + '-bundle-label" style="font-size:' + cfg.tamanoEtiqueta + ';">' + escapeHtml(etiqueta) + '</div>' +
-              subtitleHtml +
-              badgesHtml +
+    cardsHtml +=
+      '<div class="' + NS + '-bundle-card' + (isSelected ? ' selected' : '') + '" data-idx="' + i + '" style="border:2px solid ' + borderColor + ';border-radius:' + cfg.bordeUnidad + 'px;padding:12px 14px;background:' + (isSelected ? '#f0fdf4' : '#fff') + ';margin-bottom:8px;cursor:pointer;transition:all 0.2s;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;">' +
+          '<div style="display:flex;align-items:center;gap:10px;">' +
+            '<div class="' + NS + '-bundle-radio" style="width:18px;height:18px;border-radius:50%;border:2.5px solid ' + (isSelected ? colorUnidadSeleccionada : "#9ca3af") + ';background:#fff;display:flex;align-items:center;justify-content:center;">' +
+              (isSelected ? '<div style="width:8px;height:8px;border-radius:50%;background:' + colorUnidadSeleccionada + ';"></div>' : '') +
             '</div>' +
-            '<div class="' + NS + '-bundle-prices">' +
-              (ratio.lleva !== ratio.paga ? '<span class="' + NS + '-bundle-price-old">' + formatMoney(precioTotalNormal) + '</span>' : "") +
-              '<span class="' + NS + '-bundle-price-new" style="color:' + colorPrecio + ';font-size:' + cfg.tamanoPrecio + ';">' + formatMoney(precioTotalPromo) + '</span>' +
+            '<div class="' + NS + '-bundle-info">' +
+              '<div class="' + NS + '-bundle-label" style="font-size:' + cfg.fuenteEtiqueta + 'px;font-weight:800;color:#111827;">' + escapeHtml(etiqueta) + '</div>' +
+              subtitleHtml +
             '</div>' +
           '</div>' +
-          (compsHtml || giftHtml ? '<div style="width:100%;">' + compsHtml + giftHtml + '</div>' : "") +
-        '</div>';
-    }
+          '<div class="' + NS + '-bundle-prices" style="text-align:right;">' +
+            '<div class="' + NS + '-bundle-price-old" style="font-size:11px;color:#9ca3af;text-decoration:line-through;">' + formatMoney(totalOriginal) + '</div>' +
+            '<div class="' + NS + '-bundle-price-new" style="color:' + colorPrecio + ';font-size:' + cfg.fuentePrecio + 'px;font-weight:900;">' + formatMoney(totalPromo) + '</div>' +
+          '</div>' +
+        '</div>' +
+        badgesHtml +
+      '</div>';
+  }
 
-    var btnBg = cfg.botonDegradado
-      ? 'background:linear-gradient(135deg, ' + colorBoton + ' 0%, ' + colorBoton + 'cc 100%);'
-      : 'background:' + colorBoton + ';';
-    var btnClass = NS + "-bundle-btn";
-    if (cfg.efectoBoton === "zoom") btnClass += " zoom";
-    if (cfg.botonPulsante) btnClass += " pulse";
+  var btnBg = cfg.botonDegradado && !activeTheme
+    ? 'background:linear-gradient(90deg, ' + cfg.colorBoton + ' 0%, ' + cfg.colorBoton2 + ' 100%);'
+    : 'background:' + colorBoton + ';';
+  var btnClass = NS + "-bundle-btn";
+  if (cfg.efectoBoton === "zoom") btnClass += " zoom";
+  if (cfg.pulsante) btnClass += " pulse";
 
-    var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:' + colorTextoBoton + ';font-size:' + cfg.tamanoEtiqueta + ';border-radius:' + cfg.bordeBoton + 'px;font-weight:700;">' + escapeHtml(cfg.textoBoton || "Agregar al carrito") + '</button>';
+  var textoBoton = cfg.textoBoton && cfg.textoBoton.trim() !== "" ? cfg.textoBoton : "COMPRAR PROMO";
+  var btnHtml = '<button type="button" class="' + btnClass + '" style="' + btnBg + 'color:' + colorTextoBoton + ';font-size:15px;border-radius:' + cfg.bordeBoton + 'px;font-weight:800;width:100%;padding:12px;border:none;cursor:pointer;margin-top:10px;">' + escapeHtml(textoBoton) + '</button>';
 
-    var infoHtml = !cfg.reemplazarBoton
-      ? '<div class="' + NS + '-bundle-info-note"><span style="opacity:0.7;">ⓘ</span><span>El formulario original de Tiendanube permanecerá visible y funcional.</span></div>'
-      : "";
-
-    return '<div class="' + NS + '-bundle">' +
-      titleHtml +
-      cardsHtml +
-      btnHtml +
-      infoHtml +
-    '</div>';
-                    }
+  return '<div class="' + NS + '-bundle" style="font-family:system-ui,-apple-system,sans-serif;">' +
+    titleHtml +
+    cardsHtml +
+    btnHtml +
+  '</div>';
+ }
 /* ═══════════════════════════════════════════
    WIDGET: BUNDLE DE CANTIDAD
    ═══════════════════════════════════════════ */
