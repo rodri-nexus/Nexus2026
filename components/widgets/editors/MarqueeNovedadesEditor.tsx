@@ -41,7 +41,7 @@ interface MarqueeNovedadesConfig {
   textColor: string;
   fontSize: string;
   campaignTheme?: string;
-  position?: string; // ← Agregado v11 para ubicación dinámica
+  position?: string; // ← Ubicación dinámica v11
 }
 
 /* ═══════════════════════════════════════════
@@ -55,7 +55,7 @@ const defaultConfig: MarqueeNovedadesConfig = {
   textColor: '#ffffff',
   fontSize: '14',
   campaignTheme: 'none',
-  position: 'above_form', // Default: arriba de la caja de compra
+  position: 'above_form', 
 };
 
 const DUR: Record<string, string> = {
@@ -443,22 +443,47 @@ export default function MarqueeNovedadesEditor({
         </div>
       </div>
 
-      {/* Selector de Posición (Dinámico para Producto) */}
+      {/* ⚡ SELECTOR DE POSICIÓN DESTACADO v11 (Imposible de ignorar) */}
       {!isForAll && (
-        <div style={{ marginBottom: 24 }}>
-          <FieldLabel>Ubicación en la tienda</FieldLabel>
-          <FieldHelper>Elegí dónde querés que se muestre el marquee dentro de la página del producto.</FieldHelper>
-          <div style={{ marginTop: 12 }}>
+        <div style={{ 
+          marginBottom: 28,
+          background: '#f0fdf4', // Fondo verde suave
+          borderLeft: '4px solid #10B981', // Borde verde brillante
+          padding: '20px 16px',
+          borderRadius: '0 12px 12px 0',
+          boxShadow: '0 2px 12px rgba(16, 185, 129, 0.05)',
+          boxSizing: 'border-box'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 18 }}>📍</span>
+            <label style={{ fontSize: 16, fontWeight: 800, color: '#065f46', display: 'flex', alignItems: 'center', gap: 8 }}>
+              Ubicación en la tienda
+              <span style={{
+                background: '#10B981',
+                color: '#ffffff',
+                fontSize: '10px',
+                fontWeight: 900,
+                padding: '2px 8px',
+                borderRadius: '999px',
+                letterSpacing: '0.05em',
+                boxShadow: '0 2px 6px rgba(16, 185, 129, 0.2)'
+              }}>
+                ¡NUEVO!
+              </span>
+            </label>
+          </div>
+          <FieldHelper>Elegí dónde querés que se muestre la cinta dentro de la página del producto.</FieldHelper>
+          <div style={{ marginTop: 14 }}>
             <SelectField
               value={config.position || 'above_form'}
               onChange={(v) => update('position', v)}
               options={[
                 { value: 'above_form', label: 'Arriba del bloque de compra (Por defecto)' },
-                { value: 'below_image', label: '🖼️ Abajo de la foto del producto' },
+                { value: 'below_image', label: '🖼️ Abajo de la foto del producto (Recomendado)' },
                 { value: 'above_price', label: '💵 Arriba del precio' },
                 { value: 'below_price', label: '💵 Abajo del precio' },
-                { value: 'above_buy', label: '🛒 Arriba del botón de comprar' },
-                { value: 'below_buy', label: '🛒 Abajo del botón de comprar' },
+                { value: 'above_buy', label: '🛒 Arriba del botón de agregar al carrito' },
+                { value: 'below_buy', label: '🛒 Abajo del botón de agregar al carrito' },
               ]}
             />
           </div>
@@ -814,4 +839,4 @@ export default function MarqueeNovedadesEditor({
       </div>
     </div>
   );
-                     }
+   }
