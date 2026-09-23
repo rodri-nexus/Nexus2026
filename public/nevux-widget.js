@@ -9092,7 +9092,7 @@
     } catch(e) {}
   }
 /* ═══════════════════════════════════════════
-   WIDGET: MARQUEE DE NOVEDADES
+   WIDGET: MARQUEE DE NOVEDADES (v11 Ubicación Dinámica)
    ═══════════════════════════════════════════ */
 function renderMarqueeNovedades(w) {
   if (document.getElementById('nvx-marquee-' + w.id)) return;
@@ -9107,6 +9107,7 @@ function renderMarqueeNovedades(w) {
   var bgColor = cfg.bgColor || '#111827';
   var textColor = cfg.textColor || '#ffffff';
   var fontSize = (cfg.fontSize || '14') + 'px';
+  var pos = cfg.position || 'above_form'; // ← Posición dinámica guardada
 
   var dur = speed === 'lento' ? '24s' : speed === 'rapido' ? '8s' : '14s';
   var animName = direction === 'right' ? 'nvxMqR' : 'nvxMqL';
@@ -9122,7 +9123,7 @@ function renderMarqueeNovedades(w) {
   var container = document.createElement('div');
   container.id = 'nvx-marquee-' + w.id;
   container.className = 'nvx-widget nvx-marquee-wrapper';
-  container.style.cssText = 'width:100%;overflow:hidden;background:' + bgColor + ';padding:10px 0;box-sizing:border-box;margin:8px 0;position:relative;z-index:99;cursor:default;';
+  container.style.cssText = 'width:100%;overflow:hidden;background:' + bgColor + ';padding:10px 0;box-sizing:border-box;margin:12px 0;position:relative;z-index:99;cursor:default;';
 
   var track = document.createElement('div');
   track.style.cssText = 'display:flex;white-space:nowrap;width:max-content;animation:' + animName + ' ' + dur + ' linear infinite;';
@@ -9140,12 +9141,42 @@ function renderMarqueeNovedades(w) {
   track.innerHTML = html;
   container.appendChild(track);
 
-  // Inserción en el DOM
+  // Inserción en el DOM con Inteligencia de Ubicación Tiendanube
   var targetEl = null;
+  var insertMethod = 'before'; // 'before' o 'after'
+
   if (w.target_type === 'product' && w.target_product_id) {
-    targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+    var buyForm = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+
+    if (pos === 'below_image') {
+      targetEl = document.querySelector('.js-product-image-container, .product-image-container, .js-product-slide-container, #product-image-container, .js-product-viewport, .product-gallery, .js-product-img-holder');
+      insertMethod = 'after';
+    } else if (pos === 'above_price') {
+      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container');
+      insertMethod = 'before';
+    } else if (pos === 'below_price') {
+      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container');
+      insertMethod = 'after';
+    } else if (pos === 'above_buy') {
+      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button');
+      insertMethod = 'before';
+    } else if (pos === 'below_buy') {
+      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button');
+      insertMethod = 'after';
+    }
+
+    // Fallback absoluto: si el elemento elegido no existe en la plantilla del cliente, lo inserta arriba del form de compra
+    if (!targetEl) {
+      targetEl = buyForm;
+      insertMethod = 'before';
+    }
+
     if (targetEl && targetEl.parentNode) {
-      targetEl.parentNode.insertBefore(container, targetEl);
+      if (insertMethod === 'before') {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      }
     }
   } else {
     // Si es global (Home / Todas las páginas)
@@ -9165,7 +9196,6 @@ function renderMarqueeNovedades(w) {
     nvxTrack(w.id, 'impression');
   }
 }
-
  /* ═══════════════════════════════════════════
    WIDGET: HORARIO DE ATENCIÓN
    ═══════════════════════════════════════════ */
