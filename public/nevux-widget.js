@@ -2606,7 +2606,7 @@
     }
         }
 /* ═══════════════════════════════════════════
-   WIDGET: BUNDLE PROMOCIONES (v12.3 BLINDADO)
+   WIDGET: BUNDLE PROMOCIONES (v12.4 FIX ETIQUETA)
    ═══════════════════════════════════════════ */
 function renderBundlePromociones(widget) {
   if (pageType !== "product") return;
@@ -2629,7 +2629,6 @@ function normalizeBundlePromocionesConfig(raw) {
     var pKey = typeof item === 'string' ? item : (item && item.tipo ? item.tipo : '2x1');
     var u = {};
 
-    // Compatibilidad con esquemas anteriores guardados en Supabase
     if (typeof item === 'object' && item !== null) {
       u = item;
     }
@@ -2688,11 +2687,20 @@ function parsePromoRatio(tipo) {
   };
 }
 
+// FIX CRÍTICO ETIQUETA: Reemplazo robusto anti "lleva-paga"
 function formatEtiquetaPromo(formato, ratio) {
-  var parts = String(formato).split("#");
+  var fmt = String(formato || "").trim();
+
+  // Si el valor guardado es el slug "lleva-paga" o no contiene '#', autocompletamos con formato correcto
+  if (!fmt || fmt === "lleva-paga" || fmt.indexOf("#") === -1) {
+    return "Lleva " + ratio.lleva + " paga " + ratio.paga;
+  }
+
+  var parts = fmt.split("#");
   var out = "";
   var vals = [ratio.lleva, ratio.paga];
   var v = 0;
+
   for (var i = 0; i < parts.length; i++) {
     out += parts[i];
     if (i < parts.length - 1) {
@@ -2793,9 +2801,8 @@ function mountBundlePromociones(widget, cfg) {
       btn.addEventListener("click", function () {
         var activePromo = cfg.promociones[state.selectedIdx];
         var ratio = parsePromoRatio(activePromo.tipo);
-        var unitsToBuy = ratio.lleva; // Para 2x1 -> 2 unidades; Para 3x2 -> 3 unidades.
+        var unitsToBuy = ratio.lleva;
 
-        // Forzar actualización nativa en todos los campos de cantidad
         var allQtyInputs = buyForm.querySelectorAll('input[name="quantity"], select[name="quantity"], input.js-quantity-input, select.js-quantity-select, .js-quantity-input, .quantity-input, input[type="number"]');
         
         if (allQtyInputs.length > 0) {
@@ -2819,7 +2826,6 @@ function mountBundlePromociones(widget, cfg) {
           });
         }
 
-        // Input hidden de respaldo en el formulario
         var hiddenQty = buyForm.querySelector('input[name="quantity"][type="hidden"]');
         if (!hiddenQty) {
           hiddenQty = document.createElement('input');
@@ -2829,7 +2835,6 @@ function mountBundlePromociones(widget, cfg) {
         }
         hiddenQty.value = unitsToBuy;
 
-        // Micro-delay de 50ms para asimilación de la plantilla antes del submit
         setTimeout(function() {
           var nativeBtn = buyForm.querySelector('button[type="submit"], input[type="submit"], .js-addtocart-btn, .js-buy-button, [data-store="product-buy-button"]');
           if (nativeBtn) {
@@ -2946,7 +2951,7 @@ function buildBundlePromocionesHtml(cfg, state) {
     cardsHtml +
     btnHtml +
   '</div>';
-    }
+      }
 /* ═══════════════════════════════════════════
    WIDGET: BUNDLE DE CANTIDAD
    ═══════════════════════════════════════════ */
