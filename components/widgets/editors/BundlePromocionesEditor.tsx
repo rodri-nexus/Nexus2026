@@ -1,14 +1,59 @@
-// components/widgets/editors/BundlePromocionesEditor.tsx
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS E INTERFACES (Regla #9)
+   TIPOS Y CONSTANTES (Regla #9)
 ═══════════════════════════════════════════ */
+interface PromoConfig {
+  tipo: string;
+  formatoEtiqueta: string;
+  subtitulo: string;
+  badgeEnvioGratis: boolean;
+  badgeMasVendido: boolean;
+  badgePersonalizado: boolean;
+  marcarPorDefecto: boolean;
+  ocultarEsta: boolean;
+}
+
+interface BundlePromocionesConfig {
+  titulo: string;
+  textoBoton: string;
+  promociones: string[];
+  configPromos: Record<string, PromoConfig>;
+  reemplazarBoton: boolean;
+  colorBoton: string;
+  botonDegradado: boolean;
+  colorBoton2: string;
+  colorPrecio: string;
+  colorSubtitulos: string;
+  fondoSubtitulo: string;
+  colorBadgeEnvio: string;
+  colorBadgePersonalizado: string;
+  colorBadgeMasVendido: string;
+  colorUnidadSeleccionada: string;
+  bordeBoton: number;
+  bordeUnidad: number;
+  fuenteEtiqueta: number;
+  fuentePrecio: number;
+  fuenteSubtitulo: number;
+  efectoBoton: 'sin-efecto' | 'zoom';
+  pulsante: boolean;
+  campaignTheme?: string;
+  position?: string;
+}
+
+interface ExistingWidget {
+  id: string;
+  config: any;
+  is_active: boolean;
+  target_type: string;
+  target_product_id: number | null;
+}
+
 interface EditorProps {
   widgetDefinition: {
     id: string;
@@ -18,394 +63,235 @@ interface EditorProps {
     category: string;
     icon: string;
   };
-  existingWidget: {
-    id: string;
-    config: any;
-    is_active: boolean;
-    target_type: string;
-    target_product_id: number | null;
-  } | null;
+  existingWidget: ExistingWidget | null;
   targetType: 'product' | 'all';
   productId: number | null;
   storeId: string;
 }
 
-interface BundlePromocionesPreviewProps {
-  config: {
-    titulo?: string;
-    textoBoton?: string;
-    promociones?: string[];
-    configPromos?: Record<string, any>;
-    colorBoton?: string;
-    fondoDegrade?: boolean;
-    colorPrecio?: string;
-    colorSubtitulos?: string;
-    fondoSubtitulo?: string;
-    colorTextoRegalo?: string;
-    colorPrecioRegalo?: string;
-    fondoRegalo?: string;
-    colorBadgeEnvio?: string;
-    colorBadgePersonalizado?: string;
-    colorBadgeMasVendido?: string;
-    colorUnidadSeleccionada?: string;
-    bordeBoton?: number;
-    bordeUnidad?: number;
-    tamanoEtiqueta?: string;
-    tamanoPrecio?: string;
-    tamanoSubtitulo?: string;
-    efectoBoton?: 'sin-efecto' | 'zoom';
-    pulsante?: boolean;
-    campaignTheme?: string;
-  };
-}
+const PROMOS_DISPONIBLES = ['2x1', '3x2', '4x3', '3x1', '4x2', '5x3'];
 
-/* ═══════════════════════════════════════════
-   CONSTANTES Y PRESETS (Regla #9)
-═══════════════════════════════════════════ */
-const PROMOS_DISPONIBLES = ['2x1', '3x1', '3x2', '4x2', '4x3', '5x3', '5x4', '6x2', '6x3', '6x4'];
-
-const DEFAULT_PROMO_CONFIG = {
-  formatoEtiqueta: 'lleva-paga',
-  subtitulo: '',
+const DEFAULT_PROMO: PromoConfig = {
+  tipo: '2x1',
+  formatoEtiqueta: 'Lleva # paga #',
+  subtitulo: 'Ahorro exclusivo',
   badgeEnvioGratis: false,
   badgeMasVendido: false,
   badgePersonalizado: false,
-  ocultarComp1: false,
-  ocultarComp2: false,
-  agregarRegalo: false,
   marcarPorDefecto: false,
   ocultarEsta: false,
 };
 
-const DEFAULT_CONFIG = {
-  titulo: '',
-  textoBoton: '',
-  promociones: ['2x1'] as string[],
+const DEFAULT_CONFIG: BundlePromocionesConfig = {
+  titulo: '🎁 ¡Promociones Imperdibles de la Semana!',
+  textoBoton: 'COMPRAR PROMO',
+  promociones: ['2x1', '3x2'],
   configPromos: {
-    '2x1': { ...DEFAULT_PROMO_CONFIG, marcarPorDefecto: true },
-  } as Record<string, any>,
-  producto1: '',
-  producto2: '',
-  productosCheckedDefault: false,
-  reemplazarBoton: false,
+    '2x1': { ...DEFAULT_PROMO, tipo: '2x1', subtitulo: 'Pagas solo 1 unidad', marcarPorDefecto: true, badgeMasVendido: true },
+    '3x2': { ...DEFAULT_PROMO, tipo: '3x2', subtitulo: 'Llevas 1 unidad GRATIS', badgeEnvioGratis: true },
+  },
+  reemplazarBoton: true,
   colorBoton: '#10B981',
-  fondoDegrade: false,
-  colorPrecio: '#000000',
-  colorSubtitulos: '#059669',
-  fondoSubtitulo: 'transparent',
-  colorTextoRegalo: '#000000',
-  colorPrecioRegalo: '#16a34a',
-  fondoRegalo: '#ecfdf5',
+  botonDegradado: true,
+  colorBoton2: '#059669',
+  colorPrecio: '#111827',
+  colorSubtitulos: '#047857',
+  fondoSubtitulo: '#ecfdf5',
   colorBadgeEnvio: '#10B981',
   colorBadgePersonalizado: '#F59E0B',
   colorBadgeMasVendido: '#EF4444',
   colorUnidadSeleccionada: '#10B981',
-  bordeBoton: 25,
-  bordeUnidad: 8,
-  tamanoEtiqueta: '16px',
-  tamanoPrecio: '18px',
-  tamanoSubtitulo: '14px',
-  efectoBoton: 'sin-efecto' as 'sin-efecto' | 'zoom',
+  bordeBoton: 10,
+  bordeUnidad: 12,
+  fuenteEtiqueta: 16,
+  fuentePrecio: 18,
+  fuenteSubtitulo: 13,
+  efectoBoton: 'zoom',
   pulsante: true,
   campaignTheme: 'none',
+  position: 'above_buy',
 };
 
-const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string }> = {
-  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff' },
-  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff' },
-  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff' },
-  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff' },
-  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff' },
-  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff' },
-  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff' },
+const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBg: string }> = {
+  'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff', badgeBg: '#F59E0B' },
+  'hot-sale': { themeColor: '#0F172A', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'cyber-monday': { themeColor: '#090D16', accentColor: '#3B82F6', textColor: '#ffffff', badgeBg: '#3B82F6' },
+  'navidad': { themeColor: '#064E3B', accentColor: '#EF4444', textColor: '#ffffff', badgeBg: '#EF4444' },
+  'san-valentin': { themeColor: '#831843', accentColor: '#F43F5E', textColor: '#ffffff', badgeBg: '#F43F5E' },
+  'dia-padre-madre': { themeColor: '#312E81', accentColor: '#10B981', textColor: '#ffffff', badgeBg: '#10B981' },
+  'liquidacion': { themeColor: '#7F1D1D', accentColor: '#FBBF24', textColor: '#ffffff', badgeBg: '#FBBF24' },
 };
 
 const CAMPAIGN_PRESETS = [
-  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilo.' },
-  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
-  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros y dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo espacial y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino con acento rojo.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso y rojo pasión.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día del Padre / Madre', emoji: '🎁', desc: 'Azul con acento verde alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
 ];
 
 /* ═══════════════════════════════════════════
-   ICONOS AUXILIARES (Regla #9)
+   HELPERS GLOBALES (Regla #9)
 ═══════════════════════════════════════════ */
-function IconStore() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2">
-      <path
-        d="M3 9l1-5h16l1 5M4 9v10a1 1 0 001 1h14a1 1 0 001-1V9M9 22V12h6v10"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+function parseRatio(tipo: string) {
+  const parts = tipo.split('x');
+  return {
+    lleva: Number(parts[0]) || 1,
+    paga: Number(parts[1]) || 1,
+  };
 }
 
-function IconInfo() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" style={{ flexShrink: 0, marginTop: 2 }}>
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
-    </svg>
-  );
+function formatPromoLabel(formato: string, tipo: string) {
+  const ratio = parseRatio(tipo);
+  return formato.replace(/#/g, (_, offset) => {
+    return offset === 0 ? String(ratio.lleva) : String(ratio.paga);
+  });
 }
 
-function IconInfoSmall() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
-    </svg>
-  );
+function formatMoney(n: number): string {
+  return '$' + Math.round(n).toLocaleString('es-AR');
 }
 
 /* ═══════════════════════════════════════════
-   PREVIEW INTEGRADO (antes BundlePromocionesPreview.tsx)
+   VISTA PREVIA INTEGRADA PREMIUM
 ═══════════════════════════════════════════ */
-function BundlePromocionesPreview({ config }: BundlePromocionesPreviewProps) {
-  const currentCampaign = config.campaignTheme && config.campaignTheme !== 'none' ? config.campaignTheme : null;
+function BundlePromocionesPreview({ config, precioProducto = 25000 }: { config: BundlePromocionesConfig; precioProducto?: number }) {
+  const [selected, setSelected] = useState<string>(() => {
+    const key = Object.keys(config.configPromos).find((k) => config.configPromos[k]?.marcarPorDefecto);
+    return key || config.promociones[0] || '2x1';
+  });
+
+  useEffect(() => {
+    const key = Object.keys(config.configPromos).find((k) => config.configPromos[k]?.marcarPorDefecto);
+    if (key) setSelected(key);
+  }, [config.configPromos]);
+
+  const currentCampaign = config.campaignTheme !== 'none' ? config.campaignTheme : null;
   const activeTheme = currentCampaign ? THEMES[currentCampaign] : null;
 
-  const colorBoton = activeTheme ? activeTheme.accentColor : (config.colorBoton || '#10B981');
-  const colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : (config.colorUnidadSeleccionada || '#10B981');
-  const colorPrecio = activeTheme ? activeTheme.themeColor : (config.colorPrecio || '#000000');
-  
-  const colorTextoBoton = activeTheme
-    ? (currentCampaign === 'black-friday' || currentCampaign === 'liquidacion' ? '#000000' : '#ffffff')
-    : '#ffffff';
+  const colorBoton = activeTheme ? activeTheme.accentColor : config.colorBoton;
+  const colorUnidadSeleccionada = activeTheme ? activeTheme.accentColor : config.colorUnidadSeleccionada;
+  const colorPrecio = activeTheme ? activeTheme.themeColor : config.colorPrecio;
 
-  const fondoDegrade = config.fondoDegrade || false;
-  const bordeBoton = config.bordeBoton ?? 25;
-  const bordeUnidad = config.bordeUnidad ?? 8;
-  const tamanoEtiqueta = config.tamanoEtiqueta || '16px';
-  const tamanoPrecio = config.tamanoPrecio || '18px';
-  const pulsante = config.pulsante ?? true;
-
-  const bgBoton = fondoDegrade
-    ? `linear-gradient(90deg, ${colorBoton}, ${colorBoton}dd)`
+  const bgBoton = config.botonDegradado && !activeTheme
+    ? `linear-gradient(90deg, ${config.colorBoton}, ${config.colorBoton2})`
     : colorBoton;
 
   return (
-    <div
-      style={{
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-        padding: '16px 0',
-      }}
-    >
+    <div style={{
+      border: '1.5px solid #e5e7eb',
+      borderRadius: 16,
+      padding: 16,
+      background: '#FFFFFF',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+    }}>
       {config.titulo && (
-        <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 12, textAlign: 'center' }}>
           {config.titulo}
         </div>
       )}
 
-      <div
-        style={{
-          border: `2px solid ${colorUnidadSeleccionada}`,
-          borderRadius: bordeUnidad,
-          padding: '16px 18px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: '#ffffff',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: '50%',
-              border: `2px solid ${colorUnidadSeleccionada}`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: colorUnidadSeleccionada,
-              }}
-            />
-          </div>
-          <div
-            style={{
-              fontSize: tamanoEtiqueta,
-              fontWeight: 600,
-              color: '#111827',
-            }}
-          >
-            Lleva 2 paga 1
-          </div>
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {config.promociones.map((p) => {
+          const pc = config.configPromos[p] || DEFAULT_PROMO;
+          if (pc.ocultarEsta) return null;
 
-        <div style={{ textAlign: 'right' }}>
-          <div
-            style={{
-              fontSize: 13,
-              color: '#9ca3af',
-              textDecoration: 'line-through',
-              lineHeight: 1.2,
-            }}
-          >
-            $60000.00
-          </div>
-          <div
-            style={{
-              fontSize: tamanoPrecio,
-              fontWeight: 700,
-              color: colorPrecio,
-              lineHeight: 1.2,
-            }}
-          >
-            $30000.00
-          </div>
-        </div>
+          const isSelected = selected === p;
+          const ratio = parseRatio(p);
+          const totalOriginal = precioProducto * ratio.lleva;
+          const totalPromo = precioProducto * ratio.paga;
+
+          return (
+            <div
+              key={p}
+              onClick={() => setSelected(p)}
+              style={{
+                border: `2px solid ${isSelected ? colorUnidadSeleccionada : '#e5e7eb'}`,
+                borderRadius: config.bordeUnidad,
+                padding: '12px 14px',
+                background: isSelected ? '#f0fdf4' : '#FFFFFF',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: '50%',
+                    border: `2.5px solid ${isSelected ? colorUnidadSeleccionada : '#d1d5db'}`,
+                    background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    {isSelected && <div style={{ width: 8, height: 8, borderRadius: '50%', background: colorUnidadSeleccionada }} />}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: config.fuenteEtiqueta, fontWeight: 800, color: '#111827' }}>
+                      Lleva {ratio.lleva} paga {ratio.paga}
+                    </div>
+                    {pc.subtitulo && (
+                      <span style={{
+                        fontSize: config.fuenteSubtitulo,
+                        color: config.colorSubtitulos,
+                        background: config.fondoSubtitulo || '#ecfdf5',
+                        padding: '2px 6px',
+                        borderRadius: 4,
+                        fontWeight: 700,
+                        display: 'inline-block',
+                        marginTop: 4
+                      }}>
+                        {pc.subtitulo}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 11, color: '#9ca3af', textDecoration: 'line-through' }}>
+                    {formatMoney(totalOriginal)}
+                  </div>
+                  <div style={{ fontSize: config.fuentePrecio, fontWeight: 900, color: colorPrecio }}>
+                    {formatMoney(totalPromo)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Badges */}
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 8 }}>
+                {pc.badgeEnvioGratis && <span style={{ fontSize: 9, fontWeight: 900, background: config.colorBadgeEnvio, color: '#fff', padding: '2px 6px', borderRadius: 4 }}>ENVÍO GRATIS</span>}
+                {pc.badgeMasVendido && <span style={{ fontSize: 9, fontWeight: 900, background: config.colorBadgeMasVendido, color: '#fff', padding: '2px 6px', borderRadius: 4 }}>MÁS VENDIDO</span>}
+                {pc.badgePersonalizado && <span style={{ fontSize: 9, fontWeight: 900, background: config.colorBadgePersonalizado, color: '#fff', padding: '2px 6px', borderRadius: 4 }}>PROMO</span>}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <button
-        type="button"
-        style={{
-          width: '100%',
-          background: bgBoton,
-          color: colorTextoBoton,
-          border: 'none',
-          borderRadius: bordeBoton,
-          padding: '16px 20px',
-          fontSize: 16,
-          fontWeight: 700,
-          cursor: 'pointer',
-          animation: pulsante ? 'nevuxBundlePulse 1.6s ease-in-out infinite' : 'none',
-          transition: 'transform 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          if (config.efectoBoton === 'zoom') {
-            e.currentTarget.style.transform = 'scale(1.03)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
-      >
-        {config.textoBoton || 'Agregar al carrito'}
+      <button style={{
+        width: '100%',
+        padding: '12px',
+        background: bgBoton,
+        color: '#FFFFFF',
+        fontWeight: 800,
+        fontSize: 15,
+        border: 'none',
+        borderRadius: config.bordeBoton,
+        marginTop: 14,
+        cursor: 'pointer'
+      }}>
+        {config.textoBoton || 'COMPRAR PROMO'}
       </button>
-
-      <style>{`
-        @keyframes nevuxBundlePulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.25); }
-          50% { box-shadow: 0 0 0 8px rgba(0,0,0,0); }
-        }
-      `}</style>
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTES AUXILIARES DEL EDITOR (Regla #9)
+   SUB-COMPONENTES AUXILIARES DEL EDITOR
 ═══════════════════════════════════════════ */
-function Header() {
+function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        background: '#ffffff',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '14px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <NevuxLogo size="medium" />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            background: '#000000',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 13,
-            color: '#ffffff',
-          }}
-        >
-          RL
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Tabs({
-  activeTab,
-  onChange,
-}: {
-  activeTab: string;
-  onChange: (t: 'general' | 'ubicacion' | 'estilo' | 'fechas') => void;
-}) {
-  const tabs: { key: 'general' | 'ubicacion' | 'estilo' | 'fechas'; label: string }[] = [
-    { key: 'general', label: 'General' },
-    { key: 'ubicacion', label: 'Ubicación' },
-    { key: 'estilo', label: 'Estilo' },
-    { key: 'fechas', label: '🔥 Fechas Especiales' },
-  ];
-  return (
-    <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb' }}>
-      {tabs.map((t) => (
-        <button
-          key={t.key}
-          type="button"
-          onClick={() => onChange(t.key)}
-          style={{
-            flex: 1,
-            background: 'transparent',
-            border: 'none',
-            padding: '14px 8px',
-            fontSize: 14,
-            fontWeight: activeTab === t.key ? 700 : 500,
-            color: activeTab === t.key ? '#10B981' : '#000000',
-            opacity: activeTab === t.key ? 1 : 0.6,
-            borderBottom:
-              activeTab === t.key ? '2px solid #10B981' : '2px solid transparent',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-            transition: 'all 0.2s',
-          }}
-        >
-          {t.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function FieldLabel({ children, small }: { children: React.ReactNode; small?: boolean }) {
-  return (
-    <div
-      style={{
-        fontSize: small ? 14 : 15,
-        fontWeight: 700,
-        color: '#000000',
-        marginBottom: 8,
-      }}
-    >
+    <div style={{ fontSize: 14, fontWeight: 700, color: '#1f2937', marginBottom: 6 }}>
       {children}
     </div>
   );
@@ -413,9 +299,7 @@ function FieldLabel({ children, small }: { children: React.ReactNode; small?: bo
 
 function FieldHelper({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
-      {children}
-    </div>
+    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4, lineHeight: 1.4 }}>{children}</div>
   );
 }
 
@@ -423,461 +307,182 @@ function TextInput({
   value,
   onChange,
   placeholder,
+  type = 'text',
 }: {
-  value: string;
+  value: string | number;
   onChange: (v: string) => void;
   placeholder?: string;
+  type?: string;
 }) {
   return (
     <input
-      type="text"
+      type={type}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       style={{
         width: '100%',
-        border: '1.5px solid #e5e7eb',
-        borderRadius: 10,
-        padding: '12px 14px',
-        fontSize: 15,
-        color: '#000000',
-        background: '#ffffff',
+        padding: '10px 12px',
+        border: '1.5px solid #E5E7EB',
+        borderRadius: 8,
+        fontSize: 14,
+        color: '#111827',
+        background: '#FFFFFF',
         outline: 'none',
         boxSizing: 'border-box',
         fontFamily: 'inherit',
       }}
-      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
   );
 }
 
-function CheckboxSmall({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <label
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        cursor: 'pointer',
-        fontSize: 14,
-        fontWeight: 600,
-        color: '#000000',
-      }}
-    >
-      <div
-        onClick={(e) => {
-          e.preventDefault();
-          onChange();
-        }}
-        style={{
-          width: 20,
-          height: 20,
-          borderRadius: 5,
-          border: checked ? '2px solid #10B981' : '2px solid #d1d5db',
-          background: checked ? '#10B981' : '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          transition: 'all 0.2s',
-        }}
-      >
-        {checked && (
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M5 12l5 5L20 7"
-              stroke="#ffffff"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-      </div>
-      {label}
-    </label>
-  );
-}
-
-function CheckboxRow({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <label
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 10,
-        cursor: 'pointer',
-        fontSize: 14,
-        color: '#000000',
-        fontWeight: 500,
-      }}
-    >
-      <div
-        onClick={(e) => {
-          e.preventDefault();
-          onChange(!checked);
-        }}
-        style={{
-          width: 20,
-          height: 20,
-          borderRadius: 5,
-          border: checked ? '2px solid #10B981' : '2px solid #d1d5db',
-          background: checked ? '#10B981' : '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          marginTop: 1,
-          transition: 'all 0.2s',
-        }}
-      >
-        {checked && (
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M5 12l5 5L20 7"
-              stroke="#ffffff"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-      </div>
-      <span style={{ lineHeight: 1.4 }}>{label}</span>
-    </label>
-  );
-}
-
-function Divider() {
-  return <div style={{ height: 1, background: '#e5e7eb', margin: '14px 0' }} />;
-}
-
-function SectionCard({
-  icon,
-  title,
-  subtitle,
-  children,
-}: {
-  icon: string;
-  title: string;
-  subtitle: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        background: '#ffffff',
-        border: '1px solid #e5e7eb',
-        borderRadius: 14,
-        padding: 18,
-      }}
-    >
-      <div style={{ textAlign: 'center', marginBottom: 16 }}>
-        <div style={{ fontWeight: 700, fontSize: 16, color: '#000000', marginBottom: 4 }}>{title}</div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            color: '#000000',
-            opacity: 0.6,
-            fontSize: 13,
-            lineHeight: 1.5,
-          }}
-        >
-          <span style={{ color: '#10B981', fontSize: 15 }}>{icon}</span>
-          <span>{subtitle}</span>
-        </div>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>{children}</div>
-    </div>
-  );
-}
-
-function ColorPickerField({
-  label,
-  value,
-  onChange,
-  allowTransparent,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  allowTransparent?: boolean;
-}) {
-  const isTransparent = value === 'transparent' || !value;
-  const displayValue = isTransparent ? '' : value;
-
-  return (
-    <div>
-      <FieldLabel small>{label}</FieldLabel>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ position: 'relative' }}>
-          <input
-            type="color"
-            value={isTransparent ? '#ffffff' : value}
-            onChange={(e) => onChange(e.target.value)}
-            style={{
-              width: 44,
-              height: 40,
-              border: '1.5px solid #e5e7eb',
-              borderRadius: 8,
-              cursor: 'pointer',
-              padding: 2,
-              background: isTransparent ? '#ffffff' : value,
-            }}
-          />
-        </div>
-        <input
-          type="text"
-          value={displayValue}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={allowTransparent ? 'Transparente' : ''}
-          style={{
-            flex: 1,
-            border: '1.5px solid #e5e7eb',
-            borderRadius: 8,
-            padding: '10px 12px',
-            fontSize: 13,
-            color: '#000000',
-            background: '#ffffff',
-            outline: 'none',
-            fontFamily: 'monospace',
-          }}
-        />
-        {allowTransparent && !isTransparent && (
-          <button
-            type="button"
-            onClick={() => onChange('transparent')}
-            style={{
-              background: '#f3f4f6',
-              border: '1px solid #e5e7eb',
-              borderRadius: 8,
-              width: 34,
-              height: 34,
-              cursor: 'pointer',
-              fontSize: 14,
-              color: '#000000',
-              opacity: 0.6,
-            }}
-            title="Transparente"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ToggleField({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <Toggle checked={checked} onChange={onChange} />
-      <span style={{ fontSize: 15, fontWeight: 600, color: '#000000' }}>{label}</span>
-    </div>
-  );
-}
-
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      style={{
-        width: 44,
-        height: 26,
-        borderRadius: 999,
-        background: checked ? '#10B981' : '#d1d5db',
-        border: 'none',
-        position: 'relative',
-        cursor: 'pointer',
-        transition: 'background 0.25s',
-        flexShrink: 0,
-      }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          top: 3,
-          left: checked ? 21 : 3,
-          width: 20,
-          height: 20,
-          borderRadius: '50%',
-          background: '#ffffff',
-          transition: 'left 0.25s',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-        }}
-      />
-    </button>
-  );
-}
-
 function SelectField({
-  label,
   value,
   onChange,
   options,
 }: {
-  label?: string;
-  value: string;
+  value: string | number;
   onChange: (v: string) => void;
-  options: { value: string; label: string }[];
+  options: { value: string | number; label: string }[];
 }) {
   return (
-    <div>
-      {label && <FieldLabel small>{label}</FieldLabel>}
-      <select
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '10px 12px',
+        border: '1.5px solid #E5E7EB',
+        borderRadius: 8,
+        fontSize: 14,
+        color: '#111827',
+        background: '#FFFFFF',
+        outline: 'none',
+        boxSizing: 'border-box',
+        fontFamily: 'inherit',
+      }}
+    >
+      {options.map((o) => (
+        <option key={String(o.value)} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function ColorPickerField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+      <div style={{
+        width: 38,
+        height: 38,
+        borderRadius: 6,
+        border: '1px solid #E5E7EB',
+        background: value,
+        cursor: 'pointer',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            cursor: 'pointer',
+            width: '100%',
+            height: '100%'
+          }}
+        />
+      </div>
+      <input
+        type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{
-          width: '100%',
-          border: '1.5px solid #e5e7eb',
-          borderRadius: 10,
-          padding: '12px 14px',
-          fontSize: 15,
-          background: '#ffffff',
-          color: '#000000',
-          outline: 'none',
-          appearance: 'none',
-          backgroundImage:
-            "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e\")",
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'right 14px center',
-          fontFamily: 'inherit',
+          flex: 1,
+          padding: '8px 10px',
+          border: '1.5px solid #E5E7EB',
+          borderRadius: 6,
+          fontSize: 13,
+          fontFamily: 'monospace'
         }}
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+      />
     </div>
   );
 }
 
-function RangeSlider({
-  label,
-  value,
+function CheckboxSimple({
+  checked,
   onChange,
-  min,
-  max,
+  label,
 }: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
   label: string;
-  value: number;
-  onChange: (v: number) => void;
-  min: number;
-  max: number;
 }) {
   return (
-    <div>
-      <FieldLabel small>{label}</FieldLabel>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '4px 0' }}>
       <input
-        type="range"
-        min={min}
-        max={max}
-        value={value}
-        onChange={(e) => onChange(parseInt(e.target.value, 10))}
-        style={{ width: '100%', accentColor: '#10B981', cursor: 'pointer' }}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ width: 16, height: 16, accentColor: '#10B981', cursor: 'pointer' }}
       />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: 12,
-          color: '#000000',
-          opacity: 0.6,
-          marginTop: 4,
-        }}
-      >
-        <span>{min}px</span>
-        <span>{value}px</span>
-        <span>{max}px</span>
-      </div>
-    </div>
+      <span style={{ fontSize: 13, color: '#374151', fontWeight: 600 }}>{label}</span>
+    </label>
   );
 }
 
-function RadioBox({
+function ToggleField({
+  checked,
+  onChange,
   label,
-  selected,
-  onClick,
 }: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
   label: string;
-  selected: boolean;
-  onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        border: selected ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
-        background: selected ? '#ecfdf5' : '#ffffff',
-        borderRadius: 12,
-        padding: '14px 12px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        cursor: 'pointer',
-        color: '#000000',
-        fontSize: 15,
-        fontWeight: 600,
-        textAlign: 'left',
-        transition: 'all 0.2s',
-      }}
-    >
+    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
       <div
+        onClick={() => onChange(!checked)}
         style={{
-          width: 20,
-          height: 20,
-          borderRadius: '50%',
-          border: selected ? '6px solid #10B981' : '2px solid #d1d5db',
-          background: '#ffffff',
+          width: 38,
+          height: 22,
+          borderRadius: 999,
+          background: checked ? '#10B981' : '#D1D5DB',
+          position: 'relative',
+          transition: 'background 0.2s',
           flexShrink: 0,
-          transition: 'all 0.2s',
         }}
-      />
-      <span>{label}</span>
-    </button>
+      >
+        <div style={{
+          width: 16,
+          height: 16,
+          borderRadius: '50%',
+          background: '#FFFFFF',
+          position: 'absolute',
+          top: 3,
+          left: checked ? 19 : 3,
+          transition: 'left 0.2s',
+        }} />
+      </div>
+      <span style={{ fontSize: 14, color: '#111827', fontWeight: 600 }}>{label}</span>
+    </label>
   );
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL (BundlePromocionesEditor)
+   COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function BundlePromocionesEditor({
   widgetDefinition,
@@ -887,37 +492,54 @@ export default function BundlePromocionesEditor({
   storeId,
 }: EditorProps) {
   const router = useRouter();
-  const [config, setConfig] = useState<any>({
+
+  const [config, setConfig] = useState<BundlePromocionesConfig>(() => ({
     ...DEFAULT_CONFIG,
     ...(existingWidget?.config || {}),
-  });
-  const [isActive, setIsActive] = useState<boolean>(existingWidget?.is_active ?? true);
-  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilo' | 'fechas'>('general');
+  }));
+
+  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [activeTab, setActiveTab] = useState<'general' | 'promociones' | 'estilos' | 'fechas'>('general');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isEditing = !!existingWidget;
+  const isForAll = targetType === 'all';
 
-  const update = (patch: Partial<any>) => setConfig((prev: any) => ({ ...prev, ...patch }));
-
-  const togglePromocion = (promo: string) => {
-    const current: string[] = config.promociones || [];
-    const configPromos = { ...(config.configPromos || {}) };
-    let next: string[];
-    if (current.includes(promo)) {
-      next = current.filter((p) => p !== promo);
-      delete configPromos[promo];
-    } else {
-      next = [...current, promo];
-      configPromos[promo] = { ...DEFAULT_PROMO_CONFIG };
-    }
-    update({ promociones: next, configPromos });
+  const update = <K extends keyof BundlePromocionesConfig>(key: K, value: BundlePromocionesConfig[K]) => {
+    setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
-  const updatePromoConfig = (promo: string, patch: Partial<any>) => {
-    const configPromos = { ...(config.configPromos || {}) };
-    configPromos[promo] = { ...(configPromos[promo] || DEFAULT_PROMO_CONFIG), ...patch };
-    update({ configPromos });
+  const togglePromo = (promo: string) => {
+    let nextPromos = [...config.promociones];
+    const nextConfig = { ...config.configPromos };
+
+    if (nextPromos.includes(promo)) {
+      if (nextPromos.length <= 1) return; // Al menos una promo activa
+      nextPromos = nextPromos.filter((p) => p !== promo);
+      delete nextConfig[promo];
+    } else {
+      nextPromos.push(promo);
+      nextConfig[promo] = { ...DEFAULT_PROMO, tipo: promo };
+    }
+
+    setConfig((prev) => ({
+      ...prev,
+      promociones: nextPromos,
+      configPromos: nextConfig,
+    }));
+  };
+
+  const updatePromoConfig = (promo: string, key: keyof PromoConfig, value: any) => {
+    const nextConfig = { ...config.configPromos };
+    nextConfig[promo] = { ...nextConfig[promo], [key]: value };
+
+    if (key === 'marcarPorDefecto' && value === true) {
+      Object.keys(nextConfig).forEach((k) => {
+        if (k !== promo) nextConfig[k].marcarPorDefecto = false;
+      });
+    }
+
+    update('configPromos', nextConfig);
   };
 
   const handleSave = async () => {
@@ -937,95 +559,227 @@ export default function BundlePromocionesEditor({
           is_active: isActive,
         }),
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al guardar');
-      }
-
-      if (data.action === 'created') {
-        const params = new URLSearchParams();
-        params.set('created', widgetDefinition.slug);
-        if (targetType === 'product' && productId) {
-          params.set('product', String(productId));
-        }
-        router.push(`/widgets?${params.toString()}`);
-      } else {
-        router.push('/widgets');
-      }
-      router.refresh();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Error al guardar');
+      router.push('/widgets');
     } catch (e: any) {
-      setError(e.message || 'Error al guardar');
+      setError(e.message || 'Error inesperado');
       setSaving(false);
     }
   };
 
-  const scopeLabel = targetType === 'all' ? 'General' : 'Producto';
-  const titulo = isEditing
-    ? `Editar widget: ${widgetDefinition.name} (${scopeLabel})`
-    : `Nuevo widget: ${widgetDefinition.name} (${scopeLabel})`;
-
-  const promosOrdenadas = useMemo(() => {
-    const orden = ['lleva-1', ...(config.promociones || [])];
-    return orden;
-  }, [config.promociones]);
-
-  /* ─── TAB FECHAS ESPECIALES ─── */
-  const tabFechasEspeciales = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
-      <div>
-        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
-        <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 12, lineHeight: 1.5 }}>
-          Elegí una campaña activa. Al seleccionarla, se aplicará un diseño optimizado con colores temáticos de alto impacto para este widget.
+  /* ═══ TAB GENERAL ═══ */
+  const tabGeneral = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Selector de posición estrella v12 */}
+      <div style={{
+        background: '#f0fdf4',
+        borderLeft: '4px solid #10B981',
+        borderRadius: 12,
+        padding: 18,
+        boxSizing: 'border-box'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#10B981', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>📍 Ubicación del Widget</span>
+            <span style={{
+              background: '#10B981',
+              color: '#ffffff',
+              fontSize: 10,
+              fontWeight: 900,
+              padding: '3px 8px',
+              borderRadius: 999,
+              letterSpacing: '0.05em'
+            }}>
+              ¡NUEVO!
+            </span>
+          </span>
+        </div>
+        <p style={{ fontSize: 13, color: '#065f46', marginTop: 0, marginBottom: 12, lineHeight: 1.4 }}>
+          Elegí la posición de inserción del bloque de promociones. Nevux se integrará con tu plantilla de forma inteligente.
         </p>
+        <select
+          value={config.position || 'above_buy'}
+          onChange={(e) => update('position', e.target.value)}
+          style={{
+            width: '100%', padding: '10px 12px', fontSize: 14, fontWeight: 600,
+            border: '1.5px solid #10B981', borderRadius: 8, outline: 'none', cursor: 'pointer'
+          }}
+        >
+          <option value="below_image">🖼️ Abajo de la foto del producto</option>
+          <option value="above_price">💵 Arriba del precio</option>
+          <option value="below_price">💵 Abajo del precio</option>
+          <option value="above_buy">🛒 Arriba del botón de agregar al carrito (Recomendado)</option>
+          <option value="below_buy">🛒 Abajo del botón de agregar al carrito</option>
+        </select>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+      <div>
+        <FieldLabel>Título del Bloque</FieldLabel>
+        <TextInput value={config.titulo} onChange={(v) => update('titulo', v)} placeholder="Ej: Promociones exclusivas" />
+      </div>
+
+      <div>
+        <FieldLabel>Texto del Botón</FieldLabel>
+        <TextInput value={config.textoBoton} onChange={(v) => update('textoBoton', v)} placeholder="Ej: COMPRAR PROMO" />
+      </div>
+
+      <div>
+        <FieldLabel>Promociones Habilitadas</FieldLabel>
+        <FieldHelper>Elegí qué estructuras de promociones querés ofrecer en la tarjeta.</FieldHelper>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+          {PROMOS_DISPONIBLES.map((p) => {
+            const active = config.promociones.includes(p);
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => togglePromo(p)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 20,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  border: active ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
+                  background: active ? '#f0fdf4' : '#fff',
+                  color: active ? '#10B981' : '#4b5563',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s'
+                }}
+              >
+                {p}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ background: '#f9fafb', borderRadius: 10, padding: 12 }}>
+        <CheckboxSimple
+          checked={config.reemplazarBoton}
+          onChange={(v) => update('reemplazarBoton', v)}
+          label="Ocultar/Reemplazar botón de compra nativo"
+        />
+        <FieldHelper>Recomendado: Evita confusiones ocultando el botón clásico para usar el de Nevux.</FieldHelper>
+      </div>
+    </div>
+  );
+
+  /* ═══ TAB DETALLES PROMOS ═══ */
+  const tabPromociones = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {config.promociones.map((p) => {
+        const pc = config.configPromos[p] || DEFAULT_PROMO;
+        return (
+          <div key={p} style={{ border: '1px solid #e5e7eb', borderRadius: 12, padding: 14, background: '#fff' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#111827' }}>Configuración {p}</span>
+              <CheckboxSimple checked={pc.marcarPorDefecto} onChange={(v) => updatePromoConfig(p, 'marcarPorDefecto', v)} label="Por defecto" />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 10 }}>
+              <div>
+                <FieldLabel>Subtítulo / Promo</FieldLabel>
+                <TextInput value={pc.subtitulo} onChange={(v) => updatePromoConfig(p, 'subtitulo', v)} placeholder="Ej: Lleva 1 gratis" />
+              </div>
+              <div>
+                <FieldLabel>Etiqueta</FieldLabel>
+                <SelectField value={pc.formatoEtiqueta} onChange={(v) => updatePromoConfig(p, 'formatoEtiqueta', v)} options={[
+                  { value: 'Lleva # paga #', label: 'Lleva # paga #' },
+                  { value: 'Promoción #x#', label: 'Promoción #x#' },
+                ]} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', borderTop: '1.5px dashed #f3f4f6', paddingTop: 10 }}>
+              <CheckboxSimple checked={pc.badgeEnvioGratis} onChange={(v) => updatePromoConfig(p, 'badgeEnvioGratis', v)} label="Envío Gratis" />
+              <CheckboxSimple checked={pc.badgeMasVendido} onChange={(v) => updatePromoConfig(p, 'badgeMasVendido', v)} label="Más Vendido" />
+              <CheckboxSimple checked={pc.badgePersonalizado} onChange={(v) => updatePromoConfig(p, 'badgePersonalizado', v)} label="Especial" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  /* ═══ TAB ESTILOS ═══ */
+  const tabEstilos = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gap: 20,
+      }}>
+        <div>
+          <FieldLabel>Color Botón Principal</FieldLabel>
+          <ColorPickerField value={config.colorBoton} onChange={(v) => update('colorBoton', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color Botón Degradado</FieldLabel>
+          <ColorPickerField value={config.colorBoton2} onChange={(v) => update('colorBoton2', v)} />
+          <div style={{ marginTop: 6 }}>
+            <CheckboxSimple checked={config.botonDegradado} onChange={(v) => update('botonDegradado', v)} label="Habilitar Degradado" />
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Color del Precio</FieldLabel>
+          <ColorPickerField value={config.colorPrecio} onChange={(v) => update('colorPrecio', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color Borde Seleccionado</FieldLabel>
+          <ColorPickerField value={config.colorUnidadSeleccionada} onChange={(v) => update('colorUnidadSeleccionada', v)} />
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+          <div>
+            <FieldLabel>Redondeado Botón (px)</FieldLabel>
+            <input type="range" min="0" max="25" value={config.bordeBoton} onChange={(e) => update('bordeBoton', Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
+          </div>
+          <div>
+            <FieldLabel>Redondeado Tarjetas (px)</FieldLabel>
+            <input type="range" min="0" max="25" value={config.bordeUnidad} onChange={(e) => update('bordeUnidad', Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  /* ═══ TAB FECHAS ESPECIALES ═══ */
+  const tabFechasEspeciales = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <p style={{ fontSize: 13, color: '#4b5563', margin: 0, lineHeight: 1.5 }}>
+        Elegí un preset activo de temporada. Se aplicarán de forma instantánea colores festivos/comerciales optimizados para incentivar la compra impulsiva.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {CAMPAIGN_PRESETS.map((preset) => {
           const isSelected = (config.campaignTheme || 'none') === preset.id;
           return (
             <div
               key={preset.id}
-              onClick={() => update({ campaignTheme: preset.id })}
+              onClick={() => update('campaignTheme', preset.id)}
               style={{
                 background: '#ffffff',
                 border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
                 borderRadius: 12,
-                padding: '16px',
+                padding: '12px 16px',
                 cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
+                alignItems: 'center',
                 gap: 12,
-                transition: 'all 0.2s ease',
-                boxSizing: 'border-box',
-                minWidth: 0,
+                transition: 'all 0.15s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    {preset.label}
-                    {isSelected && (
-                      <span style={{
-                        background: '#ecfdf5', color: '#10B981', fontSize: 10, fontWeight: 800,
-                        padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
-                      }}>
-                        ACTIVO
-                      </span>
-                    )}
-                  </div>
+              <span style={{ fontSize: 22 }}>{preset.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {preset.label}
+                  {isSelected && <span style={{ background: '#ecfdf5', color: '#10B981', fontSize: 10, fontWeight: 800, padding: '1px 6px', borderRadius: 999, border: '1px solid #10B981' }}>ACTIVO</span>}
                 </div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{preset.desc}</div>
               </div>
-              <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, lineHeight: 1.4, flex: 1 }}>
-                {preset.desc}
-              </div>
-              {preset.id !== 'none' && (
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginTop: 4 }}>
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
-                </div>
-              )}
             </div>
           );
         })}
@@ -1034,591 +788,112 @@ export default function BundlePromocionesEditor({
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', color: '#000000' }}>
-      <Header />
+    <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
+      {/* HEADER */}
+      <div style={{
+        background: '#ffffff', borderBottom: '1px solid #e5e7eb',
+        padding: '14px 20px', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20,
+      }}>
+        <NevuxLogo size="medium" />
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#6b7280' }}>Nevux Studio 🚀</span>
+      </div>
 
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 80px' }}>
-        {targetType === 'all' ? (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: '#10B981',
-              color: '#ffffff',
-              padding: '8px 14px',
-              borderRadius: 999,
-              fontSize: 14,
-              fontWeight: 700,
-              marginBottom: 16,
-            }}
-          >
-            <IconStore /> Todos los productos
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              background: '#ffffff',
-              border: '1px solid #e5e7eb',
-              padding: '8px 14px',
-              borderRadius: 12,
-              fontSize: 14,
-              fontWeight: 700,
-              marginBottom: 16,
-              color: '#000000',
-            }}
-          >
-            <span style={{ fontSize: 18 }}>🛍</span> NEVUX Widget
-          </div>
-        )}
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
+        {/* Scope chip */}
+        <div style={{
+          background: '#10B981', color: '#ffffff',
+          borderRadius: 999, padding: '6px 12px',
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          marginBottom: 16, fontSize: 13, fontWeight: 700,
+        }}>
+          <IconStore />
+          <span>{isForAll ? 'Aplicado a toda la tienda' : 'Configuración de Producto'}</span>
+        </div>
 
-        <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 20px', lineHeight: 1.25, color: '#000000' }}>
-          {titulo}
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#111827', margin: '0 0 16px', lineHeight: 1.2 }}>
+          {existingWidget ? 'Editar widget: ' : 'Nuevo widget: '}
+          {widgetDefinition.name}
         </h1>
 
-        <div
-          style={{
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            borderRadius: 16,
-            padding: 20,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-          }}
-        >
-          <BundlePromocionesPreview config={config} />
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 8,
-              background: '#ecfdf5',
-              border: '1px solid #a7f3d0',
-              color: '#000000',
-              padding: '12px 14px',
-              borderRadius: 10,
-              fontSize: 13,
-              lineHeight: 1.5,
-              margin: '12px 0 20px',
-            }}
-          >
-            <IconInfo /> El formulario original de Tiendanube permanecerá visible y funcional.
+        {/* CONTAINER EDITOR */}
+        <div style={{
+          background: '#ffffff', border: '1px solid #e5e7eb',
+          borderRadius: 16, padding: 18, marginBottom: 20,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        }}>
+          {/* Live Preview Directo */}
+          <div style={{ marginBottom: 20 }}>
+            <BundlePromocionesPreview config={config} />
           </div>
 
-          <Tabs activeTab={activeTab} onChange={setActiveTab} />
-
-          {activeTab === 'general' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: 20 }}>
-              <div>
-                <FieldLabel>Título</FieldLabel>
-                <TextInput
-                  value={config.titulo || ''}
-                  onChange={(v) => update({ titulo: v })}
-                  placeholder="Ej: Promoción especial"
-                />
-                <FieldHelper>Dejá vacío para no mostrar título</FieldHelper>
-              </div>
-
-              <div>
-                <FieldLabel>Texto del botón</FieldLabel>
-                <TextInput
-                  value={config.textoBoton || ''}
-                  onChange={(v) => update({ textoBoton: v })}
-                  placeholder="Agregar al carrito"
-                />
-                <FieldHelper>Dejá vacío para usar "Agregar al carrito"</FieldHelper>
-              </div>
-
-              <div>
-                <FieldLabel>Seleccionar promociones</FieldLabel>
-                <FieldHelper>
-                  Seleccioná los tipos de promoción que querés ofrecer (recordá crearlos en el
-                  panel de "Descuentos" -&gt; "Promociones" de Tiendanube)
-                </FieldHelper>
-                <div
+          {/* TABS */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: 20 }}>
+            {[
+              { id: 'general', label: 'Config' },
+              { id: 'promociones', label: 'Promos' },
+              { id: 'estilos', label: 'Diseño' },
+              { id: 'fechas', label: '🔥 Eventos' },
+            ].map((t) => {
+              const act = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveTab(t.id as any)}
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
-                    gap: 10,
-                    marginTop: 10,
+                    flex: 1, padding: '12px 6px', background: 'none', border: 'none',
+                    borderBottom: act ? '2.5px solid #10B981' : '2.5px solid transparent',
+                    color: act ? '#10B981' : '#4b5563',
+                    fontSize: 14, fontWeight: act ? 800 : 500, cursor: 'pointer'
                   }}
                 >
-                  {PROMOS_DISPONIBLES.map((p) => (
-                    <CheckboxSmall
-                      key={p}
-                      label={p}
-                      checked={(config.promociones || []).includes(p)}
-                      onChange={() => togglePromocion(p)}
-                    />
-                  ))}
-                </div>
-              </div>
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
 
-              <div>
-                <FieldLabel>Configuración por promoción</FieldLabel>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 10 }}>
-                  {promosOrdenadas.map((promoKey) => {
-                    const isBase = promoKey === 'lleva-1';
-                    const promoTitle = isBase
-                      ? 'Lleva 1'
-                      : `Lleva ${parseInt(promoKey.split('x')[0], 10)}, paga ${parseInt(
-                          promoKey.split('x')[1],
-                          10
-                        )} (${promoKey})`;
-                    const pc =
-                      config.configPromos?.[promoKey] || { ...DEFAULT_PROMO_CONFIG };
+          {/* CONTENIDOS TABS */}
+          <div>
+            {activeTab === 'general' && tabGeneral}
+            {activeTab === 'promociones' && tabPromociones}
+            {activeTab === 'estilos' && tabEstilos}
+            {activeTab === 'fechas' && tabFechasEspeciales}
+          </div>
 
-                    return (
-                      <div
-                        key={promoKey}
-                        style={{
-                          background: '#ffffff',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: 12,
-                          padding: 16,
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, marginBottom: 12, color: '#000000', fontSize: 16 }}>{promoTitle}</div>
-
-                        <div style={{ marginBottom: 12 }}>
-                          <FieldLabel small>Formato de etiqueta</FieldLabel>
-                          <SelectField
-                            value={pc.formatoEtiqueta || 'lleva-paga'}
-                            onChange={(v) =>
-                              updatePromoConfig(promoKey, { formatoEtiqueta: v })
-                            }
-                            options={[
-                              { value: 'lleva-paga', label: 'Lleva # paga #' },
-                              { value: 'llevate-x', label: 'Llevate # unidades' },
-                              { value: 'descuento', label: '# de descuento' },
-                            ]}
-                          />
-                        </div>
-
-                        <div style={{ marginBottom: 12 }}>
-                          <FieldLabel small>Subtítulo</FieldLabel>
-                          <TextInput
-                            value={pc.subtitulo || ''}
-                            onChange={(v) => updatePromoConfig(promoKey, { subtitulo: v })}
-                            placeholder="Ej: Oferta por tiempo limitado"
-                          />
-                        </div>
-
-                        <div style={{ marginBottom: 10 }}>
-                          <FieldLabel small>Badges</FieldLabel>
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: 8,
-                              marginTop: 8,
-                            }}
-                          >
-                            <CheckboxRow
-                              label="Envío gratis"
-                              checked={!!pc.badgeEnvioGratis}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { badgeEnvioGratis: v })
-                              }
-                            />
-                            <CheckboxRow
-                              label="Más vendido"
-                              checked={!!pc.badgeMasVendido}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { badgeMasVendido: v })
-                              }
-                            />
-                            <CheckboxRow
-                              label="Personalizado"
-                              checked={!!pc.badgePersonalizado}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { badgePersonalizado: v })
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <Divider />
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <CheckboxRow
-                            label="Ocultar producto complementario 1 en esta unidad"
-                            checked={!!pc.ocultarComp1}
-                            onChange={(v) => updatePromoConfig(promoKey, { ocultarComp1: v })}
-                          />
-                          <CheckboxRow
-                            label="Ocultar producto complementario 2 en esta unidad"
-                            checked={!!pc.ocultarComp2}
-                            onChange={(v) => updatePromoConfig(promoKey, { ocultarComp2: v })}
-                          />
-                        </div>
-
-                        <Divider />
-
-                        <CheckboxRow
-                          label="Agregar producto de regalo en esta promoción"
-                          checked={!!pc.agregarRegalo}
-                          onChange={(v) => updatePromoConfig(promoKey, { agregarRegalo: v })}
-                        />
-
-                        <Divider />
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <CheckboxRow
-                            label="Marcar por defecto"
-                            checked={!!pc.marcarPorDefecto}
-                            onChange={(v) =>
-                              updatePromoConfig(promoKey, { marcarPorDefecto: v })
-                            }
-                          />
-                          {isBase && (
-                            <CheckboxRow
-                              label="Ocultar esta unidad"
-                              checked={!!pc.ocultarEsta}
-                              onChange={(v) =>
-                                updatePromoConfig(promoKey, { ocultarEsta: v })
-                              }
-                            />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <FieldLabel>Productos complementarios</FieldLabel>
-                <FieldHelper>
-                  Se mostrarán debajo de cada tarjeta con un checkbox (máx. 2)
-                </FieldHelper>
-
-                <div style={{ marginTop: 12 }}>
-                  <FieldLabel small>Producto 1</FieldLabel>
-                  <TextInput
-                    value={config.producto1 || ''}
-                    onChange={(v) => update({ producto1: v })}
-                    placeholder="Buscar un producto..."
-                  />
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <FieldLabel small>Producto 2</FieldLabel>
-                  <TextInput
-                    value={config.producto2 || ''}
-                    onChange={(v) => update({ producto2: v })}
-                    placeholder="Buscar un producto..."
-                  />
-                </div>
-
-                <div style={{ marginTop: 12 }}>
-                  <CheckboxRow
-                    label="Marcar como checkeado por defecto"
-                    checked={!!config.productosCheckedDefault}
-                    onChange={(v) => update({ productosCheckedDefault: v })}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'ubicacion' && (
-            <div style={{ marginTop: 20 }}>
-              <div
-                style={{
-                  background: config.reemplazarBoton ? '#ecfdf5' : '#ffffff',
-                  border: config.reemplazarBoton ? '1.5px solid #10B981' : '1px solid #e5e7eb',
-                  borderRadius: 12,
-                  padding: 16,
-                  display: 'flex',
-                  gap: 12,
-                  alignItems: 'flex-start',
-                  transition: 'border-color 0.2s',
-                }}
-              >
-                <div
-                  onClick={() => update({ reemplazarBoton: !config.reemplazarBoton })}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: 5,
-                    background: config.reemplazarBoton ? '#10B981' : '#ffffff',
-                    border: config.reemplazarBoton ? '2px solid #10B981' : '2px solid #d1d5db',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    marginTop: 2,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {config.reemplazarBoton && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: '#000000' }}>
-                    Reemplazar por el botón de agregar al carrito de Tiendanube
-                  </div>
-                  <div style={{ color: '#000000', opacity: 0.6, fontSize: 13, lineHeight: 1.5 }}>
-                    Cuando está activo, el widget reemplaza el formulario original de Tiendanube.
-                    Al desactivarlo, el formulario original permanece visible y funcional.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'estilo' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 20 }}>
-              <SectionCard
-                icon="🎨"
-                title="Colores principales"
-                subtitle="Definí la paleta del bloque principal y del botón de compra."
-              >
-                <ColorPickerField
-                  label='Color del botón "Agregar"'
-                  value={config.colorBoton}
-                  onChange={(v) => update({ colorBoton: v })}
-                />
-                <ToggleField
-                  label="Fondo en degradé"
-                  checked={!!config.fondoDegrade}
-                  onChange={(v) => update({ fondoDegrade: v })}
-                />
-                <ColorPickerField
-                  label="Color del precio"
-                  value={config.colorPrecio}
-                  onChange={(v) => update({ colorPrecio: v })}
-                />
-                <ColorPickerField
-                  label="Color de subtítulos"
-                  value={config.colorSubtitulos}
-                  onChange={(v) => update({ colorSubtitulos: v })}
-                />
-                <ColorPickerField
-                  label="Fondo del subtítulo"
-                  value={config.fondoSubtitulo}
-                  onChange={(v) => update({ fondoSubtitulo: v })}
-                  allowTransparent
-                />
-                <ColorPickerField
-                  label="Color texto regalo"
-                  value={config.colorTextoRegalo}
-                  onChange={(v) => update({ colorTextoRegalo: v })}
-                />
-                <ColorPickerField
-                  label="Color precio regalo"
-                  value={config.colorPrecioRegalo}
-                  onChange={(v) => update({ colorPrecioRegalo: v })}
-                />
-                <ColorPickerField
-                  label="Fondo del regalo"
-                  value={config.fondoRegalo}
-                  onChange={(v) => update({ fondoRegalo: v })}
-                />
-              </SectionCard>
-
-              <SectionCard
-                icon="🏷"
-                title="Badges y etiquetas"
-                subtitle="Personalizá los colores de destacados y estado seleccionado."
-              >
-                <ColorPickerField
-                  label="Color badge envío gratis"
-                  value={config.colorBadgeEnvio}
-                  onChange={(v) => update({ colorBadgeEnvio: v })}
-                />
-                <ColorPickerField
-                  label="Color badge personalizado"
-                  value={config.colorBadgePersonalizado}
-                  onChange={(v) => update({ colorBadgePersonalizado: v })}
-                />
-                <ColorPickerField
-                  label="Color badge más vendido"
-                  value={config.colorBadgeMasVendido}
-                  onChange={(v) => update({ colorBadgeMasVendido: v })}
-                />
-                <ColorPickerField
-                  label="Color de la unidad seleccionada"
-                  value={config.colorUnidadSeleccionada}
-                  onChange={(v) => update({ colorUnidadSeleccionada: v })}
-                />
-              </SectionCard>
-
-              <SectionCard
-                icon="🧩"
-                title="Estructura y bordes"
-                subtitle="Ajustá el redondeado del botón y de cada unidad."
-              >
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
-                  <RangeSlider
-                    label={'Borde del botón "Agregar"'}
-                    value={config.bordeBoton ?? 25}
-                    onChange={(v) => update({ bordeBoton: v })}
-                    min={0}
-                    max={25}
-                  />
-                  <RangeSlider
-                    label="Borde de la unidad"
-                    value={config.bordeUnidad ?? 8}
-                    onChange={(v) => update({ bordeUnidad: v })}
-                    min={0}
-                    max={25}
-                  />
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                icon="T"
-                title="Tipografía"
-                subtitle="Definí el tamaño de texto para etiqueta, precio y subtítulo."
-              >
-                <SelectField
-                  label="Etiqueta"
-                  value={config.tamanoEtiqueta || '16px'}
-                  onChange={(v) => update({ tamanoEtiqueta: v })}
-                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
-                    value: s,
-                    label: s,
-                  }))}
-                />
-                <SelectField
-                  label="Precio"
-                  value={config.tamanoPrecio || '18px'}
-                  onChange={(v) => update({ tamanoPrecio: v })}
-                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
-                    value: s,
-                    label: s,
-                  }))}
-                />
-                <SelectField
-                  label="Subtítulo"
-                  value={config.tamanoSubtitulo || '14px'}
-                  onChange={(v) => update({ tamanoSubtitulo: v })}
-                  options={['12px', '14px', '16px', '18px', '20px', '24px'].map((s) => ({
-                    value: s,
-                    label: s,
-                  }))}
-                />
-              </SectionCard>
-
-              <SectionCard
-                icon="✨"
-                title="Efectos y animaciones"
-                subtitle="Elegí cómo se comporta visualmente el botón al interactuar."
-              >
-                <FieldLabel>Efecto del botón</FieldLabel>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
-                  <RadioBox
-                    label="Sin efecto"
-                    selected={config.efectoBoton === 'sin-efecto'}
-                    onClick={() => update({ efectoBoton: 'sin-efecto' })}
-                  />
-                  <RadioBox
-                    label="Zoom al cursor"
-                    selected={config.efectoBoton === 'zoom'}
-                    onClick={() => update({ efectoBoton: 'zoom' })}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    marginTop: 12,
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 12,
-                    padding: '10px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    background: '#ffffff',
-                  }}
-                >
-                  <Toggle
-                    checked={!!config.pulsante}
-                    onChange={(v) => update({ pulsante: v })}
-                  />
-                  <div style={{ fontSize: 15, fontWeight: 600, color: '#000000' }}>Pulsante</div>
-                </div>
-              </SectionCard>
-            </div>
-          )}
-
-          {activeTab === 'fechas' && tabFechasEspeciales}
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 24,
-              paddingTop: 20,
-              borderTop: '1px solid #e5e7eb',
-              gap: 12,
-              flexWrap: 'wrap',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Toggle checked={isActive} onChange={setIsActive} />
-              <span style={{ fontSize: 15, fontWeight: 600, color: '#000000' }}>Widget activo</span>
-              <IconInfoSmall />
-            </div>
+          {/* FOOTER */}
+          <div style={{
+            marginTop: 24, paddingTop: 16, borderTop: '1px solid #e5e7eb',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap'
+          }}>
+            <ToggleField checked={isActive} onChange={setIsActive} label="Widget activo en tienda" />
 
             <button
-              type="button"
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: '#10B981',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 999,
-                padding: '12px 28px',
-                fontSize: 15,
-                fontWeight: 700,
-                cursor: saving ? 'not-allowed' : 'pointer',
-                opacity: saving ? 0.6 : 1,
-                fontFamily: 'inherit',
+                padding: '10px 24px', borderRadius: 999, border: 'none',
+                background: '#10B981', color: '#fff', fontSize: 14, fontWeight: 700,
+                cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1
               }}
             >
-              {saving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Crear widget'}
+              {saving ? 'Guardando...' : existingWidget ? 'Guardar Cambios' : 'Crear Widget'}
             </button>
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
-        <div style={{ marginTop: 40, width: '100%' }}>
-          <CentroAyuda />
-        </div>
-      </div>
+        <CentroAyuda />
 
-      {error && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: '#fee2e2',
-            color: '#991b1b',
-            border: '1px solid #fecaca',
-            padding: '12px 20px',
-            borderRadius: 12,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-            fontSize: 14,
-            fontWeight: 600,
-            zIndex: 100,
-          }}
-        >
-          ⚠️ {error}
-        </div>
-      )}
+        {error && (
+          <div style={{
+            position: 'fixed', bottom: 20, left: 16, right: 16, maxWidth: 500, margin: '0 auto',
+            background: '#fee2e2', color: '#991b1b', padding: '12px', borderRadius: 10,
+            fontSize: 13, fontWeight: 600, border: '1px solid #fecaca', zIndex: 100
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+      </div>
     </div>
   );
-   }
+     }
