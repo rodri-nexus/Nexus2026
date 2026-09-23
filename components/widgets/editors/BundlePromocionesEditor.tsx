@@ -136,19 +136,20 @@ const CAMPAIGN_PRESETS = [
 /* ═══════════════════════════════════════════
    HELPERS GLOBALES (Regla #9)
 ═══════════════════════════════════════════ */
+function IconStore({ color = '#ffffff' }: { color?: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l1-5h16l1 5M4 9v10a1 1 0 001 1h14a1 1 0 001-1V9M9 22V12h6v10" />
+    </svg>
+  );
+}
+
 function parseRatio(tipo: string) {
   const parts = tipo.split('x');
   return {
     lleva: Number(parts[0]) || 1,
     paga: Number(parts[1]) || 1,
   };
-}
-
-function formatPromoLabel(formato: string, tipo: string) {
-  const ratio = parseRatio(tipo);
-  return formato.replace(/#/g, (_, offset) => {
-    return offset === 0 ? String(ratio.lleva) : String(ratio.paga);
-  });
 }
 
 function formatMoney(n: number): string {
@@ -514,7 +515,7 @@ export default function BundlePromocionesEditor({
     const nextConfig = { ...config.configPromos };
 
     if (nextPromos.includes(promo)) {
-      if (nextPromos.length <= 1) return; // Al menos una promo activa
+      if (nextPromos.length <= 1) return;
       nextPromos = nextPromos.filter((p) => p !== promo);
       delete nextConfig[promo];
     } else {
@@ -626,7 +627,7 @@ export default function BundlePromocionesEditor({
 
       <div>
         <FieldLabel>Promociones Habilitadas</FieldLabel>
-        <FieldHelper>Elegí qué estructuras de promociones querés ofrecer en la tarjeta.</FieldHelper>
+        <FieldHelper>Elegí qué promociones querés ofrecer en la tarjeta.</FieldHelper>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
           {PROMOS_DISPONIBLES.map((p) => {
             const active = config.promociones.includes(p);
@@ -807,7 +808,7 @@ export default function BundlePromocionesEditor({
           display: 'inline-flex', alignItems: 'center', gap: 6,
           marginBottom: 16, fontSize: 13, fontWeight: 700,
         }}>
-          <IconStore />
+          <IconStore color="#fff" />
           <span>{isForAll ? 'Aplicado a toda la tienda' : 'Configuración de Producto'}</span>
         </div>
 
@@ -896,4 +897,4 @@ export default function BundlePromocionesEditor({
       </div>
     </div>
   );
-     }
+            }
