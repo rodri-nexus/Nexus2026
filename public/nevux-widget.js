@@ -9359,13 +9359,13 @@ function renderCalculadoraAhorro(w) {
   var textColor = cfg.textColor || "#065f46";
   var borderColor = cfg.borderColor || "#10B981";
   var accentColor = cfg.accentColor || "#059669";
-  var position = cfg.position || "below_price"; // Por defecto
+  var position = cfg.position || "below_price";
 
   // Intentar calcular el ahorro real leyendo los precios del producto en Tiendanube
   var displaySavings = exampleAmount;
   try {
-    var compareEl = document.querySelector('.js-compare-price-display, .price-compare, .js-price-compare, [data-compare-price]');
-    var currentEl = document.querySelector('.js-price-display, #price_display, .js-price, [data-price]');
+    var compareEl = document.querySelector('.js-compare-price-display, .price-compare, .js-price-compare, [data-compare-price], .product-price-compare');
+    var currentEl = document.querySelector('.js-price-display, #price_display, .js-price, [data-price], [data-store="product-price"], .product-price');
 
     if (compareEl && currentEl) {
       var parsePrice = function(txt) {
@@ -9386,15 +9386,12 @@ function renderCalculadoraAhorro(w) {
     displaySavings = exampleAmount;
   }
 
-  // Crear el contenedor principal
+  // Contenedor exterior Layout-Safe (Regla #24)
   var container = document.createElement('div');
   container.id = 'nvx-ahorro-' + w.id;
   container.className = 'nvx-widget nvx-ahorro-wrapper';
-  
-  // Regla #24: Reset de contenedor de bloque para evitar colisiones Flex locales
-  container.style.cssText = 'display:block;width:100%;clear:both;box-sizing:border-box;margin:14px 0;';
+  container.style.cssText = 'display:block !important;width:100% !important;clear:both !important;box-sizing:border-box !important;margin:12px 0 !important;';
 
-  // Contenido interno con estilos inline camelCase nativos
   var innerContainer = document.createElement('div');
   innerContainer.style.cssText = 'background:' + bgColor + ';border:1.5px solid ' + borderColor + ';border-radius:12px;padding:14px 18px;box-shadow:0 3px 10px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:system-ui,-apple-system,sans-serif;color:' + textColor + ';width:100%;box-sizing:border-box;';
 
@@ -9414,71 +9411,86 @@ function renderCalculadoraAhorro(w) {
   container.appendChild(innerContainer);
 
   // ═══════════════════════════════════════════
-  // MOTOR MILITAR DE UBICACIÓN DINÁMICA (v12)
+  // MOTOR MILITAR DE DETECCIÓN Y UBICACIÓN v12.2
   // ═══════════════════════════════════════════
   var injected = false;
 
-  // Selectores de referencia principales
-  var imgEl = document.querySelector('.js-product-image-container, .product-image-container, .js-product-slide, .product-slider, .glide__slides, .js-slider-wrapper, .js-product-slider, img[itemprop="image"]');
-  var priceEl = document.querySelector('.js-price-display, #price_display, .js-price-container, .product-price-container, .price-container, .price-display, [data-price], .price');
-  var buyBlock = document.querySelector('form[action*="/cart/add"], form.js-product-buyform, .js-product-form, .product-form, .js-product-container, .product-buy-form');
+  // 1. Detección de la galería o imagen principal
+  var imgWrapper = document.querySelector(
+    '[data-component="product.images"], .js-product-images-container, .js-product-slider-container, ' +
+    '.product-images-container, .product-slider-container, .product-gallery, .js-product-gallery, ' +
+    '.product-detail-slider, .js-product-image-container, .product-image-container, [data-store="product-image"]'
+  );
 
-  try {
-    if (position === 'below_image' && imgEl) {
-      // Si el selector dio una imagen directa, escalamos a su contenedor más cercano
-      var targetImgContainer = imgEl.tagName === 'IMG' ? (imgEl.closest('div') || imgEl) : imgEl;
-      if (targetImgContainer.parentNode) {
-        targetImgContainer.parentNode.insertBefore(container, targetImgContainer.nextSibling);
-        injected = true;
-      }
-    } 
-    else if (position === 'above_price' && priceEl) {
-      var targetPriceContainer = priceEl.closest('div') || priceEl;
-      if (targetPriceContainer.parentNode) {
-        targetPriceContainer.parentNode.insertBefore(container, targetPriceContainer);
-        injected = true;
-      }
-    } 
-    else if (position === 'below_price' && priceEl) {
-      var targetPriceContainer = priceEl.closest('div') || priceEl;
-      if (targetPriceContainer.parentNode) {
-        targetPriceContainer.parentNode.insertBefore(container, targetPriceContainer.nextSibling);
-        injected = true;
-      }
-    } 
-    else if (position === 'above_buy' && buyBlock) {
-      if (buyBlock.parentNode) {
-        buyBlock.parentNode.insertBefore(container, buyBlock);
-        injected = true;
-      }
-    } 
-    else if (position === 'below_buy' && buyBlock) {
-      if (buyBlock.parentNode) {
-        buyBlock.parentNode.insertBefore(container, buyBlock.nextSibling);
-        injected = true;
-      }
+  if (!imgWrapper) {
+    var directImg = document.querySelector('img[itemprop="image"], .js-product-featured-image, .js-product-image');
+    if (directImg) {
+      imgWrapper = directImg.closest('.swiper, .glide, .slick-slider, div[class*="image"], div[class*="slider"], div[class*="gallery"]') || directImg.parentElement;
     }
-  } catch (err) {
-    console.warn("[Nevux] Error al inyectar en posición elegida, aplicando fallback militar:", err);
   }
 
-  // Fallback definitivo si el selector falló o no existe en la plantilla actual
+  // 2. Detección del bloque de precio
+  var priceWrapper = document.querySelector(
+    '[data-store="product-price"], .js-price-display, #price_display, .js-price-container, ' +
+    '.product-price-container, .price-container, .price-display, [data-price]'
+  );
+  if (priceWrapper) {
+    priceWrapper = priceWrapper.closest('.price-container, .product-price-container, .js-price-container, .price') || priceWrapper;
+  }
+
+  // 3. Detección del botón o formulario de compra (NUNCA el contenedor global de producto)
+  var buyButton = document.querySelector(
+    'button.js-addtocart, input.js-addtocart, [data-store="product-buy-button"], ' +
+    'button[name="add"], input[name="add"], .js-addtocart-btn, .js-prod-submit-form, ' +
+    'button.js-buy-button, .product-buy-button, input[value*="Comprar" i], button[type="submit"]'
+  );
+
+  var buyForm = document.querySelector(
+    'form.js-product-form, form[action*="/cart/add"], form[action*="/comprar"], ' +
+    'form.js-product-buyform, .js-product-buyform, form.product-form'
+  );
+
+  // Seleccionamos el bloque de compra más preciso
+  var buyTarget = buyForm || (buyButton ? (buyButton.closest('form') || buyButton.closest('.js-quantity-and-submit, .product-buy-container, div') || buyButton) : null);
+
+  // Inserción según la posición seleccionada
+  try {
+    if (position === 'below_image' && imgWrapper) {
+      imgWrapper.insertAdjacentElement('afterend', container);
+      injected = true;
+    } 
+    else if (position === 'above_price' && priceWrapper) {
+      priceWrapper.insertAdjacentElement('beforebegin', container);
+      injected = true;
+    } 
+    else if (position === 'below_price' && priceWrapper) {
+      priceWrapper.insertAdjacentElement('afterend', container);
+      injected = true;
+    } 
+    else if (position === 'above_buy' && buyTarget) {
+      buyTarget.insertAdjacentElement('beforebegin', container);
+      injected = true;
+    } 
+    else if (position === 'below_buy' && buyTarget) {
+      buyTarget.insertAdjacentElement('afterend', container);
+      injected = true;
+    }
+  } catch (err) {
+    injected = false;
+  }
+
+  // Fallbacks seguros (si el selector específico no existió en la plantilla)
   if (!injected) {
-    if (priceEl) {
-      var fallbackPrice = priceEl.closest('div') || priceEl;
-      if (fallbackPrice.parentNode) {
-        fallbackPrice.parentNode.insertBefore(container, fallbackPrice.nextSibling);
-        injected = true;
-      }
-    } else if (buyBlock && buyBlock.parentNode) {
-      buyBlock.parentNode.insertBefore(container, buyBlock);
+    if (priceWrapper) {
+      priceWrapper.insertAdjacentElement('afterend', container);
+      injected = true;
+    } else if (buyTarget) {
+      buyTarget.insertAdjacentElement('beforebegin', container);
       injected = true;
     } else {
-      var main = document.querySelector('main, #content, .main-content, .js-main-content');
-      if (main) {
-        main.insertBefore(container, main.firstChild);
-      } else if (document.body) {
-        document.body.insertBefore(container, document.body.firstChild);
+      var mainContent = document.querySelector('.js-product-detail, .product-detail, main, #content');
+      if (mainContent) {
+        mainContent.insertAdjacentElement('afterbegin', container);
       }
     }
   }
@@ -9487,7 +9499,7 @@ function renderCalculadoraAhorro(w) {
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
-    }
+          }
       /* ═══════════════════════════════════════════
    WIDGET: STICKER EDICIÓN LIMITADA
    ═══════════════════════════════════════════ */
