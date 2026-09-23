@@ -3082,35 +3082,53 @@ function mountBundleCantidad(widget, cfg) {
     var btn = container.querySelector("." + NS + "-bundle-btn");
     if (btn && buyForm) {
       btn.addEventListener("click", function () {
-        // Regla #15: Buscamos el selector de cantidad nativo de Tiendanube y sincronizamos el valor
-        var qtyInput = buyForm.querySelector('input[name="quantity"], input.js-quantity-input, .product-quantity input');
         var unitsToBuy = state.selectedIdx + 1;
 
-        if (qtyInput) {
-          qtyInput.value = unitsToBuy;
+        // 1. Sincronizar TODOS los selectores de cantidad de la página
+        var qtyInputs = buyForm.querySelectorAll('input[name="quantity"], select[name="quantity"], input.js-quantity-input, select.js-quantity-select, .js-quantity-input, .quantity-input');
+        
+        if (qtyInputs.length > 0) {
+          qtyInputs.forEach(function(el) {
+            el.value = unitsToBuy;
+            // Disparar eventos nativos para que la plantilla de Tiendanube asuma el cambio
+            try {
+              el.dispatchEvent(new Event('change', { bubbles: true }));
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+            } catch (err) {
+              if (document.createEvent) {
+                var evt = document.createEvent('HTMLEvents');
+                evt.initEvent('change', true, true);
+                el.dispatchEvent(evt);
+              }
+            }
+          });
         } else {
-          // Si no existe, creamos un input oculto dentro del formulario
-          var hiddenQty = document.createElement('input');
-          hiddenQty.type = 'hidden';
-          hiddenQty.name = 'quantity';
+          // Si no tiene selector visible, creamos o editamos un input hidden de seguridad
+          var hiddenQty = buyForm.querySelector('input[name="quantity"][type="hidden"]');
+          if (!hiddenQty) {
+            hiddenQty = document.createElement('input');
+            hiddenQty.type = 'hidden';
+            hiddenQty.name = 'quantity';
+            buyForm.appendChild(hiddenQty);
+          }
           hiddenQty.value = unitsToBuy;
-          buyForm.appendChild(hiddenQty);
         }
 
-        // Simular clic seguro en el submit original
-        var nativeBtn = buyForm.querySelector('button[type="submit"], input[type="submit"], .js-addtocart-btn');
-        if (nativeBtn) {
-          nativeBtn.click();
-        } else {
-          buyForm.submit();
-        }
+        // 2. Micro-retraso de 50ms para permitir que los scripts de la tienda asimilen el cambio de cantidad
+        setTimeout(function() {
+          var nativeBtn = buyForm.querySelector('button[type="submit"], input[type="submit"], .js-addtocart-btn, .js-buy-button, [data-store="product-buy-button"]');
+          if (nativeBtn) {
+            nativeBtn.click();
+          } else {
+            buyForm.submit();
+          }
+        }, 50);
       });
     }
   }
 
   render();
-}
-
+                  }
 function buildBundleCantidadHtml(cfg, state, cantidadReal) {
   var THEMES = {
     'black-friday': { themeColor: '#111827', accentColor: '#F59E0B', textColor: '#ffffff' },
