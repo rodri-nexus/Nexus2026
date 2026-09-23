@@ -9092,7 +9092,7 @@
     } catch(e) {}
   }
 /* ═══════════════════════════════════════════
-   WIDGET: MARQUEE DE NOVEDADES (v11 Selector Militar Ultra-Compatible)
+   WIDGET: MARQUEE DE NOVEDADES (v11 Layout-Safe Buy Button)
    ═══════════════════════════════════════════ */
 function renderMarqueeNovedades(w) {
   if (document.getElementById('nvx-marquee-' + w.id)) return;
@@ -9107,12 +9107,11 @@ function renderMarqueeNovedades(w) {
   var bgColor = cfg.bgColor || '#111827';
   var textColor = cfg.textColor || '#ffffff';
   var fontSize = (cfg.fontSize || '14') + 'px';
-  var pos = cfg.position || 'above_form'; 
+  var pos = cfg.position || 'above_form';
 
   var dur = speed === 'lento' ? '24s' : speed === 'rapido' ? '8s' : '14s';
   var animName = direction === 'right' ? 'nvxMqR' : 'nvxMqL';
 
-  // Inyectar keyframes si no existen
   if (!document.getElementById('nvx-marquee-styles')) {
     var st = document.createElement('style');
     st.id = 'nvx-marquee-styles';
@@ -9123,58 +9122,85 @@ function renderMarqueeNovedades(w) {
   var container = document.createElement('div');
   container.id = 'nvx-marquee-' + w.id;
   container.className = 'nvx-widget nvx-marquee-wrapper';
-  container.style.cssText = 'width:100%;overflow:hidden;background:' + bgColor + ';padding:10px 0;box-sizing:border-box;margin:12px 0;position:relative;z-index:99;cursor:default;';
+  // Forzamos ancho completo y bloque para que NUNCA se meta en un flex row
+  container.style.cssText = 'display:block;width:100%;max-width:100%;clear:both;overflow:hidden;background:' + bgColor + ';padding:10px 0;box-sizing:border-box;margin:12px 0;position:relative;z-index:99;cursor:default;';
 
   var track = document.createElement('div');
   track.style.cssText = 'display:flex;white-space:nowrap;width:max-content;animation:' + animName + ' ' + dur + ' linear infinite;';
-  track.onmouseenter = function() { track.style.animationPlayState = 'paused'; };
-  track.onmouseleave = function() { track.style.animationPlayState = 'running'; };
+  track.onmouseenter = function () { track.style.animationPlayState = 'paused'; };
+  track.onmouseleave = function () { track.style.animationPlayState = 'running'; };
 
   var repeated = messages.concat(messages).concat(messages).concat(messages);
   var html = '';
   for (var i = 0; i < repeated.length; i++) {
     var rawMsg = repeated[i];
-    var safeMsg = String(rawMsg).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    html += '<span style="color:' + textColor + ';font-size:' + fontSize + ';font-weight:700;padding:0 24px;display:inline-flex;align-items:center;letter-spacing:0.02em;font-family:system-ui,-apple-system,sans-serif;">' + safeMsg + '</span>';
+    var safeMsg = String(rawMsg)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    html +=
+      '<span style="color:' +
+      textColor +
+      ';font-size:' +
+      fontSize +
+      ';font-weight:700;padding:0 24px;display:inline-flex;align-items:center;letter-spacing:0.02em;font-family:system-ui,-apple-system,sans-serif;">' +
+      safeMsg +
+      '</span>';
   }
   track.innerHTML = html;
   container.appendChild(track);
 
-  // Inserción en el DOM con Inteligencia de Ubicación Tiendanube
   var targetEl = null;
-  var insertMethod = 'before'; 
+  var insertMethod = 'before';
 
   if (w.target_type === 'product' && w.target_product_id) {
-    // 💵 SELECTOR DE PRECIO (Sabemos que funciona al 100% en tu tienda)
-    var priceEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container');
-    
-    // 🛒 SELECTOR DE BOTÓN "AGREGAR AL CARRITO" (Específico de Tiendanube)
+    // 💵 PRECIO
+    var priceEl = document.querySelector(
+      '.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container'
+    );
+
+    // 🛒 BOTÓN AGREGAR AL CARRITO
     var addToCartBtn = document.querySelector(
       '.js-add-to-cart-btn, .js-prod-submit-btn, .js-add-to-cart, ' +
-      '[data-store="product-buy-button"], .btn-add-to-cart, ' +
-      'form[action*="/cart/add"] button[type="submit"], ' +
-      'form[action*="/cart/add"] input[type="submit"], ' +
-      '#product-buy-button, .js-buy-button, .product-buy-button'
+        '[data-store="product-buy-button"], .btn-add-to-cart, ' +
+        'form[action*="/cart/add"] button[type="submit"], ' +
+        'form[action*="/cart/add"] input[type="submit"], ' +
+        '#product-buy-button, .js-buy-button, .product-buy-button'
     );
 
-    // 🖼️ SELECTOR DE IMAGEN / GALERÍA DE PRODUCTO
+    // 🖼️ GALERÍA / FOTO
     var imageContainer = document.querySelector(
       '[data-store="product-image-container"], .js-product-image-container, ' +
-      '.product-image-container, .js-product-slide-container, .js-gallery-container, ' +
-      '.gallery-container, .product-gallery, #product-gallery, .js-product-viewport, ' +
-      '.product-slider, #product-slider, .js-product-img-holder, .product-images, ' +
-      '.js-product-images-container, .product-gallery-container'
+        '.product-image-container, .js-product-slide-container, .js-gallery-container, ' +
+        '.gallery-container, .product-gallery, #product-gallery, .js-product-viewport, ' +
+        '.product-slider, #product-slider, .js-product-img-holder, .product-images, ' +
+        '.js-product-images-container, .product-gallery-container'
     );
-
-    // Intento secundario de foto si no encuentra el contenedor: buscar la etiqueta img y subir a su div principal
     if (!imageContainer) {
-      var mainImg = document.querySelector('img[itemprop="image"], img.product-image, img.js-product-slide-image, .js-product-slide img, .product-gallery img');
+      var mainImg = document.querySelector(
+        'img[itemprop="image"], img.product-image, img.js-product-slide-image, .js-product-slide img, .product-gallery img'
+      );
       if (mainImg) {
-        imageContainer = mainImg.closest('.js-product-image-container, .product-image-container, .product-gallery, div');
+        imageContainer = mainImg.closest(
+          '.js-product-image-container, .product-image-container, .product-gallery, div'
+        );
       }
     }
 
-    // APLICAR UBICACIONES
+    // 📦 CONTENEDOR COMPLETO DE COMPRA (cantidad + botón)
+    // Evita insertar DENTRO del flex row del botón
+    var buyBlock = null;
+    if (addToCartBtn) {
+      buyBlock =
+        addToCartBtn.closest(
+          'form[action*="/cart/add"], form.js-product-buyform, .js-product-form, ' +
+            '.product-form, .js-product-buy-button-container, .product-buy-button-container, ' +
+            '.js-product-variants-group, .product-quantity-container, .js-quantity-container'
+        ) || addToCartBtn.parentElement;
+    }
+
+    // ── APLICAR UBICACIÓN ──
     if (pos === 'below_image') {
       targetEl = imageContainer;
       insertMethod = 'after';
@@ -9185,30 +9211,32 @@ function renderMarqueeNovedades(w) {
       targetEl = priceEl;
       insertMethod = 'after';
     } else if (pos === 'above_buy') {
-      targetEl = addToCartBtn;
+      // Insertar ANTES del bloque completo (no del botón suelto)
+      targetEl = buyBlock || addToCartBtn;
       insertMethod = 'before';
     } else if (pos === 'below_buy') {
-      targetEl = addToCartBtn;
+      // Insertar DESPUÉS del bloque completo (no del botón suelto)
+      targetEl = buyBlock || addToCartBtn;
       insertMethod = 'after';
     } else {
-      // above_form (Por defecto)
-      targetEl = priceEl; // Usamos el precio como ancla inicial para que quede arriba del bloque de compra de forma elegante
+      // above_form (default)
+      targetEl = priceEl || buyBlock;
       insertMethod = 'before';
     }
 
-    // FALLBACK INTELIGENTE: Si el elemento elegido no existe en esta plantilla, anclarse al precio (que sí funciona)
+    // Fallbacks seguros
     if (!targetEl && priceEl) {
       targetEl = priceEl;
       insertMethod = 'before';
     }
-
-    // Fallback de último recurso: formulario de compra o botón cualquiera
     if (!targetEl) {
-      targetEl = document.querySelector('form[action*="/cart/add"], form.js-product-buyform, .js-product-form, input[type="submit"], button[type="submit"]');
+      targetEl = document.querySelector(
+        'form[action*="/cart/add"], form.js-product-buyform, .js-product-form, input[type="submit"], button[type="submit"]'
+      );
       insertMethod = 'before';
     }
 
-    // Ejecutar la inserción real en el DOM
+    // Inserción real
     if (targetEl && targetEl.parentNode) {
       if (insertMethod === 'before') {
         targetEl.parentNode.insertBefore(container, targetEl);
@@ -9221,23 +9249,26 @@ function renderMarqueeNovedades(w) {
       }
     }
   } else {
-    // Si es global (Home / Todas las páginas)
-    var header = document.querySelector('header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar');
+    // Global (home / todas las páginas)
+    var header = document.querySelector(
+      'header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar'
+    );
     if (header && header.parentNode) {
       header.parentNode.insertBefore(container, header.nextSibling);
     } else {
-      var main = document.querySelector('main, #content, .main-content, .js-main-content, body');
+      var main = document.querySelector(
+        'main, #content, .main-content, .js-main-content, body'
+      );
       if (main) {
         main.insertBefore(container, main.firstChild);
       }
     }
   }
 
-  // Telemetría Nevux
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
-      }
+}
  /* ═══════════════════════════════════════════
    WIDGET: HORARIO DE ATENCIÓN
    ═══════════════════════════════════════════ */
