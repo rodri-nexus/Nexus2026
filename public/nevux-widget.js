@@ -9092,7 +9092,7 @@
     } catch(e) {}
   }
 /* ═══════════════════════════════════════════
-   WIDGET: MARQUEE DE NOVEDADES (v11 Ubicación Dinámica Ultra-Compatible)
+   WIDGET: MARQUEE DE NOVEDADES (v11 Selector Militar Ultra-Compatible)
    ═══════════════════════════════════════════ */
 function renderMarqueeNovedades(w) {
   if (document.getElementById('nvx-marquee-' + w.id)) return;
@@ -9145,52 +9145,70 @@ function renderMarqueeNovedades(w) {
   var insertMethod = 'before'; 
 
   if (w.target_type === 'product' && w.target_product_id) {
-    // Buscamos el formulario de compra real (NUNCA la caja contenedora externa .js-product-container)
-    var buyForm = document.querySelector('form[action*="/cart/add"], form.js-product-buyform, .js-product-form, .product-buy-container');
+    // 💵 SELECTOR DE PRECIO (Sabemos que funciona al 100% en tu tienda)
+    var priceEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container');
+    
+    // 🛒 SELECTOR DE BOTÓN "AGREGAR AL CARRITO" (Específico de Tiendanube)
+    var addToCartBtn = document.querySelector(
+      '.js-add-to-cart-btn, .js-prod-submit-btn, .js-add-to-cart, ' +
+      '[data-store="product-buy-button"], .btn-add-to-cart, ' +
+      'form[action*="/cart/add"] button[type="submit"], ' +
+      'form[action*="/cart/add"] input[type="submit"], ' +
+      '#product-buy-button, .js-buy-button, .product-buy-button'
+    );
 
-    if (pos === 'below_image') {
-      // Intentar capturar contenedor de fotos
-      targetEl = document.querySelector(
-        '.js-product-image-container, .product-image-container, .js-product-slide-container, ' +
-        '#product-image-container, .js-product-viewport, .product-gallery, .js-product-img-holder, ' +
-        '.product-slider, .js-product-slider, .product-images, .js-product-images-container, ' +
-        '.gallery-container, .js-gallery-container, .product-gallery-container'
-      );
-      
-      // Si no lo encuentra, busca el elemento img de producto directamente y toma su div contenedor
-      if (!targetEl) {
-        var mainImg = document.querySelector('img[itemprop="image"], img.product-image, img.js-product-slide-image, .js-product-slide img, .product-gallery img');
-        if (mainImg) {
-          targetEl = mainImg.closest('div'); 
-        }
+    // 🖼️ SELECTOR DE IMAGEN / GALERÍA DE PRODUCTO
+    var imageContainer = document.querySelector(
+      '[data-store="product-image-container"], .js-product-image-container, ' +
+      '.product-image-container, .js-product-slide-container, .js-gallery-container, ' +
+      '.gallery-container, .product-gallery, #product-gallery, .js-product-viewport, ' +
+      '.product-slider, #product-slider, .js-product-img-holder, .product-images, ' +
+      '.js-product-images-container, .product-gallery-container'
+    );
+
+    // Intento secundario de foto si no encuentra el contenedor: buscar la etiqueta img y subir a su div principal
+    if (!imageContainer) {
+      var mainImg = document.querySelector('img[itemprop="image"], img.product-image, img.js-product-slide-image, .js-product-slide img, .product-gallery img');
+      if (mainImg) {
+        imageContainer = mainImg.closest('.js-product-image-container, .product-image-container, .product-gallery, div');
       }
+    }
+
+    // APLICAR UBICACIONES
+    if (pos === 'below_image') {
+      targetEl = imageContainer;
       insertMethod = 'after';
     } else if (pos === 'above_price') {
-      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container');
+      targetEl = priceEl;
       insertMethod = 'before';
     } else if (pos === 'below_price') {
-      targetEl = document.querySelector('.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container');
+      targetEl = priceEl;
       insertMethod = 'after';
     } else if (pos === 'above_buy') {
-      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button, .btn-add-to-cart, .js-add-to-cart-form input[type="submit"]');
+      targetEl = addToCartBtn;
       insertMethod = 'before';
     } else if (pos === 'below_buy') {
-      targetEl = document.querySelector('.js-prod-submit-btn, .js-add-to-cart-btn, button[type="submit"].js-add-to-cart, input[type="submit"].js-add-to-cart, .js-buy-button, .btn-add-to-cart, .js-add-to-cart-form input[type="submit"]');
+      targetEl = addToCartBtn;
       insertMethod = 'after';
-    }
-
-    // Fallback de seguridad: si fallan los selectores específicos, lo colocamos arriba del formulario de compra
-    if (!targetEl) {
-      targetEl = buyForm;
+    } else {
+      // above_form (Por defecto)
+      targetEl = priceEl; // Usamos el precio como ancla inicial para que quede arriba del bloque de compra de forma elegante
       insertMethod = 'before';
     }
 
-    // Último recurso desesperado: buscar cualquier botón de compra
-    if (!targetEl) {
-      targetEl = document.querySelector('input[type="submit"], button[type="submit"], .btn-primary');
+    // FALLBACK INTELIGENTE: Si el elemento elegido no existe en esta plantilla, anclarse al precio (que sí funciona)
+    if (!targetEl && priceEl) {
+      targetEl = priceEl;
       insertMethod = 'before';
     }
 
+    // Fallback de último recurso: formulario de compra o botón cualquiera
+    if (!targetEl) {
+      targetEl = document.querySelector('form[action*="/cart/add"], form.js-product-buyform, .js-product-form, input[type="submit"], button[type="submit"]');
+      insertMethod = 'before';
+    }
+
+    // Ejecutar la inserción real en el DOM
     if (targetEl && targetEl.parentNode) {
       if (insertMethod === 'before') {
         targetEl.parentNode.insertBefore(container, targetEl);
@@ -9219,7 +9237,7 @@ function renderMarqueeNovedades(w) {
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
- }
+      }
  /* ═══════════════════════════════════════════
    WIDGET: HORARIO DE ATENCIÓN
    ═══════════════════════════════════════════ */
