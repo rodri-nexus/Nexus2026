@@ -43,10 +43,11 @@ interface CalculadoraAhorroConfig {
   borderColor: string;
   accentColor: string;
   campaignTheme?: string;
+  position?: string; // NUEVO v12
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO
+   CONFIG POR DEFECTO (v12 con default below_price)
 ═══════════════════════════════════════════ */
 const defaultConfig: CalculadoraAhorroConfig = {
   badgeText: 'AHORRO EXCLUSIVO',
@@ -58,6 +59,7 @@ const defaultConfig: CalculadoraAhorroConfig = {
   borderColor: '#10B981',
   accentColor: '#059669',
   campaignTheme: 'none',
+  position: 'below_price', // NUEVO v12
 };
 
 /* ═══════════════════════════════════════════
@@ -79,7 +81,7 @@ const IconInfo = () => (
 );
 
 /* ═══════════════════════════════════════════
-   COMPONENTES REUTILIZABLES (Regla #9)
+   COMPONENTES REUTILIZABLES (Regla #9 + CamelCase #13)
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -120,41 +122,6 @@ function TextInput({
       onFocus={(e) => (e.target.style.borderColor = '#10B981')}
       onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
     />
-  );
-}
-
-function RadioCard({
-  checked, onChange, label, helper,
-}: {
-  checked: boolean; onChange: () => void; label: string; helper?: string;
-}) {
-  return (
-    <div style={{
-      background: '#ffffff', border: checked ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
-      borderRadius: 12, padding: 16, marginBottom: 12, transition: 'border-color 0.2s',
-    }}>
-      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
-        <div
-          onClick={onChange}
-          style={{
-            width: 22, height: 22, borderRadius: '50%',
-            border: checked ? '7px solid #10B981' : '2px solid #d1d5db',
-            background: '#ffffff', flexShrink: 0, transition: 'all 0.2s',
-            marginTop: 1,
-          }}
-        />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.35 }}>
-            {label}
-          </div>
-          {helper && (
-            <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
-              {helper}
-            </div>
-          )}
-        </div>
-      </label>
-    </div>
   );
 }
 
@@ -338,6 +305,60 @@ export default function CalculadoraAhorroEditor({
   /* ═══ TAB GENERAL ═══ */
   const tabGeneral = (
     <div>
+      {/* NUEVA v12: SELECTOR DE UBICACIÓN DINÁMICA ESPECTACULAR */}
+      <div style={{
+        background: '#f0fdf4',
+        borderLeft: '4px solid #10B981',
+        borderRadius: 12,
+        padding: 18,
+        marginBottom: 24,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#10B981', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>📍 Ubicación del Widget</span>
+            <span style={{
+              background: '#10B981',
+              color: '#ffffff',
+              fontSize: 10,
+              fontWeight: 900,
+              padding: '3px 8px',
+              borderRadius: 999,
+              letterSpacing: '0.05em'
+            }}>
+              ¡NUEVO!
+            </span>
+          </span>
+        </div>
+
+        <p style={{ fontSize: 13, color: '#065f46', marginTop: 0, marginBottom: 14, lineHeight: 1.5 }}>
+          Elegí la posición exacta donde se mostrará la calculadora dentro de la página de producto de tu tienda.
+        </p>
+
+        <select
+          value={config.position || 'below_price'}
+          onChange={(e) => update('position', e.target.value)}
+          style={{
+            width: '100%',
+            padding: '12px 14px',
+            fontSize: 15,
+            fontWeight: 600,
+            border: '1.5px solid #10B981',
+            borderRadius: 10,
+            background: '#ffffff',
+            color: '#000000',
+            outline: 'none',
+            boxSizing: 'border-box',
+            cursor: 'pointer',
+          }}
+        >
+          <option value="below_image">🖼️ Abajo de la foto del producto (Muy recomendado)</option>
+          <option value="above_price">💵 Arriba del precio</option>
+          <option value="below_price">💵 Abajo del precio</option>
+          <option value="above_buy">🛒 Arriba del botón de agregar al carrito</option>
+          <option value="below_buy">🛒 Abajo del botón de agregar al carrito</option>
+        </select>
+      </div>
+
       {/* Etiqueta Superior */}
       <div style={{ marginBottom: 24 }}>
         <FieldLabel>Etiqueta Superior</FieldLabel>
@@ -385,7 +406,7 @@ export default function CalculadoraAhorroEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS (DISEÑO RE-ACOMODADO AUTOPROFESIONAL) ═══ */
+  /* ═══ TAB ESTILOS (GRID AUTOADAPTABLE PREMIUM v12) ═══ */
   const tabEstilos = (
     <div>
       <div style={{ 
@@ -648,7 +669,8 @@ export default function CalculadoraAhorroEditor({
                   onClick={() => setActiveTab(tab.id as any)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
-                    border: 'none', borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
+                    border: 'none',
+                    borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
                     color: act ? '#10B981' : '#000000',
                     opacity: act ? 1 : 0.6,
                     fontSize: 15, fontWeight: act ? 700 : 500,
@@ -725,4 +747,4 @@ export default function CalculadoraAhorroEditor({
       </div>
     </div>
   );
-}
+       }
