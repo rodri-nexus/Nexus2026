@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
@@ -53,7 +53,7 @@ interface BundleCantidadConfig {
   efectoBoton: 'sin-efecto' | 'zoom';
   pulsante: boolean;
   campaignTheme?: string;
-  position?: string; // NUEVO v12
+  position?: string;
 }
 
 interface ExistingWidget {
@@ -130,7 +130,7 @@ const DEFAULT_CONFIG: BundleCantidadConfig = {
   efectoBoton: 'zoom',
   pulsante: true,
   campaignTheme: 'none',
-  position: 'above_buy', // Default v12
+  position: 'above_buy',
 };
 
 const THEMES: Record<string, { themeColor: string; accentColor: string; textColor: string; badgeBg: string }> = {
@@ -165,22 +165,12 @@ function formatMoney(n: number): string {
   return '$' + Math.round(n).toLocaleString('es-AR');
 }
 
-function IconStore({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
+function IconStore({ color = '#10B981' }: { color?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
       <path d="M3 9l1-5h16l1 5" />
       <path d="M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9" />
       <path d="M9 21V13h6v8" />
-    </svg>
-  );
-}
-
-function IconInfo({ size = 14, color = '#10B981' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="16" x2="12" y2="12" />
-      <line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
   );
 }
@@ -539,6 +529,8 @@ export default function BundleCantidadEditor({
   const [activeTab, setActiveTab] = useState<'general' | 'unidades' | 'estilos' | 'fechas'>('general');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isForAll = targetType === 'all';
 
   const update = <K extends keyof BundleCantidadConfig>(key: K, value: BundleCantidadConfig[K]) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
@@ -902,4 +894,4 @@ export default function BundleCantidadEditor({
       </div>
     </div>
   );
-}
+   }
