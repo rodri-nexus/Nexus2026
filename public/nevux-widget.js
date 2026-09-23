@@ -2606,7 +2606,7 @@
     }
         }
 /* ═══════════════════════════════════════════
-   WIDGET: BUNDLE PROMOCIONES
+   WIDGET: BUNDLE PROMOCIONES (v12.3 BLINDADO)
    ═══════════════════════════════════════════ */
 function renderBundlePromociones(widget) {
   if (pageType !== "product") return;
@@ -2625,17 +2625,31 @@ function normalizeBundlePromocionesConfig(raw) {
   var promosRaw = Array.isArray(raw.promociones) ? raw.promociones : ['2x1'];
   var promosNorm = [];
   
-  promosRaw.forEach(function(pKey) {
-    var u = (raw.configPromos && raw.configPromos[pKey]) || {};
+  promosRaw.forEach(function(item) {
+    var pKey = typeof item === 'string' ? item : (item && item.tipo ? item.tipo : '2x1');
+    var u = {};
+
+    // Compatibilidad con esquemas anteriores guardados en Supabase
+    if (typeof item === 'object' && item !== null) {
+      u = item;
+    }
+
+    if (raw.configPromos && raw.configPromos[pKey]) {
+      var cfgP = raw.configPromos[pKey];
+      for (var k in cfgP) {
+        u[k] = cfgP[k];
+      }
+    }
+
     promosNorm.push({
       tipo: pKey,
       formatoEtiqueta: u.formatoEtiqueta || "Lleva # paga #",
       subtitulo: u.subtitulo || "",
-      badgeEnvioGratis: u.badgeEnvioGratis === true,
-      badgeMasVendido: u.badgeMasVendido === true,
-      badgePersonalizado: u.badgePersonalizado === true,
+      badgeEnvioGratis: u.badgeEnvioGratis === true || (u.badges && u.badges.envioGratis === true),
+      badgeMasVendido: u.badgeMasVendido === true || (u.badges && u.badges.masVendido === true),
+      badgePersonalizado: u.badgePersonalizado === true || (u.badges && u.badges.personalizado === true),
       marcarPorDefecto: u.marcarPorDefecto === true,
-      ocultarEsta: u.ocultarEsta === true,
+      ocultarEsta: u.ocultarEsta === true || u.ocultarUnidad === true,
     });
   });
 
@@ -2698,7 +2712,6 @@ function mountBundlePromociones(widget, cfg) {
   container.className = NS + "-root";
   container.style.cssText = "display:block !important;width:100% !important;clear:both !important;box-sizing:border-box !important;margin:15px 0 !important;";
 
-  // Selectores de referencia de inyección militares (v12)
   var imgWrapper = document.querySelector('[data-component="product.images"], .js-product-images-container, .js-product-slider-container, .product-gallery, .js-product-gallery');
   var priceWrapper = document.querySelector('[data-store="product-price"], .js-price-display, #price_display, .price-container, .product-price-container, .price');
   var buyForm = document.querySelector('form[action*="/cart/add"], form.js-product-form, form.js-product-buyform, form.product-form');
@@ -2744,7 +2757,6 @@ function mountBundlePromociones(widget, cfg) {
     }
   }
 
-  // Ocultar botón original si se eligió reemplazar
   if (cfg.reemplazarBoton && buyForm) {
     var nativeBtn = buyForm.querySelector('button[type="submit"], input[type="submit"], .js-addtocart-btn, .product-buy-button');
     if (nativeBtn) nativeBtn.style.display = "none";
@@ -2781,37 +2793,43 @@ function mountBundlePromociones(widget, cfg) {
       btn.addEventListener("click", function () {
         var activePromo = cfg.promociones[state.selectedIdx];
         var ratio = parsePromoRatio(activePromo.tipo);
-        var unitsToBuy = ratio.lleva; // Sincroniza cantidad nativa
+        var unitsToBuy = ratio.lleva; // Para 2x1 -> 2 unidades; Para 3x2 -> 3 unidades.
 
-        // Sincronizar todos los inputs de cantidad del formulario
-        var qtyInputs = buyForm.querySelectorAll('input[name="quantity"], select[name="quantity"], input.js-quantity-input, select.js-quantity-select, .js-quantity-input, .quantity-input');
+        // Forzar actualización nativa en todos los campos de cantidad
+        var allQtyInputs = buyForm.querySelectorAll('input[name="quantity"], select[name="quantity"], input.js-quantity-input, select.js-quantity-select, .js-quantity-input, .quantity-input, input[type="number"]');
         
-        if (qtyInputs.length > 0) {
-          qtyInputs.forEach(function(el) {
-            el.value = unitsToBuy;
+        if (allQtyInputs.length > 0) {
+          allQtyInputs.forEach(function(input) {
             try {
-              el.dispatchEvent(new Event('change', { bubbles: true }));
-              el.dispatchEvent(new Event('input', { bubbles: true }));
-            } catch (err) {
-              if (document.createEvent) {
-                var evt = document.createEvent('HTMLEvents');
-                evt.initEvent('change', true, true);
-                el.dispatchEvent(evt);
+              var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value");
+              if (nativeSetter && nativeSetter.set) {
+                nativeSetter.set.call(input, unitsToBuy);
+              } else {
+                input.value = unitsToBuy;
               }
+            } catch(e) {
+              input.value = unitsToBuy;
             }
+
+            ['change', 'input', 'blur', 'keyup'].forEach(function(evtName) {
+              try {
+                input.dispatchEvent(new Event(evtName, { bubbles: true }));
+              } catch(err) {}
+            });
           });
-        } else {
-          var hiddenQty = buyForm.querySelector('input[name="quantity"][type="hidden"]');
-          if (!hiddenQty) {
-            hiddenQty = document.createElement('input');
-            hiddenQty.type = 'hidden';
-            hiddenQty.name = 'quantity';
-            buyForm.appendChild(hiddenQty);
-          }
-          hiddenQty.value = unitsToBuy;
         }
 
-        // Simular click nativo con delay de asimilación
+        // Input hidden de respaldo en el formulario
+        var hiddenQty = buyForm.querySelector('input[name="quantity"][type="hidden"]');
+        if (!hiddenQty) {
+          hiddenQty = document.createElement('input');
+          hiddenQty.type = 'hidden';
+          hiddenQty.name = 'quantity';
+          buyForm.appendChild(hiddenQty);
+        }
+        hiddenQty.value = unitsToBuy;
+
+        // Micro-delay de 50ms para asimilación de la plantilla antes del submit
         setTimeout(function() {
           var nativeBtn = buyForm.querySelector('button[type="submit"], input[type="submit"], .js-addtocart-btn, .js-buy-button, [data-store="product-buy-button"]');
           if (nativeBtn) {
@@ -2872,13 +2890,13 @@ function buildBundlePromocionesHtml(cfg, state) {
 
     var badgesHtml = "";
     if (p.badgeEnvioGratis) {
-      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeEnvio + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">Envío gratis</span>';
+      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeEnvio + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">ENVÍO GRATIS</span>';
     }
     if (p.badgeMasVendido) {
-      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeMasVendido + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">Más vendido</span>';
+      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgeMasVendido + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">MÁS VENDIDO</span>';
     }
     if (p.badgePersonalizado) {
-      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgePersonalizado + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">Promo</span>';
+      badgesHtml += '<span class="' + NS + '-bundle-badge" style="background:' + cfg.colorBadgePersonalizado + ';font-size:9px;font-weight:900;color:#fff;padding:2px 6px;border-radius:4px;text-transform:uppercase;margin-right:4px;">PROMO</span>';
     }
     if (badgesHtml) {
       badgesHtml = '<div class="' + NS + '-bundle-badges" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">' + badgesHtml + '</div>';
@@ -2928,7 +2946,7 @@ function buildBundlePromocionesHtml(cfg, state) {
     cardsHtml +
     btnHtml +
   '</div>';
- }
+    }
 /* ═══════════════════════════════════════════
    WIDGET: BUNDLE DE CANTIDAD
    ═══════════════════════════════════════════ */
