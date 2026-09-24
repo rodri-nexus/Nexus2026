@@ -14,7 +14,6 @@ import {
   User,
   X,
   TrendingUp,
-  Palette,
   Globe,
   Mic,
   Flame,
@@ -40,7 +39,7 @@ interface MenuItem {
 }
 
 /* ═══════════════════════════════════════════
-   LISTA DE ITEMS DEL MENÚ RECONFIGURADA v11
+   LISTA DE ITEMS DEL MENÚ RECONFIGURADA
 ═══════════════════════════════════════════ */
 const menuItems: MenuItem[] = [
   { label: "Inicio", href: "/dashboard", icon: Home },
@@ -55,11 +54,6 @@ const proMenuItems: MenuItem[] = [
     label: "📈 Métricas en Vivo", 
     href: "/dashboard/analytics", 
     icon: TrendingUp 
-  },
-  { 
-    label: "🎨 Diseño y Colores", 
-    href: "/dashboard/estilo-marca", 
-    icon: Palette 
   },
   { 
     label: "🔔 Notificaciones de Compras", 
@@ -463,4 +457,4 @@ export default function SideMenu({ isOpen, onClose }: SideMenuProps) {
       )}
     </AnimatePresence>
   );
-            }
+          }
