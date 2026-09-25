@@ -1,9 +1,18 @@
 import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar"),
   title: "Nevux - Aumenta tu ticket promedio",
   description:
     "App de Tiendanube para aumentar el ticket promedio de tu tienda online",
+  openGraph: {
+    title: "Nevux - Aumenta tu ticket promedio",
+    description: "App de Tiendanube para aumentar el ticket promedio de tu tienda online",
+    url: "https://nevux.ar",
+    siteName: "Nevux",
+    locale: "es_AR",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {
