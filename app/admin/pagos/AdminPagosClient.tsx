@@ -1,7 +1,6 @@
-// app/admin/pagos/AdminPagosClient.tsx
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -32,6 +31,9 @@ import NevuxLogo from "@/app/components/landing/NevuxLogo";
 import { createClient } from "@/lib/supabase-browser";
 import type { PaymentWithUser } from "./page";
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9)
+═══════════════════════════════════════════ */
 interface AdminPagosClientProps {
   adminEmail: string;
   payments: PaymentWithUser[];
@@ -63,7 +65,9 @@ interface CronResult {
   report?: CronReport;
 }
 
-// ─── GENERADORES DE MAILTO ───
+/* ═══════════════════════════════════════════
+   HELPERS GLOBALES & GENERADORES (Regla #9)
+═══════════════════════════════════════════ */
 function buildApprovedEmailMailto(customerEmail: string, amount: number, newPlanEndISO: string): string {
   const formattedAmount = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(amount);
   const endDate = new Date(newPlanEndISO).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
@@ -115,13 +119,1048 @@ function formatDateForCSV(iso: string | null | undefined): string {
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/* ═══════════════════════════════════════════
+   SUB-COMPONENTES REUTILIZABLES (Regla #9)
+═══════════════════════════════════════════ */
+function StatCard({
+  icon,
+  label,
+  value,
+  iconColor,
+  iconBg,
+  highlight = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+  iconColor: string;
+  iconBg: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        border: highlight ? "2px solid #f59e0b" : "1px solid #e5e7eb",
+        borderRadius: 14,
+        padding: 14,
+        boxShadow: highlight ? "0 4px 12px rgba(245, 158, 11, 0.15)" : "0 1px 3px rgba(0,0,0,0.03)",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: 10,
+          background: iconBg,
+          color: iconColor,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 8,
+        }}
+      >
+        {icon}
+      </div>
+      <div
+        style={{
+          fontSize: 10,
+          fontWeight: 800,
+          color: "#9ca3af",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          marginBottom: 2,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: typeof value === "string" ? 18 : 22,
+          fontWeight: 900,
+          color: highlight ? "#d97706" : "#111827",
+          lineHeight: 1.1,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+  count,
+  urgent = false,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  count: number;
+  urgent?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "8px 14px",
+        borderRadius: 999,
+        border: active ? "1.5px solid #111827" : "1.5px solid #e5e7eb",
+        background: active ? "#111827" : "#ffffff",
+        color: active ? "#ffffff" : "#374151",
+        fontSize: 13,
+        fontWeight: 700,
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+        transition: "all 0.15s ease",
+        fontFamily: "inherit",
+      }}
+    >
+      <span>{children}</span>
+      {count > 0 && (
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 900,
+            padding: "2px 7px",
+            borderRadius: 999,
+            background: active ? "#ffffff" : urgent ? "#f59e0b" : "#f3f4f6",
+            color: active ? "#111827" : urgent ? "#ffffff" : "#4b5563",
+            lineHeight: 1,
+          }}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function PaymentCard({
+  payment,
+  onViewReceipt,
+  onApprove,
+  onReject,
+}: {
+  payment: PaymentWithUser;
+  onViewReceipt: () => void;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
+  const isPending = payment.status === "pending";
+  const isApproved = payment.status === "approved";
+
+  const badgeBg = isPending ? "#fef3c7" : isApproved ? "#d1fae5" : "#fee2e2";
+  const badgeColor = isPending ? "#b45309" : isApproved ? "#047857" : "#b91c1c";
+  const cardBorder = isPending ? "1.5px solid #fde68a" : isApproved ? "1px solid #a7f3d0" : "1px solid #fecaca";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        background: "#ffffff",
+        borderRadius: 16,
+        padding: 18,
+        border: cardBorder,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <span
+            style={{
+              padding: "4px 10px",
+              borderRadius: 999,
+              fontSize: 10,
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              background: badgeBg,
+              color: badgeColor,
+            }}
+          >
+            {isPending ? "Pendiente" : isApproved ? "Aprobado" : "Rechazado"}
+          </span>
+          <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600 }}>
+            {new Date(payment.created_at).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+          </span>
+        </div>
+
+        <div style={{ fontSize: 28, fontWeight: 900, color: "#111827", marginBottom: 14, letterSpacing: "-0.02em" }}>
+          ${payment.amount.toLocaleString("es-AR")}
+        </div>
+
+        <div
+          style={{
+            background: "#f9fafb",
+            borderRadius: 12,
+            padding: 12,
+            marginBottom: 16,
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            fontSize: 12,
+            border: "1px solid #f3f4f6",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <span style={{ color: "#6b7280", display: "flex", alignItems: "center", gap: 4 }}>
+              <User size={12} /> Cliente
+            </span>
+            <b style={{ color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 180 }}>
+              {payment.user_email}
+            </b>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <span style={{ color: "#6b7280", display: "flex", alignItems: "center", gap: 4 }}>
+              <Store size={12} /> Tienda
+            </span>
+            <b style={{ color: "#111827" }}>#{payment.store_id}</b>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <span style={{ color: "#6b7280", display: "flex", alignItems: "center", gap: 4 }}>
+              <Calendar size={12} /> Meses Activo
+            </span>
+            <b style={{ color: "#111827" }}>{payment.store_months_active ?? 1} mes(es)</b>
+          </div>
+          {payment.transfer_reference && (
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+              <span style={{ color: "#6b7280", display: "flex", alignItems: "center", gap: 4 }}>
+                <Copy size={12} /> Ref.
+              </span>
+              <b style={{ color: "#111827", fontFamily: "monospace" }}>{payment.transfer_reference}</b>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {payment.receipt_url && (
+          <button
+            type="button"
+            onClick={onViewReceipt}
+            style={{
+              flex: 1,
+              minWidth: 120,
+              padding: "10px 12px",
+              background: "#111827",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: 10,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              fontFamily: "inherit",
+            }}
+          >
+            <Eye size={14} /> Ver Comprobante
+          </button>
+        )}
+        {isPending && (
+          <>
+            <button
+              type="button"
+              onClick={onApprove}
+              style={{
+                padding: "10px 14px",
+                background: "#10B981",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: 10,
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                fontFamily: "inherit",
+              }}
+            >
+              <Check size={14} /> Aprobar
+            </button>
+            <button
+              type="button"
+              onClick={onReject}
+              style={{
+                padding: "10px 14px",
+                background: "#ffffff",
+                color: "#dc2626",
+                border: "1px solid #fecaca",
+                borderRadius: 10,
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                fontFamily: "inherit",
+              }}
+            >
+              <X size={14} /> Rechazar
+            </button>
+          </>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function ModalBackdrop({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0, 0, 0, 0.6)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+        boxSizing: "border-box",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function ModalContent({
+  children,
+  title,
+  onClose,
+  large = false,
+}: {
+  children: React.ReactNode;
+  title: string;
+  onClose: () => void;
+  large?: boolean;
+}) {
+  return (
+    <motion.div
+      initial={{ scale: 0.95, opacity: 0, y: 10 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      exit={{ scale: 0.95, opacity: 0, y: 10 }}
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        background: "#ffffff",
+        borderRadius: 20,
+        padding: 20,
+        width: "100%",
+        maxWidth: large ? 600 : 440,
+        maxHeight: "85vh",
+        overflowY: "auto",
+        boxSizing: "border-box",
+        boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingBottom: 12,
+          marginBottom: 16,
+          borderBottom: "1px solid #f3f4f6",
+        }}
+      >
+        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#111827" }}>{title}</h3>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            border: "none",
+            background: "#f3f4f6",
+            color: "#111827",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <X size={16} />
+        </button>
+      </div>
+      {children}
+    </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   MODALES ESPECÍFICOS (Regla #9)
+═══════════════════════════════════════════ */
+function ReceiptModal({ payment, onClose }: { payment: PaymentWithUser; onClose: () => void }) {
+  const [loading, setLoading] = useState(true);
+  const [url, setUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useMemo(() => {
+    async function fetchUrl() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/admin/receipt-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId: payment.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "No se pudo obtener la URL");
+        setUrl(data.url);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Error imprevisto");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUrl();
+  }, [payment.id]);
+
+  const isPdf = url?.toLowerCase().includes(".pdf");
+
+  return (
+    <ModalBackdrop onClose={onClose}>
+      <ModalContent title="Comprobante de pago" onClose={onClose} large>
+        {loading && (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <Loader2 size={32} style={{ margin: "0 auto 12px", color: "#10B981" }} className="animate-spin" />
+            <p style={{ fontSize: 13, color: "#6b7280" }}>Cargando comprobante...</p>
+          </div>
+        )}
+        {error && (
+          <div style={{ padding: 12, background: "#fee2e2", color: "#991b1b", borderRadius: 10, fontSize: 13 }}>
+            ⚠️ {error}
+          </div>
+        )}
+        {url && !loading && (
+          <div style={{ textAlign: "center" }}>
+            {isPdf ? (
+              <div style={{ padding: "20px 0" }}>
+                <FileText size={56} style={{ color: "#10B981", marginBottom: 12 }} />
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 16 }}>Comprobante en formato PDF</p>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "10px 18px",
+                    background: "#10B981",
+                    color: "#ffffff",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                  }}
+                >
+                  <ExternalLink size={14} /> Abrir PDF
+                </a>
+              </div>
+            ) : (
+              <img
+                src={url}
+                alt="Comprobante"
+                style={{
+                  width: "100%",
+                  maxHeight: "60vh",
+                  objectFit: "contain",
+                  borderRadius: 12,
+                  background: "#f9fafb",
+                }}
+              />
+            )}
+            <div style={{ marginTop: 14 }}>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: 13,
+                  color: "#10B981",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                <ExternalLink size={13} /> Abrir en pestaña nueva
+              </a>
+            </div>
+          </div>
+        )}
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser; onClose: () => void; onSuccess: () => void }) {
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successData, setSuccessData] = useState<{ newPlanEnd: string } | null>(null);
+
+  async function handleApprove() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/approve-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: payment.id, adminNotes: notes.trim() || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al aprobar");
+      setSuccessData({ newPlanEnd: data.newPlanEnd });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al aprobar");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (successData) {
+    const mailtoLink = buildApprovedEmailMailto(payment.user_email || "", payment.amount, successData.newPlanEnd);
+    return (
+      <ModalBackdrop onClose={onSuccess}>
+        <ModalContent title="Pago aprobado ✓" onClose={onSuccess}>
+          <div style={{ textAlign: "center", marginBottom: 20 }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: "50%",
+                background: "#ecfdf5",
+                color: "#10B981",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 10,
+              }}
+            >
+              <CheckCircle2 size={36} />
+            </div>
+            <h4 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "#111827" }}>Plan activado con éxito</h4>
+            <p style={{ margin: 0, fontSize: 13, color: "#6b7280" }}>
+              Vence el {new Date(successData.newPlanEnd).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}
+            </p>
+          </div>
+
+          <div style={{ background: "#f9fafb", borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 13 }}>
+            <div><b>Cliente:</b> {payment.user_email}</div>
+            <div style={{ marginTop: 4 }}><b>Monto:</b> ${payment.amount.toLocaleString("es-AR")}</div>
+          </div>
+
+          <div style={{ background: "#f0fdf4", border: "1px solid #a7f3d0", borderRadius: 12, padding: 14, marginBottom: 16, fontSize: 13 }}>
+            <p style={{ margin: "0 0 10px", fontWeight: 700, color: "#065f46" }}>
+              📧 Enviale el email de confirmación redactado automáticamente:
+            </p>
+            <a
+              href={mailtoLink}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                padding: "10px",
+                background: "#10B981",
+                color: "#ffffff",
+                borderRadius: 10,
+                fontWeight: 800,
+                fontSize: 14,
+                textDecoration: "none",
+              }}
+            >
+              <Mail size={16} /> Enviar email al cliente
+            </a>
+          </div>
+
+          <button
+            type="button"
+            onClick={onSuccess}
+            style={{
+              width: "100%",
+              padding: 10,
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: 10,
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            Cerrar
+          </button>
+        </ModalContent>
+      </ModalBackdrop>
+    );
+  }
+
+  return (
+    <ModalBackdrop onClose={submitting ? () => {} : onClose}>
+      <ModalContent title="Aprobar pago" onClose={onClose}>
+        <div style={{ background: "#ecfdf5", borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 13, color: "#065f46", display: "flex", gap: 8 }}>
+          <CheckCircle2 size={16} style={{ flexShrink: 0, marginTop: 2 }} />
+          <span>Se va a activar el plan del cliente por <b>30 días</b>. El usuario podrá usar todos los widgets inmediatamente.</span>
+        </div>
+
+        <div style={{ background: "#f9fafb", borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 13, display: "flex", flexDirection: "column", gap: 4 }}>
+          <div><b>Cliente:</b> {payment.user_email}</div>
+          <div><b>Monto:</b> ${payment.amount.toLocaleString("es-AR")}</div>
+        </div>
+
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Notas internas (opcional)..."
+          disabled={submitting}
+          style={{
+            width: "100%",
+            minHeight: 80,
+            padding: 12,
+            borderRadius: 10,
+            border: "1.5px solid #e5e7eb",
+            fontSize: 14,
+            fontFamily: "inherit",
+            boxSizing: "border-box",
+            outline: "none",
+          }}
+        />
+
+        {error && <div style={{ marginTop: 10, padding: 10, background: "#fee2e2", color: "#dc2626", borderRadius: 8, fontSize: 12 }}>⚠️ {error}</div>}
+
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: 10,
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleApprove}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: 10,
+              background: "#10B981",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 800,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            {submitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Aprobar pago
+          </button>
+        </div>
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser; onClose: () => void; onSuccess: () => void }) {
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successReason, setSuccessReason] = useState<string | null>(null);
+
+  async function handleReject() {
+    if (reason.trim().length < 3) {
+      setError("Ingresá una razón válida");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/reject-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: payment.id, reason: reason.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al rechazar");
+      setSuccessReason(reason.trim());
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al rechazar");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (successReason) {
+    const mailtoLink = buildRejectedEmailMailto(payment.user_email || "", successReason);
+    return (
+      <ModalBackdrop onClose={onSuccess}>
+        <ModalContent title="Pago rechazado" onClose={onSuccess}>
+          <div style={{ textAlign: "center", marginBottom: 20 }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: "50%",
+                background: "#fee2e2",
+                color: "#dc2626",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 10,
+              }}
+            >
+              <XCircle size={36} />
+            </div>
+            <h4 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "#111827" }}>Pago rechazado</h4>
+            <p style={{ margin: 0, fontSize: 13, color: "#6b7280" }}>El cliente puede subir otro comprobante.</p>
+          </div>
+
+          <div style={{ background: "#f9fafb", borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 13 }}>
+            <div><b>Cliente:</b> {payment.user_email}</div>
+            <div style={{ marginTop: 4 }}><b>Razón:</b> {successReason}</div>
+          </div>
+
+          <div style={{ background: "#f0fdf4", border: "1px solid #a7f3d0", borderRadius: 12, padding: 14, marginBottom: 16, fontSize: 13 }}>
+            <p style={{ margin: "0 0 10px", fontWeight: 700, color: "#065f46" }}>
+              📧 Enviale el email de rechazo redactado automáticamente:
+            </p>
+            <a
+              href={mailtoLink}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                padding: "10px",
+                background: "#10B981",
+                color: "#ffffff",
+                borderRadius: 10,
+                fontWeight: 800,
+                fontSize: 14,
+                textDecoration: "none",
+              }}
+            >
+              <Mail size={16} /> Enviar email al cliente
+            </a>
+          </div>
+
+          <button
+            type="button"
+            onClick={onSuccess}
+            style={{
+              width: "100%",
+              padding: 10,
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: 10,
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            Cerrar
+          </button>
+        </ModalContent>
+      </ModalBackdrop>
+    );
+  }
+
+  return (
+    <ModalBackdrop onClose={submitting ? () => {} : onClose}>
+      <ModalContent title="Rechazar pago" onClose={onClose}>
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 13, color: "#991b1b", display: "flex", gap: 8 }}>
+          <AlertCircle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
+          <span>El cliente verá la razón del rechazo de inmediato y podrá volver a cargar un comprobante.</span>
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+          {["Comprobante ilegible", "Monto no coincide", "Transferencia no encontrada", "Comprobante duplicado"].map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setReason(r)}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 700,
+                border: reason === r ? "1.5px solid #10B981" : "1px solid #e5e7eb",
+                background: reason === r ? "#ecfdf5" : "#ffffff",
+                color: reason === r ? "#059669" : "#374151",
+                cursor: "pointer",
+              }}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Escribí la razón del rechazo..."
+          disabled={submitting}
+          style={{
+            width: "100%",
+            minHeight: 90,
+            padding: 12,
+            borderRadius: 10,
+            border: "1.5px solid #e5e7eb",
+            fontSize: 14,
+            fontFamily: "inherit",
+            boxSizing: "border-box",
+            outline: "none",
+          }}
+        />
+
+        {error && <div style={{ marginTop: 10, padding: 10, background: "#fee2e2", color: "#dc2626", borderRadius: 8, fontSize: 12 }}>⚠️ {error}</div>}
+
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitting}
+            style={{
+              flex: 1,
+              padding: 10,
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleReject}
+            disabled={submitting || reason.trim().length < 3}
+            style={{
+              flex: 1,
+              padding: 10,
+              background: submitting || reason.trim().length < 3 ? "#e5e7eb" : "#dc2626",
+              color: submitting || reason.trim().length < 3 ? "#9ca3af" : "#ffffff",
+              border: "none",
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 800,
+              cursor: submitting || reason.trim().length < 3 ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 4,
+            }}
+          >
+            {submitting ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />} Rechazar pago
+          </button>
+        </div>
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+function CronModal({ onClose }: { onClose: () => void }) {
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<CronResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleRun() {
+    setRunning(true);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await fetch("/api/cron/check-plans", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || "nevux_admin_sync_2026"}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo ejecutar el cron");
+      setResult(data as CronResult);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error imprevisto");
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  return (
+    <ModalBackdrop onClose={running ? () => {} : onClose}>
+      <ModalContent title="Ejecutar cron manualmente" onClose={onClose}>
+        {!result && !error && (
+          <>
+            <div style={{ background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 13, color: "#065f46", display: "flex", gap: 8 }}>
+              <Zap size={18} style={{ color: "#10B981", flexShrink: 0, marginTop: 2 }} />
+              <span>Ejecuta el chequeo diario al instante: marca planes vencidos y envía recordatorios para planes por expirar.</span>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={running}
+                style={{
+                  flex: 1,
+                  padding: 10,
+                  background: "#ffffff",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleRun}
+                disabled={running}
+                style={{
+                  flex: 1,
+                  padding: 10,
+                  background: "#10B981",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                }}
+              >
+                {running ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />} Ejecutar ahora
+              </button>
+            </div>
+          </>
+        )}
+
+        {result && (
+          <>
+            <div style={{ textAlign: "center", marginBottom: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#ecfdf5", color: "#10B981", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+                <CheckCircle2 size={30} />
+              </div>
+              <h4 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 800, color: "#111827" }}>Cron ejecutado ✓</h4>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
+              <div style={{ background: "#fef2f2", padding: 10, borderRadius: 10, textAlign: "center" }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: "#dc2626" }}>{result.report?.expired ?? 0}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase" }}>Expirados</div>
+              </div>
+              <div style={{ background: "#ecfdf5", padding: 10, borderRadius: 10, textAlign: "center" }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: "#059669" }}>{result.report?.remindersSent ?? 0}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase" }}>Emails OK</div>
+              </div>
+              <div style={{ background: "#fef3c7", padding: 10, borderRadius: 10, textAlign: "center" }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: "#b45309" }}>{result.report?.remindersFailed ?? 0}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", textTransform: "uppercase" }}>Fallidos</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                width: "100%",
+                padding: 10,
+                background: "#111827",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: 10,
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              Cerrar
+            </button>
+          </>
+        )}
+
+        {error && (
+          <>
+            <div style={{ padding: 12, background: "#fee2e2", color: "#dc2626", borderRadius: 10, fontSize: 13, marginBottom: 16 }}>
+              ⚠️ Error: {error}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                width: "100%",
+                padding: 10,
+                background: "#111827",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: 10,
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              Cerrar
+            </button>
+          </>
+        )}
+      </ModalContent>
+    </ModalBackdrop>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function AdminPagosClient({ adminEmail, payments, stats }: AdminPagosClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>("pending");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilterKey>("all");
-  const [searchFocused, setSearchFocused] = useState(false);
-  
+
   const [viewingReceipt, setViewingReceipt] = useState<PaymentWithUser | null>(null);
   const [approvingPayment, setApprovingPayment] = useState<PaymentWithUser | null>(null);
   const [rejectingPayment, setRejectingPayment] = useState<PaymentWithUser | null>(null);
@@ -181,109 +1220,279 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-[#fafafa] text-black overflow-x-hidden box-border">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+    <div style={{ minHeight: "100vh", background: "#f9fafb", color: "#000000", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      {/* HEADER STICKY */}
+      <header
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 30,
+          background: "#ffffff",
+          borderBottom: "1px solid #e5e7eb",
+          padding: "12px 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <NevuxLogo size="small" />
-          <span className="px-2 py-1 bg-black text-white rounded text-[10px] font-extrabold tracking-wider uppercase">Admin</span>
+          <span
+            style={{
+              padding: "2px 6px",
+              background: "#111827",
+              color: "#ffffff",
+              borderRadius: 4,
+              fontSize: 10,
+              fontWeight: 900,
+              letterSpacing: "0.05em",
+            }}
+          >
+            ADMIN
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <button
             type="button"
             onClick={() => setShowCronModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-transparent border border-gray-200 rounded-xl text-xs font-bold text-black cursor-pointer hover:bg-gray-50 transition"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
           >
-            <Zap size={14} className="text-[#10B981]" /> Cron
+            <Zap size={14} color="#10B981" /> Cron
           </button>
+
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-transparent border border-gray-200 rounded-xl text-xs font-bold text-black cursor-pointer hover:bg-gray-50 transition"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
           >
             <LogOut size={14} /> Salir
           </button>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 py-6 box-border">
-        <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-black tracking-tight mb-1">Panel de pagos</h1>
-          <p className="text-sm text-gray-500">Aprobá o rechazá los comprobantes de transferencia de los comercios de Nevux.</p>
+      {/* MAIN CONTAINER */}
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 16px 60px", boxSizing: "border-box" }}>
+        {/* TÍTULO */}
+        <div style={{ marginBottom: 20 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 4px", letterSpacing: "-0.02em", color: "#111827" }}>
+            Panel de pagos
+          </h1>
+          <p style={{ margin: 0, fontSize: 14, color: "#6b7280", lineHeight: 1.4 }}>
+            Aprobá o rechazá los comprobantes de transferencia de los comercios de Nevux.
+          </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={<Clock size={18} />} label="Pendientes" value={stats.pending} color="text-[#f59e0b]" bg="bg-amber-50" highlight={stats.pending > 0} />
-          <StatCard icon={<CheckCircle2 size={18} />} label="Aprobados" value={stats.approved} color="text-[#059669]" bg="bg-emerald-50" />
-          <StatCard icon={<XCircle size={18} />} label="Rechazados" value={stats.rejected} color="text-[#dc2626]" bg="bg-red-50" />
-          <StatCard icon={<DollarSign size={18} />} label="Ingresos" value={`$${stats.totalRevenue.toLocaleString("es-AR")}`} color="text-[#10B981]" bg="bg-emerald-50" isText />
+        {/* STATS GRID AUTOADAPTABLE */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+            gap: 12,
+            marginBottom: 20,
+          }}
+        >
+          <StatCard
+            icon={<Clock size={16} />}
+            label="Pendientes"
+            value={stats.pending}
+            iconColor="#d97706"
+            iconBg="#fef3c7"
+            highlight={stats.pending > 0}
+          />
+          <StatCard
+            icon={<CheckCircle2 size={16} />}
+            label="Aprobados"
+            value={stats.approved}
+            iconColor="#059669"
+            iconBg="#d1fae5"
+          />
+          <StatCard
+            icon={<XCircle size={16} />}
+            label="Rechazados"
+            value={stats.rejected}
+            iconColor="#dc2626"
+            iconBg="#fee2e2"
+          />
+          <StatCard
+            icon={<DollarSign size={16} />}
+            label="Ingresos"
+            value={`$${stats.totalRevenue.toLocaleString("es-AR")}`}
+            iconColor="#10B981"
+            iconBg="#ecfdf5"
+          />
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          <TabButton active={activeTab === "pending"} onClick={() => setActiveTab("pending")} count={stats.pending} urgent={stats.pending > 0}>Pendientes</TabButton>
-          <TabButton active={activeTab === "approved"} onClick={() => setActiveTab("approved")} count={stats.approved}>Aprobados</TabButton>
-          <TabButton active={activeTab === "rejected"} onClick={() => setActiveTab("rejected")} count={stats.rejected}>Rechazados</TabButton>
-          <TabButton active={activeTab === "all"} onClick={() => setActiveTab("all")} count={payments.length}>Todos</TabButton>
+        {/* TABS CON SCROLL HORIZONTAL */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+          <TabButton active={activeTab === "pending"} onClick={() => setActiveTab("pending")} count={stats.pending} urgent={stats.pending > 0}>
+            Pendientes
+          </TabButton>
+          <TabButton active={activeTab === "approved"} onClick={() => setActiveTab("approved")} count={stats.approved}>
+            Aprobados
+          </TabButton>
+          <TabButton active={activeTab === "rejected"} onClick={() => setActiveTab("rejected")} count={stats.rejected}>
+            Rechazados
+          </TabButton>
+          <TabButton active={activeTab === "all"} onClick={() => setActiveTab("all")} count={payments.length}>
+            Todos
+          </TabButton>
         </div>
 
-        {/* Filtros */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4 box-border shadow-sm">
-          <div className="relative mb-3">
-            <Search size={16} color={searchFocused ? "#10B981" : "#9ca3af"} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors" />
+        {/* CARD DE FILTROS */}
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1px solid #e5e7eb",
+            borderRadius: 16,
+            padding: 16,
+            marginBottom: 20,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+          }}
+        >
+          {/* BUSCADOR */}
+          <div style={{ position: "relative", marginBottom: 12 }}>
+            <Search size={16} color="#9ca3af" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
             <input
               type="text"
               value={searchQuery}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por email del cliente..."
-              className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-sm outline-none border transition ${searchQuery ? "border-[#10B981] bg-white" : "border-gray-200 bg-gray-50"}`}
+              style={{
+                width: "100%",
+                padding: "10px 36px 10px 36px",
+                borderRadius: 10,
+                border: searchQuery ? "1.5px solid #10B981" : "1.5px solid #e5e7eb",
+                fontSize: 14,
+                outline: "none",
+                boxSizing: "border-box",
+                fontFamily: "inherit",
+              }}
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black text-white flex items-center justify-center cursor-pointer p-0 border-none"
+                style={{
+                  position: "absolute",
+                  right: 10,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  background: "#111827",
+                  color: "#ffffff",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 10,
+                }}
               >
-                <X size={12} />
+                ✕
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1 mr-1"><Filter size={11} />Fecha</span>
-            {(["all", "today", "7days", "30days", "thisMonth"] as DateFilterKey[]).map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setDateFilter(f)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${dateFilter === f ? "bg-[#10B981] text-white border-[#10B981]" : "bg-white text-black border-gray-200"}`}
-              >
-                {f === "all" ? "Todas" : f === "today" ? "Hoy" : f === "7days" ? "7 días" : f === "30days" ? "30 días" : "Este mes"}
-              </button>
-            ))}
+          {/* FILTROS POR FECHA */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: "#9ca3af", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4, marginRight: 4 }}>
+              <Filter size={12} /> Fecha:
+            </span>
+            {(["all", "today", "7days", "30days", "thisMonth"] as DateFilterKey[]).map((f) => {
+              const act = dateFilter === f;
+              const label = f === "all" ? "Todas" : f === "today" ? "Hoy" : f === "7days" ? "7 días" : f === "30days" ? "30 días" : "Este mes";
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setDateFilter(f)}
+                  style={{
+                    padding: "5px 12px",
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: act ? "1.5px solid #10B981" : "1px solid #e5e7eb",
+                    background: act ? "#10B981" : "#ffffff",
+                    color: act ? "#ffffff" : "#374151",
+                    cursor: "pointer",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="flex justify-between items-center gap-2 pt-3 border-t border-gray-100 flex-wrap">
-            <span className="text-xs text-gray-500">Mostrando <b>{filteredPayments.length}</b> de <b>{activeTab === "all" ? payments.length : payments.filter((p) => p.status === activeTab).length}</b> pagos</span>
-            <div className="flex gap-2 items-center flex-wrap">
+          {/* BOTONES LIMPIAR Y EXPORTAR */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, paddingTop: 12, borderTop: "1px solid #f3f4f6", flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13, color: "#6b7280" }}>
+              Mostrando <b>{filteredPayments.length}</b> pagos
+            </span>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {(searchQuery || dateFilter !== "all") && (
                 <button
                   type="button"
                   onClick={handleClearFilters}
-                  className="flex items-center gap-1 px-3.5 py-1.5 bg-transparent border border-emerald-200 rounded-full text-xs font-bold text-[#10B981] cursor-pointer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "6px 12px",
+                    background: "none",
+                    border: "1px solid #a7f3d0",
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#10B981",
+                    cursor: "pointer",
+                  }}
                 >
-                  <RotateCcw size={12} /> Limpiar filtros
+                  <RotateCcw size={12} /> Limpiar
                 </button>
               )}
               <button
                 type="button"
                 onClick={handleExportCSV}
                 disabled={filteredPayments.length === 0}
-                className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold transition border-none cursor-pointer ${filteredPayments.length > 0 ? "bg-black text-white opacity-100" : "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "6px 14px",
+                  background: filteredPayments.length > 0 ? "#111827" : "#f3f4f6",
+                  color: filteredPayments.length > 0 ? "#ffffff" : "#9ca3af",
+                  border: "none",
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: filteredPayments.length > 0 ? "pointer" : "not-allowed",
+                }}
               >
                 <Download size={12} /> Exportar CSV
               </button>
@@ -291,452 +1500,72 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
           </div>
         </div>
 
-        {/* Lista de Pagos */}
+        {/* LISTA DE TARJETAS */}
         {filteredPayments.length === 0 ? (
-          <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center shadow-sm">
-            <AlertCircle size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-sm font-bold text-gray-700">Sin pagos registrados</p>
-            <p className="text-xs text-gray-400 mt-1">No hay comprobantes para mostrar en esta lista.</p>
+          <div
+            style={{
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: 16,
+              padding: "40px 20px",
+              textAlign: "center",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+            }}
+          >
+            <AlertCircle size={40} style={{ margin: "0 auto 12px", color: "#d1d5db" }} />
+            <p style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700, color: "#111827" }}>
+              Sin pagos registrados
+            </p>
+            <p style={{ margin: 0, fontSize: 13, color: "#6b7280" }}>
+              No hay comprobantes para mostrar en esta lista.
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 16,
+            }}
+          >
             {filteredPayments.map((p) => (
-              <PaymentCard key={p.id} payment={p} onViewReceipt={() => setViewingReceipt(p)} onApprove={() => setApprovingPayment(p)} onReject={() => setRejectingPayment(p)} />
+              <PaymentCard
+                key={p.id}
+                payment={p}
+                onViewReceipt={() => setViewingReceipt(p)}
+                onApprove={() => setApprovingPayment(p)}
+                onReject={() => setRejectingPayment(p)}
+              />
             ))}
           </div>
         )}
       </main>
 
-      {/* Modales */}
+      {/* MODALES ANIDADOS */}
       <AnimatePresence>
         {viewingReceipt && <ReceiptModal payment={viewingReceipt} onClose={() => setViewingReceipt(null)} />}
-        {approvingPayment && <ApproveModal payment={approvingPayment} onClose={() => setApprovingPayment(null)} onSuccess={() => { setApprovingPayment(null); router.refresh(); }} />}
-        {rejectingPayment && <RejectModal payment={rejectingPayment} onClose={() => setRejectingPayment(null)} onSuccess={() => { setRejectingPayment(null); router.refresh(); }} />}
+        {approvingPayment && (
+          <ApproveModal
+            payment={approvingPayment}
+            onClose={() => setApprovingPayment(null)}
+            onSuccess={() => {
+              setApprovingPayment(null);
+              router.refresh();
+            }}
+          />
+        )}
+        {rejectingPayment && (
+          <RejectModal
+            payment={rejectingPayment}
+            onClose={() => setRejectingPayment(null)}
+            onSuccess={() => {
+              setRejectingPayment(null);
+              router.refresh();
+            }}
+          />
+        )}
         {showCronModal && <CronModal onClose={() => setShowCronModal(false)} />}
       </AnimatePresence>
     </div>
   );
-}
-
-// ─── COMPONENTES AUXILIARES INTERNOS ───
-
-function StatCard({ icon, label, value, color, bg, isText = false, highlight = false }: { icon: React.ReactNode; label: string; value: number | string; color: string; bg: string; isText?: boolean; highlight?: boolean }) {
-  return (
-    <div className={`bg-white p-4 rounded-2xl border transition shadow-sm ${highlight ? `border-[#f59e0b] ring-2 ring-amber-100` : "border-gray-100"}`}>
-      <div className={`inline-flex items-center justify-center w-8 h-8 rounded-xl ${bg} ${color} mb-2`}>{icon}</div>
-      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">{label}</div>
-      <div className={`font-extrabold tracking-tight ${isText ? "text-lg" : "text-2xl"} ${highlight ? color : "text-black"}`}>{value}</div>
-    </div>
-  );
-}
-
-function TabButton({ active, onClick, children, count, urgent = false }: { active: boolean; onClick: () => void; children: React.ReactNode; count: number; urgent?: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-1.5 px-4 py-2 border rounded-full text-xs font-bold cursor-pointer transition ${active ? "bg-black text-white border-black" : "bg-white text-gray-700 border-gray-200"}`}
-    >
-      {children}
-      {count > 0 && (
-        <span className={`inline-flex items-center justify-center h-5 px-1.5 rounded-full text-[10px] font-extrabold ${active ? "bg-white text-black" : urgent ? "bg-[#f59e0b] text-white" : "bg-gray-100 text-gray-600"}`}>
-          {count}
-        </span>
-      )}
-    </button>
-  );
-}
-
-function PaymentCard({ payment, onViewReceipt, onApprove, onReject }: { payment: PaymentWithUser; onViewReceipt: () => void; onApprove: () => void; onReject: () => void }) {
-  const isPending = payment.status === "pending";
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`bg-white rounded-2xl p-5 border shadow-sm ${isPending ? "border-amber-200 bg-amber-50/10" : payment.status === "approved" ? "border-emerald-100" : "border-red-100"}`}
-    >
-      <div className="flex justify-between items-center mb-3">
-        <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1 ${isPending ? "bg-amber-100 text-amber-700" : payment.status === "approved" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
-          {isPending ? "Pendiente" : payment.status === "approved" ? "Aprobado" : "Rechazado"}
-        </span>
-        <span className="text-[11px] text-gray-400 font-semibold">{new Date(payment.created_at).toLocaleString("es-AR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
-      </div>
-
-      <div className="text-3xl font-black text-black tracking-tight mb-4">${payment.amount.toLocaleString("es-AR")}</div>
-
-      <div className="bg-gray-50 rounded-xl p-3 mb-4 flex flex-col gap-2">
-        <div className="flex justify-between text-xs"><span className="text-gray-400 flex items-center gap-1"><User size={12} /> Cliente</span><b className="text-black truncate max-w-[180px]">{payment.user_email}</b></div>
-        <div className="flex justify-between text-xs"><span className="text-gray-400 flex items-center gap-1"><Store size={12} /> Tienda</span><b className="text-black">#{payment.store_id}</b></div>
-        <div className="flex justify-between text-xs"><span className="text-gray-400 flex items-center gap-1"><Calendar size={12} /> Activo</span><b className="text-black">{payment.store_months_active} mes(es)</b></div>
-        {payment.transfer_reference && <div className="flex justify-between text-xs"><span className="text-gray-400 flex items-center gap-1"><Copy size={12} /> Ref.</span><b className="text-black font-mono">{payment.transfer_reference}</b></div>}
-      </div>
-
-      <div className="flex gap-2">
-        {payment.receipt_url && (
-          <button type="button" onClick={onViewReceipt} className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-black text-white border-none rounded-xl text-xs font-bold cursor-pointer hover:bg-gray-900 transition">
-            <Eye size={14} /> Ver Comprobante
-          </button>
-        )}
-        {isPending && (
-          <>
-            <button type="button" onClick={onApprove} className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#10B981] text-white border-none rounded-xl text-xs font-bold cursor-pointer hover:bg-[#059669] transition">
-              <Check size={14} /> Aprobar
-            </button>
-            <button type="button" onClick={onReject} className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-[#dc2626] border border-red-200 rounded-xl text-xs font-bold cursor-pointer hover:bg-red-50 transition">
-              <X size={14} /> Rechazar
-            </button>
-          </>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── MODAL CONTENEDOR COMÚN ───
-function ModalBackdrop({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center p-4 overflow-y-auto box-border"
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function ModalContent({ children, title, onClose, large = false }: { children: React.ReactNode; title: string; onClose: () => void; large?: boolean }) {
-  return (
-    <motion.div
-      initial={{ y: 30, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 30, opacity: 0 }}
-      onClick={(e) => e.stopPropagation()}
-      className={`bg-white rounded-t-3xl p-6 w-full box-border max-h-[90vh] overflow-y-auto shadow-2xl ${large ? "max-w-2xl" : "max-w-md"}`}
-    >
-      <div className="flex items-center justify-between gap-2 pb-3 border-b border-gray-100 mb-5">
-        <h3 className="text-base font-extrabold text-black tracking-tight">{title}</h3>
-        <button type="button" onClick={onClose} className="w-8 h-8 rounded-lg border-none bg-gray-100 text-black flex items-center justify-center cursor-pointer"><X size={16} /></button>
-      </div>
-      {children}
-    </motion.div>
-  );
-}
-
-// ─── MODAL COMPROBANTE ───
-function ReceiptModal({ payment, onClose }: { payment: PaymentWithUser; onClose: () => void }) {
-  const [loading, setLoading] = useState(true);
-  const [url, setUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useMemo(() => {
-    async function fetchUrl() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/admin/receipt-url", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentId: payment.id }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "No se pudo obtener la URL");
-        setUrl(data.url);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Error imprevisto");
-      } finally {
-        setLoading(false);
       }
-    }
-    fetchUrl();
-  }, [payment.id]);
-
-  const isPdf = url?.toLowerCase().includes(".pdf");
-
-  return (
-    <ModalBackdrop onClose={onClose}>
-      <ModalContent title="Comprobante de pago" onClose={onClose} large>
-        {loading && (
-          <div className="text-center py-12">
-            <Loader2 size={32} className="mx-auto text-[#10B981] animate-spin" />
-            <p className="text-xs text-gray-500 mt-3">Cargando comprobante...</p>
-          </div>
-        )}
-        {error && <div className="p-3 bg-red-50 text-red-600 rounded-xl text-xs border border-red-100">{error}</div>}
-        {url && !loading && (
-          <div>
-            {isPdf ? (
-              <div className="text-center py-8">
-                <FileText size={56} className="mx-auto text-[#10B981] mb-4" />
-                <p className="text-sm font-bold text-black mb-4">Comprobante en PDF</p>
-                <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#10B981] text-white rounded-xl text-xs font-bold no-underline"><ExternalLink size={14} /> Abrir PDF</a>
-              </div>
-            ) : (
-              <img src={url} alt="Comprobante" className="w-full h-auto max-h-[60vh] object-contain rounded-xl bg-gray-50" />
-            )}
-            <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-[#10B981] font-bold no-underline mt-4"><ExternalLink size={13} /> Abrir en pestaña nueva</a>
-          </div>
-        )}
-      </ModalContent>
-    </ModalBackdrop>
-  );
-}
-
-// ─── MODAL APROBAR ───
-function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser; onClose: () => void; onSuccess: () => void }) {
-  const [notes, setNotes] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successData, setSuccessData] = useState<{ newPlanEnd: string } | null>(null);
-
-  async function handleApprove() {
-    setSubmitting(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/approve-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId: payment.id, adminNotes: notes.trim() || null }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
-      setSuccessData({ newPlanEnd: data.newPlanEnd });
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al aprobar");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  if (successData) {
-    const mailtoLink = buildApprovedEmailMailto(payment.user_email || "", payment.amount, successData.newPlanEnd);
-    return (
-      <ModalBackdrop onClose={onSuccess}>
-        <ModalContent title="Pago aprobado ✓" onClose={onSuccess}>
-          <div className="text-center mb-5">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-50 mb-3"><CheckCircle2 size={36} className="text-[#10B981]" /></div>
-            <h4 className="text-base font-extrabold text-black mb-1">Plan activado con éxito</h4>
-            <p className="text-xs text-gray-500">Vence el {new Date(successData.newPlanEnd).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</p>
-          </div>
-          <div className="p-3 bg-gray-50 rounded-xl mb-4 text-xs">
-            <div><b>Cliente:</b> {payment.user_email}</div>
-            <div className="mt-1"><b>Monto:</b> ${payment.amount.toLocaleString("es-AR")}</div>
-          </div>
-          <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 text-xs">
-            <p className="font-bold text-emerald-800 mb-3">📧 Enviale el email de confirmación redactado automáticamente.</p>
-            <a href={mailtoLink} className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-extrabold text-sm no-underline transition-colors"><Mail size={16} /> Enviar email al cliente</a>
-          </div>
-          <button type="button" onClick={onSuccess} className="w-full py-2.5 bg-white text-black border border-gray-200 rounded-xl font-semibold text-xs cursor-pointer opacity-70">Cerrar</button>
-        </ModalContent>
-      </ModalBackdrop>
-    );
-  }
-
-  return (
-    <ModalBackdrop onClose={submitting ? () => {} : onClose}>
-      <ModalContent title="Aprobar pago" onClose={onClose}>
-        <div className="p-3.5 bg-emerald-50 rounded-xl mb-4 flex gap-2 items-start text-xs text-emerald-800">
-          <CheckCircle2 size={16} className="text-[#10B981] shrink-0 mt-0.5" />
-          <span>Se va a activar el plan del cliente por <b>30 días</b>. El usuario podrá usar todos los widgets inmediatamente.</span>
-        </div>
-        <div className="p-3 bg-gray-50 rounded-xl mb-4 text-xs flex flex-col gap-1">
-          <div><b>Cliente:</b> {payment.user_email}</div>
-          <div><b>Monto:</b> ${payment.amount.toLocaleString("es-AR")}</div>
-        </div>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Notas internas (opcional)..."
-          disabled={submitting}
-          className="w-full min-h-[80px] p-3 rounded-xl border border-gray-200 text-sm font-sans box-border resize-y outline-none focus:border-[#10B981] transition-all"
-        />
-        {error && <div className="mt-3 p-3 bg-red-50 text-[#dc2626] rounded-xl text-xs">{error}</div>}
-        <div className="flex gap-2 mt-4">
-          <button type="button" onClick={onClose} disabled={submitting} className="flex-1 py-2.5 bg-white text-black border border-gray-200 rounded-xl text-xs font-bold cursor-pointer">Cancelar</button>
-          <button type="button" onClick={handleApprove} disabled={submitting} className="flex-1 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors">
-            {submitting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Aprobar pago
-          </button>
-        </div>
-      </ModalContent>
-    </ModalBackdrop>
-  );
-}
-
-// ─── MODAL RECHAZAR ───
-function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser; onClose: () => void; onSuccess: () => void }) {
-  const [reason, setReason] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successReason, setSuccessReason] = useState<string | null>(null);
-
-  async function handleReject() {
-    if (reason.trim().length < 3) {
-      setError("Ingresá una razón válida");
-      return;
-    }
-    setSubmitting(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/reject-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId: payment.id, reason: reason.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
-      setSuccessReason(reason.trim());
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al rechazar");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  if (successReason) {
-    const mailtoLink = buildRejectedEmailMailto(payment.user_email || "", successReason);
-    return (
-      <ModalBackdrop onClose={onSuccess}>
-        <ModalContent title="Pago rechazado" onClose={onSuccess}>
-          <div className="text-center mb-5">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-50 mb-3"><XCircle size={36} className="text-[#dc2626]" /></div>
-            <h4 className="text-base font-extrabold text-black mb-1">Pago rechazado</h4>
-            <p className="text-xs text-gray-500">El cliente puede subir otro comprobante.</p>
-          </div>
-          <div className="p-3 bg-gray-50 rounded-xl mb-4 text-xs">
-            <div><b>Cliente:</b> {payment.user_email}</div>
-            <div className="mt-1"><b>Razón:</b> {successReason}</div>
-          </div>
-          <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 text-xs">
-            <p className="font-bold text-emerald-800 mb-3">📧 Enviale el email de rechazo redactado automáticamente.</p>
-            <a href={mailtoLink} className="flex items-center justify-center gap-1.5 w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl font-extrabold text-sm no-underline transition-colors"><Mail size={16} /> Enviar email al cliente</a>
-          </div>
-          <button type="button" onClick={onSuccess} className="w-full py-2.5 bg-white text-black border border-gray-200 rounded-xl font-semibold text-xs cursor-pointer opacity-70">Cerrar</button>
-        </ModalContent>
-      </ModalBackdrop>
-    );
-  }
-
-  return (
-    <ModalBackdrop onClose={submitting ? () => {} : onClose}>
-      <ModalContent title="Rechazar pago" onClose={onClose}>
-        <div className="p-3.5 bg-red-50 rounded-xl mb-4 flex gap-2 items-start text-xs text-red-800 border border-red-100">
-          <AlertCircle size={18} className="text-[#dc2626] shrink-0 mt-0.5" />
-          <span>El cliente verá la razón del rechazo de inmediato y podrá volver a cargar un comprobante desde su cuenta.</span>
-        </div>
-        <div className="flex flex-wrap gap-1 mb-4">
-          {["Comprobante ilegible", "Monto no coincide", "Transferencia no encontrada", "Comprobante duplicado"].map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setReason(r)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${reason === r ? "bg-[#10B981] text-white border-[#10B981]" : "bg-white text-black border-gray-200"}`}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-        <textarea
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          placeholder="Escribí la razón del rechazo..."
-          disabled={submitting}
-          className="w-full min-h-[90px] p-3 rounded-xl border border-gray-200 text-sm font-sans box-border resize-y outline-none focus:border-[#dc2626] transition-all"
-        />
-        {error && <div className="mt-3 p-3 bg-red-50 text-[#dc2626] rounded-xl text-xs">{error}</div>}
-        <div className="flex gap-2 mt-4">
-          <button type="button" onClick={onClose} disabled={submitting} className="flex-1 py-2.5 bg-white text-black border border-gray-200 rounded-xl text-xs font-bold cursor-pointer">Cancelar</button>
-          <button
-            type="button"
-            onClick={handleReject}
-            disabled={submitting || reason.trim().length < 3}
-            className={`flex-1 py-2.5 text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors ${submitting || reason.trim().length < 3 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-[#dc2626] hover:bg-red-700"}`}
-          >
-            {submitting ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />} Rechazar pago
-          </button>
-        </div>
-      </ModalContent>
-    </ModalBackdrop>
-  );
-}
-
-// ─── MODAL CRON ───
-function CronModal({ onClose }: { onClose: () => void }) {
-  const [running, setRunning] = useState(false);
-  const [result, setResult] = useState<CronResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleRun() {
-    setRunning(true);
-    setError(null);
-    setResult(null);
-    try {
-      const res = await fetch("/api/cron/check-plans", { 
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || "nevux_admin_sync_2026"}`
-        }
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "No se pudo ejecutar el cron");
-      setResult(data as CronResult);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error imprevisto");
-    } finally {
-      setRunning(false);
-    }
-  }
-
-  return (
-    <ModalBackdrop onClose={running ? () => {} : onClose}>
-      <ModalContent title="Ejecutar cron manualmente" onClose={onClose}>
-        {!result && !error && (
-          <>
-            <div className="p-3.5 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 flex gap-2 items-start text-xs text-emerald-800">
-              <Zap size={18} className="text-[#10B981] shrink-0 mt-0.5" />
-              <span>Ejecuta el chequeo diario al instante: marca planes vencidos y envía recordatorios para planes por expirar.</span>
-            </div>
-            <div className="flex gap-2">
-              <button type="button" onClick={onClose} disabled={running} className="flex-1 py-2.5 bg-white text-black border border-gray-200 rounded-xl text-xs font-bold cursor-pointer">Cancelar</button>
-              <button type="button" onClick={handleRun} disabled={running} className="flex-1 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white border-none rounded-xl text-xs font-bold cursor-pointer flex items-center justify-center gap-1 transition-colors">
-                {running ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />} Ejecutar ahora
-              </button>
-            </div>
-          </>
-        )}
-
-        {result && (
-          <>
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-50 mb-2"><CheckCircle2 size={30} className="text-[#10B981]" /></div>
-              <h4 className="text-sm font-extrabold text-black mb-1">Cron ejecutado ✓</h4>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              <CronStat label="Expirados" value={result.report?.expired ?? 0} color="text-[#dc2626]" bg="bg-red-50" />
-              <CronStat label="Emails OK" value={result.report?.remindersSent ?? 0} color="text-[#059669]" bg="bg-emerald-50" />
-              <CronStat label="Fallidos" value={result.report?.remindersFailed ?? 0} color="text-[#f59e0b]" bg="bg-amber-50" />
-            </div>
-            <button type="button" onClick={onClose} className="w-full py-2.5 bg-black text-white border-none rounded-xl font-bold text-xs cursor-pointer">Cerrar</button>
-          </>
-        )}
-
-        {error && (
-          <>
-            <div className="p-3 bg-red-50 text-red-600 rounded-xl text-xs border border-red-100 mb-4 flex gap-2"><XCircle size={18} className="shrink-0" /> Error: {error}</div>
-            <button type="button" onClick={onClose} className="w-full py-2.5 bg-black text-white border-none rounded-xl font-bold text-xs cursor-pointer">Cerrar</button>
-          </>
-        )}
-      </ModalContent>
-    </ModalBackdrop>
-  );
-}
-
-function CronStat({ label, value, color, bg }: { label: string; value: number; color: string; bg: string }) {
-  return (
-    <div className={`p-3 rounded-xl text-center ${bg}`}>
-      <div className={`text-xl font-black ${color} leading-none mb-1`}>{value}</div>
-      <div className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">{label}</div>
-    </div>
-  );
-  }
