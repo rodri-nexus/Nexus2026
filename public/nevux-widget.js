@@ -2,10 +2,10 @@
 (function () {
   "use strict";
 
-  const API_BASE = "https://nexus2026-gx7e.vercel.app";
+  const API_BASE = "https://nevux.ar";
   const NS = "nevux-widget";
 
-  console.log("[Nevux] v28 - Multi-Widget Engine Active");
+  console.log("[Nevux] v28 - Multi-Widget Engine Active (nevux.ar)");
 
   /* ═══════════════════════════════════════════
      NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
@@ -67,43 +67,6 @@
       return { emoji: s.substring(0, emojiEnd), text: s.substring(emojiEnd).trim() };
     }
     return { emoji: "", text: s };
-  }
-
-  function detectStoreId() {
-    if (window.NEVUX_STORE_ID) return window.NEVUX_STORE_ID;
-    if (window.Store && (window.Store.id || window.Store.store_id))
-      return window.Store.id || window.Store.store_id;
-    if (window.LS && window.LS.store && window.LS.store.id) return window.LS.store.id;
-    if (window.LS && window.LS.storeId) return window.LS.storeId;
-    if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id)
-      return window.__NUVEMSHOP_STORE__.id;
-    const meta = qs('meta[name="store-id"]');
-    if (meta) return meta.content;
-    const html = document.documentElement.innerHTML;
-    let m = html.match(/"store_id":\s*(\d+)/);
-    if (m) return parseInt(m[1], 10);
-    m = html.match(/"storeId":\s*(\d+)/);
-    if (m) return parseInt(m[1], 10);
-    const assetLink = qs('link[href*="/stores/"]');
-    if (assetLink) {
-      const cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
-      if (cdnMatch) return parseInt(cdnMatch[1], 10);
-    }
-    return null;
-  }
-
-  function detectProductId() {
-    if (window.NEVUX_PRODUCT_ID) return window.NEVUX_PRODUCT_ID;
-    if (window.Product) return window.Product.id;
-    if (window.LS && window.LS.product && window.LS.product.id) return window.LS.product.id;
-    const meta = qs('meta[property="og:product:id"]');
-    if (meta) return meta.content;
-    const m = document.location.pathname.match(/\/productos\/[^/]+-(\d+)/);
-    if (m) return parseInt(m[1], 10);
-    const html = document.documentElement.innerHTML;
-    const pm = html.match(/"product_id":\s*(\d+)/);
-    if (pm) return parseInt(pm[1], 10);
-    return null;
   }
 
   function detectProductPrice() {
