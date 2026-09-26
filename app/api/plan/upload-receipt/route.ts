@@ -126,13 +126,13 @@ export async function POST(request: NextRequest) {
 
     console.log("✅ [upload-receipt] Archivo subido correctamente:", filePath);
 
-    // 6. Crear registro en la tabla payments
+    // 6. Crear registro en la tabla payments (Monto actualizado a $35.000 ARS)
     const { data: payment, error: paymentError } = await supabaseAdmin
       .from("payments")
       .insert({
         store_id: store.store_id,
         user_id: user.id,
-        amount: 30000,
+        amount: 35000,
         payment_method: "naranja_x",
         receipt_url: filePath,
         transfer_reference: transferReference,
@@ -175,11 +175,11 @@ export async function POST(request: NextRequest) {
       console.warn("Aviso actualizando timestamp de store:", storeUpdateErr);
     }
 
-    // 8. Notificar al admin por email (alerta instantánea a nevuxapp@gmail.com)
+    // 8. Notificar al admin por email (alerta instantánea a nevuxapp@gmail.com con $35.000)
     try {
       await sendNewPaymentAlert({
         customerEmail: user.email || "sin-email",
-        amount: 30000,
+        amount: 35000,
         transferReference,
         paymentId: payment.id,
         storeId: store.store_id,
