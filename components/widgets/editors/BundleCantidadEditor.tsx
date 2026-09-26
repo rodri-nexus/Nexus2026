@@ -752,7 +752,7 @@ export default function BundleCantidadEditor({
       ...(existingWidget?.config || {}),
     };
     if (!base.unidades || !Array.isArray(base.unidades)) base.unidades = DEFAULT_CONFIG.unidades;
-    base.unidades = base.unidades.map((u, i) => ({
+    base.unidades = base.unidades.map((u: UnidadConfig, _i: number) => ({
       ...DEFAULT_UNIDAD,
       ...u,
       textoBadgePersonalizado: u?.textoBadgePersonalizado || 'MAYOR AHORRO',
@@ -778,7 +778,7 @@ export default function BundleCantidadEditor({
     const nextUnidades = [...config.unidades];
     nextUnidades[idx] = { ...nextUnidades[idx], [key]: value };
     if (key === 'porDefecto' && value === true) {
-      nextUnidades.forEach((u, i) => {
+      nextUnidades.forEach((u: UnidadConfig, i: number) => {
         if (i !== idx) u.porDefecto = false;
       });
     }
