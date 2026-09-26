@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -32,8 +32,8 @@ import { createClient } from "@/lib/supabase-browser";
 import type { PaymentWithUser } from "./page";
 
 /* ═══════════════════════════════════════════
-   TIPOS E INTERFACES (Regla #9)
-═══════════════════════════════════════════ */
+   1. TIPOS E INTERFACES (Regla #9 al INICIO)
+   ═══════════════════════════════════════════ */
 interface AdminPagosClientProps {
   adminEmail: string;
   payments: PaymentWithUser[];
@@ -65,9 +65,66 @@ interface CronResult {
   report?: CronReport;
 }
 
+interface StatCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+  iconColor: string;
+  iconBg: string;
+  highlight?: boolean;
+}
+
+interface TabButtonProps {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  count: number;
+  urgent?: boolean;
+}
+
+interface PaymentCardProps {
+  payment: PaymentWithUser;
+  onViewReceipt: () => void;
+  onApprove: () => void;
+  onReject: () => void;
+}
+
+interface ModalBackdropProps {
+  children: React.ReactNode;
+  onClose: () => void;
+}
+
+interface ModalContentProps {
+  children: React.ReactNode;
+  title: string;
+  onClose: () => void;
+  large?: boolean;
+}
+
+interface ReceiptModalProps {
+  payment: PaymentWithUser;
+  onClose: () => void;
+}
+
+interface ApproveModalProps {
+  payment: PaymentWithUser;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+interface RejectModalProps {
+  payment: PaymentWithUser;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+interface CronModalProps {
+  onClose: () => void;
+}
+
 /* ═══════════════════════════════════════════
-   HELPERS GLOBALES & GENERADORES (Regla #9)
-═══════════════════════════════════════════ */
+   2. HELPERS GLOBALES (Regla #9)
+   ═══════════════════════════════════════════ */
 function buildApprovedEmailMailto(customerEmail: string, amount: number, newPlanEndISO: string): string {
   const formattedAmount = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(amount);
   const endDate = new Date(newPlanEndISO).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
@@ -120,8 +177,8 @@ function formatDateForCSV(iso: string | null | undefined): string {
 }
 
 /* ═══════════════════════════════════════════
-   SUB-COMPONENTES REUTILIZABLES (Regla #9)
-═══════════════════════════════════════════ */
+   3. SUB-COMPONENTES AUXILIARES (Regla #9)
+   ═══════════════════════════════════════════ */
 function StatCard({
   icon,
   label,
@@ -129,14 +186,7 @@ function StatCard({
   iconColor,
   iconBg,
   highlight = false,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | string;
-  iconColor: string;
-  iconBg: string;
-  highlight?: boolean;
-}) {
+}: StatCardProps) {
   return (
     <div
       style={{
@@ -195,13 +245,7 @@ function TabButton({
   children,
   count,
   urgent = false,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  count: number;
-  urgent?: boolean;
-}) {
+}: TabButtonProps) {
   return (
     <button
       type="button"
@@ -248,12 +292,7 @@ function PaymentCard({
   onViewReceipt,
   onApprove,
   onReject,
-}: {
-  payment: PaymentWithUser;
-  onViewReceipt: () => void;
-  onApprove: () => void;
-  onReject: () => void;
-}) {
+}: PaymentCardProps) {
   const isPending = payment.status === "pending";
   const isApproved = payment.status === "approved";
 
@@ -421,7 +460,7 @@ function PaymentCard({
   );
 }
 
-function ModalBackdrop({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function ModalBackdrop({ children, onClose }: ModalBackdropProps) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -447,23 +486,13 @@ function ModalBackdrop({ children, onClose }: { children: React.ReactNode; onClo
   );
 }
 
-function ModalContent({
-  children,
-  title,
-  onClose,
-  large = false,
-}: {
-  children: React.ReactNode;
-  title: string;
-  onClose: () => void;
-  large?: boolean;
-}) {
+function ModalContent({ children, title, onClose, large = false }: ModalContentProps) {
   return (
     <motion.div
       initial={{ scale: 0.95, opacity: 0, y: 10 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.95, opacity: 0, y: 10 }}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e: React.MouseEvent) => e.stopPropagation()}
       style={{
         background: "#ffffff",
         borderRadius: 20,
@@ -507,19 +536,21 @@ function ModalContent({
         </button>
       </div>
       {children}
-    </ModalContent>
+    </motion.div>
   );
 }
 
 /* ═══════════════════════════════════════════
-   MODALES ESPECÍFICOS (Regla #9)
-═══════════════════════════════════════════ */
-function ReceiptModal({ payment, onClose }: { payment: PaymentWithUser; onClose: () => void }) {
+   4. MODALES ESPECÍFICOS (Regla #9)
+   ═══════════════════════════════════════════ */
+function ReceiptModal({ payment, onClose }: ReceiptModalProps) {
   const [loading, setLoading] = useState(true);
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useMemo(() => {
+  useEffect(() => {
+    let isMounted = true;
+
     async function fetchUrl() {
       setLoading(true);
       setError(null);
@@ -531,14 +562,19 @@ function ReceiptModal({ payment, onClose }: { payment: PaymentWithUser; onClose:
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "No se pudo obtener la URL");
-        setUrl(data.url);
+        if (isMounted) setUrl(data.url);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Error imprevisto");
+        if (isMounted) setError(err instanceof Error ? err.message : "Error imprevisto");
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
+
     fetchUrl();
+
+    return () => {
+      isMounted = false;
+    };
   }, [payment.id]);
 
   const isPdf = url?.toLowerCase().includes(".pdf");
@@ -621,7 +657,7 @@ function ReceiptModal({ payment, onClose }: { payment: PaymentWithUser; onClose:
   );
 }
 
-function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser; onClose: () => void; onSuccess: () => void }) {
+function ApproveModal({ payment, onClose, onSuccess }: ApproveModalProps) {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -802,7 +838,7 @@ function ApproveModal({ payment, onClose, onSuccess }: { payment: PaymentWithUse
   );
 }
 
-function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser; onClose: () => void; onSuccess: () => void }) {
+function RejectModal({ payment, onClose, onSuccess }: RejectModalProps) {
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1002,7 +1038,7 @@ function RejectModal({ payment, onClose, onSuccess }: { payment: PaymentWithUser
   );
 }
 
-function CronModal({ onClose }: { onClose: () => void }) {
+function CronModal({ onClose }: CronModalProps) {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<CronResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -1153,8 +1189,8 @@ function CronModal({ onClose }: { onClose: () => void }) {
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
-═══════════════════════════════════════════ */
+   5. COMPONENTE PRINCIPAL (AdminPagosClient)
+   ═══════════════════════════════════════════ */
 export default function AdminPagosClient({ adminEmail, payments, stats }: AdminPagosClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>("pending");
@@ -1568,4 +1604,4 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
       </AnimatePresence>
     </div>
   );
-                                                                                                 }
+  }
