@@ -72,13 +72,13 @@ function buildApprovedEmailMailto(customerEmail: string, amount: number, newPlan
   const formattedAmount = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(amount);
   const endDate = new Date(newPlanEndISO).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
   const subject = "✅ Tu plan Nevux está activo";
-  const body = `¡Hola!\n\nConfirmamos que recibimos tu pago de ${formattedAmount} y tu plan Nevux ya está ACTIVO. 🎉\n\n📅 Tu plan está activo hasta el ${endDate}.\n\nYa podés volver a tu dashboard y configurar tus widgets premium.\n\n👉 Volvé a tu dashboard: https://nexus2026-gx7e.vercel.app/dashboard\n\nGracias por confiar en Nevux 🚀`;
+  const body = `¡Hola!\n\nConfirmamos que recibimos tu pago de ${formattedAmount} y tu plan Nevux ya está ACTIVO. 🎉\n\n📅 Tu plan está activo hasta el ${endDate}.\n\nYa podés volver a tu dashboard y configurar tus widgets premium.\n\n👉 Volvé a tu dashboard: https://nevux.ar/dashboard\n\nGracias por confiar en Nevux 🚀`;
   return `mailto:${encodeURIComponent(customerEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function buildRejectedEmailMailto(customerEmail: string, reason: string): string {
   const subject = "❌ Problema con tu comprobante Nevux";
-  const body = `¡Hola!\n\nRecibimos tu comprobante de pago, pero lamentablemente NO pudimos aprobarlo.\n\n📝 Motivo del rechazo:\n${reason}\n\nPodés volver a subir un nuevo comprobante desde tu panel.\n\n👉 Subir nuevo comprobante: https://nexus2026-gx7e.vercel.app/plan/pagar\n\nGracias por confiar en Nevux 🚀`;
+  const body = `¡Hola!\n\nRecibimos tu comprobante de pago, pero lamentablemente NO pudimos aprobarlo.\n\n📝 Motivo del rechazo:\n${reason}\n\nPodés volver a subir un nuevo comprobante desde tu panel.\n\n👉 Subir nuevo comprobante: https://nevux.ar/plan/pagar\n\nGracias por confiar en Nevux 🚀`;
   return `mailto:${encodeURIComponent(customerEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
@@ -507,7 +507,7 @@ function ModalContent({
         </button>
       </div>
       {children}
-    </motion.div>
+    </ModalContent>
   );
 }
 
@@ -1568,4 +1568,4 @@ export default function AdminPagosClient({ adminEmail, payments, stats }: AdminP
       </AnimatePresence>
     </div>
   );
-      }
+                                                                                                 }
