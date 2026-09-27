@@ -86,54 +86,13 @@ const API_BASE = "https://nexus2026-gx7e.vercel.app";
     return null;
   }
 
-    function detectPageType() {
-    try {
-      var path = document.location.pathname.toLowerCase();
-
-      // 1. Detección por presencia del formulario de compra o JS de Tiendanube (100% Infalible)
-      if (
-        typeof window.Product !== "undefined" ||
-        (window.LS && window.LS.product) ||
-        (window.LS && window.LS.template === "product") ||
-        document.querySelector('form[action*="/cart/add"], form.js-product-form, form.js-product-buyform, form.product-form, [data-store="product-buy-button"], .js-product-container')
-      ) {
-        return "product";
-      }
-
-      // 2. Detección por Meta Tags OG de la tienda
-      var metaOg = document.querySelector('meta[property="og:type"]');
-      if (metaOg && metaOg.content && metaOg.content.toLowerCase().indexOf("product") >= 0) {
-        return "product";
-      }
-
-      // 3. Patrones de URL (Español / Portugués / Inglés / Slugs)
-      if (
-        path.indexOf("/productos/") >= 0 ||
-        path.indexOf("/produtos/") >= 0 ||
-        path.indexOf("/products/") >= 0 ||
-        path.indexOf("/p/") >= 0
-      ) {
-        var clean = path.replace(/\/$/, "");
-        if (clean !== "/productos" && clean !== "/produtos" && clean !== "/products") {
-          return "product";
-        }
-      }
-
-      // 4. Detección de Home
-      var cleanPath = path.replace(/\/$/, "");
-      if (cleanPath === "" || cleanPath === "/home" || cleanPath === "/inicio" || cleanPath === "/es" || cleanPath === "/pt" || cleanPath === "/en") {
-        return "home";
-      }
-
-      // 5. Detección de Carrito
-      if (path.indexOf("/carrito") >= 0 || path.indexOf("/cart") >= 0 || path.indexOf("/carrinho") >= 0) {
-        return "cart";
-      }
-    } catch (e) {
-      console.error("[Nevux] Error en detectPageType:", e);
-    }
+  function detectPageType() {
+    const path = document.location.pathname.toLowerCase().replace(/\/$/, "");
+    if (path === "" || path === "/home" || path === "/inicio") return "home";
+    if (path.indexOf("/productos/") >= 0 || path.indexOf("/products/") >= 0) return "product";
+    if (path.indexOf("/carrito") >= 0 || path.indexOf("/cart") >= 0) return "cart";
     return "other";
-    }
+  }
 
   function formatMoney(n) {
     if (n === null || n === undefined || isNaN(n)) return "$****";
@@ -143,6 +102,7 @@ const API_BASE = "https://nexus2026-gx7e.vercel.app";
       return "$" + n.toFixed(2);
     }
   }
+        
   
   /* ═══════════════════════════════════════════
      INYECTOR GLOBAL DE ESTILOS Y ANIMACIONES NEVUX
