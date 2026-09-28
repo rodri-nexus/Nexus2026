@@ -4,7 +4,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MessageCircle, Heart, ShieldCheck, Sparkles, Award } from "lucide-react";
+import { MessageCircle, Heart, Award } from "lucide-react";
 import NevuxLogo from "./NevuxLogo";
 
 /* ═══════════════════════════════════════════
@@ -176,7 +176,7 @@ export default function Footer() {
             </ul>
           </motion.div>
 
-          {/* Columna 4: Soporte & Contacto */}
+          {/* Columna 4: Soporte & Legal */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -204,7 +204,7 @@ export default function Footer() {
 
             {/* CTA WhatsApp Oficial */}
             <a
-              href="https://wa.me/5493434163999"
+              href="https://wa.me/5493435042812"
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -277,4 +277,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-  }
+                 }
