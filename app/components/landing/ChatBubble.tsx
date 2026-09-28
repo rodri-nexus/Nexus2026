@@ -26,11 +26,11 @@ export default function ChatBubble() {
     setTooltipDismissed(true);
   };
 
-  // Mensaje predefinido para WhatsApp
+  // Mensaje predefinido para WhatsApp con número oficial actualizado
   const whatsappMessage = encodeURIComponent(
     "¡Hola Nevux! Quería consultar sobre la app 😊"
   );
-  const whatsappUrl = `https://wa.me/5493434163999?text=${whatsappMessage}`;
+  const whatsappUrl = `https://wa.me/5493435042812?text=${whatsappMessage}`;
 
   return (
     <div
@@ -92,7 +92,7 @@ export default function ChatBubble() {
 
             {/* Contenido */}
             <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
-              {/* Avatar Verde Esmeralda */}
+              {/* Avatar Verde Esmeralda Marca Nevux */}
               <div
                 style={{
                   width: "36px",
@@ -239,4 +239,4 @@ export default function ChatBubble() {
       </a>
     </div>
   );
-                      }
+            }
