@@ -8,7 +8,7 @@
   console.log("[Nevux] v28 - Multi-Widget Engine Active");
 
   /* ═══════════════════════════════════════════
-     NUBESDK ADAPTER (Tiendanube NubeSDK Contract V2)
+     NUBESDK & LEGACY HYBRID ADAPTER
   ═══════════════════════════════════════════ */
   window.NubeSDK = window.NubeSDK || null;
 
@@ -31,6 +31,18 @@
     }
   }
 
+  // 1. EJECUCIÓN INMEDIATA MODO LEGADO JS (Sin esperar a NubeSDK)
+  if (typeof initAllWidgets === "function") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () {
+        initAllWidgets();
+      });
+    } else {
+      initAllWidgets();
+    }
+  }
+
+  // 2. SOPORTE ADICIONAL NUBESDK (Si estuviera presente o si llega después)
   if (window.NubeSDK) {
     initNubeSDKIntegration(window.NubeSDK);
   } else {
@@ -39,7 +51,6 @@
       initNubeSDKIntegration(sdk);
     });
   }
-
 /* ═══════════════════════════════════════════
      HELPERS
   ═══════════════════════════════════════════ */
