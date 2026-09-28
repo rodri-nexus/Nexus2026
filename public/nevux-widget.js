@@ -5658,8 +5658,9 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
 
     targetPrice.parentNode.insertBefore(div, targetPrice.nextSibling);
 }
- ═══════════════════════════════════════════
-     RENDER BADGE CUPÓN (CON FECHAS ESPECIALES 3.0)
+  
+ /* ═══════════════════════════════════════════
+     RENDER BADGE CUPON (CON FECHAS ESPECIALES 3.0)
   ═══════════════════════════════════════════ */
   function renderBadgeCupon(w) {
     if (pageType !== "product") return;
@@ -5723,88 +5724,87 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
     if (!document.getElementById(styleId)) {
       var styleEl = document.createElement("style");
       styleEl.id = styleId;
-      styleEl.innerHTML = `
-        #nvx-cupon-${w.id} {
-          background: ${bgColor} !important;
-          border: 1.5px dashed ${borderColor} !important;
-          border-radius: ${borderRad} !important;
-          padding: ${padInt} !important;
-          margin: 14px 0 !important;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
-          font-family: system-ui, -apple-system, sans-serif !important;
-          box-sizing: border-box !important;
-          width: 100% !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-header {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-          gap: 8px !important;
-          margin-bottom: 6px !important;
-          flex-wrap: wrap !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-title-box {
-          display: flex !important;
-          align-items: center !important;
-          gap: 6px !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-title {
-          font-weight: 800 !important;
-          font-size: 14px !important;
-          color: ${textColor} !important;
-          letter-spacing: -0.01em !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-badge {
-          background: ${badgeBgColor} !important;
-          color: ${badgeTextColor} !important;
-          font-size: 10px !important;
-          font-weight: 800 !important;
-          padding: 3px 8px !important;
-          border-radius: 999px !important;
-          text-transform: uppercase !important;
-          letter-spacing: 0.02em !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-subtext {
-          margin: 0 0 10px 0 !important;
-          font-size: 12px !important;
-          color: ${textColor} !important;
-          opacity: 0.75 !important;
-          line-height: 1.4 !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-code-row {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-          gap: 8px !important;
-          background: ${innerCodeRowBg} !important;
-          border: 1px solid ${innerCodeRowBorder} !important;
-          border-radius: 8px !important;
-          padding: 6px 8px 6px 12px !important;
-          box-sizing: border-box !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-code {
-          font-family: monospace !important;
-          font-weight: 800 !important;
-          font-size: 15px !important;
-          color: ${innerCodeTextColor} !important;
-          letter-spacing: 0.05em !important;
-        }
-        #nvx-cupon-${w.id} .nvx-cp-btn {
-          background: ${botonBgColor} !important;
-          color: ${botonTextColor} !important;
-          border: none !important;
-          border-radius: 6px !important;
-          padding: 7px 14px !important;
-          font-size: 12px !important;
-          font-weight: 700 !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          gap: 5px !important;
-          transition: all 0.15s ease !important;
-          flex-shrink: 0 !important;
-        }
-      `;
+      styleEl.innerHTML = 
+        '#nvx-cupon-' + w.id + ' {' +
+        '  background: ' + bgColor + ' !important;' +
+        '  border: 1.5px dashed ' + borderColor + ' !important;' +
+        '  border-radius: ' + borderRad + ' !important;' +
+        '  padding: ' + padInt + ' !important;' +
+        '  margin: 14px 0 !important;' +
+        '  box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;' +
+        '  font-family: system-ui, -apple-system, sans-serif !important;' +
+        '  box-sizing: border-box !important;' +
+        '  width: 100% !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-header {' +
+        '  display: flex !important;' +
+        '  align-items: center !important;' +
+        '  justify-content: space-between !important;' +
+        '  gap: 8px !important;' +
+        '  margin-bottom: 6px !important;' +
+        '  flex-wrap: wrap !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-title-box {' +
+        '  display: flex !important;' +
+        '  align-items: center !important;' +
+        '  gap: 6px !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-title {' +
+        '  font-weight: 800 !important;' +
+        '  font-size: 14px !important;' +
+        '  color: ' + textColor + ' !important;' +
+        '  letter-spacing: -0.01em !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-badge {' +
+        '  background: ' + badgeBgColor + ' !important;' +
+        '  color: ' + badgeTextColor + ' !important;' +
+        '  font-size: 10px !important;' +
+        '  font-weight: 800 !important;' +
+        '  padding: 3px 8px !important;' +
+        '  border-radius: 999px !important;' +
+        '  text-transform: uppercase !important;' +
+        '  letter-spacing: 0.02em !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-subtext {' +
+        '  margin: 0 0 10px 0 !important;' +
+        '  font-size: 12px !important;' +
+        '  color: ' + textColor + ' !important;' +
+        '  opacity: 0.75 !important;' +
+        '  line-height: 1.4 !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-code-row {' +
+        '  display: flex !important;' +
+        '  align-items: center !important;' +
+        '  justify-content: space-between !important;' +
+        '  gap: 8px !important;' +
+        '  background: ' + innerCodeRowBg + ' !important;' +
+        '  border: 1px solid ' + innerCodeRowBorder + ' !important;' +
+        '  border-radius: 8px !important;' +
+        '  padding: 6px 8px 6px 12px !important;' +
+        '  box-sizing: border-box !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-code {' +
+        '  font-family: monospace !important;' +
+        '  font-weight: 800 !important;' +
+        '  font-size: 15px !important;' +
+        '  color: ' + innerCodeTextColor + ' !important;' +
+        '  letter-spacing: 0.05em !important;' +
+        '}' +
+        '#nvx-cupon-' + w.id + ' .nvx-cp-btn {' +
+        '  background: ' + botonBgColor + ' !important;' +
+        '  color: ' + botonTextColor + ' !important;' +
+        '  border: none !important;' +
+        '  border-radius: 6px !important;' +
+        '  padding: 7px 14px !important;' +
+        '  font-size: 12px !important;' +
+        '  font-weight: 700 !important;' +
+        '  cursor: pointer !important;' +
+        '  display: inline-flex !important;' +
+        '  align-items: center !important;' +
+        '  gap: 5px !important;' +
+        '  transition: all 0.15s ease !important;' +
+        '  flex-shrink: 0 !important;' +
+        '}';
       document.head.appendChild(styleEl);
     }
 
@@ -5813,25 +5813,24 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
 
     var badgeHtml = badge ? '<span class="nvx-cp-badge">' + escapeHtml(badge) + '</span>' : '';
 
-    div.innerHTML = `
-      <div class="nvx-cp-header">
-        <div class="nvx-cp-title-box">
-          <span style="font-size:16px;">🎟️</span>
-          <span class="nvx-cp-title">${escapeHtml(titulo)}</span>
-        </div>
-        ${badgeHtml}
-      </div>
-      <p class="nvx-cp-subtext">${escapeHtml(subtexto)}</p>
-      <div class="nvx-cp-code-row">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:11px; color:${innerCodeLabelColor}; font-weight:600;">Código:</span>
-          <span class="nvx-cp-code">${escapeHtml(codigo)}</span>
-        </div>
-        <button type="button" class="nvx-cp-btn" id="nvx-copy-btn-${w.id}">
-          <span id="nvx-copy-txt-${w.id}">${escapeHtml(textoBoton)}</span>
-        </button>
-      </div>
-    `;
+    div.innerHTML = 
+      '<div class="nvx-cp-header">' +
+        '<div class="nvx-cp-title-box">' +
+          '<span style="font-size:16px;">🎟️</span>' +
+          '<span class="nvx-cp-title">' + escapeHtml(titulo) + '</span>' +
+        '</div>' +
+        badgeHtml +
+      '</div>' +
+      '<p class="nvx-cp-subtext">' + escapeHtml(subtexto) + '</p>' +
+      '<div class="nvx-cp-code-row">' +
+        '<div style="display:flex; align-items:center; gap:6px;">' +
+          '<span style="font-size:11px; color:' + innerCodeLabelColor + '; font-weight:600;">Código:</span>' +
+          '<span class="nvx-cp-code">' + escapeHtml(codigo) + '</span>' +
+        '</div>' +
+        '<button type="button" class="nvx-cp-btn" id="nvx-copy-btn-' + w.id + '">' +
+          '<span id="nvx-copy-txt-' + w.id + '">' + escapeHtml(textoBoton) + '</span>' +
+        '</button>' +
+      '</div>';
 
     target.parentNode.insertBefore(div, target);
 
@@ -5879,7 +5878,7 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
         console.error("Nevux copy error:", err);
       }
     }
-            }
+      }
   
   /* ═══════════════════════════════════════════
      RENDER COMPARADOR DE MARCA
