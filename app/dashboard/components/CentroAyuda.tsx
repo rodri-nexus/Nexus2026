@@ -7,15 +7,13 @@ import {
   BookOpen,
   MessageCircle,
   Mail,
-  ArrowUpRight,
   Sparkles,
-  CheckCircle2,
 } from "lucide-react";
 import NevuxLogo from "@/app/components/landing/NevuxLogo";
 
 export default function CentroAyuda() {
   const whatsappUrl =
-    "https://wa.me/5493434163999?text=Hola%20Nevux!%20%F0%9F%91%8B%20Estoy%20creando%20un%20widget%20en%20mi%20tienda%20y%20tengo%20una%20duda.%20%C2%BFMe%20ayudan%20paso%20a%20paso%3F";
+    "https://wa.me/5493435042812?text=Hola%20Nevux!%20%F0%9F%91%8B%20Estoy%20creando%20un%20widget%20en%20mi%20tienda%20y%20tengo%20una%20duda.%20%C2%BFMe%20ayudan%20paso%20a%20paso%3F";
 
   return (
     <motion.section
@@ -280,4 +278,4 @@ export default function CentroAyuda() {
       </div>
     </motion.section>
   );
-            }
+          }
