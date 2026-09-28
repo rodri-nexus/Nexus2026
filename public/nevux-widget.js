@@ -80,28 +80,76 @@
     return { emoji: "", text: s };
   }
 
-  function detectStoreId() {
-    if (window.NEVUX_STORE_ID) return window.NEVUX_STORE_ID;
-    if (window.Store && (window.Store.id || window.Store.store_id))
-      return window.Store.id || window.Store.store_id;
-    if (window.LS && window.LS.store && window.LS.store.id) return window.LS.store.id;
-    if (window.LS && window.LS.storeId) return window.LS.storeId;
-    if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id)
-      return window.__NUVEMSHOP_STORE__.id;
-    const meta = qs('meta[name="store-id"]');
-    if (meta) return meta.content;
-    const html = document.documentElement.innerHTML;
-    let m = html.match(/"store_id":\s*(\d+)/);
-    if (m) return parseInt(m[1], 10);
-    m = html.match(/"storeId":\s*(\d+)/);
-    if (m) return parseInt(m[1], 10);
-    const assetLink = qs('link[href*="/stores/"]');
-    if (assetLink) {
-      const cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
-      if (cdnMatch) return parseInt(cdnMatch[1], 10);
+    function detectStoreId() {
+    try {
+      if (window.NEVUX_STORE_ID) return parseInt(window.NEVUX_STORE_ID, 10);
+      if (window.Store && (window.Store.id || window.Store.store_id))
+        return parseInt(window.Store.id || window.Store.store_id, 10);
+      if (window.LS && window.LS.store && window.LS.store.id) return parseInt(window.LS.store.id, 10);
+      if (window.LS && window.LS.storeId) return parseInt(window.LS.storeId, 10);
+      if (window.LS && window.LS.store && typeof window.LS.store === 'number') return window.LS.store;
+      if (window.__NUVEMSHOP_STORE__ && window.__NUVEMSHOP_STORE__.id)
+        return parseInt(window.__NUVEMSHOP_STORE__.id, 10);
+      if (window.Tiendanube && window.Tiendanube.storeId) return parseInt(window.Tiendanube.storeId, 10);
+
+      // 1. DETECCIÓN DIRECTA DESDE LAS ETIQUETAS <SCRIPT> (Crítico para CDN de Tiendanube: 144.js?store=7275409)
+      var scripts = document.getElementsByTagName('script');
+      for (var i = 0; i < scripts.length; i++) {
+        var src = scripts[i].src || '';
+        if (src) {
+          var matchStore = src.match(/[?&](?:store|store_id|storeId)=(\d+)/i);
+          if (matchStore && matchStore[1]) {
+            return parseInt(matchStore[1], 10);
+          }
+        }
+      }
+
+      // 2. DETECCIÓN DESDE META TAGS
+      var metaSelectors = [
+        'meta[name="store-id"]',
+        'meta[name="store_id"]',
+        'meta[property="store_id"]',
+        'meta[name="store"]'
+      ];
+      for (var j = 0; j < metaSelectors.length; j++) {
+        var metaEl = typeof qs === 'function' ? qs(metaSelectors[j]) : document.querySelector(metaSelectors[j]);
+        if (metaEl && metaEl.content) {
+          var metaVal = parseInt(metaEl.content, 10);
+          if (!isNaN(metaVal) && metaVal > 0) return metaVal;
+        }
+      }
+
+      // 3. DETECCIÓN DESDE ATRIBUTOS DATA EN HTML/BODY
+      if (document.documentElement && document.documentElement.dataset) {
+        if (document.documentElement.dataset.storeId) return parseInt(document.documentElement.dataset.storeId, 10);
+        if (document.documentElement.dataset.store) return parseInt(document.documentElement.dataset.store, 10);
+      }
+      if (document.body && document.body.dataset) {
+        if (document.body.dataset.storeId) return parseInt(document.body.dataset.storeId, 10);
+        if (document.body.dataset.store) return parseInt(document.body.dataset.store, 10);
+      }
+
+      // 4. DETECCIÓN DESDE LINKS DE CDN/ASSETS
+      var assetLink = typeof qs === 'function' ? qs('link[href*="/stores/"]') : document.querySelector('link[href*="/stores/"]');
+      if (assetLink) {
+        var cdnMatch = assetLink.href.match(/\/stores\/(\d+)/);
+        if (cdnMatch && cdnMatch[1]) return parseInt(cdnMatch[1], 10);
+      }
+
+      // 5. DETECCIÓN POR REGEX EN EL HTML
+      var html = document.documentElement.innerHTML || '';
+      var m = html.match(/"store_id":\s*(\d+)/) || html.match(/"storeId":\s*(\d+)/) || html.match(/LS\.store\s*=\s*{\s*id:\s*(\d+)/);
+      if (m && m[1]) return parseInt(m[1], 10);
+
+      // 6. DETECCIÓN POR PARÁMETROS DE LA URL DE LA PÁGINA
+      var urlMatch = window.location.search.match(/[?&](?:store_id|store|storeId)=(\d+)/i);
+      if (urlMatch && urlMatch[1]) return parseInt(urlMatch[1], 10);
+
+    } catch (e) {
+      console.error("[Nevux] Error detectando storeId:", e);
     }
     return null;
-  }
+        }
 
   function detectProductId() {
     if (window.NEVUX_PRODUCT_ID) return window.NEVUX_PRODUCT_ID;
