@@ -1,22 +1,23 @@
-  function detectStoreId() {
-    if (window.NevuxConfig && window.NevuxConfig.storeId) {
-      return String(window.NevuxConfig.storeId);
-    }
-    var scripts = document.getElementsByTagName("script");
-    for (var i = 0; i < scripts.length; i++) {
-      var src = scripts[i].src || "";
-      if (src.indexOf("nevux") !== -1 || src.indexOf("store") !== -1 || src.indexOf("139.js") !== -1) {
-        var match = src.match(/(?:store_id|store)=([0-9]+)/);
-        if (match && match[1]) return match[1];
-      }
-    }
-    if (window.LS && window.LS.store && window.LS.store.id) {
-      return String(window.LS.store.id);
-    }
-    var htmlStore = document.documentElement.getAttribute("data-store") || (document.body && document.body.getAttribute("data-store"));
-    if (htmlStore) return String(htmlStore);
-    return null;
+  window.detectStoreId = function detectStoreId() {
+  if (window.NevuxConfig && window.NevuxConfig.storeId) {
+    return String(window.NevuxConfig.storeId);
   }
+  var scripts = document.getElementsByTagName("script");
+  for (var i = 0; i < scripts.length; i++) {
+    var src = scripts[i].src || "";
+    if (src.indexOf("nevux") !== -1 || src.indexOf("store") !== -1 || src.indexOf("139.js") !== -1) {
+      var match = src.match(/(?:store_id|store)=([0-9]+)/);
+      if (match && match[1]) return match[1];
+    }
+  }
+  if (window.LS && window.LS.store && window.LS.store.id) {
+    return String(window.LS.store.id);
+  }
+  var htmlStore = document.documentElement.getAttribute("data-store") || (document.body && document.body.getAttribute("data-store"));
+  if (htmlStore) return String(htmlStore);
+
+  return null;
+};
 
 // public/nevux-widget.js 
 (function () {
