@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
 const ADMIN_SECRET_KEY = "nevux_admin_sync_2026";
 const TIENDANUBE_SCRIPT_ID = 9486; // Script registrado en Tiendanube Partners
