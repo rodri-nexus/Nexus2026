@@ -80,7 +80,7 @@
     return { emoji: "", text: s };
   }
 
-    function detectStoreId() {
+      function detectStoreId() {
     try {
       if (window.NEVUX_STORE_ID) return parseInt(window.NEVUX_STORE_ID, 10);
       if (window.Store && (window.Store.id || window.Store.store_id))
@@ -92,7 +92,7 @@
         return parseInt(window.__NUVEMSHOP_STORE__.id, 10);
       if (window.Tiendanube && window.Tiendanube.storeId) return parseInt(window.Tiendanube.storeId, 10);
 
-      // 1. DETECCIÓN DIRECTA DESDE LAS ETIQUETAS <SCRIPT> (Crítico para CDN de Tiendanube: 144.js?store=7275409)
+      // 1. DETECCIÓN DIRECTA DESDE LAS ETIQUETAS <SCRIPT>
       var scripts = document.getElementsByTagName('script');
       for (var i = 0; i < scripts.length; i++) {
         var src = scripts[i].src || '';
@@ -137,7 +137,7 @@
       }
 
       // 5. DETECCIÓN POR REGEX EN EL HTML
-      var html = document.documentElement.innerHTML || '';
+      var html = (document.documentElement && document.documentElement.innerHTML) ? document.documentElement.innerHTML : '';
       var m = html.match(/"store_id":\s*(\d+)/) || html.match(/"storeId":\s*(\d+)/) || html.match(/LS\.store\s*=\s*{\s*id:\s*(\d+)/);
       if (m && m[1]) return parseInt(m[1], 10);
 
@@ -149,18 +149,18 @@
       console.error("[Nevux] Error detectando storeId:", e);
     }
     return null;
-        }
+  }
 
   function detectProductId() {
     if (window.NEVUX_PRODUCT_ID) return window.NEVUX_PRODUCT_ID;
     if (window.Product) return window.Product.id;
     if (window.LS && window.LS.product && window.LS.product.id) return window.LS.product.id;
-    const meta = qs('meta[property="og:product:id"]');
+    var meta = qs('meta[property="og:product:id"]');
     if (meta) return meta.content;
-    const m = document.location.pathname.match(/\/productos\/[^/]+-(\d+)/);
+    var m = document.location.pathname.match(/\/productos\/[^/]+-(\d+)/);
     if (m) return parseInt(m[1], 10);
-    const html = document.documentElement.innerHTML;
-    const pm = html.match(/"product_id":\s*(\d+)/);
+    var html = (document.documentElement && document.documentElement.innerHTML) ? document.documentElement.innerHTML : '';
+    var pm = html.match(/"product_id":\s*(\d+)/);
     if (pm) return parseInt(pm[1], 10);
     return null;
   }
@@ -170,17 +170,17 @@
     if (window.LS && window.LS.product && window.LS.product.price) {
       return parseFloat(window.LS.product.price);
     }
-    const priceEl = qs('[data-store="product-price"]') ||
+    var priceEl = qs('[data-store="product-price"]') ||
                     qs('.js-price-display') ||
                     qs('.price-display') ||
                     qs('span[itemprop="price"]');
     if (priceEl) {
-      const txt = priceEl.textContent || priceEl.getAttribute("content") || "";
-      const num = parseFloat(txt.replace(/[^\d,\.]/g, "").replace(/\./g, "").replace(",", "."));
+      var txt = priceEl.textContent || priceEl.getAttribute("content") || "";
+      var num = parseFloat(txt.replace(/[^\d,\.]/g, "").replace(/\./g, "").replace(",", "."));
       if (!isNaN(num)) return num;
     }
     return null;
-  }
+        }
 
   function detectPageType() {
     const path = document.location.pathname.toLowerCase().replace(/\/$/, "");
