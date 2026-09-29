@@ -1661,6 +1661,7 @@
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
         try {
+          if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
           if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
           if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
@@ -1695,7 +1696,406 @@
       console.error("[Nevux] Error cargando widgets:", err);
     });
   
-  
+  /* ═══════════════════════════════════════════
+   RENDER COUNTDOWN v2 (ES5 Clean & Premium Styles)
+═══════════════════════════════════════════ */
+function renderCountdown(widget) {
+  injectCountdownStyles();
+  var cfg = normalizeConfig(widget.config || {});
+  var state = { endTime: getInitialEndTime(cfg, widget.id) };
+
+  var placements = [];
+  if (cfg.showAsTopBar) {
+    placements.push("topbar");
+  } else if (pageType === "home" || widget.target_type === "all") {
+    placements.push("home");
+  }
+  if (cfg.showOnProduct && pageType === "product") placements.push("product");
+  if (cfg.showOnCart && pageType === "cart") placements.push("cart");
+
+  if (placements.length === 0) {
+    placements.push(pageType === "product" ? "product" : "home");
+  }
+
+  placements.forEach(function (p) { mountAt(widget, cfg, p, state); });
+}
+
+function injectCountdownStyles() {
+  if (document.getElementById("nvx-cd-styles")) return;
+  var st = document.createElement("style");
+  st.id = "nvx-cd-styles";
+  st.textContent =
+    "@keyframes nvx-criticalPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(220,38,38,0.55)}50%{transform:scale(1.06);box-shadow:0 0 0 8px rgba(220,38,38,0)}}" +
+    "@keyframes nvx-flipDown{0%{transform:rotateX(0);opacity:1}50%{transform:rotateX(-90deg);opacity:0.4}100%{transform:rotateX(0);opacity:1}}" +
+    "@keyframes nvx-bounceDigit{0%{transform:scale(0.85)}50%{transform:scale(1.1)}100%{transform:scale(1)}}" +
+    "." + NS + "-digit.bounce{animation:nvx-bounceDigit 0.4s ease}" +
+    "." + NS + "-retro-cell.flip{animation:nvx-flipDown 0.5s ease}" +
+    "." + NS + "-critical{animation:nvx-criticalPulse 1s ease-in-out infinite}" +
+    "." + NS + "-topbar{position:relative;width:100%;left:0;right:0;z-index:9999}" +
+    "." + NS + "-topbar ." + NS + "-widget-host{border-radius:0 !important;width:100%;max-width:100%;box-sizing:border-box}";
+  document.head.appendChild(st);
+}
+
+function getInitialEndTime(cfg, widgetId) {
+  if (cfg.mode === "duration") {
+    var key = NS + "-cd-session-" + widgetId;
+    try {
+      var saved = sessionStorage.getItem(key);
+      if (saved) {
+        var t = parseInt(saved, 10);
+        if (t > Date.now()) return t;
+      }
+      var newEnd = Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
+      sessionStorage.setItem(key, String(newEnd));
+      return newEnd;
+    } catch (e) {
+      return Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
+    }
+  }
+  if (cfg.endDate) {
+    var endT = new Date(cfg.endDate).getTime();
+    if (endT > Date.now()) return endT;
+    if (cfg.autoRestart) return Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
+    return endT;
+  }
+  return Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
+}
+
+function mountAt(widget, cfg, placement, state) {
+  var uniqueId = NS + "-" + widget.id + "-" + placement;
+  if (qs("#" + uniqueId)) return;
+
+  var container = document.createElement("div");
+  container.id = uniqueId;
+  container.className = NS + "-root";
+  container.dataset.placement = placement;
+
+  if (placement === "topbar") {
+    container.classList.add(NS + "-topbar");
+    document.body.insertBefore(container, document.body.firstChild);
+    requestAnimationFrame(function () {
+      var h = container.offsetHeight;
+      if (h > 0) {
+        var prev = parseInt(document.body.style.paddingTop || "0", 10);
+        document.body.style.paddingTop = (prev + h) + "px";
+      }
+    });
+  } else if (placement === "home") {
+    // 🎯 UBICACIÓN EXACTA ARRIBA DEL BANNER PRINCIPAL DE LA HOME
+    var homeBanner = qs('.js-home-slider, .home-slider, .js-home-main-slider, [data-store*="slider"], [data-store*="banner"], .section-slider, .section-main-slider, .home-banners, .js-home-banner, .home-slider-wrapper, section.slider');
+    if (homeBanner && homeBanner.parentNode) {
+      homeBanner.parentNode.insertBefore(container, homeBanner);
+    } else {
+      var homeHeader = qs('header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar');
+      if (homeHeader && homeHeader.parentNode) {
+        if (homeHeader.nextSibling) {
+          homeHeader.parentNode.insertBefore(container, homeHeader.nextSibling);
+        } else {
+          homeHeader.parentNode.appendChild(container);
+        }
+      } else {
+        var mainEl = qs('main, #content, .main-content, .js-main-content, body');
+        if (mainEl) mainEl.insertBefore(container, mainEl.firstChild);
+      }
+    }
+  } else if (placement === "product") {
+    var target = findProductTarget(cfg.productPosition);
+    if (target && target.node && target.node.parentNode) {
+      target.node.parentNode.insertBefore(container, target.node);
+    } else {
+      var fallbackProduct = qs('h1.product-name, h1[itemprop="name"], .product-name, .js-product-name, .product-title, h1, .js-product-container, .product-container, main');
+      if (fallbackProduct && fallbackProduct.parentNode) {
+        fallbackProduct.parentNode.insertBefore(container, fallbackProduct);
+      }
+    }
+  } else if (placement === "cart") {
+    var cartTarget = findCartTarget();
+    if (!cartTarget) return;
+    cartTarget.parentNode.insertBefore(container, cartTarget);
+  }
+
+  update(container, cfg, state, widget.id);
+
+  setInterval(function () {
+    var now = Date.now();
+    if (state.endTime <= now && cfg.autoRestart) {
+      state.endTime = now + (cfg.durationMinutes || 15) * 60 * 1000;
+      if (cfg.mode === "duration") {
+        try { sessionStorage.setItem(NS + "-cd-session-" + widget.id, String(state.endTime)); } catch (e) {}
+      }
+    }
+    update(container, cfg, state, widget.id);
+  }, 1000);
+}
+
+function findProductTarget(position) {
+  if (position === "before-title") {
+    var titleSel = ['h1.product-name', 'h1[itemprop="name"]', '.product-name', '.js-product-name', '.product-title', 'h1'];
+    for (var t = 0; t < titleSel.length; t++) {
+      var tEl = qs(titleSel[t]);
+      if (tEl) return { node: tEl };
+    }
+  }
+  var btnSel = [
+    'button[data-store="product-buy-button"]',
+    'button[name="add-to-cart"]',
+    'button[name="add"]',
+    '.js-add-to-cart-btn',
+    '.js-prod-submit-btn',
+    '.js-add-to-cart',
+    '.js-addtocart-btn',
+    '.js-btn-comprar',
+    'button.btn-add-to-cart',
+    'button.add-to-cart',
+    'button[data-testid="add-to-cart"]',
+    'button[data-testid*="buy"]',
+    'button[type="submit"][data-store*="buy"]',
+    'form[data-store*="add-to-cart"]',
+    'form[action*="/cart/add"]',
+    'form.js-product-form',
+    'form.js-product-buyform',
+    'form[action*="carrito"]',
+    'form[action*="cart"]',
+    'form[action*="add"]',
+    '[data-component="AddToCartButton"]',
+    '[data-hook="add-to-cart"]',
+    'input[type="submit"][value*="Comprar"]',
+    'input[type="submit"][value*="Agregar"]'
+  ];
+  for (var j = 0; j < btnSel.length; j++) {
+    var btnEl = qs(btnSel[j]);
+    if (btnEl) return { node: btnEl.closest("form") || btnEl };
+  }
+  var btns = qsa("button, input[type='submit'], a.btn");
+  for (var k = 0; k < btns.length; k++) {
+    var txt = (btns[k].textContent || btns[k].value || "").toLowerCase();
+    if (txt.indexOf("agregar") >= 0 || txt.indexOf("comprar") >= 0 || txt.indexOf("carrinho") >= 0 || txt.indexOf("cart") >= 0) {
+      return { node: btns[k].closest("form") || btns[k] };
+    }
+  }
+  return null;
+}
+
+function normalizeConfig(raw) {
+  function n(v, fb) {
+    if (v === undefined || v === null || v === "") return fb;
+    var p = typeof v === "string" ? parseInt(v, 10) : v;
+    return isNaN(p) ? fb : p;
+  }
+  function pick() {
+    for (var i = 0; i < arguments.length - 1; i++) {
+      if (arguments[i] !== undefined && arguments[i] !== null && arguments[i] !== "") return arguments[i];
+    }
+    return arguments[arguments.length - 1];
+  }
+  var mode = pick(raw.mode, "fixed");
+
+  var res = {
+    title: pick(raw.title, "🔥 ¡La oferta termina pronto!"),
+    subtitle: pick(raw.subtitle, "¡Últimos minutos!"),
+    mode: mode === "duration" ? "duration" : "fixed",
+    endDate: pick(raw.endDate, raw.end_datetime, ""),
+    durationMinutes: n(pick(raw.durationMinutes, raw.hours, 15), 15),
+    autoRestart: pick(raw.autoRestart, raw.auto_restart, false) === true,
+    showDays: pick(raw.showDays, raw.show_days, false) === true,
+    showHours: pick(raw.showHours, raw.show_hours, true) !== false,
+    showMinutes: pick(raw.showMinutes, raw.show_minutes, true) !== false,
+    showSeconds: pick(raw.showSeconds, raw.show_seconds, true) !== false,
+    showOnProduct: pick(raw.showOnProduct, true) !== false,
+    productPosition: pick(raw.productPosition, "before-button"),
+    showAsTopBar: pick(raw.showAsTopBar, false) === true,
+    showOnCart: pick(raw.showOnCart, false) === true,
+    style: pick(raw.style, raw.clock_style, "clasico"),
+    alignment: pick(raw.alignment, raw.content_alignment, "center") === "left" ? "left" : "center",
+    showLabels: pick(raw.showLabels, raw.show_clock_labels, true) !== false,
+    bgType: pick(raw.bgType, raw.background_type, "solid") === "gradient" ? "gradient" : "solid",
+    colorWidgetBg: pick(raw.colorWidgetBg, raw.background_color, "#000000"),
+    colorClockBg: pick(raw.colorClockBg, raw.clock_bg_color, "#10B981"),
+    colorTitle: pick(raw.colorTitle, raw.title_font_color, "#ffffff"),
+    colorSubtitle: pick(raw.colorSubtitle, raw.subtitle_font_color, "#ffffff"),
+    colorNumbers: pick(raw.colorNumbers, raw.number_font_color, "#ffffff"),
+    fontSizeTitle: pick(raw.fontSizeTitle, raw.title_font_size, "16px"),
+    fontSizeSubtitle: pick(raw.fontSizeSubtitle, raw.subtitle_font_size, "11px"),
+    fontSizeClock: pick(raw.fontSizeClock, raw.clock_font_size, "16px"),
+    borderRadiusClock: n(pick(raw.borderRadiusClock, raw.clock_border_radius, 8), 8),
+    borderRadiusWidget: n(pick(raw.borderRadiusWidget, raw.widget_border_radius, 12), 12),
+    paddingWidget: n(pick(raw.paddingWidget, raw.widget_padding, 15), 15),
+    paddingClock: n(pick(raw.paddingClock, raw.clock_padding, 8), 8),
+    campaignTheme: pick(raw.campaignTheme, raw.campaign_theme, "none"),
+  };
+
+  var THEMES = {
+    "black-friday": { themeColor: "#111827", accentColor: "#F59E0B", badge: "🔥 BLACK FRIDAY" },
+    "hot-sale": { themeColor: "#0F172A", accentColor: "#EF4444", badge: "⚡ HOT SALE" },
+    "cyber-monday": { themeColor: "#090D16", accentColor: "#3B82F6", badge: "🚀 CYBER MONDAY" },
+    "navidad": { themeColor: "#064E3B", accentColor: "#EF4444", badge: "🎄 NAVIDAD" },
+    "san-valentin": { themeColor: "#831843", accentColor: "#F43F5E", badge: "💘 SAN VALENTÍN" },
+  };
+
+  var theme = THEMES[res.campaignTheme];
+  if (theme) {
+    res.colorWidgetBg = theme.themeColor;
+    res.colorClockBg = theme.accentColor;
+    res.campaignBadge = theme.badge;
+    res.campaignBadgeColor = theme.accentColor;
+  }
+  return res;
+}
+
+function calcTime(state) {
+  var ms = state.endTime - Date.now();
+  if (ms <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isFinished: true };
+  }
+  var t = Math.floor(ms / 1000);
+  return {
+    days: Math.floor(t / 86400),
+    hours: Math.floor((t % 86400) / 3600),
+    minutes: Math.floor((t % 3600) / 60),
+    seconds: t % 60,
+    totalSeconds: t,
+    isFinished: false,
+  };
+}
+
+function update(container, cfg, state, widgetId) {
+  var time = calcTime(state);
+  var isBar = container.dataset.placement === "topbar";
+
+  if (time.isFinished && !cfg.autoRestart) {
+    var finishedRadius = isBar ? 0 : cfg.borderRadiusWidget;
+    container.innerHTML =
+      '<div style="background:' + cfg.colorWidgetBg + ';border-radius:' + finishedRadius + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';color:' + cfg.colorTitle + ';font-weight:700;">' +
+      '⏰ ¡La oferta terminó!</div>';
+    return;
+  }
+
+  var units = buildUnits(cfg, time);
+  if (units.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
+
+  var keys = units.map(function (u) { return u.k; }).join(",");
+  var host = qs("." + NS + "-widget-host", container);
+
+  var needsRebuild = !host || host.dataset.style !== cfg.style || host.dataset.keys !== keys || host.dataset.bar !== String(isBar);
+
+  if (needsRebuild) {
+    container.innerHTML = buildFullHtml(cfg, units, time, isBar);
+  } else {
+    units.forEach(function (u) { updateUnit(host, u, cfg); });
+  }
+}
+
+function buildUnits(cfg, time) {
+  var arr = [];
+  if (cfg.showDays && time.days > 0) arr.push({ v: time.days, l: "DÍAS", k: "d" });
+  if (cfg.showHours) arr.push({ v: time.hours + (cfg.showDays ? 0 : time.days * 24), l: "HRS", k: "h" });
+  if (cfg.showMinutes) arr.push({ v: time.minutes, l: "MIN", k: "m" });
+  if (cfg.showSeconds) arr.push({ v: time.seconds, l: "SEG", k: "s" });
+  return arr;
+}
+
+function buildFullHtml(cfg, units, time, isBar) {
+  var bg = cfg.colorWidgetBg;
+
+  var badgeHtml = cfg.campaignBadge
+    ? '<div style="margin-bottom:8px;text-align:' + cfg.alignment + ';"><span style="display:inline-flex;align-items:center;background:' + cfg.campaignBadgeColor + ';color:#ffffff;font-size:11px;font-weight:900;padding:3px 10px;border-radius:999px;">' + escapeHtml(cfg.campaignBadge) + '</span></div>'
+    : "";
+
+  var titleHtml = cfg.title
+    ? '<div style="font-size:' + cfg.fontSizeTitle + ';font-weight:800;color:' + cfg.colorTitle + ';margin-bottom:10px;line-height:1.2;text-align:' + cfg.alignment + ';">' + escapeHtml(cfg.title) + '</div>'
+    : "";
+
+  var subtitleHtml = cfg.subtitle
+    ? '<div style="margin-bottom:10px;text-align:' + cfg.alignment + ';"><span style="display:inline-block;background:' + cfg.colorClockBg + '33;color:' + cfg.colorClockBg + ';font-size:' + cfg.fontSizeSubtitle + ';font-weight:800;padding:3px 8px;border-radius:6px;">' + escapeHtml(cfg.subtitle) + '</span></div>'
+    : "";
+
+  var clockInner = "";
+  for (var i = 0; i < units.length; i++) {
+    clockInner += renderUnit(units[i], cfg);
+    if (i < units.length - 1) clockInner += renderSep(cfg);
+  }
+
+  var radius = isBar ? 0 : cfg.borderRadiusWidget;
+  var padding = isBar ? 10 : cfg.paddingWidget;
+
+  return '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="' + String(isBar) + '" style="background:' + bg + ';border-radius:' + radius + 'px;padding:' + padding + 'px;text-align:' + cfg.alignment + ';">' +
+      badgeHtml + titleHtml + subtitleHtml +
+      '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:8px;flex-wrap:wrap;">' + clockInner + '</div>' +
+    '</div>';
+}
+
+function renderUnit(u, cfg) {
+  var val = String(u.v).padStart(2, "0");
+  var size = parseInt(cfg.fontSizeClock, 10) || 16;
+  var labelSize = Math.max(9, Math.round(size * 0.55));
+  var clockBg = cfg.colorClockBg;
+  var labelHtml = cfg.showLabels
+    ? '<span class="' + NS + '-label" style="font-size:' + labelSize + 'px;color:' + cfg.colorTitle + ';opacity:0.8;font-weight:700;">' + u.l + '</span>'
+    : "";
+
+  // 🎨 RENDERIZADO SEGÚN ESTILO PREMIUM ELEGIDO
+  if (cfg.style === "circulo") {
+    return '<div class="' + NS + '-unit" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;">' +
+      '<div class="' + NS + '-digit" data-value="' + val + '" style="width:' + (size * 2.8) + 'px;height:' + (size * 2.8) + 'px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:' + clockBg + ';color:' + cfg.colorNumbers + ';font-size:' + cfg.fontSizeClock + ';font-weight:900;box-shadow:0 0 12px ' + clockBg + '66;">' + val + '</div>' + labelHtml +
+    '</div>';
+  }
+
+  if (cfg.style === "minimalista") {
+    return '<div class="' + NS + '-unit" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;">' +
+      '<div class="' + NS + '-digit" data-value="' + val + '" style="display:inline-flex;align-items:center;justify-content:center;color:' + clockBg + ';font-size:' + (size * 1.3) + 'px;font-weight:900;line-height:1;">' + val + '</div>' + labelHtml +
+    '</div>';
+  }
+
+  if (cfg.style === "retro") {
+    var chars = val.split("");
+    var cells = "";
+    for (var i = 0; i < chars.length; i++) {
+      cells += '<span class="' + NS + '-retro-cell" style="display:inline-block;min-width:' + (size * 1.2) + 'px;padding:' + cfg.paddingClock + 'px;background:' + clockBg + ';font-size:' + cfg.fontSizeClock + ';color:' + cfg.colorNumbers + ';border-radius:6px;margin:0 1px;text-align:center;font-weight:900;box-shadow:inset 0 -2px 0 rgba(0,0,0,0.3);">' + chars[i] + '</span>';
+    }
+    return '<div class="' + NS + '-unit" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;"><div class="' + NS + '-retro-digit" data-value="' + val + '" style="display:inline-flex;">' + cells + '</div>' + labelHtml + '</div>';
+  }
+
+  // Clásico por defecto
+  return '<div class="' + NS + '-unit" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;">' +
+    '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:' + (size * 2.4) + 'px;min-height:' + (size * 2.4) + 'px;display:inline-flex;align-items:center;justify-content:center;background:' + clockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px;font-size:' + cfg.fontSizeClock + ';line-height:1;font-weight:800;">' + val + '</div>' + labelHtml +
+  '</div>';
+}
+
+function renderSep(cfg) {
+  if (cfg.style === "minimalista") {
+    return '<div style="font-size:18px;font-weight:900;color:' + cfg.colorClockBg + ';padding-bottom:12px;">:</div>';
+  }
+  var dot = '<span style="display:inline-block;border-radius:50%;width:4px;height:4px;background:' + cfg.colorTitle + ';"></span>';
+  return '<div style="display:inline-flex;flex-direction:column;justify-content:center;padding-bottom:12px;gap:4px;">' + dot + dot + '</div>';
+}
+
+function updateUnit(host, u, cfg) {
+  var unitEl = qs("." + NS + "-unit[data-key=\"" + u.k + "\"]", host);
+  if (!unitEl) return;
+  var val = String(u.v).padStart(2, "0");
+
+  if (cfg.style === "retro") {
+    var wrap = qs("." + NS + "-retro-digit", unitEl);
+    if (!wrap || wrap.dataset.value === val) return;
+    wrap.dataset.value = val;
+    var cells = qsa("." + NS + "-retro-cell", wrap);
+    var chars = val.split("");
+    for (var i = 0; i < chars.length; i++) {
+      if (cells[i] && cells[i].textContent !== chars[i]) {
+        cells[i].textContent = chars[i];
+      }
+    }
+    return;
+  }
+
+  var digit = qs("." + NS + "-digit", unitEl);
+  if (!digit || digit.dataset.value === val) return;
+  digit.dataset.value = val;
+  digit.textContent = val;
+ }
 
 /* ═══════════════════════════════════════════
    WIDGET: MARQUEE DE NOVEDADES (v11 Layout-Safe Buy Button)
