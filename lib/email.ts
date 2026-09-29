@@ -89,7 +89,8 @@ export async function sendNewPaymentAlert(
     timeStyle: "short",
   });
 
-  const adminPanelUrl = "https://nexus2026-gx7e.vercel.app/admin/pagos";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar";
+  const adminPanelUrl = `${baseUrl}/admin/pagos`;
 
   const html = `
 <!DOCTYPE html>
@@ -238,6 +239,8 @@ export async function sendPlanExpiringAlert(
     year: "numeric",
   });
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar";
+
   const urgencyColor = daysLeft <= 1 ? "#dc2626" : "#f59e0b";
   const urgencyBg = daysLeft <= 1 ? "#fee2e2" : "#fef3c7";
   const urgencyText = daysLeft <= 1 ? "🚨 ÚLTIMO DÍA / EXPIRADO" : "⏰ VENCE PRONTO";
@@ -255,10 +258,10 @@ Te escribimos para recordarte que tu plan Nevux vence ${
 
 Para no perder el acceso a tus widgets y mantener activo tu plan, podés renovar desde acá:
 
-👉 Renovar mi plan: https://nexus2026-gx7e.vercel.app/plan/pagar
+👉 Renovar mi plan: ${baseUrl}/plan/pagar
 
 Recordá que:
-• El plan cuesta $30.000 ARS/mes
+• El plan cuesta $35.000 ARS/mes
 • Al renovar mantenés todos tus widgets configurados
 • Seguís acumulando meses para desbloquear recompensas${
     monthsActive >= 2
@@ -521,4 +524,4 @@ export async function sendCartRecoveryEmail(
     subject: `🛒 ¡${nameStr}, no te olvides de tu pedido!`,
     html,
   });
-        }
+}
