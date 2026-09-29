@@ -1661,7 +1661,6 @@
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
         try {
-          if (w.widget_slug === "cuenta-regresiva") renderCountdown(w);
           if (w.widget_slug === "barra-progreso") renderBarraProgreso(w);
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
           if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
@@ -1696,98 +1695,7 @@
       console.error("[Nevux] Error cargando widgets:", err);
     });
   
-  /* ═══════════════════════════════════════════
-     RENDER COUNTDOWN
-  ═══════════════════════════════════════════ */
-  function renderCountdown(widget) {
-    injectCountdownStyles();
-    var cfg = normalizeConfig(widget.config || {});
-    var state = { endTime: getInitialEndTime(cfg, widget.id) };
-
-    var placements = [];
-    if (cfg.showAsTopBar) {
-      placements.push("topbar");
-    } else if (pageType === "home" || widget.target_type === "all") {
-      placements.push("home");
-    }
-    if (cfg.showOnProduct && pageType === "product") placements.push("product");
-    if (cfg.showOnCart && pageType === "cart") placements.push("cart");
-
-    if (placements.length === 0) {
-      placements.push(pageType === "product" ? "product" : "home");
-    }
-
-    placements.forEach(function (p) { mountAt(widget, cfg, p, state); });
-  }
-
-  function mountAt(widget, cfg, placement, state) {
-    var uniqueId = NS + "-" + widget.id + "-" + placement;
-    if (qs("#" + uniqueId)) return;
-
-    var container = document.createElement("div");
-    container.id = uniqueId;
-    container.className = NS + "-root";
-    container.dataset.placement = placement;
-
-    if (placement === "topbar") {
-      container.classList.add(NS + "-topbar");
-      document.body.insertBefore(container, document.body.firstChild);
-      requestAnimationFrame(function () {
-        var h = container.offsetHeight;
-        if (h > 0) {
-          var prev = parseInt(document.body.style.paddingTop || "0", 10);
-          document.body.style.paddingTop = (prev + h) + "px";
-        }
-      });
-    } else if (placement === "home") {
-      // 🎯 UBICACIÓN EXACTA ARRIBA DEL BANNER PRINCIPAL DE LA TIENDA
-      var homeBanner = qs('.js-home-slider, .home-slider, .js-home-main-slider, [data-store*="slider"], [data-store*="banner"], .section-slider, .section-main-slider, .home-banners, .js-home-banner, .home-slider-wrapper, section.slider');
-      if (homeBanner && homeBanner.parentNode) {
-        homeBanner.parentNode.insertBefore(container, homeBanner);
-      } else {
-        var homeHeader = qs('header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar');
-        if (homeHeader && homeHeader.parentNode) {
-          if (homeHeader.nextSibling) {
-            homeHeader.parentNode.insertBefore(container, homeHeader.nextSibling);
-          } else {
-            homeHeader.parentNode.appendChild(container);
-          }
-        } else {
-          var mainEl = qs('main, #content, .main-content, .js-main-content, body');
-          if (mainEl) mainEl.insertBefore(container, mainEl.firstChild);
-        }
-      }
-    } else if (placement === "product") {
-      var target = findProductTarget(cfg.productPosition);
-      if (!target) {
-        var fallbackBanner = qs('.js-home-slider, .home-slider, [data-store*="slider"], [data-store*="banner"], header');
-        if (fallbackBanner && fallbackBanner.parentNode) {
-          fallbackBanner.parentNode.insertBefore(container, fallbackBanner);
-        } else {
-          return;
-        }
-      } else {
-        target.node.parentNode.insertBefore(container, target.node);
-      }
-    } else if (placement === "cart") {
-      var cartTarget = findCartTarget();
-      if (!cartTarget) return;
-      cartTarget.parentNode.insertBefore(container, cartTarget);
-    }
-
-    update(container, cfg, state, widget.id);
-
-    setInterval(function () {
-      var now = Date.now();
-      if (state.endTime <= now && cfg.autoRestart) {
-        state.endTime = now + (cfg.durationMinutes || 15) * 60 * 1000;
-        if (cfg.mode === "duration") {
-          try { sessionStorage.setItem(NS + "-cd-session-" + widget.id, String(state.endTime)); } catch (e) {}
-        }
-      }
-      update(container, cfg, state, widget.id);
-    }, 1000);
-  }
+  
 
 /* ═══════════════════════════════════════════
    WIDGET: MARQUEE DE NOVEDADES (v11 Layout-Safe Buy Button)
