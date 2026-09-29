@@ -1696,7 +1696,7 @@
       console.error("[Nevux] Error cargando widgets:", err);
     });
   
-      /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      RENDER COUNTDOWN
   ═══════════════════════════════════════════ */
   function renderCountdown(widget) {
@@ -1705,63 +1705,19 @@
     var state = { endTime: getInitialEndTime(cfg, widget.id) };
 
     var placements = [];
-    if (pageType === "home" || widget.target_type === "all") {
-      if (cfg.showAsTopBar) {
-        placements.push("topbar");
-      } else {
-        placements.push("home");
-      }
+    if (cfg.showAsTopBar) {
+      placements.push("topbar");
+    } else if (pageType === "home" || widget.target_type === "all") {
+      placements.push("home");
     }
     if (cfg.showOnProduct && pageType === "product") placements.push("product");
     if (cfg.showOnCart && pageType === "cart") placements.push("cart");
 
     if (placements.length === 0) {
-      // Fallback: Si no hay placement pero debe mostrarse en todas las páginas
       placements.push(pageType === "product" ? "product" : "home");
     }
 
     placements.forEach(function (p) { mountAt(widget, cfg, p, state); });
-  }
-
-  function injectCountdownStyles() {
-    if (document.getElementById("nvx-cd-styles")) return;
-    var st = document.createElement("style");
-    st.id = "nvx-cd-styles";
-    st.textContent =
-      "@keyframes nvx-criticalPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(220,38,38,0.55)}50%{transform:scale(1.06);box-shadow:0 0 0 8px rgba(220,38,38,0)}}" +
-      "@keyframes nvx-flipDown{0%{transform:rotateX(0);opacity:1}50%{transform:rotateX(-90deg);opacity:0.4}100%{transform:rotateX(0);opacity:1}}" +
-      "@keyframes nvx-bounceDigit{0%{transform:scale(0.85)}50%{transform:scale(1.1)}100%{transform:scale(1)}}" +
-      "." + NS + "-digit.bounce{animation:nvx-bounceDigit 0.4s ease}" +
-      "." + NS + "-retro-cell.flip{animation:nvx-flipDown 0.5s ease}" +
-      "." + NS + "-critical{animation:nvx-criticalPulse 1s ease-in-out infinite}" +
-      "." + NS + "-topbar{position:relative;width:100%;left:0;right:0;z-index:9999}" +
-      "." + NS + "-topbar ." + NS + "-widget-host{border-radius:0 !important;width:100%;max-width:100%;box-sizing:border-box}";
-    document.head.appendChild(st);
-  }
-
-  function getInitialEndTime(cfg, widgetId) {
-    if (cfg.mode === "duration") {
-      var key = NS + "-cd-session-" + widgetId;
-      try {
-        var saved = sessionStorage.getItem(key);
-        if (saved) {
-          var t = parseInt(saved, 10);
-          if (t > Date.now()) return t;
-        }
-        var newEnd = Date.now() + cfg.durationMinutes * 60 * 1000;
-        sessionStorage.setItem(key, String(newEnd));
-        return newEnd;
-      } catch (e) {
-        return Date.now() + cfg.durationMinutes * 60 * 1000;
-      }
-    }
-    if (cfg.endDate) {
-      var endT = new Date(cfg.endDate).getTime();
-      if (endT > Date.now()) return endT;
-      if (cfg.autoRestart) return Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
-      return endT;
-    }
-    return Date.now() + (cfg.durationMinutes || 15) * 60 * 1000;
   }
 
   function mountAt(widget, cfg, placement, state) {
@@ -1784,24 +1740,29 @@
         }
       });
     } else if (placement === "home") {
-      var homeHeader = qs('header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar');
-      if (homeHeader && homeHeader.parentNode) {
-        if (homeHeader.nextSibling) {
-          homeHeader.parentNode.insertBefore(container, homeHeader.nextSibling);
-        } else {
-          homeHeader.parentNode.appendChild(container);
-        }
+      // 🎯 UBICACIÓN EXACTA ARRIBA DEL BANNER PRINCIPAL DE LA TIENDA
+      var homeBanner = qs('.js-home-slider, .home-slider, .js-home-main-slider, [data-store*="slider"], [data-store*="banner"], .section-slider, .section-main-slider, .home-banners, .js-home-banner, .home-slider-wrapper, section.slider');
+      if (homeBanner && homeBanner.parentNode) {
+        homeBanner.parentNode.insertBefore(container, homeBanner);
       } else {
-        var mainEl = qs('main, #content, .main-content, .js-main-content, body');
-        if (mainEl) mainEl.insertBefore(container, mainEl.firstChild);
+        var homeHeader = qs('header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar');
+        if (homeHeader && homeHeader.parentNode) {
+          if (homeHeader.nextSibling) {
+            homeHeader.parentNode.insertBefore(container, homeHeader.nextSibling);
+          } else {
+            homeHeader.parentNode.appendChild(container);
+          }
+        } else {
+          var mainEl = qs('main, #content, .main-content, .js-main-content, body');
+          if (mainEl) mainEl.insertBefore(container, mainEl.firstChild);
+        }
       }
     } else if (placement === "product") {
       var target = findProductTarget(cfg.productPosition);
       if (!target) {
-        // Fallback a Home si no hay botón de producto
-        var fallbackHeader = qs('header, .js-header-wrapper, #header, nav.js-navbar');
-        if (fallbackHeader && fallbackHeader.parentNode) {
-          fallbackHeader.parentNode.insertBefore(container, fallbackHeader.nextSibling);
+        var fallbackBanner = qs('.js-home-slider, .home-slider, [data-store*="slider"], [data-store*="banner"], header');
+        if (fallbackBanner && fallbackBanner.parentNode) {
+          fallbackBanner.parentNode.insertBefore(container, fallbackBanner);
         } else {
           return;
         }
@@ -1828,406 +1789,177 @@
     }, 1000);
   }
 
-  function findProductTarget(position) {
-    if (position === "before-title") {
-      var sel = ['h1.product-name', 'h1[itemprop="name"]', '.product-name', '.js-product-name', '.product-title', 'h1'];
-      for (var i = 0; i < sel.length; i++) {
-        var el = qs(sel[i]);
-        if (el) return { node: el };
-      }
-    }
-    var btnSel = [
-      'button[data-store="product-buy-button"]',
-      'button[name="add-to-cart"]',
-      'button[name="add"]',
-      '.js-add-to-cart',
-      '.js-addtocart-btn',
-      '.js-btn-comprar',
-      'button.btn-add-to-cart',
-      'button.add-to-cart',
-      'button[data-testid="add-to-cart"]',
-      'button[data-testid*="buy"]',
-      'button[type="submit"][data-store*="buy"]',
-      'form[data-store*="add-to-cart"]',
-      'form.js-product-form',
-      'form[action*="carrito"]',
-      'form[action*="cart"]',
-      'form[action*="add"]',
-      '[data-component="AddToCartButton"]',
-      '[data-hook="add-to-cart"]',
-    ];
-    for (var j = 0; j < btnSel.length; j++) {
-      var btnEl = qs(btnSel[j]);
-      if (btnEl) return { node: btnEl.closest("form") || btnEl };
-    }
-    var btns = qsa("button");
-    for (var k = 0; k < btns.length; k++) {
-      var t = (btns[k].textContent || "").toLowerCase();
-      if (t.indexOf("agregar al carrito") >= 0 || t.indexOf("añadir al carrito") >= 0 || t.indexOf("comprar ahora") >= 0) {
-        return { node: btns[k].closest("form") || btns[k] };
-      }
-    }
-    return null;
+/* ═══════════════════════════════════════════
+   WIDGET: MARQUEE DE NOVEDADES (v11 Layout-Safe Buy Button)
+   ═══════════════════════════════════════════ */
+function renderMarqueeNovedades(w) {
+  if (document.getElementById('nvx-marquee-' + w.id)) return;
+
+  var cfg = w.config || {};
+  var messages = Array.isArray(cfg.messages) && cfg.messages.length > 0
+    ? cfg.messages
+    : ['✨ Nuevo ingreso', '🔥 Más vendido', '📦 Envío gratis hoy'];
+
+  var speed = cfg.speed || 'normal';
+  var direction = cfg.direction || 'left';
+  var bgColor = cfg.bgColor || '#111827';
+  var textColor = cfg.textColor || '#ffffff';
+  var fontSize = (cfg.fontSize || '14') + 'px';
+  var pos = cfg.position || 'above_form';
+
+  var dur = speed === 'lento' ? '24s' : speed === 'rapido' ? '8s' : '14s';
+  var animName = direction === 'right' ? 'nvxMqR' : 'nvxMqL';
+
+  if (!document.getElementById('nvx-marquee-styles')) {
+    var st = document.createElement('style');
+    st.id = 'nvx-marquee-styles';
+    st.textContent = '@keyframes nvxMqL{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}@keyframes nvxMqR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}';
+    document.head.appendChild(st);
   }
 
-  function findProductPriceTarget() {
-    var sel = [
-      '[data-store="product-price"]',
-      '.js-price-display',
-      '.price-display',
-      'span[itemprop="price"]',
-      '.product-price',
-      '.js-product-price',
-    ];
-    for (var i = 0; i < sel.length; i++) {
-      var el = qs(sel[i]);
-      if (el) return el;
-    }
-    return null;
+  var container = document.createElement('div');
+  container.id = 'nvx-marquee-' + w.id;
+  container.className = 'nvx-widget nvx-marquee-wrapper';
+  container.style.cssText = 'display:block;width:100%;max-width:100%;clear:both;overflow:hidden;background:' + bgColor + ';padding:10px 0;box-sizing:border-box;margin:12px 0;position:relative;z-index:99;cursor:default;';
+
+  var track = document.createElement('div');
+  track.style.cssText = 'display:flex;white-space:nowrap;width:max-content;animation:' + animName + ' ' + dur + ' linear infinite;';
+  track.onmouseenter = function () { track.style.animationPlayState = 'paused'; };
+  track.onmouseleave = function () { track.style.animationPlayState = 'running'; };
+
+  var repeated = messages.concat(messages).concat(messages).concat(messages);
+  var html = '';
+  for (var i = 0; i < repeated.length; i++) {
+    var rawMsg = repeated[i];
+    var safeMsg = String(rawMsg)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    html +=
+      '<span style="color:' +
+      textColor +
+      ';font-size:' +
+      fontSize +
+      ';font-weight:700;padding:0 24px;display:inline-flex;align-items:center;letter-spacing:0.02em;font-family:system-ui,-apple-system,sans-serif;">' +
+      safeMsg +
+      '</span>';
   }
+  track.innerHTML = html;
+  container.appendChild(track);
 
-  function findProductDescriptionTarget() {
-    var sel = [
-      '[data-store="product-description"]',
-      '.js-product-description',
-      '.product-description',
-      '#product-description',
-      '.description',
-    ];
-    for (var i = 0; i < sel.length; i++) {
-      var el = qs(sel[i]);
-      if (el) return el;
+  var targetEl = null;
+  var insertMethod = 'before';
+
+  if (w.target_type === 'product' && w.target_product_id) {
+    var priceEl = document.querySelector(
+      '.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container'
+    );
+
+    var addToCartBtn = document.querySelector(
+      '.js-add-to-cart-btn, .js-prod-submit-btn, .js-add-to-cart, ' +
+        '[data-store="product-buy-button"], .btn-add-to-cart, ' +
+        'form[action*="/cart/add"] button[type="submit"], ' +
+        'form[action*="/cart/add"] input[type="submit"], ' +
+        '#product-buy-button, .js-buy-button, .product-buy-button'
+    );
+
+    var imageContainer = document.querySelector(
+      '[data-store="product-image-container"], .js-product-image-container, ' +
+        '.product-image-container, .js-product-slide-container, .js-gallery-container, ' +
+        '.gallery-container, .product-gallery, #product-gallery, .js-product-viewport, ' +
+        '.product-slider, #product-slider, .js-product-img-holder, .product-images, ' +
+        '.js-product-images-container, .product-gallery-container'
+    );
+
+    var buyBlock = null;
+    if (addToCartBtn) {
+      buyBlock =
+        addToCartBtn.closest(
+          'form[action*="/cart/add"], form.js-product-buyform, .js-product-form, ' +
+            '.product-form, .js-product-buy-button-container, .product-buy-button-container, ' +
+            '.js-product-variants-group, .product-quantity-container, .js-quantity-container'
+        ) || addToCartBtn.parentElement;
     }
-    return null;
-  }
 
-  function findCartTarget() {
-    return qs('.js-cart-page') || qs('[data-store="cart"]') ||
-      qs('.cart-content') || qs('.cart-items') || qs('main') || qs('.container');
-  }
-
-  function findCartCheckoutButton() {
-    var sel = [
-      'button[data-store="cart-checkout-button"]',
-      'a[data-store="cart-checkout-button"]',
-      '.js-cart-checkout',
-      '.js-checkout',
-      'a[href*="/checkout"]',
-      'button[name="checkout"]',
-    ];
-    for (var i = 0; i < sel.length; i++) {
-      var el = qs(sel[i]);
-      if (el) return el;
-    }
-    return null;
-  }
-
-  function normalizeConfig(raw) {
-    function n(v, fb) {
-      if (v === undefined || v === null || v === "") return fb;
-      var p = typeof v === "string" ? parseInt(v, 10) : v;
-      return isNaN(p) ? fb : p;
-    }
-    function pick() {
-      for (var i = 0; i < arguments.length - 1; i++) {
-        if (arguments[i] !== undefined && arguments[i] !== null && arguments[i] !== "") return arguments[i];
-      }
-      return arguments[arguments.length - 1];
-    }
-    var mode = pick(raw.mode, "fixed");
-
-    var res = {
-      title: pick(raw.title, "🔥 Oferta"),
-      subtitle: pick(raw.subtitle, ""),
-      mode: mode === "duration" ? "duration" : "fixed",
-      endDate: pick(raw.endDate, raw.end_datetime, ""),
-      durationMinutes: n(pick(raw.durationMinutes, raw.hours, 15), 15),
-      autoRestart: pick(raw.autoRestart, raw.auto_restart, false) === true,
-      showDays: pick(raw.showDays, raw.show_days, false) === true,
-      showHours: pick(raw.showHours, raw.show_hours, true) !== false,
-      showMinutes: pick(raw.showMinutes, raw.show_minutes, true) !== false,
-      showSeconds: pick(raw.showSeconds, raw.show_seconds, true) !== false,
-      showOnProduct: pick(raw.showOnProduct, true) !== false,
-      productPosition: pick(raw.productPosition, "before-button"),
-      showAsTopBar: pick(raw.showAsTopBar, false) === true,
-      showOnCart: pick(raw.showOnCart, false) === true,
-      style: pick(raw.style, raw.clock_style, "clasico") === "retro" ? "retro" : "clasico",
-      alignment: pick(raw.alignment, raw.content_alignment, "center") === "left" ? "left" : "center",
-      showLabels: pick(raw.showLabels, raw.show_clock_labels, true) !== false,
-      bgType: pick(raw.bgType, raw.background_type, "solid") === "gradient" ? "gradient" : "solid",
-      colorWidgetBg: pick(raw.colorWidgetBg, raw.background_color, "#000000"),
-      colorWidgetBg2: pick(raw.colorWidgetBg2, "#FF0000"),
-      gradientDirection: pick(raw.gradientDirection, "to bottom right"),
-      colorSubtitleBg: pick(raw.colorSubtitleBg, raw.subtitle_bg_color, "#FF0000"),
-      colorClockBg: pick(raw.colorClockBg, raw.clock_bg_color, "#FF0000"),
-      colorTitle: pick(raw.colorTitle, raw.title_font_color, "#ffffff"),
-      colorSubtitle: pick(raw.colorSubtitle, raw.subtitle_font_color, "#ffffff"),
-      colorNumbers: pick(raw.colorNumbers, raw.number_font_color, "#ffffff"),
-      fontSizeTitle: pick(raw.fontSizeTitle, raw.title_font_size, "16px"),
-      fontSizeSubtitle: pick(raw.fontSizeSubtitle, raw.subtitle_font_size, "11px"),
-      fontSizeClock: pick(raw.fontSizeClock, raw.clock_font_size, "16px"),
-      borderRadiusClock: n(pick(raw.borderRadiusClock, raw.clock_border_radius, 5), 5),
-      borderRadiusWidget: n(pick(raw.borderRadiusWidget, raw.widget_border_radius, 12), 12),
-      paddingWidget: n(pick(raw.paddingWidget, raw.widget_padding, 15), 15),
-      paddingClock: n(pick(raw.paddingClock, raw.clock_padding, 7), 7),
-      urgencyEnabled: pick(raw.urgencyEnabled, false) === true,
-      colorClockBgMedium: pick(raw.colorClockBgMedium, "#f97316"),
-      colorClockBgCritical: pick(raw.colorClockBgCritical, "#dc2626"),
-      campaignTheme: pick(raw.campaignTheme, raw.campaign_theme, "none"),
-    };
-
-    var THEMES = {
-      "black-friday": { themeColor: "#111827", accentColor: "#F59E0B", badge: "🔥 BLACK FRIDAY" },
-      "hot-sale": { themeColor: "#0F172A", accentColor: "#EF4444", badge: "⚡ HOT SALE" },
-      "cyber-monday": { themeColor: "#090D16", accentColor: "#3B82F6", badge: "🚀 CYBER MONDAY" },
-      "navidad": { themeColor: "#064E3B", accentColor: "#EF4444", badge: "🎄 ESPECIAL NAVIDAD" },
-      "san-valentin": { themeColor: "#831843", accentColor: "#F43F5E", badge: "💘 SAN VALENTÍN" },
-      "dia-madre-padre": { themeColor: "#312E81", accentColor: "#10B981", badge: "🎁 REGALO ESPECIAL" },
-      "liquidacion": { themeColor: "#7F1D1D", accentColor: "#FBBF24", badge: "🏷️ SALE FINAL" }
-    };
-
-    var theme = THEMES[res.campaignTheme];
-    if (theme) {
-      res.colorWidgetBg = theme.themeColor;
-      res.bgType = "solid";
-      res.colorTitle = "#ffffff";
-      res.colorClockBg = theme.accentColor;
-      res.colorClockBgMedium = theme.accentColor;
-      res.colorClockBgCritical = theme.accentColor;
-      res.colorSubtitleBg = theme.accentColor + "22";
-      res.colorSubtitle = theme.accentColor;
-      res.colorNumbers = (res.campaignTheme === "black-friday" || res.campaignTheme === "liquidacion") ? "#111827" : "#ffffff";
-      res.campaignBadge = theme.badge;
-      res.campaignBadgeColor = theme.accentColor;
-      res.campaignBadgeTextColor = (res.campaignTheme === "black-friday" || res.campaignTheme === "liquidacion") ? "#111827" : "#ffffff";
-    }
-    return res;
-  }
-
-  function calcTime(state) {
-    var ms = state.endTime - Date.now();
-    if (ms <= 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, isFinished: true };
-    }
-    var t = Math.floor(ms / 1000);
-    return {
-      days: Math.floor(t / 86400),
-      hours: Math.floor((t % 86400) / 3600),
-      minutes: Math.floor((t % 3600) / 60),
-      seconds: t % 60,
-      totalSeconds: t,
-      isFinished: false,
-    };
-  }
-
-  function getUrgencyState(cfg, time, widgetId) {
-    if (!cfg.urgencyEnabled) return "normal";
-    var totalDuration;
-    if (cfg.mode === "duration") {
-      totalDuration = cfg.durationMinutes * 60;
-    } else if (cfg.endDate) {
-      var endT = new Date(cfg.endDate).getTime();
-      var key = NS + "-cd-start-" + widgetId;
-      var startT;
-      try {
-        var saved = sessionStorage.getItem(key);
-        if (saved) {
-          startT = parseInt(saved, 10);
-        } else {
-          startT = Date.now();
-          sessionStorage.setItem(key, String(startT));
-        }
-      } catch (e) {
-        startT = Date.now();
-      }
-      totalDuration = Math.max(1, Math.floor((endT - startT) / 1000));
+    if (pos === 'below_image') {
+      targetEl = imageContainer;
+      insertMethod = 'after';
+    } else if (pos === 'above_price') {
+      targetEl = priceEl;
+      insertMethod = 'before';
+    } else if (pos === 'below_price') {
+      targetEl = priceEl;
+      insertMethod = 'after';
+    } else if (pos === 'above_buy') {
+      targetEl = buyBlock || addToCartBtn;
+      insertMethod = 'before';
+    } else if (pos === 'below_buy') {
+      targetEl = buyBlock || addToCartBtn;
+      insertMethod = 'after';
     } else {
-      totalDuration = (cfg.durationMinutes || 15) * 60;
-    }
-    var remainingRatio = time.totalSeconds / totalDuration;
-    if (remainingRatio <= 0.33) return "critical";
-    if (remainingRatio <= 0.66) return "medium";
-    return "normal";
-  }
-
-  function getClockBg(cfg, urgencyState) {
-    if (cfg.campaignTheme && cfg.campaignTheme !== "none") {
-      return cfg.colorClockBg;
-    }
-    if (urgencyState === "critical") return cfg.colorClockBgCritical;
-    if (urgencyState === "medium") return cfg.colorClockBgMedium;
-    return cfg.colorClockBg;
-  }
-
-  function update(container, cfg, state, widgetId) {
-    var time = calcTime(state);
-    var urgency = getUrgencyState(cfg, time, widgetId);
-    var isBar = container.dataset.placement === "topbar";
-
-    if (time.isFinished && !cfg.autoRestart) {
-      var finishedRadius = isBar ? 0 : cfg.borderRadiusWidget;
-      container.innerHTML =
-        '<div style="background:' + getBg(cfg) + ';border-radius:' + finishedRadius + 'px;padding:' + cfg.paddingWidget + 'px;text-align:' + cfg.alignment + ';color:' + cfg.colorTitle + ';font-weight:700;">' +
-        '⏰ ¡La oferta terminó!</div>';
-      return;
+      targetEl = priceEl || buyBlock;
+      insertMethod = 'before';
     }
 
-    var units = buildUnits(cfg, time);
-
-    if (units.length === 0) {
-      container.innerHTML = "";
-      return;
+    if (!targetEl && priceEl) {
+      targetEl = priceEl;
+      insertMethod = 'before';
     }
 
-    var keys = units.map(function (u) { return u.k; }).join(",");
-    var host = qs("." + NS + "-widget-host", container);
-
-    var needsRebuild =
-      !host ||
-      host.dataset.style !== cfg.style ||
-      host.dataset.keys !== keys ||
-      host.dataset.bar !== String(isBar) ||
-      host.dataset.urgency !== urgency;
-
-    if (needsRebuild) {
-      container.innerHTML = buildFullHtml(cfg, units, time, urgency, isBar);
+    if (!targetEl) {
+      var headerEl = document.querySelector('header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar');
+      if (headerEl && headerEl.parentNode) {
+        targetEl = headerEl;
+        insertMethod = 'after';
+      } else {
+        targetEl = document.querySelector('main, #content, .main-content, .js-main-content, body');
+        insertMethod = 'before';
+      }
+    }
+  } else {
+    // 🎯 UBICACIÓN EXACTA ARRIBA DEL BANNER PRINCIPAL DE LA HOME
+    var homeBanner = document.querySelector(
+      '.js-home-slider, .home-slider, .js-home-main-slider, [data-store*="slider"], [data-store*="banner"], .section-slider, .section-main-slider, .home-banners, .js-home-banner, .home-slider-wrapper, section.slider'
+    );
+    if (homeBanner && homeBanner.parentNode) {
+      targetEl = homeBanner;
+      insertMethod = 'before';
     } else {
-      units.forEach(function (u) { updateUnit(host, u, cfg); });
-    }
-  }
-
-  function buildUnits(cfg, time) {
-    var arr = [];
-    var showDaysActive = cfg.showDays && time.days > 0;
-    if (showDaysActive) arr.push({ v: time.days, l: "DÍAS", k: "d" });
-    if (cfg.showHours) {
-      var hoursValue = showDaysActive ? time.hours : time.hours + time.days * 24;
-      arr.push({ v: hoursValue, l: "HRS", k: "h" });
-    }
-    if (cfg.showMinutes) arr.push({ v: time.minutes, l: "MIN", k: "m" });
-    if (cfg.showSeconds) arr.push({ v: time.seconds, l: "SEG", k: "s" });
-    return arr;
-  }
-
-  function buildFullHtml(cfg, units, time, urgency, isBar) {
-    var bg = getBg(cfg);
-
-    var badgeHtml = cfg.campaignBadge
-      ? '<div style="margin-bottom:10px;text-align:' + cfg.alignment + ';"><span style="display:inline-flex;align-items:center;background:' + cfg.campaignBadgeColor + ';color:' + cfg.campaignBadgeTextColor + ';font-size:11px;font-weight:900;padding:3px 10px;border-radius:999px;letter-spacing:0.04em;box-shadow:0 2px 8px rgba(0,0,0,0.15);">' + escapeHtml(cfg.campaignBadge) + '</span></div>'
-      : "";
-
-    var titleHtml = cfg.title
-      ? '<div style="font-size:' + cfg.fontSizeTitle + ';font-weight:700;color:' + cfg.colorTitle + ';margin-bottom:14px;line-height:1.2;text-align:' + cfg.alignment + ';">' + escapeHtml(cfg.title) + '</div>'
-      : "";
-
-    var clockInner = "";
-    for (var i = 0; i < units.length; i++) {
-      clockInner += renderUnit(units[i], cfg, urgency);
-      if (i < units.length - 1) clockInner += renderSep(cfg);
-    }
-
-    var subtitleHtml = cfg.subtitle
-      ? '<div style="margin-bottom:14px;text-align:' + cfg.alignment + ';">' +
-          '<span style="display:inline-block;background:' + cfg.colorSubtitleBg + ';color:' + cfg.colorSubtitle + ';font-size:' + cfg.fontSizeSubtitle + ';font-weight:700;padding:4px 10px;border-radius:6px;">' +
-            escapeHtml(cfg.subtitle) +
-          '</span>' +
-        '</div>'
-      : "";
-
-    var radius = isBar ? 0 : cfg.borderRadiusWidget;
-    var padding = isBar ? Math.max(10, Math.min(cfg.paddingWidget, 20)) : cfg.paddingWidget;
-    var innerWrap = isBar ? '<div style="max-width:1200px;margin:0 auto;">' : '';
-    var innerWrapClose = isBar ? '</div>' : '';
-
-    return '' +
-      '<div class="' + NS + '-widget-host" data-style="' + cfg.style + '" data-keys="' + units.map(function (u) { return u.k; }).join(",") + '" data-bar="' + String(isBar) + '" data-urgency="' + urgency + '" style="background:' + bg + ';border-radius:' + radius + 'px;padding:' + padding + 'px;text-align:' + cfg.alignment + ';">' +
-        innerWrap +
-          badgeHtml +
-          titleHtml +
-          subtitleHtml +
-          '<div style="display:flex;align-items:center;justify-content:' + (cfg.alignment === "center" ? "center" : "flex-start") + ';gap:8px;flex-wrap:wrap;">' + clockInner + '</div>' +
-        innerWrapClose +
-      '</div>';
-  }
-
-  function renderUnit(u, cfg, urgency) {
-    var val = String(u.v).padStart(2, "0");
-    var size = parseInt(cfg.fontSizeClock, 10) || 16;
-    var labelSize = Math.max(9, Math.round(size * 0.55));
-    var clockBg = getClockBg(cfg, urgency);
-    var criticalClass = urgency === "critical" ? " " + NS + "-critical" : "";
-    var labelHtml = cfg.showLabels
-      ? '<span class="' + NS + '-label" style="font-size:' + labelSize + 'px;color:' + cfg.colorTitle + ';opacity:0.8;">' + u.l + '</span>'
-      : "";
-
-    if (cfg.style === "retro") {
-      var chars = val.split("");
-      var cells = "";
-      for (var i = 0; i < chars.length; i++) {
-        cells += '<span class="' + NS + '-retro-cell" style="display:inline-block;min-width:' + (size * 1.2) + 'px;padding:' + cfg.paddingClock + 'px;background:' + clockBg + ';font-size:' + cfg.fontSizeClock + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;margin:0 1px;text-align:center;font-weight:700;">' + chars[i] + '</span>';
+      var globalHeader = document.querySelector(
+        'header, .js-header-wrapper, #header, .header-wrapper, nav.js-navbar'
+      );
+      if (globalHeader && globalHeader.parentNode) {
+        targetEl = globalHeader;
+        insertMethod = 'after';
+      } else {
+        targetEl = document.querySelector(
+          'main, #content, .main-content, .js-main-content, body'
+        );
+        insertMethod = 'before';
       }
-      return '<div class="' + NS + '-unit' + criticalClass + '" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;"><div class="' + NS + '-retro-digit" data-value="' + val + '" style="display:inline-flex;">' + cells + '</div>' + labelHtml + '</div>';
     }
-
-    return '<div class="' + NS + '-unit' + criticalClass + '" data-key="' + u.k + '" style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;">' +
-      '<div class="' + NS + '-digit" data-value="' + val + '" style="min-width:' + (size * 2.5) + 'px;min-height:' + (size * 2.5) + 'px;display:inline-flex;align-items:center;justify-content:center;background:' + clockBg + ';color:' + cfg.colorNumbers + ';border-radius:' + cfg.borderRadiusClock + 'px;padding:' + cfg.paddingClock + 'px ' + (cfg.paddingClock + 2) + 'px;font-size:' + cfg.fontSizeClock + ';line-height:1;font-weight:700;">' + val + '</div>' + labelHtml +
-    '</div>';
   }
 
-  function renderSep(cfg) {
-    var size = parseInt(cfg.fontSizeClock, 10) || 16;
-    var dotSize = Math.max(3, Math.round(size * 0.18));
-    var padBottom = cfg.showLabels ? Math.round(size * 0.85) : 0;
-    var dot = '<span style="display:inline-block;border-radius:50%;width:' + dotSize + 'px;height:' + dotSize + 'px;background:' + cfg.colorTitle + ';"></span>';
-    return '<div class="' + NS + '-sep" style="display:inline-flex;flex-direction:column;justify-content:center;padding-bottom:' + padBottom + 'px;gap:' + dotSize + 'px;">' + dot + dot + '</div>';
-  }
-
-  function updateUnit(host, u, cfg) {
-    var unitEl = qs("." + NS + "-unit[data-key=\"" + u.k + "\"]", host);
-    if (!unitEl) return;
-    var val = String(u.v).padStart(2, "0");
-
-    if (cfg.style === "retro") {
-      var wrap = qs("." + NS + "-retro-digit", unitEl);
-      if (!wrap || wrap.dataset.value === val) return;
-      wrap.dataset.value = val;
-      var cells = qsa("." + NS + "-retro-cell", wrap);
-      var chars = val.split("");
-      for (var i = 0; i < chars.length; i++) {
-        if (cells[i] && cells[i].textContent !== chars[i]) {
-          cells[i].textContent = chars[i];
-          cells[i].classList.remove("flip");
-          void cells[i].offsetWidth;
-          cells[i].classList.add("flip");
-        }
+  // INSERCIÓN REAL EN EL DOM
+  if (targetEl && targetEl.parentNode) {
+    if (insertMethod === 'before') {
+      targetEl.parentNode.insertBefore(container, targetEl);
+    } else if (insertMethod === 'after') {
+      if (targetEl.nextSibling) {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.parentNode.appendChild(container);
       }
-      return;
+    } else if (insertMethod === 'prepend') {
+      targetEl.insertBefore(container, targetEl.firstChild);
     }
-
-    var digit = qs("." + NS + "-digit", unitEl);
-    if (!digit || digit.dataset.value === val) return;
-    digit.dataset.value = val;
-    digit.textContent = val;
-    digit.classList.remove("bounce");
-    void digit.offsetWidth;
-    digit.classList.add("bounce");
   }
 
-  function getBg(cfg) {
-    if (cfg.bgType === "gradient") {
-      var dir = cfg.gradientDirection || "to bottom right";
-      return "linear-gradient(" + dir + ", " + cfg.colorWidgetBg + " 0%, " + cfg.colorWidgetBg2 + " 100%)";
-    }
-    return cfg.colorWidgetBg;
+  if (typeof nvxTrack === 'function') {
+    nvxTrack(w.id, 'impression');
   }
-
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
+      }
 /* ═══════════════════════════════════════════
    WIDGET: MARQUEE DE NOVEDADES (v11 Layout-Safe Buy Button)
    ═══════════════════════════════════════════ */
