@@ -209,8 +209,9 @@ function generateSocialProofEvents(products: unknown[], settings: Record<string,
 ═══════════════════════════════════════════ */
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept',
+  'Access-Control-Max-Age': '86400',
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
 }
 
@@ -531,4 +532,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-       }
+  }
