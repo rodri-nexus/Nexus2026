@@ -80,8 +80,8 @@ export default function RecuperarPage() {
 
     setLoading(true);
     try {
-      // Determinamos el origen del host de manera segura en navegador
-      const redirectOrigin = typeof window !== "undefined" ? window.location.origin : "https://nexus2026-gx7e.vercel.app";
+      // Determinamos el origen del host de manera segura en navegador (con fallback a nevux.ar)
+      const redirectOrigin = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar");
 
       const { error: err } = await supabase.auth.resetPasswordForEmail(
         cleanEmail,
@@ -362,4 +362,4 @@ export default function RecuperarPage() {
       </motion.div>
     </div>
   );
-        }
+}
