@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
-import { Loader2, ArrowLeft, Save, Sparkles, Clock, Palette, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, ArrowLeft, Save, Sparkles, Clock, Palette, CheckCircle2, AlertCircle, Eye } from "lucide-react";
 import Link from "next/link";
 
 interface CuentaRegresivaEditorProps {
@@ -15,12 +15,12 @@ interface CuentaRegresivaEditorProps {
 }
 
 const PRESET_THEMES = [
-  { id: "none", name: "Estilo Libre", themeColor: "#000000", accentColor: "#10B981" },
-  { id: "black-friday", name: "🔥 Black Friday", themeColor: "#111827", accentColor: "#F59E0B" },
-  { id: "hot-sale", name: "⚡ Hot Sale", themeColor: "#0F172A", accentColor: "#EF4444" },
-  { id: "cyber-monday", name: "🚀 Cyber Monday", themeColor: "#090D16", accentColor: "#3B82F6" },
-  { id: "navidad", name: "🎄 Navidad", themeColor: "#064E3B", accentColor: "#EF4444" },
-  { id: "san-valentin", name: "💘 San Valentín", themeColor: "#831843", accentColor: "#F43F5E" },
+  { id: "none", name: "Estilo Libre", themeColor: "#000000", accentColor: "#10B981", badge: "" },
+  { id: "black-friday", name: "🔥 Black Friday", themeColor: "#111827", accentColor: "#F59E0B", badge: "🔥 BLACK FRIDAY" },
+  { id: "hot-sale", name: "⚡ Hot Sale", themeColor: "#0F172A", accentColor: "#EF4444", badge: "⚡ HOT SALE" },
+  { id: "cyber-monday", name: "🚀 Cyber Monday", themeColor: "#090D16", accentColor: "#3B82F6", badge: "🚀 CYBER MONDAY" },
+  { id: "navidad", name: "🎄 Navidad", themeColor: "#064E3B", accentColor: "#EF4444", badge: "🎄 NAVIDAD" },
+  { id: "san-valentin", name: "💘 San Valentín", themeColor: "#831843", accentColor: "#F43F5E", badge: "💘 SAN VALENTÍN" },
 ];
 
 export default function CuentaRegresivaEditor({
@@ -44,7 +44,7 @@ export default function CuentaRegresivaEditor({
   const [endDate, setEndDate] = useState<string>(rawCfg.endDate || "");
   const [autoRestart, setAutoRestart] = useState<boolean>(rawCfg.autoRestart ?? true);
   
-  // 🎨 Estilos Premium
+  // 🎨 Estilos Premium del Reloj
   const [clockStyle, setClockStyle] = useState<"clasico" | "retro" | "circulo" | "minimalista">(rawCfg.style || "clasico");
   
   const [showAsTopBar, setShowAsTopBar] = useState<boolean>(rawCfg.showAsTopBar ?? false);
@@ -119,6 +119,8 @@ export default function CuentaRegresivaEditor({
     }
   };
 
+  const selectedPreset = PRESET_THEMES.find((t) => t.id === campaignTheme);
+
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb", padding: "1.5rem 1rem", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
@@ -161,7 +163,7 @@ export default function CuentaRegresivaEditor({
         </div>
 
         {/* Título y Estado */}
-        <div style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "16px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+        <div style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "16px", padding: "1.25rem", marginBottom: "1.25rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
             <div>
               <h1 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#111827", margin: 0 }}>⏱️ Cuenta Regresiva Premium</h1>
@@ -174,19 +176,124 @@ export default function CuentaRegresivaEditor({
           </div>
         </div>
 
+        {/* 👁️ SIMULADOR EN TIEMPO REAL (VISTA PREVIA EN VIVO) */}
+        <div style={{ backgroundColor: "#ffffff", border: "2px solid #10B981", borderRadius: "16px", padding: "1.25rem", marginBottom: "1.5rem", boxShadow: "0 4px 20px rgba(16, 185, 129, 0.1)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+            <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "#059669", display: "inline-flex", alignItems: "center", gap: "0.4rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <Eye style={{ width: "16px", height: "16px" }} /> Vista Previa en Vivo (Simulador)
+            </span>
+            <span style={{ fontSize: "0.75rem", backgroundColor: "#ecfdf5", color: "#059669", padding: "2px 8px", borderRadius: "999px", fontWeight: 700 }}>
+              Actualiza al instante
+            </span>
+          </div>
+
+          {/* Renderizado de la Caja del Reloj */}
+          <div
+            style={{
+              backgroundColor: colorWidgetBg,
+              borderRadius: "14px",
+              padding: "1.25rem",
+              textAlign: "center",
+              transition: "all 0.3s ease",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+            }}
+          >
+            {/* Badge de Fecha Especial */}
+            {selectedPreset && selectedPreset.badge && (
+              <div style={{ marginBottom: "8px" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", backgroundColor: colorClockBg, color: "#ffffff", fontSize: "11px", fontWeight: 900, padding: "3px 10px", borderRadius: "999px", letterSpacing: "0.04em" }}>
+                  {selectedPreset.badge}
+                </span>
+              </div>
+            )}
+
+            {/* Título */}
+            <div style={{ fontSize: "1rem", fontWeight: 800, color: "#ffffff", marginBottom: "8px", lineHeight: 1.2 }}>
+              {title || "🔥 ¡La oferta termina pronto!"}
+            </div>
+
+            {/* Subtítulo */}
+            {subtitle && (
+              <div style={{ marginBottom: "10px" }}>
+                <span style={{ display: "inline-block", backgroundColor: colorClockBg + "33", color: colorClockBg, fontSize: "11px", fontWeight: 800, padding: "3px 8px", borderRadius: "6px" }}>
+                  {subtitle}
+                </span>
+              </div>
+            )}
+
+            {/* Reloj según Estilo Elegido */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "10px" }}>
+              {["00", "14", "59"].map((digit, idx) => (
+                <React.Fragment key={idx}>
+                  
+                  {/* ESTILO 1: CIRCULO */}
+                  {clockStyle === "circulo" && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                      <div style={{ width: "42px", height: "42px", borderRadius: "50%", backgroundColor: colorClockBg, color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", fontWeight: 900, boxShadow: "0 0 12px " + colorClockBg + "66" }}>
+                        {digit}
+                      </div>
+                      <span style={{ fontSize: "9px", fontWeight: 700, color: "#ffffff", opacity: 0.8 }}>{idx === 0 ? "HRS" : idx === 1 ? "MIN" : "SEG"}</span>
+                    </div>
+                  )}
+
+                  {/* ESTILO 2: MINIMALISTA */}
+                  {clockStyle === "minimalista" && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                      <div style={{ color: colorClockBg, fontSize: "1.5rem", fontWeight: 900, lineHeight: 1 }}>
+                        {digit}
+                      </div>
+                      <span style={{ fontSize: "9px", fontWeight: 700, color: "#ffffff", opacity: 0.8 }}>{idx === 0 ? "HRS" : idx === 1 ? "MIN" : "SEG"}</span>
+                    </div>
+                  )}
+
+                  {/* ESTILO 3: RETRO FLIP */}
+                  {clockStyle === "retro" && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                      <div style={{ display: "flex", gap: "2px" }}>
+                        {digit.split("").map((d, dIdx) => (
+                          <span key={dIdx} style={{ backgroundColor: colorClockBg, color: "#ffffff", padding: "6px 8px", borderRadius: "6px", fontSize: "1rem", fontWeight: 900, boxShadow: "inset 0 -2px 0 rgba(0,0,0,0.3)" }}>
+                            {d}
+                          </span>
+                        ))}
+                      </div>
+                      <span style={{ fontSize: "9px", fontWeight: 700, color: "#ffffff", opacity: 0.8 }}>{idx === 0 ? "HRS" : idx === 1 ? "MIN" : "SEG"}</span>
+                    </div>
+                  )}
+
+                  {/* ESTILO 4: CLASICO */}
+                  {clockStyle === "clasico" && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                      <div style={{ minWidth: "40px", minHeight: "40px", borderRadius: "8px", backgroundColor: colorClockBg, color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", padding: "6px 8px", fontSize: "1rem", fontWeight: 800, lineHeight: 1 }}>
+                        {digit}
+                      </div>
+                      <span style={{ fontSize: "9px", fontWeight: 700, color: "#ffffff", opacity: 0.8 }}>{idx === 0 ? "HRS" : idx === 1 ? "MIN" : "SEG"}</span>
+                    </div>
+                  )}
+
+                  {/* Dos puntos separadores */}
+                  {idx < 2 && (
+                    <span style={{ fontSize: clockStyle === "minimalista" ? "1.2rem" : "1rem", fontWeight: 900, color: clockStyle === "minimalista" ? colorClockBg : "#ffffff", paddingBottom: "14px" }}>:</span>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Formulario de Opciones */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           
           {/* DISEÑO PREMIUM DEL RELOJ */}
           <div style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "16px", padding: "1.25rem" }}>
             <h2 style={{ fontSize: "0.95rem", fontWeight: 800, color: "#111827", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <Palette style={{ width: "18px", height: "18px", color: "#10B981" }} /> Diseño del Reloj
+              <Palette style={{ width: "18px", height: "18px", color: "#10B981" }} /> Elegir Diseño del Reloj
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
               {[
-                { id: "clasico", label: "Cuadrado Clásico", desc: "El más utilizado" },
-                { id: "retro", label: "Retro Flip", desc: "Estilo tablero" },
-                { id: "circulo", label: "Círculos Neón", desc: "Moderno y suave" },
-                { id: "minimalista", label: "Minimalista", desc: "Sin fondo, elegante" }
+                { id: "clasico", label: "Cuadrado Clásico", desc: "El tradicional seguro" },
+                { id: "retro", label: "Retro Flip", desc: "Estilo tablero aeropuerto" },
+                { id: "circulo", label: "Círculos Neón", desc: "Moderno con resplandor" },
+                { id: "minimalista", label: "Minimalista", desc: "Elegante sin fondo" }
               ].map((style) => (
                 <div
                   key={style.id}
@@ -281,4 +388,4 @@ export default function CuentaRegresivaEditor({
       </div>
     </div>
   );
-                                                             }
+   }
