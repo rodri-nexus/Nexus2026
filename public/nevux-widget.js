@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  const API_BASE = "https://nexus2026-gx7e.vercel.app";
+  const API_BASE = "https://nevux.ar";
   const NS = "nevux-widget";
 
   console.log("[Nevux] v28 - Multi-Widget Engine Active");
@@ -50,7 +50,7 @@
       var sdk = (e && e.detail) ? e.detail : window.NubeSDK;
       initNubeSDKIntegration(sdk);
     });
-  }
+}
 /* ═══════════════════════════════════════════
      HELPERS
   ═══════════════════════════════════════════ */
