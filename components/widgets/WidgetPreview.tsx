@@ -59,6 +59,8 @@ function renderPreview(slug: string) {
     case "contador-visitas":
     case "visitor-counter":
       return <ContadorVisitasPreview />;
+    case "cuenta-regresiva":
+      return <CuentaRegresivaPreview />;
     case "bundle-cantidad":
       return <BundleCantidadPreview />;
     case "bundle-promociones":
@@ -87,6 +89,50 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS WIDGETS
    ═══════════════════════════════════════════ */
+
+function CuentaRegresivaPreview() {
+  const cells = ["12", "34", "56"];
+  return (
+    <div
+      style={{
+        background: "#000000",
+        borderRadius: "8px",
+        padding: "10px 14px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "6px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      }}
+    >
+      <div style={{ fontSize: "9px", color: "#10B981", fontWeight: 800, letterSpacing: "0.03em" }}>
+        ⏰ OFERTA TERMINA EN
+      </div>
+      <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+        {cells.map((c, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <div
+              style={{
+                background: "#10B981",
+                color: "#ffffff",
+                padding: "3px 6px",
+                borderRadius: "4px",
+                fontSize: "13px",
+                fontWeight: 800,
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {c}
+            </div>
+            {i < cells.length - 1 && (
+              <span style={{ color: "#ffffff", fontWeight: 800 }}>:</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function ContadorVendidosPreview() {
   return (
