@@ -1,7 +1,6 @@
 // app/widgets/editar/[widgetSlug]/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
-import CountdownEditor from '@/components/widgets/editors/CountdownEditor';
 import BarraProgresoEditor from '@/components/widgets/editors/BarraProgresoEditor';
 import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
@@ -266,18 +265,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
   if (params.widgetSlug === 'contador-visitas' || params.widgetSlug === 'visitor-counter') {
     return (
       <ContadorVisitasEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  if (params.widgetSlug === 'cuenta-regresiva') {
-    return (
-      <CountdownEditor
         widgetDefinition={widgetDef}
         existingWidget={existingWidget}
         targetType={targetType as 'product' | 'all'}
