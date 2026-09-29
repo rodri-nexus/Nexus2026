@@ -1,44 +1,30 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/lib/supabase-browser";
-import Script from "next/script";
-
-const inter = Inter({ subsets: ["latin"] });
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nevux.ar"),
-  title: "Nevux | Multiplicá tus ventas en Tiendanube",
-  description: "La plataforma #1 de widgets de conversión e IA para Tiendanube. Aumentá tu ticket promedio con NevuxBot, Vendedor IA y más de 27 widgets.",
-  keywords: ["Tiendanube", "e-commerce", "widgets", "conversión", "ventas", "IA", "vendedor virtual", "nevux"],
-  authors: [{ name: "Nevux Team" }],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nevux.ar"),
+  title: "Nevux - Aumenta tu ticket promedio",
+  description:
+    "App de Tiendanube para aumentar el ticket promedio de tu tienda online",
   icons: {
-    icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     shortcut: ["/icon.svg"],
-    apple: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
-    title: "Nevux | Multiplicá tus ventas en Tiendanube",
-    description: "Impulsá tu Tiendanube con IA y widgets de alto impacto.",
+    title: "Nevux - Aumenta tu ticket promedio",
+    description: "App de Tiendanube para aumentar el ticket promedio de tu tienda online",
     url: "https://nevux.ar",
     siteName: "Nevux",
     locale: "es_AR",
     type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "Nevux | Multiplicá tus ventas en Tiendanube",
-    description: "IA y widgets para potenciar tu e-commerce.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  }
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#10B981",
 };
 
 export default function RootLayout({
@@ -47,22 +33,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es">
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
-      <body className={inter.className}>
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
-        {/* NubeSDK para integración oficial con Tiendanube */}
-        <Script 
-          src="https://d26lpennugtm8s.cloudfront.net/assets/common/js/nube-sdk/js/sdk-1.0.0.js" 
-          strategy="beforeInteractive"
-        />
+      <body
+        style={{
+          margin: 0,
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          backgroundColor: "#f9fafb",
+          color: "#000000",
+        }}
+      >
+        {children}
       </body>
     </html>
   );
-        }
+  }
