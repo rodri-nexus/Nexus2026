@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
-import { useToast } from "@/components/ui/use-toast";
-import { Loader2, ArrowLeft, Save, Sparkles, Check, Clock, Palette, Type } from "lucide-react";
+import { Loader2, ArrowLeft, Save, Sparkles, Clock, Palette, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 interface CuentaRegresivaEditorProps {
@@ -32,9 +31,9 @@ export default function CuentaRegresivaEditor({
   storeId,
 }: CuentaRegresivaEditorProps) {
   const router = useRouter();
-  const { toast } = useToast();
   const supabase = createClient();
   const [saving, setSaving] = useState(false);
+  const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const rawCfg = existingWidget?.config || {};
 
@@ -59,9 +58,10 @@ export default function CuentaRegresivaEditor({
 
   const handleSave = async () => {
     setSaving(true);
+    setNotification(null);
     try {
       const { data: userData } = await supabase.auth.getUser();
-      if (!userData?.user) throw new Error("Sesión expirada");
+      if (!userData?.user) throw new Error("Sesión expirada. Por favor volvé a iniciar sesión.");
 
       const configPayload = {
         title,
@@ -99,16 +99,21 @@ export default function CuentaRegresivaEditor({
       };
 
       if (existingWidget?.id) {
-        await supabase.from("widgets").update(payload).eq("id", existingWidget.id);
+        const { error } = await supabase.from("widgets").update(payload).eq("id", existingWidget.id);
+        if (error) throw error;
       } else {
-        await supabase.from("widgets").insert(payload);
+        const { error } = await supabase.from("widgets").insert(payload);
+        if (error) throw error;
       }
 
-      toast({ title: "¡Widget Guardado!", description: "La cuenta regresiva se ha actualizado." });
-      router.push("/dashboard");
-      router.refresh();
+      setNotification({ type: "success", message: "¡Widget guardado con éxito! Redirigiendo..." });
+      
+      setTimeout(() => {
+        router.push("/dashboard");
+        router.refresh();
+      }, 1000);
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      setNotification({ type: "error", message: err.message || "Error al guardar el widget." });
     } finally {
       setSaving(false);
     }
@@ -118,13 +123,39 @@ export default function CuentaRegresivaEditor({
     <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb", padding: "1.5rem 1rem", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
         
+        {/* Banner de Notificación */}
+        {notification && (
+          <div
+            style={{
+              marginBottom: "1rem",
+              padding: "0.85rem 1.25rem",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              backgroundColor: notification.type === "success" ? "#ecfdf5" : "#fef2f2",
+              border: notification.type === "success" ? "1px solid #a7f3d0" : "1px solid #feccae",
+              color: notification.type === "success" ? "#065f46" : "#991b1b",
+              fontWeight: 700,
+              fontSize: "0.9rem",
+            }}
+          >
+            {notification.type === "success" ? (
+              <CheckCircle2 style={{ width: "20px", height: "20px", color: "#10B981" }} />
+            ) : (
+              <AlertCircle style={{ width: "20px", height: "20px", color: "#ef4444" }} />
+            )}
+            <span>{notification.message}</span>
+          </div>
+        )}
+
         {/* Header Superior */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
           <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", fontWeight: 700, color: "#4b5563", textDecoration: "none" }}>
-            <ArrowLeft style={{ width: "18px", height: "18px" }} /> Volver
+            <ArrowLeft style={{ width: "18px", height: "18px" }} /> Volver al Dashboard
           </Link>
           <button onClick={handleSave} disabled={saving} style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#10B981", color: "#ffffff", fontWeight: 800, fontSize: "0.9rem", padding: "0.6rem 1.25rem", borderRadius: "10px", border: "none", cursor: saving ? "not-allowed" : "pointer", boxShadow: "0 4px 12px rgba(16, 185, 129, 0.25)" }}>
-            {saving ? <Loader2 className="animate-spin" /> : <Save />}
+            {saving ? <Loader2 className="animate-spin" style={{ width: "18px", height: "18px" }} /> : <Save style={{ width: "18px", height: "18px" }} />}
             Guardar Cambios
           </button>
         </div>
@@ -250,4 +281,4 @@ export default function CuentaRegresivaEditor({
       </div>
     </div>
   );
-  }
+                                                             }
