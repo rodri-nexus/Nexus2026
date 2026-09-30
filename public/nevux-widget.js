@@ -3394,7 +3394,7 @@ function renderContadorVendidos(w) {
 
     setTimeout(showNextEvent, 2500);
         }
-  /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    WIDGET: CUENTA REGRESIVA
    ═══════════════════════════════════════════ */
 function renderCuentaRegresiva(w) {
@@ -3402,12 +3402,19 @@ function renderCuentaRegresiva(w) {
   if (document.getElementById(elementId)) return;
 
   var cfg = w.config || {};
+  var location = cfg.location || "product_before";
+
+  // Verificación estricta de tipo de página: si es para producto, SOLO se ejecuta en la ficha de producto
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+  if (location !== "top_bar" && currentPage !== "product") {
+    return;
+  }
+
   var timerType = cfg.timerType || "minutes";
   var durationMinutes = parseInt(cfg.durationMinutes, 10) || 30;
   var exactDate = cfg.exactDate || "";
   var title = cfg.title || "¡Oferta por tiempo limitado!";
   var blockSize = cfg.blockSize || "normal";
-  var location = cfg.location || "product_before";
   var template = cfg.template || "gradient";
   var gradStart = cfg.gradStart || "#ef4444";
   var gradEnd = cfg.gradEnd || "#eab308";
@@ -3554,15 +3561,32 @@ function renderCuentaRegresiva(w) {
     var body = document.body;
     if (body) body.insertBefore(container, body.firstChild);
   } else {
-    var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
-    if (targetEl && targetEl.parentNode) {
+    var buyFormSelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn"
+    ];
+
+    var buyFormTarget = null;
+    for (var b = 0; b < buyFormSelectors.length; b++) {
+      var el = document.querySelector(buyFormSelectors[b]);
+      if (el) {
+        buyFormTarget = el;
+        break;
+      }
+    }
+
+    if (buyFormTarget && buyFormTarget.parentNode) {
       if (location === "product_after") {
-        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+        buyFormTarget.parentNode.insertBefore(container, buyFormTarget.nextSibling);
       } else {
-        targetEl.parentNode.insertBefore(container, targetEl);
+        buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
       }
     } else {
-      var main = document.querySelector('main, #content, .main-content');
+      var main = document.querySelector("main, #content, .main-content");
       if (main) main.insertBefore(container, main.firstChild);
     }
   }
@@ -3619,7 +3643,7 @@ function renderCuentaRegresiva(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-                        }
+}
 /* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
