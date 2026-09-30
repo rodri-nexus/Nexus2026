@@ -5,8 +5,56 @@ interface WidgetPreviewProps {
 }
 
 /* ═══════════════════════════════════════════
-   PREVIEWS DE LOS 5 WIDGETS ACTIVOS
+   PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
+
+function CuentaRegresivaPreview() {
+  return (
+    <div
+      style={{
+        background: "linear-gradient(135deg, #ef4444, #eab308)",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "6px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        color: "#ffffff",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, textAlign: "center" }}>
+        ¡Oferta por tiempo limitado!
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+        {["00", "29", "58"].map((num, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            {i > 0 && <span style={{ fontSize: "9px", fontWeight: 900 }}>:</span>}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div
+                style={{
+                  background: "rgba(0,0,0,0.2)",
+                  borderRadius: "4px",
+                  padding: "2px 5px",
+                  fontSize: "9px",
+                  fontWeight: 900,
+                  fontFamily: "monospace",
+                }}
+              >
+                {num}
+              </div>
+              <span style={{ fontSize: "5px", textTransform: "uppercase", opacity: 0.8, marginTop: "1px", fontWeight: 700 }}>
+                {i === 0 ? "Horas" : i === 1 ? "Min" : "Seg"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function ContadorVendidosPreview() {
   return (
@@ -368,6 +416,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "cuenta-regresiva":
+      return <CuentaRegresivaPreview />;
     case "contador-vendidos":
       return <ContadorVendidosPreview />;
     case "edicion-limitada":
