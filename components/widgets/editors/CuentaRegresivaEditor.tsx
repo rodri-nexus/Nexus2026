@@ -38,6 +38,8 @@ interface Cfg {
   durationMinutes: number;
   durationValue: number;
   durationUnit: 'minutes' | 'hours' | 'days';
+  durationHours: number;
+  durationExtraMinutes: number;
   exactDate: string;
   title: string;
   blockSize: 'compact' | 'normal' | 'large';
@@ -53,13 +55,15 @@ interface Cfg {
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO (Ajustado a 15 min de inicio)
+   CONFIG POR DEFECTO
 ═══════════════════════════════════════════ */
 const DEF: Cfg = {
   timerType: 'minutes',
   durationMinutes: 15,
   durationValue: 15,
   durationUnit: 'minutes',
+  durationHours: 1,
+  durationExtraMinutes: 0,
   exactDate: '',
   title: '¡Oferta por tiempo limitado!',
   blockSize: 'normal',
@@ -92,6 +96,22 @@ const IconInfo = () => (
   </svg>
 );
 
+const IconClock = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+);
+
+const IconCalendar = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+
 /* ═══════════════════════════════════════════
    COMPONENTES AUXILIARES DE FORMULARIO
 ═══════════════════════════════════════════ */
@@ -113,9 +133,9 @@ function FieldHelper({ children }: { children: React.ReactNode }) {
 }
 
 function TextInput({
-  value, onChange, placeholder, maxLength, type = 'text',
+  value, onChange, placeholder, maxLength, type = 'text', min,
 }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number; type?: string;
+  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number; type?: string; min?: string;
 }) {
   return (
     <input
@@ -124,6 +144,7 @@ function TextInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       maxLength={maxLength}
+      min={min}
       style={{
         width: '100%', padding: '12px 14px', fontSize: 15,
         border: '1.5px solid #e5e7eb', borderRadius: 10,
@@ -179,21 +200,27 @@ function ColorPickerField({
   );
 }
 
+/* ═══════════════════════════════════════════
+   PARSER
+═══════════════════════════════════════════ */
 function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
   if (!raw) return { ...DEF };
-  
+
   const rawDuration = typeof raw.durationMinutes === 'number' ? raw.durationMinutes : DEF.durationMinutes;
   let durationUnit: Cfg['durationUnit'] = (raw.durationUnit as any) || 'minutes';
   let durationValue = typeof raw.durationValue === 'number' ? raw.durationValue : rawDuration;
+  let durationHours = typeof raw.durationHours === 'number' ? raw.durationHours : 1;
+  let durationExtraMinutes = typeof raw.durationExtraMinutes === 'number' ? raw.durationExtraMinutes : 0;
 
-  // Migración retrocompatible inteligente para configs viejas sin unidad explícita
+  // Migración retrocompatible
   if (!raw.durationUnit) {
     if (rawDuration % 1440 === 0) {
       durationUnit = 'days';
       durationValue = rawDuration / 1440;
-    } else if (rawDuration % 60 === 0) {
+    } else if (rawDuration >= 60) {
       durationUnit = 'hours';
-      durationValue = rawDuration / 60;
+      durationHours = Math.floor(rawDuration / 60);
+      durationExtraMinutes = rawDuration % 60;
     } else {
       durationUnit = 'minutes';
       durationValue = rawDuration;
@@ -205,6 +232,8 @@ function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
     durationMinutes: rawDuration,
     durationValue,
     durationUnit,
+    durationHours,
+    durationExtraMinutes,
     exactDate: (raw.exactDate as string) || DEF.exactDate,
     title: (raw.title as string) || DEF.title,
     blockSize: (raw.blockSize as 'compact' | 'normal' | 'large') || DEF.blockSize,
@@ -238,17 +267,20 @@ export default function CuentaRegresivaEditor({
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
 
-  // Contador de simulación dinámica en vivo
+  // Contador de simulación en vivo
   const [demoSeconds, setDemoSeconds] = useState(15 * 60);
 
-  // Sincronizar el segundero de demostración cuando cambien los valores
   useEffect(() => {
     let secs = 15 * 60;
     if (cfg.timerType === 'minutes') {
-      const multiplier = cfg.durationUnit === 'days' ? 1440 : cfg.durationUnit === 'hours' ? 60 : 1;
-      secs = (cfg.durationValue || 15) * multiplier * 60;
+      if (cfg.durationUnit === 'days') {
+        secs = (cfg.durationValue || 1) * 86400;
+      } else if (cfg.durationUnit === 'hours') {
+        secs = ((cfg.durationHours || 0) * 60 + (cfg.durationExtraMinutes || 0)) * 60;
+      } else {
+        secs = (cfg.durationValue || 15) * 60;
+      }
     } else if (cfg.timerType === 'daily') {
-      // Calcular segundos restantes hasta el final del día real
       const now = new Date();
       const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
       secs = Math.max(0, Math.floor((endOfDay.getTime() - now.getTime()) / 1000));
@@ -257,9 +289,8 @@ export default function CuentaRegresivaEditor({
       secs = Math.max(0, Math.floor((target - Date.now()) / 1000));
     }
     setDemoSeconds(secs);
-  }, [cfg.durationValue, cfg.durationUnit, cfg.timerType, cfg.exactDate]);
+  }, [cfg.durationValue, cfg.durationUnit, cfg.durationHours, cfg.durationExtraMinutes, cfg.timerType, cfg.exactDate]);
 
-  // Ticker de simulación
   useEffect(() => {
     const timer = setInterval(() => {
       setDemoSeconds((prev) => (prev > 1 ? prev - 1 : 10));
@@ -278,35 +309,74 @@ export default function CuentaRegresivaEditor({
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
 
-  // Controladores de cambio de tiempo para mantener sincronizados los valores numéricos y la duración real en minutos
-  const handleDurationValueChange = (valStr: string) => {
-    const val = Math.max(1, parseInt(valStr, 10) || 1);
-    const unit = cfg.durationUnit;
-    let mins = val;
-    if (unit === 'hours') mins = val * 60;
-    if (unit === 'days') mins = val * 1440;
-
+  // Handler para MINUTOS
+  const handleMinutesChange = (val: string) => {
+    const num = Math.max(1, parseInt(val, 10) || 1);
     setCfg((prev) => ({
       ...prev,
-      durationValue: val,
-      durationMinutes: mins,
+      durationValue: num,
+      durationUnit: 'minutes',
+      durationMinutes: num,
+    }));
+  };
+
+  // Handler para HORAS + MINUTOS (reloj HH:MM)
+  const handleClockChange = (val: string) => {
+    // val viene con formato "HH:MM"
+    if (!val || !val.includes(':')) return;
+    const parts = val.split(':');
+    const h = parseInt(parts[0], 10) || 0;
+    const m = parseInt(parts[1], 10) || 0;
+    const totalMins = h * 60 + m;
+    setCfg((prev) => ({
+      ...prev,
+      durationUnit: 'hours',
+      durationHours: h,
+      durationExtraMinutes: m,
+      durationMinutes: totalMins < 1 ? 1 : totalMins,
+    }));
+  };
+
+  // Handler para DÍAS (cantidad simple)
+  const handleDaysChange = (val: string) => {
+    const num = Math.max(1, parseInt(val, 10) || 1);
+    setCfg((prev) => ({
+      ...prev,
+      durationValue: num,
+      durationUnit: 'days',
+      durationMinutes: num * 1440,
     }));
   };
 
   const handleDurationUnitChange = (unit: 'minutes' | 'hours' | 'days') => {
-    const val = cfg.durationValue;
-    let mins = val;
-    if (unit === 'hours') mins = val * 60;
-    if (unit === 'days') mins = val * 1440;
-
-    setCfg((prev) => ({
-      ...prev,
-      durationUnit: unit,
-      durationMinutes: mins,
-    }));
+    if (unit === 'minutes') {
+      setCfg((prev) => ({
+        ...prev,
+        durationUnit: 'minutes',
+        durationValue: prev.durationValue || 15,
+        durationMinutes: prev.durationValue || 15,
+      }));
+    } else if (unit === 'hours') {
+      const h = prev_safe(cfg.durationHours, 1);
+      const m = prev_safe(cfg.durationExtraMinutes, 0);
+      setCfg((prev) => ({
+        ...prev,
+        durationUnit: 'hours',
+        durationHours: h,
+        durationExtraMinutes: m,
+        durationMinutes: h * 60 + m,
+      }));
+    } else {
+      const d = prev_safe(cfg.durationValue, 1);
+      setCfg((prev) => ({
+        ...prev,
+        durationUnit: 'days',
+        durationValue: d,
+        durationMinutes: d * 1440,
+      }));
+    }
   };
 
-  // Modificador de color que quita automáticamente el bloqueo de la campaña
   const setCustomColor = (key: 'gradStart' | 'gradEnd' | 'textColor', val: string) => {
     setCfg((prev) => ({
       ...prev,
@@ -377,13 +447,13 @@ export default function CuentaRegresivaEditor({
 
   const CAMPAIGN_PRESETS = [
     { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo oscuro con resaltado dorado.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Degradado nocturno a rojo fuego.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Azul cibernético profundo.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino con rojo navideño.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con verde esmeralda.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí con amarillo urgencia.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo oscuro con resaltado dorado.' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Degradado nocturno a rojo fuego.' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Azul cibernético profundo.' },
+    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino con rojo navideño.' },
+    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión.' },
+    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con verde esmeralda.' },
+    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí con amarillo urgencia.' },
   ];
 
   const TEMPLATES_LIST: { id: Cfg['template']; label: string }[] = [
@@ -411,25 +481,45 @@ export default function CuentaRegresivaEditor({
     return 'none';
   };
 
-  // Convertir los segundos dinámicos a unidades humanas
   const dD = Math.floor(demoSeconds / (3600 * 24));
   const dH = Math.floor((demoSeconds % (3600 * 24)) / 3600);
   const dM = Math.floor((demoSeconds % 3600) / 60);
   const dS = demoSeconds % 60;
 
-  // Renderizador condicional de dígitos según las unidades reales
-  const showDays = dD > 0 || cfg.durationUnit === 'days' || cfg.timerType === 'date';
+  const showDays = dD > 0 || cfg.durationUnit === 'days' || (cfg.timerType === 'date' && dD > 0);
   const showHours = showDays || dH > 0 || cfg.durationUnit === 'hours' || cfg.timerType === 'date' || cfg.timerType === 'daily';
 
-  const previewDigits = [];
-  if (showDays) {
-    previewDigits.push({ num: String(dD).padStart(2, '0'), label: 'Días' });
-  }
-  if (showHours) {
-    previewDigits.push({ num: String(dH).padStart(2, '0'), label: 'Horas' });
-  }
+  const previewDigits: { num: string; label: string }[] = [];
+  if (showDays) previewDigits.push({ num: String(dD).padStart(2, '0'), label: 'Días' });
+  if (showHours) previewDigits.push({ num: String(dH).padStart(2, '0'), label: 'Horas' });
   previewDigits.push({ num: String(dM).padStart(2, '0'), label: 'Min' });
   previewDigits.push({ num: String(dS).padStart(2, '0'), label: 'Seg' });
+
+  // Valor para el input tipo time (HH:MM)
+  const clockValue = String(cfg.durationHours || 0).padStart(2, '0') + ':' + String(cfg.durationExtraMinutes || 0).padStart(2, '0');
+
+  // Fecha mínima para el calendario (hoy)
+  const todayISO = new Date().toISOString().split('T')[0];
+
+  // Texto resumen bonito según unidad
+  const getSummaryText = () => {
+    if (cfg.durationUnit === 'minutes') {
+      return `${cfg.durationValue || 15} minuto${(cfg.durationValue || 15) === 1 ? '' : 's'}`;
+    }
+    if (cfg.durationUnit === 'hours') {
+      const h = cfg.durationHours || 0;
+      const m = cfg.durationExtraMinutes || 0;
+      let txt = '';
+      if (h > 0) txt += `${h} hora${h === 1 ? '' : 's'}`;
+      if (m > 0) txt += (h > 0 ? ' y ' : '') + `${m} minuto${m === 1 ? '' : 's'}`;
+      if (!txt) txt = '0 minutos';
+      return txt;
+    }
+    if (cfg.durationUnit === 'days') {
+      return `${cfg.durationValue || 1} día${(cfg.durationValue || 1) === 1 ? '' : 's'}`;
+    }
+    return '';
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
@@ -495,7 +585,7 @@ export default function CuentaRegresivaEditor({
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
 
-          {/* PREVIEW GRANDE EN VIVO (Muestra solo bloques necesarios) */}
+          {/* PREVIEW GRANDE EN VIVO */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               VISTA PREVIA EN VIVO
@@ -524,7 +614,6 @@ export default function CuentaRegresivaEditor({
                 </div>
               )}
 
-              {/* DÍGITOS ADAPTATIVOS */}
               <div style={{ display: 'flex', alignItems: 'center', gap: cfg.blockSize === 'compact' ? 6 : 10 }}>
                 {previewDigits.map((item, idx) => (
                   <React.Fragment key={idx}>
@@ -552,7 +641,6 @@ export default function CuentaRegresivaEditor({
                 ))}
               </div>
 
-              {/* CUPÓN / CTA PREVIEW */}
               {cfg.coupon && (
                 <div style={{
                   background: 'rgba(255,255,255,0.2)',
@@ -595,7 +683,7 @@ export default function CuentaRegresivaEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              Creá un sentido de urgencia real. Podés configurarlo por minutos por sesión de usuario o una fecha límite global.
+              Creá un sentido de urgencia real. Podés configurarlo por minutos, horas exactas con reloj o hasta una fecha límite con calendario.
             </span>
           </div>
 
@@ -643,9 +731,9 @@ export default function CuentaRegresivaEditor({
                 <FieldLabel>Tipo de cuenta regresiva</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
                   {[
-                    { id: 'minutes', label: '⏱️ Tiempo Fijo', desc: 'Inicia por sesión de cada visitante.' },
-                    { id: 'date', label: '📅 Fecha Exacta', desc: 'Fecha y hora límite fija.' },
-                    { id: 'daily', label: '🔄 Diario', desc: 'Se reinicia automáticamente cada día.' },
+                    { id: 'minutes', label: '⏱️ Tiempo Fijo' },
+                    { id: 'date', label: '📅 Fecha Exacta' },
+                    { id: 'daily', label: '🔄 Diario' },
                   ].map((t) => {
                     const active = cfg.timerType === t.id;
                     return (
@@ -670,17 +758,18 @@ export default function CuentaRegresivaEditor({
                 </div>
               </div>
 
-              {/* CONFIGURACIÓN DE DURACIÓN DINÁMICA POR TIEMPO FIJO */}
+              {/* CONFIGURACIÓN DE DURACIÓN (Solo si es tiempo fijo) */}
               {cfg.timerType === 'minutes' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb' }}>
-                  
+                <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+                  {/* SELECTOR DE UNIDAD */}
                   <div>
-                    <FieldLabel>Medida de Tiempo</FieldLabel>
+                    <FieldLabel>¿Cómo querés configurar la duración?</FieldLabel>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 4 }}>
                       {[
-                        { id: 'minutes', label: 'Minutos' },
-                        { id: 'hours', label: 'Horas' },
-                        { id: 'days', label: 'Días' },
+                        { id: 'minutes', label: 'Minutos', emoji: '⏱️' },
+                        { id: 'hours', label: 'Horas + Min', emoji: '🕐' },
+                        { id: 'days', label: 'Días', emoji: '📆' },
                       ].map((u) => {
                         const active = cfg.durationUnit === u.id;
                         return (
@@ -689,45 +778,174 @@ export default function CuentaRegresivaEditor({
                             type="button"
                             onClick={() => handleDurationUnitChange(u.id as any)}
                             style={{
-                              padding: '10px', borderRadius: 8,
+                              padding: '12px 8px', borderRadius: 10,
                               border: active ? '2px solid #10B981' : '1.5px solid #e5e7eb',
                               background: active ? '#ecfdf5' : '#ffffff',
                               color: active ? '#059669' : '#000000',
                               fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                             }}
                           >
-                            {u.label}
+                            <span style={{ fontSize: 20 }}>{u.emoji}</span>
+                            <span>{u.label}</span>
                           </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  <div>
-                    <FieldLabel>Cantidad</FieldLabel>
-                    <TextInput
-                      type="number"
-                      value={String(cfg.durationValue || 15)}
-                      onChange={handleDurationValueChange}
-                      placeholder="15"
-                    />
-                    <FieldHelper>
-                      Configurado en: <strong>{cfg.durationValue || 15} {cfg.durationUnit === 'minutes' ? 'minutos' : cfg.durationUnit === 'hours' ? 'horas' : 'días'}</strong> por visita (Equivale a {cfg.durationMinutes} minutos totales).
-                    </FieldHelper>
-                  </div>
+                  {/* MINUTOS: Input numérico simple */}
+                  {cfg.durationUnit === 'minutes' && (
+                    <div>
+                      <FieldLabel>Cantidad de minutos por visita</FieldLabel>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff', border: '2px solid #10B981', borderRadius: 12, padding: 14 }}>
+                        <IconClock />
+                        <input
+                          type="number"
+                          min="1"
+                          max="60"
+                          value={cfg.durationValue || 15}
+                          onChange={(e) => handleMinutesChange(e.target.value)}
+                          style={{
+                            flex: 1,
+                            border: 'none',
+                            outline: 'none',
+                            fontSize: 24,
+                            fontWeight: 800,
+                            color: '#000000',
+                            background: 'transparent',
+                            fontFamily: 'inherit',
+                            width: '100%',
+                          }}
+                        />
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>MIN</span>
+                      </div>
+                      <FieldHelper>Ejemplo: 15 minutos. Cada visitante ve la cuenta iniciar desde ese momento.</FieldHelper>
+                    </div>
+                  )}
 
+                  {/* HORAS + MINUTOS: Reloj visual */}
+                  {cfg.durationUnit === 'hours' && (
+                    <div>
+                      <FieldLabel>Hora y minutos exactos (reloj)</FieldLabel>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff', border: '2px solid #10B981', borderRadius: 12, padding: 14 }}>
+                        <IconClock />
+                        <input
+                          type="time"
+                          value={clockValue}
+                          onChange={(e) => handleClockChange(e.target.value)}
+                          style={{
+                            flex: 1,
+                            border: 'none',
+                            outline: 'none',
+                            fontSize: 24,
+                            fontWeight: 800,
+                            color: '#000000',
+                            background: 'transparent',
+                            fontFamily: 'inherit',
+                            width: '100%',
+                          }}
+                        />
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>HH:MM</span>
+                      </div>
+                      <FieldHelper>Ejemplo: 02:30 = 2 horas y 30 minutos por visita.</FieldHelper>
+                    </div>
+                  )}
+
+                  {/* DÍAS: Input numérico */}
+                  {cfg.durationUnit === 'days' && (
+                    <div>
+                      <FieldLabel>Cantidad de días por visita</FieldLabel>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff', border: '2px solid #10B981', borderRadius: 12, padding: 14 }}>
+                        <IconCalendar />
+                        <input
+                          type="number"
+                          min="1"
+                          max="365"
+                          value={cfg.durationValue || 1}
+                          onChange={(e) => handleDaysChange(e.target.value)}
+                          style={{
+                            flex: 1,
+                            border: 'none',
+                            outline: 'none',
+                            fontSize: 24,
+                            fontWeight: 800,
+                            color: '#000000',
+                            background: 'transparent',
+                            fontFamily: 'inherit',
+                            width: '100%',
+                          }}
+                        />
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>DÍAS</span>
+                      </div>
+                      <FieldHelper>Si querés una fecha exacta con calendario, usá el tipo &quot;📅 Fecha Exacta&quot; arriba.</FieldHelper>
+                    </div>
+                  )}
+
+                  {/* RESUMEN */}
+                  <div style={{
+                    background: '#ecfdf5',
+                    borderRadius: 10,
+                    padding: '10px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    border: '1px solid #a7f3d0',
+                  }}>
+                    <span style={{ fontSize: 18 }}>✅</span>
+                    <span style={{ fontSize: 13, color: '#065f46', fontWeight: 600 }}>
+                      Configurado: <strong>{getSummaryText()}</strong> por cada visita
+                    </span>
+                  </div>
                 </div>
               )}
 
+              {/* FECHA EXACTA: Calendario nativo */}
               {cfg.timerType === 'date' && (
-                <div>
-                  <FieldLabel>Fecha y hora de finalización</FieldLabel>
-                  <TextInput
-                    type="datetime-local"
-                    value={cfg.exactDate}
-                    onChange={(v) => set('exactDate', v)}
-                  />
-                  <FieldHelper>Elegí hasta qué momento exacto estará activa la oferta.</FieldHelper>
+                <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb' }}>
+                  <FieldLabel>Fecha y hora límite de la oferta</FieldLabel>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#ffffff', border: '2px solid #10B981', borderRadius: 12, padding: 14, marginTop: 4 }}>
+                    <IconCalendar />
+                    <input
+                      type="datetime-local"
+                      min={todayISO + 'T00:00'}
+                      value={cfg.exactDate}
+                      onChange={(e) => set('exactDate', e.target.value)}
+                      style={{
+                        flex: 1,
+                        border: 'none',
+                        outline: 'none',
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: '#000000',
+                        background: 'transparent',
+                        fontFamily: 'inherit',
+                        width: '100%',
+                      }}
+                    />
+                  </div>
+                  <FieldHelper>Elegí la fecha y hora exacta donde termina la promoción. Aparece el calendario visual de tu navegador.</FieldHelper>
+                </div>
+              )}
+
+              {/* DIARIO */}
+              {cfg.timerType === 'daily' && (
+                <div style={{
+                  background: '#ecfdf5',
+                  borderRadius: 12,
+                  padding: 16,
+                  border: '1px solid #a7f3d0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                }}>
+                  <span style={{ fontSize: 28 }}>🔄</span>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#065f46' }}>Modo Diario Activado</div>
+                    <div style={{ fontSize: 12, color: '#059669', marginTop: 2 }}>
+                      El temporizador se reinicia automáticamente cada día a las 23:59.
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -835,7 +1053,6 @@ export default function CuentaRegresivaEditor({
                 </div>
               </div>
 
-              {/* PALETA DE COLORES */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                 <div>
                   <FieldLabel>Color de Inicio / Fondo</FieldLabel>
@@ -991,3 +1208,9 @@ export default function CuentaRegresivaEditor({
     </div>
   );
 }
+
+/* Helper para valores seguros */
+function prev_safe(v: number | undefined, def: number): number {
+  if (typeof v !== 'number' || isNaN(v)) return def;
+  return v;
+   }
