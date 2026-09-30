@@ -237,6 +237,15 @@ export default function CuentaRegresivaEditor({
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
 
+  // Modificador de color que quita automáticamente el bloqueo de la campaña
+  const setCustomColor = (key: 'gradStart' | 'gradEnd' | 'textColor', val: string) => {
+    setCfg((prev) => ({
+      ...prev,
+      [key]: val,
+      campaignTheme: 'none',
+    }));
+  };
+
   const applyPreset = (slug: string) => {
     const PRESETS_DATA: Record<string, { start: string; end: string; tx: string }> = {
       'black-friday': { start: '#111827', end: '#111827', tx: '#F59E0B' },
@@ -298,7 +307,7 @@ export default function CuentaRegresivaEditor({
   };
 
   const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+    { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
     { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo oscuro con resaltado dorado.', themeColor: '#111827', accentColor: '#F59E0B' },
     { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Degradado nocturno a rojo fuego.', themeColor: '#0F172A', accentColor: '#EF4444' },
     { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Azul cibernético profundo.', themeColor: '#090D16', accentColor: '#3B82F6' },
@@ -421,7 +430,7 @@ export default function CuentaRegresivaEditor({
               }}
             >
               {cfg.title && (
-                <div style={{ fontSize: cfg.blockSize === 'compact' ? 14 : cfg.blockSize === 'large' ? 19 : 16, fontWeight: 800, textAlign: 'center' }}>
+                <div style={{ fontSize: cfg.blockSize === 'compact' ? 14 : cfg.blockSize === 'large' ? 19 : 16, fontWeight: 800, textAlign: 'center', color: cfg.textColor }}>
                   {cfg.title}
                 </div>
               )}
@@ -434,7 +443,7 @@ export default function CuentaRegresivaEditor({
                   { num: demoTime.secs, label: 'Seg' },
                 ].map((item, idx) => (
                   <React.Fragment key={idx}>
-                    {idx > 0 && <span style={{ fontSize: 18, fontWeight: 900, opacity: 0.8 }}>:</span>}
+                    {idx > 0 && <span style={{ fontSize: 18, fontWeight: 900, opacity: 0.8, color: cfg.textColor }}>:</span>}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <div
                         style={{
@@ -444,12 +453,13 @@ export default function CuentaRegresivaEditor({
                           fontSize: cfg.blockSize === 'compact' ? 16 : cfg.blockSize === 'large' ? 24 : 20,
                           fontWeight: 900,
                           fontFamily: 'monospace',
+                          color: cfg.textColor,
                           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                         }}
                       >
                         {item.num}
                       </div>
-                      <span style={{ fontSize: 9, textTransform: 'uppercase', opacity: 0.8, marginTop: 3, fontWeight: 700 }}>
+                      <span style={{ fontSize: 9, textTransform: 'uppercase', opacity: 0.8, marginTop: 3, fontWeight: 700, color: cfg.textColor }}>
                         {item.label}
                       </span>
                     </div>
@@ -468,6 +478,7 @@ export default function CuentaRegresivaEditor({
                   fontWeight: 800,
                   letterSpacing: '0.05em',
                   cursor: 'pointer',
+                  color: cfg.textColor,
                 }}>
                   🎟️ CUPÓN: {cfg.coupon} (Copiar)
                 </div>
@@ -708,17 +719,17 @@ export default function CuentaRegresivaEditor({
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                 <div>
                   <FieldLabel>Color de Inicio / Fondo</FieldLabel>
-                  <ColorPickerField value={cfg.gradStart} onChange={(v) => set('gradStart', v)} />
+                  <ColorPickerField value={cfg.gradStart} onChange={(v) => setCustomColor('gradStart', v)} />
                 </div>
                 {cfg.template === 'gradient' && (
                   <div>
                     <FieldLabel>Color Final (Degradado)</FieldLabel>
-                    <ColorPickerField value={cfg.gradEnd} onChange={(v) => set('gradEnd', v)} />
+                    <ColorPickerField value={cfg.gradEnd} onChange={(v) => setCustomColor('gradEnd', v)} />
                   </div>
                 )}
                 <div>
                   <FieldLabel>Color de Texto y Números</FieldLabel>
-                  <ColorPickerField value={cfg.textColor} onChange={(v) => set('textColor', v)} />
+                  <ColorPickerField value={cfg.textColor} onChange={(v) => setCustomColor('textColor', v)} />
                 </div>
               </div>
             </div>
@@ -859,4 +870,4 @@ export default function CuentaRegresivaEditor({
       </div>
     </div>
   );
-                                                     }
+}
