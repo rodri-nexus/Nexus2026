@@ -3710,14 +3710,41 @@ function renderInfoDespacho(w) {
     '</div>' +
     timerBadgeHtml;
 
-  // Inserción en la página
+  // Inserción Inteligente con múltiples selectores de Tiendanube
   if (location === "cart") {
-    var cartTarget = document.querySelector(".cart-container, .js-cart-container, #cart-form, .js-cart-form, form[action*='/cart']");
+    var cartSelectors = [
+      "[data-store='cart-form']",
+      ".js-cart-form",
+      "#cart-form",
+      ".cart-table",
+      ".cart-summary",
+      ".js-cart-container",
+      ".js-ajax-cart-container",
+      ".js-checkout-button",
+      "[data-store='cart-checkout-button']",
+      "form[action*='/cart']"
+    ];
+
+    var cartTarget = null;
+    for (var i = 0; i < cartSelectors.length; i++) {
+      var found = document.querySelector(cartSelectors[i]);
+      if (found) {
+        cartTarget = found;
+        break;
+      }
+    }
+
     if (cartTarget && cartTarget.parentNode) {
       cartTarget.parentNode.insertBefore(container, cartTarget);
     } else {
-      var mainCart = document.querySelector("main, #content, .main-content");
-      if (mainCart) mainCart.insertBefore(container, mainCart.firstChild);
+      // Fallback seguro a la ficha de producto antes del botón
+      var fallbackProd = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+      if (fallbackProd && fallbackProd.parentNode) {
+        fallbackProd.parentNode.insertBefore(container, fallbackProd);
+      } else {
+        var mainCart = document.querySelector("main, #content, .main-content");
+        if (mainCart) mainCart.insertBefore(container, mainCart.firstChild);
+      }
     }
   } else {
     var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
