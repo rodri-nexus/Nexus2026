@@ -319,7 +319,6 @@ export default function CuentaRegresivaEditor({
     { id: 'glass', label: 'Cristal' },
   ];
 
-  /* Estilos de preview según plantilla */
   const getContainerBg = () => {
     if (cfg.template === 'gradient') return `linear-gradient(135deg, ${cfg.gradStart}, ${cfg.gradEnd})`;
     if (cfg.template === 'glass') return 'rgba(17, 24, 39, 0.85)';
@@ -616,8 +615,8 @@ export default function CuentaRegresivaEditor({
                 <FieldLabel>¿Dónde mostrarlo?</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
                   {[
-                    { id: 'product_before', label: '🏷️ Producto (Antes de botón)' },
-                    { id: 'product_after', label: '🏷️ Producto (Después de botón)' },
+                    { id: 'product_before', label: '⬆️ Arriba del botón Agregar al Carrito' },
+                    { id: 'product_after', label: '⬇️ Abajo del botón Agregar al Carrito' },
                     { id: 'top_bar', label: '🔝 Barra Superior (Top Bar)' },
                   ].map((loc) => {
                     const active = cfg.location === loc.id;
@@ -633,6 +632,7 @@ export default function CuentaRegresivaEditor({
                           color: active ? '#059669' : '#000000',
                           fontSize: 12, fontWeight: 700, cursor: 'pointer',
                           textAlign: 'center',
+                          lineHeight: 1.3,
                         }}
                       >
                         {loc.label}
@@ -859,4 +859,4 @@ export default function CuentaRegresivaEditor({
       </div>
     </div>
   );
-  }
+                                                     }
