@@ -1,77 +1,7 @@
 "use client";
 
-interface WidgetPreviewProps {
-  slug: string;
-}
-
-export default function WidgetPreview({ slug }: WidgetPreviewProps) {
-  return (
-    <div
-      style={{
-        width: "100%",
-        aspectRatio: "16 / 10",
-        background: "#ffffff",
-        border: "1px solid #f3f4f6",
-        borderRadius: "12px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0.85rem",
-        overflow: "hidden",
-        position: "relative",
-      }}
-    >
-      {renderPreview(slug)}
-    </div>
-  );
-}
-
-function renderPreview(slug: string) {
-  switch (slug) {
-    case "contador-vendidos":
-      return <ContadorVendidosPreview />;
-    case "edicion-limitada":
-      return <EdicionLimitadaPreview />;
-    case "calculadora-ahorro":
-      return <CalculadoraAhorroPreview />;
-    case "horario-atencion":
-      return <HorarioAtencionPreview />;
-    case "marquee-novedades":
-      return <MarqueeNovedadesPreview />;
-    case "tabla-talles":
-      return <TablaTallesPreview />;
-    case "badge-cupon":
-      return <BadgeCuponPreview />;
-    case "info-compra":
-      return <InfoCompraPreview />;
-    case "contador-visitas":
-    case "visitor-counter":
-      return <ContadorVisitasPreview />;
-    case "bundle-cantidad":
-      return <BundleCantidadPreview />;
-    case "bundle-promociones":
-      return <BundlePromocionesPreview />;
-    case "slider-video":
-      return <SliderVideoPreview />;
-    case "mensaje-alerta":
-      return <MensajeAlertaPreview />;
-    case "mensaje-garantia":
-      return <MensajeGarantiaPreview />;
-    case "resenas-clientes":
-      return <ResenasPreview />;
-    case "caja-opiniones":
-      return <CajaOpinionesPreview />;
-    case "info-envio":
-      return <InfoEnvioPreview />;
-    case "barra-progreso":
-      return <BarraProgresoPreview />;
-    default:
-      return <DefaultPreview />;
-  }
-}
-
 /* ═══════════════════════════════════════════
-   PREVIEWS DE LOS WIDGETS
+   PREVIEWS DE LOS WIDGETS (Sub-componentes)
    ═══════════════════════════════════════════ */
 
 function ContadorVendidosPreview() {
@@ -731,55 +661,6 @@ function SliderVideoPreview() {
   );
 }
 
-function MensajeAlertaPreview() {
-  return (
-    <div
-      style={{
-        background: "#ecfdf5",
-        border: "1.5px solid #10B981",
-        borderRadius: "8px",
-        padding: "8px 12px",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        width: "82%",
-      }}
-    >
-      <div style={{ fontSize: "16px" }}>⚡</div>
-      <div style={{ fontSize: "9.5px", color: "#000000", fontWeight: 700, lineHeight: 1.3 }}>
-        Últimas 3 unidades en stock con envío inmediato.
-      </div>
-    </div>
-  );
-}
-
-function MensajeGarantiaPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #000000",
-        borderRadius: "8px",
-        padding: "8px 12px",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        width: "82%",
-      }}
-    >
-      <div style={{ fontSize: "18px" }}>🛡️</div>
-      <div>
-        <div style={{ fontSize: "9.5px", color: "#000000", fontWeight: 800 }}>
-          Garantía Oficial Nevux
-        </div>
-        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.6 }}>
-          Cambio y devolución sin cargo por 30 días
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ResenasPreview() {
   return (
     <div
@@ -1006,4 +887,70 @@ function DefaultPreview() {
       </div>
     </div>
   );
-    }
+}
+
+function renderPreview(slug: string) {
+  switch (slug) {
+    case "contador-vendidos":
+      return <ContadorVendidosPreview />;
+    case "edicion-limitada":
+      return <EdicionLimitadaPreview />;
+    case "calculadora-ahorro":
+      return <CalculadoraAhorroPreview />;
+    case "horario-atencion":
+      return <HorarioAtencionPreview />;
+    case "marquee-novedades":
+      return <MarqueeNovedadesPreview />;
+    case "tabla-talles":
+      return <TablaTallesPreview />;
+    case "badge-cupon":
+      return <BadgeCuponPreview />;
+    case "info-compra":
+      return <InfoCompraPreview />;
+    case "contador-visitas":
+    case "visitor-counter":
+      return <ContadorVisitasPreview />;
+    case "bundle-cantidad":
+      return <BundleCantidadPreview />;
+    case "bundle-promociones":
+      return <BundlePromocionesPreview />;
+    case "slider-video":
+      return <SliderVideoPreview />;
+    case "resenas-clientes":
+      return <ResenasPreview />;
+    case "caja-opiniones":
+      return <CajaOpinionesPreview />;
+    case "info-envio":
+      return <InfoEnvioPreview />;
+    case "barra-progreso":
+      return <BarraProgresoPreview />;
+    default:
+      return <DefaultPreview />;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL (Export Default)
+   ═══════════════════════════════════════════ */
+
+export default function WidgetPreview({ slug }: WidgetPreviewProps) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        aspectRatio: "16 / 10",
+        background: "#ffffff",
+        border: "1px solid #f3f4f6",
+        borderRadius: "12px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0.85rem",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      {renderPreview(slug)}
+    </div>
+  );
+          }
