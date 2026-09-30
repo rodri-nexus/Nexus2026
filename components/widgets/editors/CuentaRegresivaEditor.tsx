@@ -112,9 +112,6 @@ const IconCalendar = () => (
   </svg>
 );
 
-/* ═══════════════════════════════════════════
-   COMPONENTES AUXILIARES DE FORMULARIO
-═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
@@ -205,9 +202,6 @@ function prev_safe(v: number | undefined, def: number): number {
   return v;
 }
 
-/* ═══════════════════════════════════════════
-   PARSER
-═══════════════════════════════════════════ */
 function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
   if (!raw) return { ...DEF };
 
@@ -253,9 +247,6 @@ function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
   };
 }
 
-/* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
-═══════════════════════════════════════════ */
 export default function CuentaRegresivaEditor({
   widgetDefinition: wd,
   existingWidget: ew,
@@ -271,7 +262,6 @@ export default function CuentaRegresivaEditor({
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
 
-  // Contador de simulación en vivo
   const [demoSeconds, setDemoSeconds] = useState(15 * 60);
 
   useEffect(() => {
@@ -313,7 +303,6 @@ export default function CuentaRegresivaEditor({
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
 
-  // Handler para MINUTOS (Permite borrado libre)
   const handleMinutesChange = (val: string) => {
     if (val === '') {
       setCfg((prev) => ({
@@ -334,7 +323,6 @@ export default function CuentaRegresivaEditor({
     }));
   };
 
-  // Handler para HORAS + MINUTOS (reloj HH:MM)
   const handleClockChange = (val: string) => {
     if (!val || !val.includes(':')) return;
     const parts = val.split(':');
@@ -350,7 +338,6 @@ export default function CuentaRegresivaEditor({
     }));
   };
 
-  // Handler para DÍAS (Permite borrado libre)
   const handleDaysChange = (val: string) => {
     if (val === '') {
       setCfg((prev) => ({
@@ -373,21 +360,23 @@ export default function CuentaRegresivaEditor({
 
   const handleDurationUnitChange = (unit: 'minutes' | 'hours' | 'days') => {
     if (unit === 'minutes') {
+      const v = cfg.durationValue || 15;
       setCfg((prev) => ({
         ...prev,
         durationUnit: 'minutes',
-        durationValue: prev.durationValue || 15,
-        durationMinutes: prev.durationValue || 15,
+        durationValue: v,
+        durationMinutes: v,
       }));
     } else if (unit === 'hours') {
       const h = prev_safe(cfg.durationHours, 1);
       const m = prev_safe(cfg.durationExtraMinutes, 0);
+      const totalMins = h * 60 + m;
       setCfg((prev) => ({
         ...prev,
         durationUnit: 'hours',
         durationHours: h,
         durationExtraMinutes: m,
-        durationMinutes: h * 60 + m,
+        durationMinutes: totalMins < 1 ? 60 : totalMins,
       }));
     } else {
       const d = prev_safe(cfg.durationValue, 1);
@@ -444,14 +433,26 @@ export default function CuentaRegresivaEditor({
     setOk(false);
     setErr('');
 
-    // Asegurar que no vaya con 0 minutos si quedó vacío
     let safeCfg = { ...cfg };
-    if (safeCfg.durationUnit === 'minutes' && (!safeCfg.durationValue || safeCfg.durationValue < 1)) {
-      safeCfg.durationValue = 15;
-      safeCfg.durationMinutes = 15;
-    } else if (safeCfg.durationUnit === 'days' && (!safeCfg.durationValue || safeCfg.durationValue < 1)) {
-      safeCfg.durationValue = 1;
-      safeCfg.durationMinutes = 1440;
+    if (safeCfg.durationUnit === 'minutes') {
+      if (!safeCfg.durationValue || safeCfg.durationValue < 1) {
+        safeCfg.durationValue = 15;
+        safeCfg.durationMinutes = 15;
+      } else {
+        safeCfg.durationMinutes = safeCfg.durationValue;
+      }
+    } else if (safeCfg.durationUnit === 'hours') {
+      const h = safeCfg.durationHours || 0;
+      const m = safeCfg.durationExtraMinutes || 0;
+      const calcMins = h * 60 + m;
+      safeCfg.durationMinutes = calcMins < 1 ? 60 : calcMins;
+    } else if (safeCfg.durationUnit === 'days') {
+      if (!safeCfg.durationValue || safeCfg.durationValue < 1) {
+        safeCfg.durationValue = 1;
+        safeCfg.durationMinutes = 1440;
+      } else {
+        safeCfg.durationMinutes = safeCfg.durationValue * 1440;
+      }
     }
 
     try {
@@ -825,7 +826,7 @@ export default function CuentaRegresivaEditor({
                     </div>
                   </div>
 
-                  {/* MINUTOS (Borrado libre) */}
+                  {/* MINUTOS */}
                   {cfg.durationUnit === 'minutes' && (
                     <div>
                       <FieldLabel>Cantidad de minutos por visita</FieldLabel>
@@ -855,11 +856,11 @@ export default function CuentaRegresivaEditor({
                         />
                         <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>MIN</span>
                       </div>
-                      <FieldHelper>Ejemplo: 15 minutos. Cada visitante ver la cuenta iniciar desde ese momento.</FieldHelper>
+                      <FieldHelper>Ejemplo: 15 minutos. Cada visitante verá la cuenta iniciar desde ese momento.</FieldHelper>
                     </div>
                   )}
 
-                  {/* HORAS + MINUTOS (Reloj visual) */}
+                  {/* HORAS + MINUTOS */}
                   {cfg.durationUnit === 'hours' && (
                     <div>
                       <FieldLabel>Hora y minutos exactos (reloj)</FieldLabel>
@@ -887,7 +888,7 @@ export default function CuentaRegresivaEditor({
                     </div>
                   )}
 
-                  {/* DÍAS (Borrado libre) */}
+                  {/* DÍAS */}
                   {cfg.durationUnit === 'days' && (
                     <div>
                       <FieldLabel>Cantidad de días por visita</FieldLabel>
@@ -1246,4 +1247,4 @@ export default function CuentaRegresivaEditor({
       </div>
     </div>
   );
-   }
+}
