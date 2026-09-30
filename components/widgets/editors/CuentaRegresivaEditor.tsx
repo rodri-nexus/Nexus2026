@@ -200,6 +200,11 @@ function ColorPickerField({
   );
 }
 
+function prev_safe(v: number | undefined, def: number): number {
+  if (typeof v !== 'number' || isNaN(v)) return def;
+  return v;
+}
+
 /* ═══════════════════════════════════════════
    PARSER
 ═══════════════════════════════════════════ */
@@ -212,7 +217,6 @@ function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
   let durationHours = typeof raw.durationHours === 'number' ? raw.durationHours : 1;
   let durationExtraMinutes = typeof raw.durationExtraMinutes === 'number' ? raw.durationExtraMinutes : 0;
 
-  // Migración retrocompatible
   if (!raw.durationUnit) {
     if (rawDuration % 1440 === 0) {
       durationUnit = 'days';
@@ -309,9 +313,19 @@ export default function CuentaRegresivaEditor({
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
 
-  // Handler para MINUTOS
+  // Handler para MINUTOS (Permite borrado libre)
   const handleMinutesChange = (val: string) => {
-    const num = Math.max(1, parseInt(val, 10) || 1);
+    if (val === '') {
+      setCfg((prev) => ({
+        ...prev,
+        durationValue: 0,
+        durationUnit: 'minutes',
+        durationMinutes: 0,
+      }));
+      return;
+    }
+    const num = parseInt(val, 10);
+    if (isNaN(num)) return;
     setCfg((prev) => ({
       ...prev,
       durationValue: num,
@@ -322,7 +336,6 @@ export default function CuentaRegresivaEditor({
 
   // Handler para HORAS + MINUTOS (reloj HH:MM)
   const handleClockChange = (val: string) => {
-    // val viene con formato "HH:MM"
     if (!val || !val.includes(':')) return;
     const parts = val.split(':');
     const h = parseInt(parts[0], 10) || 0;
@@ -333,13 +346,23 @@ export default function CuentaRegresivaEditor({
       durationUnit: 'hours',
       durationHours: h,
       durationExtraMinutes: m,
-      durationMinutes: totalMins < 1 ? 1 : totalMins,
+      durationMinutes: totalMins,
     }));
   };
 
-  // Handler para DÍAS (cantidad simple)
+  // Handler para DÍAS (Permite borrado libre)
   const handleDaysChange = (val: string) => {
-    const num = Math.max(1, parseInt(val, 10) || 1);
+    if (val === '') {
+      setCfg((prev) => ({
+        ...prev,
+        durationValue: 0,
+        durationUnit: 'days',
+        durationMinutes: 0,
+      }));
+      return;
+    }
+    const num = parseInt(val, 10);
+    if (isNaN(num)) return;
     setCfg((prev) => ({
       ...prev,
       durationValue: num,
@@ -420,12 +443,23 @@ export default function CuentaRegresivaEditor({
     setSaving(true);
     setOk(false);
     setErr('');
+
+    // Asegurar que no vaya con 0 minutos si quedó vacío
+    let safeCfg = { ...cfg };
+    if (safeCfg.durationUnit === 'minutes' && (!safeCfg.durationValue || safeCfg.durationValue < 1)) {
+      safeCfg.durationValue = 15;
+      safeCfg.durationMinutes = 15;
+    } else if (safeCfg.durationUnit === 'days' && (!safeCfg.durationValue || safeCfg.durationValue < 1)) {
+      safeCfg.durationValue = 1;
+      safeCfg.durationMinutes = 1440;
+    }
+
     try {
       const body = {
         id: ew?.id ?? null,
         store_id: storeId,
         widget_slug: wd.slug,
-        config: cfg,
+        config: safeCfg,
         target_type: targetType,
         target_product_id: productId,
         is_active: true,
@@ -495,16 +529,13 @@ export default function CuentaRegresivaEditor({
   previewDigits.push({ num: String(dM).padStart(2, '0'), label: 'Min' });
   previewDigits.push({ num: String(dS).padStart(2, '0'), label: 'Seg' });
 
-  // Valor para el input tipo time (HH:MM)
   const clockValue = String(cfg.durationHours || 0).padStart(2, '0') + ':' + String(cfg.durationExtraMinutes || 0).padStart(2, '0');
-
-  // Fecha mínima para el calendario (hoy)
   const todayISO = new Date().toISOString().split('T')[0];
 
-  // Texto resumen bonito según unidad
   const getSummaryText = () => {
     if (cfg.durationUnit === 'minutes') {
-      return `${cfg.durationValue || 15} minuto${(cfg.durationValue || 15) === 1 ? '' : 's'}`;
+      const val = cfg.durationValue || 0;
+      return `${val} minuto${val === 1 ? '' : 's'}`;
     }
     if (cfg.durationUnit === 'hours') {
       const h = cfg.durationHours || 0;
@@ -516,7 +547,8 @@ export default function CuentaRegresivaEditor({
       return txt;
     }
     if (cfg.durationUnit === 'days') {
-      return `${cfg.durationValue || 1} día${(cfg.durationValue || 1) === 1 ? '' : 's'}`;
+      const val = cfg.durationValue || 0;
+      return `${val} día${val === 1 ? '' : 's'}`;
     }
     return '';
   };
@@ -758,11 +790,10 @@ export default function CuentaRegresivaEditor({
                 </div>
               </div>
 
-              {/* CONFIGURACIÓN DE DURACIÓN (Solo si es tiempo fijo) */}
+              {/* CONFIGURACIÓN DE DURACIÓN */}
               {cfg.timerType === 'minutes' && (
                 <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-                  {/* SELECTOR DE UNIDAD */}
                   <div>
                     <FieldLabel>¿Cómo querés configurar la duración?</FieldLabel>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 4 }}>
@@ -794,7 +825,7 @@ export default function CuentaRegresivaEditor({
                     </div>
                   </div>
 
-                  {/* MINUTOS: Input numérico simple */}
+                  {/* MINUTOS (Borrado libre) */}
                   {cfg.durationUnit === 'minutes' && (
                     <div>
                       <FieldLabel>Cantidad de minutos por visita</FieldLabel>
@@ -802,10 +833,14 @@ export default function CuentaRegresivaEditor({
                         <IconClock />
                         <input
                           type="number"
-                          min="1"
-                          max="60"
-                          value={cfg.durationValue || 15}
+                          value={cfg.durationValue === 0 ? '' : cfg.durationValue}
                           onChange={(e) => handleMinutesChange(e.target.value)}
+                          onBlur={() => {
+                            if (!cfg.durationValue || cfg.durationValue < 1) {
+                              handleMinutesChange('15');
+                            }
+                          }}
+                          placeholder="15"
                           style={{
                             flex: 1,
                             border: 'none',
@@ -820,11 +855,11 @@ export default function CuentaRegresivaEditor({
                         />
                         <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>MIN</span>
                       </div>
-                      <FieldHelper>Ejemplo: 15 minutos. Cada visitante ve la cuenta iniciar desde ese momento.</FieldHelper>
+                      <FieldHelper>Ejemplo: 15 minutos. Cada visitante ver la cuenta iniciar desde ese momento.</FieldHelper>
                     </div>
                   )}
 
-                  {/* HORAS + MINUTOS: Reloj visual */}
+                  {/* HORAS + MINUTOS (Reloj visual) */}
                   {cfg.durationUnit === 'hours' && (
                     <div>
                       <FieldLabel>Hora y minutos exactos (reloj)</FieldLabel>
@@ -852,7 +887,7 @@ export default function CuentaRegresivaEditor({
                     </div>
                   )}
 
-                  {/* DÍAS: Input numérico */}
+                  {/* DÍAS (Borrado libre) */}
                   {cfg.durationUnit === 'days' && (
                     <div>
                       <FieldLabel>Cantidad de días por visita</FieldLabel>
@@ -860,10 +895,14 @@ export default function CuentaRegresivaEditor({
                         <IconCalendar />
                         <input
                           type="number"
-                          min="1"
-                          max="365"
-                          value={cfg.durationValue || 1}
+                          value={cfg.durationValue === 0 ? '' : cfg.durationValue}
                           onChange={(e) => handleDaysChange(e.target.value)}
+                          onBlur={() => {
+                            if (!cfg.durationValue || cfg.durationValue < 1) {
+                              handleDaysChange('1');
+                            }
+                          }}
+                          placeholder="1"
                           style={{
                             flex: 1,
                             border: 'none',
@@ -900,7 +939,7 @@ export default function CuentaRegresivaEditor({
                 </div>
               )}
 
-              {/* FECHA EXACTA: Calendario nativo */}
+              {/* FECHA EXACTA */}
               {cfg.timerType === 'date' && (
                 <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb' }}>
                   <FieldLabel>Fecha y hora límite de la oferta</FieldLabel>
@@ -924,7 +963,7 @@ export default function CuentaRegresivaEditor({
                       }}
                     />
                   </div>
-                  <FieldHelper>Elegí la fecha y hora exacta donde termina la promoción. Aparece el calendario visual de tu navegador.</FieldHelper>
+                  <FieldHelper>Elegí la fecha y hora exacta donde termina la promoción.</FieldHelper>
                 </div>
               )}
 
@@ -1207,10 +1246,4 @@ export default function CuentaRegresivaEditor({
       </div>
     </div>
   );
-}
-
-/* Helper para valores seguros */
-function prev_safe(v: number | undefined, def: number): number {
-  if (typeof v !== 'number' || isNaN(v)) return def;
-  return v;
    }
