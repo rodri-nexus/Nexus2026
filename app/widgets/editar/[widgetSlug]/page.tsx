@@ -9,7 +9,6 @@ import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvi
 import ResenasClientesEditor from '@/components/widgets/editors/ResenasClientesEditor';
 import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
 import ContadorVisitasEditor from '@/components/widgets/editors/ContadorVisitasEditor';
-import InfoCompraEditor from '@/components/widgets/editors/InfoCompraEditor';
 import BadgeCuponEditor from '@/components/widgets/editors/BadgeCuponEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
 import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedadesEditor';
@@ -161,19 +160,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  // WIDGET UNIFICADO: INFORMACIÓN DE COMPRA
-  if (params.widgetSlug === 'info-compra') {
-    return (
-      <InfoCompraEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
   // WIDGET CONTADOR DE VISITAS
   if (params.widgetSlug === 'contador-visitas' || params.widgetSlug === 'visitor-counter') {
     return (
@@ -284,4 +270,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-                      }
+    }
