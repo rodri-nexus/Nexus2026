@@ -3404,7 +3404,7 @@ function renderCuentaRegresiva(w) {
   var cfg = w.config || {};
   var location = cfg.location || "product_before";
 
-  // Verificación estricta de tipo de página: si es para producto, SOLO se ejecuta en la ficha de producto
+  // Verificación estricta: si la ubicación no es Top Bar, SOLO se ejecuta dentro de la Ficha de Producto
   var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
   if (location !== "top_bar" && currentPage !== "product") {
     return;
@@ -3643,7 +3643,7 @@ function renderCuentaRegresiva(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-}
+             }
 /* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
