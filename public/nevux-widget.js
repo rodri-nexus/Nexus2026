@@ -7287,23 +7287,16 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
       tryInject();
     }
  } 
- /* ═══════════════════════════════════════════
-     RENDER RESEÑAS CON FOTO (UGC - HOME FOOTER)
+
+    /* ═══════════════════════════════════════════
+     RENDER RESEÑAS CON FOTO (ES5 Pure & Robust Placement)
   ═══════════════════════════════════════════ */
   function renderResenasFoto(w) {
     var exist = document.getElementById("nvx-resenas-foto-" + w.id);
     if (exist) return;
 
-    // Detección universal de página de inicio (Home) en Tiendanube
-    function isStoreHome() {
-      var p = window.location.pathname.toLowerCase().replace(/\/+$/, "");
-      if (p === "" || p === "/home" || p === "/inicio" || p === "/index" || p === "/es" || p === "/pt") return true;
-      if (document.body && (document.body.classList.contains("page-home") || document.body.classList.contains("template-home") || document.body.id === "page-home")) return true;
-      if (window.LS && window.LS.template === "home") return true;
-      return false;
-    }
-
-    if (!isStoreHome()) return;
+    var currentPType = (typeof pageType !== "undefined") ? pageType : detectPageType();
+    if (currentPType !== "home") return;
 
     var cfg = w.config || {};
     if (typeof cfg === "string") {
@@ -7340,7 +7333,6 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
     function tryInject() {
       if (document.getElementById("nvx-resenas-foto-" + w.id)) return;
 
-      // Buscar pie de página o contenedor final de secciones de Home
       var footer = document.querySelector("footer") ||
                    document.querySelector(".js-footer") ||
                    document.querySelector("#footer") ||
@@ -7362,121 +7354,120 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
       if (!document.getElementById(styleId)) {
         var styleEl = document.createElement("style");
         styleEl.id = styleId;
-        styleEl.innerHTML = `
-          #nvx-resenas-foto-${w.id} {
-            background: ${colorFondo} !important;
-            padding: 20px 10px !important;
-            margin: 30px auto !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            box-sizing: border-box !important;
-            font-family: system-ui, -apple-system, sans-serif !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            border-radius: 14px !important;
-            overflow: hidden !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-title {
-            font-size: 15px !important;
-            font-weight: 800 !important;
-            color: #000000 !important;
-            letter-spacing: 0.03em !important;
-            margin: 0 0 16px 0 !important;
-            text-align: center !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-scroll {
-            display: flex !important;
-            gap: 12px !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            padding: 4px 10px 16px 10px !important;
-            -webkit-overflow-scrolling: touch !important;
-            touch-action: pan-x !important;
-            scrollbar-width: none !important;
-            justify-content: flex-start !important;
-            width: 100% !important;
-            box-sizing: border-box !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-scroll::-webkit-scrollbar {
-            display: none !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-card {
-            flex: 0 0 210px !important;
-            width: 210px !important;
-            max-width: 80vw !important;
-            background: ${colorTarjeta} !important;
-            border: 1px solid #e5e7eb !important;
-            border-radius: 12px !important;
-            padding: 12px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 10px !important;
-            box-sizing: border-box !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
-            transition: transform 0.15s ease !important;
-            word-break: break-word !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-card:hover {
-            transform: translateY(-2px) !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-img-box {
-            width: 100% !important;
-            height: 130px !important;
-            border-radius: 8px !important;
-            background: #f3f4f6 !important;
-            overflow: hidden !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-header {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-stars {
-            color: ${colorEstrellas} !important;
-            font-size: 13px !important;
-            letter-spacing: 1px !important;
-            line-height: 1 !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-verified {
-            display: flex !important;
-            align-items: center !important;
-            gap: 3px !important;
-            color: #10b981 !important;
-            font-size: 10px !important;
-            font-weight: 700 !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-text {
-            font-size: 11.5px !important;
-            color: ${colorTexto} !important;
-            margin: 0 !important;
-            line-height: 1.45 !important;
-            flex: 1 !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-footer {
-            border-top: 1px solid #f1f3f5 !important;
-            padding-top: 8px !important;
-            margin-top: auto !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-name {
-            font-size: 11px !important;
-            font-weight: 800 !important;
-            color: #111827 !important;
-          }
-          #nvx-resenas-foto-${w.id} .nvx-rf-extra {
-            font-size: 9.5px !important;
-            color: #6b7280 !important;
-            margin-top: 2px !important;
-          }
-        `;
+        styleEl.textContent =
+          "#nvx-resenas-foto-" + w.id + " {" +
+            "background: " + colorFondo + " !important;" +
+            "padding: 20px 10px !important;" +
+            "margin: 30px auto !important;" +
+            "width: 100% !important;" +
+            "max-width: 100% !important;" +
+            "box-sizing: border-box !important;" +
+            "font-family: system-ui, -apple-system, sans-serif !important;" +
+            "display: block !important;" +
+            "visibility: visible !important;" +
+            "opacity: 1 !important;" +
+            "border-radius: 14px !important;" +
+            "overflow: hidden !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-title {" +
+            "font-size: 15px !important;" +
+            "font-weight: 800 !important;" +
+            "color: #000000 !important;" +
+            "letter-spacing: 0.03em !important;" +
+            "margin: 0 0 16px 0 !important;" +
+            "text-align: center !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-scroll {" +
+            "display: flex !important;" +
+            "gap: 12px !important;" +
+            "overflow-x: auto !important;" +
+            "overflow-y: hidden !important;" +
+            "padding: 4px 10px 16px 10px !important;" +
+            "-webkit-overflow-scrolling: touch !important;" +
+            "touch-action: pan-x !important;" +
+            "scrollbar-width: none !important;" +
+            "justify-content: flex-start !important;" +
+            "width: 100% !important;" +
+            "box-sizing: border-box !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-scroll::-webkit-scrollbar {" +
+            "display: none !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-card {" +
+            "flex: 0 0 210px !important;" +
+            "width: 210px !important;" +
+            "max-width: 80vw !important;" +
+            "background: " + colorTarjeta + " !important;" +
+            "border: 1px solid #e5e7eb !important;" +
+            "border-radius: 12px !important;" +
+            "padding: 12px !important;" +
+            "display: flex !important;" +
+            "flex-direction: column !important;" +
+            "gap: 10px !important;" +
+            "box-sizing: border-box !important;" +
+            "box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;" +
+            "transition: transform 0.15s ease !important;" +
+            "word-break: break-word !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-card:hover {" +
+            "transform: translateY(-2px) !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-img-box {" +
+            "width: 100% !important;" +
+            "height: 130px !important;" +
+            "border-radius: 8px !important;" +
+            "background: #f3f4f6 !important;" +
+            "overflow: hidden !important;" +
+            "display: flex !important;" +
+            "align-items: center !important;" +
+            "justify-content: center !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-img {" +
+            "width: 100% !important;" +
+            "height: 100% !important;" +
+            "object-fit: cover !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-header {" +
+            "display: flex !important;" +
+            "align-items: center !important;" +
+            "justify-content: space-between !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-stars {" +
+            "color: " + colorEstrellas + " !important;" +
+            "font-size: 13px !important;" +
+            "letter-spacing: 1px !important;" +
+            "line-height: 1 !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-verified {" +
+            "display: flex !important;" +
+            "align-items: center !important;" +
+            "gap: 3px !important;" +
+            "color: #10b981 !important;" +
+            "font-size: 10px !important;" +
+            "font-weight: 700 !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-text {" +
+            "font-size: 11.5px !important;" +
+            "color: " + colorTexto + " !important;" +
+            "margin: 0 !important;" +
+            "line-height: 1.45 !important;" +
+            "flex: 1 !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-footer {" +
+            "border-top: 1px solid #f1f3f5 !important;" +
+            "padding-top: 8px !important;" +
+            "margin-top: auto !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-name {" +
+            "font-size: 11px !important;" +
+            "font-weight: 800 !important;" +
+            "color: #111827 !important;" +
+          "}" +
+          "#nvx-resenas-foto-" + w.id + " .nvx-rf-extra {" +
+            "font-size: 9.5px !important;" +
+            "color: #6b7280 !important;" +
+            "margin-top: 2px !important;" +
+          "}";
         document.head.appendChild(styleEl);
       }
 
@@ -7502,32 +7493,23 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
           ? '<div class="nvx-rf-extra">' + escapeHtml(item.datosExtra) + '</div>'
           : '';
 
-        return `
-          <div class="nvx-rf-card">
-            <div class="nvx-rf-img-box">
-              ${imgHtml}
-            </div>
-            <div class="nvx-rf-header">
-              <div class="nvx-rf-stars">${starsStr}</div>
-              ${verifiedHtml}
-            </div>
-            <p class="nvx-rf-text">"${escapeHtml(item.texto || '')}"</p>
-            <div class="nvx-rf-footer">
-              <div class="nvx-rf-name">${escapeHtml(item.nombre || 'Cliente')}</div>
-              ${extraHtml}
-            </div>
-          </div>
-        `;
+        return '<div class="nvx-rf-card">' +
+          '<div class="nvx-rf-img-box">' + imgHtml + '</div>' +
+          '<div class="nvx-rf-header">' +
+            '<div class="nvx-rf-stars">' + starsStr + '</div>' +
+            verifiedHtml +
+          '</div>' +
+          '<p class="nvx-rf-text">"' + escapeHtml(item.texto || '') + '"</p>' +
+          '<div class="nvx-rf-footer">' +
+            '<div class="nvx-rf-name">' + escapeHtml(item.nombre || 'Cliente') + '</div>' +
+            extraHtml +
+          '</div>' +
+        '</div>';
       }).join("");
 
-      div.innerHTML = `
-        ${mostrarTitulo ? '<div class="nvx-rf-title">' + escapeHtml(titulo) + '</div>' : ''}
-        <div class="nvx-rf-scroll">
-          ${itemsHtml}
-        </div>
-      `;
+      div.innerHTML = (mostrarTitulo ? '<div class="nvx-rf-title">' + escapeHtml(titulo) + '</div>' : '') +
+        '<div class="nvx-rf-scroll">' + itemsHtml + '</div>';
 
-      // Inyección en Home:
       if (footer && footer.parentNode) {
         footer.parentNode.insertBefore(div, footer);
       } else if (homeSections) {
@@ -7543,6 +7525,7 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
       tryInject();
     }
         }
+  
   /* ═══════════════════════════════════════════
      RENDER RULETA DE DESCUENTOS (GAMIFICACIÓN)
   ═══════════════════════════════════════════ */
