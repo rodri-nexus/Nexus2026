@@ -3434,7 +3434,7 @@ function renderCuentaRegresiva(w) {
     "liquidacion": { start: "#7F1D1D", end: "#FBBF24", text: "#ffffff" }
   };
 
-  if (cfg.campaignTheme && THEMES[cfg.campaignTheme]) {
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
     var t = THEMES[cfg.campaignTheme];
     gradStart = t.start;
     gradEnd = t.end;
@@ -3468,20 +3468,20 @@ function renderCuentaRegresiva(w) {
   }
 
   // Estilos visuales
-  var bgStyle = "background:" + gradStart + ";";
-  var borderStyle = "border:none;";
+  var bgStyle = "background:" + gradStart + " !important;";
+  var borderStyle = "border:none !important;";
   var borderRadius = "16px";
 
   if (template === "gradient") {
-    bgStyle = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ");";
+    bgStyle = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ") !important;";
   } else if (template === "glass") {
-    bgStyle = "background:rgba(17,24,39,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);";
+    bgStyle = "background:rgba(17,24,39,0.85) !important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);";
   } else if (template === "outline") {
-    bgStyle = "background:transparent;";
-    borderStyle = "border:2px dashed " + gradStart + ";";
+    bgStyle = "background:transparent !important;";
+    borderStyle = "border:2px dashed " + gradStart + " !important;";
   } else if (template === "neon") {
-    bgStyle = "background:#000000;";
-    borderStyle = "border:2px solid " + gradEnd + ";";
+    bgStyle = "background:#000000 !important;";
+    borderStyle = "border:2px solid " + gradEnd + " !important;";
   } else if (template === "pill") {
     borderRadius = "999px";
   }
@@ -3507,48 +3507,48 @@ function renderCuentaRegresiva(w) {
   container.id = elementId;
   container.className = "nvx-widget nvx-timer-wrapper";
   container.style.cssText = bgStyle + borderStyle +
-    "border-radius:" + borderRadius + ";" +
-    "padding:" + padStyle + ";" +
-    "margin:14px 0;" +
-    "box-sizing:border-box;" +
-    "box-shadow:0 8px 24px rgba(0,0,0,0.08);" +
-    "display:flex;" +
-    "flex-direction:column;" +
-    "align-items:center;" +
-    "justify-content:center;" +
-    "gap:12px;" +
-    "font-family:system-ui,-apple-system,sans-serif;" +
-    "color:" + textColor + ";" +
-    "text-align:center;" +
-    "width:100%;";
+    "border-radius:" + borderRadius + " !important;" +
+    "padding:" + padStyle + " !important;" +
+    "margin:14px 0 !important;" +
+    "box-sizing:border-box !important;" +
+    "box-shadow:0 8px 24px rgba(0,0,0,0.08) !important;" +
+    "display:flex !important;" +
+    "flex-direction:column !important;" +
+    "align-items:center !important;" +
+    "justify-content:center !important;" +
+    "gap:12px !important;" +
+    "font-family:system-ui,-apple-system,sans-serif !important;" +
+    "color:" + textColor + " !important;" +
+    "text-align:center !important;" +
+    "width:100% !important;";
 
-  var titleHtml = title ? '<div style="font-size:' + titleSize + ';font-weight:800;line-height:1.2;">' + title + '</div>' : '';
+  var titleHtml = title ? '<div style="font-size:' + titleSize + ' !important;font-weight:800 !important;line-height:1.2 !important;color:' + textColor + ' !important;">' + escapeHtml(title) + '</div>' : '';
 
   var couponHtml = "";
   if (coupon) {
-    couponHtml = '<div id="' + elementId + '-coupon" style="background:rgba(255,255,255,0.2);border:1px dashed rgba(255,255,255,0.6);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:800;letter-spacing:0.05em;cursor:pointer;user-select:none;">🎟️ CUPÓN: ' + coupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span></div>';
+    couponHtml = '<div id="' + elementId + '-coupon" style="background:rgba(255,255,255,0.2) !important;border:1px dashed rgba(255,255,255,0.6) !important;border-radius:6px !important;padding:4px 10px !important;font-size:12px !important;font-weight:800 !important;letter-spacing:0.05em !important;cursor:pointer !important;user-select:none !important;color:' + textColor + ' !important;">🎟️ CUPÓN: ' + escapeHtml(coupon) + ' <span style="font-weight:600 !important;opacity:0.8 !important;">(Copiar)</span></div>';
   }
 
   var ctaHtml = "";
   if (ctaText && ctaUrl) {
-    ctaHtml = '<a href="' + ctaUrl + '" target="_blank" style="background:#ffffff;color:#111827;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,0.15);">' + ctaText + ' →</a>';
+    ctaHtml = '<a href="' + escapeHtml(ctaUrl) + '" target="_blank" style="background:#ffffff !important;color:#111827 !important;border-radius:999px !important;padding:6px 16px !important;font-size:12px !important;font-weight:800 !important;text-decoration:none !important;display:inline-block !important;box-shadow:0 2px 6px rgba(0,0,0,0.15) !important;">' + escapeHtml(ctaText) + ' →</a>';
   }
 
   container.innerHTML = titleHtml +
-    '<div style="display:flex;align-items:center;gap:8px;justify-content:center;">' +
-      '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-h" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
-        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Horas</span>' +
+    '<div style="display:flex !important;align-items:center !important;gap:8px !important;justify-content:center !important;">' +
+      '<div style="display:flex !important;flex-direction:column !important;align-items:center !important;">' +
+        '<div id="' + elementId + '-h" style="background:rgba(0,0,0,0.22) !important;border-radius:8px !important;padding:' + digitPad + ' !important;font-size:' + digitSize + ' !important;font-weight:900 !important;font-family:monospace !important;color:' + textColor + ' !important;">00</div>' +
+        '<span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.8 !important;margin-top:3px !important;font-weight:700 !important;color:' + textColor + ' !important;">Horas</span>' +
       '</div>' +
-      '<span style="font-size:18px;font-weight:900;opacity:0.8;">:</span>' +
-      '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-m" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
-        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Min</span>' +
+      '<span style="font-size:18px !important;font-weight:900 !important;opacity:0.8 !important;color:' + textColor + ' !important;">:</span>' +
+      '<div style="display:flex !important;flex-direction:column !important;align-items:center !important;">' +
+        '<div id="' + elementId + '-m" style="background:rgba(0,0,0,0.22) !important;border-radius:8px !important;padding:' + digitPad + ' !important;font-size:' + digitSize + ' !important;font-weight:900 !important;font-family:monospace !important;color:' + textColor + ' !important;">00</div>' +
+        '<span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.8 !important;margin-top:3px !important;font-weight:700 !important;color:' + textColor + ' !important;">Min</span>' +
       '</div>' +
-      '<span style="font-size:18px;font-weight:900;opacity:0.8;">:</span>' +
-      '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-s" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
-        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Seg</span>' +
+      '<span style="font-size:18px !important;font-weight:900 !important;opacity:0.8 !important;color:' + textColor + ' !important;">:</span>' +
+      '<div style="display:flex !important;flex-direction:column !important;align-items:center !important;">' +
+        '<div id="' + elementId + '-s" style="background:rgba(0,0,0,0.22) !important;border-radius:8px !important;padding:' + digitPad + ' !important;font-size:' + digitSize + ' !important;font-weight:900 !important;font-family:monospace !important;color:' + textColor + ' !important;">00</div>' +
+        '<span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.8 !important;margin-top:3px !important;font-weight:700 !important;color:' + textColor + ' !important;">Seg</span>' +
       '</div>' +
     '</div>' +
     couponHtml +
@@ -3608,7 +3608,7 @@ function renderCuentaRegresiva(w) {
         }
         couponBtn.innerHTML = "✅ ¡CUPÓN COPIADO!";
         setTimeout(function() {
-          couponBtn.innerHTML = "🎟️ CUPÓN: " + coupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span>';
+          couponBtn.innerHTML = "🎟️ CUPÓN: " + escapeHtml(coupon) + ' <span style="font-weight:600 !important;opacity:0.8 !important;">(Copiar)</span>';
         }, 2500);
       });
     }
@@ -3643,7 +3643,7 @@ function renderCuentaRegresiva(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-             }
+}
 /* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
