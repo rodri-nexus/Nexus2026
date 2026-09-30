@@ -437,64 +437,6 @@ function BadgeCuponPreview() {
   );
 }
 
-function InfoCompraPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #e5e7eb",
-        borderRadius: "10px",
-        padding: "7px 10px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <div style={{ fontSize: "12px", lineHeight: 1 }}>🚚</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>
-            Envío GRATIS
-          </div>
-          <div style={{ fontSize: "7px", color: "#6b7280", lineHeight: 1 }}>
-            En compras mayores a $50.000
-          </div>
-        </div>
-      </div>
-
-      <div style={{ height: "1px", background: "#f3f4f6" }} />
-
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <div style={{ fontSize: "12px", lineHeight: 1 }}>💳</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>
-            Hasta 12 cuotas
-          </div>
-          <div style={{ fontSize: "7px", color: "#6b7280", lineHeight: 1 }}>
-            3 cuotas sin interés con todas las tarjetas
-          </div>
-        </div>
-      </div>
-
-      <div style={{ height: "1px", background: "#f3f4f6" }} />
-
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <div style={{ fontSize: "12px", lineHeight: 1 }}>💰</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: "8.5px", fontWeight: 800, color: "#059669", lineHeight: 1.1 }}>
-            10% OFF abonando con Transferencia
-          </div>
-          <div style={{ fontSize: "7px", color: "#6b7280", lineHeight: 1 }}>
-            Descuento automático en el checkout
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ContadorVisitasPreview() {
   return (
     <div
@@ -909,8 +851,6 @@ function renderPreview(slug: string) {
       return <TablaTallesPreview />;
     case "badge-cupon":
       return <BadgeCuponPreview />;
-    case "info-compra":
-      return <InfoCompraPreview />;
     case "contador-visitas":
     case "visitor-counter":
       return <ContadorVisitasPreview />;
@@ -957,4 +897,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-                   }
+      }
