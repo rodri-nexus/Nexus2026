@@ -7526,8 +7526,8 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
     }
         }
   
-  /* ═══════════════════════════════════════════
-     RENDER RULETA DE DESCUENTOS (GAMIFICACIÓN)
+    /* ═══════════════════════════════════════════
+     RENDER RULETA DE DESCUENTOS (ES5 Pure & Gamification)
   ═══════════════════════════════════════════ */
   function renderRuletaDescuentos(w) {
     var modalId = "nvx-ruleta-modal-" + w.id;
@@ -7585,7 +7585,6 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
     var numPremios = premios.length;
     var sliceDeg = 360 / numPremios;
 
-    // Construir degradé de porciones
     var gradientStops = premios.map(function(_, i) {
       var col = i % 2 === 0 ? colorRuletaPrincipal : colorRuletaSecundario;
       return col + " " + (i * sliceDeg) + "deg " + ((i + 1) * sliceDeg) + "deg";
@@ -7595,166 +7594,164 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
     if (!document.getElementById(styleId)) {
       var styleEl = document.createElement("style");
       styleEl.id = styleId;
-      styleEl.innerHTML = `
-        #${modalId}-overlay {
-          position: fixed !important;
-          inset: 0 !important;
-          background: rgba(0, 0, 0, 0.65) !important;
-          backdrop-filter: blur(4px) !important;
-          -webkit-backdrop-filter: blur(4px) !important;
-          z-index: 999999 !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          padding: 16px !important;
-          box-sizing: border-box !important;
-          font-family: system-ui, -apple-system, sans-serif !important;
-          animation: nvxFadeIn 0.3s ease-out !important;
-        }
-        @keyframes nvxFadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        #${modalId} {
-          background: ${colorFondoModal} !important;
-          border-radius: 20px !important;
-          border: ${isCustomTheme ? '2px solid ' + colorBoton : 'none'} !important;
-          padding: 24px 20px !important;
-          width: 100% !important;
-          max-width: 360px !important;
-          box-shadow: ${isCustomTheme ? '0 20px 40px ' + colorBoton + '33' : '0 20px 40px rgba(0,0,0,0.3)'} !important;
-          text-align: center !important;
-          position: relative !important;
-          box-sizing: border-box !important;
-          transition: all 0.3s ease !important;
-        }
-        #${modalId} .nvx-rl-close {
-          position: absolute !important;
-          top: 12px !important;
-          right: 14px !important;
-          background: ${isCustomTheme ? '#ffffff1a' : '#f3f4f6'} !important;
-          border: none !important;
-          width: 30px !important;
-          height: 30px !important;
-          border-radius: 50% !important;
-          font-size: 16px !important;
-          font-weight: bold !important;
-          color: ${isCustomTheme ? '#ffffff' : '#4b5563'} !important;
-          cursor: pointer !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-        }
-        #${modalId} .nvx-rl-title {
-          font-size: 16px !important;
-          font-weight: 900 !important;
-          color: ${colorTexto} !important;
-          margin: 0 0 6px 0 !important;
-          line-height: 1.25 !important;
-        }
-        #${modalId} .nvx-rl-sub {
-          font-size: 11.5px !important;
-          color: ${isCustomTheme ? '#ffffffb3' : '#6b7280'} !important;
-          margin: 0 0 16px 0 !important;
-          line-height: 1.35 !important;
-        }
-        #${modalId} .nvx-rl-wheel-box {
-          position: relative !important;
-          width: 200px !important;
-          height: 200px !important;
-          margin: 0 auto 16px auto !important;
-        }
-        #${modalId} .nvx-rl-arrow {
-          position: absolute !important;
-          top: -10px !important;
-          left: 50% !important;
-          transform: translateX(-50%) !important;
-          z-index: 10 !important;
-          font-size: 22px !important;
-          line-height: 1 !important;
-        }
-        #${modalId} .nvx-rl-disc {
-          width: 100% !important;
-          height: 100% !important;
-          border-radius: 50% !important;
-          border: 4px solid #111827 !important;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.2) !important;
-          position: relative !important;
-          overflow: hidden !important;
-          background: conic-gradient(${gradientStops}) !important;
-          transition: transform 4s cubic-bezier(0.15, 0.9, 0.3, 1) !important;
-          box-sizing: border-box !important;
-        }
-        #${modalId} .nvx-rl-slice-text {
-          position: absolute !important;
-          top: 50% !important;
-          left: 50% !important;
-          width: 50% !important;
-          height: 20px !important;
-          margin-top: -10px !important;
-          transform-origin: 0% 50% !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          font-size: 9px !important;
-          font-weight: 900 !important;
-          color: #ffffff !important;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
-          white-space: nowrap !important;
-          padding-left: 28px !important;
-          box-sizing: border-box !important;
-        }
-        #${modalId} .nvx-rl-center {
-          position: absolute !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          width: 38px !important;
-          height: 38px !important;
-          border-radius: 50% !important;
-          background: #ffffff !important;
-          border: 3px solid #111827 !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          font-size: 16px !important;
-          z-index: 5 !important;
-        }
-        #${modalId} .nvx-rl-input {
-          width: 100% !important;
-          padding: 10px 14px !important;
-          border-radius: 10px !important;
-          border: 1.5px solid #d1d5db !important;
-          font-size: 13px !important;
-          box-sizing: border-box !important;
-          margin-bottom: 12px !important;
-          text-align: center !important;
-          outline: none !important;
-        }
-        #${modalId} .nvx-rl-input:focus {
-          border-color: ${colorBoton} !important;
-        }
-        #${modalId} .nvx-rl-btn {
-          width: 100% !important;
-          background: ${colorBoton} !important;
-          color: #ffffff !important;
-          font-size: 13.5px !important;
-          font-weight: 800 !important;
-          padding: 12px !important;
-          border-radius: 999px !important;
-          border: none !important;
-          cursor: pointer !important;
-          box-shadow: 0 4px 12px ${colorBoton}55 !important;
-          transition: transform 0.15s ease !important;
-        }
-        #${modalId} .nvx-rl-btn:active {
-          transform: scale(0.97) !important;
-        }
-      `;
+      styleEl.textContent =
+        "#" + modalId + "-overlay {" +
+          "position: fixed !important;" +
+          "inset: 0 !important;" +
+          "background: rgba(0, 0, 0, 0.65) !important;" +
+          "backdrop-filter: blur(4px) !important;" +
+          "-webkit-backdrop-filter: blur(4px) !important;" +
+          "z-index: 999999 !important;" +
+          "display: flex !important;" +
+          "align-items: center !important;" +
+          "justify-content: center !important;" +
+          "padding: 16px !important;" +
+          "box-sizing: border-box !important;" +
+          "font-family: system-ui, -apple-system, sans-serif !important;" +
+          "animation: nvxFadeIn 0.3s ease-out !important;" +
+        "}" +
+        "@keyframes nvxFadeIn {" +
+          "from { opacity: 0; transform: scale(0.95); }" +
+          "to { opacity: 1; transform: scale(1); }" +
+        "}" +
+        "#" + modalId + " {" +
+          "background: " + colorFondoModal + " !important;" +
+          "border-radius: 20px !important;" +
+          "border: " + (isCustomTheme ? '2px solid ' + colorBoton : 'none') + " !important;" +
+          "padding: 24px 20px !important;" +
+          "width: 100% !important;" +
+          "max-width: 360px !important;" +
+          "box-shadow: " + (isCustomTheme ? '0 20px 40px ' + colorBoton + '33' : '0 20px 40px rgba(0,0,0,0.3)') + " !important;" +
+          "text-align: center !important;" +
+          "position: relative !important;" +
+          "box-sizing: border-box !important;" +
+          "transition: all 0.3s ease !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-close {" +
+          "position: absolute !important;" +
+          "top: 12px !important;" +
+          "right: 14px !important;" +
+          "background: " + (isCustomTheme ? '#ffffff1a' : '#f3f4f6') + " !important;" +
+          "border: none !important;" +
+          "width: 30px !important;" +
+          "height: 30px !important;" +
+          "border-radius: 50% !important;" +
+          "font-size: 16px !important;" +
+          "font-weight: bold !important;" +
+          "color: " + (isCustomTheme ? '#ffffff' : '#4b5563') + " !important;" +
+          "cursor: pointer !important;" +
+          "display: flex !important;" +
+          "align-items: center !important;" +
+          "justify-content: center !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-title {" +
+          "font-size: 16px !important;" +
+          "font-weight: 900 !important;" +
+          "color: " + colorTexto + " !important;" +
+          "margin: 0 0 6px 0 !important;" +
+          "line-height: 1.25 !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-sub {" +
+          "font-size: 11.5px !important;" +
+          "color: " + (isCustomTheme ? '#ffffffb3' : '#6b7280') + " !important;" +
+          "margin: 0 0 16px 0 !important;" +
+          "line-height: 1.35 !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-wheel-box {" +
+          "position: relative !important;" +
+          "width: 200px !important;" +
+          "height: 200px !important;" +
+          "margin: 0 auto 16px auto !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-arrow {" +
+          "position: absolute !important;" +
+          "top: -10px !important;" +
+          "left: 50% !important;" +
+          "transform: translateX(-50%) !important;" +
+          "z-index: 10 !important;" +
+          "font-size: 22px !important;" +
+          "line-height: 1 !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-disc {" +
+          "width: 100% !important;" +
+          "height: 100% !important;" +
+          "border-radius: 50% !important;" +
+          "border: 4px solid #111827 !important;" +
+          "box-shadow: 0 4px 14px rgba(0,0,0,0.2) !important;" +
+          "position: relative !important;" +
+          "overflow: hidden !important;" +
+          "background: conic-gradient(" + gradientStops + ") !important;" +
+          "transition: transform 4s cubic-bezier(0.15, 0.9, 0.3, 1) !important;" +
+          "box-sizing: border-box !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-slice-text {" +
+          "position: absolute !important;" +
+          "top: 50% !important;" +
+          "left: 50% !important;" +
+          "width: 50% !important;" +
+          "height: 20px !important;" +
+          "margin-top: -10px !important;" +
+          "transform-origin: 0% 50% !important;" +
+          "display: flex !important;" +
+          "align-items: center !important;" +
+          "justify-content: center !important;" +
+          "font-size: 9px !important;" +
+          "font-weight: 900 !important;" +
+          "color: #ffffff !important;" +
+          "text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;" +
+          "white-space: nowrap !important;" +
+          "padding-left: 28px !important;" +
+          "box-sizing: border-box !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-center {" +
+          "position: absolute !important;" +
+          "top: 50% !important;" +
+          "left: 50% !important;" +
+          "transform: translate(-50%, -50%) !important;" +
+          "width: 38px !important;" +
+          "height: 38px !important;" +
+          "border-radius: 50% !important;" +
+          "background: #ffffff !important;" +
+          "border: 3px solid #111827 !important;" +
+          "display: flex !important;" +
+          "align-items: center !important;" +
+          "justify-content: center !important;" +
+          "font-size: 16px !important;" +
+          "z-index: 5 !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-input {" +
+          "width: 100% !important;" +
+          "padding: 10px 14px !important;" +
+          "border-radius: 10px !important;" +
+          "border: 1.5px solid #d1d5db !important;" +
+          "font-size: 13px !important;" +
+          "box-sizing: border-box !important;" +
+          "margin-bottom: 12px !important;" +
+          "text-align: center !important;" +
+          "outline: none !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-input:focus {" +
+          "border-color: " + colorBoton + " !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-btn {" +
+          "width: 100% !important;" +
+          "background: " + colorBoton + " !important;" +
+          "color: #ffffff !important;" +
+          "font-size: 13.5px !important;" +
+          "font-weight: 800 !important;" +
+          "padding: 12px !important;" +
+          "border-radius: 999px !important;" +
+          "border: none !important;" +
+          "cursor: pointer !important;" +
+          "box-shadow: 0 4px 12px " + colorBoton + "55 !important;" +
+          "transition: transform 0.15s ease !important;" +
+        "}" +
+        "#" + modalId + " .nvx-rl-btn:active {" +
+          "transform: scale(0.97) !important;" +
+        "}";
       document.head.appendChild(styleEl);
     }
 
-    // Crear elementos de las porciones
     var sliceElementsHtml = premios.map(function(item, i) {
       var angle = (360 / numPremios) * i + (360 / numPremios) / 2;
       return '<div class="nvx-rl-slice-text" style="transform: rotate(' + (angle - 90) + 'deg);">' + escapeHtml(item.texto) + '</div>';
@@ -7762,30 +7759,25 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
 
     var overlay = document.createElement("div");
     overlay.id = modalId + "-overlay";
-    overlay.innerHTML = `
-      <div id="${modalId}">
-        <button class="nvx-rl-close" id="${modalId}-close">✕</button>
-        <div class="nvx-rl-title">${escapeHtml(titulo)}</div>
-        <div class="nvx-rl-sub">${escapeHtml(subtitulo)}</div>
-        
-        <div class="nvx-rl-wheel-box">
-          <div class="nvx-rl-arrow">🔻</div>
-          <div class="nvx-rl-disc" id="${modalId}-disc">
-            ${sliceElementsHtml}
-          </div>
-          <div class="nvx-rl-center">🎁</div>
-        </div>
-
-        <div id="${modalId}-form-box">
-          <input type="email" id="${modalId}-email" class="nvx-rl-input" placeholder="Ingresá tu email aquí..." />
-          <button class="nvx-rl-btn" id="${modalId}-spin-btn">${escapeHtml(textoBotonGirar)}</button>
-        </div>
-      </div>
-    `;
+    overlay.innerHTML = '<div id="' + modalId + '">' +
+      '<button class="nvx-rl-close" id="' + modalId + '-close">✕</button>' +
+      '<div class="nvx-rl-title">' + escapeHtml(titulo) + '</div>' +
+      '<div class="nvx-rl-sub">' + escapeHtml(subtitulo) + '</div>' +
+      '<div class="nvx-rl-wheel-box">' +
+        '<div class="nvx-rl-arrow">🔻</div>' +
+        '<div class="nvx-rl-disc" id="' + modalId + '-disc">' +
+          sliceElementsHtml +
+        '</div>' +
+        '<div class="nvx-rl-center">🎁</div>' +
+      '</div>' +
+      '<div id="' + modalId + '-form-box">' +
+        '<input type="email" id="' + modalId + '-email" class="nvx-rl-input" placeholder="Ingresá tu email aquí..." />' +
+        '<button class="nvx-rl-btn" id="' + modalId + '-spin-btn">' + escapeHtml(textoBotonGirar) + '</button>' +
+      '</div>' +
+    '</div>';
 
     document.body.appendChild(overlay);
 
-    // Cierre del modal + Marca en localStorage
     function closeModal() {
       localStorage.setItem("nvx_ruleta_played_" + w.id, "true");
       if (overlay && overlay.parentNode) {
@@ -7795,7 +7787,6 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
 
     document.getElementById(modalId + "-close").addEventListener("click", closeModal);
 
-    // Lógica del giro
     var spinBtn = document.getElementById(modalId + "-spin-btn");
     var disc = document.getElementById(modalId + "-disc");
     var isSpinning = false;
@@ -7814,7 +7805,6 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
       spinBtn.disabled = true;
       spinBtn.style.opacity = "0.6";
 
-      // Elegir premio ganador (preferentemente uno marcado como ganador)
       var ganadoresIdx = [];
       premios.forEach(function(p, idx) {
         if (p.esGanador) ganadoresIdx.push(idx);
@@ -7826,29 +7816,25 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
 
       var winningPremio = premios[winningIndex];
 
-      // Calcular grados de rotación (5 vueltas completas + la porción ganadora)
       var targetAngle = 360 - (winningIndex * sliceDeg + sliceDeg / 2);
       var totalRotation = 360 * 5 + targetAngle;
 
       disc.style.transform = "rotate(" + totalRotation + "deg)";
 
-      // Esperar 4 segundos que termina el giro
       setTimeout(function() {
         localStorage.setItem("nvx_ruleta_played_" + w.id, "true");
         var formBox = document.getElementById(modalId + "-form-box");
 
         if (winningPremio.esGanador && winningPremio.codigoCupon) {
-          formBox.innerHTML = `
-            <div style="background:${isCustomTheme ? '#ffffff1a' : '#ecfdf5'}; border:1.5px dashed ${colorBoton}; border-radius:12px; padding:12px; margin-top:4px;">
-              <div style="font-size:13px; font-weight:800; color:${isCustomTheme ? '#ffffff' : '#059669'}; margin-bottom:4px;">🎉 ¡FELICITACIONES! GANASTE:</div>
-              <div style="font-size:16px; font-weight:900; color:${colorTexto}; margin-bottom:8px;">${escapeHtml(winningPremio.texto)}</div>
-              <div style="font-size:11px; color:${isCustomTheme ? '#ffffffb3' : '#6b7280'}; margin-bottom:6px;">Usa este cupón en tu compra:</div>
-              <div style="display:flex; gap:6px; justify-content:center;">
-                <input type="text" readonly value="${escapeHtml(winningPremio.codigoCupon)}" style="width:130px; text-align:center; font-family:monospace; font-weight:800; padding:6px; border:1px solid ${colorBoton}aa; border-radius:6px; font-size:13px; background:#fff; color:#000;" />
-                <button id="${modalId}-copy-btn" style="background:${colorBoton}; color:#fff; border:none; border-radius:6px; padding:6px 12px; font-weight:800; font-size:12px; cursor:pointer;">Copiar</button>
-              </div>
-            </div>
-          `;
+          formBox.innerHTML = '<div style="background:' + (isCustomTheme ? '#ffffff1a' : '#ecfdf5') + '; border:1.5px dashed ' + colorBoton + '; border-radius:12px; padding:12px; margin-top:4px;">' +
+            '<div style="font-size:13px; font-weight:800; color:' + (isCustomTheme ? '#ffffff' : '#059669') + '; margin-bottom:4px;">🎉 ¡FELICITACIONES! GANASTE:</div>' +
+            '<div style="font-size:16px; font-weight:900; color:' + colorTexto + '; margin-bottom:8px;">' + escapeHtml(winningPremio.texto) + '</div>' +
+            '<div style="font-size:11px; color:' + (isCustomTheme ? '#ffffffb3' : '#6b7280') + '; margin-bottom:6px;">Usa este cupón en tu compra:</div>' +
+            '<div style="display:flex; gap:6px; justify-content:center;">' +
+              '<input type="text" readonly value="' + escapeHtml(winningPremio.codigoCupon) + '" style="width:130px; text-align:center; font-family:monospace; font-weight:800; padding:6px; border:1px solid ' + colorBoton + 'aa; border-radius:6px; font-size:13px; background:#fff; color:#000;" />' +
+              '<button id="' + modalId + '-copy-btn" style="background:' + colorBoton + '; color:#fff; border:none; border-radius:6px; padding:6px 12px; font-weight:800; font-size:12px; cursor:pointer;">Copiar</button>' +
+            '</div>' +
+          '</div>';
 
           var copyBtn = document.getElementById(modalId + "-copy-btn");
           if (copyBtn) {
@@ -7859,16 +7845,15 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
             });
           }
         } else {
-          formBox.innerHTML = `
-            <div style="background:${isCustomTheme ? '#ffffff1a' : '#f9fafb'}; border:1.5px solid ${isCustomTheme ? '#ffffff33' : '#e5e7eb'}; border-radius:12px; padding:12px; margin-top:4px;">
-              <div style="font-size:14px; font-weight:800; color:${colorTexto};">¡Casi! Gracias por participar 🎁</div>
-              <div style="font-size:11px; color:${isCustomTheme ? '#ffffffb3' : '#6b7280'}; margin-top:4px;">Disfrutá de nuestros productos en la tienda.</div>
-            </div>
-          `;
+          formBox.innerHTML = '<div style="background:' + (isCustomTheme ? '#ffffff1a' : '#f9fafb') + '; border:1.5px solid ' + (isCustomTheme ? '#ffffff33' : '#e5e7eb') + '; border-radius:12px; padding:12px; margin-top:4px;">' +
+            '<div style="font-size:14px; font-weight:800; color:' + colorTexto + ';">¡Casi! Gracias por participar 🎁</div>' +
+            '<div style="font-size:11px; color:' + (isCustomTheme ? '#ffffffb3' : '#6b7280') + '; margin-top:4px;">Disfrutá de nuestros productos en la tienda.</div>' +
+          '</div>';
         }
       }, 4200);
     });
-      }
+}
+  
  /* ═══════════════════════════════════════════
      MOTOR DE TELEMETRÍA Y ANALYTICS EN VIVO (NEVUX TRACK)
   ═══════════════════════════════════════════ */
