@@ -36,6 +36,8 @@ interface CuentaRegresivaEditorProps {
 interface Cfg {
   timerType: 'minutes' | 'date' | 'daily';
   durationMinutes: number;
+  durationValue: number;
+  durationUnit: 'minutes' | 'hours' | 'days';
   exactDate: string;
   title: string;
   blockSize: 'compact' | 'normal' | 'large';
@@ -51,11 +53,13 @@ interface Cfg {
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO
+   CONFIG POR DEFECTO (Ajustado a 15 min de inicio)
 ═══════════════════════════════════════════ */
 const DEF: Cfg = {
   timerType: 'minutes',
-  durationMinutes: 30,
+  durationMinutes: 15,
+  durationValue: 15,
+  durationUnit: 'minutes',
   exactDate: '',
   title: '¡Oferta por tiempo limitado!',
   blockSize: 'normal',
@@ -89,7 +93,7 @@ const IconInfo = () => (
 );
 
 /* ═══════════════════════════════════════════
-   COMPONENTES AUXILIARES DE FORMULARIO (Regla #9)
+   COMPONENTES AUXILIARES DE FORMULARIO
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -177,9 +181,30 @@ function ColorPickerField({
 
 function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
   if (!raw) return { ...DEF };
+  
+  const rawDuration = typeof raw.durationMinutes === 'number' ? raw.durationMinutes : DEF.durationMinutes;
+  let durationUnit: Cfg['durationUnit'] = (raw.durationUnit as any) || 'minutes';
+  let durationValue = typeof raw.durationValue === 'number' ? raw.durationValue : rawDuration;
+
+  // Migración retrocompatible inteligente para configs viejas sin unidad explícita
+  if (!raw.durationUnit) {
+    if (rawDuration % 1440 === 0) {
+      durationUnit = 'days';
+      durationValue = rawDuration / 1440;
+    } else if (rawDuration % 60 === 0) {
+      durationUnit = 'hours';
+      durationValue = rawDuration / 60;
+    } else {
+      durationUnit = 'minutes';
+      durationValue = rawDuration;
+    }
+  }
+
   return {
     timerType: (raw.timerType as 'minutes' | 'date' | 'daily') || DEF.timerType,
-    durationMinutes: typeof raw.durationMinutes === 'number' ? raw.durationMinutes : DEF.durationMinutes,
+    durationMinutes: rawDuration,
+    durationValue,
+    durationUnit,
     exactDate: (raw.exactDate as string) || DEF.exactDate,
     title: (raw.title as string) || DEF.title,
     blockSize: (raw.blockSize as 'compact' | 'normal' | 'large') || DEF.blockSize,
@@ -213,15 +238,31 @@ export default function CuentaRegresivaEditor({
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
 
-  // Contador de simulación en vivo
-  const [demoTime, setDemoTime] = useState({ hours: '00', mins: '29', secs: '58' });
+  // Contador de simulación dinámica en vivo
+  const [demoSeconds, setDemoSeconds] = useState(15 * 60);
 
+  // Sincronizar el segundero de demostración cuando cambien los valores
+  useEffect(() => {
+    let secs = 15 * 60;
+    if (cfg.timerType === 'minutes') {
+      const multiplier = cfg.durationUnit === 'days' ? 1440 : cfg.durationUnit === 'hours' ? 60 : 1;
+      secs = (cfg.durationValue || 15) * multiplier * 60;
+    } else if (cfg.timerType === 'daily') {
+      // Calcular segundos restantes hasta el final del día real
+      const now = new Date();
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      secs = Math.max(0, Math.floor((endOfDay.getTime() - now.getTime()) / 1000));
+    } else if (cfg.timerType === 'date' && cfg.exactDate) {
+      const target = new Date(cfg.exactDate).getTime();
+      secs = Math.max(0, Math.floor((target - Date.now()) / 1000));
+    }
+    setDemoSeconds(secs);
+  }, [cfg.durationValue, cfg.durationUnit, cfg.timerType, cfg.exactDate]);
+
+  // Ticker de simulación
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = new Date();
-      const secs = String(59 - (now.getSeconds() % 60)).padStart(2, '0');
-      const mins = String(29 - (now.getMinutes() % 30)).padStart(2, '0');
-      setDemoTime({ hours: '00', mins, secs });
+      setDemoSeconds((prev) => (prev > 1 ? prev - 1 : 10));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -236,6 +277,34 @@ export default function CuentaRegresivaEditor({
 
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
+
+  // Controladores de cambio de tiempo para mantener sincronizados los valores numéricos y la duración real en minutos
+  const handleDurationValueChange = (valStr: string) => {
+    const val = Math.max(1, parseInt(valStr, 10) || 1);
+    const unit = cfg.durationUnit;
+    let mins = val;
+    if (unit === 'hours') mins = val * 60;
+    if (unit === 'days') mins = val * 1440;
+
+    setCfg((prev) => ({
+      ...prev,
+      durationValue: val,
+      durationMinutes: mins,
+    }));
+  };
+
+  const handleDurationUnitChange = (unit: 'minutes' | 'hours' | 'days') => {
+    const val = cfg.durationValue;
+    let mins = val;
+    if (unit === 'hours') mins = val * 60;
+    if (unit === 'days') mins = val * 1440;
+
+    setCfg((prev) => ({
+      ...prev,
+      durationUnit: unit,
+      durationMinutes: mins,
+    }));
+  };
 
   // Modificador de color que quita automáticamente el bloqueo de la campaña
   const setCustomColor = (key: 'gradStart' | 'gradEnd' | 'textColor', val: string) => {
@@ -342,6 +411,26 @@ export default function CuentaRegresivaEditor({
     return 'none';
   };
 
+  // Convertir los segundos dinámicos a unidades humanas
+  const dD = Math.floor(demoSeconds / (3600 * 24));
+  const dH = Math.floor((demoSeconds % (3600 * 24)) / 3600);
+  const dM = Math.floor((demoSeconds % 3600) / 60);
+  const dS = demoSeconds % 60;
+
+  // Renderizador condicional de dígitos según las unidades reales
+  const showDays = dD > 0 || cfg.durationUnit === 'days' || cfg.timerType === 'date';
+  const showHours = showDays || dH > 0 || cfg.durationUnit === 'hours' || cfg.timerType === 'date' || cfg.timerType === 'daily';
+
+  const previewDigits = [];
+  if (showDays) {
+    previewDigits.push({ num: String(dD).padStart(2, '0'), label: 'Días' });
+  }
+  if (showHours) {
+    previewDigits.push({ num: String(dH).padStart(2, '0'), label: 'Horas' });
+  }
+  previewDigits.push({ num: String(dM).padStart(2, '0'), label: 'Min' });
+  previewDigits.push({ num: String(dS).padStart(2, '0'), label: 'Seg' });
+
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
 
@@ -406,7 +495,7 @@ export default function CuentaRegresivaEditor({
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
 
-          {/* PREVIEW GRANDE EN VIVO */}
+          {/* PREVIEW GRANDE EN VIVO (Muestra solo bloques necesarios) */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               VISTA PREVIA EN VIVO
@@ -435,13 +524,9 @@ export default function CuentaRegresivaEditor({
                 </div>
               )}
 
-              {/* DÍGITOS DEL RELOJ */}
+              {/* DÍGITOS ADAPTATIVOS */}
               <div style={{ display: 'flex', alignItems: 'center', gap: cfg.blockSize === 'compact' ? 6 : 10 }}>
-                {[
-                  { num: demoTime.hours, label: 'Horas' },
-                  { num: demoTime.mins, label: 'Min' },
-                  { num: demoTime.secs, label: 'Seg' },
-                ].map((item, idx) => (
+                {previewDigits.map((item, idx) => (
                   <React.Fragment key={idx}>
                     {idx > 0 && <span style={{ fontSize: 18, fontWeight: 900, opacity: 0.8, color: cfg.textColor }}>:</span>}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -558,7 +643,7 @@ export default function CuentaRegresivaEditor({
                 <FieldLabel>Tipo de cuenta regresiva</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
                   {[
-                    { id: 'minutes', label: '⏱️ Minutos Fijos', desc: 'Inicia por sesión de cada visitante.' },
+                    { id: 'minutes', label: '⏱️ Tiempo Fijo', desc: 'Inicia por sesión de cada visitante.' },
                     { id: 'date', label: '📅 Fecha Exacta', desc: 'Fecha y hora límite fija.' },
                     { id: 'daily', label: '🔄 Diario', desc: 'Se reinicia automáticamente cada día.' },
                   ].map((t) => {
@@ -585,17 +670,52 @@ export default function CuentaRegresivaEditor({
                 </div>
               </div>
 
-              {/* DURACIÓN SEGÚN TIPO */}
+              {/* CONFIGURACIÓN DE DURACIÓN DINÁMICA POR TIEMPO FIJO */}
               {cfg.timerType === 'minutes' && (
-                <div>
-                  <FieldLabel>Duración en minutos (por visita)</FieldLabel>
-                  <TextInput
-                    type="number"
-                    value={String(cfg.durationMinutes)}
-                    onChange={(v) => set('durationMinutes', parseInt(v, 10) || 10)}
-                    placeholder="30"
-                  />
-                  <FieldHelper>Ej: 30 minutos. Al ingresar, el visitante verá la cuenta regresiva desde 30:00.</FieldHelper>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb' }}>
+                  
+                  <div>
+                    <FieldLabel>Medida de Tiempo</FieldLabel>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 4 }}>
+                      {[
+                        { id: 'minutes', label: 'Minutos' },
+                        { id: 'hours', label: 'Horas' },
+                        { id: 'days', label: 'Días' },
+                      ].map((u) => {
+                        const active = cfg.durationUnit === u.id;
+                        return (
+                          <button
+                            key={u.id}
+                            type="button"
+                            onClick={() => handleDurationUnitChange(u.id as any)}
+                            style={{
+                              padding: '10px', borderRadius: 8,
+                              border: active ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                              background: active ? '#ecfdf5' : '#ffffff',
+                              color: active ? '#059669' : '#000000',
+                              fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                            }}
+                          >
+                            {u.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <FieldLabel>Cantidad</FieldLabel>
+                    <TextInput
+                      type="number"
+                      value={String(cfg.durationValue || 15)}
+                      onChange={handleDurationValueChange}
+                      placeholder="15"
+                    />
+                    <FieldHelper>
+                      Configurado en: <strong>{cfg.durationValue || 15} {cfg.durationUnit === 'minutes' ? 'minutos' : cfg.durationUnit === 'hours' ? 'horas' : 'días'}</strong> por visita (Equivale a {cfg.durationMinutes} minutos totales).
+                    </FieldHelper>
+                  </div>
+
                 </div>
               )}
 
