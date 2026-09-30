@@ -1666,6 +1666,7 @@
           if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
           if (w.widget_slug === "edicion-limitada") renderEdicionLimitada(w);
           if (w.widget_slug === "contador-vendidos") renderContadorVendidos(w);
+          if (w.widget_slug === "cuenta-regresiva") renderCuentaRegresiva(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -3392,4 +3393,230 @@ function renderContadorVendidos(w) {
 
     setTimeout(showNextEvent, 2500);
         }
+  /* ═══════════════════════════════════════════
+   WIDGET: CUENTA REGRESIVA
+   ═══════════════════════════════════════════ */
+function renderCuentaRegresiva(w) {
+  var elementId = "nvx-timer-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+  var timerType = cfg.timerType || "minutes";
+  var durationMinutes = parseInt(cfg.durationMinutes, 10) || 30;
+  var exactDate = cfg.exactDate || "";
+  var title = cfg.title || "¡Oferta por tiempo limitado!";
+  var blockSize = cfg.blockSize || "normal";
+  var location = cfg.location || "product_before";
+  var template = cfg.template || "gradient";
+  var gradStart = cfg.gradStart || "#ef4444";
+  var gradEnd = cfg.gradEnd || "#eab308";
+  var textColor = cfg.textColor || "#ffffff";
+  var coupon = cfg.coupon || "";
+  var ctaText = cfg.ctaText || "";
+  var ctaUrl = cfg.ctaUrl || "";
+
+  // Presets de campaña
+  var THEMES = {
+    "black-friday": { start: "#111827", end: "#111827", text: "#F59E0B" },
+    "hot-sale": { start: "#0F172A", end: "#EF4444", text: "#ffffff" },
+    "cyber-monday": { start: "#090D16", end: "#3B82F6", text: "#ffffff" },
+    "navidad": { start: "#064E3B", end: "#EF4444", text: "#ffffff" },
+    "san-valentin": { start: "#831843", end: "#F43F5E", text: "#ffffff" },
+    "dia-padre-madre": { start: "#312E81", end: "#10B981", text: "#ffffff" },
+    "liquidacion": { start: "#7F1D1D", end: "#FBBF24", text: "#ffffff" }
+  };
+
+  if (cfg.campaignTheme && THEMES[cfg.campaignTheme]) {
+    var t = THEMES[cfg.campaignTheme];
+    gradStart = t.start;
+    gradEnd = t.end;
+    textColor = t.text;
+  }
+
+  // Lógica de tiempo objetivo
+  var targetTime = 0;
+  var storageKey = "nvx_timer_end_" + w.id;
+
+  if (timerType === "date" && exactDate) {
+    targetTime = new Date(exactDate).getTime();
+  } else if (timerType === "daily") {
+    var now = new Date();
+    var endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    targetTime = endOfDay.getTime();
+  } else {
+    var savedEnd = null;
+    try {
+      savedEnd = localStorage.getItem(storageKey);
+    } catch (e) {}
+
+    if (savedEnd && parseInt(savedEnd, 10) > new Date().getTime()) {
+      targetTime = parseInt(savedEnd, 10);
+    } else {
+      targetTime = new Date().getTime() + durationMinutes * 60 * 1000;
+      try {
+        localStorage.setItem(storageKey, targetTime.toString());
+      } catch (e) {}
+    }
+  }
+
+  // Estilos visuales
+  var bgStyle = "background:" + gradStart + ";";
+  var borderStyle = "border:none;";
+  var borderRadius = "16px";
+
+  if (template === "gradient") {
+    bgStyle = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ");";
+  } else if (template === "glass") {
+    bgStyle = "background:rgba(17,24,39,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);";
+  } else if (template === "outline") {
+    bgStyle = "background:transparent;";
+    borderStyle = "border:2px dashed " + gradStart + ";";
+  } else if (template === "neon") {
+    bgStyle = "background:#000000;";
+    borderStyle = "border:2px solid " + gradEnd + ";";
+  } else if (template === "pill") {
+    borderRadius = "999px";
+  }
+
+  var padStyle = "18px 22px";
+  var titleSize = "16px";
+  var digitSize = "20px";
+  var digitPad = "6px 11px";
+
+  if (blockSize === "compact") {
+    padStyle = "12px 16px";
+    titleSize = "14px";
+    digitSize = "16px";
+    digitPad = "4px 8px";
+  } else if (blockSize === "large") {
+    padStyle = "24px 28px";
+    titleSize = "19px";
+    digitSize = "24px";
+    digitPad = "8px 14px";
+  }
+
+  var container = document.createElement("div");
+  container.id = elementId;
+  container.className = "nvx-widget nvx-timer-wrapper";
+  container.style.cssText = bgStyle + borderStyle +
+    "border-radius:" + borderRadius + ";" +
+    "padding:" + padStyle + ";" +
+    "margin:14px 0;" +
+    "box-sizing:border-box;" +
+    "box-shadow:0 8px 24px rgba(0,0,0,0.08);" +
+    "display:flex;" +
+    "flex-direction:column;" +
+    "align-items:center;" +
+    "justify-content:center;" +
+    "gap:12px;" +
+    "font-family:system-ui,-apple-system,sans-serif;" +
+    "color:" + textColor + ";" +
+    "text-align:center;" +
+    "width:100%;";
+
+  var titleHtml = title ? '<div style="font-size:' + titleSize + ';font-weight:800;line-height:1.2;">' + title + '</div>' : '';
+
+  var couponHtml = "";
+  if (coupon) {
+    couponHtml = '<div id="' + elementId + '-coupon" style="background:rgba(255,255,255,0.2);border:1px dashed rgba(255,255,255,0.6);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:800;letter-spacing:0.05em;cursor:pointer;user-select:none;">🎟️ CUPÓN: ' + coupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span></div>';
+  }
+
+  var ctaHtml = "";
+  if (ctaText && ctaUrl) {
+    ctaHtml = '<a href="' + ctaUrl + '" target="_blank" style="background:#ffffff;color:#111827;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,0.15);">' + ctaText + ' →</a>';
+  }
+
+  container.innerHTML = titleHtml +
+    '<div style="display:flex;align-items:center;gap:8px;justify-content:center;">' +
+      '<div style="display:flex;flex-direction:column;align-items:center;">' +
+        '<div id="' + elementId + '-h" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Horas</span>' +
+      '</div>' +
+      '<span style="font-size:18px;font-weight:900;opacity:0.8;">:</span>' +
+      '<div style="display:flex;flex-direction:column;align-items:center;">' +
+        '<div id="' + elementId + '-m" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Min</span>' +
+      '</div>' +
+      '<span style="font-size:18px;font-weight:900;opacity:0.8;">:</span>' +
+      '<div style="display:flex;flex-direction:column;align-items:center;">' +
+        '<div id="' + elementId + '-s" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Seg</span>' +
+      '</div>' +
+    '</div>' +
+    couponHtml +
+    ctaHtml;
+
+  // Inserción en la página
+  if (location === "top_bar") {
+    container.style.borderRadius = "0";
+    container.style.margin = "0";
+    var body = document.body;
+    if (body) body.insertBefore(container, body.firstChild);
+  } else {
+    var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+    if (targetEl && targetEl.parentNode) {
+      if (location === "product_after") {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      }
+    } else {
+      var main = document.querySelector('main, #content, .main-content');
+      if (main) main.insertBefore(container, main.firstChild);
+    }
+  }
+
+  // Evento para copiar cupón
+  if (coupon) {
+    var couponBtn = document.getElementById(elementId + "-coupon");
+    if (couponBtn) {
+      couponBtn.addEventListener("click", function() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(coupon);
+        } else {
+          var input = document.createElement("input");
+          input.value = coupon;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand("copy");
+          document.body.removeChild(input);
+        }
+        couponBtn.innerHTML = "✅ ¡CUPÓN COPIADO!";
+        setTimeout(function() {
+          couponBtn.innerHTML = "🎟️ CUPÓN: " + coupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span>';
+        }, 2500);
+      });
+    }
+  }
+
+  // Bucle de actualización en tiempo real
+  function updateTimer() {
+    var now = new Date().getTime();
+    var diff = targetTime - now;
+
+    if (diff <= 0) {
+      diff = 0;
+    }
+
+    var h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    var s = Math.floor((diff % (1000 * 60)) / 1000);
+
+    var hEl = document.getElementById(elementId + "-h");
+    var mEl = document.getElementById(elementId + "-m");
+    var sEl = document.getElementById(elementId + "-s");
+
+    if (hEl) hEl.textContent = (h < 10 ? "0" : "") + h;
+    if (mEl) mEl.textContent = (m < 10 ? "0" : "") + m;
+    if (sEl) sEl.textContent = (s < 10 ? "0" : "") + s;
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+                        }
 })(); 
