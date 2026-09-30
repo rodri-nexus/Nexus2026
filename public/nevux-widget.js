@@ -1667,6 +1667,7 @@
           if (w.widget_slug === "edicion-limitada") renderEdicionLimitada(w);
           if (w.widget_slug === "contador-vendidos") renderContadorVendidos(w);
           if (w.widget_slug === "cuenta-regresiva") renderCuentaRegresiva(w);
+          if (w.widget_slug === "info-despacho") renderInfoDespacho(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -3619,4 +3620,158 @@ function renderCuentaRegresiva(w) {
     nvxTrack(w.id, "impression");
   }
                         }
+  /* ═══════════════════════════════════════════
+   WIDGET: INFORMACIÓN DE DESPACHO
+   ═══════════════════════════════════════════ */
+function renderInfoDespacho(w) {
+  var elementId = "nvx-despacho-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+  var showTimer = typeof cfg.showTimer === "boolean" ? cfg.showTimer : true;
+  var textBeforeCutoff = cfg.textBeforeCutoff || "Comprando ahora tu pedido se despacha {{dia}}";
+  var textAfterCutoff = cfg.textAfterCutoff || "Tu pedido se despacha {{dia}}";
+  var timerPrefixText = cfg.timerPrefixText || "Te quedan";
+  var cutoffTime = cfg.cutoffTime || "13:00";
+  var bgColor = cfg.bgColor || "#10B981";
+  var textColor = cfg.textColor || "#ffffff";
+  var badgeBgColor = cfg.badgeBgColor || "rgba(255, 255, 255, 0.25)";
+  var designStyle = cfg.designStyle || "full";
+  var location = cfg.location || "product_before";
+
+  // Presets de campaña
+  var THEMES = {
+    "black-friday": { bg: "#111827", text: "#ffffff", badge: "#F59E0B" },
+    "hot-sale": { bg: "#0F172A", text: "#ffffff", badge: "#EF4444" },
+    "cyber-monday": { bg: "#090D16", text: "#ffffff", badge: "#3B82F6" },
+    "navidad": { bg: "#064E3B", text: "#ffffff", badge: "#EF4444" },
+    "san-valentin": { bg: "#831843", text: "#ffffff", badge: "#F43F5E" },
+    "dia-padre-madre": { bg: "#312E81", text: "#ffffff", badge: "#10B981" },
+    "liquidacion": { bg: "#7F1D1D", text: "#ffffff", badge: "#FBBF24" }
+  };
+
+  if (cfg.campaignTheme && THEMES[cfg.campaignTheme]) {
+    var t = THEMES[cfg.campaignTheme];
+    bgColor = t.bg;
+    textColor = t.text;
+    badgeBgColor = t.badge;
+  }
+
+  // Estilos del contenedor
+  var bgStyle = "background:" + bgColor + ";";
+  var borderStyle = "border:none;";
+  var borderRadius = "14px";
+  var actualTextColor = textColor;
+
+  if (designStyle === "pill") {
+    borderRadius = "999px";
+  } else if (designStyle === "bordered") {
+    bgStyle = "background:#ffffff;";
+    borderStyle = "border:2px solid " + bgColor + ";";
+    actualTextColor = "#111827";
+  } else if (designStyle === "none") {
+    bgStyle = "background:transparent;";
+    borderStyle = "border:none;";
+    actualTextColor = "#111827";
+  }
+
+  var container = document.createElement("div");
+  container.id = elementId;
+  container.className = "nvx-widget nvx-despacho-wrapper";
+  container.style.cssText = bgStyle + borderStyle +
+    "border-radius:" + borderRadius + ";" +
+    "padding:16px 20px;" +
+    "margin:14px 0;" +
+    "box-sizing:border-box;" +
+    "box-shadow:" + (designStyle === "none" ? "none" : "0 4px 14px rgba(0,0,0,0.06)") + ";" +
+    "display:flex;" +
+    "align-items:center;" +
+    "justify-content:space-between;" +
+    "gap:16px;" +
+    "font-family:system-ui,-apple-system,sans-serif;" +
+    "color:" + actualTextColor + ";" +
+    "width:100%;";
+
+  var timerBadgeHtml = "";
+  if (showTimer) {
+    timerBadgeHtml =
+      '<div style="background:' + badgeBgColor + ';border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;display:flex;flex-direction:column;align-items:center;">' +
+        '<span style="font-size:10px;font-weight:700;opacity:0.85;text-transform:uppercase;">' + timerPrefixText + '</span>' +
+        '<span id="' + elementId + '-timer-text" style="font-size:16px;font-weight:900;font-family:monospace;margin-top:1px;">--h --m</span>' +
+      '</div>';
+  }
+
+  container.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">' +
+      '<span style="font-size:22px;flex-shrink:0;">📦</span>' +
+      '<div id="' + elementId + '-msg" style="font-size:15px;font-weight:800;line-height:1.3;">' +
+        'Cargando despacho...' +
+      '</div>' +
+    '</div>' +
+    timerBadgeHtml;
+
+  // Inserción en la página
+  if (location === "cart") {
+    var cartTarget = document.querySelector(".cart-container, .js-cart-container, #cart-form, .js-cart-form, form[action*='/cart']");
+    if (cartTarget && cartTarget.parentNode) {
+      cartTarget.parentNode.insertBefore(container, cartTarget);
+    } else {
+      var mainCart = document.querySelector("main, #content, .main-content");
+      if (mainCart) mainCart.insertBefore(container, mainCart.firstChild);
+    }
+  } else {
+    var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
+    if (targetEl && targetEl.parentNode) {
+      if (location === "product_after") {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      }
+    } else {
+      var mainProd = document.querySelector("main, #content, .main-content");
+      if (mainProd) mainProd.insertBefore(container, mainProd.firstChild);
+    }
+  }
+
+  // Lógica de cálculo en vivo para corte y despacho
+  function updateDespachoInfo() {
+    var now = new Date();
+    var parts = cutoffTime.split(":");
+    var cutH = parseInt(parts[0], 10) || 13;
+    var cutM = parseInt(parts[1], 10) || 0;
+
+    var cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), cutH, cutM, 0);
+    var diff = cutoffDate.getTime() - now.getTime();
+    var isBeforeCutoff = diff > 0;
+
+    if (!isBeforeCutoff) {
+      var tomorrowCutoff = new Date(cutoffDate.getTime() + 24 * 60 * 60 * 1000);
+      diff = tomorrowCutoff.getTime() - now.getTime();
+    }
+
+    var h = Math.floor(diff / (1000 * 60 * 60));
+    var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    var msgEl = document.getElementById(elementId + "-msg");
+    var timerEl = document.getElementById(elementId + "-timer-text");
+
+    if (msgEl) {
+      var rawMsg = isBeforeCutoff ? textBeforeCutoff : textAfterCutoff;
+      var diaReplacement = isBeforeCutoff ? "HOY" : "mañana";
+      msgEl.innerHTML = rawMsg.replace(/\{\{dia\}\}/g, '<span style="background:rgba(255,255,255,0.3);padding:2px 6px;border-radius:4px;font-weight:900;">' + diaReplacement + '</span>');
+    }
+
+    if (timerEl) {
+      timerEl.textContent = h + "h " + (m < 10 ? "0" : "") + m + "m";
+    }
+  }
+
+  updateDespachoInfo();
+  setInterval(updateDespachoInfo, 10000);
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+}
 })(); 
