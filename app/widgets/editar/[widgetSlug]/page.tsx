@@ -6,7 +6,6 @@ import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocio
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
 import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
 import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
-import MensajeAlertaEditor from '@/components/widgets/editors/MensajeAlertaEditor';
 import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
 import ResenasClientesEditor from '@/components/widgets/editors/ResenasClientesEditor';
 import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
@@ -249,18 +248,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  if (params.widgetSlug === 'mensaje-alerta') {
-    return (
-      <MensajeAlertaEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
   if (params.widgetSlug === 'mensaje-garantia') {
     return (
       <MensajeGarantiaEditor
@@ -310,4 +297,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-    }
+        }
