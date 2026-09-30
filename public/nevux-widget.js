@@ -3467,37 +3467,38 @@ function renderCuentaRegresiva(w) {
     }
   }
 
-  // Estilos visuales
-  var bgStyle = "background:" + gradStart + " !important;";
-  var borderStyle = "border:none !important;";
-  var borderRadius = "16px";
+  // Estilos visuales base
+  var bgCss = "background:" + gradStart + ";";
+  var borderCss = "border:none;";
+  var borderRadiusCss = "16px";
 
   if (template === "gradient") {
-    bgStyle = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ") !important;";
+    bgCss = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ");";
   } else if (template === "glass") {
-    bgStyle = "background:rgba(17,24,39,0.85) !important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);";
+    bgCss = "background:rgba(17,24,39,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);";
   } else if (template === "outline") {
-    bgStyle = "background:transparent !important;";
-    borderStyle = "border:2px dashed " + gradStart + " !important;";
+    bgCss = "background:transparent;";
+    borderCss = "border:2px dashed " + gradStart + ";";
   } else if (template === "neon") {
-    bgStyle = "background:#000000 !important;";
-    borderStyle = "border:2px solid " + gradEnd + " !important;";
+    bgCss = "background:#000000;";
+    borderCss = "border:2px solid " + gradEnd + ";";
   } else if (template === "pill") {
-    borderRadius = "999px";
+    borderRadiusCss = "999px";
+    bgCss = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ");";
   }
 
-  var padStyle = "18px 22px";
+  var padCss = "18px 22px";
   var titleSize = "16px";
   var digitSize = "20px";
   var digitPad = "6px 11px";
 
   if (blockSize === "compact") {
-    padStyle = "12px 16px";
+    padCss = "12px 16px";
     titleSize = "14px";
     digitSize = "16px";
     digitPad = "4px 8px";
   } else if (blockSize === "large") {
-    padStyle = "24px 28px";
+    padCss = "24px 28px";
     titleSize = "19px";
     digitSize = "24px";
     digitPad = "8px 14px";
@@ -3506,49 +3507,53 @@ function renderCuentaRegresiva(w) {
   var container = document.createElement("div");
   container.id = elementId;
   container.className = "nvx-widget nvx-timer-wrapper";
-  container.style.cssText = bgStyle + borderStyle +
-    "border-radius:" + borderRadius + " !important;" +
-    "padding:" + padStyle + " !important;" +
-    "margin:14px 0 !important;" +
-    "box-sizing:border-box !important;" +
-    "box-shadow:0 8px 24px rgba(0,0,0,0.08) !important;" +
-    "display:flex !important;" +
-    "flex-direction:column !important;" +
-    "align-items:center !important;" +
-    "justify-content:center !important;" +
-    "gap:12px !important;" +
-    "font-family:system-ui,-apple-system,sans-serif !important;" +
-    "color:" + textColor + " !important;" +
-    "text-align:center !important;" +
-    "width:100% !important;";
+  container.style.cssText = bgCss + borderCss +
+    "border-radius:" + borderRadiusCss + ";" +
+    "padding:" + padCss + ";" +
+    "margin:14px 0;" +
+    "box-sizing:border-box;" +
+    "box-shadow:0 8px 24px rgba(0,0,0,0.08);" +
+    "display:flex;" +
+    "flex-direction:column;" +
+    "align-items:center;" +
+    "justify-content:center;" +
+    "gap:12px;" +
+    "font-family:system-ui,-apple-system,sans-serif;" +
+    "color:" + textColor + ";" +
+    "text-align:center;" +
+    "width:100%;";
 
-  var titleHtml = title ? '<div style="font-size:' + titleSize + ' !important;font-weight:800 !important;line-height:1.2 !important;color:' + textColor + ' !important;">' + escapeHtml(title) + '</div>' : '';
+  var safeTitle = typeof escapeHtml === "function" ? escapeHtml(title) : title;
+  var titleHtml = title ? '<div style="font-size:' + titleSize + ';font-weight:800;line-height:1.2;color:' + textColor + ';">' + safeTitle + '</div>' : '';
 
   var couponHtml = "";
   if (coupon) {
-    couponHtml = '<div id="' + elementId + '-coupon" style="background:rgba(255,255,255,0.2) !important;border:1px dashed rgba(255,255,255,0.6) !important;border-radius:6px !important;padding:4px 10px !important;font-size:12px !important;font-weight:800 !important;letter-spacing:0.05em !important;cursor:pointer !important;user-select:none !important;color:' + textColor + ' !important;">🎟️ CUPÓN: ' + escapeHtml(coupon) + ' <span style="font-weight:600 !important;opacity:0.8 !important;">(Copiar)</span></div>';
+    var safeCoupon = typeof escapeHtml === "function" ? escapeHtml(coupon) : coupon;
+    couponHtml = '<div id="' + elementId + '-coupon" style="background:rgba(255,255,255,0.2);border:1px dashed rgba(255,255,255,0.6);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:800;letter-spacing:0.05em;cursor:pointer;user-select:none;color:' + textColor + ';">🎟️ CUPÓN: ' + safeCoupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span></div>';
   }
 
   var ctaHtml = "";
   if (ctaText && ctaUrl) {
-    ctaHtml = '<a href="' + escapeHtml(ctaUrl) + '" target="_blank" style="background:#ffffff !important;color:#111827 !important;border-radius:999px !important;padding:6px 16px !important;font-size:12px !important;font-weight:800 !important;text-decoration:none !important;display:inline-block !important;box-shadow:0 2px 6px rgba(0,0,0,0.15) !important;">' + escapeHtml(ctaText) + ' →</a>';
+    var safeCtaText = typeof escapeHtml === "function" ? escapeHtml(ctaText) : ctaText;
+    var safeCtaUrl = typeof escapeHtml === "function" ? escapeHtml(ctaUrl) : ctaUrl;
+    ctaHtml = '<a href="' + safeCtaUrl + '" target="_blank" style="background:#ffffff;color:#111827;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,0.15);">' + safeCtaText + ' →</a>';
   }
 
   container.innerHTML = titleHtml +
-    '<div style="display:flex !important;align-items:center !important;gap:8px !important;justify-content:center !important;">' +
-      '<div style="display:flex !important;flex-direction:column !important;align-items:center !important;">' +
-        '<div id="' + elementId + '-h" style="background:rgba(0,0,0,0.22) !important;border-radius:8px !important;padding:' + digitPad + ' !important;font-size:' + digitSize + ' !important;font-weight:900 !important;font-family:monospace !important;color:' + textColor + ' !important;">00</div>' +
-        '<span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.8 !important;margin-top:3px !important;font-weight:700 !important;color:' + textColor + ' !important;">Horas</span>' +
+    '<div style="display:flex;align-items:center;gap:8px;justify-content:center;">' +
+      '<div style="display:flex;flex-direction:column;align-items:center;">' +
+        '<div id="' + elementId + '-h" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;color:' + textColor + ';">00</div>' +
+        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;color:' + textColor + ';">Horas</span>' +
       '</div>' +
-      '<span style="font-size:18px !important;font-weight:900 !important;opacity:0.8 !important;color:' + textColor + ' !important;">:</span>' +
-      '<div style="display:flex !important;flex-direction:column !important;align-items:center !important;">' +
-        '<div id="' + elementId + '-m" style="background:rgba(0,0,0,0.22) !important;border-radius:8px !important;padding:' + digitPad + ' !important;font-size:' + digitSize + ' !important;font-weight:900 !important;font-family:monospace !important;color:' + textColor + ' !important;">00</div>' +
-        '<span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.8 !important;margin-top:3px !important;font-weight:700 !important;color:' + textColor + ' !important;">Min</span>' +
+      '<span style="font-size:18px;font-weight:900;opacity:0.8;color:' + textColor + ';">:</span>' +
+      '<div style="display:flex;flex-direction:column;align-items:center;">' +
+        '<div id="' + elementId + '-m" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;color:' + textColor + ';">00</div>' +
+        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;color:' + textColor + ';">Min</span>' +
       '</div>' +
-      '<span style="font-size:18px !important;font-weight:900 !important;opacity:0.8 !important;color:' + textColor + ' !important;">:</span>' +
-      '<div style="display:flex !important;flex-direction:column !important;align-items:center !important;">' +
-        '<div id="' + elementId + '-s" style="background:rgba(0,0,0,0.22) !important;border-radius:8px !important;padding:' + digitPad + ' !important;font-size:' + digitSize + ' !important;font-weight:900 !important;font-family:monospace !important;color:' + textColor + ' !important;">00</div>' +
-        '<span style="font-size:9px !important;text-transform:uppercase !important;opacity:0.8 !important;margin-top:3px !important;font-weight:700 !important;color:' + textColor + ' !important;">Seg</span>' +
+      '<span style="font-size:18px;font-weight:900;opacity:0.8;color:' + textColor + ';">:</span>' +
+      '<div style="display:flex;flex-direction:column;align-items:center;">' +
+        '<div id="' + elementId + '-s" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;color:' + textColor + ';">00</div>' +
+        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;color:' + textColor + ';">Seg</span>' +
       '</div>' +
     '</div>' +
     couponHtml +
@@ -3556,8 +3561,10 @@ function renderCuentaRegresiva(w) {
 
   // Inserción en la página
   if (location === "top_bar") {
-    container.style.borderRadius = "0";
-    container.style.margin = "0";
+    container.style.borderRadius = "0px";
+    container.style.margin = "0px";
+    container.style.position = "relative";
+    container.style.zIndex = "999999";
     var body = document.body;
     if (body) body.insertBefore(container, body.firstChild);
   } else {
@@ -3567,7 +3574,9 @@ function renderCuentaRegresiva(w) {
       ".js-product-buy-container",
       ".product-buy-container",
       "form.js-product-buyform",
-      ".js-add-to-cart-btn"
+      ".js-add-to-cart-btn",
+      ".product-form",
+      "#product_form"
     ];
 
     var buyFormTarget = null;
@@ -3586,8 +3595,12 @@ function renderCuentaRegresiva(w) {
         buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
       }
     } else {
-      var main = document.querySelector("main, #content, .main-content");
-      if (main) main.insertBefore(container, main.firstChild);
+      var main = document.querySelector("main, #content, .main-content, .js-product-container");
+      if (main) {
+        main.insertBefore(container, main.firstChild);
+      } else if (document.body) {
+        document.body.insertBefore(container, document.body.firstChild);
+      }
     }
   }
 
@@ -3608,7 +3621,7 @@ function renderCuentaRegresiva(w) {
         }
         couponBtn.innerHTML = "✅ ¡CUPÓN COPIADO!";
         setTimeout(function() {
-          couponBtn.innerHTML = "🎟️ CUPÓN: " + escapeHtml(coupon) + ' <span style="font-weight:600 !important;opacity:0.8 !important;">(Copiar)</span>';
+          couponBtn.innerHTML = "🎟️ CUPÓN: " + safeCoupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span>';
         }, 2500);
       });
     }
@@ -3643,7 +3656,7 @@ function renderCuentaRegresiva(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-}
+    }
 /* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
