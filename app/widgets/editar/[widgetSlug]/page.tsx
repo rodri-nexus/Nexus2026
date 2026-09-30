@@ -6,6 +6,7 @@ import HorarioAtencionEditor from '@/components/widgets/editors/HorarioAtencionE
 import CalculadoraAhorroEditor from '@/components/widgets/editors/CalculadoraAhorroEditor';
 import EdicionLimitadaEditor from '@/components/widgets/editors/EdicionLimitadaEditor';
 import ContadorVendidosEditor from '@/components/widgets/editors/ContadorVendidosEditor';
+import CuentaRegresivaEditor from '@/components/widgets/editors/CuentaRegresivaEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -58,6 +59,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: CUENTA REGRESIVA
+  if (params.widgetSlug === 'cuenta-regresiva') {
+    return (
+      <CuentaRegresivaEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: CONTADOR DE VENDIDOS
   if (params.widgetSlug === 'contador-vendidos') {
