@@ -49,7 +49,7 @@ interface Cfg {
   textColor: string;
   badgeBgColor: string;
   designStyle: 'full' | 'pill' | 'bordered' | 'none';
-  location: 'product_before' | 'product_after';
+  location: 'product_before' | 'product_after' | 'cart';
   campaignTheme: string;
 }
 
@@ -673,10 +673,11 @@ export default function InfoDespachoEditor({
               {/* UBICACIÓN */}
               <div>
                 <FieldLabel>¿Dónde mostrarlo?</FieldLabel>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginTop: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
                   {[
-                    { id: 'product_before', label: '⬆️ Arriba del botón Agregar al Carrito' },
-                    { id: 'product_after', label: '⬇️ Abajo del botón Agregar al Carrito' },
+                    { id: 'product_before', label: '⬆️ Arriba del botón' },
+                    { id: 'product_after', label: '⬇️ Abajo del botón' },
+                    { id: 'cart', label: '🛒 Carrito de compras' },
                   ].map((loc) => {
                     const active = cfg.location === loc.id;
                     return (
@@ -685,11 +686,11 @@ export default function InfoDespachoEditor({
                         type="button"
                         onClick={() => set('location', loc.id as any)}
                         style={{
-                          padding: '14px 12px', borderRadius: 10,
+                          padding: '12px 10px', borderRadius: 10,
                           border: active ? '2px solid #10B981' : '1.5px solid #e5e7eb',
                           background: active ? '#ecfdf5' : '#ffffff',
                           color: active ? '#059669' : '#000000',
-                          fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                          fontSize: 12, fontWeight: 700, cursor: 'pointer',
                           textAlign: 'center',
                           lineHeight: 1.3,
                         }}
@@ -805,4 +806,4 @@ export default function InfoDespachoEditor({
       </div>
     </div>
   );
-   }
+}
