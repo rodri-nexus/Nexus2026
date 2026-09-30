@@ -49,7 +49,7 @@ interface Cfg {
   textColor: string;
   badgeBgColor: string;
   designStyle: 'full' | 'pill' | 'bordered' | 'none';
-  location: 'product_before' | 'product_after' | 'cart';
+  location: 'product_before' | 'product_after';
   campaignTheme: string;
 }
 
@@ -266,7 +266,6 @@ export default function InfoDespachoEditor({
 
       if (diff <= 0) {
         isBefore = false;
-        // Si ya pasó el corte de hoy, calcular hacia el corte de mañana
         const tomorrowCutoff = new Date(cutoff.getTime() + 24 * 60 * 60 * 1000);
         diff = tomorrowCutoff.getTime() - now.getTime();
       }
@@ -364,7 +363,6 @@ export default function InfoDespachoEditor({
     { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí con amarillo sale.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
   ];
 
-  // Texto procesado con variables {{dia}} para el preview
   const getProcessedPreviewText = () => {
     const raw = remainingTime.isBeforeCutoff ? cfg.textBeforeCutoff : cfg.textAfterCutoff;
     const diaReplacement = remainingTime.isBeforeCutoff ? 'HOY' : 'mañana';
@@ -675,11 +673,10 @@ export default function InfoDespachoEditor({
               {/* UBICACIÓN */}
               <div>
                 <FieldLabel>¿Dónde mostrarlo?</FieldLabel>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginTop: 8 }}>
                   {[
-                    { id: 'product_before', label: '🏷️ Producto (Antes de botón)' },
-                    { id: 'product_after', label: '🏷️ Producto (Después de botón)' },
-                    { id: 'cart', label: '🛒 Carrito de compras' },
+                    { id: 'product_before', label: '⬆️ Arriba del botón Agregar al Carrito' },
+                    { id: 'product_after', label: '⬇️ Abajo del botón Agregar al Carrito' },
                   ].map((loc) => {
                     const active = cfg.location === loc.id;
                     return (
@@ -688,12 +685,13 @@ export default function InfoDespachoEditor({
                         type="button"
                         onClick={() => set('location', loc.id as any)}
                         style={{
-                          padding: '12px 10px', borderRadius: 10,
+                          padding: '14px 12px', borderRadius: 10,
                           border: active ? '2px solid #10B981' : '1.5px solid #e5e7eb',
                           background: active ? '#ecfdf5' : '#ffffff',
                           color: active ? '#059669' : '#000000',
-                          fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                          fontSize: 13, fontWeight: 700, cursor: 'pointer',
                           textAlign: 'center',
+                          lineHeight: 1.3,
                         }}
                       >
                         {loc.label}
@@ -807,4 +805,4 @@ export default function InfoDespachoEditor({
       </div>
     </div>
   );
-}
+   }
