@@ -1,5 +1,9 @@
 "use client";
 
+interface WidgetPreviewProps {
+  slug: string;
+}
+
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS WIDGETS (Sub-componentes)
    ═══════════════════════════════════════════ */
@@ -953,4 +957,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-          }
+                   }
