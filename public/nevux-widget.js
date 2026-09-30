@@ -3441,9 +3441,10 @@ function renderCuentaRegresiva(w) {
     textColor = t.text;
   }
 
-  // Lógica de tiempo objetivo
+  // Lógica de tiempo objetivo: storageKey vinculada a la configuración actual
   var targetTime = 0;
-  var storageKey = "nvx_timer_end_" + w.id;
+  var cleanDate = exactDate ? exactDate.replace(/[^a-zA-Z0-9]/g, "") : "";
+  var storageKey = "nvx_timer_end_" + w.id + "_" + timerType + "_" + durationMinutes + "_" + cleanDate;
 
   if (timerType === "date" && exactDate) {
     targetTime = new Date(exactDate).getTime();
@@ -3467,38 +3468,32 @@ function renderCuentaRegresiva(w) {
     }
   }
 
-  // Determinar unidades de tiempo a renderizar (Adaptativo)
+  // Determinar unidades a renderizar dinámicamente según configuración y duración
   var showDays = false;
   var showHours = false;
 
+  var unit = cfg.durationUnit;
+  if (!unit) {
+    if (durationMinutes >= 1440) unit = "days";
+    else if (durationMinutes >= 60) unit = "hours";
+    else unit = "minutes";
+  }
+
   if (timerType === "date" && exactDate) {
     var initialDiff = targetTime - new Date().getTime();
-    if (initialDiff > 24 * 60 * 60 * 1000) {
+    if (initialDiff >= 24 * 60 * 60 * 1000) {
       showDays = true;
       showHours = true;
-    } else if (initialDiff > 60 * 60 * 1000) {
+    } else if (initialDiff >= 60 * 60 * 1000) {
       showHours = true;
     }
   } else if (timerType === "daily") {
     showHours = true;
   } else {
-    // Modo minutos / tiempo fijo con unidades de la versión nueva
-    var unit = cfg.durationUnit;
-    if (!unit) {
-      // Retrocompatibilidad con widgets viejos
-      if (durationMinutes >= 1440) {
-        unit = "days";
-      } else if (durationMinutes >= 60) {
-        unit = "hours";
-      } else {
-        unit = "minutes";
-      }
-    }
-
-    if (unit === "days") {
+    if (unit === "days" || durationMinutes >= 1440) {
       showDays = true;
       showHours = true;
-    } else if (unit === "hours") {
+    } else if (unit === "hours" || durationMinutes >= 60) {
       showHours = true;
     }
   }
@@ -3566,7 +3561,7 @@ function renderCuentaRegresiva(w) {
         "color: " + textColor + " !important; " +
         "background: rgba(0,0,0,0.22) !important; " +
       "}";
-    
+
     styleEl.appendChild(document.createTextNode(cssText));
     document.head.appendChild(styleEl);
   }
@@ -3737,7 +3732,7 @@ function renderCuentaRegresiva(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+ }
 /* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
