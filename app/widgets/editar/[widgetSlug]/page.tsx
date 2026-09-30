@@ -7,6 +7,7 @@ import CalculadoraAhorroEditor from '@/components/widgets/editors/CalculadoraAho
 import EdicionLimitadaEditor from '@/components/widgets/editors/EdicionLimitadaEditor';
 import ContadorVendidosEditor from '@/components/widgets/editors/ContadorVendidosEditor';
 import CuentaRegresivaEditor from '@/components/widgets/editors/CuentaRegresivaEditor';
+import InfoDespachoEditor from '@/components/widgets/editors/InfoDespachoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -59,6 +60,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: INFORMACIÓN DE DESPACHO
+  if (params.widgetSlug === 'info-despacho') {
+    return (
+      <InfoDespachoEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: CUENTA REGRESIVA
   if (params.widgetSlug === 'cuenta-regresiva') {
@@ -151,4 +165,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-    }
+  }
