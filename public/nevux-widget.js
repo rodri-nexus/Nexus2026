@@ -6144,8 +6144,9 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
       }
     }
 }
- /* ═══════════════════════════════════════════
-     RENDER MEDIOS DE PAGO
+
+    /* ═══════════════════════════════════════════
+     RENDER MEDIOS DE PAGO (ES5 Pure & Robust Placement)
   ═══════════════════════════════════════════ */
   function renderMediosPago(w) {
     var cfg = w.config || {};
@@ -6153,11 +6154,13 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
       try { cfg = JSON.parse(cfg); } catch(e) { cfg = {}; }
     }
 
+    var currentPType = (typeof pageType !== "undefined") ? pageType : detectPageType();
+
     // Ubicaciones soportadas: "product" (por defecto), "home", "ambas"
     var ubicacion = cfg.ubicacion || "product"; 
-    if (ubicacion === "product" && pageType !== "product") return;
-    if (ubicacion === "home" && pageType !== "home") return;
-    if (ubicacion === "ambas" && pageType !== "product" && pageType !== "home") return;
+    if (ubicacion === "product" && currentPType !== "product") return;
+    if (ubicacion === "home" && currentPType !== "home") return;
+    if (ubicacion === "ambas" && currentPType !== "product" && currentPType !== "home") return;
 
     var exist = document.getElementById("nvx-mediospago-" + w.id);
     if (exist) return;
@@ -6200,7 +6203,7 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
       textColor = th.textColor;
     }
 
-    var subtextColor = isCustomTheme ? textColor : textColor;
+    var subtextColor = textColor;
     var securityColor = isCustomTheme ? th.accentColor : "#10B981";
 
     var borderRad = (cfg.bordesRedondeados !== undefined ? cfg.bordesRedondeados : 14) + "px";
@@ -6210,66 +6213,65 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
     if (!document.getElementById(styleId)) {
       var styleEl = document.createElement("style");
       styleEl.id = styleId;
-      styleEl.innerHTML = `
-        #nvx-mediospago-${w.id} {
-          background: ${bgColor} !important;
-          border: 1.5px solid ${borderColor} !important;
-          border-radius: ${borderRad} !important;
-          padding: ${pageType === "home" ? "20px 18px" : padInt} !important;
-          margin: ${pageType === "home" ? "28px auto" : "16px 0"} !important;
-          max-width: ${pageType === "home" ? "1100px" : "100%"} !important;
-          box-shadow: ${isCustomTheme ? '0 4px 20px ' + borderColor + '22' : '0 4px 14px rgba(0,0,0,0.03)'} !important;
-          font-family: system-ui, -apple-system, sans-serif !important;
-          box-sizing: border-box !important;
-          width: 100% !important;
-          text-align: center !important;
-          transition: all 0.3s ease !important;
-        }
-        #nvx-mediospago-${w.id} .nvx-mp-title {
-          font-size: ${pageType === "home" ? "14px" : "13px"} !important;
-          font-weight: 800 !important;
-          color: ${textColor} !important;
-          letter-spacing: -0.01em !important;
-          margin: 0 0 3px 0 !important;
-        }
-        #nvx-mediospago-${w.id} .nvx-mp-subtext {
-          font-size: 11px !important;
-          color: ${subtextColor} !important;
-          opacity: ${isCustomTheme ? '0.8' : '0.65'} !important;
-          margin: 0 0 12px 0 !important;
-        }
-        #nvx-mediospago-${w.id} .nvx-mp-grid {
-          display: flex !important;
-          flex-wrap: wrap !important;
-          gap: 7px !important;
-          justify-content: center !important;
-          align-items: center !important;
-        }
-        #nvx-mediospago-${w.id} .nvx-mp-badge {
-          border: 1px solid #e5e7eb !important;
-          border-radius: 7px !important;
-          padding: 5px 10px !important;
-          font-size: 11px !important;
-          font-weight: 800 !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
-          user-select: none !important;
-          line-height: 1 !important;
-        }
-        #nvx-mediospago-${w.id} .nvx-mp-security {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 5px !important;
-          margin-top: 12px !important;
-          font-size: 10.5px !important;
-          color: ${securityColor} !important;
-          font-weight: 700 !important;
-          transition: color 0.3s ease !important;
-        }
-      `;
+      styleEl.textContent =
+        "#nvx-mediospago-" + w.id + " {" +
+          "background: " + bgColor + " !important;" +
+          "border: 1.5px solid " + borderColor + " !important;" +
+          "border-radius: " + borderRad + " !important;" +
+          "padding: " + (currentPType === "home" ? "20px 18px" : padInt) + " !important;" +
+          "margin: " + (currentPType === "home" ? "28px auto" : "16px 0") + " !important;" +
+          "max-width: " + (currentPType === "home" ? "1100px" : "100%") + " !important;" +
+          "box-shadow: " + (isCustomTheme ? '0 4px 20px ' + borderColor + '22' : '0 4px 14px rgba(0,0,0,0.03)') + " !important;" +
+          "font-family: system-ui, -apple-system, sans-serif !important;" +
+          "box-sizing: border-box !important;" +
+          "width: 100% !important;" +
+          "text-align: center !important;" +
+          "transition: all 0.3s ease !important;" +
+        "}" +
+        "#nvx-mediospago-" + w.id + " .nvx-mp-title {" +
+          "font-size: " + (currentPType === "home" ? "14px" : "13px") + " !important;" +
+          "font-weight: 800 !important;" +
+          "color: " + textColor + " !important;" +
+          "letter-spacing: -0.01em !important;" +
+          "margin: 0 0 3px 0 !important;" +
+        "}" +
+        "#nvx-mediospago-" + w.id + " .nvx-mp-subtext {" +
+          "font-size: 11px !important;" +
+          "color: " + subtextColor + " !important;" +
+          "opacity: " + (isCustomTheme ? '0.8' : '0.65') + " !important;" +
+          "margin: 0 0 12px 0 !important;" +
+        "}" +
+        "#nvx-mediospago-" + w.id + " .nvx-mp-grid {" +
+          "display: flex !important;" +
+          "flex-wrap: wrap !important;" +
+          "gap: 7px !important;" +
+          "justify-content: center !important;" +
+          "align-items: center !important;" +
+        "}" +
+        "#nvx-mediospago-" + w.id + " .nvx-mp-badge {" +
+          "border: 1px solid #e5e7eb !important;" +
+          "border-radius: 7px !important;" +
+          "padding: 5px 10px !important;" +
+          "font-size: 11px !important;" +
+          "font-weight: 800 !important;" +
+          "display: inline-flex !important;" +
+          "align-items: center !important;" +
+          "justify-content: center !important;" +
+          "box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;" +
+          "user-select: none !important;" +
+          "line-height: 1 !important;" +
+        "}" +
+        "#nvx-mediospago-" + w.id + " .nvx-mp-security {" +
+          "display: flex !important;" +
+          "align-items: center !important;" +
+          "justify-content: center !important;" +
+          "gap: 5px !important;" +
+          "margin-top: 12px !important;" +
+          "font-size: 10.5px !important;" +
+          "color: " + securityColor + " !important;" +
+          "font-weight: 700 !important;" +
+          "transition: color 0.3s ease !important;" +
+        "}";
       document.head.appendChild(styleEl);
     }
 
@@ -6288,31 +6290,42 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
     if (mostrarUala) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#e31c79;">Ualá</span>';
     if (mostrarCabal) badgesHtml += '<span class="nvx-mp-badge" style="background:#ffffff; color:#004b93;">Cabal</span>';
 
-    div.innerHTML = `
-      <div class="nvx-mp-title">${escapeHtml(titulo)}</div>
-      ${subtexto ? '<div class="nvx-mp-subtext">' + escapeHtml(subtexto) + '</div>' : ''}
-      <div class="nvx-mp-grid">
-        ${badgesHtml}
-      </div>
-      <div class="nvx-mp-security">
-        <span>🛡️ Pago 100% protegido y encriptado</span>
-      </div>
-    `;
+    div.innerHTML = '<div class="nvx-mp-title">' + escapeHtml(titulo) + '</div>' +
+      (subtexto ? '<div class="nvx-mp-subtext">' + escapeHtml(subtexto) + '</div>' : '') +
+      '<div class="nvx-mp-grid">' + badgesHtml + '</div>' +
+      '<div class="nvx-mp-security"><span>🛡️ Pago 100% protegido y encriptado</span></div>';
 
-    // INYECCIÓN BASADA EN LA UBICACIÓN DETECTADA
-    if (pageType === "product") {
-      var targetProduct = document.querySelector("form[action*='/cart/add']") || 
-                          document.querySelector(".js-product-buy-container") ||
-                          document.querySelector(".product-buy-panel") ||
-                          document.querySelector(".js-product-form") ||
-                          document.querySelector(".product-form");
-      if (!targetProduct) return;
-      if (targetProduct.nextSibling) {
-        targetProduct.parentNode.insertBefore(div, targetProduct.nextSibling);
-      } else {
-        targetProduct.parentNode.appendChild(div);
+    // INYECCIÓN BASADA EN LA UBICACIÓN DETECTADA CON FALLBACKS
+    if (currentPType === "product") {
+      var targetProductSelectors = [
+        "form[action*='/cart/add']",
+        ".js-product-buy-container",
+        ".product-buy-panel",
+        ".js-product-form",
+        ".product-form",
+        ".product-detail",
+        ".product-details",
+        ".js-product-container",
+        ".product-container",
+        "h1.product-name",
+        "h1"
+      ];
+      var targetProduct = null;
+      for (var p = 0; p < targetProductSelectors.length; p++) {
+        var elProd = document.querySelector(targetProductSelectors[p]);
+        if (elProd) { targetProduct = elProd; break; }
       }
-    } else if (pageType === "home") {
+      if (targetProduct && targetProduct.parentNode) {
+        if (targetProduct.nextSibling) {
+          targetProduct.parentNode.insertBefore(div, targetProduct.nextSibling);
+        } else {
+          targetProduct.parentNode.appendChild(div);
+        }
+      } else {
+        var mainProd = document.querySelector("main") || document.body;
+        mainProd.appendChild(div);
+      }
+    } else if (currentPType === "home") {
       var newsletterSelectors = [
         "[data-store='home-newsletter']",
         ".section-newsletter",
@@ -6347,7 +6360,8 @@ function buildBundleCantidadHtml(cfg, state, cantidadReal) {
         }
       }
     }
-    }
+          }
+  
 /* ═══════════════════════════════════════════
      RENDER TABLA DE TALLES (CON TELEMETRÍA REAL)
   ═══════════════════════════════════════════ */
