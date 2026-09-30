@@ -3620,7 +3620,7 @@ function renderCuentaRegresiva(w) {
     nvxTrack(w.id, "impression");
   }
                         }
-  /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
 function renderInfoDespacho(w) {
@@ -3680,14 +3680,14 @@ function renderInfoDespacho(w) {
   container.className = "nvx-widget nvx-despacho-wrapper";
   container.style.cssText = bgStyle + borderStyle +
     "border-radius:" + borderRadius + ";" +
-    "padding:16px 20px;" +
-    "margin:14px 0;" +
+    "padding:14px 18px;" +
+    "margin:12px 0;" +
     "box-sizing:border-box;" +
     "box-shadow:" + (designStyle === "none" ? "none" : "0 4px 14px rgba(0,0,0,0.06)") + ";" +
     "display:flex;" +
     "align-items:center;" +
     "justify-content:space-between;" +
-    "gap:16px;" +
+    "gap:14px;" +
     "font-family:system-ui,-apple-system,sans-serif;" +
     "color:" + actualTextColor + ";" +
     "width:100%;";
@@ -3710,17 +3710,71 @@ function renderInfoDespacho(w) {
     '</div>' +
     timerBadgeHtml;
 
-  // Inserción en la ficha del producto
-  var targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
-  if (targetEl && targetEl.parentNode) {
-    if (location === "product_after") {
-      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+  // Búsqueda quirúrgica del bloque del botón de compra
+  var buyFormSelectors = [
+    "form[action*='/cart/add']",
+    "form.js-product-form",
+    ".js-product-buy-container",
+    ".product-buy-container",
+    "form.js-product-buyform",
+    ".js-add-to-cart-btn"
+  ];
+
+  var buyFormTarget = null;
+  for (var b = 0; b < buyFormSelectors.length; b++) {
+    var el = document.querySelector(buyFormSelectors[b]);
+    if (el) {
+      buyFormTarget = el;
+      break;
+    }
+  }
+
+  if (location === "cart") {
+    var cartSelectors = [
+      "[data-store='cart-form']",
+      ".js-cart-form",
+      "#cart-form",
+      ".cart-table",
+      ".cart-summary",
+      ".js-cart-container",
+      ".js-ajax-cart-container",
+      ".js-checkout-button",
+      "[data-store='cart-checkout-button']",
+      "form[action*='/cart']"
+    ];
+
+    var cartTarget = null;
+    for (var c = 0; c < cartSelectors.length; c++) {
+      var found = document.querySelector(cartSelectors[c]);
+      if (found) {
+        cartTarget = found;
+        break;
+      }
+    }
+
+    if (cartTarget && cartTarget.parentNode) {
+      cartTarget.parentNode.insertBefore(container, cartTarget);
+    } else if (buyFormTarget && buyFormTarget.parentNode) {
+      buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
     } else {
-      targetEl.parentNode.insertBefore(container, targetEl);
+      var mainCart = document.querySelector("main, #content, .main-content");
+      if (mainCart) mainCart.insertBefore(container, mainCart.firstChild);
+    }
+  } else if (location === "product_after") {
+    if (buyFormTarget && buyFormTarget.parentNode) {
+      buyFormTarget.parentNode.insertBefore(container, buyFormTarget.nextSibling);
+    } else {
+      var mainProdA = document.querySelector("main, #content, .main-content");
+      if (mainProdA) mainProdA.appendChild(container);
     }
   } else {
-    var mainProd = document.querySelector("main, #content, .main-content");
-    if (mainProd) mainProd.insertBefore(container, mainProd.firstChild);
+    // product_before (Default: justo arriba del botón/formulario de compra)
+    if (buyFormTarget && buyFormTarget.parentNode) {
+      buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
+    } else {
+      var mainProdB = document.querySelector("main, #content, .main-content");
+      if (mainProdB) mainProdB.insertBefore(container, mainProdB.firstChild);
+    }
   }
 
   // Lógica de cálculo en vivo para corte y despacho
@@ -3763,5 +3817,5 @@ function renderInfoDespacho(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-                     }
+      }
 })(); 
