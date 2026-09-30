@@ -38,20 +38,8 @@ function renderPreview(slug: string) {
       return <HorarioAtencionPreview />;
     case "marquee-novedades":
       return <MarqueeNovedadesPreview />;
-    case "ruleta-descuentos":
-      return <RuletaDescuentosPreview />;
-    case "resenas-foto":
-      return <ResenasFotoPreview />;
-    case "slider-categorias":
-      return <SliderCategoriasPreview />;
-    case "menu-circulos":
-      return <MenuCirculosPreview />;
     case "tabla-talles":
       return <TablaTallesPreview />;
-    case "medios-pago":
-      return <MediosPagoPreview />;
-    case "comparador-marca":
-      return <ComparadorMarcaPreview />;
     case "badge-cupon":
       return <BadgeCuponPreview />;
     case "info-compra":
@@ -59,8 +47,6 @@ function renderPreview(slug: string) {
     case "contador-visitas":
     case "visitor-counter":
       return <ContadorVisitasPreview />;
-    case "cuenta-regresiva":
-      return <CuentaRegresivaPreview />;
     case "bundle-cantidad":
       return <BundleCantidadPreview />;
     case "bundle-promociones":
@@ -77,8 +63,6 @@ function renderPreview(slug: string) {
       return <CajaOpinionesPreview />;
     case "info-envio":
       return <InfoEnvioPreview />;
-    case "info-despacho":
-      return <InfoDespachoPreview />;
     case "barra-progreso":
       return <BarraProgresoPreview />;
     default:
@@ -89,50 +73,6 @@ function renderPreview(slug: string) {
 /* ═══════════════════════════════════════════
    PREVIEWS DE LOS WIDGETS
    ═══════════════════════════════════════════ */
-
-function CuentaRegresivaPreview() {
-  const cells = ["12", "34", "56"];
-  return (
-    <div
-      style={{
-        background: "#000000",
-        borderRadius: "8px",
-        padding: "10px 14px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "6px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-      }}
-    >
-      <div style={{ fontSize: "9px", color: "#10B981", fontWeight: 800, letterSpacing: "0.03em" }}>
-        ⏰ OFERTA TERMINA EN
-      </div>
-      <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
-        {cells.map((c, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <div
-              style={{
-                background: "#10B981",
-                color: "#ffffff",
-                padding: "3px 6px",
-                borderRadius: "4px",
-                fontSize: "13px",
-                fontWeight: 800,
-                fontVariantNumeric: "tabular-nums",
-              }}
-            >
-              {c}
-            </div>
-            {i < cells.length - 1 && (
-              <span style={{ color: "#ffffff", fontWeight: 800 }}>:</span>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function ContadorVendidosPreview() {
   return (
@@ -417,238 +357,6 @@ function MarqueeNovedadesPreview() {
   );
 }
 
-function RuletaDescuentosPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        borderRadius: "10px",
-        padding: "6px 8px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "4px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-        border: "1.5px solid #10B981",
-      }}
-    >
-      <div style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827", letterSpacing: "0.02em" }}>
-        🎡 ¡GIRÁ Y GANÁ!
-      </div>
-      
-      <div
-        style={{
-          width: "36px",
-          height: "36px",
-          borderRadius: "50%",
-          border: "2px solid #111827",
-          background: "conic-gradient(#10B981 0deg 60deg, #111827 60deg 120deg, #10B981 120deg 180deg, #111827 180deg 240deg, #10B981 240deg 300deg, #111827 300deg 360deg)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          position: "relative",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-        }}
-      >
-        <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#ffffff", border: "1px solid #111827" }} />
-      </div>
-
-      <div style={{ fontSize: "6px", color: "#6b7280", lineHeight: 1 }}>
-        Ingresá tu email
-      </div>
-
-      <div
-        style={{
-          background: "#10B981",
-          color: "#ffffff",
-          fontSize: "6.5px",
-          fontWeight: 800,
-          padding: "2px 8px",
-          borderRadius: "999px",
-        }}
-      >
-        ¡Girar Ruleta!
-      </div>
-    </div>
-  );
-}
-
-function ResenasFotoPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        borderRadius: "10px",
-        padding: "6px 8px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-        border: "1.5px solid #e5e7eb",
-      }}
-    >
-      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center", letterSpacing: "0.02em" }}>
-        OPINIONES CON FOTO
-      </div>
-      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
-        {[
-          { name: "Sofía R.", text: "¡Hermosa campera!", img: "🧥", stars: "★★★★★" },
-          { name: "Lucas M.", text: "10/10 la calidad.", img: "👕", stars: "★★★★★" },
-        ].map((r, i) => (
-          <div
-            key={i}
-            style={{
-              width: "60px",
-              background: "#f9fafb",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              padding: "4px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "2px",
-            }}
-          >
-            <div style={{ width: "100%", height: "28px", background: "#e5e7eb", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}>
-              {r.img}
-            </div>
-            <div style={{ color: "#fbbf24", fontSize: "6.5px", lineHeight: 1 }}>{r.stars}</div>
-            <div style={{ fontSize: "5.5px", color: "#111827", fontWeight: 700, lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {r.text}
-            </div>
-            <div style={{ fontSize: "5px", color: "#6b7280", display: "flex", alignItems: "center", gap: "1px" }}>
-              <span style={{ color: "#10B981", fontWeight: 800 }}>✓</span> {r.name}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SliderCategoriasPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        borderRadius: "10px",
-        padding: "6px 8px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-        border: "1.5px solid #e5e7eb",
-      }}
-    >
-      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center", letterSpacing: "0.02em" }}>
-        EXPLORÁ COLECCIONES
-      </div>
-      <div style={{ display: "flex", gap: "6px", justifyContent: "center" }}>
-        {[
-          { title: "HOT SALE", sub: "-40% OFF", bg: "#1f2937", isHot: true },
-          { title: "Hombre", sub: "Nueva Temp", bg: "#374151", isHot: false },
-          { title: "Mujer", sub: "Tendencias", bg: "#4b5563", isHot: false },
-        ].map((card, i) => (
-          <div
-            key={i}
-            style={{
-              width: "44px",
-              height: "56px",
-              borderRadius: "6px",
-              background: card.bg,
-              position: "relative",
-              overflow: "hidden",
-              border: card.isHot ? "1.5px solid #10B981" : "1px solid rgba(0,0,0,0.1)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-end",
-              padding: "3px",
-              boxSizing: "border-box",
-            }}
-          >
-            {card.isHot && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "2px",
-                  right: "2px",
-                  background: "#10B981",
-                  color: "#ffffff",
-                  fontSize: "5px",
-                  fontWeight: 900,
-                  padding: "0.5px 3px",
-                  borderRadius: "999px",
-                }}
-              >
-                HOT
-              </div>
-            )}
-            <div style={{ fontSize: "6px", fontWeight: 800, color: "#ffffff", lineHeight: 1.1 }}>
-              {card.title}
-            </div>
-            <div style={{ fontSize: "4.5px", color: "rgba(255,255,255,0.8)", lineHeight: 1 }}>
-              {card.sub}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MenuCirculosPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        borderRadius: "10px",
-        padding: "8px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "5px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-        border: "1.5px solid #e5e7eb",
-      }}
-    >
-      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", letterSpacing: "0.02em" }}>
-        CATEGORÍAS DESTACADAS
-      </div>
-      <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
-        {[
-          { name: "Ofertas", icon: "🔥", active: true },
-          { name: "Novedades", icon: "✨", active: false },
-          { name: "Remeras", icon: "👕", active: false },
-        ].map((c, i) => (
-          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-            <div
-              style={{
-                width: "24px",
-                height: "24px",
-                borderRadius: "50%",
-                border: c.active ? "2px solid #10B981" : "1.5px solid #e5e7eb",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "11px",
-                background: "#f9fafb",
-              }}
-            >
-              {c.icon}
-            </div>
-            <span style={{ fontSize: "6.5px", fontWeight: c.active ? 800 : 600, color: "#111827" }}>
-              {c.name}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function TablaTallesPreview() {
   return (
     <div
@@ -723,90 +431,6 @@ function TablaTallesPreview() {
         <div style={{ fontWeight: 800 }}>M</div>
         <div>93-97</div>
         <div>75-79</div>
-      </div>
-    </div>
-  );
-}
-
-function MediosPagoPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #e5e7eb",
-        borderRadius: "10px",
-        padding: "8px 10px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "6px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-      }}
-    >
-      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#000000", textAlign: "center" }}>
-        MEDIOS DE PAGO ACEPTADOS
-      </div>
-      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
-        <span style={{ fontSize: "7px", fontWeight: 800, color: "#1a1f71", background: "#f3f4f6", padding: "2px 5px", borderRadius: "4px" }}>
-          VISA
-        </span>
-        <span style={{ fontSize: "7px", fontWeight: 800, color: "#eb001b", background: "#f3f4f6", padding: "2px 5px", borderRadius: "4px" }}>
-          Mastercard
-        </span>
-        <span style={{ fontSize: "7px", fontWeight: 800, color: "#009ee3", background: "#f3f4f6", padding: "2px 5px", borderRadius: "4px" }}>
-          Mercado Pago
-        </span>
-        <span style={{ fontSize: "7px", fontWeight: 800, color: "#059669", background: "#ecfdf5", padding: "2px 5px", borderRadius: "4px" }}>
-          🏦 Transferencia
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function ComparadorMarcaPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        border: "1.5px solid #e5e7eb",
-        borderRadius: "10px",
-        padding: "8px 10px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-      }}
-    >
-      <div style={{ fontSize: "8px", fontWeight: 800, color: "#000000", textAlign: "center", marginBottom: "2px" }}>
-        ¿POR QUÉ ELEGIRNOS?
-      </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr",
-          background: "#f9fafb",
-          border: "1px solid #e5e7eb",
-          borderRadius: "6px",
-          overflow: "hidden",
-          fontSize: "6.5px",
-          fontWeight: 800,
-          textAlign: "center",
-        }}
-      >
-        <div style={{ padding: "3px 4px", textAlign: "left", color: "#6b7280" }}>BENEFICIO</div>
-        <div style={{ padding: "3px 4px", background: "#ecfdf5", color: "#059669" }}>VOS</div>
-        <div style={{ padding: "3px 4px", color: "#9ca3af" }}>OTROS</div>
-
-        <div style={{ padding: "3px 4px", textAlign: "left", borderTop: "1px solid #f3f4f6", fontWeight: 600 }}>Envío Rápido</div>
-        <div style={{ padding: "3px 4px", background: "#ecfdf5", color: "#10B981", borderTop: "1px solid #f3f4f6", fontWeight: 900 }}>✓</div>
-        <div style={{ padding: "3px 4px", color: "#9ca3af", borderTop: "1px solid #f3f4f6" }}>✗</div>
-
-        <div style={{ padding: "3px 4px", textAlign: "left", borderTop: "1px solid #f3f4f6", fontWeight: 600 }}>Garantía Total</div>
-        <div style={{ padding: "3px 4px", background: "#ecfdf5", color: "#10B981", borderTop: "1px solid #f3f4f6", fontWeight: 900 }}>✓</div>
-        <div style={{ padding: "3px 4px", color: "#9ca3af", borderTop: "1px solid #f3f4f6" }}>✗</div>
       </div>
     </div>
   );
@@ -1274,33 +898,6 @@ function InfoEnvioPreview() {
   );
 }
 
-function InfoDespachoPreview() {
-  return (
-    <div
-      style={{
-        background: "#ecfdf5",
-        border: "1.5px solid #10B981",
-        borderRadius: "8px",
-        padding: "8px 10px",
-        width: "82%",
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-      }}
-    >
-      <div style={{ fontSize: "18px" }}>📦</div>
-      <div>
-        <div style={{ fontSize: "9.5px", fontWeight: 800, color: "#000000" }}>
-          Despacho en 24-48hs
-        </div>
-        <div style={{ fontSize: "8px", color: "#000000", opacity: 0.7 }}>
-          Comprando antes de las 15:00hs
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function BarraProgresoPreview() {
   return (
     <div style={{ width: "82%" }}>
@@ -1409,4 +1006,4 @@ function DefaultPreview() {
       </div>
     </div>
   );
-          }
+    }
