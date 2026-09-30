@@ -1,12 +1,10 @@
 // app/widgets/editar/[widgetSlug]/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
-import CuentaRegresivaEditor from '@/components/widgets/editors/CuentaRegresivaEditor';
 import BarraProgresoEditor from '@/components/widgets/editors/BarraProgresoEditor';
 import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
 import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
-import InformacionDespachoEditor from '@/components/widgets/editors/InformacionDespachoEditor';
 import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
 import MensajeAlertaEditor from '@/components/widgets/editors/MensajeAlertaEditor';
 import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
@@ -15,13 +13,7 @@ import SliderVideoEditor from '@/components/widgets/editors/SliderVideoEditor';
 import ContadorVisitasEditor from '@/components/widgets/editors/ContadorVisitasEditor';
 import InfoCompraEditor from '@/components/widgets/editors/InfoCompraEditor';
 import BadgeCuponEditor from '@/components/widgets/editors/BadgeCuponEditor';
-import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaEditor';
-import MediosPagoEditor from '@/components/widgets/editors/MediosPagoEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
-import MenuCirculosEditor from '@/components/widgets/editors/MenuCirculosEditor';
-import SliderCategoriasEditor from '@/components/widgets/editors/SliderCategoriasEditor';
-import ResenasFotoEditor from '@/components/widgets/editors/ResenasFotoEditor';
-import RuletaDescuentosEditor from '@/components/widgets/editors/RuletaDescuentosEditor';
 import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedadesEditor';
 import HorarioAtencionEditor from '@/components/widgets/editors/HorarioAtencionEditor';
 import CalculadoraAhorroEditor from '@/components/widgets/editors/CalculadoraAhorroEditor';
@@ -79,19 +71,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
-
-  // WIDGET: CUENTA REGRESIVA
-  if (params.widgetSlug === 'cuenta-regresiva') {
-    return (
-      <CuentaRegresivaEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
 
   // WIDGET: CONTADOR DE VENDIDOS
   if (params.widgetSlug === 'contador-vendidos') {
@@ -158,88 +137,10 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  // WIDGET: RULETA DE DESCUENTOS
-  if (params.widgetSlug === 'ruleta-descuentos') {
-    return (
-      <RuletaDescuentosEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  // WIDGET: RESEÑAS CON FOTO (UGC)
-  if (params.widgetSlug === 'resenas-foto') {
-    return (
-      <ResenasFotoEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  // WIDGET: SLIDER DE CATEGORÍAS (COLECCIONES)
-  if (params.widgetSlug === 'slider-categorias') {
-    return (
-      <SliderCategoriasEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  // WIDGET: MENÚ DE CÍRCULOS (HISTORIAS)
-  if (params.widgetSlug === 'menu-circulos') {
-    return (
-      <MenuCirculosEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
   // WIDGET: TABLA DE TALLES
   if (params.widgetSlug === 'tabla-talles') {
     return (
       <TablaTallesEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  // WIDGET: MEDIOS DE PAGO
-  if (params.widgetSlug === 'medios-pago') {
-    return (
-      <MediosPagoEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
-  // WIDGET: COMPARADOR DE MARCA
-  if (params.widgetSlug === 'comparador-marca') {
-    return (
-      <ComparadorMarcaEditor
         widgetDefinition={widgetDef}
         existingWidget={existingWidget}
         targetType={targetType as 'product' | 'all'}
@@ -336,18 +237,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     );
   }
 
-  if (params.widgetSlug === 'info-despacho') {
-    return (
-      <InformacionDespachoEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
-  }
-
   if (params.widgetSlug === 'info-envio') {
     return (
       <InformacionEnvioEditor
@@ -421,4 +310,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-      }
+    }
