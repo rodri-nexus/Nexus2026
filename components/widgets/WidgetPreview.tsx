@@ -8,11 +8,54 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function InfoDespachoPreview() {
+  return (
+    <div
+      style={{
+        background: "#10B981",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+        color: "#ffffff",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1 }}>
+        <span style={{ fontSize: "11px" }}>📦</span>
+        <div style={{ fontSize: "7px", fontWeight: 800, lineHeight: 1.2 }}>
+          Despachamos <strong>HOY</strong>
+        </div>
+      </div>
+      <div
+        style={{
+          background: "rgba(255, 255, 255, 0.25)",
+          borderRadius: "6px",
+          padding: "3px 6px",
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <span style={{ fontSize: "5px", textTransform: "uppercase", fontWeight: 700, opacity: 0.9 }}>
+          Te quedan
+        </span>
+        <span style={{ fontSize: "8px", fontWeight: 900, fontFamily: "monospace" }}>
+          2h 15m
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function CuentaRegresivaPreview() {
   return (
     <div
       style={{
-        background: "linear-gradient(135deg, #ef4444, #eab308)",
+        background: "linear-gradient(135deg, #10B981, #059669)",
         borderRadius: "10px",
         padding: "8px 10px",
         width: "92%",
@@ -21,7 +64,7 @@ function CuentaRegresivaPreview() {
         alignItems: "center",
         justifyContent: "center",
         gap: "6px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
         color: "#ffffff",
       }}
     >
@@ -416,6 +459,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "info-despacho":
+      return <InfoDespachoPreview />;
     case "cuenta-regresiva":
       return <CuentaRegresivaPreview />;
     case "contador-vendidos":
@@ -457,4 +502,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-          }
+        }
