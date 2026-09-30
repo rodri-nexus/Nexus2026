@@ -3411,7 +3411,7 @@ function renderCuentaRegresiva(w) {
   }
 
   var timerType = cfg.timerType || "minutes";
-  var durationMinutes = parseInt(cfg.durationMinutes, 10) || 30;
+  var durationMinutes = parseInt(cfg.durationMinutes, 10) || 15;
   var exactDate = cfg.exactDate || "";
   var title = cfg.title || "¡Oferta por tiempo limitado!";
   var blockSize = cfg.blockSize || "normal";
@@ -3467,24 +3467,46 @@ function renderCuentaRegresiva(w) {
     }
   }
 
-  // Estilos visuales base
-  var bgCss = "background:" + gradStart + ";";
-  var borderCss = "border:none;";
-  var borderRadiusCss = "16px";
+  // Determinar unidades de tiempo a renderizar (Adaptativo)
+  var showDays = false;
+  var showHours = false;
 
-  if (template === "gradient") {
-    bgCss = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ");";
-  } else if (template === "glass") {
-    bgCss = "background:rgba(17,24,39,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);";
-  } else if (template === "outline") {
-    bgCss = "background:transparent;";
-    borderCss = "border:2px dashed " + gradStart + ";";
-  } else if (template === "neon") {
-    bgCss = "background:#000000;";
-    borderCss = "border:2px solid " + gradEnd + ";";
-  } else if (template === "pill") {
+  if (timerType === "date" && exactDate) {
+    var initialDiff = targetTime - new Date().getTime();
+    if (initialDiff > 24 * 60 * 60 * 1000) {
+      showDays = true;
+      showHours = true;
+    } else if (initialDiff > 60 * 60 * 1000) {
+      showHours = true;
+    }
+  } else if (timerType === "daily") {
+    showHours = true;
+  } else {
+    // Modo minutos / tiempo fijo con unidades de la versión nueva
+    var unit = cfg.durationUnit;
+    if (!unit) {
+      // Retrocompatibilidad con widgets viejos
+      if (durationMinutes >= 1440) {
+        unit = "days";
+      } else if (durationMinutes >= 60) {
+        unit = "hours";
+      } else {
+        unit = "minutes";
+      }
+    }
+
+    if (unit === "days") {
+      showDays = true;
+      showHours = true;
+    } else if (unit === "hours") {
+      showHours = true;
+    }
+  }
+
+  // Estilos visuales base
+  var borderRadiusCss = "16px";
+  if (template === "pill") {
     borderRadiusCss = "999px";
-    bgCss = "background:linear-gradient(135deg, " + gradStart + ", " + gradEnd + ");";
   }
 
   var padCss = "18px 22px";
@@ -3504,14 +3526,56 @@ function renderCuentaRegresiva(w) {
     digitPad = "8px 14px";
   }
 
+  // Inyección de estilos dinámicos para anular de forma segura cualquier override de Tiendanube
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var bgVal = gradStart;
+    if (template === "gradient") {
+      bgVal = "linear-gradient(135deg, " + gradStart + ", " + gradEnd + ")";
+    } else if (template === "glass") {
+      bgVal = "rgba(17,24,39,0.85)";
+    } else if (template === "outline") {
+      bgVal = "transparent";
+    } else if (template === "neon") {
+      bgVal = "#000000";
+    }
+
+    var borderVal = "none";
+    if (template === "outline") {
+      borderVal = "2px dashed " + gradStart;
+    } else if (template === "neon") {
+      borderVal = "2px solid " + gradEnd;
+    }
+
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    var cssText =
+      "#" + elementId + " { " +
+        "background: " + bgVal + " !important; " +
+        "border: " + borderVal + " !important; " +
+        "border-radius: " + borderRadiusCss + " !important; " +
+        "padding: " + padCss + " !important; " +
+        "color: " + textColor + " !important; " +
+        "box-sizing: border-box !important;" +
+      "} " +
+      "#" + elementId + " .nvx-text { " +
+        "color: " + textColor + " !important; " +
+      "} " +
+      "#" + elementId + " .nvx-digit { " +
+        "color: " + textColor + " !important; " +
+        "background: rgba(0,0,0,0.22) !important; " +
+      "}";
+    
+    styleEl.appendChild(document.createTextNode(cssText));
+    document.head.appendChild(styleEl);
+  }
+
   var container = document.createElement("div");
   container.id = elementId;
   container.className = "nvx-widget nvx-timer-wrapper";
-  container.style.cssText = bgCss + borderCss +
-    "border-radius:" + borderRadiusCss + ";" +
-    "padding:" + padCss + ";" +
+  container.style.cssText =
     "margin:14px 0;" +
-    "box-sizing:border-box;" +
     "box-shadow:0 8px 24px rgba(0,0,0,0.08);" +
     "display:flex;" +
     "flex-direction:column;" +
@@ -3519,45 +3583,59 @@ function renderCuentaRegresiva(w) {
     "justify-content:center;" +
     "gap:12px;" +
     "font-family:system-ui,-apple-system,sans-serif;" +
-    "color:" + textColor + ";" +
     "text-align:center;" +
     "width:100%;";
 
   var safeTitle = typeof escapeHtml === "function" ? escapeHtml(title) : title;
-  var titleHtml = title ? '<div style="font-size:' + titleSize + ';font-weight:800;line-height:1.2;color:' + textColor + ';">' + safeTitle + '</div>' : '';
+  var titleHtml = title ? '<div class="nvx-text" style="font-size:' + titleSize + ';font-weight:800;line-height:1.2;">' + safeTitle + '</div>' : '';
 
   var couponHtml = "";
   if (coupon) {
     var safeCoupon = typeof escapeHtml === "function" ? escapeHtml(coupon) : coupon;
-    couponHtml = '<div id="' + elementId + '-coupon" style="background:rgba(255,255,255,0.2);border:1px dashed rgba(255,255,255,0.6);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:800;letter-spacing:0.05em;cursor:pointer;user-select:none;color:' + textColor + ';">🎟️ CUPÓN: ' + safeCoupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span></div>';
+    couponHtml = '<div id="' + elementId + '-coupon" class="nvx-text" style="background:rgba(255,255,255,0.2);border:1px dashed rgba(255,255,255,0.6);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:800;letter-spacing:0.05em;cursor:pointer;user-select:none;">🎟️ CUPÓN: ' + safeCoupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span></div>';
   }
 
   var ctaHtml = "";
   if (ctaText && ctaUrl) {
     var safeCtaText = typeof escapeHtml === "function" ? escapeHtml(ctaText) : ctaText;
     var safeCtaUrl = typeof escapeHtml === "function" ? escapeHtml(ctaUrl) : ctaUrl;
-    ctaHtml = '<a href="' + safeCtaUrl + '" target="_blank" style="background:#ffffff;color:#111827;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,0.15);">' + safeCtaText + ' →</a>';
+    ctaHtml = '<a href="' + safeCtaUrl + '" target="_blank" style="background:#ffffff;color:#111827 !important;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,0.15);">' + safeCtaText + ' →</a>';
   }
 
-  container.innerHTML = titleHtml +
-    '<div style="display:flex;align-items:center;gap:8px;justify-content:center;">' +
+  // Construcción dinámica de dígitos adaptativos
+  var digitsHtml = '<div style="display:flex;align-items:center;gap:8px;justify-content:center;">';
+
+  if (showDays) {
+    digitsHtml +=
       '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-h" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;color:' + textColor + ';">00</div>' +
-        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;color:' + textColor + ';">Horas</span>' +
+        '<div id="' + elementId + '-d" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+        '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Días</span>' +
       '</div>' +
-      '<span style="font-size:18px;font-weight:900;opacity:0.8;color:' + textColor + ';">:</span>' +
+      '<span class="nvx-text" style="font-size:18px;font-weight:900;opacity:0.8;">:</span>';
+  }
+
+  if (showHours) {
+    digitsHtml +=
       '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-m" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;color:' + textColor + ';">00</div>' +
-        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;color:' + textColor + ';">Min</span>' +
+        '<div id="' + elementId + '-h" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+        '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Horas</span>' +
       '</div>' +
-      '<span style="font-size:18px;font-weight:900;opacity:0.8;color:' + textColor + ';">:</span>' +
-      '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-s" style="background:rgba(0,0,0,0.22);border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;color:' + textColor + ';">00</div>' +
-        '<span style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;color:' + textColor + ';">Seg</span>' +
-      '</div>' +
+      '<span class="nvx-text" style="font-size:18px;font-weight:900;opacity:0.8;">:</span>';
+  }
+
+  digitsHtml +=
+    '<div style="display:flex;flex-direction:column;align-items:center;">' +
+      '<div id="' + elementId + '-m" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+      '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Min</span>' +
     '</div>' +
-    couponHtml +
-    ctaHtml;
+    '<span class="nvx-text" style="font-size:18px;font-weight:900;opacity:0.8;">:</span>' +
+    '<div style="display:flex;flex-direction:column;align-items:center;">' +
+      '<div id="' + elementId + '-s" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+      '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Seg</span>' +
+    '</div>' +
+  '</div>';
+
+  container.innerHTML = titleHtml + digitsHtml + couponHtml + ctaHtml;
 
   // Inserción en la página
   if (location === "top_bar") {
@@ -3636,14 +3714,17 @@ function renderCuentaRegresiva(w) {
       diff = 0;
     }
 
+    var d = Math.floor(diff / (1000 * 60 * 60 * 24));
     var h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     var s = Math.floor((diff % (1000 * 60)) / 1000);
 
+    var dEl = document.getElementById(elementId + "-d");
     var hEl = document.getElementById(elementId + "-h");
     var mEl = document.getElementById(elementId + "-m");
     var sEl = document.getElementById(elementId + "-s");
 
+    if (dEl) dEl.textContent = (d < 10 ? "0" : "") + d;
     if (hEl) hEl.textContent = (h < 10 ? "0" : "") + h;
     if (mEl) mEl.textContent = (m < 10 ? "0" : "") + m;
     if (sEl) sEl.textContent = (s < 10 ? "0" : "") + s;
@@ -3656,7 +3737,7 @@ function renderCuentaRegresiva(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-    }
+      }
 /* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
