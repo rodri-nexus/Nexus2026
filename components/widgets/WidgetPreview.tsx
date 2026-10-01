@@ -124,6 +124,83 @@ function UrgenciaStockPreview() {
   );
 }
 
+function ResenasDestacadasPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+          <span style={{ fontSize: "9px" }}>⭐⭐⭐⭐⭐</span>
+          <span style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827" }}>4.8</span>
+          <span style={{ fontSize: "6.5px", color: "#6b7280" }}>(36)</span>
+        </div>
+        <span
+          style={{
+            background: "#ecfdf5",
+            color: "#059669",
+            fontSize: "6px",
+            fontWeight: 800,
+            padding: "2px 5px",
+            borderRadius: "999px",
+            border: "1px solid #a7f3d0",
+          }}
+        >
+          ✓ Verificadas
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "5px 7px",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+        }}
+      >
+        <div
+          style={{
+            width: "18px",
+            height: "18px",
+            borderRadius: "50%",
+            background: "#10B981",
+            color: "#ffffff",
+            fontSize: "7px",
+            fontWeight: 800,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          LR
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+          <div style={{ fontSize: "7px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>
+            Excelente producto
+          </div>
+          <div style={{ fontSize: "5.5px", color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            El material es impecable, super recomendado!
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ContadorVendidosPreview() {
   return (
     <div
@@ -490,6 +567,8 @@ function renderPreview(slug: string) {
       return <CuentaRegresivaPreview />;
     case "urgencia-stock":
       return <UrgenciaStockPreview />;
+    case "resenas-destacadas":
+      return <ResenasDestacadasPreview />;
     case "contador-vendidos":
       return <ContadorVendidosPreview />;
     case "edicion-limitada":
@@ -529,4 +608,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-                }
+  }
