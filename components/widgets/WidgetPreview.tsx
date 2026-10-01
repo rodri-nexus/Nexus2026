@@ -99,6 +99,31 @@ function CuentaRegresivaPreview() {
   );
 }
 
+function UrgenciaStockPreview() {
+  return (
+    <div
+      style={{
+        background: "#111827",
+        borderRadius: "10px",
+        padding: "8px 12px",
+        width: "92%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+        border: "1.5px solid #10B981",
+        color: "#ffffff",
+      }}
+    >
+      <span style={{ fontSize: "12px" }}>⚠️</span>
+      <div style={{ fontSize: "8px", fontWeight: 900, color: "#10B981", letterSpacing: "0.02em" }}>
+        Últimas 3 unidades disponibles!
+      </div>
+    </div>
+  );
+}
+
 function ContadorVendidosPreview() {
   return (
     <div
@@ -463,6 +488,8 @@ function renderPreview(slug: string) {
       return <InfoDespachoPreview />;
     case "cuenta-regresiva":
       return <CuentaRegresivaPreview />;
+    case "urgencia-stock":
+      return <UrgenciaStockPreview />;
     case "contador-vendidos":
       return <ContadorVendidosPreview />;
     case "edicion-limitada":
@@ -502,4 +529,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-        }
+                }
