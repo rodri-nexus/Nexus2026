@@ -1668,6 +1668,7 @@
           if (w.widget_slug === "contador-vendidos") renderContadorVendidos(w);
           if (w.widget_slug === "cuenta-regresiva") renderCuentaRegresiva(w);
           if (w.widget_slug === "info-despacho") renderInfoDespacho(w);
+          if (w.widget_slug === "urgencia-stock") renderUrgenciaStock(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -3931,4 +3932,184 @@ function renderInfoDespacho(w) {
     nvxTrack(w.id, "impression");
   }
       }
+/* ═══════════════════════════════════════════
+   WIDGET: URGENCIA DE STOCK
+   ═══════════════════════════════════════════ */
+function renderUrgenciaStock(w) {
+  var elementId = "nvx-stock-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+  var location = cfg.location || "product_before";
+
+  // Verificación estricta: SOLO en Ficha de Producto
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+  if (currentPage !== "product") {
+    return;
+  }
+
+  var thresholdHigh = parseInt(cfg.thresholdHigh, 10) || 10;
+  var thresholdLow = parseInt(cfg.thresholdLow, 10) || 3;
+  var textMedium = cfg.textMedium || "Quedan pocas unidades: {stock} disponibles";
+  var textHigh = cfg.textHigh || "¡Últimas {stock} unidades!";
+  var bgColor = cfg.bgColor || "#fef3c7";
+  var textColor = cfg.textColor || "#92400e";
+  var borderColor = cfg.borderColor || "#fcd34d";
+  var fontSize = cfg.fontSize || "14px";
+  var icon = cfg.icon || "⚠️";
+
+  // Presets de campaña
+  var THEMES = {
+    "black-friday": { bg: "#111827", text: "#F59E0B", border: "#F59E0B" },
+    "hot-sale": { bg: "#0F172A", text: "#ffffff", border: "#EF4444" },
+    "cyber-monday": { bg: "#090D16", text: "#ffffff", border: "#3B82F6" },
+    "navidad": { bg: "#064E3B", text: "#ffffff", border: "#EF4444" },
+    "san-valentin": { bg: "#831843", text: "#ffffff", border: "#F43F5E" },
+    "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#10B981" },
+    "liquidacion": { bg: "#7F1D1D", text: "#FBBF24", border: "#FBBF24" }
+  };
+
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    var t = THEMES[cfg.campaignTheme];
+    bgColor = t.bg;
+    textColor = t.text;
+    borderColor = t.border;
+  }
+
+  // Obtener stock real del producto en Tiendanube
+  var currentStock = null;
+  try {
+    if (window.LS && window.LS.product) {
+      var p = window.LS.product;
+      if (p.variants && p.variants.length > 0) {
+        for (var v = 0; v < p.variants.length; v++) {
+          if (p.variants[v].stock !== undefined && p.variants[v].stock !== null) {
+            currentStock = parseInt(p.variants[v].stock, 10);
+            break;
+          }
+        }
+      }
+      if (currentStock === null && p.stock !== undefined && p.stock !== null) {
+        currentStock = parseInt(p.stock, 10);
+      }
+    }
+  } catch(e) {}
+
+  // Fallback seguro si la tienda no gestiona unidades exactas por JS
+  if (currentStock === null || isNaN(currentStock)) {
+    currentStock = thresholdLow;
+  }
+
+  // Si el stock supera el umbral alto, el aviso no se muestra
+  if (currentStock > thresholdHigh) {
+    return;
+  }
+
+  // Selección de texto según nivel de urgencia
+  var isHighUrgency = currentStock <= thresholdLow;
+  var rawText = isHighUrgency ? textHigh : textMedium;
+  var finalText = rawText.replace(/\{stock\}/g, currentStock.toString());
+  var safeText = typeof escapeHtml === "function" ? escapeHtml(finalText) : finalText;
+
+  // Inyección de estilos específicos indetectables por el tema
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var borderCss = (borderColor && borderColor !== "transparent") ? "1.5px solid " + borderColor : "none";
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    var css =
+      "#" + elementId + " { " +
+        "background: " + bgColor + " !important; " +
+        "border: " + borderCss + " !important; " +
+        "border-radius: 12px !important; " +
+        "padding: 12px 16px !important; " +
+        "color: " + textColor + " !important; " +
+        "font-size: " + fontSize + " !important; " +
+        "font-weight: 800 !important; " +
+        "box-sizing: border-box !important; " +
+        "box-shadow: 0 4px 14px rgba(0,0,0,0.06) !important; " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: center !important; " +
+        "gap: 8px !important; " +
+        "margin: 12px 0 !important; " +
+        "width: 100% !important; " +
+        "text-align: center !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; " +
+      "}";
+    styleEl.appendChild(document.createTextNode(css));
+    document.head.appendChild(styleEl);
+  }
+
+  var container = document.createElement("div");
+  container.id = elementId;
+  container.className = "nvx-widget nvx-stock-wrapper";
+
+  var safeIcon = typeof escapeHtml === "function" ? escapeHtml(icon) : icon;
+  var iconHtml = (icon && icon !== "none") ? '<span style="font-size:18px;flex-shrink:0;">' + safeIcon + '</span>' : '';
+  container.innerHTML = iconHtml + '<span>' + safeText + '</span>';
+
+  // Lógica de ubicación
+  var targetEl = null;
+
+  if (location === "price_before" || location === "price_after") {
+    var priceSelectors = [
+      ".js-price-display",
+      "#price_display",
+      ".product-price",
+      ".js-product-price",
+      ".price-container",
+      "[data-product-price]"
+    ];
+    for (var pIdx = 0; pIdx < priceSelectors.length; pIdx++) {
+      var pEl = document.querySelector(priceSelectors[pIdx]);
+      if (pEl) {
+        targetEl = pEl;
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      if (location === "price_after") {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      }
+    }
+  }
+
+  if (!targetEl) {
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form"
+    ];
+    for (var bIdx = 0; bIdx < buySelectors.length; bIdx++) {
+      var bEl = document.querySelector(buySelectors[bIdx]);
+      if (bEl) {
+        targetEl = bEl;
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      if (location === "product_after") {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      }
+    } else {
+      var main = document.querySelector("main, #content, .main-content, .js-product-container");
+      if (main) main.insertBefore(container, main.firstChild);
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+}
 })(); 
