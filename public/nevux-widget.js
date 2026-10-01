@@ -4376,10 +4376,102 @@ function renderResenasDestacadas(w) {
   }
 }
   /* ═══════════════════════════════════════════
-   WIDGET: BUNDLE DE PROMOCIONES (v13 Final)
+   WIDGET: BUNDLE DE PROMOCIONES (v226)
+   Precios auto + total complementario en vivo
    ═══════════════════════════════════════════ */
+if (typeof window.nvxBundleParsePrice !== "function") {
+  window.nvxBundleParsePrice = function (txt) {
+    if (!txt) return 0;
+    var s = String(txt).replace(/[^\d.,]/g, "").trim();
+    if (!s) return 0;
+    if (s.indexOf(",") > -1 && s.indexOf(".") > -1) {
+      if (s.lastIndexOf(",") > s.lastIndexOf(".")) {
+        s = s.replace(/\./g, "").replace(",", ".");
+      } else {
+        s = s.replace(/,/g, "");
+      }
+    } else if (s.indexOf(",") > -1) {
+      var p = s.split(",");
+      if (p.length === 2 && p[1].length <= 2) s = p[0].replace(/\./g, "") + "." + p[1];
+      else s = s.replace(/,/g, "");
+    } else {
+      var parts = s.split(".");
+      if (parts.length > 1 && parts[parts.length - 1].length === 3) s = parts.join("");
+    }
+    var n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  };
+}
+
+if (typeof window.nvxBundleFormatPrice !== "function") {
+  window.nvxBundleFormatPrice = function (num) {
+    var n = Math.round(Number(num) || 0);
+    var str = String(n);
+    var out = "";
+    var c = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+      out = str.charAt(i) + out;
+      c++;
+      if (c === 3 && i > 0) {
+        out = "." + out;
+        c = 0;
+      }
+    }
+    return "$" + out;
+  };
+}
+
+if (typeof window.nvxBundleGetProductPrice !== "function") {
+  window.nvxBundleGetProductPrice = function () {
+    var sels = [
+      ".js-price-display",
+      "#price_display",
+      ".js-product-price",
+      ".product-price",
+      ".price-display",
+      "[data-product-price]",
+      ".js-compare-price-display",
+      ".price .js-price-display",
+      ".product-price-container .js-price-display",
+      "meta[itemprop='price']",
+      "[itemprop='price']"
+    ];
+    for (var i = 0; i < sels.length; i++) {
+      var el = document.querySelector(sels[i]);
+      if (!el) continue;
+      var raw = el.getAttribute("content") || el.getAttribute("data-product-price") || el.getAttribute("data-price") || (el.textContent || el.innerText || "");
+      var val = window.nvxBundleParsePrice(raw);
+      if (val > 0) return val;
+    }
+    return 0;
+  };
+}
+
+if (typeof window.nvxBundleParseDeal !== "function") {
+  window.nvxBundleParseDeal = function (title) {
+    var t = String(title || "").toLowerCase();
+    var m = t.match(/lleva\s*(\d+)\s*paga\s*(\d+)/);
+    if (m) {
+      return { take: parseInt(m[1], 10) || 1, pay: parseInt(m[2], 10) || 1 };
+    }
+    var m2 = t.match(/(\d+)\s*[x×]\s*(\d+)/);
+    if (m2) {
+      var a = parseInt(m2[1], 10) || 1;
+      var b = parseInt(m2[2], 10) || 1;
+      if (a >= b) return { take: a, pay: b };
+      return { take: b, pay: a };
+    }
+    var m3 = t.match(/(\d+)/);
+    if (m3) {
+      var q = parseInt(m3[1], 10) || 1;
+      return { take: q, pay: q };
+    }
+    return { take: 1, pay: 1 };
+  };
+}
+
 if (typeof window.nvxSelectBundle !== "function") {
-  window.nvxSelectBundle = function(cardEl, qty) {
+  window.nvxSelectBundle = function (cardEl, qty, elementId) {
     var parent = cardEl.parentNode;
     if (!parent) return;
     var cards = parent.getElementsByClassName("nvx-bundle-card");
@@ -4388,7 +4480,6 @@ if (typeof window.nvxSelectBundle !== "function") {
     }
     cardEl.classList.add("selected");
 
-    // Actualizar cantidad en input nativo de Tiendanube
     var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
     for (var j = 0; j < qtyInputs.length; j++) {
       qtyInputs[j].value = qty;
@@ -4396,16 +4487,81 @@ if (typeof window.nvxSelectBundle !== "function") {
         var evt = document.createEvent("HTMLEvents");
         evt.initEvent("change", true, true);
         qtyInputs[j].dispatchEvent(evt);
-      } catch(e) {}
+      } catch (e) {}
+    }
+
+    if (typeof window.nvxBundleUpdateTotal === "function") {
+      window.nvxBundleUpdateTotal(elementId);
+    }
+  };
+}
+
+if (typeof window.nvxBundleToggleComp !== "function") {
+  window.nvxBundleToggleComp = function (rowEl, elementId) {
+    var chk = rowEl.querySelector('input[type="checkbox"]');
+    if (!chk) return;
+    if (window.event && window.event.target !== chk) {
+      chk.checked = !chk.checked;
+    }
+    if (typeof window.nvxBundleUpdateTotal === "function") {
+      window.nvxBundleUpdateTotal(elementId);
+    }
+  };
+}
+
+if (typeof window.nvxBundleUpdateTotal !== "function") {
+  window.nvxBundleUpdateTotal = function (elementId) {
+    var root = document.getElementById(elementId);
+    if (!root) return;
+    var selected = root.querySelector(".nvx-bundle-card.selected");
+    var packPrice = 0;
+    if (selected) {
+      packPrice = parseFloat(selected.getAttribute("data-new-price") || "0") || 0;
+    }
+    var compChk = root.querySelector(".nvx-comp-row input[type='checkbox']");
+    var compPrice = 0;
+    if (compChk && compChk.checked) {
+      compPrice = parseFloat(root.getAttribute("data-comp-price") || "0") || 0;
+    }
+    var total = packPrice + compPrice;
+    var totalEl = root.querySelector(".nvx-bundle-total");
+    var btn = root.querySelector(".nvx-bundle-btn");
+    var baseBtn = root.getAttribute("data-btn-text") || "Sumalo al carrito";
+    if (totalEl) {
+      if (compChk && compChk.checked && compPrice > 0) {
+        totalEl.style.display = "block";
+        totalEl.innerHTML = "Total pack + extra: <strong>" + window.nvxBundleFormatPrice(total) + "</strong>";
+      } else {
+        totalEl.style.display = "block";
+        totalEl.innerHTML = "Total del pack: <strong>" + window.nvxBundleFormatPrice(packPrice) + "</strong>";
+      }
+    }
+    if (btn) {
+      btn.innerHTML = baseBtn + " · " + window.nvxBundleFormatPrice(total > 0 ? total : packPrice);
     }
   };
 }
 
 if (typeof window.nvxSubmitBundle !== "function") {
-  window.nvxSubmitBundle = function(btnEl) {
+  window.nvxSubmitBundle = function (btnEl) {
     var orig = btnEl.innerHTML;
     btnEl.innerHTML = "¡Agregando al carrito...!";
-    setTimeout(function() { btnEl.innerHTML = orig; }, 2000);
+    setTimeout(function () { btnEl.innerHTML = orig; }, 2000);
+
+    var root = btnEl.parentNode;
+    var selected = root ? root.querySelector(".nvx-bundle-card.selected") : null;
+    if (selected) {
+      var qty = parseInt(selected.getAttribute("data-qty") || "1", 10) || 1;
+      var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
+      for (var j = 0; j < qtyInputs.length; j++) {
+        qtyInputs[j].value = qty;
+        try {
+          var evt = document.createEvent("HTMLEvents");
+          evt.initEvent("change", true, true);
+          qtyInputs[j].dispatchEvent(evt);
+        } catch (e) {}
+      }
+    }
 
     var targetBtn = document.querySelector('form[action*="/cart/add"] [type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type="submit"]');
     if (targetBtn) {
@@ -4424,7 +4580,6 @@ function renderBundlePromociones(w) {
   var cfg = w.config || {};
   var location = cfg.location || "product_after";
 
-  // Verificación de página (Ficha de Producto)
   var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
   if (currentPage !== "product") {
     return;
@@ -4442,14 +4597,13 @@ function renderBundlePromociones(w) {
   var showComplementary = cfg.showComplementary !== false;
   var complementaryText = cfg.complementaryText || "Sumale este producto y llevate envío gratis!";
   var complementaryName = cfg.complementaryName || "Remera Básica";
-  var complementaryPrice = cfg.complementaryPrice || "$15.999";
+  var complementaryPriceRaw = cfg.complementaryPrice || "$0";
 
   var bundles = cfg.bundles || [
-    { id: "1", title: "Lleva 2 paga 1", badge: "-50% OFF", oldPrice: "$20.000", newPrice: "$10.000", enabled: true },
-    { id: "2", title: "Lleva 3 paga 2", badge: "-33% OFF", oldPrice: "$30.000", newPrice: "$20.000", enabled: true }
+    { id: "1", title: "Lleva 2 paga 1", badge: "-50% OFF", oldPrice: "", newPrice: "", enabled: true },
+    { id: "2", title: "Lleva 3 paga 2", badge: "-33% OFF", oldPrice: "", newPrice: "", enabled: true }
   ];
 
-  // Presets de campaña
   var THEMES = {
     "black-friday": { bg: "#111827", text: "#ffffff", card: "#1f2937", accent: "#F59E0B", btn: "#F59E0B" },
     "hot-sale": { bg: "#0F172A", text: "#ffffff", card: "#1e293b", accent: "#EF4444", btn: "#EF4444" },
@@ -4469,18 +4623,10 @@ function renderBundlePromociones(w) {
     buttonBgColor = t.btn;
   }
 
-  // Helper para extraer cantidad numérica del título
-  function parseQty(tStr) {
-    if (!tStr) return 1;
-    var m = tStr.match(/(\d+)/);
-    if (m && m[1]) {
-      var n = parseInt(m[1], 10);
-      if (n > 0 && n < 50) return n;
-    }
-    return 1;
-  }
+  // Precio real del producto en la ficha
+  var unitPrice = window.nvxBundleGetProductPrice();
+  var compPriceNum = window.nvxBundleParsePrice(complementaryPriceRaw);
 
-  // Filtrar promociones activas
   var activeBundles = [];
   for (var bIdx = 0; bIdx < bundles.length; bIdx++) {
     if (bundles[bIdx] && (bundles[bIdx].enabled === true || bundles[bIdx].enabled === undefined)) {
@@ -4489,7 +4635,34 @@ function renderBundlePromociones(w) {
   }
   if (activeBundles.length === 0) return;
 
-  // Inyección de estilos CSS
+  // Autocalcular precios psicológicos por pack
+  for (var c = 0; c < activeBundles.length; c++) {
+    var deal = window.nvxBundleParseDeal(activeBundles[c].title);
+    activeBundles[c]._take = deal.take;
+    activeBundles[c]._pay = deal.pay;
+    if (unitPrice > 0) {
+      var oldP = unitPrice * deal.take;
+      var newP = unitPrice * deal.pay;
+      activeBundles[c]._oldNum = oldP;
+      activeBundles[c]._newNum = newP;
+      activeBundles[c]._oldStr = window.nvxBundleFormatPrice(oldP);
+      activeBundles[c]._newStr = window.nvxBundleFormatPrice(newP);
+      if (oldP > 0 && newP < oldP) {
+        var pct = Math.round((1 - (newP / oldP)) * 100);
+        activeBundles[c]._badge = "-" + pct + "% OFF";
+      } else {
+        activeBundles[c]._badge = activeBundles[c].badge || "";
+      }
+    } else {
+      // Fallback a lo configurado a mano
+      activeBundles[c]._oldNum = window.nvxBundleParsePrice(activeBundles[c].oldPrice);
+      activeBundles[c]._newNum = window.nvxBundleParsePrice(activeBundles[c].newPrice);
+      activeBundles[c]._oldStr = activeBundles[c].oldPrice || "";
+      activeBundles[c]._newStr = activeBundles[c].newPrice || "";
+      activeBundles[c]._badge = activeBundles[c].badge || "";
+    }
+  }
+
   var styleId = "style-" + elementId;
   if (!document.getElementById(styleId)) {
     var styleEl = document.createElement("style");
@@ -4523,70 +4696,46 @@ function renderBundlePromociones(w) {
         "transition: all 0.2s !important; " +
         "user-select: none !important; " +
       "} " +
-      "#" + elementId + " .nvx-bundle-card:hover { " +
-        "border-color: " + accentColor + " !important; " +
-      "} " +
+      "#" + elementId + " .nvx-bundle-card:hover { border-color: " + accentColor + " !important; } " +
       "#" + elementId + " .nvx-bundle-card.selected { " +
         "background: #ffffff !important; " +
         "border-color: " + accentColor + " !important; " +
         "box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; " +
       "} " +
       "#" + elementId + " .nvx-radio { " +
-        "width: 18px !important; " +
-        "height: 18px !important; " +
-        "border-radius: 50% !important; " +
-        "border: 2px solid #d1d5db !important; " +
-        "display: flex !important; " +
-        "align-items: center !important; " +
-        "justify-content: center !important; " +
-        "flex-shrink: 0 !important; " +
+        "width: 18px !important; height: 18px !important; border-radius: 50% !important; " +
+        "border: 2px solid #d1d5db !important; display: flex !important; " +
+        "align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; " +
       "} " +
-      "#" + elementId + " .nvx-bundle-card.selected .nvx-radio { " +
-        "border-color: " + accentColor + " !important; " +
-      "} " +
+      "#" + elementId + " .nvx-bundle-card.selected .nvx-radio { border-color: " + accentColor + " !important; } " +
       "#" + elementId + " .nvx-radio-dot { " +
-        "width: 10px !important; " +
-        "height: 10px !important; " +
-        "border-radius: 50% !important; " +
-        "background: " + accentColor + " !important; " +
-        "display: none !important; " +
+        "width: 10px !important; height: 10px !important; border-radius: 50% !important; " +
+        "background: " + accentColor + " !important; display: none !important; " +
       "} " +
-      "#" + elementId + " .nvx-bundle-card.selected .nvx-radio-dot { " +
-        "display: block !important; " +
-      "} " +
+      "#" + elementId + " .nvx-bundle-card.selected .nvx-radio-dot { display: block !important; } " +
       "#" + elementId + " .nvx-comp-row { " +
-        "background: " + cardBgColor + " !important; " +
-        "border: 1.5px solid rgba(0,0,0,0.08) !important; " +
-        "border-radius: 10px !important; " +
-        "padding: 10px 12px !important; " +
-        "display: flex !important; " +
-        "align-items: center !important; " +
-        "justify-content: space-between !important; " +
-        "cursor: pointer !important; " +
-        "transition: all 0.2s !important; " +
-        "user-select: none !important; " +
+        "background: " + cardBgColor + " !important; border: 1.5px solid rgba(0,0,0,0.08) !important; " +
+        "border-radius: 10px !important; padding: 10px 12px !important; display: flex !important; " +
+        "align-items: center !important; justify-content: space-between !important; " +
+        "cursor: pointer !important; transition: all 0.2s !important; user-select: none !important; " +
       "} " +
-      "#" + elementId + " .nvx-comp-row:hover { " +
-        "border-color: " + accentColor + " !important; " +
-        "background: #ffffff !important; " +
+      "#" + elementId + " .nvx-comp-row:hover { border-color: " + accentColor + " !important; background: #ffffff !important; } " +
+      "#" + elementId + " .nvx-bundle-total { " +
+        "font-size: 13px !important; font-weight: 700 !important; color: " + textColor + " !important; " +
+        "text-align: right !important; width: 100% !important; " +
+      "} " +
+      "#" + elementId + " .nvx-bundle-total strong { color: " + accentColor + " !important; font-weight: 900 !important; } " +
+      "#" + elementId + " .nvx-bundle-note { " +
+        "font-size: 11px !important; opacity: 0.65 !important; color: " + textColor + " !important; " +
+        "line-height: 1.35 !important; " +
       "} " +
       "#" + elementId + " .nvx-bundle-btn { " +
-        "width: 100% !important; " +
-        "background: " + buttonBgColor + " !important; " +
-        "color: " + buttonTextColor + " !important; " +
-        "border: none !important; " +
-        "border-radius: 12px !important; " +
-        "padding: 14px !important; " +
-        "font-size: 15px !important; " +
-        "font-weight: 800 !important; " +
-        "cursor: pointer !important; " +
-        "margin-top: 4px !important; " +
-        "box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; " +
-        "transition: transform 0.1s, opacity 0.2s !important; " +
+        "width: 100% !important; background: " + buttonBgColor + " !important; color: " + buttonTextColor + " !important; " +
+        "border: none !important; border-radius: 12px !important; padding: 14px !important; " +
+        "font-size: 15px !important; font-weight: 800 !important; cursor: pointer !important; " +
+        "margin-top: 4px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; " +
       "} " +
-      "#" + elementId + " .nvx-bundle-btn:active { " +
-        "transform: scale(0.98) !important; " +
-      "}";
+      "#" + elementId + " .nvx-bundle-btn:active { transform: scale(0.98) !important; }";
     styleEl.appendChild(document.createTextNode(css));
     document.head.appendChild(styleEl);
   }
@@ -4594,63 +4743,75 @@ function renderBundlePromociones(w) {
   var container = document.createElement("div");
   container.id = elementId;
   container.className = "nvx-widget nvx-bundle-wrapper";
+  container.setAttribute("data-comp-price", String(compPriceNum));
+  container.setAttribute("data-btn-text", buttonText);
 
-  // Header HTML
-  var subtitleHtml = subtitle ? '<div style="font-size:12px !important;opacity:0.7 !important;margin-top:2px !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(subtitle) : subtitle) + '</div>' : '';
+  var subtitleHtml = subtitle
+    ? '<div style="font-size:12px !important;opacity:0.7 !important;margin-top:2px !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(subtitle) : subtitle) + "</div>"
+    : "";
+
   var headerHtml =
     '<div style="width:100% !important;">' +
-      '<div style="font-size:16px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(title) : title) + '</div>' +
+      '<div style="font-size:16px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(title) : title) + "</div>" +
       subtitleHtml +
-    '</div>';
+    "</div>";
 
-  // Packs HTML
   var bundlesHtml = '<div style="display:flex !important;flex-direction:column !important;gap:10px !important;width:100% !important;">';
   for (var k = 0; k < activeBundles.length; k++) {
     var b = activeBundles[k];
     var isSelected = k === 0;
-    var qtyNum = parseQty(b.title);
-    var badgeHtml = b.badge ? '<span style="background:#fef2f2 !important;color:#ef4444 !important;border-radius:6px !important;padding:2px 6px !important;font-size:10px !important;font-weight:800 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(b.badge) : b.badge) + '</span>' : '';
+    var qtyNum = b._take || 1;
+    var badgeTxt = b._badge || "";
+    var badgeHtml = badgeTxt
+      ? '<span style="background:#fef2f2 !important;color:#ef4444 !important;border-radius:6px !important;padding:2px 6px !important;font-size:10px !important;font-weight:800 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(badgeTxt) : badgeTxt) + "</span>"
+      : "";
 
     bundlesHtml +=
-      '<div class="nvx-bundle-card ' + (isSelected ? "selected" : "") + '" data-qty="' + qtyNum + '" onclick="window.nvxSelectBundle(this, ' + qtyNum + ');">' +
+      '<div class="nvx-bundle-card ' + (isSelected ? "selected" : "") + '" data-qty="' + qtyNum + '" data-new-price="' + (b._newNum || 0) + '" onclick="window.nvxSelectBundle(this, ' + qtyNum + ', \'' + elementId + '\');">' +
         '<div style="display:flex !important;align-items:center !important;gap:10px !important;">' +
           '<div class="nvx-radio"><div class="nvx-radio-dot"></div></div>' +
           '<div>' +
-            '<div style="font-size:14px !important;font-weight:800 !important;color:' + textColor + ' !important;display:flex !important;align-items:center !important;gap:6px !important;">' +
+            '<div style="font-size:14px !important;font-weight:800 !important;color:' + textColor + ' !important;display:flex !important;align-items:center !important;gap:6px !important;flex-wrap:wrap !important;">' +
               (typeof escapeHtml === "function" ? escapeHtml(b.title) : b.title) + badgeHtml +
-            '</div>' +
-          '</div>' +
-        '</div>' +
+            "</div>" +
+          "</div>" +
+        "</div>" +
         '<div style="text-align:right !important;">' +
-          '<div style="font-size:11px !important;text-decoration:line-through !important;opacity:0.5 !important;color:' + textColor + ' !important;">' + (b.oldPrice || "") + '</div>' +
-          '<div style="font-size:14px !important;font-weight:900 !important;color:' + accentColor + ' !important;">' + (b.newPrice || "") + '</div>' +
-        '</div>' +
-      '</div>';
+          '<div style="font-size:11px !important;text-decoration:line-through !important;opacity:0.5 !important;color:' + textColor + ' !important;">' + (b._oldStr || "") + "</div>" +
+          '<div style="font-size:14px !important;font-weight:900 !important;color:' + accentColor + ' !important;">' + (b._newStr || "") + "</div>" +
+        "</div>" +
+      "</div>";
   }
-  bundlesHtml += '</div>';
+  bundlesHtml += "</div>";
 
-  // Complementario HTML
   var compHtml = "";
   if (showComplementary) {
     compHtml =
       '<div style="border-top:1px dashed rgba(0,0,0,0.1) !important;padding-top:12px !important;display:flex !important;flex-direction:column !important;gap:8px !important;width:100% !important;">' +
-        '<div style="font-size:12px !important;font-weight:700 !important;color:' + accentColor + ' !important;display:flex !important;align-items:center !important;gap:6px !important;">🎁 ' + (typeof escapeHtml === "function" ? escapeHtml(complementaryText) : complementaryText) + '</div>' +
-        '<div class="nvx-comp-row" onclick="var chk=this.querySelector(\'input[type=checkbox]\'); if(event.target!==chk){ chk.checked=!chk.checked; }">' +
+        '<div style="font-size:12px !important;font-weight:700 !important;color:' + accentColor + ' !important;">🎁 ' + (typeof escapeHtml === "function" ? escapeHtml(complementaryText) : complementaryText) + "</div>" +
+        '<div class="nvx-comp-row" onclick="window.nvxBundleToggleComp(this, \'' + elementId + '\');">' +
           '<div style="display:flex !important;align-items:center !important;gap:10px !important;">' +
-            '<input type="checkbox" style="width:18px !important;height:18px !important;accent-color:' + accentColor + ' !important;cursor:pointer !important;" onclick="event.stopPropagation();" />' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryName) : complementaryName) + '</div>' +
-          '</div>' +
-          '<div style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryPrice) : complementaryPrice) + '</div>' +
-        '</div>' +
-      '</div>';
+            '<input type="checkbox" style="width:18px !important;height:18px !important;accent-color:' + accentColor + ' !important;cursor:pointer !important;" onclick="event.stopPropagation(); window.nvxBundleUpdateTotal(\'' + elementId + '\');" />' +
+            '<div style="font-size:13px !important;font-weight:700 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryName) : complementaryName) + "</div>" +
+          "</div>" +
+          '<div style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryPriceRaw) : complementaryPriceRaw) + "</div>" +
+        "</div>" +
+      "</div>";
   }
 
-  // Botón HTML
-  var buttonHtml = '<button type="button" class="nvx-bundle-btn" onclick="window.nvxSubmitBundle(this);">' + (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + '</button>';
+  var firstNew = activeBundles[0] ? (activeBundles[0]._newNum || 0) : 0;
+  var totalHtml =
+    '<div class="nvx-bundle-total">Total del pack: <strong>' + window.nvxBundleFormatPrice(firstNew) + "</strong></div>" +
+    '<div class="nvx-bundle-note">El pack agrega la cantidad al carrito. El descuento real se aplica con las reglas de promoción de tu tienda en Tiendanube.</div>';
 
-  container.innerHTML = headerHtml + bundlesHtml + compHtml + buttonHtml;
+  var buttonHtml =
+    '<button type="button" class="nvx-bundle-btn" onclick="window.nvxSubmitBundle(this);">' +
+      (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + " · " + window.nvxBundleFormatPrice(firstNew) +
+    "</button>";
 
-  // Inserción en la página
+  container.innerHTML = headerHtml + bundlesHtml + compHtml + totalHtml + buttonHtml;
+
+  // Inserción (mismas ubicaciones de siempre)
   var targetEl = null;
 
   if (location === "title_after") {
@@ -4691,8 +4852,8 @@ function renderBundlePromociones(w) {
       ".js-add-to-cart-btn",
       "#product_form"
     ];
-    for (var bIdx = 0; bIdx < buySelectors.length; bIdx++) {
-      var bEl = document.querySelector(buySelectors[bIdx]);
+    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
+      var bEl = document.querySelector(buySelectors[sIdx]);
       if (bEl) { targetEl = bEl; break; }
     }
     if (targetEl && targetEl.parentNode) {
@@ -4707,24 +4868,21 @@ function renderBundlePromociones(w) {
     }
   }
 
-  // Ocultar botón nativo de Agregar al Carrito para reemplazarlo
-  var nativeAtc = document.querySelector('form[action*="/cart/add"] [type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type="submit"]');
-  if (nativeAtc) {
-    nativeAtc.style.display = "none";
-  }
-
-  // Seteo de cantidad inicial del primer bundle
+  // NO ocultamos el botón nativo: si no usan el pack, compran normal
   if (activeBundles.length > 0) {
-    var initQty = parseQty(activeBundles[0].title);
+    var initQty = activeBundles[0]._take || 1;
     var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
     for (var qI = 0; qI < qtyInputs.length; qI++) {
       qtyInputs[qI].value = initQty;
     }
   }
 
-  // Telemetría Nevux
+  if (typeof window.nvxBundleUpdateTotal === "function") {
+    window.nvxBundleUpdateTotal(elementId);
+  }
+
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-     }
+      }
 })(); 
