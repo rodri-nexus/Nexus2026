@@ -4198,7 +4198,7 @@ function renderResenasDestacadas(w) {
     accentColor = t.accent;
   }
 
-  // Inyección de estilos específicos indetectables por el tema
+  // Inyección de estilos específicos
   var styleId = "style-" + elementId;
   if (!document.getElementById(styleId)) {
     var styleEl = document.createElement("style");
@@ -4241,6 +4241,14 @@ function renderResenasDestacadas(w) {
         "align-items: center !important; " +
         "justify-content: center !important; " +
         "flex-shrink: 0 !important; " +
+      "} " +
+      "#" + elementId + " .nvx-review-photo { " +
+        "width: 100% !important; " +
+        "max-height: 140px !important; " +
+        "object-fit: cover !important; " +
+        "border-radius: 8px !important; " +
+        "display: block !important; " +
+        "margin: 4px 0 !important; " +
       "}";
     styleEl.appendChild(document.createTextNode(css));
     document.head.appendChild(styleEl);
@@ -4252,12 +4260,12 @@ function renderResenasDestacadas(w) {
 
   // HTML del Header
   var verifiedHtml = showVerifiedBadge ?
-    '<span style="background:#ecfdf5 !important;color:#059669 !important;border:1px solid #a7f3d0 !important;border-radius:999px !important;padding:2px 8px !important;font-size:11px !important;font-weight:800 !important;">✓ Verificadas</span>' : '';
+    '<span style="background:#ecfdf5 !important;color:#059669 !important;border:1px solid #a7f3d0 !important;border-radius:999px !important;padding:2px 8px !important;font-size:11px !important;font-weight:800 !important;white-space:nowrap !important;">✓ Verificadas</span>' : '';
 
   var headerHtml =
-    '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;' + (layout === "compact" ? "" : "border-bottom:1px solid rgba(0,0,0,0.08) !important;padding-bottom:10px !important;") + '">' +
+    '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;' + (layout === "compact" ? "" : "border-bottom:1px solid rgba(0,0,0,0.08) !important;padding-bottom:10px !important;") + '">' +
       '<div style="display:flex !important;align-items:center !important;gap:8px !important;">' +
-        '<span style="font-size:16px !important;">⭐⭐⭐⭐⭐</span>' +
+        '<span style="font-size:16px !important;white-space:nowrap !important;">⭐⭐⭐⭐⭐</span>' +
         '<span style="font-size:15px !important;font-weight:900 !important;color:' + textColor + ' !important;">' + averageRating + '</span>' +
         '<span style="font-size:12px !important;opacity:0.6 !important;color:' + textColor + ' !important;">(' + totalReviews + ' reseñas)</span>' +
       '</div>' +
@@ -4268,7 +4276,7 @@ function renderResenasDestacadas(w) {
   var cardsHtml = "";
   if (layout !== "compact") {
     var isCarousel = layout === "carousel";
-    cardsHtml = '<div style="display:flex !important;flex-direction:' + (isCarousel ? "row" : "column") + ' !important;gap:10px !important;' + (isCarousel ? "overflow-x:auto !important;padding-bottom:6px !important;" : "") + '">';
+    cardsHtml = '<div style="display:flex !important;flex-direction:' + (isCarousel ? "row" : "column") + ' !important;gap:10px !important;width:100% !important;' + (isCarousel ? "overflow-x:auto !important;padding-bottom:6px !important;" : "") + '">';
 
     for (var i = 0; i < reviews.length; i++) {
       var r = reviews[i];
@@ -4277,18 +4285,27 @@ function renderResenasDestacadas(w) {
         stars += "⭐";
       }
 
-      var verHtml = r.verified ? '<span style="font-size:10px !important;font-weight:700 !important;color:#10B981 !important;display:inline-flex !important;align-items:center !important;gap:3px !important;">✓ Compra verificada</span>' : '';
+      var verHtml = r.verified ? '<span style="font-size:10px !important;font-weight:700 !important;color:#10B981 !important;display:inline-flex !important;align-items:center !important;gap:3px !important;margin-top:2px !important;">✓ Compra verificada</span>' : '';
+
+      // Render de la Foto si existe
+      var photoHtml = "";
+      if (r.photo) {
+        photoHtml = '<div style="margin-top:4px !important;margin-bottom:2px !important;width:100% !important;">' +
+          '<img class="nvx-review-photo" src="' + r.photo + '" alt="Foto de reseña" />' +
+        '</div>';
+      }
 
       cardsHtml +=
-        '<div class="nvx-review-card" style="' + (isCarousel ? "min-width:220px !important;flex-shrink:0 !important;" : "") + '">' +
-          '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;">' +
-            '<div style="display:flex !important;align-items:center !important;gap:8px !important;">' +
+        '<div class="nvx-review-card" style="' + (isCarousel ? "min-width:220px !important;max-width:220px !important;flex-shrink:0 !important;" : "width:100% !important;") + 'box-sizing:border-box !important;">' +
+          '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;gap:6px !important;">' +
+            '<div style="display:flex !important;align-items:center !important;gap:8px !important;min-width:0 !important;flex:1 !important;">' +
               '<div class="nvx-avatar">' + (r.initials || "U") + '</div>' +
-              '<span style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.name) : r.name) + '</span>' +
+              '<span style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;display:block !important;flex:1 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.name) : r.name) + '</span>' +
             '</div>' +
-            '<span style="font-size:11px !important;">' + stars + '</span>' +
+            '<span style="font-size:11px !important;white-space:nowrap !important;">' + stars + '</span>' +
           '</div>' +
-          '<p style="font-size:12px !important;color:' + textColor + ' !important;opacity:0.85 !important;margin:0 !important;line-height:1.4 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.text) : r.text) + '</p>' +
+          photoHtml +
+          '<p style="font-size:12px !important;color:' + textColor + ' !important;opacity:0.85 !important;margin:0 !important;line-height:1.4 !important;word-break:break-word !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.text) : r.text) + '</p>' +
           verHtml +
         '</div>';
     }
@@ -4358,5 +4375,5 @@ function renderResenasDestacadas(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-    }
+}
 })(); 
