@@ -4232,23 +4232,22 @@ function renderResenasDestacadas(w) {
       "#" + elementId + " .nvx-avatar { " +
         "background: " + accentColor + " !important; " +
         "color: #ffffff !important; " +
-        "width: 26px !important; " +
-        "height: 26px !important; " +
+        "width: 32px !important; " + // Un poquito más grande para lucir mejor las fotos (32px)
+        "height: 32px !important; " +
         "border-radius: 50% !important; " +
-        "font-size: 10px !important; " +
+        "font-size: 11px !important; " +
         "font-weight: 900 !important; " +
         "display: flex !important; " +
         "align-items: center !important; " +
         "justify-content: center !important; " +
         "flex-shrink: 0 !important; " +
+        "overflow: hidden !important; " + // Crítico para que la imagen se recorte redonda
       "} " +
-      "#" + elementId + " .nvx-review-photo { " +
+      "#" + elementId + " .nvx-avatar-img { " +
         "width: 100% !important; " +
-        "max-height: 140px !important; " +
-        "object-fit: cover !important; " +
-        "border-radius: 8px !important; " +
+        "height: 100% !important; " +
+        "object-fit: cover !important; " + // Centrado y recorte perfecto
         "display: block !important; " +
-        "margin: 4px 0 !important; " +
       "}";
     styleEl.appendChild(document.createTextNode(css));
     document.head.appendChild(styleEl);
@@ -4287,24 +4286,23 @@ function renderResenasDestacadas(w) {
 
       var verHtml = r.verified ? '<span style="font-size:10px !important;font-weight:700 !important;color:#10B981 !important;display:inline-flex !important;align-items:center !important;gap:3px !important;margin-top:2px !important;">✓ Compra verificada</span>' : '';
 
-      // Render de la Foto si existe
-      var photoHtml = "";
+      // Decisión del contenido del avatar (Foto o Iniciales)
+      var avatarContent = "";
       if (r.photo) {
-        photoHtml = '<div style="margin-top:4px !important;margin-bottom:2px !important;width:100% !important;">' +
-          '<img class="nvx-review-photo" src="' + r.photo + '" alt="Foto de reseña" />' +
-        '</div>';
+        avatarContent = '<img class="nvx-avatar-img" src="' + r.photo + '" alt="' + (r.name || "") + '" />';
+      } else {
+        avatarContent = r.initials || "U";
       }
 
       cardsHtml +=
         '<div class="nvx-review-card" style="' + (isCarousel ? "min-width:220px !important;max-width:220px !important;flex-shrink:0 !important;" : "width:100% !important;") + 'box-sizing:border-box !important;">' +
           '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;gap:6px !important;">' +
             '<div style="display:flex !important;align-items:center !important;gap:8px !important;min-width:0 !important;flex:1 !important;">' +
-              '<div class="nvx-avatar">' + (r.initials || "U") + '</div>' +
+              '<div class="nvx-avatar">' + avatarContent + '</div>' +
               '<span style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;display:block !important;flex:1 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.name) : r.name) + '</span>' +
             '</div>' +
             '<span style="font-size:11px !important;white-space:nowrap !important;">' + stars + '</span>' +
           '</div>' +
-          photoHtml +
           '<p style="font-size:12px !important;color:' + textColor + ' !important;opacity:0.85 !important;margin:0 !important;line-height:1.4 !important;word-break:break-word !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.text) : r.text) + '</p>' +
           verHtml +
         '</div>';
