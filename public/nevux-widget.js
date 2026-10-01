@@ -1669,6 +1669,7 @@
           if (w.widget_slug === "cuenta-regresiva") renderCuentaRegresiva(w);
           if (w.widget_slug === "info-despacho") renderInfoDespacho(w);
           if (w.widget_slug === "urgencia-stock") renderUrgenciaStock(w);
+          if (w.widget_slug === "resenas-destacadas") renderResenasDestacadas(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -4148,4 +4149,214 @@ function renderUrgenciaStock(w) {
     nvxTrack(w.id, "impression");
   }
 }
+  /* ═══════════════════════════════════════════
+   WIDGET: RESEÑAS DESTACADAS
+   ═══════════════════════════════════════════ */
+function renderResenasDestacadas(w) {
+  var elementId = "nvx-reviews-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+  var location = cfg.location || "product_after";
+
+  // Verificación estricta: SOLO en Ficha de Producto
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+  if (currentPage !== "product") {
+    return;
+  }
+
+  var averageRating = cfg.averageRating || 4.8;
+  var totalReviews = cfg.totalReviews || 36;
+  var showVerifiedBadge = cfg.showVerifiedBadge !== false;
+  var layout = cfg.layout || "list";
+  var bgColor = cfg.bgColor || "#ffffff";
+  var textColor = cfg.textColor || "#111827";
+  var cardBgColor = cfg.cardBgColor || "#f9fafb";
+  var accentColor = cfg.accentColor || "#10B981";
+  var reviews = cfg.reviews && cfg.reviews.length > 0 ? cfg.reviews : [
+    { id: "1", name: "Luna R.", initials: "LR", rating: 5, text: "Muy buena calidad. El material es excelente y se nota que está bien hecho.", verified: true },
+    { id: "2", name: "Mica P.", initials: "MP", rating: 5, text: "Llegó rapidísimo, mejor de lo esperado. Todo perfecto.", verified: true },
+    { id: "3", name: "Nora S.", initials: "NS", rating: 5, text: "Se ve tal cual en las fotos, muy lindo y práctico.", verified: true }
+  ];
+
+  // Presets de campaña
+  var THEMES = {
+    "black-friday": { bg: "#111827", text: "#ffffff", card: "#1f2937", accent: "#F59E0B" },
+    "hot-sale": { bg: "#0F172A", text: "#ffffff", card: "#1e293b", accent: "#EF4444" },
+    "cyber-monday": { bg: "#090D16", text: "#ffffff", card: "#111827", accent: "#3B82F6" },
+    "navidad": { bg: "#064E3B", text: "#ffffff", card: "#047857", accent: "#EF4444" },
+    "san-valentin": { bg: "#831843", text: "#ffffff", card: "#9d174d", accent: "#F43F5E" },
+    "dia-padre-madre": { bg: "#312E81", text: "#ffffff", card: "#3730a3", accent: "#10B981" },
+    "liquidacion": { bg: "#7F1D1D", text: "#ffffff", card: "#991b1b", accent: "#FBBF24" }
+  };
+
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    var t = THEMES[cfg.campaignTheme];
+    bgColor = t.bg;
+    textColor = t.text;
+    cardBgColor = t.card;
+    accentColor = t.accent;
+  }
+
+  // Inyección de estilos específicos indetectables por el tema
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    var css =
+      "#" + elementId + " { " +
+        "background: " + bgColor + " !important; " +
+        "border: 1px solid #e5e7eb !important; " +
+        "border-radius: 16px !important; " +
+        "padding: 16px !important; " +
+        "color: " + textColor + " !important; " +
+        "box-sizing: border-box !important; " +
+        "box-shadow: 0 4px 14px rgba(0,0,0,0.05) !important; " +
+        "display: flex !important; " +
+        "flex-direction: column !important; " +
+        "gap: 12px !important; " +
+        "margin: 14px 0 !important; " +
+        "width: 100% !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; " +
+      "} " +
+      "#" + elementId + " .nvx-review-card { " +
+        "background: " + cardBgColor + " !important; " +
+        "border-radius: 12px !important; " +
+        "padding: 12px !important; " +
+        "border: 1px solid rgba(0,0,0,0.06) !important; " +
+        "display: flex !important; " +
+        "flex-direction: column !important; " +
+        "gap: 6px !important; " +
+      "} " +
+      "#" + elementId + " .nvx-avatar { " +
+        "background: " + accentColor + " !important; " +
+        "color: #ffffff !important; " +
+        "width: 26px !important; " +
+        "height: 26px !important; " +
+        "border-radius: 50% !important; " +
+        "font-size: 10px !important; " +
+        "font-weight: 900 !important; " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: center !important; " +
+        "flex-shrink: 0 !important; " +
+      "}";
+    styleEl.appendChild(document.createTextNode(css));
+    document.head.appendChild(styleEl);
+  }
+
+  var container = document.createElement("div");
+  container.id = elementId;
+  container.className = "nvx-widget nvx-reviews-wrapper";
+
+  // HTML del Header
+  var verifiedHtml = showVerifiedBadge ?
+    '<span style="background:#ecfdf5 !important;color:#059669 !important;border:1px solid #a7f3d0 !important;border-radius:999px !important;padding:2px 8px !important;font-size:11px !important;font-weight:800 !important;">✓ Verificadas</span>' : '';
+
+  var headerHtml =
+    '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;' + (layout === "compact" ? "" : "border-bottom:1px solid rgba(0,0,0,0.08) !important;padding-bottom:10px !important;") + '">' +
+      '<div style="display:flex !important;align-items:center !important;gap:8px !important;">' +
+        '<span style="font-size:16px !important;">⭐⭐⭐⭐⭐</span>' +
+        '<span style="font-size:15px !important;font-weight:900 !important;color:' + textColor + ' !important;">' + averageRating + '</span>' +
+        '<span style="font-size:12px !important;opacity:0.6 !important;color:' + textColor + ' !important;">(' + totalReviews + ' reseñas)</span>' +
+      '</div>' +
+      verifiedHtml +
+    '</div>';
+
+  // HTML de las Cards (si no es compact)
+  var cardsHtml = "";
+  if (layout !== "compact") {
+    var isCarousel = layout === "carousel";
+    cardsHtml = '<div style="display:flex !important;flex-direction:' + (isCarousel ? "row" : "column") + ' !important;gap:10px !important;' + (isCarousel ? "overflow-x:auto !important;padding-bottom:6px !important;" : "") + '">';
+
+    for (var i = 0; i < reviews.length; i++) {
+      var r = reviews[i];
+      var stars = "";
+      for (var s = 0; s < (r.rating || 5); s++) {
+        stars += "⭐";
+      }
+
+      var verHtml = r.verified ? '<span style="font-size:10px !important;font-weight:700 !important;color:#10B981 !important;display:inline-flex !important;align-items:center !important;gap:3px !important;">✓ Compra verificada</span>' : '';
+
+      cardsHtml +=
+        '<div class="nvx-review-card" style="' + (isCarousel ? "min-width:220px !important;flex-shrink:0 !important;" : "") + '">' +
+          '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;">' +
+            '<div style="display:flex !important;align-items:center !important;gap:8px !important;">' +
+              '<div class="nvx-avatar">' + (r.initials || "U") + '</div>' +
+              '<span style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.name) : r.name) + '</span>' +
+            '</div>' +
+            '<span style="font-size:11px !important;">' + stars + '</span>' +
+          '</div>' +
+          '<p style="font-size:12px !important;color:' + textColor + ' !important;opacity:0.85 !important;margin:0 !important;line-height:1.4 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(r.text) : r.text) + '</p>' +
+          verHtml +
+        '</div>';
+    }
+    cardsHtml += '</div>';
+  }
+
+  container.innerHTML = headerHtml + cardsHtml;
+
+  // Inserción en la página
+  var targetEl = null;
+
+  if (location === "title_after") {
+    var titleSelectors = ["h1.js-product-name", "h1.product-title", "h1.page-header", ".js-product-name", "h1"];
+    for (var tIdx = 0; tIdx < titleSelectors.length; tIdx++) {
+      var tEl = document.querySelector(titleSelectors[tIdx]);
+      if (tEl) { targetEl = tEl; break; }
+    }
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    }
+  } else if (location === "price_after") {
+    var priceSelectors = [".js-price-container", ".price-container", ".product-price-container", ".js-product-price-container", "#price_display", ".js-price-display", ".product-price"];
+    for (var pIdx = 0; pIdx < priceSelectors.length; pIdx++) {
+      var pEl = document.querySelector(priceSelectors[pIdx]);
+      if (pEl) {
+        var parent = pEl.parentNode;
+        if (parent && (parent.classList.contains("price-container") || parent.classList.contains("js-price-container") || parent.classList.contains("product-price-container"))) {
+          targetEl = parent;
+        } else {
+          targetEl = pEl;
+        }
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    }
+  }
+
+  if (!container.parentNode) {
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form"
+    ];
+    for (var bIdx = 0; bIdx < buySelectors.length; bIdx++) {
+      var bEl = document.querySelector(buySelectors[bIdx]);
+      if (bEl) { targetEl = bEl; break; }
+    }
+    if (targetEl && targetEl.parentNode) {
+      if (location === "product_before") {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      }
+    } else {
+      var main = document.querySelector("main, #content, .main-content, .js-product-container");
+      if (main) main.insertBefore(container, main.firstChild);
+    }
+  }
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+    }
 })(); 
