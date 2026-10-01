@@ -4375,31 +4375,41 @@ function renderResenasDestacadas(w) {
     nvxTrack(w.id, "impression");
   }
 }
-  /* ═══════════════════════════════════════════
-   WIDGET: BUNDLE DE PROMOCIONES (v226)
-   Precios auto + total complementario en vivo
+/* ═══════════════════════════════════════════
+   WIDGET: BUNDLE DE PROMOCIONES (v227 Fix Precios Exactos)
    ═══════════════════════════════════════════ */
 if (typeof window.nvxBundleParsePrice !== "function") {
-  window.nvxBundleParsePrice = function (txt) {
-    if (!txt) return 0;
-    var s = String(txt).replace(/[^\d.,]/g, "").trim();
-    if (!s) return 0;
-    if (s.indexOf(",") > -1 && s.indexOf(".") > -1) {
-      if (s.lastIndexOf(",") > s.lastIndexOf(".")) {
-        s = s.replace(/\./g, "").replace(",", ".");
+  window.nvxBundleParsePrice = function (raw) {
+    if (!raw) return 0;
+    var str = String(raw).trim();
+    str = str.replace(/[^0-9.,]/g, "");
+    if (!str) return 0;
+
+    if (str.indexOf(",") > -1 && str.indexOf(".") > -1) {
+      if (str.lastIndexOf(",") > str.lastIndexOf(".")) {
+        str = str.replace(/\./g, "").replace(",", ".");
       } else {
-        s = s.replace(/,/g, "");
+        str = str.replace(/,/g, "");
       }
-    } else if (s.indexOf(",") > -1) {
-      var p = s.split(",");
-      if (p.length === 2 && p[1].length <= 2) s = p[0].replace(/\./g, "") + "." + p[1];
-      else s = s.replace(/,/g, "");
-    } else {
-      var parts = s.split(".");
-      if (parts.length > 1 && parts[parts.length - 1].length === 3) s = parts.join("");
+    } else if (str.indexOf(",") > -1) {
+      var partsCom = str.split(",");
+      if (partsCom.length === 2 && partsCom[1].length === 2) {
+        str = partsCom[0].replace(/\./g, "") + "." + partsCom[1];
+      } else {
+        str = str.replace(/,/g, "");
+      }
+    } else if (str.indexOf(".") > -1) {
+      var partsDot = str.split(".");
+      if (partsDot.length === 2 && partsDot[1].length === 2) {
+        // Formato estándar con centavos 35000.00
+      } else {
+        // Separador de miles 35.000 -> 35000
+        str = str.replace(/\./g, "");
+      }
     }
-    var n = parseFloat(s);
-    return isNaN(n) ? 0 : n;
+
+    var val = parseFloat(str);
+    return isNaN(val) ? 0 : val;
   };
 }
 
@@ -4423,25 +4433,43 @@ if (typeof window.nvxBundleFormatPrice !== "function") {
 
 if (typeof window.nvxBundleGetProductPrice !== "function") {
   window.nvxBundleGetProductPrice = function () {
-    var sels = [
+    // Prioridad 1: Leer el texto visual que ve el cliente en pantalla
+    var textSels = [
       ".js-price-display",
       "#price_display",
       ".js-product-price",
       ".product-price",
       ".price-display",
-      "[data-product-price]",
       ".js-compare-price-display",
-      ".price .js-price-display",
-      ".product-price-container .js-price-display",
-      "meta[itemprop='price']",
-      "[itemprop='price']"
+      ".product-price-container .js-price-display"
     ];
-    for (var i = 0; i < sels.length; i++) {
-      var el = document.querySelector(sels[i]);
+    for (var i = 0; i < textSels.length; i++) {
+      var el = document.querySelector(textSels[i]);
       if (!el) continue;
-      var raw = el.getAttribute("content") || el.getAttribute("data-product-price") || el.getAttribute("data-price") || (el.textContent || el.innerText || "");
-      var val = window.nvxBundleParsePrice(raw);
-      if (val > 0) return val;
+      var txt = el.innerText || el.textContent || "";
+      var val = window.nvxBundleParsePrice(txt);
+      if (val > 0) {
+        return val;
+      }
+    }
+
+    // Prioridad 2: Atributos HTML con corrección automática de centavos
+    var attrSels = [
+      "meta[itemprop='price']",
+      "[itemprop='price']",
+      "[data-product-price]"
+    ];
+    for (var j = 0; j < attrSels.length; j++) {
+      var aEl = document.querySelector(attrSels[j]);
+      if (!aEl) continue;
+      var rawAttr = aEl.getAttribute("content") || aEl.getAttribute("data-product-price") || aEl.getAttribute("data-price") || "";
+      var aVal = window.nvxBundleParsePrice(rawAttr);
+      if (aVal > 0) {
+        if (aVal > 500000 && aVal % 100 === 0) {
+          aVal = aVal / 100;
+        }
+        return aVal;
+      }
     }
     return 0;
   };
@@ -4623,7 +4651,7 @@ function renderBundlePromociones(w) {
     buttonBgColor = t.btn;
   }
 
-  // Precio real del producto en la ficha
+  // Obtener precio real exacto del producto
   var unitPrice = window.nvxBundleGetProductPrice();
   var compPriceNum = window.nvxBundleParsePrice(complementaryPriceRaw);
 
@@ -4635,7 +4663,7 @@ function renderBundlePromociones(w) {
   }
   if (activeBundles.length === 0) return;
 
-  // Autocalcular precios psicológicos por pack
+  // Autocalcular precios exactos por pack
   for (var c = 0; c < activeBundles.length; c++) {
     var deal = window.nvxBundleParseDeal(activeBundles[c].title);
     activeBundles[c]._take = deal.take;
@@ -4654,7 +4682,6 @@ function renderBundlePromociones(w) {
         activeBundles[c]._badge = activeBundles[c].badge || "";
       }
     } else {
-      // Fallback a lo configurado a mano
       activeBundles[c]._oldNum = window.nvxBundleParsePrice(activeBundles[c].oldPrice);
       activeBundles[c]._newNum = window.nvxBundleParsePrice(activeBundles[c].newPrice);
       activeBundles[c]._oldStr = activeBundles[c].oldPrice || "";
@@ -4811,7 +4838,7 @@ function renderBundlePromociones(w) {
 
   container.innerHTML = headerHtml + bundlesHtml + compHtml + totalHtml + buttonHtml;
 
-  // Inserción (mismas ubicaciones de siempre)
+  // Inserción en la página
   var targetEl = null;
 
   if (location === "title_after") {
@@ -4868,7 +4895,6 @@ function renderBundlePromociones(w) {
     }
   }
 
-  // NO ocultamos el botón nativo: si no usan el pack, compran normal
   if (activeBundles.length > 0) {
     var initQty = activeBundles[0]._take || 1;
     var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
@@ -4884,5 +4910,5 @@ function renderBundlePromociones(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+    }
 })(); 
