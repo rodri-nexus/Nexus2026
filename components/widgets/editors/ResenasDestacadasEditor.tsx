@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
@@ -40,6 +40,7 @@ interface ReviewItem {
   rating: number;
   text: string;
   verified: boolean;
+  photo?: string;
 }
 
 interface Cfg {
@@ -80,6 +81,50 @@ const DEF: Cfg = {
 };
 
 /* ═══════════════════════════════════════════
+   HELPER: Compresión de imagen en navegador
+═══════════════════════════════════════════ */
+async function compressImageToBase64(file: File, maxSize: number = 600, quality: number = 0.75): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context no disponible'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error('Error cargando imagen'));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('Error leyendo archivo'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ═══════════════════════════════════════════
    ICONOS AUXILIARES
 ═══════════════════════════════════════════ */
 const IconStore = () => (
@@ -94,6 +139,13 @@ const IconStore = () => (
 const IconInfo = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
+const IconCamera = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
   </svg>
 );
 
@@ -251,6 +303,9 @@ export default function ResenasDestacadasEditor({
   const [saving, setSaving] = useState(false);
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+
+  const fileInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const isForAll = targetType === 'all';
   const scopeLabel = isForAll ? 'General' : 'Producto';
@@ -307,6 +362,33 @@ export default function ResenasDestacadasEditor({
       ...prev,
       reviews: prev.reviews.filter((_, i) => i !== index),
     }));
+  };
+
+  const handlePhotoSelect = async (index: number, file: File | null) => {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setErr('La imagen es demasiado grande. Máximo 10MB.');
+      return;
+    }
+    setUploadingIdx(index);
+    setErr('');
+    try {
+      const base64 = await compressImageToBase64(file, 600, 0.75);
+      updateReview(index, 'photo', base64);
+    } catch (e) {
+      setErr('No se pudo procesar la imagen. Intentá con otra.');
+    } finally {
+      setUploadingIdx(null);
+    }
+  };
+
+  const triggerFileInput = (index: number) => {
+    const input = fileInputRefs.current[index];
+    if (input) input.click();
+  };
+
+  const removePhoto = (index: number) => {
+    updateReview(index, 'photo', '');
   };
 
   const applyCampaignPreset = (slug: string) => {
@@ -530,6 +612,22 @@ export default function ResenasDestacadasEditor({
                         <span style={{ fontSize: 11 }}>{'⭐'.repeat(rev.rating)}</span>
                       </div>
 
+                      {rev.photo && (
+                        <div style={{ marginTop: 4, marginBottom: 2 }}>
+                          <img
+                            src={rev.photo}
+                            alt="Foto de reseña"
+                            style={{
+                              width: '100%',
+                              maxHeight: 140,
+                              objectFit: 'cover',
+                              borderRadius: 8,
+                              display: 'block',
+                            }}
+                          />
+                        </div>
+                      )}
+
                       <p style={{ fontSize: 12, color: cfg.textColor, opacity: 0.85, margin: 0, lineHeight: 1.4 }}>
                         {rev.text}
                       </p>
@@ -555,7 +653,7 @@ export default function ResenasDestacadasEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              Aumentá la confianza de compra inmediatamente mostrando opiniones reales y calificaciones destacadas de tus clientes en la ficha de producto.
+              Aumentá la confianza de compra inmediatamente mostrando opiniones reales con fotos de tus clientes en la ficha de producto.
             </span>
           </div>
 
@@ -704,6 +802,95 @@ export default function ResenasDestacadasEditor({
                         onChange={(v) => updateReview(idx, 'text', v)}
                         placeholder="Comentario de la reseña..."
                       />
+
+                      {/* CARGA DE FOTO */}
+                      <div style={{
+                        background: '#f9fafb', border: '1.5px dashed #d1d5db', borderRadius: 10,
+                        padding: 12, display: 'flex', alignItems: 'center', gap: 12,
+                      }}>
+                        <input
+                          ref={(el) => { fileInputRefs.current[idx] = el; }}
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                            handlePhotoSelect(idx, f);
+                            e.target.value = '';
+                          }}
+                        />
+
+                        {rev.photo ? (
+                          <>
+                            <img
+                              src={rev.photo}
+                              alt="Preview"
+                              style={{
+                                width: 54, height: 54, objectFit: 'cover', borderRadius: 8,
+                                flexShrink: 0, border: '1px solid #e5e7eb',
+                              }}
+                            />
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>
+                                ✓ Foto cargada
+                              </span>
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <button
+                                  type="button"
+                                  onClick={() => triggerFileInput(idx)}
+                                  disabled={uploadingIdx === idx}
+                                  style={{
+                                    background: '#ffffff', color: '#059669', border: '1px solid #10B981',
+                                    borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 700,
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  Cambiar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removePhoto(idx)}
+                                  style={{
+                                    background: '#ffffff', color: '#ef4444', border: '1px solid #ef4444',
+                                    borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 700,
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  Quitar
+                                </button>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{
+                              width: 54, height: 54, borderRadius: 8, background: '#ecfdf5',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: '#10B981', flexShrink: 0,
+                            }}>
+                              <IconCamera />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <button
+                                type="button"
+                                onClick={() => triggerFileInput(idx)}
+                                disabled={uploadingIdx === idx}
+                                style={{
+                                  background: '#10B981', color: '#ffffff', border: 'none',
+                                  borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 800,
+                                  cursor: uploadingIdx === idx ? 'wait' : 'pointer',
+                                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                                }}
+                              >
+                                {uploadingIdx === idx ? 'Procesando...' : '📸 Subir Foto'}
+                              </button>
+                              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>
+                                JPG, PNG o WebP. Máx 10MB (se comprime automático).
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -906,4 +1093,4 @@ export default function ResenasDestacadasEditor({
       </div>
     </div>
   );
-   }
+         }
