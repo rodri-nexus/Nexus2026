@@ -9,6 +9,7 @@ import ContadorVendidosEditor from '@/components/widgets/editors/ContadorVendido
 import CuentaRegresivaEditor from '@/components/widgets/editors/CuentaRegresivaEditor';
 import InfoDespachoEditor from '@/components/widgets/editors/InfoDespachoEditor';
 import UrgenciaStockEditor from '@/components/widgets/editors/UrgenciaStockEditor';
+import ResenasDestacadasEditor from '@/components/widgets/editors/ResenasDestacadasEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -61,6 +62,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: RESEÑAS DESTACADAS
+  if (params.widgetSlug === 'resenas-destacadas') {
+    return (
+      <ResenasDestacadasEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: URGENCIA DE STOCK
   if (params.widgetSlug === 'urgencia-stock') {
