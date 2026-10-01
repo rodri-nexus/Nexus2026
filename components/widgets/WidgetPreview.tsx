@@ -8,6 +8,86 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function BundlePromocionesPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827" }}>
+        Elegí tu pack en promo
+      </div>
+
+      <div
+        style={{
+          background: "#ffffff",
+          border: "1.5px solid #10B981",
+          borderRadius: "6px",
+          padding: "4px 6px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div
+            style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              border: "1.5px solid #10B981",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#10B981" }} />
+          </div>
+          <span style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>
+            Lleva 2 paga 1
+          </span>
+          <span
+            style={{
+              background: "#fef2f2",
+              color: "#ef4444",
+              fontSize: "5.5px",
+              fontWeight: 800,
+              padding: "1px 3px",
+              borderRadius: "3px",
+            }}
+          >
+            -50%
+          </span>
+        </div>
+        <span style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>$10.000</span>
+      </div>
+
+      <div
+        style={{
+          background: "#10B981",
+          color: "#ffffff",
+          borderRadius: "6px",
+          padding: "4px",
+          fontSize: "7px",
+          fontWeight: 800,
+          textAlign: "center",
+        }}
+      >
+        Sumalo al carrito
+      </div>
+    </div>
+  );
+}
+
 function InfoDespachoPreview() {
   return (
     <div
@@ -561,6 +641,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "bundle-promociones":
+      return <BundlePromocionesPreview />;
     case "info-despacho":
       return <InfoDespachoPreview />;
     case "cuenta-regresiva":
@@ -608,4 +690,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-  }
+          }
