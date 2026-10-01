@@ -4035,6 +4035,9 @@ function renderUrgenciaStock(w) {
         "gap: 8px !important; " +
         "margin: 12px 0 !important; " +
         "width: 100% !important; " +
+        "max-width: 100% !important; " +
+        "flex-basis: 100% !important; " +
+        "clear: both !important; " +
         "text-align: center !important; " +
         "font-family: system-ui, -apple-system, sans-serif !important; " +
       "}";
@@ -4050,35 +4053,68 @@ function renderUrgenciaStock(w) {
   var iconHtml = (icon && icon !== "none") ? '<span style="font-size:18px;flex-shrink:0;">' + safeIcon + '</span>' : '';
   container.innerHTML = iconHtml + '<span>' + safeText + '</span>';
 
-  // Lógica de ubicación
+  // Ubicación precisa sin colisiones
   var targetEl = null;
 
-  if (location === "price_before" || location === "price_after") {
-    var priceSelectors = [
-      ".js-price-display",
-      "#price_display",
-      ".product-price",
-      ".js-product-price",
-      ".price-container",
-      "[data-product-price]"
+  if (location === "price_before") {
+    // ARRIBA DEL PRECIO: Justo debajo del título del producto o SKU
+    var titleSelectors = [
+      "h1.js-product-name",
+      "h1.product-title",
+      "h1.page-header",
+      ".js-product-name",
+      "h1"
     ];
-    for (var pIdx = 0; pIdx < priceSelectors.length; pIdx++) {
-      var pEl = document.querySelector(priceSelectors[pIdx]);
-      if (pEl) {
-        targetEl = pEl;
+    for (var tIdx = 0; tIdx < titleSelectors.length; tIdx++) {
+      var tEl = document.querySelector(titleSelectors[tIdx]);
+      if (tEl) {
+        targetEl = tEl;
         break;
       }
     }
     if (targetEl && targetEl.parentNode) {
-      if (location === "price_after") {
-        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      var skuEl = targetEl.parentNode.querySelector(".js-product-sku, .product-sku, .sku-container");
+      if (skuEl && skuEl.parentNode === targetEl.parentNode) {
+        skuEl.parentNode.insertBefore(container, skuEl.nextSibling);
       } else {
-        targetEl.parentNode.insertBefore(container, targetEl);
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
       }
+    }
+  } else if (location === "price_after") {
+    // ABAJO DEL PRECIO: Debajo de todo el bloque de precio y descuento
+    var priceSelectors = [
+      ".js-price-container",
+      ".price-container",
+      ".product-price-container",
+      ".js-product-price-container",
+      "#price_display",
+      ".js-price-display",
+      ".product-price"
+    ];
+    for (var pIdx = 0; pIdx < priceSelectors.length; pIdx++) {
+      var pEl = document.querySelector(priceSelectors[pIdx]);
+      if (pEl) {
+        var parent = pEl.parentNode;
+        if (parent && (parent.classList.contains("price-container") || parent.classList.contains("js-price-container") || parent.classList.contains("product-price-container"))) {
+          targetEl = parent;
+        } else {
+          targetEl = pEl;
+        }
+        break;
+      }
+    }
+    if (targetEl && targetEl.parentNode) {
+      try {
+        if (window.getComputedStyle(targetEl.parentNode).display.indexOf("flex") !== -1) {
+          targetEl.parentNode.style.flexWrap = "wrap";
+        }
+      } catch(e) {}
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
     }
   }
 
-  if (!targetEl) {
+  // Fallback si no fue price_before / price_after o no encontró selector de precio
+  if (!container.parentNode) {
     var buySelectors = [
       "form[action*='/cart/add']",
       "form.js-product-form",
