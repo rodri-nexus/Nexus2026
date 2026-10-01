@@ -118,9 +118,9 @@ function FieldHelper({ children }: { children: React.ReactNode }) {
 }
 
 function TextInput({
-  value, onChange, placeholder, maxLength, type = 'text', min, step,
+  value, onChange, placeholder, maxLength, type = 'text', min, max, step,
 }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number; type?: string; min?: string; step?: string;
+  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number; type?: string; min?: string; max?: string; step?: string;
 }) {
   return (
     <input
@@ -130,6 +130,7 @@ function TextInput({
       placeholder={placeholder}
       maxLength={maxLength}
       min={min}
+      max={max}
       step={step}
       style={{
         width: '100%', padding: '12px 14px', fontSize: 15,
@@ -905,4 +906,4 @@ export default function ResenasDestacadasEditor({
       </div>
     </div>
   );
-}
+   }
