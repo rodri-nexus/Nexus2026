@@ -8,6 +8,7 @@ import EdicionLimitadaEditor from '@/components/widgets/editors/EdicionLimitadaE
 import ContadorVendidosEditor from '@/components/widgets/editors/ContadorVendidosEditor';
 import CuentaRegresivaEditor from '@/components/widgets/editors/CuentaRegresivaEditor';
 import InfoDespachoEditor from '@/components/widgets/editors/InfoDespachoEditor';
+import UrgenciaStockEditor from '@/components/widgets/editors/UrgenciaStockEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -60,6 +61,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: URGENCIA DE STOCK
+  if (params.widgetSlug === 'urgencia-stock') {
+    return (
+      <UrgenciaStockEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: INFORMACIÓN DE DESPACHO
   if (params.widgetSlug === 'info-despacho') {
@@ -165,4 +179,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+}
