@@ -4385,7 +4385,7 @@ function renderBundlePromociones(w) {
   var cfg = w.config || {};
   var location = cfg.location || "product_after";
 
-  // Verificación estricta: SOLO en Ficha de Producto
+  // Verificación de página (Ficha de Producto)
   var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
   if (currentPage !== "product") {
     return;
@@ -4430,10 +4430,10 @@ function renderBundlePromociones(w) {
     buttonBgColor = t.btn;
   }
 
-  // Filtrar activas
+  // Filtrar promociones activas
   var activeBundles = [];
   for (var bIdx = 0; bIdx < bundles.length; bIdx++) {
-    if (bundles[bIdx].enabled) {
+    if (bundles[bIdx] && (bundles[bIdx].enabled === true || bundles[bIdx].enabled === undefined)) {
       activeBundles.push(bundles[bIdx]);
     }
   }
@@ -4530,7 +4530,8 @@ function renderBundlePromociones(w) {
 
   // Packs HTML
   var bundlesHtml = '<div style="display:flex !important;flex-direction:column !important;gap:10px !important;width:100% !important;">';
-  for (var k = 0; b = activeBundles[k], k < activeBundles.length; k++) {
+  for (var k = 0; k < activeBundles.length; k++) {
+    var b = activeBundles[k];
     var isSelected = k === 0;
     var badgeHtml = b.badge ? '<span style="background:#fef2f2 !important;color:#ef4444 !important;border-radius:6px !important;padding:2px 6px !important;font-size:10px !important;font-weight:800 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(b.badge) : b.badge) + '</span>' : '';
 
