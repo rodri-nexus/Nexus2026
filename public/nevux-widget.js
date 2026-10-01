@@ -4376,8 +4376,47 @@ function renderResenasDestacadas(w) {
   }
 }
   /* ═══════════════════════════════════════════
-   WIDGET: BUNDLE DE PROMOCIONES
+   WIDGET: BUNDLE DE PROMOCIONES (v13 Final)
    ═══════════════════════════════════════════ */
+if (typeof window.nvxSelectBundle !== "function") {
+  window.nvxSelectBundle = function(cardEl, qty) {
+    var parent = cardEl.parentNode;
+    if (!parent) return;
+    var cards = parent.getElementsByClassName("nvx-bundle-card");
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].classList.remove("selected");
+    }
+    cardEl.classList.add("selected");
+
+    // Actualizar cantidad en input nativo de Tiendanube
+    var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
+    for (var j = 0; j < qtyInputs.length; j++) {
+      qtyInputs[j].value = qty;
+      try {
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("change", true, true);
+        qtyInputs[j].dispatchEvent(evt);
+      } catch(e) {}
+    }
+  };
+}
+
+if (typeof window.nvxSubmitBundle !== "function") {
+  window.nvxSubmitBundle = function(btnEl) {
+    var orig = btnEl.innerHTML;
+    btnEl.innerHTML = "¡Agregando al carrito...!";
+    setTimeout(function() { btnEl.innerHTML = orig; }, 2000);
+
+    var targetBtn = document.querySelector('form[action*="/cart/add"] [type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type="submit"]');
+    if (targetBtn) {
+      targetBtn.click();
+    } else {
+      var form = document.querySelector('form[action*="/cart/add"]');
+      if (form) form.submit();
+    }
+  };
+}
+
 function renderBundlePromociones(w) {
   var elementId = "nvx-bundle-" + w.id;
   if (document.getElementById(elementId)) return;
@@ -4428,6 +4467,17 @@ function renderBundlePromociones(w) {
     cardBgColor = t.card;
     accentColor = t.accent;
     buttonBgColor = t.btn;
+  }
+
+  // Helper para extraer cantidad numérica del título
+  function parseQty(tStr) {
+    if (!tStr) return 1;
+    var m = tStr.match(/(\d+)/);
+    if (m && m[1]) {
+      var n = parseInt(m[1], 10);
+      if (n > 0 && n < 50) return n;
+    }
+    return 1;
   }
 
   // Filtrar promociones activas
@@ -4558,10 +4608,11 @@ function renderBundlePromociones(w) {
   for (var k = 0; k < activeBundles.length; k++) {
     var b = activeBundles[k];
     var isSelected = k === 0;
+    var qtyNum = parseQty(b.title);
     var badgeHtml = b.badge ? '<span style="background:#fef2f2 !important;color:#ef4444 !important;border-radius:6px !important;padding:2px 6px !important;font-size:10px !important;font-weight:800 !important;">' + (typeof escapeHtml === "function" ? escapeHtml(b.badge) : b.badge) + '</span>' : '';
 
     bundlesHtml +=
-      '<div class="nvx-bundle-card ' + (isSelected ? "selected" : "") + '" data-bundle-id="' + (b.id || k) + '" onclick="var parent=this.parentNode; var cards=parent.getElementsByClassName(\'nvx-bundle-card\'); for(var i=0; i<cards.length; i++){ cards[i].classList.remove(\'selected\'); } this.classList.add(\'selected\');">' +
+      '<div class="nvx-bundle-card ' + (isSelected ? "selected" : "") + '" data-qty="' + qtyNum + '" onclick="window.nvxSelectBundle(this, ' + qtyNum + ');">' +
         '<div style="display:flex !important;align-items:center !important;gap:10px !important;">' +
           '<div class="nvx-radio"><div class="nvx-radio-dot"></div></div>' +
           '<div>' +
@@ -4578,7 +4629,7 @@ function renderBundlePromociones(w) {
   }
   bundlesHtml += '</div>';
 
-  // Complementario HTML (interacción fluida)
+  // Complementario HTML
   var compHtml = "";
   if (showComplementary) {
     compHtml =
@@ -4594,10 +4645,8 @@ function renderBundlePromociones(w) {
       '</div>';
   }
 
-  // Acción nativa de compra para Tiendanube
-  var btnAction = "var btn=this; var orig=btn.innerHTML; btn.innerHTML='¡Agregando...'; setTimeout(function(){ btn.innerHTML=orig; }, 1800); var targetBtn=document.querySelector('form[action*=\"/cart/add\"] [type=\"submit\"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type=\"submit\"]'); if(targetBtn){ targetBtn.click(); } else { var form=document.querySelector('form[action*=\"/cart/add\"]'); if(form) form.submit(); }";
-
-  var buttonHtml = '<button type="button" class="nvx-bundle-btn" onclick="' + btnAction + '">' + (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + '</button>';
+  // Botón HTML
+  var buttonHtml = '<button type="button" class="nvx-bundle-btn" onclick="window.nvxSubmitBundle(this);">' + (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + '</button>';
 
   container.innerHTML = headerHtml + bundlesHtml + compHtml + buttonHtml;
 
@@ -4658,9 +4707,24 @@ function renderBundlePromociones(w) {
     }
   }
 
+  // Ocultar botón nativo de Agregar al Carrito para reemplazarlo
+  var nativeAtc = document.querySelector('form[action*="/cart/add"] [type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type="submit"]');
+  if (nativeAtc) {
+    nativeAtc.style.display = "none";
+  }
+
+  // Seteo de cantidad inicial del primer bundle
+  if (activeBundles.length > 0) {
+    var initQty = parseQty(activeBundles[0].title);
+    var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
+    for (var qI = 0; qI < qtyInputs.length; qI++) {
+      qtyInputs[qI].value = initQty;
+    }
+  }
+
   // Telemetría Nevux
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-        }
+     }
 })(); 
