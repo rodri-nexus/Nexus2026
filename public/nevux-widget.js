@@ -4471,10 +4471,15 @@ function renderBundlePromociones(w) {
         "justify-content: space-between !important; " +
         "cursor: pointer !important; " +
         "transition: all 0.2s !important; " +
+        "user-select: none !important; " +
+      "} " +
+      "#" + elementId + " .nvx-bundle-card:hover { " +
+        "border-color: " + accentColor + " !important; " +
       "} " +
       "#" + elementId + " .nvx-bundle-card.selected { " +
         "background: #ffffff !important; " +
         "border-color: " + accentColor + " !important; " +
+        "box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; " +
       "} " +
       "#" + elementId + " .nvx-radio { " +
         "width: 18px !important; " +
@@ -4499,6 +4504,22 @@ function renderBundlePromociones(w) {
       "#" + elementId + " .nvx-bundle-card.selected .nvx-radio-dot { " +
         "display: block !important; " +
       "} " +
+      "#" + elementId + " .nvx-comp-row { " +
+        "background: " + cardBgColor + " !important; " +
+        "border: 1.5px solid rgba(0,0,0,0.08) !important; " +
+        "border-radius: 10px !important; " +
+        "padding: 10px 12px !important; " +
+        "display: flex !important; " +
+        "align-items: center !important; " +
+        "justify-content: space-between !important; " +
+        "cursor: pointer !important; " +
+        "transition: all 0.2s !important; " +
+        "user-select: none !important; " +
+      "} " +
+      "#" + elementId + " .nvx-comp-row:hover { " +
+        "border-color: " + accentColor + " !important; " +
+        "background: #ffffff !important; " +
+      "} " +
       "#" + elementId + " .nvx-bundle-btn { " +
         "width: 100% !important; " +
         "background: " + buttonBgColor + " !important; " +
@@ -4511,6 +4532,10 @@ function renderBundlePromociones(w) {
         "cursor: pointer !important; " +
         "margin-top: 4px !important; " +
         "box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; " +
+        "transition: transform 0.1s, opacity 0.2s !important; " +
+      "} " +
+      "#" + elementId + " .nvx-bundle-btn:active { " +
+        "transform: scale(0.98) !important; " +
       "}";
     styleEl.appendChild(document.createTextNode(css));
     document.head.appendChild(styleEl);
@@ -4553,15 +4578,15 @@ function renderBundlePromociones(w) {
   }
   bundlesHtml += '</div>';
 
-  // Complementario HTML
+  // Complementario HTML (interacción fluida)
   var compHtml = "";
   if (showComplementary) {
     compHtml =
       '<div style="border-top:1px dashed rgba(0,0,0,0.1) !important;padding-top:12px !important;display:flex !important;flex-direction:column !important;gap:8px !important;width:100% !important;">' +
         '<div style="font-size:12px !important;font-weight:700 !important;color:' + accentColor + ' !important;display:flex !important;align-items:center !important;gap:6px !important;">🎁 ' + (typeof escapeHtml === "function" ? escapeHtml(complementaryText) : complementaryText) + '</div>' +
-        '<div style="background:' + cardBgColor + ' !important;border:1px solid rgba(0,0,0,0.08) !important;border-radius:10px !important;padding:10px !important;display:flex !important;align-items:center !important;justify-content:space-between !important;cursor:pointer !important;" onclick="var chk=this.querySelector(\'input\'); if(chk) chk.checked=!chk.checked;">' +
+        '<div class="nvx-comp-row" onclick="var chk=this.querySelector(\'input[type=checkbox]\'); if(event.target!==chk){ chk.checked=!chk.checked; }">' +
           '<div style="display:flex !important;align-items:center !important;gap:10px !important;">' +
-            '<input type="checkbox" style="width:16px !important;height:16px !important;accent-color:' + accentColor + ' !important;cursor:pointer !important;" />' +
+            '<input type="checkbox" style="width:18px !important;height:18px !important;accent-color:' + accentColor + ' !important;cursor:pointer !important;" onclick="event.stopPropagation();" />' +
             '<div style="font-size:13px !important;font-weight:700 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryName) : complementaryName) + '</div>' +
           '</div>' +
           '<div style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryPrice) : complementaryPrice) + '</div>' +
@@ -4569,8 +4594,10 @@ function renderBundlePromociones(w) {
       '</div>';
   }
 
-  // Botón HTML
-  var buttonHtml = '<button type="button" class="nvx-bundle-btn">' + (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + '</button>';
+  // Acción nativa de compra para Tiendanube
+  var btnAction = "var btn=this; var orig=btn.innerHTML; btn.innerHTML='¡Agregando...'; setTimeout(function(){ btn.innerHTML=orig; }, 1800); var targetBtn=document.querySelector('form[action*=\"/cart/add\"] [type=\"submit\"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type=\"submit\"]'); if(targetBtn){ targetBtn.click(); } else { var form=document.querySelector('form[action*=\"/cart/add\"]'); if(form) form.submit(); }";
+
+  var buttonHtml = '<button type="button" class="nvx-bundle-btn" onclick="' + btnAction + '">' + (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + '</button>';
 
   container.innerHTML = headerHtml + bundlesHtml + compHtml + buttonHtml;
 
@@ -4635,5 +4662,5 @@ function renderBundlePromociones(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+        }
 })(); 
