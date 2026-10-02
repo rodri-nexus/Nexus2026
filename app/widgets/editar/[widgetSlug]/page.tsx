@@ -11,6 +11,7 @@ import InfoDespachoEditor from '@/components/widgets/editors/InfoDespachoEditor'
 import UrgenciaStockEditor from '@/components/widgets/editors/UrgenciaStockEditor';
 import ResenasDestacadasEditor from '@/components/widgets/editors/ResenasDestacadasEditor';
 import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
+import PopupConversionEditor from '@/components/widgets/editors/PopupConversionEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -63,6 +64,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: POPUP DE CONVERSIÓN
+  if (params.widgetSlug === 'popup-conversion') {
+    return (
+      <PopupConversionEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: BUNDLE DE PROMOCIONES
   if (params.widgetSlug === 'bundle-promociones') {
@@ -207,4 +221,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+        }
