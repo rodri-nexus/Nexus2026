@@ -168,7 +168,7 @@ const MARKETING_ASSETS: MarketingAsset[] = [
 ];
 
 interface CarouselSlide {
-  type: "cover" | "problem" | "solution" | "cta";
+  type: "cover" | "problem" | "comparison" | "solution" | "cta";
   badgeEs: string;
   badgePt: string;
   titleEs: string;
@@ -178,46 +178,59 @@ interface CarouselSlide {
   metric?: string;
 }
 
+/* ═══════════════════════════════════════════
+   CARRUSEL B2B DE 5 PLACAS (ESTRATEGIA COMPLETA)
+═══════════════════════════════════════════ */
 const PREMIUM_CAROUSEL_SLIDES: CarouselSlide[] = [
   {
     type: "cover",
-    badgeEs: "🔥 PSICOLOGÍA DE CONVERSIÓN",
-    badgePt: "🔥 PSICOLOGIA DE CONVERSÃO",
-    titleEs: "El sesgo de urgencia que multiplica las ventas de tu tienda",
-    titlePt: "O gatilho de urgência que multiplica as vendas da sua loja",
-    descEs: "Cómo hacer que los visitantes dejen de postergar la compra y paguen hoy mismo.",
-    descPt: "Como fazer os visitantes pararem de adiar a compra e pagarem hoje mesmo.",
-    metric: "+35% TICKET PROMEDIO 📈",
+    badgeEs: "🚨 ANÁLISIS DE CONVERSIÓN B2B",
+    badgePt: "🚨 ANÁLISE DE CONVERSÃO B2B",
+    titleEs: "Por qué tu tienda recibe visitas pero NADIE te compra 📉",
+    titlePt: "Por que sua loja recebe visitas mas NINGUÉM compra 📉",
+    descEs: "El error estructural que le hace perder cientos de dólares a los comerciantes de Tiendanube.",
+    descPt: "O erro estrutural que faz os lojistas da Nuvemshop perderem centenas de dólares.",
+    metric: "DESLIZÁ PARA VER EL MOTIVO ➔",
   },
   {
     type: "problem",
-    badgeEs: "🚨 EL PROBLEMA OCULTO",
-    badgePt: "🚨 O PROBLEMA OCULTO",
-    titleEs: "El 97% de tus visitas entra, mira y se va sin comprar nada",
-    titlePt: "97% das suas visitas entra, olha e sai sem comprar nada",
-    descEs: "Al no sentir escasez ni urgencia real, piensan 'compro después' y esa venta se pierde para siempre.",
-    descPt: "Sem sentir escassez ou urgência real, pensam 'compro depois' e essa venda é perdida para sempre.",
-    metric: "97% CARRITOS PERDIDOS ❌",
+    badgeEs: "🧠 PSICOLOGÍA DEL CONSUMIDOR",
+    badgePt: "🧠 PSICOLOGIA DO CONSUMIDOR",
+    titleEs: "El mito del 'balde pinchado' y el tráfico desaprovechado",
+    titlePt: "O mito do 'balde furado' e o tráfego desperdiçado",
+    descEs: "Gastar más en publicidad no soluciona el problema. El 97% de tus visitas se van porque no detectan urgencia ni confianza inmediata.",
+    descPt: "Gastar mais em anúncios não resolve. 97% das suas visitas saem porque não detectam urgência nem confiança imediata.",
+    metric: "97% DE ABANDONO TOTAL ❌",
+  },
+  {
+    type: "comparison",
+    badgeEs: "⚖️ COMPARATIVA DE ECOSISTEMAS",
+    badgePt: "⚖️ COMPARATIVO DE ECOSSISTEMAS",
+    titleEs: "Tienda Tradicional vs. Tienda de Alta Conversión",
+    titlePt: "Loja Tradicional vs. Loja de Alta Conversão",
+    descEs: "SIN NEVUX: Carritos abandonados, dudas y $0 ventas.\nCON NEVUX: Urgencia de stock, Notificaciones en vivo y Vendedor IA 24/7.",
+    descPt: "SEM NEVUX: Carrinhos abandonados, dúvidas e $0 vendas.\nCOM NEVUX: Urgência de estoque, Notificações ao vivo e Vendedor IA 24/7.",
+    metric: "CONVERSIÓN MULTIPLICADA ×3 📈",
   },
   {
     type: "solution",
-    badgeEs: "✨ LA SOLUCIÓN NEVUX",
-    badgePt: "✨ A SOLUÇÃO NEVUX",
-    titleEs: "26 Widgets de Conversión + Suite de Inteligencia Artificial",
-    titlePt: "26 Widgets de Conversão + Suite de Inteligência Artificial",
-    descEs: "Temporizadores Hot Sale, bundles por volumen, Vendedor 24/7 y recuperador de carritos por WhatsApp.",
-    descPt: "Cronômetros Hot Sale, bundles por volume, Vendedor 24/7 e recuperador de carrinhos via WhatsApp.",
-    metric: "VENTAS EN PILOTO AUTOMÁTICO 🤖",
+    badgeEs: "⚡ INTELIGENCIA AUTOMATIZADA",
+    badgePt: "⚡ INTELIGÊNCIA AUTOMATIZADA",
+    titleEs: "Dejá que la tecnología venda por vos en piloto automático",
+    titlePt: "Deixe a tecnologia vender por você no piloto automático",
+    descEs: "Nevux se integra en tu Tiendanube en 15 segundos sin tocar una sola línea de código. Todo automatizado.",
+    descPt: "Nevux se integra na sua Nuvemshop em 15 segundos sem tocar em código. Tudo automatizado.",
+    metric: "100% AUTOMÁTICO Y SIN CÓDIGO 🤖",
   },
   {
     type: "cta",
-    badgeEs: "🚀 PRUEBA GRATIS 7 DÍAS",
+    badgeEs: "🚀 PRUEBA GRATIS POR 7 DÍAS",
     badgePt: "🚀 TESTE GRÁTIS POR 7 DIAS",
-    titleEs: "Duplicá la conversión de tu Tiendanube hoy mismo",
-    titlePt: "Duplique a conversão da sua Nuvemshop hoje mesmo",
-    descEs: "Instalación instantánea en 1 clic. Sin tarjeta de crédito requerida.",
-    descPt: "Instalação instantânea em 1 clique. Sem cartão de crédito necessário.",
-    metric: "👉 LINK EN LA BIOGRAFÍA 👈",
+    titleEs: "Transformá tus visitas en ventas reales hoy mismo",
+    titlePt: "Transforme suas visitas em vendas reais hoje mesmo",
+    descEs: "Instalación instantánea desde la App Store oficial (#37382). Sin tarjeta de crédito requerida.",
+    descPt: "Instalação instantânea na App Store oficial (#37382). Sem cartão de crédito necessário.",
+    metric: "👉 INSTALÁ GRATIS EN NEVUX.AR 👈",
   },
 ];
 
@@ -270,14 +283,14 @@ function wrapText(
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("marketing_assets");
+  const [activeTab, setActiveTab] = useState<TabId>("carousels");
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [isDownloading, setIsDownloading] = useState(false);
   const isPt = lang === "pt";
 
   const tabs = [
+    { id: "carousels" as TabId, label: "Carrusel Pro 5 Placas", icon: "🎠" },
     { id: "marketing_assets" as TabId, label: "Hooks y Cierres Pro", icon: "🎬" },
-    { id: "carousels" as TabId, label: "Carruseles Instagram Pro", icon: "🎠" },
     { id: "before_after" as TabId, label: "Antes vs Después (Marketing)", icon: "⚡" },
   ];
 
@@ -295,11 +308,9 @@ export default function BannersPage() {
 
       const S = width / 340;
 
-      // Fondo oscuro
       ctx.fillStyle = "#05080f";
       ctx.fillRect(0, 0, width, height);
 
-      // Rejilla sutil
       ctx.strokeStyle = "rgba(255,255,255,0.03)";
       ctx.lineWidth = 1;
       for (let x = 0; x < width; x += 40 * S) {
@@ -309,7 +320,6 @@ export default function BannersPage() {
         ctx.stroke();
       }
 
-      // Header marca
       const logoSize = 32 * S;
       ctx.fillStyle = "#10B981";
       drawRoundedRect(ctx, 36 * S, 32 * S, logoSize, logoSize, 10 * S);
@@ -335,7 +345,6 @@ export default function BannersPage() {
       ctx.lineTo(width - 36 * S, 80 * S);
       ctx.stroke();
 
-      // Título principal
       ctx.fillStyle = "#ffffff";
       ctx.font = `900 ${18 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -351,12 +360,11 @@ export default function BannersPage() {
         24 * S
       );
 
-      // Split screen
       const boxW = (width - 92 * S) / 2;
       const boxH = 240 * S;
       const topY = 150 * S;
 
-      // COLUMNA IZQUIERDA: SIN NEVUX
+      // IZQUIERDA: SIN NEVUX
       const leftX = 36 * S;
       ctx.fillStyle = "rgba(239, 68, 68, 0.08)";
       ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
@@ -394,7 +402,7 @@ export default function BannersPage() {
         ctx.fillText(item, leftX + 16 * S, topY + 50 * S + idx * 34 * S);
       });
 
-      // COLUMNA DERECHA: CON NEVUX
+      // DERECHA: CON NEVUX
       const rightX = leftX + boxW + 20 * S;
       ctx.fillStyle = "rgba(16, 185, 129, 0.12)";
       ctx.strokeStyle = "#10B981";
@@ -432,7 +440,6 @@ export default function BannersPage() {
         ctx.fillText(item, rightX + 16 * S, topY + 50 * S + idx * 34 * S);
       });
 
-      // CTA INFERIOR
       const ctaY = height - 100 * S;
       ctx.fillStyle = "#10B981";
       drawRoundedRect(ctx, 36 * S, ctaY, width - 72 * S, 54 * S, 18 * S);
@@ -463,7 +470,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── CARRUSEL HD 1080x1350 ─── */
+  /* ─── CARRUSEL HD 1080x1350 DE 5 SLIDES ─── */
   const downloadSlideAsImage = async (slideIndex: number) => {
     const slide = PREMIUM_CAROUSEL_SLIDES[slideIndex];
     if (!slide) return;
@@ -484,6 +491,16 @@ export default function BannersPage() {
         ctx.fillRect(0, 0, width, height);
         const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
         g.addColorStop(0, "rgba(239,68,68,0.18)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (slide.type === "comparison") {
+        ctx.fillStyle = "#070b14";
+        ctx.fillRect(0, 0, width, height);
+        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
+        g.addColorStop(0, "rgba(59,130,246,0.2)");
         g.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = g;
         ctx.beginPath();
@@ -557,8 +574,8 @@ export default function BannersPage() {
       const badgeText = isPt ? slide.badgePt : slide.badgeEs;
       ctx.font = `900 ${9.5 * S}px sans-serif`;
       const tw = ctx.measureText(badgeText).width;
-      const badgeColor = slide.type === "problem" ? "#ef4444" : "#10B981";
-      ctx.fillStyle = slide.type === "problem" ? "rgba(239,68,68,0.15)" : "rgba(16,185,129,0.15)";
+      const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
+      ctx.fillStyle = slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)";
       ctx.strokeStyle = badgeColor;
       ctx.lineWidth = 1.5 * S;
       drawRoundedRect(ctx, 36 * S, 110 * S, tw + 24 * S, 26 * S, 13 * S);
@@ -1025,7 +1042,87 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* TAB 1: HOOKS Y CIERRES */}
+      {/* TAB 1: CARRUSEL PRO DE 5 PLACAS */}
+      {activeTab === "carousels" && (
+        <div style={{ width: "100%", maxWidth: "750px" }}>
+          <div
+            style={{
+              backgroundColor: "#0b2920",
+              border: "1.5px solid rgba(16,185,129,0.3)",
+              borderRadius: "20px",
+              padding: "24px",
+              textAlign: "center",
+            }}
+          >
+            <Award size={34} color="#10B981" style={{ marginBottom: "12px" }} />
+            <h2 style={{ fontSize: "18px", fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>
+              Carrusel B2B Pro de 5 Placas HD
+            </h2>
+            <p style={{ fontSize: "13px", color: "#a7f3d0", margin: "0 0 24px" }}>
+              Formato Instagram 4:5 (1080×1350) · Storytelling de Conversión
+            </p>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: "14px",
+                textAlign: "left",
+              }}
+            >
+              {PREMIUM_CAROUSEL_SLIDES.map((slide, index) => (
+                <div
+                  key={index}
+                  style={{
+                    background: "rgba(0,0,0,0.35)",
+                    padding: "16px",
+                    borderRadius: "16px",
+                    border: "1.5px solid rgba(16,185,129,0.25)",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                  }}
+                >
+                  <div>
+                    <span style={{ fontSize: "10px", fontWeight: 900, color: "#10B981" }}>
+                      SLIDE 0{index + 1} DE 05 · {isPt ? slide.badgePt : slide.badgeEs}
+                    </span>
+                    <h4 style={{ fontSize: "13px", fontWeight: 800, color: "#fff", margin: "6px 0 8px", lineHeight: 1.3 }}>
+                      {isPt ? slide.titlePt : slide.titleEs}
+                    </h4>
+                    <p style={{ fontSize: "11px", color: "#a7f3d0", margin: 0, lineHeight: 1.45, whitespace: "pre-line" }}>
+                      {isPt ? slide.descPt : slide.descEs}
+                    </p>
+                  </div>
+                  <button
+                    disabled={isDownloading}
+                    onClick={() => downloadSlideAsImage(index)}
+                    style={{
+                      background: "#10B981",
+                      border: "none",
+                      color: "#000",
+                      padding: "10px 14px",
+                      borderRadius: "10px",
+                      fontWeight: 800,
+                      fontSize: "12px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <Download size={14} />
+                    Descargar Slide 0{index + 1} HD
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: HOOKS Y CIERRES */}
       {activeTab === "marketing_assets" && (
         <div style={{ width: "100%", maxWidth: "960px", display: "flex", flexDirection: "column", gap: "32px" }}>
           {(["hook", "mid", "cta"] as const).map((cat) => (
@@ -1108,87 +1205,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* TAB 2: CARRUSELES */}
-      {activeTab === "carousels" && (
-        <div style={{ width: "100%", maxWidth: "750px" }}>
-          <div
-            style={{
-              backgroundColor: "#0b2920",
-              border: "1.5px solid rgba(16,185,129,0.3)",
-              borderRadius: "20px",
-              padding: "24px",
-              textAlign: "center",
-            }}
-          >
-            <Award size={34} color="#10B981" style={{ marginBottom: "12px" }} />
-            <h2 style={{ fontSize: "18px", fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>
-              Carrusel Pro 4 Slides HD
-            </h2>
-            <p style={{ fontSize: "13px", color: "#a7f3d0", margin: "0 0 24px" }}>
-              Formato Instagram 4:5 (1080×1350) · Nivel agencia
-            </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                gap: "14px",
-                textAlign: "left",
-              }}
-            >
-              {PREMIUM_CAROUSEL_SLIDES.map((slide, index) => (
-                <div
-                  key={index}
-                  style={{
-                    background: "rgba(0,0,0,0.35)",
-                    padding: "16px",
-                    borderRadius: "16px",
-                    border: "1.5px solid rgba(16,185,129,0.25)",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    gap: "12px",
-                  }}
-                >
-                  <div>
-                    <span style={{ fontSize: "10px", fontWeight: 900, color: "#10B981" }}>
-                      SLIDE 0{index + 1} · {isPt ? slide.badgePt : slide.badgeEs}
-                    </span>
-                    <h4 style={{ fontSize: "13px", fontWeight: 800, color: "#fff", margin: "6px 0 8px", lineHeight: 1.3 }}>
-                      {isPt ? slide.titlePt : slide.titleEs}
-                    </h4>
-                    <p style={{ fontSize: "11px", color: "#a7f3d0", margin: 0, lineHeight: 1.45 }}>
-                      {isPt ? slide.descPt : slide.descEs}
-                    </p>
-                  </div>
-                  <button
-                    disabled={isDownloading}
-                    onClick={() => downloadSlideAsImage(index)}
-                    style={{
-                      background: "#10B981",
-                      border: "none",
-                      color: "#000",
-                      padding: "10px 14px",
-                      borderRadius: "10px",
-                      fontWeight: 800,
-                      fontSize: "12px",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <Download size={14} />
-                    Descargar Slide 0{index + 1} HD
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: ANTES VS DESPUÉS (NUEVA) */}
+      {/* TAB 3: ANTES VS DESPUÉS */}
       {activeTab === "before_after" && (
         <div style={{ width: "100%", maxWidth: "750px" }}>
           <div
@@ -1210,7 +1227,6 @@ export default function BannersPage() {
                 : "Asset HD (1080×1350) para mostrar la Propuesta de Valor en el Feed"}
             </p>
 
-            {/* PREVISUALIZACIÓN DE LA TARJETA */}
             <div
               style={{
                 background: "#05080f",
@@ -1339,4 +1355,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-}
+     }
