@@ -130,10 +130,13 @@ function generateSocialEvents(
 
   const availableProducts = parsedProducts.length > 0
     ? parsedProducts
-    : [{ id: 1, name: "Producto de la tienda", image: "" }];
+    : [
+        { id: 1, name: "Producto destacado", image: "" },
+        { id: 2, name: "Oferta especial de la tienda", image: "" }
+      ];
 
   if (settings.enable_recent_sales !== false) {
-    for (let i = 0; i < Math.min(4, availableProducts.length * 2); i++) {
+    for (let i = 0; i < Math.max(4, availableProducts.length * 2); i++) {
       const prod = getRandomItem(availableProducts);
       const name = getRandomItem(LATAM_NAMES);
       const city = getRandomItem(settings.custom_cities && settings.custom_cities.length > 0 ? settings.custom_cities : LATAM_CITIES);
@@ -217,7 +220,8 @@ export async function GET(req: NextRequest) {
 
     const currentSettings: SocialProofSettingsPayload = {
       store_id: storeId,
-      is_active: widgetRow ? widgetRow.is_active : false,
+      // SI NO EXISTE AÚN EN BD, POR DEFECTO ESTÁ ACTIVO (TRUE)
+      is_active: widgetRow ? widgetRow.is_active : true,
       position: (cfg.position as any) || "bottom-left",
       display_duration: Number(cfg.display_duration) || 5,
       delay_between: Number(cfg.delay_between) || 8,
@@ -278,7 +282,7 @@ export async function POST(req: NextRequest) {
     const body: SocialProofSettingsPayload = await req.json().catch(() => ({}));
     const {
       store_id,
-      is_active = false,
+      is_active = true,
       position = "bottom-left",
       display_duration = 5,
       delay_between = 8,
@@ -295,7 +299,6 @@ export async function POST(req: NextRequest) {
 
     const storeIdNum = Number(store_id);
 
-    // 1. Verificar tienda con .maybeSingle()
     const { data: store, error: storeErr } = await supabase
       .from("stores")
       .select("id, store_id, user_id")
@@ -303,15 +306,12 @@ export async function POST(req: NextRequest) {
       .eq("store_id", storeIdNum)
       .maybeSingle();
 
-    if (storeErr) {
-      throw storeErr;
-    }
+    if (storeErr) throw storeErr;
 
     if (!store) {
       return jsonResponse({ error: "Tienda no encontrada o no autorizada" }, 403);
     }
 
-    // 2. Buscar widget 'social-proof' existente
     const { data: existingWidget, error: widgetSearchErr } = await supabase
       .from("widgets")
       .select("id")
@@ -319,9 +319,7 @@ export async function POST(req: NextRequest) {
       .eq("widget_slug", "social-proof")
       .maybeSingle();
 
-    if (widgetSearchErr) {
-      throw widgetSearchErr;
-    }
+    if (widgetSearchErr) throw widgetSearchErr;
 
     const configPayload = {
       position,
@@ -371,4 +369,4 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     return jsonResponse({ error: parseErrorMessage(error) }, 500);
   }
-     }
+        }
