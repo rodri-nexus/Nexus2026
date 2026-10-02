@@ -1671,6 +1671,7 @@
           if (w.widget_slug === "urgencia-stock") renderUrgenciaStock(w);
           if (w.widget_slug === "resenas-destacadas") renderResenasDestacadas(w);
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
+          if (w.widget_slug === "popup-conversion") renderPopupConversion(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -4854,5 +4855,288 @@ function renderBundlePromociones(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
+  }
+  /* ═══════════════════════════════════════════
+   WIDGET: POPUP DE CONVERSIÓN (v13 Final)
+   ═══════════════════════════════════════════ */
+function renderPopupConversion(w) {
+  var elementId = "nvx-popup-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+  var freq = cfg.frequency || "once_per_visitor";
+  var storageKey = "nvx_popup_seen_" + w.id;
+
+  // Verificación de Frecuencia (1 vez por cliente / sesión)
+  try {
+    if (freq === "once_per_visitor" && window.localStorage && window.localStorage.getItem(storageKey)) {
+      return;
+    }
+    if (freq === "once_per_session" && window.sessionStorage && window.sessionStorage.getItem(storageKey)) {
+      return;
+    }
+  } catch(e) {}
+
+  // Verificación Mobile
+  var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile && cfg.enableMobile === false) {
+    return;
+  }
+
+  var mode = cfg.mode || "ruleta"; // ruleta | cajas | email
+  var title = cfg.title || "Antes de que te vayas";
+  var subtitle = cfg.subtitle || "Te regalamos un descuento exclusivo para que uses ahora mismo.";
+  var buttonText = cfg.buttonText || "Quiero mi descuento";
+  var couponCode = cfg.couponCode || "NEVUX10";
+  var discountValue = cfg.discountValue || 10;
+  var requireEmail = cfg.requireEmail !== false;
+  var timerMinutes = cfg.timerMinutes || 10;
+  var delaySeconds = cfg.delaySeconds || 4;
+  var bgColor = cfg.bgColor || "#ffffff";
+  var textColor = cfg.textColor || "#111827";
+  var accentColor = cfg.accentColor || "#10B981";
+  var buttonBgColor = cfg.buttonBgColor || "#10B981";
+  var buttonTextColor = cfg.buttonTextColor || "#ffffff";
+
+  // Presets de campaña
+  var THEMES = {
+    "black-friday": { bg: "#111827", text: "#ffffff", accent: "#F59E0B", btn: "#F59E0B" },
+    "hot-sale": { bg: "#0F172A", text: "#ffffff", accent: "#EF4444", btn: "#EF4444" },
+    "cyber-monday": { bg: "#090D16", text: "#ffffff", accent: "#3B82F6", btn: "#3B82F6" },
+    "navidad": { bg: "#064E3B", text: "#ffffff", accent: "#EF4444", btn: "#EF4444" },
+    "san-valentin": { bg: "#831843", text: "#ffffff", accent: "#F43F5E", btn: "#F43F5E" },
+    "dia-padre-madre": { bg: "#312E81", text: "#ffffff", accent: "#10B981", btn: "#10B981" },
+    "liquidacion": { bg: "#7F1D1D", text: "#ffffff", accent: "#FBBF24", btn: "#FBBF24" }
+  };
+
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    var th = THEMES[cfg.campaignTheme];
+    bgColor = th.bg;
+    textColor = th.text;
+    accentColor = th.accent;
+    buttonBgColor = th.btn;
+  }
+
+  // Timer diferido de apertura
+  setTimeout(function() {
+    if (document.getElementById(elementId)) return;
+
+    // Inyección CSS
+    var styleId = "style-" + elementId;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.type = "text/css";
+      var css =
+        "#" + elementId + " { " +
+          "position: fixed !important; " +
+          "top: 0 !important; left: 0 !important; " +
+          "width: 100vw !important; height: 100vh !important; " +
+          "background: rgba(0, 0, 0, 0.65) !important; " +
+          "backdrop-filter: blur(4px) !important; " +
+          "z-index: 9999999 !important; " +
+          "display: flex !important; " +
+          "align-items: center !important; " +
+          "justify-content: center !important; " +
+          "padding: 16px !important; " +
+          "box-sizing: border-box !important; " +
+          "font-family: system-ui, -apple-system, sans-serif !important; " +
+        "} " +
+        "#" + elementId + " .nvx-popup-card { " +
+          "background: " + bgColor + " !important; " +
+          "color: " + textColor + " !important; " +
+          "border-radius: 20px !important; " +
+          "padding: 24px !important; " +
+          "max-width: 400px !important; " +
+          "width: 100% !important; " +
+          "text-align: center !important; " +
+          "position: relative !important; " +
+          "box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important; " +
+          "box-sizing: border-box !important; " +
+          "animation: nvxPopIn 0.3s ease-out !important; " +
+        "} " +
+        "@keyframes nvxPopIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } } " +
+        "#" + elementId + " .nvx-close-btn { " +
+          "position: absolute !important; top: 14px !important; right: 16px !important; " +
+          "font-size: 18px !important; cursor: pointer !important; opacity: 0.6 !important; " +
+          "font-weight: 800 !important; border: none !important; background: none !important; color: " + textColor + " !important; " +
+        "} " +
+        "#" + elementId + " .nvx-close-btn:hover { opacity: 1 !important; } " +
+        "#" + elementId + " .nvx-wheel-container { " +
+          "width: 160px !important; height: 160px !important; margin: 16px auto !important; " +
+          "border-radius: 50% !important; border: 4px solid " + accentColor + " !important; " +
+          "background: conic-gradient(#10B981 0deg 60deg, #F59E0B 60deg 120deg, #EF4444 120deg 180deg, #3B82F6 180deg 240deg, #8B5CF6 240deg 300deg, #EC4899 300deg 360deg) !important; " +
+          "display: flex !important; align-items: center !important; justify-content: center !important; " +
+          "transition: transform 3s cubic-bezier(0.15, 0.9, 0.2, 1) !important; " +
+        "} " +
+        "#" + elementId + " .nvx-wheel-pointer { " +
+          "width: 0 !important; height: 0 !important; " +
+          "border-left: 10px solid transparent !important; " +
+          "border-right: 10px solid transparent !important; " +
+          "border-top: 16px solid " + textColor + " !important; " +
+          "margin: 0 auto -8px !important; " +
+        "} " +
+        "#" + elementId + " .nvx-boxes-row { " +
+          "display: flex !important; justify-content: center !important; gap: 12px !important; margin: 18px 0 !important; " +
+        "} " +
+        "#" + elementId + " .nvx-box-item { " +
+          "background: " + accentColor + " !important; color: #ffffff !important; " +
+          "width: 64px !important; height: 64px !important; border-radius: 14px !important; " +
+          "display: flex !important; align-items: center !important; justify-content: center !important; " +
+          "font-size: 28px !important; cursor: pointer !important; transition: transform 0.2s !important; " +
+        "} " +
+        "#" + elementId + " .nvx-box-item:hover { transform: translateY(-4px) !important; } " +
+        "#" + elementId + " .nvx-input-email { " +
+          "width: 100% !important; padding: 12px 14px !important; font-size: 14px !important; " +
+          "border: 1.5px solid #e5e7eb !important; border-radius: 10px !important; " +
+          "margin-bottom: 12px !important; box-sizing: border-box !important; text-align: center !important; " +
+        "} " +
+        "#" + elementId + " .nvx-submit-btn { " +
+          "width: 100% !important; background: " + buttonBgColor + " !important; color: " + buttonTextColor + " !important; " +
+          "border: none !important; border-radius: 12px !important; padding: 14px !important; " +
+          "font-size: 15px !important; font-weight: 800 !important; cursor: pointer !important; " +
+          "box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; " +
+        "} " +
+        "#" + elementId + " .nvx-coupon-box { " +
+          "background: rgba(16,185,129,0.08) !important; border: 2px dashed " + accentColor + " !important; " +
+          "border-radius: 12px !important; padding: 16px !important; margin: 16px 0 !important; " +
+        "} " +
+        "#" + elementId + " .nvx-coupon-code { " +
+          "font-size: 22px !important; font-weight: 900 !important; letter-spacing: 2px !important; " +
+          "color: " + accentColor + " !important; margin-bottom: 6px !important; font-family: monospace !important; " +
+        "}";
+      styleEl.appendChild(document.createTextNode(css));
+      document.head.appendChild(styleEl);
+    }
+
+    var popupOverlay = document.createElement("div");
+    popupOverlay.id = elementId;
+
+    // Marca de visto en storage
+    function markAsSeen() {
+      try {
+        if (freq === "once_per_visitor" && window.localStorage) {
+          window.localStorage.setItem(storageKey, "1");
+        } else if (freq === "once_per_session" && window.sessionStorage) {
+          window.sessionStorage.setItem(storageKey, "1");
+        }
+      } catch(e) {}
+    }
+
+    // Cerrar Popup
+    window["nvxClosePopup_" + w.id] = function() {
+      markAsSeen();
+      if (popupOverlay.parentNode) {
+        popupOverlay.parentNode.removeChild(popupOverlay);
+      }
+    };
+
+    // Copiar Cupón
+    window["nvxCopyCoupon_" + w.id] = function(btn) {
+      try {
+        navigator.clipboard.writeText(couponCode);
+      } catch(e) {}
+      var prev = btn.innerHTML;
+      btn.innerHTML = "¡Copiado! ✓";
+      setTimeout(function() { btn.innerHTML = prev; }, 2000);
+    };
+
+    // Ejecutar Juego / Revelar
+    window["nvxPlayPopup_" + w.id] = function() {
+      var emailInput = popupOverlay.querySelector("input[type='email']");
+      if (requireEmail && emailInput && !emailInput.value) {
+        emailInput.style.borderColor = "#ef4444";
+        emailInput.focus();
+        return;
+      }
+
+      markAsSeen();
+
+      var bodyBox = popupOverlay.querySelector(".nvx-popup-body");
+      if (!bodyBox) return;
+
+      // Animar si es ruleta
+      var wheel = popupOverlay.querySelector(".nvx-wheel-container");
+      if (wheel) {
+        wheel.style.transform = "rotate(1440deg)";
+      }
+
+      setTimeout(function() {
+        // Formato Timer
+        var totalSec = timerMinutes * 60;
+
+        bodyBox.innerHTML =
+          '<div style="font-size:32px !important;margin-bottom:8px !important;">🎉</div>' +
+          '<div style="font-size:18px !important;font-weight:900 !important;color:' + textColor + ' !important;">' + discountValue + '% OFF DESBLOQUEADO</div>' +
+          '<div style="font-size:12px !important;opacity:0.7 !important;margin-bottom:12px !important;">Copiá tu código y usalo al finalizar la compra:</div>' +
+          '<div class="nvx-coupon-box">' +
+            '<div class="nvx-coupon-code">' + (typeof escapeHtml === "function" ? escapeHtml(couponCode) : couponCode) + '</div>' +
+            '<div style="font-size:11px !important;opacity:0.6 !important;">Toca el botón para copiar</div>' +
+          '</div>' +
+          '<div style="font-size:12px !important;font-weight:700 !important;color:' + accentColor + ' !important;margin-bottom:14px !important;" id="nvx-timer-' + w.id + '">' +
+            '⏱️ Expira en: ' + timerMinutes + ':00' +
+          '</div>' +
+          '<button type="button" class="nvx-submit-btn" onclick="window[\'nvxCopyCoupon_' + w.id + '\'](this);">📋 Copiar Código</button>';
+
+        // Activar Cuenta Regresiva de Cupón
+        var timerEl = document.getElementById("nvx-timer-" + w.id);
+        if (timerEl) {
+          var timerInterval = setInterval(function() {
+            totalSec--;
+            if (totalSec <= 0) {
+              clearInterval(timerInterval);
+              timerEl.innerHTML = "⏰ ¡Cupón expirado!";
+              return;
+            }
+            var m = Math.floor(totalSec / 60);
+            var s = totalSec % 60;
+            var mStr = m < 10 ? "0" + m : m;
+            var sStr = s < 10 ? "0" + s : s;
+            timerEl.innerHTML = "⏱️ Expira en: " + mStr + ":" + sStr;
+          }, 1000);
+        }
+      }, mode === "ruleta" ? 1800 : 300);
+    };
+
+    // InnerHTML Construcción
+    var titleHtml = '<div style="font-size:20px !important;font-weight:900 !important;margin-bottom:6px !important;">' + (typeof escapeHtml === "function" ? escapeHtml(title) : title) + '</div>';
+    var subHtml = '<div style="font-size:13px !important;opacity:0.75 !important;line-height:1.4 !important;margin-bottom:16px !important;">' + (typeof escapeHtml === "function" ? escapeHtml(subtitle) : subtitle) + '</div>';
+    var closeBtnHtml = '<button class="nvx-close-btn" onclick="window[\'nvxClosePopup_' + w.id + '\']();">✕</button>';
+
+    var modeHtml = "";
+    if (mode === "ruleta") {
+      modeHtml =
+        '<div class="nvx-wheel-pointer"></div>' +
+        '<div class="nvx-wheel-container"><span style="font-size:20px;">🎁</span></div>';
+    } else if (mode === "cajas") {
+      modeHtml =
+        '<div class="nvx-boxes-row">' +
+          '<div class="nvx-box-item" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁</div>' +
+          '<div class="nvx-box-item" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁</div>' +
+          '<div class="nvx-box-item" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁</div>' +
+        '</div>';
+    }
+
+    var emailHtml = requireEmail ? '<input type="email" class="nvx-input-email" placeholder="Ingresá tu correo electrónico..." />' : '';
+    var actionBtnHtml = '<button type="button" class="nvx-submit-btn" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">' + (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + '</button>';
+
+    popupOverlay.innerHTML =
+      '<div class="nvx-popup-card">' +
+        closeBtnHtml +
+        '<div class="nvx-popup-body">' +
+          titleHtml +
+          subHtml +
+          modeHtml +
+          emailHtml +
+          actionBtnHtml +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(popupOverlay);
+
+    if (typeof nvxTrack === "function") {
+      nvxTrack(w.id, "impression");
+    }
+  }, delaySeconds * 1000);
   }
 })(); 
