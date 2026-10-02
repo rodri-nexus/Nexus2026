@@ -4376,8 +4376,8 @@ function renderResenasDestacadas(w) {
   }
 }
 /* ═══════════════════════════════════════════
-   WIDGET: BUNDLE DE PROMOCIONES (v228 COMPLETO)
-   Precios exactos + pack al carrito + complementario sugerido
+   WIDGET: BUNDLE DE PROMOCIONES (v229)
+   Sin producto complementario
    ═══════════════════════════════════════════ */
 if (typeof window.nvxBundleParsePrice !== "function") {
   window.nvxBundleParsePrice = function (raw) {
@@ -4401,9 +4401,7 @@ if (typeof window.nvxBundleParsePrice !== "function") {
       }
     } else if (str.indexOf(".") > -1) {
       var partsDot = str.split(".");
-      if (partsDot.length === 2 && partsDot[1].length === 2) {
-        // 35000.00 con centavos
-      } else {
+      if (!(partsDot.length === 2 && partsDot[1].length === 2)) {
         str = str.replace(/\./g, "");
       }
     }
@@ -4520,19 +4518,6 @@ if (typeof window.nvxSelectBundle !== "function") {
   };
 }
 
-if (typeof window.nvxBundleToggleComp !== "function") {
-  window.nvxBundleToggleComp = function (rowEl, elementId) {
-    var chk = rowEl.querySelector('input[type="checkbox"]');
-    if (!chk) return;
-    if (window.event && window.event.target !== chk) {
-      chk.checked = !chk.checked;
-    }
-    if (typeof window.nvxBundleUpdateTotal === "function") {
-      window.nvxBundleUpdateTotal(elementId);
-    }
-  };
-}
-
 if (typeof window.nvxBundleUpdateTotal !== "function") {
   window.nvxBundleUpdateTotal = function (elementId) {
     var root = document.getElementById(elementId);
@@ -4544,28 +4529,13 @@ if (typeof window.nvxBundleUpdateTotal !== "function") {
       packPrice = parseFloat(selected.getAttribute("data-new-price") || "0") || 0;
     }
 
-    var compChk = root.querySelector(".nvx-comp-row input[type='checkbox']");
     var totalEl = root.querySelector(".nvx-bundle-total");
-    var hintEl = root.querySelector(".nvx-bundle-comp-hint");
     var btn = root.querySelector(".nvx-bundle-btn");
     var baseBtn = root.getAttribute("data-btn-text") || "Sumalo al carrito";
-    var compName = root.getAttribute("data-comp-name") || "producto sugerido";
 
     if (totalEl) {
-      totalEl.style.display = "block";
       totalEl.innerHTML = "Total del pack: <strong>" + window.nvxBundleFormatPrice(packPrice) + "</strong>";
     }
-
-    if (hintEl) {
-      if (compChk && compChk.checked) {
-        hintEl.style.display = "block";
-        hintEl.innerHTML = "🎁 Marcaste <strong>" + compName + "</strong> como sugerido. Agregalo aparte desde la tienda para sumarlo al pedido.";
-      } else {
-        hintEl.style.display = "none";
-        hintEl.innerHTML = "";
-      }
-    }
-
     if (btn) {
       btn.innerHTML = baseBtn + " · " + window.nvxBundleFormatPrice(packPrice);
     }
@@ -4626,10 +4596,6 @@ function renderBundlePromociones(w) {
   var buttonBgColor = cfg.buttonBgColor || "#10B981";
   var buttonTextColor = cfg.buttonTextColor || "#ffffff";
   var buttonText = cfg.buttonText || "Sumalo al carrito";
-  var showComplementary = cfg.showComplementary !== false;
-  var complementaryText = cfg.complementaryText || "Sumale este producto y llevate envío gratis!";
-  var complementaryName = cfg.complementaryName || "Remera Básica";
-  var complementaryPriceRaw = cfg.complementaryPrice || "$0";
 
   var bundles = cfg.bundles || [
     { id: "1", title: "Lleva 2 paga 1", badge: "-50% OFF", oldPrice: "", newPrice: "", enabled: true },
@@ -4656,7 +4622,6 @@ function renderBundlePromociones(w) {
   }
 
   var unitPrice = window.nvxBundleGetProductPrice();
-  var compPriceNum = window.nvxBundleParsePrice(complementaryPriceRaw);
 
   var activeBundles = [];
   for (var bIdx = 0; bIdx < bundles.length; bIdx++) {
@@ -4742,24 +4707,11 @@ function renderBundlePromociones(w) {
         "background: " + accentColor + " !important; display: none !important; " +
       "} " +
       "#" + elementId + " .nvx-bundle-card.selected .nvx-radio-dot { display: block !important; } " +
-      "#" + elementId + " .nvx-comp-row { " +
-        "background: " + cardBgColor + " !important; border: 1.5px solid rgba(0,0,0,0.08) !important; " +
-        "border-radius: 10px !important; padding: 10px 12px !important; display: flex !important; " +
-        "align-items: center !important; justify-content: space-between !important; " +
-        "cursor: pointer !important; transition: all 0.2s !important; user-select: none !important; " +
-      "} " +
-      "#" + elementId + " .nvx-comp-row:hover { border-color: " + accentColor + " !important; background: #ffffff !important; } " +
       "#" + elementId + " .nvx-bundle-total { " +
         "font-size: 13px !important; font-weight: 700 !important; color: " + textColor + " !important; " +
         "text-align: right !important; width: 100% !important; " +
       "} " +
       "#" + elementId + " .nvx-bundle-total strong { color: " + accentColor + " !important; font-weight: 900 !important; } " +
-      "#" + elementId + " .nvx-bundle-comp-hint { " +
-        "display: none !important; font-size: 12px !important; line-height: 1.4 !important; " +
-        "color: " + textColor + " !important; background: rgba(16,185,129,0.08) !important; " +
-        "border: 1px solid rgba(16,185,129,0.25) !important; border-radius: 10px !important; " +
-        "padding: 10px 12px !important; " +
-      "} " +
       "#" + elementId + " .nvx-bundle-note { " +
         "font-size: 11px !important; opacity: 0.65 !important; color: " + textColor + " !important; " +
         "line-height: 1.35 !important; " +
@@ -4778,9 +4730,7 @@ function renderBundlePromociones(w) {
   var container = document.createElement("div");
   container.id = elementId;
   container.className = "nvx-widget nvx-bundle-wrapper";
-  container.setAttribute("data-comp-price", String(compPriceNum));
   container.setAttribute("data-btn-text", buttonText);
-  container.setAttribute("data-comp-name", complementaryName);
 
   var subtitleHtml = subtitle
     ? '<div style="font-size:12px !important;opacity:0.7 !important;margin-top:2px !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(subtitle) : subtitle) + "</div>"
@@ -4820,34 +4770,18 @@ function renderBundlePromociones(w) {
   }
   bundlesHtml += "</div>";
 
-  var compHtml = "";
-  if (showComplementary) {
-    compHtml =
-      '<div style="border-top:1px dashed rgba(0,0,0,0.1) !important;padding-top:12px !important;display:flex !important;flex-direction:column !important;gap:8px !important;width:100% !important;">' +
-        '<div style="font-size:12px !important;font-weight:700 !important;color:' + accentColor + ' !important;">🎁 ' + (typeof escapeHtml === "function" ? escapeHtml(complementaryText) : complementaryText) + "</div>" +
-        '<div class="nvx-comp-row" onclick="window.nvxBundleToggleComp(this, \'' + elementId + '\');">' +
-          '<div style="display:flex !important;align-items:center !important;gap:10px !important;">' +
-            '<input type="checkbox" style="width:18px !important;height:18px !important;accent-color:' + accentColor + ' !important;cursor:pointer !important;" onclick="event.stopPropagation(); window.nvxBundleUpdateTotal(\'' + elementId + '\');" />' +
-            '<div style="font-size:13px !important;font-weight:700 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryName) : complementaryName) + "</div>" +
-          "</div>" +
-          '<div style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryPriceRaw) : complementaryPriceRaw) + "</div>" +
-        "</div>" +
-        '<div class="nvx-bundle-comp-hint"></div>' +
-      "</div>";
-  }
-
   var firstNew = activeBundles[0] ? (activeBundles[0]._newNum || 0) : 0;
 
   var totalHtml =
     '<div class="nvx-bundle-total">Total del pack: <strong>' + window.nvxBundleFormatPrice(firstNew) + "</strong></div>" +
-    '<div class="nvx-bundle-note">El botón agrega la cantidad del pack al carrito. El descuento real se aplica con las reglas de promoción de Tiendanube. El producto complementario es una sugerencia (se agrega aparte desde la tienda).</div>';
+    '<div class="nvx-bundle-note">El pack agrega la cantidad al carrito. El descuento real se aplica con las reglas de promoción de Tiendanube.</div>';
 
   var buttonHtml =
     '<button type="button" class="nvx-bundle-btn" onclick="window.nvxSubmitBundle(this);">' +
       (typeof escapeHtml === "function" ? escapeHtml(buttonText) : buttonText) + " · " + window.nvxBundleFormatPrice(firstNew) +
     "</button>";
 
-  container.innerHTML = headerHtml + bundlesHtml + compHtml + totalHtml + buttonHtml;
+  container.innerHTML = headerHtml + bundlesHtml + totalHtml + buttonHtml;
 
   var targetEl = null;
 
@@ -4905,7 +4839,6 @@ function renderBundlePromociones(w) {
     }
   }
 
-  // Botón nativo de Tiendanube queda visible: si no usan el pack, compran normal
   if (activeBundles.length > 0) {
     var initQty = activeBundles[0]._take || 1;
     var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
@@ -4921,5 +4854,5 @@ function renderBundlePromociones(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+  }
 })(); 
