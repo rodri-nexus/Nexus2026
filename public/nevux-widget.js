@@ -4857,7 +4857,7 @@ function renderBundlePromociones(w) {
   }
   }
   /* ═══════════════════════════════════════════
-   WIDGET: POPUP DE CONVERSIÓN (v13 Final)
+   WIDGET: POPUP DE CONVERSIÓN (v231 - Diseño 10/10)
    ═══════════════════════════════════════════ */
 function renderPopupConversion(w) {
   var elementId = "nvx-popup-" + w.id;
@@ -4932,8 +4932,9 @@ function renderPopupConversion(w) {
           "position: fixed !important; " +
           "top: 0 !important; left: 0 !important; " +
           "width: 100vw !important; height: 100vh !important; " +
-          "background: rgba(0, 0, 0, 0.65) !important; " +
-          "backdrop-filter: blur(4px) !important; " +
+          "background: rgba(0, 0, 0, 0.7) !important; " +
+          "backdrop-filter: blur(5px) !important; " +
+          "-webkit-backdrop-filter: blur(5px) !important; " +
           "z-index: 9999999 !important; " +
           "display: flex !important; " +
           "align-items: center !important; " +
@@ -4945,64 +4946,70 @@ function renderPopupConversion(w) {
         "#" + elementId + " .nvx-popup-card { " +
           "background: " + bgColor + " !important; " +
           "color: " + textColor + " !important; " +
-          "border-radius: 20px !important; " +
-          "padding: 24px !important; " +
-          "max-width: 400px !important; " +
+          "border-radius: 24px !important; " +
+          "padding: 24px 20px !important; " +
+          "max-width: 380px !important; " +
           "width: 100% !important; " +
           "text-align: center !important; " +
           "position: relative !important; " +
-          "box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important; " +
+          "box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35) !important; " +
           "box-sizing: border-box !important; " +
-          "animation: nvxPopIn 0.3s ease-out !important; " +
+          "animation: nvxPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; " +
         "} " +
-        "@keyframes nvxPopIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } } " +
+        "@keyframes nvxPopIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } } " +
         "#" + elementId + " .nvx-close-btn { " +
           "position: absolute !important; top: 14px !important; right: 16px !important; " +
-          "font-size: 18px !important; cursor: pointer !important; opacity: 0.6 !important; " +
+          "font-size: 18px !important; cursor: pointer !important; opacity: 0.5 !important; " +
           "font-weight: 800 !important; border: none !important; background: none !important; color: " + textColor + " !important; " +
         "} " +
         "#" + elementId + " .nvx-close-btn:hover { opacity: 1 !important; } " +
+        "#" + elementId + " .nvx-wheel-outer { " +
+          "position: relative !important; width: 190px !important; height: 190px !important; margin: 12px auto !important; " +
+        "} " +
         "#" + elementId + " .nvx-wheel-container { " +
-          "width: 160px !important; height: 160px !important; margin: 16px auto !important; " +
-          "border-radius: 50% !important; border: 4px solid " + accentColor + " !important; " +
-          "background: conic-gradient(#10B981 0deg 60deg, #F59E0B 60deg 120deg, #EF4444 120deg 180deg, #3B82F6 180deg 240deg, #8B5CF6 240deg 300deg, #EC4899 300deg 360deg) !important; " +
-          "display: flex !important; align-items: center !important; justify-content: center !important; " +
-          "transition: transform 3s cubic-bezier(0.15, 0.9, 0.2, 1) !important; " +
+          "width: 100% !important; height: 100% !important; border-radius: 50% !important; " +
+          "box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; " +
+          "transition: transform 3.5s cubic-bezier(0.15, 0.9, 0.2, 1) !important; " +
         "} " +
         "#" + elementId + " .nvx-wheel-pointer { " +
+          "position: absolute !important; top: -10px !important; left: 50% !important; " +
+          "transform: translateX(-50%) !important; z-index: 10 !important; " +
           "width: 0 !important; height: 0 !important; " +
           "border-left: 10px solid transparent !important; " +
           "border-right: 10px solid transparent !important; " +
-          "border-top: 16px solid " + textColor + " !important; " +
-          "margin: 0 auto -8px !important; " +
+          "border-top: 18px solid #111827 !important; " +
+          "filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important; " +
         "} " +
         "#" + elementId + " .nvx-boxes-row { " +
-          "display: flex !important; justify-content: center !important; gap: 12px !important; margin: 18px 0 !important; " +
+          "display: flex !important; justify-content: center !important; gap: 12px !important; margin: 16px 0 !important; " +
         "} " +
         "#" + elementId + " .nvx-box-item { " +
-          "background: " + accentColor + " !important; color: #ffffff !important; " +
-          "width: 64px !important; height: 64px !important; border-radius: 14px !important; " +
-          "display: flex !important; align-items: center !important; justify-content: center !important; " +
-          "font-size: 28px !important; cursor: pointer !important; transition: transform 0.2s !important; " +
+          "color: #ffffff !important; " +
+          "width: 72px !important; height: 72px !important; border-radius: 16px !important; " +
+          "display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; " +
+          "font-size: 26px !important; cursor: pointer !important; transition: transform 0.2s, box-shadow 0.2s !important; " +
+          "box-shadow: 0 6px 16px rgba(0,0,0,0.12) !important; user-select: none !important; " +
         "} " +
-        "#" + elementId + " .nvx-box-item:hover { transform: translateY(-4px) !important; } " +
+        "#" + elementId + " .nvx-box-item:hover { transform: translateY(-5px) scale(1.05) !important; } " +
         "#" + elementId + " .nvx-input-email { " +
           "width: 100% !important; padding: 12px 14px !important; font-size: 14px !important; " +
-          "border: 1.5px solid #e5e7eb !important; border-radius: 10px !important; " +
+          "border: 1.5px solid #e5e7eb !important; border-radius: 12px !important; " +
           "margin-bottom: 12px !important; box-sizing: border-box !important; text-align: center !important; " +
+          "outline: none !important; " +
         "} " +
         "#" + elementId + " .nvx-submit-btn { " +
           "width: 100% !important; background: " + buttonBgColor + " !important; color: " + buttonTextColor + " !important; " +
           "border: none !important; border-radius: 12px !important; padding: 14px !important; " +
           "font-size: 15px !important; font-weight: 800 !important; cursor: pointer !important; " +
-          "box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; " +
+          "box-shadow: 0 4px 14px rgba(0,0,0,0.15) !important; transition: transform 0.1s !important; " +
         "} " +
+        "#" + elementId + " .nvx-submit-btn:active { transform: scale(0.98) !important; } " +
         "#" + elementId + " .nvx-coupon-box { " +
           "background: rgba(16,185,129,0.08) !important; border: 2px dashed " + accentColor + " !important; " +
-          "border-radius: 12px !important; padding: 16px !important; margin: 16px 0 !important; " +
+          "border-radius: 14px !important; padding: 16px !important; margin: 16px 0 !important; " +
         "} " +
         "#" + elementId + " .nvx-coupon-code { " +
-          "font-size: 22px !important; font-weight: 900 !important; letter-spacing: 2px !important; " +
+          "font-size: 24px !important; font-weight: 900 !important; letter-spacing: 2px !important; " +
           "color: " + accentColor + " !important; margin-bottom: 6px !important; font-family: monospace !important; " +
         "}";
       styleEl.appendChild(document.createTextNode(css));
@@ -5037,7 +5044,7 @@ function renderPopupConversion(w) {
         navigator.clipboard.writeText(couponCode);
       } catch(e) {}
       var prev = btn.innerHTML;
-      btn.innerHTML = "¡Copiado! ✓";
+      btn.innerHTML = "¡Copiado al portapapeles! ✓";
       setTimeout(function() { btn.innerHTML = prev; }, 2000);
     };
 
@@ -5062,21 +5069,20 @@ function renderPopupConversion(w) {
       }
 
       setTimeout(function() {
-        // Formato Timer
         var totalSec = timerMinutes * 60;
 
         bodyBox.innerHTML =
-          '<div style="font-size:32px !important;margin-bottom:8px !important;">🎉</div>' +
-          '<div style="font-size:18px !important;font-weight:900 !important;color:' + textColor + ' !important;">' + discountValue + '% OFF DESBLOQUEADO</div>' +
-          '<div style="font-size:12px !important;opacity:0.7 !important;margin-bottom:12px !important;">Copiá tu código y usalo al finalizar la compra:</div>' +
+          '<div style="font-size:36px !important;margin-bottom:8px !important;">🎉</div>' +
+          '<div style="font-size:19px !important;font-weight:900 !important;color:' + textColor + ' !important;">' + discountValue + '% OFF DESBLOQUEADO</div>' +
+          '<div style="font-size:12px !important;opacity:0.75 !important;margin-bottom:12px !important;">¡Felicitaciones! Usá este código al finalizar tu compra:</div>' +
           '<div class="nvx-coupon-box">' +
             '<div class="nvx-coupon-code">' + (typeof escapeHtml === "function" ? escapeHtml(couponCode) : couponCode) + '</div>' +
-            '<div style="font-size:11px !important;opacity:0.6 !important;">Toca el botón para copiar</div>' +
+            '<div style="font-size:11px !important;opacity:0.65 !important;">Tocá el botón de abajo para copiarlo</div>' +
           '</div>' +
-          '<div style="font-size:12px !important;font-weight:700 !important;color:' + accentColor + ' !important;margin-bottom:14px !important;" id="nvx-timer-' + w.id + '">' +
+          '<div style="font-size:13px !important;font-weight:800 !important;color:' + accentColor + ' !important;margin-bottom:14px !important;" id="nvx-timer-' + w.id + '">' +
             '⏱️ Expira en: ' + timerMinutes + ':00' +
           '</div>' +
-          '<button type="button" class="nvx-submit-btn" onclick="window[\'nvxCopyCoupon_' + w.id + '\'](this);">📋 Copiar Código</button>';
+          '<button type="button" class="nvx-submit-btn" onclick="window[\'nvxCopyCoupon_' + w.id + '\'](this);">📋 Copiar Código y Comprar</button>';
 
         // Activar Cuenta Regresiva de Cupón
         var timerEl = document.getElementById("nvx-timer-" + w.id);
@@ -5095,25 +5101,59 @@ function renderPopupConversion(w) {
             timerEl.innerHTML = "⏱️ Expira en: " + mStr + ":" + sStr;
           }, 1000);
         }
-      }, mode === "ruleta" ? 1800 : 300);
+      }, mode === "ruleta" ? 2200 : 200);
     };
 
-    // InnerHTML Construcción
-    var titleHtml = '<div style="font-size:20px !important;font-weight:900 !important;margin-bottom:6px !important;">' + (typeof escapeHtml === "function" ? escapeHtml(title) : title) + '</div>';
-    var subHtml = '<div style="font-size:13px !important;opacity:0.75 !important;line-height:1.4 !important;margin-bottom:16px !important;">' + (typeof escapeHtml === "function" ? escapeHtml(subtitle) : subtitle) + '</div>';
+    // Constructores visuales según Modo
+    var titleHtml = '<div style="font-size:20px !important;font-weight:900 !important;margin-bottom:6px !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(title) : title) + '</div>';
+    var subHtml = '<div style="font-size:13px !important;opacity:0.8 !important;line-height:1.4 !important;margin-bottom:14px !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(subtitle) : subtitle) + '</div>';
     var closeBtnHtml = '<button class="nvx-close-btn" onclick="window[\'nvxClosePopup_' + w.id + '\']();">✕</button>';
 
     var modeHtml = "";
     if (mode === "ruleta") {
+      // SVG Rueda completa de Casino con gajos y porcentajes visuales
+      var wheelSvg =
+        '<svg viewBox="0 0 200 200" style="width:100% !important;height:100% !important;">' +
+          '<g transform="translate(100,100)">' +
+            '<path d="M0,0 L0,-100 A100,100 0 0,1 86.6,-50 Z" fill="#10B981" />' +
+            '<path d="M0,0 L86.6,-50 A100,100 0 0,1 86.6,50 Z" fill="#F59E0B" />' +
+            '<path d="M0,0 L86.6,50 A100,100 0 0,1 0,100 Z" fill="#EF4444" />' +
+            '<path d="M0,0 L0,100 A100,100 0 0,1 -86.6,50 Z" fill="#3B82F6" />' +
+            '<path d="M0,0 L-86.6,50 A100,100 0 0,1 -86.6,-50 Z" fill="#8B5CF6" />' +
+            '<path d="M0,0 L-86.6,-50 A100,100 0 0,1 0,-100 Z" fill="#EC4899" />' +
+            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(30)">10%</text>' +
+            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(90)">15%</text>' +
+            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(150)">20%</text>' +
+            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(210)">5%</text>' +
+            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(270)">25%</text>' +
+            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(330)">🎁</text>' +
+            '<circle cx="0" cy="0" r="22" fill="#ffffff" stroke="#111827" stroke-width="3" />' +
+            '<text x="0" y="4" text-anchor="middle" fill="#111827" font-size="9" font-weight="900">GIRAR</text>' +
+          '</g>' +
+        '</svg>';
+
       modeHtml =
-        '<div class="nvx-wheel-pointer"></div>' +
-        '<div class="nvx-wheel-container"><span style="font-size:20px;">🎁</span></div>';
+        '<div class="nvx-wheel-outer">' +
+          '<div class="nvx-wheel-pointer"></div>' +
+          '<div class="nvx-wheel-container" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">' + wheelSvg + '</div>' +
+        '</div>';
     } else if (mode === "cajas") {
       modeHtml =
+        '<div style="font-size:12px !important;font-weight:700 !important;color:' + accentColor + ' !important;margin-bottom:6px !important;">¡Elegí una caja y descubrí tu premio!</div>' +
         '<div class="nvx-boxes-row">' +
-          '<div class="nvx-box-item" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁</div>' +
-          '<div class="nvx-box-item" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁</div>' +
-          '<div class="nvx-box-item" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁</div>' +
+          '<div class="nvx-box-item" style="background:#8B5CF6 !important;" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁<span style="font-size:9px !important;font-weight:800 !important;margin-top:2px !important;">Caja 1</span></div>' +
+          '<div class="nvx-box-item" style="background:#10B981 !important;" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁<span style="font-size:9px !important;font-weight:800 !important;margin-top:2px !important;">Caja 2</span></div>' +
+          '<div class="nvx-box-item" style="background:#F59E0B !important;" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁<span style="font-size:9px !important;font-weight:800 !important;margin-top:2px !important;">Caja 3</span></div>' +
+        '</div>';
+    } else {
+      // Captura Email Directo con Badge
+      modeHtml =
+        '<div style="background:rgba(16,185,129,0.08) !important;border:2px dashed ' + accentColor + ' !important;border-radius:14px !important;padding:12px !important;margin:12px 0 16px !important;display:flex !items:center !justify-content:center !gap:10px !important;">' +
+          '<span style="font-size:28px !important;">🏷️</span>' +
+          '<div style="text-align:left !important;">' +
+            '<div style="font-size:15px !important;font-weight:900 !important;color:' + accentColor + ' !important;">' + discountValue + '% OFF DE REGALO</div>' +
+            '<div style="font-size:11px !important;opacity:0.75 !important;">Ingresá tu correo para desbloquearlo</div>' +
+          '</div>' +
         '</div>';
     }
 
@@ -5138,5 +5178,5 @@ function renderPopupConversion(w) {
       nvxTrack(w.id, "impression");
     }
   }, delaySeconds * 1000);
-  }
+}
 })(); 
