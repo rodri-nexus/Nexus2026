@@ -1,8 +1,24 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Package, Store } from "lucide-react";
+import {
+  X,
+  Package,
+  Store,
+  Sparkles,
+  TrendingUp,
+  Flame,
+  Globe,
+  Mic,
+  MessageSquare,
+  Bot,
+  type LucideIcon,
+} from "lucide-react";
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 interface CrearWidgetModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -10,12 +26,78 @@ interface CrearWidgetModalProps {
   onSelectTodos: () => void;
 }
 
+interface ProFeature {
+  label: string;
+  desc: string;
+  href: string;
+  icon: LucideIcon;
+  badge?: string;
+}
+
+/* ═══════════════════════════════════════════
+   LISTA DE LAS 6 FUNCIONES PRO (IA/METRICAS)
+═══════════════════════════════════════════ */
+const proFeatures: ProFeature[] = [
+  {
+    label: "📈 Métricas en Vivo",
+    desc: "Seguimiento de conversiones y ROI.",
+    href: "/dashboard/analytics",
+    icon: TrendingUp,
+    badge: "ROI",
+  },
+  {
+    label: "🔔 Notificaciones de Compras",
+    desc: "Prueba social que estimula compras directas.",
+    href: "/dashboard/social-proof",
+    icon: Flame,
+    badge: "PRO",
+  },
+  {
+    label: "🌐 Traductor de Tienda (IA)",
+    desc: "Traducción en vivo ES, PT-BR e EN.",
+    href: "/dashboard/idiomas-ia",
+    icon: Globe,
+    badge: "NUEVO",
+  },
+  {
+    label: "🎙️ Buscador por Voz",
+    desc: "Comandos de voz inteligentes para tu tienda.",
+    href: "/dashboard/busqueda-voz",
+    icon: Mic,
+    badge: "BETA",
+  },
+  {
+    label: "💬 Asistente de Ventas (IA)",
+    desc: "Vendedor virtual que cierra ventas 24/7.",
+    href: "/dashboard/vendedor-ia",
+    icon: MessageSquare,
+    badge: "NUEVO",
+  },
+  {
+    label: "🤖 Asistente de Soporte (IA)",
+    desc: "NevuxBot CRM integrado con WhatsApp.",
+    href: "/dashboard/nevuxbot",
+    icon: Bot,
+    badge: "IA CRM",
+  },
+];
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════════ */
 export default function CrearWidgetModal({
   isOpen,
   onClose,
   onSelectProducto,
   onSelectTodos,
 }: CrearWidgetModalProps) {
+  const router = useRouter();
+
+  const handleProFeatureClick = (href: string) => {
+    onClose();
+    router.push(href);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -63,7 +145,9 @@ export default function CrearWidgetModal({
               onClick={(e) => e.stopPropagation()}
               style={{
                 width: "100%",
-                maxWidth: "480px",
+                maxWidth: "500px",
+                maxHeight: "90vh",
+                overflowY: "auto",
                 background: "#ffffff",
                 borderRadius: "18px",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
@@ -89,7 +173,7 @@ export default function CrearWidgetModal({
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  Crear nuevo widget
+                  Crear nuevo widget o función
                 </h2>
                 <button
                   onClick={onClose}
@@ -127,11 +211,11 @@ export default function CrearWidgetModal({
                   opacity: 0.6,
                 }}
               >
-                ¿Qué tipo de widget querés crear?
+                Elegí la opción o función que querés activar:
               </p>
 
               {/* Opciones */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
                 {/* Opción A: Producto específico */}
                 <button
                   onClick={onSelectProducto}
@@ -163,8 +247,8 @@ export default function CrearWidgetModal({
                 >
                   <div
                     style={{
-                      width: "48px",
-                      height: "48px",
+                      width: "44px",
+                      height: "44px",
                       borderRadius: "12px",
                       background: "rgba(16, 185, 129, 0.12)",
                       display: "flex",
@@ -181,17 +265,17 @@ export default function CrearWidgetModal({
                         fontSize: "0.95rem",
                         fontWeight: 700,
                         color: "#000000",
-                        marginBottom: "0.25rem",
+                        marginBottom: "0.2rem",
                       }}
                     >
                       Widget para un producto específico
                     </div>
                     <div
                       style={{
-                        fontSize: "0.85rem",
+                        fontSize: "0.82rem",
                         color: "#000000",
                         opacity: 0.6,
-                        lineHeight: 1.4,
+                        lineHeight: 1.3,
                       }}
                     >
                       Asociá widgets a un producto en particular
@@ -202,11 +286,10 @@ export default function CrearWidgetModal({
                     height="20"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#000000"
-                    strokeWidth="2"
+                    stroke="#10B981"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    style={{ opacity: 0.4 }}
                   >
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
@@ -243,8 +326,8 @@ export default function CrearWidgetModal({
                 >
                   <div
                     style={{
-                      width: "48px",
-                      height: "48px",
+                      width: "44px",
+                      height: "44px",
                       borderRadius: "12px",
                       background: "#000000",
                       display: "flex",
@@ -261,20 +344,20 @@ export default function CrearWidgetModal({
                         fontSize: "0.95rem",
                         fontWeight: 700,
                         color: "#000000",
-                        marginBottom: "0.25rem",
+                        marginBottom: "0.2rem",
                       }}
                     >
                       Widget para todos los productos
                     </div>
                     <div
                       style={{
-                        fontSize: "0.85rem",
+                        fontSize: "0.82rem",
                         color: "#000000",
                         opacity: 0.6,
-                        lineHeight: 1.4,
+                        lineHeight: 1.3,
                       }}
                     >
-                      Asociá widgets a todos los productos y en el inicio de la tienda
+                      Asociá widgets a todo tu catálogo e inicio
                     </div>
                   </div>
                   <svg
@@ -282,15 +365,179 @@ export default function CrearWidgetModal({
                     height="20"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#000000"
-                    strokeWidth="2"
+                    stroke="#10B981"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    style={{ opacity: 0.4 }}
                   >
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
+
+                {/* Opción C: TERCER BLOQUE DE FUNCIONES PRO / IA */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                    padding: "1rem 1.1rem",
+                    background: "#ffffff",
+                    border: "1.5px solid #e5e7eb",
+                    borderRadius: "14px",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {/* Encabezado del bloque 3 */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <div
+                      style={{
+                        width: "44px",
+                        height: "44px",
+                        borderRadius: "12px",
+                        background: "#ecfdf5",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Sparkles size={22} color="#10B981" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          fontSize: "0.95rem",
+                          fontWeight: 700,
+                          color: "#000000",
+                        }}
+                      >
+                        Funciones Pro para tu tienda
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "#000000",
+                          opacity: 0.6,
+                          lineHeight: 1.3,
+                          marginTop: "0.15rem",
+                        }}
+                      >
+                        Inteligencia artificial, analíticas y prueba social
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sub-lista de las 6 herramientas Pro */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.4rem",
+                      borderTop: "1px solid #f3f4f6",
+                      paddingTop: "0.75rem",
+                    }}
+                  >
+                    {proFeatures.map((feat) => {
+                      const IconComponent = feat.icon;
+                      return (
+                        <button
+                          key={feat.href}
+                          onClick={() => handleProFeatureClick(feat.href)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.65rem",
+                            padding: "0.6rem 0.75rem",
+                            background: "#f9fafb",
+                            border: "1px solid #f3f4f6",
+                            borderRadius: "10px",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            width: "100%",
+                            transition: "all 0.15s ease",
+                            boxSizing: "border-box",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "#10B981";
+                            e.currentTarget.style.background = "#ecfdf5";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "#f3f4f6";
+                            e.currentTarget.style.background = "#f9fafb";
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "28px",
+                              height: "28px",
+                              borderRadius: "6px",
+                              background: "#ffffff",
+                              border: "1px solid #e5e7eb",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <IconComponent size={14} color="#10B981" />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                              <span
+                                style={{
+                                  fontSize: "0.8rem",
+                                  fontWeight: 700,
+                                  color: "#000000",
+                                }}
+                              >
+                                {feat.label}
+                              </span>
+                              {feat.badge && (
+                                <span
+                                  style={{
+                                    fontSize: "0.55rem",
+                                    fontWeight: 800,
+                                    background: "#10B981",
+                                    color: "#ffffff",
+                                    padding: "0.05rem 0.3rem",
+                                    borderRadius: "3px",
+                                  }}
+                                >
+                                  {feat.badge}
+                                </span>
+                              )}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "0.72rem",
+                                color: "#000000",
+                                opacity: 0.5,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {feat.desc}
+                            </div>
+                          </div>
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#10B981"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{ flexShrink: 0 }}
+                          >
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -298,4 +545,4 @@ export default function CrearWidgetModal({
       )}
     </AnimatePresence>
   );
-            }
+                        }
