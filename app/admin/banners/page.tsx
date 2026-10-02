@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Smartphone, Download, Award, Zap, CheckCircle2, XCircle } from "lucide-react";
+import { Smartphone, Zap, CheckCircle2, XCircle } from "lucide-react";
 
 type TabId = "carousels" | "marketing_assets" | "before_after";
 
@@ -33,64 +33,6 @@ interface CarouselSlide {
   descEs: string;
   descPt: string;
   metric?: string;
-}
-
-/* ═══════════════════════════════════════════
-   HELPERS & DIBUJO CANVAS (Regla #9 al inicio)
-═══════════════════════════════════════════ */
-function loadLogoImage(): Promise<HTMLImageElement> {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = (err) => reject(err);
-    img.src = "/icon.svg";
-  });
-}
-
-function drawRoundedRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number
-) {
-  let radius = r;
-  if (w < 2 * radius) radius = w / 2;
-  if (h < 2 * radius) radius = h / 2;
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + w, y, x + w, y + h, radius);
-  ctx.arcTo(x + w, y + h, x, y + h, radius);
-  ctx.arcTo(x, y + h, x, y, radius);
-  ctx.arcTo(x, y, x + w, y, radius);
-  ctx.closePath();
-}
-
-function wrapText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number
-): number {
-  const words = text.split(" ");
-  let line = "";
-  let cy = y;
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + " ";
-    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
-      ctx.fillText(line.trim(), x, cy);
-      line = words[n] + " ";
-      cy += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  ctx.fillText(line.trim(), x, cy);
-  return cy;
 }
 
 /* ═══════════════════════════════════════════
@@ -298,451 +240,13 @@ const PREMIUM_CAROUSEL_SLIDES: CarouselSlide[] = [
 export default function BannersPage() {
   const [activeTab, setActiveTab] = useState<TabId>("carousels");
   const [lang, setLang] = useState<"es" | "pt">("es");
-  const [isDownloading, setIsDownloading] = useState(false);
   const isPt = lang === "pt";
 
   const tabs = [
-    { id: "carousels" as TabId, label: "Carrusel Pro (5 Placas)", icon: "🎠" },
+    { id: "carousels" as TabId, label: "Carrusel Pro (5 Placas Limpias)", icon: "🎠" },
     { id: "marketing_assets" as TabId, label: "Hooks y Cierres Pro", icon: "🎬" },
     { id: "before_after" as TabId, label: "Antes vs Después", icon: "⚡" },
   ];
-
-  /* ─── DESCARGAR SLIDE CON LOGO OFICIAL ─── */
-  const downloadSlideAsImage = async (slideIndex: number) => {
-    const slide = PREMIUM_CAROUSEL_SLIDES[slideIndex];
-    if (!slide) return;
-    setIsDownloading(true);
-    try {
-      const width = 1080;
-      const height = 1350;
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const S = width / 340;
-
-      // Cargar logo oficial
-      let logoImg: HTMLImageElement | null = null;
-      try {
-        logoImg = await loadLogoImage();
-      } catch (e) {
-        console.warn("Logo fallback:", e);
-      }
-
-      if (slide.type === "problem") {
-        ctx.fillStyle = "#0c0407";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
-        g.addColorStop(0, "rgba(239,68,68,0.18)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (slide.type === "comparison") {
-        ctx.fillStyle = "#070b14";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
-        g.addColorStop(0, "rgba(59,130,246,0.2)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (slide.type === "solution") {
-        ctx.fillStyle = "#03120c";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.22)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (slide.type === "cta") {
-        ctx.fillStyle = "#021a12";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.5, 30 * S, width / 2, height * 0.5, 240 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.3)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.5, 240 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = "#060913";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.35, 20 * S, width / 2, height * 0.35, 220 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.18)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.35, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.strokeStyle = "rgba(255,255,255,0.025)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 40 * S) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      // DIBUJAR LOGO REAL OFICIAL
-      const logoSize = 34 * S;
-      const logoX = 36 * S;
-      const logoY = 32 * S;
-
-      if (logoImg) {
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-      } else {
-        ctx.fillStyle = "#10B981";
-        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 10 * S);
-        ctx.fill();
-      }
-
-      ctx.fillStyle = "#fff";
-      ctx.font = `900 ${16 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      ctx.fillText("NEVUX", logoX + logoSize + 10 * S, logoY + logoSize / 2);
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${12 * S}px monospace`;
-      ctx.textAlign = "right";
-      ctx.fillText(`0${slideIndex + 1} / 0${PREMIUM_CAROUSEL_SLIDES.length}`, width - 36 * S, logoY + logoSize / 2);
-
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
-      ctx.beginPath();
-      ctx.moveTo(36 * S, 82 * S);
-      ctx.lineTo(width - 36 * S, 82 * S);
-      ctx.stroke();
-
-      const badgeText = isPt ? slide.badgePt : slide.badgeEs;
-      ctx.font = `900 ${9.5 * S}px sans-serif`;
-      const tw = ctx.measureText(badgeText).width;
-      const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
-      ctx.fillStyle = slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)";
-      ctx.strokeStyle = badgeColor;
-      ctx.lineWidth = 1.5 * S;
-      drawRoundedRect(ctx, 36 * S, 110 * S, tw + 24 * S, 26 * S, 13 * S);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = badgeColor;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(badgeText, 36 * S + (tw + 24 * S) / 2, 110 * S + 13 * S);
-
-      ctx.font = `900 ${22 * S}px sans-serif`;
-      ctx.fillStyle = "#fff";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      wrapText(ctx, isPt ? slide.titlePt : slide.titleEs, 36 * S, 155 * S, width - 72 * S, 30 * S);
-
-      if (slide.metric) {
-        const mY = 280 * S;
-        ctx.fillStyle = slide.type === "cta" ? "#10B981" : "rgba(16,185,129,0.12)";
-        ctx.strokeStyle = "#10B981";
-        ctx.lineWidth = 2 * S;
-        drawRoundedRect(ctx, 36 * S, mY, width - 72 * S, 50 * S, 16 * S);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = slide.type === "cta" ? "#000" : "#10B981";
-        ctx.font = `950 ${14 * S}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(slide.metric, width / 2, mY + 25 * S);
-      }
-
-      const boxY = height - 190 * S;
-      ctx.fillStyle = "rgba(10,12,16,0.85)";
-      ctx.strokeStyle = "rgba(16,185,129,0.3)";
-      ctx.lineWidth = 1.5 * S;
-      drawRoundedRect(ctx, 36 * S, boxY, width - 72 * S, 120 * S, 20 * S);
-      ctx.fill();
-      ctx.stroke();
-      ctx.font = `600 ${11.5 * S}px sans-serif`;
-      ctx.fillStyle = "#d1fae5";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      wrapText(ctx, isPt ? slide.descPt : slide.descEs, width / 2, boxY + 22 * S, width - 108 * S, 20 * S);
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${10 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        slide.type === "cta" ? "NEVUX.AR · APP OFICIAL" : isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA CONTINUAR ➔",
-        width / 2,
-        height - 28 * S
-      );
-
-      const a = document.createElement("a");
-      a.download = `nevux-carrusel-slide-${slideIndex + 1}.png`;
-      a.href = canvas.toDataURL("image/png");
-      a.click();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  /* ─── DESCARGAR ANTES VS DESPUÉS CON LOGO REAL ─── */
-  const downloadBeforeAfterAsset = async () => {
-    setIsDownloading(true);
-    try {
-      const width = 1080;
-      const height = 1350;
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const S = width / 340;
-
-      let logoImg: HTMLImageElement | null = null;
-      try {
-        logoImg = await loadLogoImage();
-      } catch (e) {
-        console.warn("Logo fallback:", e);
-      }
-
-      ctx.fillStyle = "#05080f";
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.strokeStyle = "rgba(255,255,255,0.03)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 40 * S) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      const logoSize = 32 * S;
-      const logoX = 36 * S;
-      const logoY = 32 * S;
-
-      if (logoImg) {
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-      } else {
-        ctx.fillStyle = "#10B981";
-        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 10 * S);
-        ctx.fill();
-      }
-
-      ctx.fillStyle = "#fff";
-      ctx.font = `900 ${15 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      ctx.fillText("NEVUX", logoX + logoSize + 10 * S, logoY + logoSize / 2);
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${11 * S}px sans-serif`;
-      ctx.textAlign = "right";
-      ctx.fillText("PROPUESTA DE VALOR REAL", width - 36 * S, logoY + logoSize / 2);
-
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
-      ctx.beginPath();
-      ctx.moveTo(36 * S, 80 * S);
-      ctx.lineTo(width - 36 * S, 80 * S);
-      ctx.stroke();
-
-      ctx.fillStyle = "#ffffff";
-      ctx.font = `900 ${18 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      wrapText(
-        ctx,
-        isPt
-          ? "LO QUE ACONTECE QUANDO VOCÊ INSTALA A NEVUX 🚀"
-          : "LO QUE PASA CUANDO INSTALÁS NEVUX EN TU TIENDA 🚀",
-        width / 2,
-        100 * S,
-        width - 72 * S,
-        24 * S
-      );
-
-      const boxW = (width - 92 * S) / 2;
-      const boxH = 240 * S;
-      const topY = 150 * S;
-
-      // IZQUIERDA: SIN NEVUX
-      const leftX = 36 * S;
-      ctx.fillStyle = "rgba(239, 68, 68, 0.08)";
-      ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
-      ctx.lineWidth = 2 * S;
-      drawRoundedRect(ctx, leftX, topY, boxW, boxH, 20 * S);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = "#ef4444";
-      ctx.font = `900 ${12 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      ctx.fillText(isPt ? "❌ SEM NEVUX" : "❌ TIENDA SIN NEVUX", leftX + boxW / 2, topY + 16 * S);
-
-      const itemsSin = isPt
-        ? [
-            "• 97% abandono de carrinho",
-            "• Sem urgência nem escassez",
-            "• Dúvidas sem resposta na hora",
-            "• Clientes entram e saem $0",
-            "• Sem prova social em tempo real"
-          ]
-        : [
-            "• 97% de abandono de carrito",
-            "• Sin urgencia ni escasez real",
-            "• Dudas sin respuesta en vivo",
-            "• Visitas entran y se van con $0",
-            "• Sin prueba social flotante"
-          ];
-
-      ctx.fillStyle = "#fca5a5";
-      ctx.font = `600 ${9.5 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      itemsSin.forEach((item, idx) => {
-        ctx.fillText(item, leftX + 16 * S, topY + 50 * S + idx * 34 * S);
-      });
-
-      // DERECHA: CON NEVUX
-      const rightX = leftX + boxW + 20 * S;
-      ctx.fillStyle = "rgba(16, 185, 129, 0.12)";
-      ctx.strokeStyle = "#10B981";
-      ctx.lineWidth = 2.5 * S;
-      drawRoundedRect(ctx, rightX, topY, boxW, boxH, 20 * S);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${12 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      ctx.fillText(isPt ? "✅ COM NEVUX" : "✅ TIENDA CON NEVUX", rightX + boxW / 2, topY + 16 * S);
-
-      const itemsCon = isPt
-        ? [
-            "• Conversão ×3 + Métrica ROI",
-            "• Urgência com timers e stock",
-            "• Vendedor IA atendendo 24/7",
-            "• Notificações de compras vivas",
-            "• Bundles 2x1 e leve + pague -"
-          ]
-        : [
-            "• Conversión ×3 + Métrica ROI",
-            "• Urgencia de stock y timers",
-            "• Vendedor IA cerrando 24/7",
-            "• Notificaciones de compra en vivo",
-            "• Bundles 2x1 y packs de ofertas"
-          ];
-
-      ctx.fillStyle = "#a7f3d0";
-      ctx.font = `700 ${9.5 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      itemsCon.forEach((item, idx) => {
-        ctx.fillText(item, rightX + 16 * S, topY + 50 * S + idx * 34 * S);
-      });
-
-      const ctaY = height - 100 * S;
-      ctx.fillStyle = "#10B981";
-      drawRoundedRect(ctx, 36 * S, ctaY, width - 72 * S, 54 * S, 18 * S);
-      ctx.fill();
-
-      ctx.fillStyle = "#000000";
-      ctx.font = `950 ${13 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        isPt ? "🚀 INSTALE GRÁTIS POR 7 DIAS NA NUVEMSHOP" : "🚀 INSTALÁ GRATIS POR 7 DÍAS EN TU TIENDANUBE",
-        width / 2,
-        ctaY + 27 * S
-      );
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${10 * S}px sans-serif`;
-      ctx.fillText("NEVUX.AR · APP STORE ID #37382", width / 2, height - 24 * S);
-
-      const a = document.createElement("a");
-      a.download = `nevux-antes-vs-despues.png`;
-      a.href = canvas.toDataURL("image/png");
-      a.click();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  /* ─── DESCARGAR HOOKS/CIERRES CON LOGO REAL ─── */
-  const downloadMarketingAsset = async (assetId: string) => {
-    const asset = MARKETING_ASSETS.find((a) => a.id === assetId);
-    if (!asset) return;
-    setIsDownloading(true);
-
-    try {
-      const width = 1080;
-      const height = 1920;
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const S = width / 340;
-      const isCta = asset.category === "cta";
-      const isHook = asset.category === "hook";
-
-      let logoImg: HTMLImageElement | null = null;
-      try {
-        logoImg = await loadLogoImage();
-      } catch (e) {
-        console.warn("Logo fallback:", e);
-      }
-
-      if (asset.theme === "danger") {
-        ctx.fillStyle = "#0a0205";
-        ctx.fillRect(0, 0, width, height);
-      } else if (asset.theme === "purple") {
-        ctx.fillStyle = "#07030f";
-        ctx.fillRect(0, 0, width, height);
-      } else if (asset.theme === "green" || isCta) {
-        ctx.fillStyle = "#020f0a";
-        ctx.fillRect(0, 0, width, height);
-      } else {
-        ctx.fillStyle = "#05080f";
-        ctx.fillRect(0, 0, width, height);
-      }
-
-      const logoSize = 36 * S;
-      const logoX = 40 * S;
-      const logoY = 48 * S;
-
-      if (logoImg) {
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-      } else {
-        ctx.fillStyle = "#10B981";
-        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 12 * S);
-        ctx.fill();
-      }
-
-      ctx.fillStyle = "#fff";
-      ctx.font = `900 ${16 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      ctx.fillText("NEVUX", logoX + logoSize + 12 * S, logoY + logoSize / 2);
-
-      const a = document.createElement("a");
-      a.download = `nevux-${asset.id}-pro.png`;
-      a.href = canvas.toDataURL("image/png");
-      a.click();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   return (
     <div
@@ -762,26 +266,23 @@ export default function BannersPage() {
       {/* HEADER PRINCIPAL */}
       <div
         style={{
-          maxWidth: "750px",
+          maxWidth: "500px",
           width: "100%",
           textAlign: "center",
           backgroundColor: "#0b2920",
-          padding: "20px",
+          padding: "16px",
           borderRadius: "18px",
           border: "1.5px solid rgba(16, 185, 129, 0.3)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "14px",
+          gap: "12px",
         }}
       >
-        <h1 style={{ fontSize: "18px", fontWeight: 800, color: "#10B981", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-          <Smartphone size={20} />
+        <h1 style={{ fontSize: "17px", fontWeight: 800, color: "#10B981", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+          <Smartphone size={18} />
           Panel de Contenido Visual Pro
         </h1>
-        <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, lineHeight: 1.4 }}>
-          Assets HD nivel agencia para Reels, TikTok, Feed y Carruseles de Instagram.
-        </p>
 
         <div style={{ display: "flex", gap: "6px", background: "#061a14", padding: "4px", borderRadius: "10px" }}>
           <button
@@ -823,7 +324,7 @@ export default function BannersPage() {
               onClick={() => setActiveTab(tab.id)}
               style={{
                 flex: 1,
-                padding: "10px 12px",
+                padding: "8px 10px",
                 borderRadius: "8px",
                 fontSize: "11px",
                 fontWeight: 700,
@@ -839,190 +340,146 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* TAB 1: CARRUSEL PRO EN CASCADA (UNA PLACA DEBAJO DE LA OTRA) */}
+      {/* TAB 1: CARRUSEL PRO EN CASCADA (PLACAS 100% LIMPIAS PARA CAPTURA) */}
       {activeTab === "carousels" && (
-        <div style={{ width: "100%", maxWidth: "480px" }}>
-          <div
-            style={{
-              backgroundColor: "#0b2920",
-              border: "1.5px solid rgba(16,185,129,0.3)",
-              borderRadius: "20px",
-              padding: "20px 16px",
-              textAlign: "center",
-              marginBottom: "20px",
-            }}
-          >
-            <Award size={32} color="#10B981" style={{ marginBottom: "8px" }} />
-            <h2 style={{ fontSize: "17px", fontWeight: 900, color: "#fff", margin: "0 0 6px" }}>
-              Carrusel B2B (5 Placas en Cascada)
-            </h2>
-            <p style={{ fontSize: "12px", color: "#a7f3d0", margin: 0 }}>
-              Diseño exacto listo para mirar, capturar o descargar en HD (1080×1350)
-            </p>
-          </div>
+        <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "28px" }}>
+          {PREMIUM_CAROUSEL_SLIDES.map((slide, index) => {
+            const badgeText = isPt ? slide.badgePt : slide.badgeEs;
+            const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
 
-          {/* LISTA EN CASCADA / VERTICAL COMPLETA */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            {PREMIUM_CAROUSEL_SLIDES.map((slide, index) => {
-              const badgeText = isPt ? slide.badgePt : slide.badgeEs;
-              const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
-
-              return (
+            return (
+              <div
+                key={index}
+                style={{
+                  width: "100%",
+                  aspectRatio: "4 / 5",
+                  background: slide.type === "problem"
+                    ? "#0c0407"
+                    : slide.type === "comparison"
+                    ? "#070b14"
+                    : slide.type === "solution"
+                    ? "#03120c"
+                    : slide.type === "cta"
+                    ? "#021a12"
+                    : "#060913",
+                  border: "2px solid rgba(16, 185, 129, 0.4)",
+                  borderRadius: "24px",
+                  padding: "24px",
+                  boxShadow: "0 16px 40px rgba(0,0,0,0.6)",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                {/* HEADER CON LOGO OFICIAL LIMPIO */}
                 <div
-                  key={index}
                   style={{
-                    width: "100%",
-                    background: slide.type === "problem"
-                      ? "#0c0407"
-                      : slide.type === "comparison"
-                      ? "#070b14"
-                      : slide.type === "solution"
-                      ? "#03120c"
-                      : slide.type === "cta"
-                      ? "#021a12"
-                      : "#060913",
-                    border: "1.5px solid rgba(16, 185, 129, 0.35)",
-                    borderRadius: "22px",
-                    padding: "20px",
-                    boxShadow: "0 12px 30px rgba(0,0,0,0.4)",
-                    boxSizing: "border-box",
                     display: "flex",
-                    flexDirection: "column",
-                    gap: "14px",
-                    position: "relative",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    paddingBottom: "14px",
                   }}
                 >
-                  {/* HEADER MARCA CON LOGO OFICIAL */}
-                  <div
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <img
+                      src="/icon.svg"
+                      alt="Nevux Logo"
+                      style={{ width: "32px", height: "32px", display: "block" }}
+                    />
+                    <span style={{ fontSize: "16px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.02em" }}>
+                      NEVUX
+                    </span>
+                  </div>
+
+                  <span style={{ fontSize: "13px", fontWeight: 800, fontFamily: "monospace", color: "#10B981" }}>
+                    0{index + 1} / 05
+                  </span>
+                </div>
+
+                {/* BADGE CATEGORÍA */}
+                <div>
+                  <span
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      borderBottom: "1px solid rgba(255,255,255,0.08)",
-                      paddingBottom: "12px",
+                      display: "inline-block",
+                      padding: "5px 12px",
+                      borderRadius: "999px",
+                      fontSize: "11px",
+                      fontWeight: 900,
+                      color: badgeColor,
+                      background: slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)",
+                      border: `1px solid ${badgeColor}`,
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <img
-                        src="/icon.svg"
-                        alt="Nevux Logo"
-                        style={{ width: "28px", height: "28px", display: "block" }}
-                      />
-                      <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.02em" }}>
-                        NEVUX
-                      </span>
-                    </div>
+                    {badgeText}
+                  </span>
+                </div>
 
-                    <span style={{ fontSize: "12px", fontWeight: 800, fontFamily: "monospace", color: "#10B981" }}>
-                      0{index + 1} / 05
-                    </span>
+                {/* TÍTULO PRINCIPAL DE LA PLACA */}
+                <h2
+                  style={{
+                    margin: "0",
+                    fontSize: "21px",
+                    fontWeight: 900,
+                    color: "#ffffff",
+                    lineHeight: 1.3,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {isPt ? slide.titlePt : slide.titleEs}
+                </h2>
+
+                {/* MÉTRICA DESTACADA PILL */}
+                {slide.metric && (
+                  <div
+                    style={{
+                      padding: "12px 16px",
+                      borderRadius: "14px",
+                      background: slide.type === "cta" ? "#10B981" : "rgba(16, 185, 129, 0.12)",
+                      border: "1.5px solid #10B981",
+                      textAlign: "center",
+                      color: slide.type === "cta" ? "#000000" : "#10B981",
+                      fontSize: "13px",
+                      fontWeight: 900,
+                    }}
+                  >
+                    {slide.metric}
                   </div>
+                )}
 
-                  {/* BADGE */}
-                  <div>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "4px 10px",
-                        borderRadius: "999px",
-                        fontSize: "10px",
-                        fontWeight: 900,
-                        color: badgeColor,
-                        background: slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)",
-                        border: `1px solid ${badgeColor}`,
-                      }}
-                    >
-                      {badgeText}
-                    </span>
-                  </div>
-
-                  {/* TÍTULO */}
-                  <h3
+                {/* CAJA DE DESCRIPCIÓN */}
+                <div
+                  style={{
+                    background: "rgba(10, 12, 16, 0.88)",
+                    border: "1px solid rgba(16, 185, 129, 0.3)",
+                    borderRadius: "16px",
+                    padding: "16px",
+                  }}
+                >
+                  <p
                     style={{
                       margin: 0,
-                      fontSize: "18px",
-                      fontWeight: 900,
-                      color: "#ffffff",
-                      lineHeight: 1.3,
-                      letterSpacing: "-0.01em",
+                      fontSize: "13px",
+                      color: "#d1fae5",
+                      lineHeight: 1.55,
+                      whiteSpace: "pre-line",
+                      fontWeight: 600,
                     }}
                   >
-                    {isPt ? slide.titlePt : slide.titleEs}
-                  </h3>
-
-                  {/* MÉTRICA PILL */}
-                  {slide.metric && (
-                    <div
-                      style={{
-                        padding: "10px 14px",
-                        borderRadius: "12px",
-                        background: slide.type === "cta" ? "#10B981" : "rgba(16, 185, 129, 0.12)",
-                        border: "1px solid #10B981",
-                        textAlign: "center",
-                        color: slide.type === "cta" ? "#000000" : "#10B981",
-                        fontSize: "12px",
-                        fontWeight: 900,
-                      }}
-                    >
-                      {slide.metric}
-                    </div>
-                  )}
-
-                  {/* CAJA DE DESCRIPCIÓN */}
-                  <div
-                    style={{
-                      background: "rgba(10, 12, 16, 0.85)",
-                      border: "1px solid rgba(16, 185, 129, 0.25)",
-                      borderRadius: "14px",
-                      padding: "14px",
-                    }}
-                  >
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: "12px",
-                        color: "#d1fae5",
-                        lineHeight: 1.5,
-                        whiteSpace: "pre-line",
-                      }}
-                    >
-                      {isPt ? slide.descPt : slide.descEs}
-                    </p>
-                  </div>
-
-                  {/* FOOTER */}
-                  <div style={{ textAlign: "center", fontSize: "10px", fontWeight: 800, color: "#10B981" }}>
-                    {slide.type === "cta" ? "NEVUX.AR · APP OFICIAL" : isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA CONTINUAR ➔"}
-                  </div>
-
-                  {/* BOTÓN DESCARGA HD */}
-                  <button
-                    disabled={isDownloading}
-                    onClick={() => downloadSlideAsImage(index)}
-                    style={{
-                      marginTop: "4px",
-                      background: "#10B981",
-                      border: "none",
-                      color: "#000000",
-                      padding: "11px 16px",
-                      borderRadius: "12px",
-                      fontWeight: 900,
-                      fontSize: "12px",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "6px",
-                      boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
-                    }}
-                  >
-                    <Download size={14} />
-                    Descargar Slide 0{index + 1} HD (1080×1350)
-                  </button>
+                    {isPt ? slide.descPt : slide.descEs}
+                  </p>
                 </div>
-              );
-            })}
-          </div>
+
+                {/* FOOTER OFICIAL DE MARCA DE LA PLACA */}
+                <div style={{ textAlign: "center", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
+                  {slide.type === "cta" ? "NEVUX.AR · APP OFICIAL" : isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA CONTINUAR ➔"}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -1080,27 +537,6 @@ export default function BannersPage() {
                         {isPt ? asset.descPt : asset.descEs}
                       </p>
                     </div>
-                    <button
-                      disabled={isDownloading}
-                      onClick={() => downloadMarketingAsset(asset.id)}
-                      style={{
-                        background: "#10B981",
-                        border: "none",
-                        color: "#000",
-                        padding: "10px",
-                        borderRadius: "10px",
-                        fontWeight: 800,
-                        fontSize: "12px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <Download size={14} />
-                      Descargar HD Pro 1080×1920
-                    </button>
                   </div>
                 ))}
               </div>
@@ -1111,25 +547,20 @@ export default function BannersPage() {
 
       {/* TAB 3: ANTES VS DESPUÉS */}
       {activeTab === "before_after" && (
-        <div style={{ width: "100%", maxWidth: "750px" }}>
+        <div style={{ width: "100%", maxWidth: "440px" }}>
           <div
             style={{
               backgroundColor: "#0b2920",
               border: "1.5px solid rgba(16,185,129,0.3)",
               borderRadius: "20px",
-              padding: "24px",
+              padding: "20px",
               textAlign: "center",
             }}
           >
-            <Zap size={34} color="#10B981" style={{ marginBottom: "12px" }} />
-            <h2 style={{ fontSize: "18px", fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>
+            <Zap size={32} color="#10B981" style={{ marginBottom: "10px" }} />
+            <h2 style={{ fontSize: "17px", fontWeight: 900, color: "#fff", margin: "0 0 6px" }}>
               {isPt ? "Comparativo Antes vs Depois" : "Comparativo Antes vs Después"}
             </h2>
-            <p style={{ fontSize: "13px", color: "#a7f3d0", margin: "0 0 24px" }}>
-              {isPt
-                ? "Asset em HD (1080×1350) para mostrar a Proposta de Valor no Feed"
-                : "Asset HD (1080×1350) para mostrar la Propuesta de Valor en el Feed"}
-            </p>
 
             <div
               style={{
@@ -1137,7 +568,6 @@ export default function BannersPage() {
                 border: "1.5px solid rgba(16,185,129,0.3)",
                 borderRadius: "16px",
                 padding: "16px",
-                marginBottom: "20px",
                 textAlign: "left",
               }}
             >
@@ -1228,35 +658,9 @@ export default function BannersPage() {
                 </div>
               </div>
             </div>
-
-            <button
-              disabled={isDownloading}
-              onClick={downloadBeforeAfterAsset}
-              style={{
-                width: "100%",
-                background: "#10B981",
-                border: "none",
-                color: "#000",
-                padding: "12px 18px",
-                borderRadius: "12px",
-                fontWeight: 900,
-                fontSize: "14px",
-                cursor: isDownloading ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
-              }}
-            >
-              <Download size={18} />
-              {isPt
-                ? "Baixar Imagem HD Antes vs Depois (1080×1350)"
-                : "Descargar Imagen HD Antes vs Después (1080×1350)"}
-            </button>
           </div>
         </div>
       )}
     </div>
   );
-  }
+}
