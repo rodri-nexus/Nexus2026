@@ -16,6 +16,13 @@ import {
   Layers,
   Loader2,
   User,
+  TrendingUp,
+  Flame,
+  Globe,
+  Mic,
+  MessageSquare,
+  Bot,
+  type LucideIcon,
 } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
 import SideMenu from "./components/SideMenu";
@@ -72,11 +79,64 @@ interface Product {
   images?: { src: string }[];
 }
 
+interface ProFeature {
+  label: string;
+  desc: string;
+  href: string;
+  icon: LucideIcon;
+  badge?: string;
+}
+
 /* ═══════════════════════════════════════════
    CONSTANTES Y HELPERS (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 const TIENDANUBE_CLIENT_ID = "37382";
 const ADMIN_EMAIL = "nevuxapp@gmail.com";
+
+const proFeatures: ProFeature[] = [
+  {
+    label: "📈 Métricas en Vivo",
+    desc: "Seguimiento de conversiones y ROI.",
+    href: "/dashboard/analytics",
+    icon: TrendingUp,
+    badge: "ROI",
+  },
+  {
+    label: "🔔 Notificaciones de Compras",
+    desc: "Prueba social que estimula compras.",
+    href: "/dashboard/social-proof",
+    icon: Flame,
+    badge: "PRO",
+  },
+  {
+    label: "🌐 Traductor de Tienda (IA)",
+    desc: "Traducción en vivo ES, PT-BR e EN.",
+    href: "/dashboard/idiomas-ia",
+    icon: Globe,
+    badge: "NUEVO",
+  },
+  {
+    label: "🎙️ Buscador por Voz",
+    desc: "Comandos de voz inteligentes.",
+    href: "/dashboard/busqueda-voz",
+    icon: Mic,
+    badge: "BETA",
+  },
+  {
+    label: "💬 Asistente de Ventas (IA)",
+    desc: "Vendedor virtual 24/7.",
+    href: "/dashboard/vendedor-ia",
+    icon: MessageSquare,
+    badge: "NUEVO",
+  },
+  {
+    label: "🤖 Asistente de Soporte (IA)",
+    desc: "NevuxBot CRM + WhatsApp.",
+    href: "/dashboard/nevuxbot",
+    icon: Bot,
+    badge: "IA CRM",
+  },
+];
 
 function isValidFullName(name: string | null | undefined): boolean {
   if (!name) return false;
@@ -214,6 +274,11 @@ export default function DashboardClient({
   const handleSelectAllProducts = () => {
     setIsModalOpen(false);
     window.location.href = "/widgets/nuevo/todos";
+  };
+
+  const handleProFeatureClick = (href: string) => {
+    setIsModalOpen(false);
+    window.location.href = href;
   };
 
   const getProductImage = (p: Product) =>
@@ -920,7 +985,7 @@ export default function DashboardClient({
                           color: "#6b7280",
                         }}
                       >
-                        ¿Qué tipo de widget querés crear?
+                        ¿Qué tipo de widget o función querés crear?
                       </p>
                     )}
                     {modalStep === "products" && (
@@ -970,6 +1035,7 @@ export default function DashboardClient({
               >
                 {modalStep === "selection" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    {/* BLOQUE 1: Producto específico */}
                     <button
                       type="button"
                       onClick={handleSelectSpecificProduct}
@@ -1036,6 +1102,7 @@ export default function DashboardClient({
                       </span>
                     </button>
 
+                    {/* BLOQUE 2: Todos los productos */}
                     <button
                       type="button"
                       onClick={handleSelectAllProducts}
@@ -1101,6 +1168,182 @@ export default function DashboardClient({
                         ›
                       </span>
                     </button>
+
+                    {/* BLOQUE 3: Funciones Pro para tu tienda */}
+                    <div
+                      style={{
+                        padding: "1.1rem",
+                        borderRadius: "16px",
+                        border: "1.5px solid #e5e7eb",
+                        background: "#ffffff",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.85rem",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      {/* Header del bloque 3 */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.85rem",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "48px",
+                            height: "48px",
+                            borderRadius: "12px",
+                            background: "#ecfdf5",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <Sparkles size={22} color="#10B981" />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div
+                            style={{
+                              fontSize: "0.95rem",
+                              fontWeight: 700,
+                              color: "#000000",
+                              marginBottom: "0.15rem",
+                            }}
+                          >
+                            Funciones Pro para tu tienda
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "0.8rem",
+                              color: "#6b7280",
+                              lineHeight: 1.35,
+                            }}
+                          >
+                            IA, analíticas premium y prueba social
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Lista de las 6 herramientas */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.4rem",
+                          borderTop: "1px solid #f3f4f6",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        {proFeatures.map((feat) => {
+                          const IconComponent = feat.icon;
+                          return (
+                            <button
+                              key={feat.href}
+                              type="button"
+                              onClick={() => handleProFeatureClick(feat.href)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.65rem",
+                                padding: "0.65rem 0.75rem",
+                                background: "#f9fafb",
+                                border: "1px solid #f3f4f6",
+                                borderRadius: "10px",
+                                cursor: "pointer",
+                                textAlign: "left",
+                                width: "100%",
+                                fontFamily: "inherit",
+                                transition: "all 0.15s ease",
+                                boxSizing: "border-box",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = "#10B981";
+                                e.currentTarget.style.background = "#ecfdf5";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = "#f3f4f6";
+                                e.currentTarget.style.background = "#f9fafb";
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "28px",
+                                  height: "28px",
+                                  borderRadius: "7px",
+                                  background: "#ffffff",
+                                  border: "1px solid #e5e7eb",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <IconComponent size={14} color="#10B981" />
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.3rem",
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: "0.8rem",
+                                      fontWeight: 700,
+                                      color: "#000000",
+                                    }}
+                                  >
+                                    {feat.label}
+                                  </span>
+                                  {feat.badge && (
+                                    <span
+                                      style={{
+                                        fontSize: "0.55rem",
+                                        fontWeight: 800,
+                                        background: "#10B981",
+                                        color: "#ffffff",
+                                        padding: "0.05rem 0.3rem",
+                                        borderRadius: "3px",
+                                      }}
+                                    >
+                                      {feat.badge}
+                                    </span>
+                                  )}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "0.72rem",
+                                    color: "#6b7280",
+                                    marginTop: "0.05rem",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {feat.desc}
+                                </div>
+                              </div>
+                              <span
+                                style={{
+                                  color: "#10B981",
+                                  fontSize: "1.1rem",
+                                  fontWeight: 300,
+                                  flexShrink: 0,
+                                }}
+                              >
+                                ›
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -1281,4 +1524,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-}
+  }
