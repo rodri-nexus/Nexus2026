@@ -4376,7 +4376,8 @@ function renderResenasDestacadas(w) {
   }
 }
 /* ═══════════════════════════════════════════
-   WIDGET: BUNDLE DE PROMOCIONES (v227 Fix Precios Exactos)
+   WIDGET: BUNDLE DE PROMOCIONES (v228 COMPLETO)
+   Precios exactos + pack al carrito + complementario sugerido
    ═══════════════════════════════════════════ */
 if (typeof window.nvxBundleParsePrice !== "function") {
   window.nvxBundleParsePrice = function (raw) {
@@ -4401,9 +4402,8 @@ if (typeof window.nvxBundleParsePrice !== "function") {
     } else if (str.indexOf(".") > -1) {
       var partsDot = str.split(".");
       if (partsDot.length === 2 && partsDot[1].length === 2) {
-        // Formato estándar con centavos 35000.00
+        // 35000.00 con centavos
       } else {
-        // Separador de miles 35.000 -> 35000
         str = str.replace(/\./g, "");
       }
     }
@@ -4433,7 +4433,6 @@ if (typeof window.nvxBundleFormatPrice !== "function") {
 
 if (typeof window.nvxBundleGetProductPrice !== "function") {
   window.nvxBundleGetProductPrice = function () {
-    // Prioridad 1: Leer el texto visual que ve el cliente en pantalla
     var textSels = [
       ".js-price-display",
       "#price_display",
@@ -4448,12 +4447,9 @@ if (typeof window.nvxBundleGetProductPrice !== "function") {
       if (!el) continue;
       var txt = el.innerText || el.textContent || "";
       var val = window.nvxBundleParsePrice(txt);
-      if (val > 0) {
-        return val;
-      }
+      if (val > 0) return val;
     }
 
-    // Prioridad 2: Atributos HTML con corrección automática de centavos
     var attrSels = [
       "meta[itemprop='price']",
       "[itemprop='price']",
@@ -4541,31 +4537,37 @@ if (typeof window.nvxBundleUpdateTotal !== "function") {
   window.nvxBundleUpdateTotal = function (elementId) {
     var root = document.getElementById(elementId);
     if (!root) return;
+
     var selected = root.querySelector(".nvx-bundle-card.selected");
     var packPrice = 0;
     if (selected) {
       packPrice = parseFloat(selected.getAttribute("data-new-price") || "0") || 0;
     }
+
     var compChk = root.querySelector(".nvx-comp-row input[type='checkbox']");
-    var compPrice = 0;
-    if (compChk && compChk.checked) {
-      compPrice = parseFloat(root.getAttribute("data-comp-price") || "0") || 0;
-    }
-    var total = packPrice + compPrice;
     var totalEl = root.querySelector(".nvx-bundle-total");
+    var hintEl = root.querySelector(".nvx-bundle-comp-hint");
     var btn = root.querySelector(".nvx-bundle-btn");
     var baseBtn = root.getAttribute("data-btn-text") || "Sumalo al carrito";
+    var compName = root.getAttribute("data-comp-name") || "producto sugerido";
+
     if (totalEl) {
-      if (compChk && compChk.checked && compPrice > 0) {
-        totalEl.style.display = "block";
-        totalEl.innerHTML = "Total pack + extra: <strong>" + window.nvxBundleFormatPrice(total) + "</strong>";
+      totalEl.style.display = "block";
+      totalEl.innerHTML = "Total del pack: <strong>" + window.nvxBundleFormatPrice(packPrice) + "</strong>";
+    }
+
+    if (hintEl) {
+      if (compChk && compChk.checked) {
+        hintEl.style.display = "block";
+        hintEl.innerHTML = "🎁 Marcaste <strong>" + compName + "</strong> como sugerido. Agregalo aparte desde la tienda para sumarlo al pedido.";
       } else {
-        totalEl.style.display = "block";
-        totalEl.innerHTML = "Total del pack: <strong>" + window.nvxBundleFormatPrice(packPrice) + "</strong>";
+        hintEl.style.display = "none";
+        hintEl.innerHTML = "";
       }
     }
+
     if (btn) {
-      btn.innerHTML = baseBtn + " · " + window.nvxBundleFormatPrice(total > 0 ? total : packPrice);
+      btn.innerHTML = baseBtn + " · " + window.nvxBundleFormatPrice(packPrice);
     }
   };
 }
@@ -4574,7 +4576,9 @@ if (typeof window.nvxSubmitBundle !== "function") {
   window.nvxSubmitBundle = function (btnEl) {
     var orig = btnEl.innerHTML;
     btnEl.innerHTML = "¡Agregando al carrito...!";
-    setTimeout(function () { btnEl.innerHTML = orig; }, 2000);
+    setTimeout(function () {
+      btnEl.innerHTML = orig;
+    }, 2000);
 
     var root = btnEl.parentNode;
     var selected = root ? root.querySelector(".nvx-bundle-card.selected") : null;
@@ -4643,15 +4647,14 @@ function renderBundlePromociones(w) {
   };
 
   if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
-    var t = THEMES[cfg.campaignTheme];
-    bgColor = t.bg;
-    textColor = t.text;
-    cardBgColor = t.card;
-    accentColor = t.accent;
-    buttonBgColor = t.btn;
+    var th = THEMES[cfg.campaignTheme];
+    bgColor = th.bg;
+    textColor = th.text;
+    cardBgColor = th.card;
+    accentColor = th.accent;
+    buttonBgColor = th.btn;
   }
 
-  // Obtener precio real exacto del producto
   var unitPrice = window.nvxBundleGetProductPrice();
   var compPriceNum = window.nvxBundleParsePrice(complementaryPriceRaw);
 
@@ -4663,7 +4666,6 @@ function renderBundlePromociones(w) {
   }
   if (activeBundles.length === 0) return;
 
-  // Autocalcular precios exactos por pack
   for (var c = 0; c < activeBundles.length; c++) {
     var deal = window.nvxBundleParseDeal(activeBundles[c].title);
     activeBundles[c]._take = deal.take;
@@ -4752,6 +4754,12 @@ function renderBundlePromociones(w) {
         "text-align: right !important; width: 100% !important; " +
       "} " +
       "#" + elementId + " .nvx-bundle-total strong { color: " + accentColor + " !important; font-weight: 900 !important; } " +
+      "#" + elementId + " .nvx-bundle-comp-hint { " +
+        "display: none !important; font-size: 12px !important; line-height: 1.4 !important; " +
+        "color: " + textColor + " !important; background: rgba(16,185,129,0.08) !important; " +
+        "border: 1px solid rgba(16,185,129,0.25) !important; border-radius: 10px !important; " +
+        "padding: 10px 12px !important; " +
+      "} " +
       "#" + elementId + " .nvx-bundle-note { " +
         "font-size: 11px !important; opacity: 0.65 !important; color: " + textColor + " !important; " +
         "line-height: 1.35 !important; " +
@@ -4772,6 +4780,7 @@ function renderBundlePromociones(w) {
   container.className = "nvx-widget nvx-bundle-wrapper";
   container.setAttribute("data-comp-price", String(compPriceNum));
   container.setAttribute("data-btn-text", buttonText);
+  container.setAttribute("data-comp-name", complementaryName);
 
   var subtitleHtml = subtitle
     ? '<div style="font-size:12px !important;opacity:0.7 !important;margin-top:2px !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(subtitle) : subtitle) + "</div>"
@@ -4823,13 +4832,15 @@ function renderBundlePromociones(w) {
           "</div>" +
           '<div style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + (typeof escapeHtml === "function" ? escapeHtml(complementaryPriceRaw) : complementaryPriceRaw) + "</div>" +
         "</div>" +
+        '<div class="nvx-bundle-comp-hint"></div>' +
       "</div>";
   }
 
   var firstNew = activeBundles[0] ? (activeBundles[0]._newNum || 0) : 0;
+
   var totalHtml =
     '<div class="nvx-bundle-total">Total del pack: <strong>' + window.nvxBundleFormatPrice(firstNew) + "</strong></div>" +
-    '<div class="nvx-bundle-note">El pack agrega la cantidad al carrito. El descuento real se aplica con las reglas de promoción de tu tienda en Tiendanube.</div>';
+    '<div class="nvx-bundle-note">El botón agrega la cantidad del pack al carrito. El descuento real se aplica con las reglas de promoción de Tiendanube. El producto complementario es una sugerencia (se agrega aparte desde la tienda).</div>';
 
   var buttonHtml =
     '<button type="button" class="nvx-bundle-btn" onclick="window.nvxSubmitBundle(this);">' +
@@ -4838,7 +4849,6 @@ function renderBundlePromociones(w) {
 
   container.innerHTML = headerHtml + bundlesHtml + compHtml + totalHtml + buttonHtml;
 
-  // Inserción en la página
   var targetEl = null;
 
   if (location === "title_after") {
@@ -4895,6 +4905,7 @@ function renderBundlePromociones(w) {
     }
   }
 
+  // Botón nativo de Tiendanube queda visible: si no usan el pack, compran normal
   if (activeBundles.length > 0) {
     var initQty = activeBundles[0]._take || 1;
     var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
@@ -4910,5 +4921,5 @@ function renderBundlePromociones(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-    }
+      }
 })(); 
