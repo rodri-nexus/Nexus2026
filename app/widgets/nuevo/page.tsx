@@ -58,42 +58,42 @@ function WidgetsNuevoContent() {
   const proFeatures = [
     {
       label: "📈 Métricas en Vivo",
-      desc: "Seguimiento en tiempo real de interacciones y ventas directas.",
+      desc: "Seguimiento de conversiones y ROI.",
       href: "/dashboard/analytics",
       icon: TrendingUp,
       badge: "ROI",
     },
     {
       label: "🔔 Notificaciones de Compras",
-      desc: "Prueba social en tiempo real mostrando compras recientes.",
+      desc: "Prueba social que estimula compras directas.",
       href: "/dashboard/social-proof",
       icon: Flame,
       badge: "PRO",
     },
     {
       label: "🌐 Traductor de Tienda (IA)",
-      desc: "Traduce tu tienda automáticamente a ES, PT-BR e EN.",
+      desc: "Traducción en vivo ES, PT-BR e EN.",
       href: "/dashboard/idiomas-ia",
       icon: Globe,
       badge: "NUEVO",
     },
     {
       label: "🎙️ Buscador por Voz",
-      desc: "Permite a tus clientes buscar con comandos de voz asistidos.",
+      desc: "Comandos de voz inteligentes para tus clientes.",
       href: "/dashboard/busqueda-voz",
       icon: Mic,
       badge: "BETA",
     },
     {
       label: "💬 Asistente de Ventas (IA)",
-      desc: "Un vendedor inteligente que guía y cierra ventas 24/7.",
+      desc: "Vendedor virtual que cierra carritos 24/7.",
       href: "/dashboard/vendedor-ia",
       icon: MessageSquare,
       badge: "NUEVO",
     },
     {
       label: "🤖 Asistente de Soporte (IA)",
-      desc: "NevuxBot CRM inteligente sincronizado con Gemini y WhatsApp.",
+      desc: "NevuxBot CRM integrado con WhatsApp.",
       href: "/dashboard/nevuxbot",
       icon: Bot,
       badge: "IA CRM",
@@ -101,7 +101,7 @@ function WidgetsNuevoContent() {
   ];
 
   return (
-    <div style={{ maxWidth: "580px", margin: "0 auto", boxSizing: "border-box" }}>
+    <div style={{ maxWidth: "540px", margin: "0 auto", boxSizing: "border-box" }}>
       <button
         onClick={() => router.push("/dashboard")}
         style={{
@@ -157,13 +157,12 @@ function WidgetsNuevoContent() {
             opacity: 0.6,
           }}
         >
-          Elegí qué tipo de widget o herramienta de conversión querés configurar.
+          Elegí qué tipo de solución querés configurar en tu tienda.
         </p>
       </motion.div>
 
-      {/* BLOQUES 1 y 2: CONFIGURACIÓN DE WIDGETS */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", marginBottom: "2.5rem" }}>
-        {/* Opción A: Producto específico */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        {/* BLOQUE 1: Producto específico */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -244,7 +243,7 @@ function WidgetsNuevoContent() {
           </svg>
         </motion.button>
 
-        {/* Opción B: Todos los productos */}
+        {/* BLOQUE 2: Todos los productos */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -324,155 +323,176 @@ function WidgetsNuevoContent() {
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </motion.button>
-      </div>
 
-      {/* BLOQUE 3: NUEVO BLOQUE DE FUNCIONES PRO / IA */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.15, duration: 0.4 }}
-        style={{
-          borderTop: "1.5px solid #f3f4f6",
-          paddingTop: "2rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
-          <Sparkles size={18} color="#10B981" />
-          <h2
-            style={{
-              margin: 0,
-              fontSize: "1.1rem",
-              fontWeight: 800,
-              color: "#000000",
-            }}
-          >
-            Funciones Inteligentes & Pro (IA)
-          </h2>
-        </div>
-        <p
+        {/* BLOQUE 3: Funciones Pro para tu tienda y widgets */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
           style={{
-            margin: "0 0 1.25rem 0",
-            fontSize: "0.85rem",
-            color: "#000000",
-            opacity: 0.5,
-            lineHeight: 1.4,
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.25rem",
+            padding: "1.25rem",
+            background: "#ffffff",
+            border: "1.5px solid #e5e7eb",
+            borderRadius: "16px",
+            boxSizing: "border-box",
           }}
         >
-          Potenciá las ventas de tu tienda usando herramientas avanzadas de inteligencia artificial y analíticas.
-        </p>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.75rem" }}>
-          {proFeatures.map((feat, index) => {
-            const IconComponent = feat.icon;
-            return (
-              <motion.button
-                key={feat.href}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: 0.18 + index * 0.04 }}
-                onClick={() => router.push(feat.href)}
+          {/* Header del bloque */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div
+              style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "12px",
+                background: "#ecfdf5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Sparkles size={22} color="#10B981" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.85rem",
-                  padding: "0.95rem 1.1rem",
-                  background: "#ffffff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "14px",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                  transition: "all 0.2s ease",
-                  boxSizing: "border-box",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#10B981";
-                  e.currentTarget.style.background = "#f0fdf4";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#e5e7eb";
-                  e.currentTarget.style.background = "#ffffff";
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  color: "#000000",
+                  marginBottom: "0.25rem",
                 }}
               >
-                <div
+                Funciones Pro para tu tienda y widget
+              </div>
+              <div
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#000000",
+                  opacity: 0.6,
+                  lineHeight: 1.4,
+                }}
+              >
+                Inteligencia artificial, analíticas premium y prueba social
+              </div>
+            </div>
+          </div>
+
+          {/* Grid de las 6 herramientas Pro integradas adentro */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "0.65rem",
+              borderTop: "1px solid #f3f4f6",
+              paddingTop: "1rem",
+            }}
+          >
+            {proFeatures.map((feat) => {
+              const IconComponent = feat.icon;
+              return (
+                <button
+                  key={feat.href}
+                  onClick={() => router.push(feat.href)}
                   style={{
-                    width: "38px",
-                    height: "38px",
-                    borderRadius: "10px",
-                    background: "#f0fdf4",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
+                    gap: "0.75rem",
+                    padding: "0.75rem 0.85rem",
+                    background: "#f9fafb",
+                    border: "1px solid #f3f4f6",
+                    borderRadius: "10px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    width: "100%",
+                    transition: "all 0.15s ease",
+                    boxSizing: "border-box",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#10B981";
+                    e.currentTarget.style.background = "#f0fdf4";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#f3f4f6";
+                    e.currentTarget.style.background = "#f9fafb";
                   }}
                 >
-                  <IconComponent size={18} color="#10B981" />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "6px",
+                      background: "#ffffff",
+                      border: "1px solid #e5e7eb",
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.4rem",
+                      justifyContent: "center",
+                      flexShrink: 0,
                     }}
                   >
-                    <span
-                      style={{
-                        fontSize: "0.88rem",
-                        fontWeight: 700,
-                        color: "#000000",
-                      }}
-                    >
-                      {feat.label}
-                    </span>
-                    {feat.badge && (
+                    <IconComponent size={14} color="#10B981" />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
                       <span
                         style={{
-                          fontSize: "0.6rem",
-                          fontWeight: 800,
-                          background: "#10B981",
-                          color: "#ffffff",
-                          padding: "0.1rem 0.4rem",
-                          borderRadius: "4px",
-                          letterSpacing: "0.02em",
+                          fontSize: "0.82rem",
+                          fontWeight: 700,
+                          color: "#000000",
                         }}
                       >
-                        {feat.badge}
+                        {feat.label}
                       </span>
-                    )}
+                      {feat.badge && (
+                        <span
+                          style={{
+                            fontSize: "0.55rem",
+                            fontWeight: 800,
+                            background: "#10B981",
+                            color: "#ffffff",
+                            padding: "0.05rem 0.3rem",
+                            borderRadius: "3px",
+                          }}
+                        >
+                          {feat.badge}
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.72rem",
+                        color: "#000000",
+                        opacity: 0.5,
+                        marginTop: "0.08rem",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {feat.desc}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "0.78rem",
-                      color: "#000000",
-                      opacity: 0.5,
-                      marginTop: "0.15rem",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#10B981"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ flexShrink: 0 }}
                   >
-                    {feat.desc}
-                  </div>
-                </div>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#10B981"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ flexShrink: 0 }}
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </motion.button>
-            );
-          })}
-        </div>
-      </motion.div>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -506,4 +526,4 @@ export default function WidgetsNuevoPage() {
       </Suspense>
     </div>
   );
-      }
+            }
