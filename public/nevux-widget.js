@@ -3298,8 +3298,8 @@ function renderContadorVendidos(w) {
     nvxTrack(w.id, 'impression');
   }
 }
-      /* ═══════════════════════════════════════════
-     SOCIAL PROOF IA — NOTIFICACIONES EN VIVO (v234 100% BLINDADO)
+        /* ═══════════════════════════════════════════
+     SOCIAL PROOF IA — NOTIFICACIONES COMPACTAS PRO (v235)
   ═══════════════════════════════════════════ */
   function renderSocialProof(spData) {
     if (!spData || !spData.is_active || !Array.isArray(spData.events) || spData.events.length === 0) return;
@@ -3307,7 +3307,6 @@ function renderContadorVendidos(w) {
     var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
     var rootId = nsPrefix + "-social-proof-root";
     
-    // Si ya existe un contenedor previo, lo removemos para forzar reinicio limpio
     var existingContainer = document.getElementById(rootId);
     if (existingContainer && existingContainer.parentNode) {
       existingContainer.parentNode.removeChild(existingContainer);
@@ -3318,12 +3317,12 @@ function renderContadorVendidos(w) {
     container.className = nsPrefix + "-root";
 
     var pos = spData.position || "bottom-left";
-    var posStyles = "position:fixed !important;z-index:9999999 !important;max-width:320px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
+    var posStyles = "position:fixed !important;z-index:999995 !important;max-width:250px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
     
-    if (pos.indexOf("bottom") !== -1) posStyles += "bottom:20px !important;";
-    if (pos.indexOf("top") !== -1) posStyles += "top:20px !important;";
-    if (pos.indexOf("left") !== -1) posStyles += "left:20px !important;";
-    if (pos.indexOf("right") !== -1) posStyles += "right:20px !important;";
+    if (pos.indexOf("bottom") !== -1) posStyles += "bottom:14px !important;";
+    if (pos.indexOf("top") !== -1) posStyles += "top:14px !important;";
+    if (pos.indexOf("left") !== -1) posStyles += "left:14px !important;";
+    if (pos.indexOf("right") !== -1) posStyles += "right:14px !important;";
 
     container.style.cssText = posStyles;
 
@@ -3365,34 +3364,34 @@ function renderContadorVendidos(w) {
         subColor = "#9ca3af";
         borderStyle = "1px solid #374151";
       } else if (theme === "glass") {
-        bgStyle = "rgba(255, 255, 255, 0.92)";
+        bgStyle = "rgba(255, 255, 255, 0.94)";
         textColor = "#111827";
         subColor = "#4b5563";
         borderStyle = "1px solid rgba(255, 255, 255, 0.7)";
-        backdrop = "backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;";
+        backdrop = "backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;";
       }
 
       var cardId = nsPrefix + "-sp-card";
       var closeId = nsPrefix + "-sp-close";
 
       var imgHtml = ev.productImage
-        ? '<img src="' + safeEscape(ev.productImage) + '" style="width:44px !important;height:44px !important;object-fit:cover !important;border-radius:10px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;" />'
-        : '<div style="width:44px !important;height:44px !important;border-radius:10px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">' + (ev.icon || "🛒") + '</div>';
+        ? '<img src="' + safeEscape(ev.productImage) + '" style="width:34px !important;height:34px !important;object-fit:cover !important;border-radius:8px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;" />'
+        : '<div style="width:34px !important;height:34px !important;border-radius:8px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:16px !important;flex-shrink:0 !important;">' + (ev.icon || "🛒") + '</div>';
 
       var cardHtml = '<div id="' + cardId + '" style="' +
         'background:' + bgStyle + ' !important;' +
         (backdrop ? backdrop : '') +
         'color:' + textColor + ' !important;' +
         'border:' + borderStyle + ' !important;' +
-        'border-radius:16px !important;' +
-        'padding:12px 14px !important;' +
+        'border-radius:12px !important;' +
+        'padding:8px 10px !important;' +
         'display:flex !important;' +
         'align-items:center !important;' +
-        'gap:12px !important;' +
-        'box-shadow:0 12px 35px rgba(0,0,0,0.2) !important;' +
+        'gap:8px !important;' +
+        'box-shadow:0 8px 24px rgba(0,0,0,0.15) !important;' +
         'pointer-events:auto !important;' +
-        'transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
-        'transform:translateY(24px) !important;' +
+        'transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
+        'transform:translateY(18px) !important;' +
         'opacity:0 !important;' +
         'box-sizing:border-box !important;' +
         'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;' +
@@ -3401,11 +3400,11 @@ function renderContadorVendidos(w) {
         '">' +
         imgHtml +
         '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-          '<div style="font-size:12px !important;font-weight:800 !important;line-height:1.3 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;color:' + textColor + ' !important;margin:0 !important;">' + safeEscape(ev.title) + '</div>' +
-          '<div style="font-size:11px !important;color:' + subColor + ' !important;line-height:1.3 !important;margin-top:2px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEscape(ev.subtitle) + '</div>' +
-          (ev.timeAgo ? '<div style="font-size:10px !important;color:#10B981 !important;font-weight:700 !important;margin-top:3px !important;display:flex !important;align-items:center !important;gap:3px !important;">⚡ ' + safeEscape(ev.timeAgo) + '</div>' : '') +
+          '<div style="font-size:11px !important;font-weight:700 !important;line-height:1.2 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;color:' + textColor + ' !important;margin:0 !important;">' + safeEscape(ev.title) + '</div>' +
+          '<div style="font-size:10px !important;color:' + subColor + ' !important;line-height:1.2 !important;margin-top:1px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEscape(ev.subtitle) + '</div>' +
+          (ev.timeAgo ? '<div style="font-size:9px !important;color:#10B981 !important;font-weight:700 !important;margin-top:2px !important;display:flex !important;align-items:center !important;gap:2px !important;">⚡ ' + safeEscape(ev.timeAgo) + '</div>' : '') +
         '</div>' +
-        '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:4px !important;font-size:14px !important;line-height:1 !important;margin-left:4px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
+        '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:2px !important;font-size:12px !important;line-height:1 !important;margin-left:2px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
       '</div>';
 
       container.innerHTML = cardHtml;
@@ -3418,31 +3417,29 @@ function renderContadorVendidos(w) {
           if (e && e.stopPropagation) e.stopPropagation();
           if (cardEl) {
             cardEl.style.setProperty("opacity", "0", "important");
-            cardEl.style.setProperty("transform", "translateY(24px)", "important");
+            cardEl.style.setProperty("transform", "translateY(18px)", "important");
           }
         };
       }
 
-      // Animar entrada forzando !important
       setTimeout(function() {
         if (cardEl) {
           cardEl.style.setProperty("opacity", "1", "important");
           cardEl.style.setProperty("transform", "translateY(0px)", "important");
         }
-      }, 100);
+      }, 80);
 
-      // Animar salida
       setTimeout(function() {
         if (cardEl) {
           cardEl.style.setProperty("opacity", "0", "important");
-          cardEl.style.setProperty("transform", "translateY(24px)", "important");
+          cardEl.style.setProperty("transform", "translateY(18px)", "important");
         }
         setTimeout(showNextEvent, delayMs);
       }, displayMs);
     }
 
-    setTimeout(showNextEvent, 1500);
-    }
+    setTimeout(showNextEvent, 1200);
+        }
 /* ═══════════════════════════════════════════
    WIDGET: CUENTA REGRESIVA
    ═══════════════════════════════════════════ */
