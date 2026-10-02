@@ -119,13 +119,13 @@ function getRandomItem<T>(arr: T[]): T {
 }
 
 function parseProductName(raw: unknown): string {
-  if (!raw) return "Producto de la tienda";
+  if (!raw) return "Producto destacado";
   if (typeof raw === "string") return raw;
   if (typeof raw === "object" && raw !== null) {
     const obj = raw as Record<string, unknown>;
-    return String(obj.es || obj.pt || Object.values(obj)[0] || "Producto de la tienda");
+    return String(obj.es || obj.pt || Object.values(obj)[0] || "Producto destacado");
   }
-  return "Producto de la tienda";
+  return "Producto destacado";
 }
 
 function getProductImageUrl(p: Record<string, unknown>): string {
@@ -151,7 +151,10 @@ function generateSocialProofEvents(products: unknown[], settings: Record<string,
 
   const availableProducts = parsedProducts.length > 0
     ? parsedProducts
-    : [{ id: 1, name: "Producto destacado", image: "" }];
+    : [
+        { id: 1, name: "Producto destacado de la tienda", image: "" },
+        { id: 2, name: "Oferta especial recomendada", image: "" }
+      ];
 
   if (settings.enable_recent_sales !== false) {
     for (let i = 0; i < 4; i++) {
@@ -180,7 +183,7 @@ function generateSocialProofEvents(products: unknown[], settings: Record<string,
       id: `visitor-${Date.now()}`,
       type: "visitor",
       title: "🔥 ¡Alta demanda!",
-      subtitle: `${count} personas están viendo este producto en vivo`,
+      subtitle: `${count} personas están viendo productos en vivo`,
       icon: "👀",
       count,
     });
@@ -342,13 +345,14 @@ export async function GET(req: NextRequest) {
     const cfg = socialProofRow?.config || {}
 
     let socialProofData = {
-      is_active: socialProofRow ? socialProofRow.is_active : false,
+      // SI NO HAY FILA O ESTÁ EN TRUE, ES ACTIVO
+      is_active: socialProofRow ? Boolean(socialProofRow.is_active) : true,
       position: cfg.position || "bottom-left",
       display_duration: Number(cfg.display_duration) || 5,
       delay_between: Number(cfg.delay_between) || 8,
-      enable_recent_sales: cfg.enable_recent_sales ?? true,
-      enable_live_visitors: cfg.enable_live_visitors ?? true,
-      enable_low_stock: cfg.enable_low_stock ?? true,
+      enable_recent_sales: cfg.enable_recent_sales !== false,
+      enable_live_visitors: cfg.enable_live_visitors !== false,
+      enable_low_stock: cfg.enable_low_stock !== false,
       theme_style: cfg.theme_style || "light",
       custom_cities: cfg.custom_cities || LATAM_CITIES,
       events: [] as any[],
@@ -532,4 +536,4 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: corsHeaders }
     )
   }
-  }
+}
