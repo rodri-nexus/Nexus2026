@@ -47,10 +47,6 @@ interface Cfg {
   subtitle: string;
   location: 'title_after' | 'price_after' | 'product_before' | 'product_after';
   bundles: BundleOption[];
-  showComplementary: boolean;
-  complementaryText: string;
-  complementaryName: string;
-  complementaryPrice: string;
   bgColor: string;
   textColor: string;
   cardBgColor: string;
@@ -65,10 +61,10 @@ interface Cfg {
    CONFIG POR DEFECTO
 ═══════════════════════════════════════════ */
 const DEFAULT_BUNDLES: BundleOption[] = [
-  { id: '1', title: 'Lleva 2 paga 1', badge: '-50% OFF', oldPrice: '$20.000', newPrice: '$10.000', enabled: true },
-  { id: '2', title: 'Lleva 3 paga 2', badge: '-33% OFF', oldPrice: '$30.000', newPrice: '$20.000', enabled: true },
-  { id: '3', title: 'Lleva 4 paga 2', badge: '-50% OFF', oldPrice: '$40.000', newPrice: '$20.000', enabled: false },
-  { id: '4', title: 'Lleva 4 paga 3', badge: '-25% OFF', oldPrice: '$40.000', newPrice: '$30.000', enabled: false },
+  { id: '1', title: 'Lleva 2 paga 1', badge: '-50% OFF', oldPrice: '', newPrice: '', enabled: true },
+  { id: '2', title: 'Lleva 3 paga 2', badge: '-33% OFF', oldPrice: '', newPrice: '', enabled: true },
+  { id: '3', title: 'Lleva 4 paga 2', badge: '-50% OFF', oldPrice: '', newPrice: '', enabled: false },
+  { id: '4', title: 'Lleva 4 paga 3', badge: '-25% OFF', oldPrice: '', newPrice: '', enabled: false },
 ];
 
 const DEF: Cfg = {
@@ -76,10 +72,6 @@ const DEF: Cfg = {
   subtitle: 'Llevate más unidades con descuento exclusivo',
   location: 'product_after',
   bundles: DEFAULT_BUNDLES,
-  showComplementary: true,
-  complementaryText: 'Sumale este producto y llevate envío gratis!',
-  complementaryName: 'Remera Básica',
-  complementaryPrice: '$15.999',
   bgColor: '#ffffff',
   textColor: '#111827',
   cardBgColor: '#f9fafb',
@@ -109,7 +101,7 @@ const IconInfo = () => (
 );
 
 /* ═══════════════════════════════════════════
-   COMPONENTES AUXILIARES DE FORMULARIO (Regla #9)
+   COMPONENTES AUXILIARES (Regla #9)
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -226,16 +218,12 @@ function ToggleField({
 }
 
 function parseCfg(raw: Record<string, unknown> | undefined): Cfg {
-  if (!raw) return { ...DEF };
+  if (!raw) return { ...DEF, bundles: [...DEFAULT_BUNDLES] };
   return {
     title: (raw.title as string) || DEF.title,
     subtitle: (raw.subtitle as string) || DEF.subtitle,
     location: (raw.location as Cfg['location']) || DEF.location,
     bundles: Array.isArray(raw.bundles) && raw.bundles.length > 0 ? (raw.bundles as BundleOption[]) : DEFAULT_BUNDLES,
-    showComplementary: typeof raw.showComplementary === 'boolean' ? raw.showComplementary : DEF.showComplementary,
-    complementaryText: (raw.complementaryText as string) || DEF.complementaryText,
-    complementaryName: (raw.complementaryName as string) || DEF.complementaryName,
-    complementaryPrice: (raw.complementaryPrice as string) || DEF.complementaryPrice,
     bgColor: (raw.bgColor as string) || DEF.bgColor,
     textColor: (raw.textColor as string) || DEF.textColor,
     cardBgColor: (raw.cardBgColor as string) || DEF.cardBgColor,
@@ -260,12 +248,11 @@ export default function BundlePromocionesEditor({
   const router = useRouter();
 
   const [cfg, setCfg] = useState<Cfg>(() => parseCfg(ew?.config));
-  const [tab, setTab] = useState<'gen' | 'comp' | 'style' | 'dates'>('gen');
+  const [tab, setTab] = useState<'gen' | 'style' | 'dates'>('gen');
   const [saving, setSaving] = useState(false);
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
   const [selectedBundleId, setSelectedBundleId] = useState<string>('1');
-  const [compChecked, setCompChecked] = useState(false);
 
   const isForAll = targetType === 'all';
   const scopeLabel = isForAll ? 'General' : 'Producto';
@@ -278,7 +265,10 @@ export default function BundlePromocionesEditor({
   const set = <K extends keyof Cfg>(k: K, v: Cfg[K]) =>
     setCfg((p) => ({ ...p, [k]: v }));
 
-  const setCustomColor = (key: 'bgColor' | 'textColor' | 'cardBgColor' | 'accentColor' | 'buttonBgColor', val: string) => {
+  const setCustomColor = (
+    key: 'bgColor' | 'textColor' | 'cardBgColor' | 'accentColor' | 'buttonBgColor',
+    val: string
+  ) => {
     setCfg((prev) => ({
       ...prev,
       [key]: val,
@@ -294,7 +284,7 @@ export default function BundlePromocionesEditor({
     });
   };
 
-  const updateBundle = (index: number, field: keyof BundleOption, value: any) => {
+  const updateBundle = (index: number, field: keyof BundleOption, value: string) => {
     setCfg((prev) => {
       const updated = [...prev.bundles];
       updated[index] = { ...updated[index], [field]: value };
@@ -404,7 +394,6 @@ export default function BundlePromocionesEditor({
       {/* MAIN */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* Scope chip */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#ffffff',
@@ -427,7 +416,6 @@ export default function BundlePromocionesEditor({
           </div>
         )}
 
-        {/* Título */}
         <h1 style={{
           fontSize: 26, fontWeight: 800, color: '#000000',
           margin: '0 0 20px', lineHeight: 1.2,
@@ -436,14 +424,13 @@ export default function BundlePromocionesEditor({
           {wd.name} ({scopeLabel})
         </h1>
 
-        {/* Contenedor principal */}
         <div style={{
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 20, marginBottom: 20,
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
 
-          {/* PREVIEW GRANDE EN VIVO */}
+          {/* PREVIEW EN VIVO */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               VISTA PREVIA EN VIVO
@@ -468,18 +455,17 @@ export default function BundlePromocionesEditor({
                 <div style={{ fontSize: 16, fontWeight: 800, color: cfg.textColor }}>
                   {cfg.title}
                 </div>
-                {cfg.subtitle && (
+                {cfg.subtitle ? (
                   <div style={{ fontSize: 12, color: cfg.textColor, opacity: 0.7, marginTop: 2 }}>
                     {cfg.subtitle}
                   </div>
-                )}
+                ) : null}
               </div>
 
-              {/* LISTA DE PACKS */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {activeBundles.length === 0 ? (
                   <div style={{ fontSize: 13, color: '#ef4444', fontStyle: 'italic', padding: 10 }}>
-                    ⚠️ Seleccioná al menos 1 promo en la pestaña &quot;Promos & Bundles&quot;.
+                    ⚠️ Activá al menos 1 promo en la pestaña &quot;Promos & Bundles&quot;.
                   </div>
                 ) : (
                   activeBundles.map((b) => {
@@ -497,7 +483,6 @@ export default function BundlePromocionesEditor({
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           cursor: 'pointer',
-                          transition: 'all 0.2s ease',
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -507,31 +492,34 @@ export default function BundlePromocionesEditor({
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             flexShrink: 0,
                           }}>
-                            {isSelected && (
+                            {isSelected ? (
                               <div style={{ width: 10, height: 10, borderRadius: '50%', background: cfg.accentColor }} />
-                            )}
+                            ) : null}
                           </div>
-                          <div>
-                            <div style={{ fontSize: 14, fontWeight: 800, color: cfg.textColor, display: 'flex', alignItems: 'center', gap: 6 }}>
-                              {b.title}
-                              {b.badge && (
-                                <span style={{
-                                  background: '#fef2f2', color: '#ef4444',
-                                  borderRadius: 6, padding: '2px 6px', fontSize: 10, fontWeight: 800,
-                                }}>
-                                  {b.badge}
-                                </span>
-                              )}
-                            </div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: cfg.textColor, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            {b.title}
+                            {b.badge ? (
+                              <span style={{
+                                background: '#fef2f2', color: '#ef4444',
+                                borderRadius: 6, padding: '2px 6px', fontSize: 10, fontWeight: 800,
+                              }}>
+                                {b.badge}
+                              </span>
+                            ) : null}
                           </div>
                         </div>
-
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 11, textDecoration: 'line-through', opacity: 0.5, color: cfg.textColor }}>
-                            {b.oldPrice}
-                          </div>
+                          {b.oldPrice ? (
+                            <div style={{ fontSize: 11, textDecoration: 'line-through', opacity: 0.5, color: cfg.textColor }}>
+                              {b.oldPrice}
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: 10, opacity: 0.5, color: cfg.textColor }}>
+                              Auto en tienda
+                            </div>
+                          )}
                           <div style={{ fontSize: 14, fontWeight: 900, color: cfg.accentColor }}>
-                            {b.newPrice}
+                            {b.newPrice || 'Se calcula solo'}
                           </div>
                         </div>
                       </div>
@@ -540,51 +528,6 @@ export default function BundlePromocionesEditor({
                 )}
               </div>
 
-              {/* COMPLEMENTARIOS */}
-              {cfg.showComplementary && (
-                <div style={{
-                  borderTop: '1px dashed rgba(0,0,0,0.1)',
-                  paddingTop: 12,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
-                }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: cfg.accentColor, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    🎁 {cfg.complementaryText}
-                  </div>
-
-                  <div
-                    onClick={() => setCompChecked(!compChecked)}
-                    style={{
-                      background: cfg.cardBgColor,
-                      border: '1px solid rgba(0,0,0,0.08)',
-                      borderRadius: 10,
-                      padding: 10,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <input
-                        type="checkbox"
-                        checked={compChecked}
-                        onChange={() => {}}
-                        style={{ width: 16, height: 16, accentColor: cfg.accentColor, cursor: 'pointer' }}
-                      />
-                      <div style={{ fontSize: 13, fontWeight: 700, color: cfg.textColor }}>
-                        {cfg.complementaryName}
-                      </div>
-                    </div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: cfg.textColor }}>
-                      {cfg.complementaryPrice}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* BOTÓN SUMAR AL CARRITO */}
               <button
                 type="button"
                 style={{
@@ -615,7 +558,7 @@ export default function BundlePromocionesEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              Incentivá la compra por volumen permitiendo que tus clientes elijan packs con descuento (2x1, 3x2, etc.) y sumen productos complementarios con 1 solo clic.
+              Mostrá packs 2x1, 3x2 y más. En la tienda los precios se calculan solos con el precio del producto. El botón agrega la cantidad del pack al carrito. El descuento real se configura en Tiendanube → Descuentos.
             </span>
           </div>
 
@@ -627,7 +570,6 @@ export default function BundlePromocionesEditor({
             {(
               [
                 ['gen', '📦 Promos & Bundles'],
-                ['comp', '🎁 Complementarios'],
                 ['style', '🎨 Diseño & Estilo'],
                 ['dates', '🔥 Fechas Especiales'],
               ] as const
@@ -654,7 +596,7 @@ export default function BundlePromocionesEditor({
             })}
           </div>
 
-          {/* TAB 1: PROMOS & BUNDLES */}
+          {/* TAB PROMOS */}
           {tab === 'gen' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
@@ -676,8 +618,10 @@ export default function BundlePromocionesEditor({
               </div>
 
               <div>
-                <FieldLabel>Promociones disponibles para el cliente</FieldLabel>
-                <FieldHelper>Marcá las ofertas que vas a activar para esta publicación:</FieldHelper>
+                <FieldLabel>Promociones disponibles</FieldLabel>
+                <FieldHelper>
+                  Activá las ofertas. En la tienda, precio tachado, precio promo y % OFF se calculan solos con el precio del producto (no hace falta cargar montos a mano).
+                </FieldHelper>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
                   {cfg.bundles.map((b, idx) => (
@@ -693,42 +637,32 @@ export default function BundlePromocionesEditor({
                         gap: 10,
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <ToggleField
-                          checked={b.enabled}
-                          onChange={() => toggleBundle(idx)}
-                          label={b.title}
-                        />
-                      </div>
+                      <ToggleField
+                        checked={b.enabled}
+                        onChange={() => toggleBundle(idx)}
+                        label={b.title}
+                      />
 
-                      {b.enabled && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginTop: 4 }}>
+                      {b.enabled ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
                           <div>
-                            <FieldLabel>Etiqueta / OFF</FieldLabel>
+                            <FieldLabel>Texto de la promo (ej: Lleva 2 paga 1)</FieldLabel>
+                            <TextInput
+                              value={b.title}
+                              onChange={(v) => updateBundle(idx, 'title', v)}
+                              placeholder="Lleva 2 paga 1"
+                            />
+                          </div>
+                          <div>
+                            <FieldLabel>Etiqueta opcional (si dejás vacío, se calcula el % en tienda)</FieldLabel>
                             <TextInput
                               value={b.badge}
                               onChange={(v) => updateBundle(idx, 'badge', v)}
                               placeholder="-50% OFF"
                             />
                           </div>
-                          <div>
-                            <FieldLabel>Precio Anterior</FieldLabel>
-                            <TextInput
-                              value={b.oldPrice}
-                              onChange={(v) => updateBundle(idx, 'oldPrice', v)}
-                              placeholder="$20.000"
-                            />
-                          </div>
-                          <div>
-                            <FieldLabel>Precio Promo</FieldLabel>
-                            <TextInput
-                              value={b.newPrice}
-                              onChange={(v) => updateBundle(idx, 'newPrice', v)}
-                              placeholder="$10.000"
-                            />
-                          </div>
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -736,54 +670,7 @@ export default function BundlePromocionesEditor({
             </div>
           )}
 
-          {/* TAB 2: COMPLEMENTARIOS */}
-          {tab === 'comp' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <ToggleField
-                checked={cfg.showComplementary}
-                onChange={(v) => set('showComplementary', v)}
-                label="Mostrar producto complementario opcional"
-              />
-
-              {cfg.showComplementary && (
-                <>
-                  <div style={{ background: '#ecfdf5', border: '1px solid #10B981', borderRadius: 10, padding: 12, fontSize: 13, color: '#059669', lineHeight: 1.4 }}>
-                    💡 <strong>Tip de venta:</strong> El producto complementario ideal es de bajo valor y sin variantes (ej. medias, gorro, vela, funda). Así el cliente lo suma sin pensar.
-                  </div>
-
-                  <div>
-                    <FieldLabel>Texto incentivo que ve el cliente</FieldLabel>
-                    <TextInput
-                      value={cfg.complementaryText}
-                      onChange={(v) => set('complementaryText', v)}
-                      placeholder="Sumale este producto y llevate envío gratis!"
-                    />
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
-                    <div>
-                      <FieldLabel>Nombre del Producto Complementario</FieldLabel>
-                      <TextInput
-                        value={cfg.complementaryName}
-                        onChange={(v) => set('complementaryName', v)}
-                        placeholder="Remera Básica / Medias"
-                      />
-                    </div>
-                    <div>
-                      <FieldLabel>Precio extra</FieldLabel>
-                      <TextInput
-                        value={cfg.complementaryPrice}
-                        onChange={(v) => set('complementaryPrice', v)}
-                        placeholder="$15.999"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* TAB 3: DISEÑO & ESTILO */}
+          {/* TAB DISEÑO */}
           {tab === 'style' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
@@ -832,7 +719,7 @@ export default function BundlePromocionesEditor({
                       <button
                         key={loc.id}
                         type="button"
-                        onClick={() => set('location', loc.id as any)}
+                        onClick={() => set('location', loc.id as Cfg['location'])}
                         style={{
                           padding: '12px 10px', borderRadius: 10,
                           border: active ? '2px solid #10B981' : '1.5px solid #e5e7eb',
@@ -851,13 +738,13 @@ export default function BundlePromocionesEditor({
             </div>
           )}
 
-          {/* TAB 4: FECHAS ESPECIALES */}
+          {/* TAB FECHAS ESPECIALES */}
           {tab === 'dates' && (
             <div>
               <div style={{ marginBottom: 20 }}>
                 <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
                 <FieldHelper>
-                  Elegí una campaña activa para adaptar la presentación de tus promociones con colores festivos.
+                  Elegí una campaña para adaptar colores. Si editás un color a mano, se desactiva el preset.
                 </FieldHelper>
               </div>
 
@@ -877,21 +764,20 @@ export default function BundlePromocionesEditor({
                         display: 'flex',
                         alignItems: 'center',
                         gap: 16,
-                        transition: 'all 0.2s ease',
                       }}
                     >
                       <div style={{ fontSize: 24, flexShrink: 0 }}>{preset.emoji}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', display: 'flex', alignItems: 'center', gap: 8 }}>
                           {preset.label}
-                          {isSelected && (
+                          {isSelected ? (
                             <span style={{
                               background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800,
                               padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981',
                             }}>
                               ACTIVO
                             </span>
-                          )}
+                          ) : null}
                         </div>
                         <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 4, lineHeight: 1.4 }}>
                           {preset.desc}
@@ -904,9 +790,8 @@ export default function BundlePromocionesEditor({
             </div>
           )}
 
-          {/* ALERTAS */}
           <div style={{ marginTop: 20 }}>
-            {ok && (
+            {ok ? (
               <div style={{
                 background: '#ecfdf5', border: '1px solid #10B981',
                 borderRadius: 10, padding: '10px 16px',
@@ -914,8 +799,8 @@ export default function BundlePromocionesEditor({
               }}>
                 ✅ Widget guardado correctamente
               </div>
-            )}
-            {err && (
+            ) : null}
+            {err ? (
               <div style={{
                 background: '#fef2f2', border: '1px solid #fca5a5',
                 borderRadius: 10, padding: '10px 16px',
@@ -923,10 +808,9 @@ export default function BundlePromocionesEditor({
               }}>
                 ❌ {err}
               </div>
-            )}
+            ) : null}
           </div>
 
-          {/* BOTÓN GUARDAR */}
           <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' }}>
             <button
               onClick={save}
@@ -946,11 +830,10 @@ export default function BundlePromocionesEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL */}
         <div style={{ marginTop: 40, width: '100%' }}>
           <CentroAyuda />
         </div>
       </div>
     </div>
   );
-}
+   }
