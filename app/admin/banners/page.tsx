@@ -1090,7 +1090,7 @@ export default function BannersPage() {
                     <h4 style={{ fontSize: "13px", fontWeight: 800, color: "#fff", margin: "6px 0 8px", lineHeight: 1.3 }}>
                       {isPt ? slide.titlePt : slide.titleEs}
                     </h4>
-                    <p style={{ fontSize: "11px", color: "#a7f3d0", margin: 0, lineHeight: 1.45, whitespace: "pre-line" }}>
+                    <p style={{ fontSize: "11px", color: "#a7f3d0", margin: 0, lineHeight: 1.45, whiteSpace: "pre-line" }}>
                       {isPt ? slide.descPt : slide.descEs}
                     </p>
                   </div>
