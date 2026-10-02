@@ -3,7 +3,19 @@
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Package, Store, ArrowLeft, Loader2 } from "lucide-react";
+import { 
+  Package, 
+  Store, 
+  ArrowLeft, 
+  Loader2,
+  TrendingUp,
+  Flame,
+  Globe,
+  Mic,
+  MessageSquare,
+  Bot,
+  Sparkles
+} from "lucide-react";
 
 function WidgetsNuevoContent() {
   const router = useRouter();
@@ -11,15 +23,13 @@ function WidgetsNuevoContent() {
   const type = searchParams.get("type");
   const productId = searchParams.get("productId");
 
-  // Redirección inteligente corregida
+  // Redirección inteligente
   useEffect(() => {
     if (type && productId) {
-      // Redirige directo a la subcarpeta del producto específico
       router.replace(
         `/widgets/nuevo/producto/${productId}?type=${encodeURIComponent(type)}`
       );
     } else if (type) {
-      // Redirige a todos los productos
       router.replace(`/widgets/nuevo/todos?type=${encodeURIComponent(type)}`);
     }
   }, [type, productId, router]);
@@ -45,8 +55,53 @@ function WidgetsNuevoContent() {
     );
   }
 
+  const proFeatures = [
+    {
+      label: "📈 Métricas en Vivo",
+      desc: "Seguimiento en tiempo real de interacciones y ventas directas.",
+      href: "/dashboard/analytics",
+      icon: TrendingUp,
+      badge: "ROI",
+    },
+    {
+      label: "🔔 Notificaciones de Compras",
+      desc: "Prueba social en tiempo real mostrando compras recientes.",
+      href: "/dashboard/social-proof",
+      icon: Flame,
+      badge: "PRO",
+    },
+    {
+      label: "🌐 Traductor de Tienda (IA)",
+      desc: "Traduce tu tienda automáticamente a ES, PT-BR e EN.",
+      href: "/dashboard/idiomas-ia",
+      icon: Globe,
+      badge: "NUEVO",
+    },
+    {
+      label: "🎙️ Buscador por Voz",
+      desc: "Permite a tus clientes buscar con comandos de voz asistidos.",
+      href: "/dashboard/busqueda-voz",
+      icon: Mic,
+      badge: "BETA",
+    },
+    {
+      label: "💬 Asistente de Ventas (IA)",
+      desc: "Un vendedor inteligente que guía y cierra ventas 24/7.",
+      href: "/dashboard/vendedor-ia",
+      icon: MessageSquare,
+      badge: "NUEVO",
+    },
+    {
+      label: "🤖 Asistente de Soporte (IA)",
+      desc: "NevuxBot CRM inteligente sincronizado con Gemini y WhatsApp.",
+      href: "/dashboard/nevuxbot",
+      icon: Bot,
+      badge: "IA CRM",
+    },
+  ];
+
   return (
-    <div style={{ maxWidth: "520px", margin: "0 auto", boxSizing: "border-box" }}>
+    <div style={{ maxWidth: "580px", margin: "0 auto", boxSizing: "border-box" }}>
       <button
         onClick={() => router.push("/dashboard")}
         style={{
@@ -92,7 +147,7 @@ function WidgetsNuevoContent() {
             letterSpacing: "-0.01em",
           }}
         >
-          Crear nuevo widget
+          Crear nuevo widget o función
         </h1>
         <p
           style={{
@@ -102,11 +157,12 @@ function WidgetsNuevoContent() {
             opacity: 0.6,
           }}
         >
-          ¿Qué tipo de widget querés crear?
+          Elegí qué tipo de widget o herramienta de conversión querés configurar.
         </p>
       </motion.div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+      {/* BLOQUES 1 y 2: CONFIGURACIÓN DE WIDGETS */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", marginBottom: "2.5rem" }}>
         {/* Opción A: Producto específico */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
@@ -269,6 +325,154 @@ function WidgetsNuevoContent() {
           </svg>
         </motion.button>
       </div>
+
+      {/* BLOQUE 3: NUEVO BLOQUE DE FUNCIONES PRO / IA */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.15, duration: 0.4 }}
+        style={{
+          borderTop: "1.5px solid #f3f4f6",
+          paddingTop: "2rem",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
+          <Sparkles size={18} color="#10B981" />
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "1.1rem",
+              fontWeight: 800,
+              color: "#000000",
+            }}
+          >
+            Funciones Inteligentes & Pro (IA)
+          </h2>
+        </div>
+        <p
+          style={{
+            margin: "0 0 1.25rem 0",
+            fontSize: "0.85rem",
+            color: "#000000",
+            opacity: 0.5,
+            lineHeight: 1.4,
+          }}
+        >
+          Potenciá las ventas de tu tienda usando herramientas avanzadas de inteligencia artificial y analíticas.
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.75rem" }}>
+          {proFeatures.map((feat, index) => {
+            const IconComponent = feat.icon;
+            return (
+              <motion.button
+                key={feat.href}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.18 + index * 0.04 }}
+                onClick={() => router.push(feat.href)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.85rem",
+                  padding: "0.95rem 1.1rem",
+                  background: "#ffffff",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "14px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                  transition: "all 0.2s ease",
+                  boxSizing: "border-box",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#10B981";
+                  e.currentTarget.style.background = "#f0fdf4";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "#e5e7eb";
+                  e.currentTarget.style.background = "#ffffff";
+                }}
+              >
+                <div
+                  style={{
+                    width: "38px",
+                    height: "38px",
+                    borderRadius: "10px",
+                    background: "#f0fdf4",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <IconComponent size={18} color="#10B981" />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "0.88rem",
+                        fontWeight: 700,
+                        color: "#000000",
+                      }}
+                    >
+                      {feat.label}
+                    </span>
+                    {feat.badge && (
+                      <span
+                        style={{
+                          fontSize: "0.6rem",
+                          fontWeight: 800,
+                          background: "#10B981",
+                          color: "#ffffff",
+                          padding: "0.1rem 0.4rem",
+                          borderRadius: "4px",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {feat.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.78rem",
+                      color: "#000000",
+                      opacity: 0.5,
+                      marginTop: "0.15rem",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {feat.desc}
+                  </div>
+                </div>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#10B981"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ flexShrink: 0 }}
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </motion.button>
+            );
+          })}
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -302,4 +506,4 @@ export default function WidgetsNuevoPage() {
       </Suspense>
     </div>
   );
-          }
+      }
