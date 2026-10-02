@@ -8,6 +8,60 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function PopupConversionPreview() {
+  return (
+    <div
+      style={{
+        background: "rgba(17, 24, 39, 0.75)",
+        borderRadius: "10px",
+        padding: "6px",
+        width: "92%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+      }}
+    >
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "8px",
+          padding: "8px 10px",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "4px",
+          position: "relative",
+        }}
+      >
+        <div style={{ position: "absolute", top: "4px", right: "6px", fontSize: "7px", opacity: 0.4, fontWeight: 800 }}>✕</div>
+        <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", textAlign: "center" }}>
+          Antes de que te vayas 🎰
+        </div>
+        <div style={{ fontSize: "6px", color: "#6b7280", textAlign: "center", lineHeight: 1.1 }}>
+          ¡Girás y te llevás un descuento exclusivo!
+        </div>
+        <div
+          style={{
+            background: "#10B981",
+            color: "#ffffff",
+            borderRadius: "6px",
+            padding: "4px 8px",
+            fontSize: "6.5px",
+            fontWeight: 800,
+            width: "100%",
+            textAlign: "center",
+            marginTop: "2px",
+          }}
+        >
+          Quiero mi descuento
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BundlePromocionesPreview() {
   return (
     <div
@@ -641,6 +695,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "popup-conversion":
+      return <PopupConversionPreview />;
     case "bundle-promociones":
       return <BundlePromocionesPreview />;
     case "info-despacho":
@@ -690,4 +746,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-          }
+                   }
