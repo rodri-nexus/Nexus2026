@@ -4,10 +4,10 @@
 import React, { useState } from "react";
 import { Smartphone, Download, Award, Zap, CheckCircle2, XCircle } from "lucide-react";
 
-type TabId = "marketing_assets" | "carousels" | "before_after";
+type TabId = "carousels" | "marketing_assets" | "before_after";
 
 /* ═══════════════════════════════════════════
-   CONSTANTES (Regla #9 al inicio)
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 interface MarketingAsset {
   id: string;
@@ -24,6 +24,78 @@ interface MarketingAsset {
   metricPt?: string;
 }
 
+interface CarouselSlide {
+  type: "cover" | "problem" | "comparison" | "solution" | "cta";
+  badgeEs: string;
+  badgePt: string;
+  titleEs: string;
+  titlePt: string;
+  descEs: string;
+  descPt: string;
+  metric?: string;
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS & DIBUJO CANVAS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+function loadLogoImage(): Promise<HTMLImageElement> {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
+    img.src = "/icon.svg";
+  });
+}
+
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+) {
+  let radius = r;
+  if (w < 2 * radius) radius = w / 2;
+  if (h < 2 * radius) radius = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function wrapText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const words = text.split(" ");
+  let line = "";
+  let cy = y;
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + " ";
+    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, cy);
+      line = words[n] + " ";
+      cy += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, cy);
+  return cy;
+}
+
+/* ═══════════════════════════════════════════
+   CONSTANTES DE CONTENIDO
+═══════════════════════════════════════════ */
 const MARKETING_ASSETS: MarketingAsset[] = [
   {
     id: "hook_dolor",
@@ -167,20 +239,6 @@ const MARKETING_ASSETS: MarketingAsset[] = [
   },
 ];
 
-interface CarouselSlide {
-  type: "cover" | "problem" | "comparison" | "solution" | "cta";
-  badgeEs: string;
-  badgePt: string;
-  titleEs: string;
-  titlePt: string;
-  descEs: string;
-  descPt: string;
-  metric?: string;
-}
-
-/* ═══════════════════════════════════════════
-   CARRUSEL B2B DE 5 PLACAS (ESTRATEGIA COMPLETA)
-═══════════════════════════════════════════ */
 const PREMIUM_CAROUSEL_SLIDES: CarouselSlide[] = [
   {
     type: "cover",
@@ -234,51 +292,6 @@ const PREMIUM_CAROUSEL_SLIDES: CarouselSlide[] = [
   },
 ];
 
-function drawRoundedRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number
-) {
-  let radius = r;
-  if (w < 2 * radius) radius = w / 2;
-  if (h < 2 * radius) radius = h / 2;
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + w, y, x + w, y + h, radius);
-  ctx.arcTo(x + w, y + h, x, y + h, radius);
-  ctx.arcTo(x, y + h, x, y, radius);
-  ctx.arcTo(x, y, x + w, y, radius);
-  ctx.closePath();
-}
-
-function wrapText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number
-): number {
-  const words = text.split(" ");
-  let line = "";
-  let cy = y;
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + " ";
-    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
-      ctx.fillText(line.trim(), x, cy);
-      line = words[n] + " ";
-      cy += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  ctx.fillText(line.trim(), x, cy);
-  return cy;
-}
-
 /* ═══════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
@@ -289,12 +302,195 @@ export default function BannersPage() {
   const isPt = lang === "pt";
 
   const tabs = [
-    { id: "carousels" as TabId, label: "Carrusel Pro 5 Placas", icon: "🎠" },
+    { id: "carousels" as TabId, label: "Carrusel Pro (5 Placas)", icon: "🎠" },
     { id: "marketing_assets" as TabId, label: "Hooks y Cierres Pro", icon: "🎬" },
-    { id: "before_after" as TabId, label: "Antes vs Después (Marketing)", icon: "⚡" },
+    { id: "before_after" as TabId, label: "Antes vs Después", icon: "⚡" },
   ];
 
-  /* ─── GENERAR CANVAS ANTES VS DESPUÉS 1080x1350 ─── */
+  /* ─── DESCARGAR SLIDE CON LOGO OFICIAL ─── */
+  const downloadSlideAsImage = async (slideIndex: number) => {
+    const slide = PREMIUM_CAROUSEL_SLIDES[slideIndex];
+    if (!slide) return;
+    setIsDownloading(true);
+    try {
+      const width = 1080;
+      const height = 1350;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const S = width / 340;
+
+      // Cargar logo oficial
+      let logoImg: HTMLImageElement | null = null;
+      try {
+        logoImg = await loadLogoImage();
+      } catch (e) {
+        console.warn("Logo fallback:", e);
+      }
+
+      if (slide.type === "problem") {
+        ctx.fillStyle = "#0c0407";
+        ctx.fillRect(0, 0, width, height);
+        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
+        g.addColorStop(0, "rgba(239,68,68,0.18)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (slide.type === "comparison") {
+        ctx.fillStyle = "#070b14";
+        ctx.fillRect(0, 0, width, height);
+        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
+        g.addColorStop(0, "rgba(59,130,246,0.2)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (slide.type === "solution") {
+        ctx.fillStyle = "#03120c";
+        ctx.fillRect(0, 0, width, height);
+        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
+        g.addColorStop(0, "rgba(16,185,129,0.22)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (slide.type === "cta") {
+        ctx.fillStyle = "#021a12";
+        ctx.fillRect(0, 0, width, height);
+        const g = ctx.createRadialGradient(width / 2, height * 0.5, 30 * S, width / 2, height * 0.5, 240 * S);
+        g.addColorStop(0, "rgba(16,185,129,0.3)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(width / 2, height * 0.5, 240 * S, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "#060913";
+        ctx.fillRect(0, 0, width, height);
+        const g = ctx.createRadialGradient(width / 2, height * 0.35, 20 * S, width / 2, height * 0.35, 220 * S);
+        g.addColorStop(0, "rgba(16,185,129,0.18)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(width / 2, height * 0.35, 220 * S, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.strokeStyle = "rgba(255,255,255,0.025)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 40 * S) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      // DIBUJAR LOGO REAL OFICIAL
+      const logoSize = 34 * S;
+      const logoX = 36 * S;
+      const logoY = 32 * S;
+
+      if (logoImg) {
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      } else {
+        ctx.fillStyle = "#10B981";
+        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 10 * S);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = "#fff";
+      ctx.font = `900 ${16 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText("NEVUX", logoX + logoSize + 10 * S, logoY + logoSize / 2);
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px monospace`;
+      ctx.textAlign = "right";
+      ctx.fillText(`0${slideIndex + 1} / 0${PREMIUM_CAROUSEL_SLIDES.length}`, width - 36 * S, logoY + logoSize / 2);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.beginPath();
+      ctx.moveTo(36 * S, 82 * S);
+      ctx.lineTo(width - 36 * S, 82 * S);
+      ctx.stroke();
+
+      const badgeText = isPt ? slide.badgePt : slide.badgeEs;
+      ctx.font = `900 ${9.5 * S}px sans-serif`;
+      const tw = ctx.measureText(badgeText).width;
+      const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
+      ctx.fillStyle = slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)";
+      ctx.strokeStyle = badgeColor;
+      ctx.lineWidth = 1.5 * S;
+      drawRoundedRect(ctx, 36 * S, 110 * S, tw + 24 * S, 26 * S, 13 * S);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = badgeColor;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(badgeText, 36 * S + (tw + 24 * S) / 2, 110 * S + 13 * S);
+
+      ctx.font = `900 ${22 * S}px sans-serif`;
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      wrapText(ctx, isPt ? slide.titlePt : slide.titleEs, 36 * S, 155 * S, width - 72 * S, 30 * S);
+
+      if (slide.metric) {
+        const mY = 280 * S;
+        ctx.fillStyle = slide.type === "cta" ? "#10B981" : "rgba(16,185,129,0.12)";
+        ctx.strokeStyle = "#10B981";
+        ctx.lineWidth = 2 * S;
+        drawRoundedRect(ctx, 36 * S, mY, width - 72 * S, 50 * S, 16 * S);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = slide.type === "cta" ? "#000" : "#10B981";
+        ctx.font = `950 ${14 * S}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(slide.metric, width / 2, mY + 25 * S);
+      }
+
+      const boxY = height - 190 * S;
+      ctx.fillStyle = "rgba(10,12,16,0.85)";
+      ctx.strokeStyle = "rgba(16,185,129,0.3)";
+      ctx.lineWidth = 1.5 * S;
+      drawRoundedRect(ctx, 36 * S, boxY, width - 72 * S, 120 * S, 20 * S);
+      ctx.fill();
+      ctx.stroke();
+      ctx.font = `600 ${11.5 * S}px sans-serif`;
+      ctx.fillStyle = "#d1fae5";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      wrapText(ctx, isPt ? slide.descPt : slide.descEs, width / 2, boxY + 22 * S, width - 108 * S, 20 * S);
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${10 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(
+        slide.type === "cta" ? "NEVUX.AR · APP OFICIAL" : isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA CONTINUAR ➔",
+        width / 2,
+        height - 28 * S
+      );
+
+      const a = document.createElement("a");
+      a.download = `nevux-carrusel-slide-${slideIndex + 1}.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  /* ─── DESCARGAR ANTES VS DESPUÉS CON LOGO REAL ─── */
   const downloadBeforeAfterAsset = async () => {
     setIsDownloading(true);
     try {
@@ -307,6 +503,13 @@ export default function BannersPage() {
       if (!ctx) return;
 
       const S = width / 340;
+
+      let logoImg: HTMLImageElement | null = null;
+      try {
+        logoImg = await loadLogoImage();
+      } catch (e) {
+        console.warn("Logo fallback:", e);
+      }
 
       ctx.fillStyle = "#05080f";
       ctx.fillRect(0, 0, width, height);
@@ -321,23 +524,26 @@ export default function BannersPage() {
       }
 
       const logoSize = 32 * S;
-      ctx.fillStyle = "#10B981";
-      drawRoundedRect(ctx, 36 * S, 32 * S, logoSize, logoSize, 10 * S);
-      ctx.fill();
-      ctx.fillStyle = "#000";
-      ctx.font = `950 ${18 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("N", 36 * S + logoSize / 2, 32 * S + logoSize / 2 + 1);
+      const logoX = 36 * S;
+      const logoY = 32 * S;
+
+      if (logoImg) {
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      } else {
+        ctx.fillStyle = "#10B981";
+        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 10 * S);
+        ctx.fill();
+      }
+
       ctx.fillStyle = "#fff";
       ctx.font = `900 ${15 * S}px sans-serif`;
       ctx.textAlign = "left";
-      ctx.fillText("NEVUX", 36 * S + logoSize + 10 * S, 32 * S + logoSize / 2);
+      ctx.fillText("NEVUX", logoX + logoSize + 10 * S, logoY + logoSize / 2);
 
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${11 * S}px sans-serif`;
       ctx.textAlign = "right";
-      ctx.fillText("PROPUESTA DE VALOR REAL", width - 36 * S, 32 * S + logoSize / 2);
+      ctx.fillText("PROPUESTA DE VALOR REAL", width - 36 * S, logoY + logoSize / 2);
 
       ctx.strokeStyle = "rgba(255,255,255,0.08)";
       ctx.beginPath();
@@ -470,178 +676,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── CARRUSEL HD 1080x1350 DE 5 SLIDES ─── */
-  const downloadSlideAsImage = async (slideIndex: number) => {
-    const slide = PREMIUM_CAROUSEL_SLIDES[slideIndex];
-    if (!slide) return;
-    setIsDownloading(true);
-    try {
-      const width = 1080;
-      const height = 1350;
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const S = width / 340;
-
-      if (slide.type === "problem") {
-        ctx.fillStyle = "#0c0407";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
-        g.addColorStop(0, "rgba(239,68,68,0.18)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (slide.type === "comparison") {
-        ctx.fillStyle = "#070b14";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
-        g.addColorStop(0, "rgba(59,130,246,0.2)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (slide.type === "solution") {
-        ctx.fillStyle = "#03120c";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.4, 20 * S, width / 2, height * 0.4, 220 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.22)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.4, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (slide.type === "cta") {
-        ctx.fillStyle = "#021a12";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.5, 30 * S, width / 2, height * 0.5, 240 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.3)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.5, 240 * S, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = "#060913";
-        ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.35, 20 * S, width / 2, height * 0.35, 220 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.18)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.35, 220 * S, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.strokeStyle = "rgba(255,255,255,0.025)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 40 * S) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      const logoSize = 32 * S;
-      ctx.fillStyle = "#10B981";
-      drawRoundedRect(ctx, 36 * S, 32 * S, logoSize, logoSize, 10 * S);
-      ctx.fill();
-      ctx.fillStyle = "#000";
-      ctx.font = `950 ${18 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("N", 36 * S + logoSize / 2, 32 * S + logoSize / 2 + 1);
-      ctx.fillStyle = "#fff";
-      ctx.font = `900 ${15 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      ctx.fillText("NEVUX", 36 * S + logoSize + 10 * S, 32 * S + logoSize / 2);
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${12 * S}px monospace`;
-      ctx.textAlign = "right";
-      ctx.fillText(`0${slideIndex + 1} / 0${PREMIUM_CAROUSEL_SLIDES.length}`, width - 36 * S, 32 * S + logoSize / 2);
-
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
-      ctx.beginPath();
-      ctx.moveTo(36 * S, 80 * S);
-      ctx.lineTo(width - 36 * S, 80 * S);
-      ctx.stroke();
-
-      const badgeText = isPt ? slide.badgePt : slide.badgeEs;
-      ctx.font = `900 ${9.5 * S}px sans-serif`;
-      const tw = ctx.measureText(badgeText).width;
-      const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
-      ctx.fillStyle = slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)";
-      ctx.strokeStyle = badgeColor;
-      ctx.lineWidth = 1.5 * S;
-      drawRoundedRect(ctx, 36 * S, 110 * S, tw + 24 * S, 26 * S, 13 * S);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = badgeColor;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(badgeText, 36 * S + (tw + 24 * S) / 2, 110 * S + 13 * S);
-
-      ctx.font = `900 ${22 * S}px sans-serif`;
-      ctx.fillStyle = "#fff";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      wrapText(ctx, isPt ? slide.titlePt : slide.titleEs, 36 * S, 155 * S, width - 72 * S, 30 * S);
-
-      if (slide.metric) {
-        const mY = 280 * S;
-        ctx.fillStyle = slide.type === "cta" ? "#10B981" : "rgba(16,185,129,0.12)";
-        ctx.strokeStyle = "#10B981";
-        ctx.lineWidth = 2 * S;
-        drawRoundedRect(ctx, 36 * S, mY, width - 72 * S, 50 * S, 16 * S);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = slide.type === "cta" ? "#000" : "#10B981";
-        ctx.font = `950 ${14 * S}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(slide.metric, width / 2, mY + 25 * S);
-      }
-
-      const boxY = height - 190 * S;
-      ctx.fillStyle = "rgba(10,12,16,0.85)";
-      ctx.strokeStyle = "rgba(16,185,129,0.3)";
-      ctx.lineWidth = 1.5 * S;
-      drawRoundedRect(ctx, 36 * S, boxY, width - 72 * S, 120 * S, 20 * S);
-      ctx.fill();
-      ctx.stroke();
-      ctx.font = `600 ${11.5 * S}px sans-serif`;
-      ctx.fillStyle = "#d1fae5";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      wrapText(ctx, isPt ? slide.descPt : slide.descEs, width / 2, boxY + 22 * S, width - 108 * S, 20 * S);
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${10 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        slide.type === "cta" ? "NEVUX.AR · APP OFICIAL" : isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA CONTINUAR ➔",
-        width / 2,
-        height - 28 * S
-      );
-
-      const a = document.createElement("a");
-      a.download = `nevux-carrusel-slide-${slideIndex + 1}.png`;
-      a.href = canvas.toDataURL("image/png");
-      a.click();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  /* ─── HOOKS / CIERRES HD 1080x1920 ─── */
+  /* ─── DESCARGAR HOOKS/CIERRES CON LOGO REAL ─── */
   const downloadMarketingAsset = async (assetId: string) => {
     const asset = MARKETING_ASSETS.find((a) => a.id === assetId);
     if (!asset) return;
@@ -660,282 +695,43 @@ export default function BannersPage() {
       const isCta = asset.category === "cta";
       const isHook = asset.category === "hook";
 
+      let logoImg: HTMLImageElement | null = null;
+      try {
+        logoImg = await loadLogoImage();
+      } catch (e) {
+        console.warn("Logo fallback:", e);
+      }
+
       if (asset.theme === "danger") {
         ctx.fillStyle = "#0a0205";
         ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.38, 30 * S, width / 2, height * 0.38, 280 * S);
-        g.addColorStop(0, "rgba(239,68,68,0.22)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.38, 280 * S, 0, Math.PI * 2);
-        ctx.fill();
       } else if (asset.theme === "purple") {
         ctx.fillStyle = "#07030f";
         ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.38, 30 * S, width / 2, height * 0.38, 280 * S);
-        g.addColorStop(0, "rgba(139,92,246,0.22)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.38, 280 * S, 0, Math.PI * 2);
-        ctx.fill();
       } else if (asset.theme === "green" || isCta) {
         ctx.fillStyle = "#020f0a";
         ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.4, 40 * S, width / 2, height * 0.4, 300 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.28)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.4, 300 * S, 0, Math.PI * 2);
-        ctx.fill();
       } else {
         ctx.fillStyle = "#05080f";
         ctx.fillRect(0, 0, width, height);
-        const g = ctx.createRadialGradient(width / 2, height * 0.38, 30 * S, width / 2, height * 0.38, 280 * S);
-        g.addColorStop(0, "rgba(16,185,129,0.16)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.38, 280 * S, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.strokeStyle = "rgba(255,255,255,0.03)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 48 * S) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += 48 * S) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
       }
 
       const logoSize = 36 * S;
-      ctx.fillStyle = "#10B981";
-      drawRoundedRect(ctx, 40 * S, 48 * S, logoSize, logoSize, 12 * S);
-      ctx.fill();
-      ctx.fillStyle = "#000";
-      ctx.font = `950 ${20 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("N", 40 * S + logoSize / 2, 48 * S + logoSize / 2 + 1);
+      const logoX = 40 * S;
+      const logoY = 48 * S;
+
+      if (logoImg) {
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      } else {
+        ctx.fillStyle = "#10B981";
+        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 12 * S);
+        ctx.fill();
+      }
+
       ctx.fillStyle = "#fff";
       ctx.font = `900 ${16 * S}px sans-serif`;
       ctx.textAlign = "left";
-      ctx.fillText("NEVUX", 40 * S + logoSize + 12 * S, 48 * S + logoSize / 2);
-
-      const catLabel =
-        asset.category === "hook"
-          ? isPt
-            ? "HOOK · 3s"
-            : "GANCHO · 3s"
-          : asset.category === "mid"
-          ? "MID-ROLL"
-          : isPt
-          ? "CTA FINAL"
-          : "CIERRE CTA";
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${11 * S}px sans-serif`;
-      ctx.textAlign = "right";
-      ctx.fillText(catLabel, width - 40 * S, 48 * S + logoSize / 2);
-
-      ctx.strokeStyle = "rgba(255,255,255,0.1)";
-      ctx.lineWidth = 1.5 * S;
-      ctx.beginPath();
-      ctx.moveTo(40 * S, 110 * S);
-      ctx.lineTo(width - 40 * S, 110 * S);
-      ctx.stroke();
-
-      if (asset.id === "hook_dolor") {
-        const mid = width / 2;
-        const topY = 160 * S;
-        const boxH = 420 * S;
-
-        ctx.fillStyle = "rgba(239,68,68,0.12)";
-        ctx.strokeStyle = "rgba(239,68,68,0.45)";
-        ctx.lineWidth = 2 * S;
-        drawRoundedRect(ctx, 40 * S, topY, mid - 52 * S, boxH, 24 * S);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.font = `900 ${56 * S}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillText("👀", (40 * S + mid - 12 * S) / 2, topY + 100 * S);
-        ctx.fillStyle = "#ef4444";
-        ctx.font = `900 ${14 * S}px sans-serif`;
-        ctx.fillText("10.000 VISITAS", (40 * S + mid - 12 * S) / 2, topY + 180 * S);
-        ctx.fillStyle = "#fff";
-        ctx.font = `950 ${18 * S}px sans-serif`;
-        ctx.fillText("$0 VENTAS", (40 * S + mid - 12 * S) / 2, topY + 230 * S);
-        ctx.font = `600 ${12 * S}px sans-serif`;
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
-        ctx.fillText(isPt ? "SEM NEVUX" : "SIN NEVUX", (40 * S + mid - 12 * S) / 2, topY + 290 * S);
-
-        ctx.fillStyle = "rgba(16,185,129,0.15)";
-        ctx.strokeStyle = "rgba(16,185,129,0.55)";
-        ctx.lineWidth = 2 * S;
-        drawRoundedRect(ctx, mid + 12 * S, topY, mid - 52 * S, boxH, 24 * S);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.font = `900 ${56 * S}px sans-serif`;
-        ctx.fillStyle = "#fff";
-        ctx.fillText("💰", (mid + 12 * S + width - 40 * S) / 2, topY + 100 * S);
-        ctx.fillStyle = "#10B981";
-        ctx.font = `900 ${14 * S}px sans-serif`;
-        ctx.fillText("VENTAS ×3", (mid + 12 * S + width - 40 * S) / 2, topY + 180 * S);
-        ctx.fillStyle = "#fff";
-        ctx.font = `950 ${18 * S}px sans-serif`;
-        ctx.fillText("CON NEVUX", (mid + 12 * S + width - 40 * S) / 2, topY + 230 * S);
-        ctx.font = `600 ${12 * S}px sans-serif`;
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
-        ctx.fillText("🔥 HOT SALE", (mid + 12 * S + width - 40 * S) / 2, topY + 290 * S);
-      } else if (isCta) {
-        const cardW = width - 80 * S;
-        const cardH = 520 * S;
-        const cardX = 40 * S;
-        const cardY = 180 * S;
-
-        ctx.fillStyle = "#10B981";
-        drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 36 * S);
-        ctx.fill();
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 4 * S;
-        ctx.stroke();
-
-        const lS = 72 * S;
-        const lX = (width - lS) / 2;
-        const lY = cardY + 48 * S;
-        ctx.fillStyle = "#000";
-        drawRoundedRect(ctx, lX, lY, lS, lS, 20 * S);
-        ctx.fill();
-        ctx.fillStyle = "#10B981";
-        ctx.font = `950 ${40 * S}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("N", lX + lS / 2, lY + lS / 2 + 2);
-
-        ctx.fillStyle = "#000";
-        ctx.font = `950 ${26 * S}px sans-serif`;
-        ctx.textBaseline = "top";
-        wrapText(ctx, isPt ? asset.titlePt : asset.titleEs, width / 2, cardY + 150 * S, cardW - 48 * S, 36 * S);
-
-        ctx.font = `700 ${14 * S}px sans-serif`;
-        ctx.fillText(isPt ? asset.descPt : asset.descEs, width / 2, cardY + 280 * S);
-
-        const btnW = cardW - 80 * S;
-        const btnH = 72 * S;
-        const btnX = cardX + 40 * S;
-        const btnY = cardY + 360 * S;
-        ctx.fillStyle = "#000";
-        drawRoundedRect(ctx, btnX, btnY, btnW, btnH, 36 * S);
-        ctx.fill();
-        ctx.fillStyle = "#fff";
-        ctx.font = `950 ${16 * S}px sans-serif`;
-        ctx.textBaseline = "middle";
-        ctx.fillText(isPt ? asset.metricPt || "LINK NA BIO" : asset.metricEs || "LINK EN LA BIO", width / 2, btnY + btnH / 2);
-
-        ctx.fillStyle = "rgba(0,0,0,0.7)";
-        ctx.font = `800 ${12 * S}px sans-serif`;
-        ctx.textBaseline = "top";
-        ctx.fillText("nevux.ar · App Oficial Tiendanube", width / 2, cardY + cardH - 48 * S);
-      } else {
-        ctx.font = `900 ${90 * S}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "rgba(16,185,129,0.15)";
-        ctx.beginPath();
-        ctx.arc(width / 2, height * 0.32, 100 * S, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#fff";
-        ctx.fillText(asset.emoji, width / 2, height * 0.32);
-
-        if (asset.metricEs) {
-          const mText = isPt ? asset.metricPt || asset.metricEs : asset.metricEs;
-          ctx.font = `900 ${13 * S}px sans-serif`;
-          const mW = ctx.measureText(mText).width + 40 * S;
-          const mH = 40 * S;
-          const mX = (width - mW) / 2;
-          const mY = height * 0.32 + 90 * S;
-          ctx.fillStyle = "rgba(16,185,129,0.15)";
-          ctx.strokeStyle = "#10B981";
-          ctx.lineWidth = 2 * S;
-          drawRoundedRect(ctx, mX, mY, mW, mH, 20 * S);
-          ctx.fill();
-          ctx.stroke();
-          ctx.fillStyle = "#10B981";
-          ctx.textBaseline = "middle";
-          ctx.fillText(mText, width / 2, mY + mH / 2);
-        }
-      }
-
-      if (!isCta) {
-        const boxW = width - 64 * S;
-        const boxH = isHook ? 340 * S : 300 * S;
-        const boxX = 32 * S;
-        const boxY = height - boxH - 100 * S;
-
-        ctx.fillStyle = "rgba(8, 12, 18, 0.92)";
-        ctx.strokeStyle = "rgba(16,185,129,0.45)";
-        ctx.lineWidth = 2.5 * S;
-        drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 28 * S);
-        ctx.fill();
-        ctx.stroke();
-
-        const bText = isPt ? asset.badgePt : asset.badgeEs;
-        ctx.font = `900 ${10 * S}px sans-serif`;
-        const btw = ctx.measureText(bText).width + 28 * S;
-        const bH = 28 * S;
-        const bX = (width - btw) / 2;
-        const bY = boxY + 28 * S;
-        ctx.fillStyle = "rgba(16,185,129,0.18)";
-        ctx.strokeStyle = "#10B981";
-        ctx.lineWidth = 1.5 * S;
-        drawRoundedRect(ctx, bX, bY, btw, bH, 14 * S);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = "#10B981";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(bText, width / 2, bY + bH / 2);
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = `900 ${20 * S}px sans-serif`;
-        ctx.textBaseline = "top";
-        wrapText(ctx, isPt ? asset.titlePt : asset.titleEs, width / 2, boxY + 80 * S, boxW - 48 * S, 28 * S);
-
-        ctx.fillStyle = "#9ca3af";
-        ctx.font = `600 ${13 * S}px sans-serif`;
-        wrapText(ctx, isPt ? asset.descPt : asset.descEs, width / 2, boxY + 200 * S, boxW - 48 * S, 22 * S);
-
-        ctx.fillStyle = "#10B981";
-        ctx.font = `900 ${12 * S}px sans-serif`;
-        ctx.textBaseline = "middle";
-        ctx.fillText("nevux.ar", width / 2, boxY + boxH - 36 * S);
-      }
-
-      ctx.fillStyle = "rgba(255,255,255,0.35)";
-      ctx.font = `700 ${10 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        isCta
-          ? isPt
-            ? "APP OFICIAL TIENDANUBE · 7 DIAS GRÁTIS"
-            : "APP OFICIAL TIENDANUBE · 7 DÍAS GRATIS"
-          : isPt
-          ? "REELS · TIKTOK · STORIES · 1080×1920"
-          : "REELS · TIKTOK · STORIES · 1080×1920",
-        width / 2,
-        height - 48 * S
-      );
+      ctx.fillText("NEVUX", logoX + logoSize + 12 * S, logoY + logoSize / 2);
 
       const a = document.createElement("a");
       a.download = `nevux-${asset.id}-pro.png`;
@@ -963,6 +759,7 @@ export default function BannersPage() {
         boxSizing: "border-box",
       }}
     >
+      {/* HEADER PRINCIPAL */}
       <div
         style={{
           maxWidth: "750px",
@@ -1042,82 +839,189 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* TAB 1: CARRUSEL PRO DE 5 PLACAS */}
+      {/* TAB 1: CARRUSEL PRO EN CASCADA (UNA PLACA DEBAJO DE LA OTRA) */}
       {activeTab === "carousels" && (
-        <div style={{ width: "100%", maxWidth: "750px" }}>
+        <div style={{ width: "100%", maxWidth: "480px" }}>
           <div
             style={{
               backgroundColor: "#0b2920",
               border: "1.5px solid rgba(16,185,129,0.3)",
               borderRadius: "20px",
-              padding: "24px",
+              padding: "20px 16px",
               textAlign: "center",
+              marginBottom: "20px",
             }}
           >
-            <Award size={34} color="#10B981" style={{ marginBottom: "12px" }} />
-            <h2 style={{ fontSize: "18px", fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>
-              Carrusel B2B Pro de 5 Placas HD
+            <Award size={32} color="#10B981" style={{ marginBottom: "8px" }} />
+            <h2 style={{ fontSize: "17px", fontWeight: 900, color: "#fff", margin: "0 0 6px" }}>
+              Carrusel B2B (5 Placas en Cascada)
             </h2>
-            <p style={{ fontSize: "13px", color: "#a7f3d0", margin: "0 0 24px" }}>
-              Formato Instagram 4:5 (1080×1350) · Storytelling de Conversión
+            <p style={{ fontSize: "12px", color: "#a7f3d0", margin: 0 }}>
+              Diseño exacto listo para mirar, capturar o descargar en HD (1080×1350)
             </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                gap: "14px",
-                textAlign: "left",
-              }}
-            >
-              {PREMIUM_CAROUSEL_SLIDES.map((slide, index) => (
+          </div>
+
+          {/* LISTA EN CASCADA / VERTICAL COMPLETA */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {PREMIUM_CAROUSEL_SLIDES.map((slide, index) => {
+              const badgeText = isPt ? slide.badgePt : slide.badgeEs;
+              const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
+
+              return (
                 <div
                   key={index}
                   style={{
-                    background: "rgba(0,0,0,0.35)",
-                    padding: "16px",
-                    borderRadius: "16px",
-                    border: "1.5px solid rgba(16,185,129,0.25)",
+                    width: "100%",
+                    background: slide.type === "problem"
+                      ? "#0c0407"
+                      : slide.type === "comparison"
+                      ? "#070b14"
+                      : slide.type === "solution"
+                      ? "#03120c"
+                      : slide.type === "cta"
+                      ? "#021a12"
+                      : "#060913",
+                    border: "1.5px solid rgba(16, 185, 129, 0.35)",
+                    borderRadius: "22px",
+                    padding: "20px",
+                    boxShadow: "0 12px 30px rgba(0,0,0,0.4)",
+                    boxSizing: "border-box",
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-between",
-                    gap: "12px",
+                    gap: "14px",
+                    position: "relative",
                   }}
                 >
-                  <div>
-                    <span style={{ fontSize: "10px", fontWeight: 900, color: "#10B981" }}>
-                      SLIDE 0{index + 1} DE 05 · {isPt ? slide.badgePt : slide.badgeEs}
+                  {/* HEADER MARCA CON LOGO OFICIAL */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      borderBottom: "1px solid rgba(255,255,255,0.08)",
+                      paddingBottom: "12px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <img
+                        src="/icon.svg"
+                        alt="Nevux Logo"
+                        style={{ width: "28px", height: "28px", display: "block" }}
+                      />
+                      <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.02em" }}>
+                        NEVUX
+                      </span>
+                    </div>
+
+                    <span style={{ fontSize: "12px", fontWeight: 800, fontFamily: "monospace", color: "#10B981" }}>
+                      0{index + 1} / 05
                     </span>
-                    <h4 style={{ fontSize: "13px", fontWeight: 800, color: "#fff", margin: "6px 0 8px", lineHeight: 1.3 }}>
-                      {isPt ? slide.titlePt : slide.titleEs}
-                    </h4>
-                    <p style={{ fontSize: "11px", color: "#a7f3d0", margin: 0, lineHeight: 1.45, whiteSpace: "pre-line" }}>
+                  </div>
+
+                  {/* BADGE */}
+                  <div>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "4px 10px",
+                        borderRadius: "999px",
+                        fontSize: "10px",
+                        fontWeight: 900,
+                        color: badgeColor,
+                        background: slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)",
+                        border: `1px solid ${badgeColor}`,
+                      }}
+                    >
+                      {badgeText}
+                    </span>
+                  </div>
+
+                  {/* TÍTULO */}
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: "18px",
+                      fontWeight: 900,
+                      color: "#ffffff",
+                      lineHeight: 1.3,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    {isPt ? slide.titlePt : slide.titleEs}
+                  </h3>
+
+                  {/* MÉTRICA PILL */}
+                  {slide.metric && (
+                    <div
+                      style={{
+                        padding: "10px 14px",
+                        borderRadius: "12px",
+                        background: slide.type === "cta" ? "#10B981" : "rgba(16, 185, 129, 0.12)",
+                        border: "1px solid #10B981",
+                        textAlign: "center",
+                        color: slide.type === "cta" ? "#000000" : "#10B981",
+                        fontSize: "12px",
+                        fontWeight: 900,
+                      }}
+                    >
+                      {slide.metric}
+                    </div>
+                  )}
+
+                  {/* CAJA DE DESCRIPCIÓN */}
+                  <div
+                    style={{
+                      background: "rgba(10, 12, 16, 0.85)",
+                      border: "1px solid rgba(16, 185, 129, 0.25)",
+                      borderRadius: "14px",
+                      padding: "14px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "12px",
+                        color: "#d1fae5",
+                        lineHeight: 1.5,
+                        whiteSpace: "pre-line",
+                      }}
+                    >
                       {isPt ? slide.descPt : slide.descEs}
                     </p>
                   </div>
+
+                  {/* FOOTER */}
+                  <div style={{ textAlign: "center", fontSize: "10px", fontWeight: 800, color: "#10B981" }}>
+                    {slide.type === "cta" ? "NEVUX.AR · APP OFICIAL" : isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA CONTINUAR ➔"}
+                  </div>
+
+                  {/* BOTÓN DESCARGA HD */}
                   <button
                     disabled={isDownloading}
                     onClick={() => downloadSlideAsImage(index)}
                     style={{
+                      marginTop: "4px",
                       background: "#10B981",
                       border: "none",
-                      color: "#000",
-                      padding: "10px 14px",
-                      borderRadius: "10px",
-                      fontWeight: 800,
+                      color: "#000000",
+                      padding: "11px 16px",
+                      borderRadius: "12px",
+                      fontWeight: 900,
                       fontSize: "12px",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "6px",
+                      boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
                     }}
                   >
                     <Download size={14} />
-                    Descargar Slide 0{index + 1} HD
+                    Descargar Slide 0{index + 1} HD (1080×1350)
                   </button>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -1355,4 +1259,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-     }
+  }
