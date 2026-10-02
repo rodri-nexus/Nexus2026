@@ -2,12 +2,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Smartphone, Download, Award } from "lucide-react";
+import { Smartphone, Download, Award, Zap, CheckCircle2, XCircle } from "lucide-react";
 
-type TabId = "marketing_assets" | "carousels";
+type TabId = "marketing_assets" | "carousels" | "before_after";
 
 /* ═══════════════════════════════════════════
-   CONSTANTES (Regla #9)
+   CONSTANTES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 interface MarketingAsset {
   id: string;
@@ -278,7 +278,190 @@ export default function BannersPage() {
   const tabs = [
     { id: "marketing_assets" as TabId, label: "Hooks y Cierres Pro", icon: "🎬" },
     { id: "carousels" as TabId, label: "Carruseles Instagram Pro", icon: "🎠" },
+    { id: "before_after" as TabId, label: "Antes vs Después (Marketing)", icon: "⚡" },
   ];
+
+  /* ─── GENERAR CANVAS ANTES VS DESPUÉS 1080x1350 ─── */
+  const downloadBeforeAfterAsset = async () => {
+    setIsDownloading(true);
+    try {
+      const width = 1080;
+      const height = 1350;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const S = width / 340;
+
+      // Fondo oscuro
+      ctx.fillStyle = "#05080f";
+      ctx.fillRect(0, 0, width, height);
+
+      // Rejilla sutil
+      ctx.strokeStyle = "rgba(255,255,255,0.03)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 40 * S) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      // Header marca
+      const logoSize = 32 * S;
+      ctx.fillStyle = "#10B981";
+      drawRoundedRect(ctx, 36 * S, 32 * S, logoSize, logoSize, 10 * S);
+      ctx.fill();
+      ctx.fillStyle = "#000";
+      ctx.font = `950 ${18 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("N", 36 * S + logoSize / 2, 32 * S + logoSize / 2 + 1);
+      ctx.fillStyle = "#fff";
+      ctx.font = `900 ${15 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText("NEVUX", 36 * S + logoSize + 10 * S, 32 * S + logoSize / 2);
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${11 * S}px sans-serif`;
+      ctx.textAlign = "right";
+      ctx.fillText("PROPUESTA DE VALOR REAL", width - 36 * S, 32 * S + logoSize / 2);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.beginPath();
+      ctx.moveTo(36 * S, 80 * S);
+      ctx.lineTo(width - 36 * S, 80 * S);
+      ctx.stroke();
+
+      // Título principal
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `900 ${18 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      wrapText(
+        ctx,
+        isPt
+          ? "LO QUE ACONTECE QUANDO VOCÊ INSTALA A NEVUX 🚀"
+          : "LO QUE PASA CUANDO INSTALÁS NEVUX EN TU TIENDA 🚀",
+        width / 2,
+        100 * S,
+        width - 72 * S,
+        24 * S
+      );
+
+      // Split screen
+      const boxW = (width - 92 * S) / 2;
+      const boxH = 240 * S;
+      const topY = 150 * S;
+
+      // COLUMNA IZQUIERDA: SIN NEVUX
+      const leftX = 36 * S;
+      ctx.fillStyle = "rgba(239, 68, 68, 0.08)";
+      ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
+      ctx.lineWidth = 2 * S;
+      drawRoundedRect(ctx, leftX, topY, boxW, boxH, 20 * S);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#ef4444";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(isPt ? "❌ SEM NEVUX" : "❌ TIENDA SIN NEVUX", leftX + boxW / 2, topY + 16 * S);
+
+      const itemsSin = isPt
+        ? [
+            "• 97% abandono de carrinho",
+            "• Sem urgência nem escassez",
+            "• Dúvidas sem resposta na hora",
+            "• Clientes entram e saem $0",
+            "• Sem prova social em tempo real"
+          ]
+        : [
+            "• 97% de abandono de carrito",
+            "• Sin urgencia ni escasez real",
+            "• Dudas sin respuesta en vivo",
+            "• Visitas entran y se van con $0",
+            "• Sin prueba social flotante"
+          ];
+
+      ctx.fillStyle = "#fca5a5";
+      ctx.font = `600 ${9.5 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      itemsSin.forEach((item, idx) => {
+        ctx.fillText(item, leftX + 16 * S, topY + 50 * S + idx * 34 * S);
+      });
+
+      // COLUMNA DERECHA: CON NEVUX
+      const rightX = leftX + boxW + 20 * S;
+      ctx.fillStyle = "rgba(16, 185, 129, 0.12)";
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 2.5 * S;
+      drawRoundedRect(ctx, rightX, topY, boxW, boxH, 20 * S);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(isPt ? "✅ COM NEVUX" : "✅ TIENDA CON NEVUX", rightX + boxW / 2, topY + 16 * S);
+
+      const itemsCon = isPt
+        ? [
+            "• Conversão ×3 + Métrica ROI",
+            "• Urgência com timers e stock",
+            "• Vendedor IA atendendo 24/7",
+            "• Notificações de compras vivas",
+            "• Bundles 2x1 e leve + pague -"
+          ]
+        : [
+            "• Conversión ×3 + Métrica ROI",
+            "• Urgencia de stock y timers",
+            "• Vendedor IA cerrando 24/7",
+            "• Notificaciones de compra en vivo",
+            "• Bundles 2x1 y packs de ofertas"
+          ];
+
+      ctx.fillStyle = "#a7f3d0";
+      ctx.font = `700 ${9.5 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      itemsCon.forEach((item, idx) => {
+        ctx.fillText(item, rightX + 16 * S, topY + 50 * S + idx * 34 * S);
+      });
+
+      // CTA INFERIOR
+      const ctaY = height - 100 * S;
+      ctx.fillStyle = "#10B981";
+      drawRoundedRect(ctx, 36 * S, ctaY, width - 72 * S, 54 * S, 18 * S);
+      ctx.fill();
+
+      ctx.fillStyle = "#000000";
+      ctx.font = `950 ${13 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(
+        isPt ? "🚀 INSTALE GRÁTIS POR 7 DIAS NA NUVEMSHOP" : "🚀 INSTALÁ GRATIS POR 7 DÍAS EN TU TIENDANUBE",
+        width / 2,
+        ctaY + 27 * S
+      );
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${10 * S}px sans-serif`;
+      ctx.fillText("NEVUX.AR · APP STORE ID #37382", width / 2, height - 24 * S);
+
+      const a = document.createElement("a");
+      a.download = `nevux-antes-vs-despues.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   /* ─── CARRUSEL HD 1080x1350 ─── */
   const downloadSlideAsImage = async (slideIndex: number) => {
@@ -441,7 +624,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── HOOKS / CIERRES HD 1080x1920 TOP PROFESIONAL ─── */
+  /* ─── HOOKS / CIERRES HD 1080x1920 ─── */
   const downloadMarketingAsset = async (assetId: string) => {
     const asset = MARKETING_ASSETS.find((a) => a.id === assetId);
     if (!asset) return;
@@ -460,7 +643,6 @@ export default function BannersPage() {
       const isCta = asset.category === "cta";
       const isHook = asset.category === "hook";
 
-      // ── Fondo temático ──
       if (asset.theme === "danger") {
         ctx.fillStyle = "#0a0205";
         ctx.fillRect(0, 0, width, height);
@@ -503,7 +685,6 @@ export default function BannersPage() {
         ctx.fill();
       }
 
-      // Rejilla sutil
       ctx.strokeStyle = "rgba(255,255,255,0.03)";
       ctx.lineWidth = 1;
       for (let x = 0; x < width; x += 48 * S) {
@@ -519,7 +700,6 @@ export default function BannersPage() {
         ctx.stroke();
       }
 
-      // ── Header marca ──
       const logoSize = 36 * S;
       ctx.fillStyle = "#10B981";
       drawRoundedRect(ctx, 40 * S, 48 * S, logoSize, logoSize, 12 * S);
@@ -549,7 +729,6 @@ export default function BannersPage() {
       ctx.textAlign = "right";
       ctx.fillText(catLabel, width - 40 * S, 48 * S + logoSize / 2);
 
-      // Línea
       ctx.strokeStyle = "rgba(255,255,255,0.1)";
       ctx.lineWidth = 1.5 * S;
       ctx.beginPath();
@@ -557,14 +736,11 @@ export default function BannersPage() {
       ctx.lineTo(width - 40 * S, 110 * S);
       ctx.stroke();
 
-      // ── ZONA VISUAL CENTRAL ──
       if (asset.id === "hook_dolor") {
-        // Split screen premium
         const mid = width / 2;
         const topY = 160 * S;
         const boxH = 420 * S;
 
-        // Izquierda dolor
         ctx.fillStyle = "rgba(239,68,68,0.12)";
         ctx.strokeStyle = "rgba(239,68,68,0.45)";
         ctx.lineWidth = 2 * S;
@@ -585,7 +761,6 @@ export default function BannersPage() {
         ctx.fillStyle = "rgba(255,255,255,0.5)";
         ctx.fillText(isPt ? "SEM NEVUX" : "SIN NEVUX", (40 * S + mid - 12 * S) / 2, topY + 290 * S);
 
-        // Derecha éxito
         ctx.fillStyle = "rgba(16,185,129,0.15)";
         ctx.strokeStyle = "rgba(16,185,129,0.55)";
         ctx.lineWidth = 2 * S;
@@ -606,7 +781,6 @@ export default function BannersPage() {
         ctx.fillStyle = "rgba(255,255,255,0.5)";
         ctx.fillText("🔥 HOT SALE", (mid + 12 * S + width - 40 * S) / 2, topY + 290 * S);
       } else if (isCta) {
-        // CTA: tarjeta grande esmeralda
         const cardW = width - 80 * S;
         const cardH = 520 * S;
         const cardX = 40 * S;
@@ -619,7 +793,6 @@ export default function BannersPage() {
         ctx.lineWidth = 4 * S;
         ctx.stroke();
 
-        // Logo 3D
         const lS = 72 * S;
         const lX = (width - lS) / 2;
         const lY = cardY + 48 * S;
@@ -640,7 +813,6 @@ export default function BannersPage() {
         ctx.font = `700 ${14 * S}px sans-serif`;
         ctx.fillText(isPt ? asset.descPt : asset.descEs, width / 2, cardY + 280 * S);
 
-        // Botón negro
         const btnW = cardW - 80 * S;
         const btnH = 72 * S;
         const btnX = cardX + 40 * S;
@@ -658,8 +830,6 @@ export default function BannersPage() {
         ctx.textBaseline = "top";
         ctx.fillText("nevux.ar · App Oficial Tiendanube", width / 2, cardY + cardH - 48 * S);
       } else {
-        // Hook / Mid genérico premium
-        // Emoji grande con glow
         ctx.font = `900 ${90 * S}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -670,7 +840,6 @@ export default function BannersPage() {
         ctx.fillStyle = "#fff";
         ctx.fillText(asset.emoji, width / 2, height * 0.32);
 
-        // Métrica pill
         if (asset.metricEs) {
           const mText = isPt ? asset.metricPt || asset.metricEs : asset.metricEs;
           ctx.font = `900 ${13 * S}px sans-serif`;
@@ -690,7 +859,6 @@ export default function BannersPage() {
         }
       }
 
-      // ── Caja inferior glassmorphism (título + desc) — no en CTA full card ──
       if (!isCta) {
         const boxW = width - 64 * S;
         const boxH = isHook ? 340 * S : 300 * S;
@@ -704,7 +872,6 @@ export default function BannersPage() {
         ctx.fill();
         ctx.stroke();
 
-        // Badge
         const bText = isPt ? asset.badgePt : asset.badgeEs;
         ctx.font = `900 ${10 * S}px sans-serif`;
         const btw = ctx.measureText(bText).width + 28 * S;
@@ -722,25 +889,21 @@ export default function BannersPage() {
         ctx.textBaseline = "middle";
         ctx.fillText(bText, width / 2, bY + bH / 2);
 
-        // Título
         ctx.fillStyle = "#ffffff";
         ctx.font = `900 ${20 * S}px sans-serif`;
         ctx.textBaseline = "top";
         wrapText(ctx, isPt ? asset.titlePt : asset.titleEs, width / 2, boxY + 80 * S, boxW - 48 * S, 28 * S);
 
-        // Desc
         ctx.fillStyle = "#9ca3af";
         ctx.font = `600 ${13 * S}px sans-serif`;
         wrapText(ctx, isPt ? asset.descPt : asset.descEs, width / 2, boxY + 200 * S, boxW - 48 * S, 22 * S);
 
-        // Footer domain
         ctx.fillStyle = "#10B981";
         ctx.font = `900 ${12 * S}px sans-serif`;
         ctx.textBaseline = "middle";
         ctx.fillText("nevux.ar", width / 2, boxY + boxH - 36 * S);
       }
 
-      // Footer inferior fijo
       ctx.fillStyle = "rgba(255,255,255,0.35)";
       ctx.font = `700 ${10 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -803,7 +966,7 @@ export default function BannersPage() {
           Panel de Contenido Visual Pro
         </h1>
         <p style={{ fontSize: "13px", color: "#a7f3d0", margin: 0, lineHeight: 1.4 }}>
-          Assets HD nivel agencia para Reels, TikTok y Carruseles de Instagram.
+          Assets HD nivel agencia para Reels, TikTok, Feed y Carruseles de Instagram.
         </p>
 
         <div style={{ display: "flex", gap: "6px", background: "#061a14", padding: "4px", borderRadius: "10px" }}>
@@ -848,7 +1011,7 @@ export default function BannersPage() {
                 flex: 1,
                 padding: "10px 12px",
                 borderRadius: "8px",
-                fontSize: "12px",
+                fontSize: "11px",
                 fontWeight: 700,
                 border: "none",
                 cursor: "pointer",
@@ -862,7 +1025,7 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* HOOKS Y CIERRES */}
+      {/* TAB 1: HOOKS Y CIERRES */}
       {activeTab === "marketing_assets" && (
         <div style={{ width: "100%", maxWidth: "960px", display: "flex", flexDirection: "column", gap: "32px" }}>
           {(["hook", "mid", "cta"] as const).map((cat) => (
@@ -945,7 +1108,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* CARRUSELES */}
+      {/* TAB 2: CARRUSELES */}
       {activeTab === "carousels" && (
         <div style={{ width: "100%", maxWidth: "750px" }}>
           <div
@@ -1021,6 +1184,156 @@ export default function BannersPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: ANTES VS DESPUÉS (NUEVA) */}
+      {activeTab === "before_after" && (
+        <div style={{ width: "100%", maxWidth: "750px" }}>
+          <div
+            style={{
+              backgroundColor: "#0b2920",
+              border: "1.5px solid rgba(16,185,129,0.3)",
+              borderRadius: "20px",
+              padding: "24px",
+              textAlign: "center",
+            }}
+          >
+            <Zap size={34} color="#10B981" style={{ marginBottom: "12px" }} />
+            <h2 style={{ fontSize: "18px", fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>
+              {isPt ? "Comparativo Antes vs Depois" : "Comparativo Antes vs Después"}
+            </h2>
+            <p style={{ fontSize: "13px", color: "#a7f3d0", margin: "0 0 24px" }}>
+              {isPt
+                ? "Asset em HD (1080×1350) para mostrar a Proposta de Valor no Feed"
+                : "Asset HD (1080×1350) para mostrar la Propuesta de Valor en el Feed"}
+            </p>
+
+            {/* PREVISUALIZACIÓN DE LA TARJETA */}
+            <div
+              style={{
+                background: "#05080f",
+                border: "1.5px solid rgba(16,185,129,0.3)",
+                borderRadius: "16px",
+                padding: "16px",
+                marginBottom: "20px",
+                textAlign: "left",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
+                {/* SIN NEVUX */}
+                <div
+                  style={{
+                    background: "rgba(239, 68, 68, 0.08)",
+                    border: "1.5px solid rgba(239, 68, 68, 0.3)",
+                    borderRadius: "12px",
+                    padding: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      color: "#ef4444",
+                      marginBottom: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <XCircle size={14} />
+                    {isPt ? "SEM NEVUX" : "SIN NEVUX"}
+                  </div>
+                  <ul
+                    style={{
+                      margin: 0,
+                      paddingLeft: "14px",
+                      fontSize: "10px",
+                      color: "#fca5a5",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    <li>97% abandono de carrito</li>
+                    <li>Sin urgencia ni escasez</li>
+                    <li>Visitas entran y se van $0</li>
+                    <li>Sin prueba social flotante</li>
+                  </ul>
+                </div>
+
+                {/* CON NEVUX */}
+                <div
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    border: "1.5px solid #10B981",
+                    borderRadius: "12px",
+                    padding: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      color: "#10B981",
+                      marginBottom: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <CheckCircle2 size={14} />
+                    {isPt ? "COM NEVUX" : "CON NEVUX"}
+                  </div>
+                  <ul
+                    style={{
+                      margin: 0,
+                      paddingLeft: "14px",
+                      fontSize: "10px",
+                      color: "#a7f3d0",
+                      lineHeight: 1.6,
+                      fontWeight: 700,
+                    }}
+                  >
+                    <li>Conversión ×3 + Métrica ROI</li>
+                    <li>Timers de urgencia y stock</li>
+                    <li>Vendedor IA cerrando 24/7</li>
+                    <li>Notificaciones en vivo</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <button
+              disabled={isDownloading}
+              onClick={downloadBeforeAfterAsset}
+              style={{
+                width: "100%",
+                background: "#10B981",
+                border: "none",
+                color: "#000",
+                padding: "12px 18px",
+                borderRadius: "12px",
+                fontWeight: 900,
+                fontSize: "14px",
+                cursor: isDownloading ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                boxShadow: "0 4px 14px rgba(16, 185, 129, 0.25)",
+              }}
+            >
+              <Download size={18} />
+              {isPt
+                ? "Baixar Imagem HD Antes vs Depois (1080×1350)"
+                : "Descargar Imagen HD Antes vs Después (1080×1350)"}
+            </button>
           </div>
         </div>
       )}
