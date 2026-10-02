@@ -3298,32 +3298,55 @@ function renderContadorVendidos(w) {
     nvxTrack(w.id, 'impression');
   }
 }
-    /* ═══════════════════════════════════════════
-     SOCIAL PROOF IA — NOTIFICACIONES EN VIVO
+      /* ═══════════════════════════════════════════
+     SOCIAL PROOF IA — NOTIFICACIONES EN VIVO (v234 100% BLINDADO)
   ═══════════════════════════════════════════ */
   function renderSocialProof(spData) {
     if (!spData || !spData.is_active || !Array.isArray(spData.events) || spData.events.length === 0) return;
-    var existingContainer = qs("#" + NS + "-social-proof-root");
-    if (existingContainer) return;
+
+    var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
+    var rootId = nsPrefix + "-social-proof-root";
+    
+    // Si ya existe un contenedor previo, lo removemos para forzar reinicio limpio
+    var existingContainer = document.getElementById(rootId);
+    if (existingContainer && existingContainer.parentNode) {
+      existingContainer.parentNode.removeChild(existingContainer);
+    }
 
     var container = document.createElement("div");
-    container.id = NS + "-social-proof-root";
-    container.className = NS + "-root";
-    
+    container.id = rootId;
+    container.className = nsPrefix + "-root";
+
     var pos = spData.position || "bottom-left";
-    var posStyles = "position:fixed;z-index:999998;max-width:300px;width:calc(100% - 24px);pointer-events:none;";
-    if (pos.indexOf("bottom") !== -1) posStyles += "bottom:16px;";
-    if (pos.indexOf("top") !== -1) posStyles += "top:16px;";
-    if (pos.indexOf("left") !== -1) posStyles += "left:16px;";
-    if (pos.indexOf("right") !== -1) posStyles += "right:16px;";
+    var posStyles = "position:fixed !important;z-index:9999999 !important;max-width:320px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
+    
+    if (pos.indexOf("bottom") !== -1) posStyles += "bottom:20px !important;";
+    if (pos.indexOf("top") !== -1) posStyles += "top:20px !important;";
+    if (pos.indexOf("left") !== -1) posStyles += "left:20px !important;";
+    if (pos.indexOf("right") !== -1) posStyles += "right:20px !important;";
 
     container.style.cssText = posStyles;
-    document.body.appendChild(container);
+
+    if (document.body) {
+      document.body.appendChild(container);
+    } else {
+      return;
+    }
 
     var currentIdx = 0;
     var displayMs = (spData.display_duration || 5) * 1000;
     var delayMs = (spData.delay_between || 8) * 1000;
     var theme = spData.theme_style || "light";
+
+    function safeEscape(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
 
     function showNextEvent() {
       if (!spData.events || spData.events.length === 0) return;
@@ -3334,7 +3357,7 @@ function renderContadorVendidos(w) {
       var textColor = "#111827";
       var subColor = "#6b7280";
       var borderStyle = "1px solid #e5e7eb";
-      var backdrop = "none";
+      var backdrop = "";
 
       if (theme === "dark") {
         bgStyle = "#111827";
@@ -3342,62 +3365,84 @@ function renderContadorVendidos(w) {
         subColor = "#9ca3af";
         borderStyle = "1px solid #374151";
       } else if (theme === "glass") {
-        bgStyle = "rgba(255, 255, 255, 0.88)";
+        bgStyle = "rgba(255, 255, 255, 0.92)";
         textColor = "#111827";
         subColor = "#4b5563";
-        borderStyle = "1px solid rgba(255, 255, 255, 0.6)";
-        backdrop = "backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);";
+        borderStyle = "1px solid rgba(255, 255, 255, 0.7)";
+        backdrop = "backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;";
       }
 
-      var imgHtml = ev.productImage
-        ? '<img src="' + escapeHtml(ev.productImage) + '" style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:' + borderStyle + ';flex-shrink:0;" />'
-        : '<div style="width:42px;height:42px;border-radius:10px;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ';display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (ev.icon || "🛒") + '</div>';
+      var cardId = nsPrefix + "-sp-card";
+      var closeId = nsPrefix + "-sp-close";
 
-      var cardHtml = '<div id="' + NS + '-sp-card" style="background:' + bgStyle + ';' + backdrop + 'color:' + textColor + ';border:' + borderStyle + ';border-radius:16px;padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 30px rgba(0,0,0,0.18);pointer-events:auto;transition:transform 0.35s ease, opacity 0.35s ease;transform:translateY(20px);opacity:0;">' +
+      var imgHtml = ev.productImage
+        ? '<img src="' + safeEscape(ev.productImage) + '" style="width:44px !important;height:44px !important;object-fit:cover !important;border-radius:10px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;" />'
+        : '<div style="width:44px !important;height:44px !important;border-radius:10px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:20px !important;flex-shrink:0 !important;">' + (ev.icon || "🛒") + '</div>';
+
+      var cardHtml = '<div id="' + cardId + '" style="' +
+        'background:' + bgStyle + ' !important;' +
+        (backdrop ? backdrop : '') +
+        'color:' + textColor + ' !important;' +
+        'border:' + borderStyle + ' !important;' +
+        'border-radius:16px !important;' +
+        'padding:12px 14px !important;' +
+        'display:flex !important;' +
+        'align-items:center !important;' +
+        'gap:12px !important;' +
+        'box-shadow:0 12px 35px rgba(0,0,0,0.2) !important;' +
+        'pointer-events:auto !important;' +
+        'transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
+        'transform:translateY(24px) !important;' +
+        'opacity:0 !important;' +
+        'box-sizing:border-box !important;' +
+        'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;' +
+        'margin:0 !important;' +
+        'width:100% !important;' +
+        '">' +
         imgHtml +
-        '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:12px;font-weight:800;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + textColor + ' !important;">' + escapeHtml(ev.title) + '</div>' +
-          '<div style="font-size:11px;color:' + subColor + ' !important;line-height:1.2;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(ev.subtitle) + '</div>' +
-          (ev.timeAgo ? '<div style="font-size:10px;color:#10B981 !important;font-weight:700;margin-top:3px;">⚡ ' + escapeHtml(ev.timeAgo) + '</div>' : '') +
+        '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
+          '<div style="font-size:12px !important;font-weight:800 !important;line-height:1.3 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;color:' + textColor + ' !important;margin:0 !important;">' + safeEscape(ev.title) + '</div>' +
+          '<div style="font-size:11px !important;color:' + subColor + ' !important;line-height:1.3 !important;margin-top:2px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEscape(ev.subtitle) + '</div>' +
+          (ev.timeAgo ? '<div style="font-size:10px !important;color:#10B981 !important;font-weight:700 !important;margin-top:3px !important;display:flex !important;align-items:center !important;gap:3px !important;">⚡ ' + safeEscape(ev.timeAgo) + '</div>' : '') +
         '</div>' +
-        '<button type="button" id="' + NS + '-sp-close" style="background:none;border:none;color:' + subColor + ' !important;cursor:pointer;padding:2px;font-size:14px;line-height:1;margin-left:4px;flex-shrink:0;">✕</button>' +
+        '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:4px !important;font-size:14px !important;line-height:1 !important;margin-left:4px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
       '</div>';
 
       container.innerHTML = cardHtml;
 
-      var cardEl = qs("#" + NS + "-sp-card", container);
-      var closeBtn = qs("#" + NS + "-sp-close", container);
+      var cardEl = document.getElementById(cardId);
+      var closeBtn = document.getElementById(closeId);
 
       if (closeBtn) {
-        closeBtn.addEventListener("click", function(e) {
-          e.stopPropagation();
+        closeBtn.onclick = function(e) {
+          if (e && e.stopPropagation) e.stopPropagation();
           if (cardEl) {
-            cardEl.style.opacity = "0";
-            cardEl.style.transform = "translateY(20px)";
+            cardEl.style.setProperty("opacity", "0", "important");
+            cardEl.style.setProperty("transform", "translateY(24px)", "important");
           }
-        });
+        };
       }
 
-      // Animar entrada
+      // Animar entrada forzando !important
       setTimeout(function() {
         if (cardEl) {
-          cardEl.style.opacity = "1";
-          cardEl.style.transform = "translateY(0)";
+          cardEl.style.setProperty("opacity", "1", "important");
+          cardEl.style.setProperty("transform", "translateY(0px)", "important");
         }
-      }, 50);
+      }, 100);
 
       // Animar salida
       setTimeout(function() {
         if (cardEl) {
-          cardEl.style.opacity = "0";
-          cardEl.style.transform = "translateY(20px)";
+          cardEl.style.setProperty("opacity", "0", "important");
+          cardEl.style.setProperty("transform", "translateY(24px)", "important");
         }
         setTimeout(showNextEvent, delayMs);
       }, displayMs);
     }
 
-    setTimeout(showNextEvent, 2500);
-        }
+    setTimeout(showNextEvent, 1500);
+    }
 /* ═══════════════════════════════════════════
    WIDGET: CUENTA REGRESIVA
    ═══════════════════════════════════════════ */
