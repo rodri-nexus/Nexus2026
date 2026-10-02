@@ -4856,8 +4856,8 @@ function renderBundlePromociones(w) {
     nvxTrack(w.id, "impression");
   }
   }
-  /* ═══════════════════════════════════════════
-   WIDGET: POPUP DE CONVERSIÓN (v231 - Diseño 10/10)
+/* ═══════════════════════════════════════════
+   WIDGET: POPUP DE CONVERSIÓN (v233 - Alineación Ruleta 10/10)
    ═══════════════════════════════════════════ */
 function renderPopupConversion(w) {
   var elementId = "nvx-popup-" + w.id;
@@ -4932,7 +4932,7 @@ function renderPopupConversion(w) {
           "position: fixed !important; " +
           "top: 0 !important; left: 0 !important; " +
           "width: 100vw !important; height: 100vh !important; " +
-          "background: rgba(0, 0, 0, 0.7) !important; " +
+          "background: rgba(0, 0, 0, 0.75) !important; " +
           "backdrop-filter: blur(5px) !important; " +
           "-webkit-backdrop-filter: blur(5px) !important; " +
           "z-index: 9999999 !important; " +
@@ -4946,51 +4946,51 @@ function renderPopupConversion(w) {
         "#" + elementId + " .nvx-popup-card { " +
           "background: " + bgColor + " !important; " +
           "color: " + textColor + " !important; " +
-          "border-radius: 24px !important; " +
-          "padding: 24px 20px !important; " +
-          "max-width: 380px !important; " +
+          "border-radius: 20px !important; " +
+          "padding: 22px 18px !important; " +
+          "max-width: 360px !important; " +
           "width: 100% !important; " +
           "text-align: center !important; " +
           "position: relative !important; " +
-          "box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35) !important; " +
+          "box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4) !important; " +
           "box-sizing: border-box !important; " +
           "animation: nvxPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; " +
         "} " +
         "@keyframes nvxPopIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } } " +
         "#" + elementId + " .nvx-close-btn { " +
-          "position: absolute !important; top: 14px !important; right: 16px !important; " +
-          "font-size: 18px !important; cursor: pointer !important; opacity: 0.5 !important; " +
+          "position: absolute !important; top: 12px !important; right: 14px !important; " +
+          "font-size: 18px !important; cursor: pointer !important; opacity: 0.6 !important; " +
           "font-weight: 800 !important; border: none !important; background: none !important; color: " + textColor + " !important; " +
         "} " +
         "#" + elementId + " .nvx-close-btn:hover { opacity: 1 !important; } " +
         "#" + elementId + " .nvx-wheel-outer { " +
-          "position: relative !important; width: 190px !important; height: 190px !important; margin: 12px auto !important; " +
+          "position: relative !important; width: 170px !important; height: 170px !important; margin: 12px auto !important; " +
         "} " +
         "#" + elementId + " .nvx-wheel-container { " +
           "width: 100% !important; height: 100% !important; border-radius: 50% !important; " +
-          "box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; " +
+          "box-shadow: 0 6px 18px rgba(0,0,0,0.18) !important; " +
           "transition: transform 3.5s cubic-bezier(0.15, 0.9, 0.2, 1) !important; " +
         "} " +
         "#" + elementId + " .nvx-wheel-pointer { " +
-          "position: absolute !important; top: -10px !important; left: 50% !important; " +
+          "position: absolute !important; top: -8px !important; left: 50% !important; " +
           "transform: translateX(-50%) !important; z-index: 10 !important; " +
           "width: 0 !important; height: 0 !important; " +
-          "border-left: 10px solid transparent !important; " +
-          "border-right: 10px solid transparent !important; " +
-          "border-top: 18px solid #111827 !important; " +
+          "border-left: 9px solid transparent !important; " +
+          "border-right: 9px solid transparent !important; " +
+          "border-top: 16px solid #111827 !important; " +
           "filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important; " +
         "} " +
         "#" + elementId + " .nvx-boxes-row { " +
-          "display: flex !important; justify-content: center !important; gap: 12px !important; margin: 16px 0 !important; " +
+          "display: flex !important; justify-content: center !important; gap: 10px !important; margin: 14px 0 !important; " +
         "} " +
         "#" + elementId + " .nvx-box-item { " +
           "color: #ffffff !important; " +
-          "width: 72px !important; height: 72px !important; border-radius: 16px !important; " +
+          "width: 68px !important; height: 68px !important; border-radius: 14px !important; " +
           "display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; " +
-          "font-size: 26px !important; cursor: pointer !important; transition: transform 0.2s, box-shadow 0.2s !important; " +
+          "font-size: 24px !important; cursor: pointer !important; transition: transform 0.2s, box-shadow 0.2s !important; " +
           "box-shadow: 0 6px 16px rgba(0,0,0,0.12) !important; user-select: none !important; " +
         "} " +
-        "#" + elementId + " .nvx-box-item:hover { transform: translateY(-5px) scale(1.05) !important; } " +
+        "#" + elementId + " .nvx-box-item:hover { transform: translateY(-4px) scale(1.05) !important; } " +
         "#" + elementId + " .nvx-input-email { " +
           "width: 100% !important; padding: 12px 14px !important; font-size: 14px !important; " +
           "border: 1.5px solid #e5e7eb !important; border-radius: 12px !important; " +
@@ -5006,7 +5006,7 @@ function renderPopupConversion(w) {
         "#" + elementId + " .nvx-submit-btn:active { transform: scale(0.98) !important; } " +
         "#" + elementId + " .nvx-coupon-box { " +
           "background: rgba(16,185,129,0.08) !important; border: 2px dashed " + accentColor + " !important; " +
-          "border-radius: 14px !important; padding: 16px !important; margin: 16px 0 !important; " +
+          "border-radius: 14px !important; padding: 16px !important; margin: 14px 0 !important; " +
         "} " +
         "#" + elementId + " .nvx-coupon-code { " +
           "font-size: 24px !important; font-weight: 900 !important; letter-spacing: 2px !important; " +
@@ -5111,7 +5111,7 @@ function renderPopupConversion(w) {
 
     var modeHtml = "";
     if (mode === "ruleta") {
-      // SVG Rueda completa de Casino con gajos y porcentajes visuales
+      // SVG Rueda con posiciones (X,Y) exactas alineadas al centro de cada gajo
       var wheelSvg =
         '<svg viewBox="0 0 200 200" style="width:100% !important;height:100% !important;">' +
           '<g transform="translate(100,100)">' +
@@ -5121,14 +5121,14 @@ function renderPopupConversion(w) {
             '<path d="M0,0 L0,100 A100,100 0 0,1 -86.6,50 Z" fill="#3B82F6" />' +
             '<path d="M0,0 L-86.6,50 A100,100 0 0,1 -86.6,-50 Z" fill="#8B5CF6" />' +
             '<path d="M0,0 L-86.6,-50 A100,100 0 0,1 0,-100 Z" fill="#EC4899" />' +
-            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(30)">10%</text>' +
-            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(90)">15%</text>' +
-            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(150)">20%</text>' +
-            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(210)">5%</text>' +
-            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(270)">25%</text>' +
-            '<text x="22" y="-55" fill="#fff" font-size="11" font-weight="900" transform="rotate(330)">🎁</text>' +
+            '<text x="31" y="-54" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="12" font-weight="900">10%</text>' +
+            '<text x="62" y="0" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="12" font-weight="900">15%</text>' +
+            '<text x="31" y="54" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="12" font-weight="900">20%</text>' +
+            '<text x="-31" y="54" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="12" font-weight="900">5%</text>' +
+            '<text x="-62" y="0" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="12" font-weight="900">25%</text>' +
+            '<text x="-31" y="-54" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="14" font-weight="900">🎁</text>' +
             '<circle cx="0" cy="0" r="22" fill="#ffffff" stroke="#111827" stroke-width="3" />' +
-            '<text x="0" y="4" text-anchor="middle" fill="#111827" font-size="9" font-weight="900">GIRAR</text>' +
+            '<text x="0" y="3" text-anchor="middle" dominant-baseline="central" fill="#111827" font-size="9" font-weight="900">GIRAR</text>' +
           '</g>' +
         '</svg>';
 
@@ -5146,9 +5146,8 @@ function renderPopupConversion(w) {
           '<div class="nvx-box-item" style="background:#F59E0B !important;" onclick="window[\'nvxPlayPopup_' + w.id + '\']();">🎁<span style="font-size:9px !important;font-weight:800 !important;margin-top:2px !important;">Caja 3</span></div>' +
         '</div>';
     } else {
-      // Captura Email Directo con Badge
       modeHtml =
-        '<div style="background:rgba(16,185,129,0.08) !important;border:2px dashed ' + accentColor + ' !important;border-radius:14px !important;padding:12px !important;margin:12px 0 16px !important;display:flex !items:center !justify-content:center !gap:10px !important;">' +
+        '<div style="background:rgba(16,185,129,0.08) !important;border:2px dashed ' + accentColor + ' !important;border-radius:14px !important;padding:12px !important;margin:12px 0 16px !important;display:flex !important;align-items:center !important;justify-content:center !important;gap:10px !important;">' +
           '<span style="font-size:28px !important;">🏷️</span>' +
           '<div style="text-align:left !important;">' +
             '<div style="font-size:15px !important;font-weight:900 !important;color:' + accentColor + ' !important;">' + discountValue + '% OFF DE REGALO</div>' +
