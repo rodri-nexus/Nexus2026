@@ -110,8 +110,8 @@ function translateWidgetConfig(
 /* ═══════════════════════════════════════════
    HELPERS DE SOCIAL PROOF (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-const LATAM_NAMES = ["María L.", "Sofía G.", "Agustina K.", "Lucas M.", "Camila R.", "Valentina B.", "Mateo T.", "Facundo S."];
-const LATAM_CITIES = ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "La Plata", "Tucumán", "Mar del Plata", "Salta"];
+const LATAM_NAMES = ["María L.", "Sofía G.", "Agustina K.", "Lucas M.", "Camila R.", "Valentina B.", "Mateo T.", "Facundo S.", "Lucía M.", "Joaquín C."];
+const LATAM_CITIES = ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "La Plata", "Tucumán", "Mar del Plata", "Salta", "Santa Fe", "San Juan"];
 const RECENT_TIMES = ["hace un momento", "hace 3 minutos", "hace 7 minutos", "hace 12 minutos", "hace 18 minutos"];
 
 function getRandomItem<T>(arr: T[]): T {
@@ -334,7 +334,7 @@ export async function GET(req: NextRequest) {
       theme_color: "#10B981",
     }
 
-    // 🔥 Obtener ajustes de Social Proof IA desde la tabla nativa 'widgets'
+    // 🔥 Obtener ajustes de Social Proof IA desde la tabla 'widgets'
     const { data: socialProofRow } = await supabase
       .from('widgets')
       .select('is_active, config')
@@ -344,9 +344,12 @@ export async function GET(req: NextRequest) {
 
     const cfg = socialProofRow?.config || {}
 
+    // SI EL USUARIO NO TIENE REGISTRO O EL REGISTRO NO FUE APAGADO MANUALMENTE EXPLICITAMENTE -> ACTIVAR SIEMPRE
+    const userExplicitlyDisabled = socialProofRow && socialProofRow.is_active === false && (cfg.user_disabled === true || cfg.user_disabled === "true");
+
     let socialProofData = {
-      // SI NO HAY FILA O ESTÁ EN TRUE, ES ACTIVO
-      is_active: socialProofRow ? Boolean(socialProofRow.is_active) : true,
+      // 🌟 REGLA DE ORO: SIEMPRE ACTIVO PARA TODAS LAS TIENDAS SALVO APAGADO MANUAL
+      is_active: !userExplicitlyDisabled,
       position: cfg.position || "bottom-left",
       display_duration: Number(cfg.display_duration) || 5,
       delay_between: Number(cfg.delay_between) || 8,
