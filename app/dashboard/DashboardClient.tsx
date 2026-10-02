@@ -864,7 +864,7 @@ export default function DashboardClient({
         </div>
       </main>
 
-      {/* MODAL FLOTANTE DE CREACIÓN */}
+      {/* MODAL FLOTANTE DE CREACIÓN CON TÍTULOS RESALTADOS */}
       <AnimatePresence>
         {isModalOpen && (
           <div
@@ -969,9 +969,10 @@ export default function DashboardClient({
                     <h3
                       style={{
                         margin: 0,
-                        fontSize: "1.15rem",
-                        fontWeight: 800,
+                        fontSize: "1.2rem",
+                        fontWeight: 900,
                         color: "#000000",
+                        letterSpacing: "-0.01em",
                       }}
                     >
                       {modalStep === "selection" && "Crear nuevo widget"}
@@ -985,7 +986,7 @@ export default function DashboardClient({
                           color: "#6b7280",
                         }}
                       >
-                        ¿Qué tipo de widget o función querés crear?
+                        Elegí el tipo de solución que querés activar:
                       </p>
                     )}
                     {modalStep === "products" && (
@@ -1034,7 +1035,7 @@ export default function DashboardClient({
                 }}
               >
                 {modalStep === "selection" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
                     {/* BLOQUE 1: Producto específico */}
                     <button
                       type="button"
@@ -1064,32 +1065,34 @@ export default function DashboardClient({
                     >
                       <div
                         style={{
-                          width: "48px",
-                          height: "48px",
-                          borderRadius: "12px",
+                          width: "50px",
+                          height: "50px",
+                          borderRadius: "14px",
                           background: "#ecfdf5",
+                          border: "1px solid #a7f3d0",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           flexShrink: 0,
                         }}
                       >
-                        <Package size={22} color="#10B981" />
+                        <Package size={24} color="#10B981" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div
                           style={{
-                            fontSize: "0.95rem",
-                            fontWeight: 700,
+                            fontSize: "1.08rem",
+                            fontWeight: 800,
                             color: "#000000",
-                            marginBottom: "0.2rem",
+                            letterSpacing: "-0.01em",
+                            marginBottom: "0.25rem",
                           }}
                         >
                           Widget para un producto específico
                         </div>
                         <div
                           style={{
-                            fontSize: "0.8rem",
+                            fontSize: "0.82rem",
                             color: "#6b7280",
                             lineHeight: 1.4,
                           }}
@@ -1097,7 +1100,7 @@ export default function DashboardClient({
                           Asociá widgets a un producto en particular
                         </div>
                       </div>
-                      <span style={{ color: "#10B981", fontSize: "1.25rem", fontWeight: 300 }}>
+                      <span style={{ color: "#10B981", fontSize: "1.3rem", fontWeight: 600 }}>
                         ›
                       </span>
                     </button>
@@ -1131,32 +1134,34 @@ export default function DashboardClient({
                     >
                       <div
                         style={{
-                          width: "48px",
-                          height: "48px",
-                          borderRadius: "12px",
+                          width: "50px",
+                          height: "50px",
+                          borderRadius: "14px",
                           background: "#ecfdf5",
+                          border: "1px solid #a7f3d0",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           flexShrink: 0,
                         }}
                       >
-                        <Layers size={22} color="#10B981" />
+                        <Layers size={24} color="#10B981" />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div
                           style={{
-                            fontSize: "0.95rem",
-                            fontWeight: 700,
+                            fontSize: "1.08rem",
+                            fontWeight: 800,
                             color: "#000000",
-                            marginBottom: "0.2rem",
+                            letterSpacing: "-0.01em",
+                            marginBottom: "0.25rem",
                           }}
                         >
                           Widget para todos los productos
                         </div>
                         <div
                           style={{
-                            fontSize: "0.8rem",
+                            fontSize: "0.82rem",
                             color: "#6b7280",
                             lineHeight: 1.4,
                           }}
@@ -1164,7 +1169,7 @@ export default function DashboardClient({
                           Asociá widgets a todos los productos y en el inicio de la tienda
                         </div>
                       </div>
-                      <span style={{ color: "#10B981", fontSize: "1.25rem", fontWeight: 300 }}>
+                      <span style={{ color: "#10B981", fontSize: "1.3rem", fontWeight: 600 }}>
                         ›
                       </span>
                     </button>
@@ -1172,7 +1177,7 @@ export default function DashboardClient({
                     {/* BLOQUE 3: Funciones Pro para tu tienda */}
                     <div
                       style={{
-                        padding: "1.1rem",
+                        padding: "1.15rem",
                         borderRadius: "16px",
                         border: "1.5px solid #e5e7eb",
                         background: "#ffffff",
@@ -1187,37 +1192,39 @@ export default function DashboardClient({
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: "0.85rem",
+                          gap: "1rem",
                         }}
                       >
                         <div
                           style={{
-                            width: "48px",
-                            height: "48px",
-                            borderRadius: "12px",
+                            width: "50px",
+                            height: "50px",
+                            borderRadius: "14px",
                             background: "#ecfdf5",
+                            border: "1px solid #a7f3d0",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             flexShrink: 0,
                           }}
                         >
-                          <Sparkles size={22} color="#10B981" />
+                          <Sparkles size={24} color="#10B981" />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div
                             style={{
-                              fontSize: "0.95rem",
-                              fontWeight: 700,
+                              fontSize: "1.08rem",
+                              fontWeight: 800,
                               color: "#000000",
-                              marginBottom: "0.15rem",
+                              letterSpacing: "-0.01em",
+                              marginBottom: "0.2rem",
                             }}
                           >
                             Funciones Pro para tu tienda
                           </div>
                           <div
                             style={{
-                              fontSize: "0.8rem",
+                              fontSize: "0.82rem",
                               color: "#6b7280",
                               lineHeight: 1.35,
                             }}
@@ -1294,7 +1301,7 @@ export default function DashboardClient({
                                 >
                                   <span
                                     style={{
-                                      fontSize: "0.8rem",
+                                      fontSize: "0.82rem",
                                       fontWeight: 700,
                                       color: "#000000",
                                     }}
@@ -1524,4 +1531,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-  }
+}
