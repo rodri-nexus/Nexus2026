@@ -27,6 +27,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   if (!user) redirect('/login');
 
+  // 🚨 REDIRECCIÓN INTELIGENTE: HERRAMIENTAS PRO / SOCIAL PROOF
+  if (params.widgetSlug === 'social-proof') {
+    redirect('/dashboard/social-proof');
+  }
+
   const { data: store } = await supabase
     .from('stores')
     .select('store_id')
@@ -221,4 +226,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-        }
+}
