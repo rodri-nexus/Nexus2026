@@ -5,26 +5,21 @@ import Link from 'next/link';
 import { 
   ArrowLeft, 
   Sparkles, 
-  CheckCircle2, 
-  TrendingUp, 
-  ShieldCheck, 
-  Layers, 
-  Eye, 
   Clock, 
-  HelpCircle, 
-  Smartphone,
-  Award,
-  DollarSign,
-  AlertTriangle,
-  Flame,
-  Check,
-  X
+  AlertTriangle, 
+  Flame 
 } from 'lucide-react';
 
+type TabType = 
+  | 'lunes' 
+  | 'martes' 
+  | 'miercoles' 
+  | 'miercoles-stories' 
+  | 'jueves' 
+  | 'jueves-portada';
+
 export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState<
-    'lunes' | 'martes' | 'miercoles' | 'miercoles-stories' | 'jueves' | 'jueves-portada'
-  >('jueves-portada');
+  const [activeTab, setActiveTab] = useState<TabType>('jueves-portada');
 
   return (
     <div 
@@ -51,7 +46,7 @@ export default function BannersPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Link
               href="/admin"
-              style={{ padding: '8px', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', backgroundColor: 'rgba(6, 30, 20, 0.5)' }}
+              style={{ padding: '8px', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', backgroundColor: 'rgba(6, 30, 20, 0.5)', textDecoration: 'none' }}
             >
               <ArrowLeft style={{ width: '20px', height: '20px' }} />
             </Link>
@@ -229,7 +224,7 @@ export default function BannersPage() {
                   <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>NEVUX.AR</span>
                 </div>
 
-                {/* ZONA SEGURA CENTRADA 1:1 (Para Feed e Historial de Perfil) */}
+                {/* ZONA SEGURA CENTRADA 1:1 */}
                 <div 
                   style={{ 
                     zIndex: 10, 
@@ -271,7 +266,7 @@ export default function BannersPage() {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#03120c', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontWeight: 'bold', fontSize: '12px' }}>✕</span>
+                      <span style={{ display: 'flex', alignItems: 'center', justifyCenter: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontWeight: 'bold', fontSize: '12px' }}>✕</span>
                       <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#f1f5f9' }}>3. Venta de productos sueltos</span>
                     </div>
                   </div>
@@ -279,7 +274,7 @@ export default function BannersPage() {
                 </div>
 
                 {/* Footer del Reel */}
-                <div style={{ textAlignment: 'center', textAlign: 'center', zIndex: 10 }}>
+                <div style={{ textAlign: 'center', zIndex: 10 }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#10B981', color: '#020a07', fontWeight: 900, fontSize: '12px', padding: '8px 16px', borderRadius: '9999px', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}>
                     <Flame style={{ width: '14px', height: '14px' }} />
                     MIRÁ EL VIDEO Y SOLUCIONALO
@@ -328,22 +323,22 @@ export default function BannersPage() {
                       <Clock style={{ width: '14px', height: '14px' }} /> OFERTA POR TIEMPO LIMITADO
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '8px 0' }}>
-                      <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlignment: 'center', textAlign: 'center' }}>
+                      <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
                         <span style={{ fontSize: '16px', fontWeight: 900, color: '#ffffff', fontFamily: 'monospace' }}>04</span>
                         <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: 'bold' }}>HORAS</span>
                       </div>
                       <span style={{ color: '#34d399', fontWeight: 'bold' }}>:</span>
-                      <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlignment: 'center', textAlign: 'center' }}>
-                        <span style={{ fontSize: '16px', fontWeight 900, color: '#ffffff', fontFamily: 'monospace' }}>58</span>
+                      <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
+                        <span style={{ fontSize: '16px', fontWeight: 900, color: '#ffffff', fontFamily: 'monospace' }}>58</span>
                         <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: 'bold' }}>MIN</span>
                       </div>
                       <span style={{ color: '#34d399', fontWeight: 'bold' }}>:</span>
-                      <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlignment: 'center', textAlign: 'center' }}>
-                        <span style={{ fontSize: '16px', fontWeight 900, color: '#34d399', fontFamily: 'monospace' }}>12</span>
+                      <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
+                        <span style={{ fontSize: '16px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace' }}>12</span>
                         <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: 'bold' }}>SEG</span>
                       </div>
                     </div>
-                    <p style={{ fontSize: '10px', textAlignment: 'center', textAlign: 'center', color: '#94a3b8', margin: 0 }}>
+                    <p style={{ fontSize: '10px', textAlign: 'center', color: '#94a3b8', margin: 0 }}>
                       Instalá este temporizador en tu Tiendanube en 15 segundos con Nevux.
                     </p>
                   </div>
@@ -401,4 +396,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-  }
+              }
