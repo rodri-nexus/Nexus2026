@@ -10,6 +10,7 @@ type TabId =
   | "carousels" 
   | "marketing_assets" 
   | "before_after"
+  | "story_lunes_encuesta"
   | "story_lunes_dolor"
   | "story_lunes_feed"
   | "story_martes_psicologia"
@@ -309,7 +310,7 @@ const PREMIUM_CAROUSEL_SLIDES: CarouselSlide[] = [
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("reel_cover");
+  const [activeTab, setActiveTab] = useState<TabId>("story_lunes_encuesta");
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [isDownloading, setIsDownloading] = useState(false);
   const isPt = lang === "pt";
@@ -323,8 +324,9 @@ export default function BannersPage() {
   ];
 
   const categoryMondayTabs = [
-    { id: "story_lunes_dolor" as TabId, label: "H1: Dolor (97%)", icon: "📉" },
-    { id: "story_lunes_feed" as TabId, label: "H2: Empuje Feed", icon: "👉" },
+    { id: "story_lunes_encuesta" as TabId, label: "H1: Encuesta Diag (Nueva)", icon: "📊" },
+    { id: "story_lunes_dolor" as TabId, label: "H2: Dolor (97%)", icon: "📉" },
+    { id: "story_lunes_feed" as TabId, label: "H3: Empuje Feed", icon: "👉" },
   ];
 
   const categoryTuesdayTabs = [
@@ -393,7 +395,7 @@ export default function BannersPage() {
     ctx.fillText("NEVUX", logoX + logoSize + 12 * S, logoY + logoSize / 2);
   };
 
-  /* ─── CANVAS: PORTADA DE REEL HD 1080x1920 ─── */
+  /* ─── CANVAS: PORTADA DE REEL HD ─── */
   const downloadReelCoverCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -499,8 +501,8 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── CANVAS: HISTORIA MARTES - PSICOLOGÍA DEL CONSUMIDOR ─── */
-  const downloadMartesPsicologiaCanvas = async () => {
+  /* ─── CANVAS: HISTORIA LUNES - ENCUESTA DIAGNÓSTICO (NUEVA) ─── */
+  const downloadLunesEncuestaCanvas = async () => {
     setIsDownloading(true);
     try {
       const width = 1080;
@@ -515,53 +517,44 @@ export default function BannersPage() {
       let logoImg: HTMLImageElement | null = null;
       try { logoImg = await loadLogoImage(); } catch (e) { console.warn(e); }
 
-      ctx.fillStyle = "#0c0e14";
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.fillStyle = "rgba(255, 255, 255, 0.015)";
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
-      ctx.lineWidth = 1 * S;
-      
-      drawRoundedRect(ctx, 40 * S, 320 * S, width - 80 * S, 200 * S, 12 * S);
-      ctx.fill(); ctx.stroke();
-      
-      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
-      drawRoundedRect(ctx, 60 * S, 350 * S, width - 120 * S, 35 * S, 6 * S);
-      ctx.fill();
-      drawRoundedRect(ctx, 60 * S, 405 * S, 140 * S, 35 * S, 6 * S);
-      ctx.fill();
-      drawRoundedRect(ctx, 220 * S, 405 * S, 100 * S, 35 * S, 6 * S);
-      ctx.fill();
-
-      ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
-      ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
-      drawRoundedRect(ctx, 40 * S, 550 * S, width - 80 * S, 45 * S, 10 * S);
-      ctx.fill(); ctx.stroke();
-
-      const g = ctx.createRadialGradient(width / 2, height / 2, 80 * S, width / 2, height / 2, 420 * S);
-      g.addColorStop(0, "rgba(2, 10, 7, 0.92)");
-      g.addColorStop(1, "rgba(2, 6, 4, 0.98)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, width, height);
-
+      preparePremiumBackground(ctx, width, height, S);
       drawHeaderLogo(ctx, width, logoImg, S);
 
+      // Badge superior
+      const bText = isPt ? "📊 ENQUETE DE DIAGNÓSTICO" : "📊 ENCUESTA DE DIAGNÓSTICO";
+      ctx.font = `900 ${11 * S}px sans-serif`;
+      const btw = ctx.measureText(bText).width + 30 * S;
+      const bY = 220 * S;
+      ctx.fillStyle = "rgba(16,185,129,0.18)";
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 1.5 * S;
+      drawRoundedRect(ctx, (width - btw) / 2, bY, btw, 32 * S, 16 * S);
+      ctx.fill(); ctx.stroke();
       ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${15 * S}px sans-serif`;
       ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      ctx.fillText(
-        isPt ? "Pergunta para quem compra online 👇" : "Pregunta para los que compran online 👇",
+      ctx.fillText(bText, width / 2, bY + 16 * S);
+
+      // Titulo superior
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `950 ${24 * S}px sans-serif`;
+      wrapText(
+        ctx,
+        isPt
+          ? "Pergunta rápida para lojistas da Nuvemshop 👇"
+          : "Pregunta rápida para dueños de tiendas en Tiendanube 👇",
         width / 2,
-        240 * S
+        280 * S,
+        width - 70 * S,
+        34 * S
       );
 
+      // Caja Sticker interactiva
       const boxW = width - 100 * S;
       const boxH = 340 * S;
       const boxX = 50 * S;
-      const boxY = 320 * S;
+      const boxY = height / 2 - 130 * S;
 
-      ctx.fillStyle = "rgba(16, 185, 129, 0.04)";
+      ctx.fillStyle = "rgba(16,185,129,0.04)";
       ctx.strokeStyle = "#10B981";
       ctx.lineWidth = 2 * S;
       ctx.setLineDash([8 * S, 6 * S]);
@@ -582,14 +575,15 @@ export default function BannersPage() {
       wrapText(
         ctx,
         isPt 
-          ? "Quando você entra em uma nova loja online, o que te dá mais confiança?" 
-          : "Cuando entrás a una tienda online nueva, ¿qué te da más confianza?",
+          ? "De cada 100 pessoas que entram na sua loja online, quantas compram?" 
+          : "De cada 100 personas que entran a tu tienda online, ¿cuántas te compran?",
         width / 2,
-        boxY + 75 * S,
+        boxY + 80 * S,
         boxW - 40 * S,
         20 * S
       );
 
+      // Opción A simulada
       ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
       ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
       ctx.lineWidth = 1 * S;
@@ -599,31 +593,33 @@ export default function BannersPage() {
       ctx.font = `700 ${12 * S}px sans-serif`;
       ctx.textAlign = "left";
       ctx.fillText(
-        isPt ? "Ver compras em tempo real 🛒" : "Ver compras en tiempo real 🛒",
+        isPt ? "1 a 3 pessoas (1-3%)" : "1 a 3 personas (1-3%)",
         boxX + 40 * S,
         boxY + 192 * S
       );
 
+      // Opción B simulada
       ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
       drawRoundedRect(ctx, boxX + 20 * S, boxY + 235 * S, boxW - 40 * S, 55 * S, 12 * S);
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = "#ffffff";
       ctx.fillText(
-        isPt ? "Ver apenas fotos do produto 📸" : "Ver solo las fotos del producto 📸",
+        isPt ? "Mais de 10 pessoas" : "Más de 10 personas",
         boxX + 40 * S,
         boxY + 262 * S
       );
 
+      // Texto de agitación al pie
       ctx.fillStyle = "#94a3b8";
       ctx.font = `600 ${13 * S}px sans-serif`;
       ctx.textAlign = "center";
       wrapText(
         ctx,
         isPt
-          ? "A ciência do e-commerce comprova: ver movimento de outros clientes ativos gera segurança imediata."
-          : "La psicología del consumidor lo dice claro: ver compras de otros genera calma, deseo y seguridad inmediata.",
+          ? "A média de conversão no varejo online é de 1%. Se você está nessa faixa, saiba o que fazer a seguir."
+          : "La conversión promedio en e-commerce ronda el 1%. Si estás en ese promedio, mirá el siguiente story.",
         width / 2,
-        height / 2 + 100 * S,
+        height - 350 * S,
         width - 100 * S,
         22 * S
       );
@@ -631,13 +627,13 @@ export default function BannersPage() {
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${12 * S}px sans-serif`;
       ctx.fillText(
-        isPt ? "TOQUE PARA O RESULTADO REVELADOR ➔" : "TOCÁ PARA EL RESULTADO REVELADOR ➔",
+        isPt ? "VEJA O DIAGNÓSTICO REVELADOR ➔" : "VE EL DIAGNÓSTICO REVELADOR ➔",
         width / 2,
         height - 180 * S
       );
 
       const a = document.createElement("a");
-      a.download = `nevux-story-martes-psicologia.png`;
+      a.download = `nevux-story-lunes-encuesta.png`;
       a.href = canvas.toDataURL("image/png");
       a.click();
     } catch (e) {
@@ -956,7 +952,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── CANVAS: HISTORIA MARTES - AGITACIÓN / PÉRDIDA 1 A 3 ─── */
+  /* ─── CANVAS: HISTORIA MARTES - PÉRDIDA 1 A 3 ─── */
   const downloadMartesPerdidaCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -1619,7 +1615,110 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: LUNES HISTORIA 1 (DOLOR 97%) */}
+      {/* RENDER TAB: LUNES HISTORIA 1 (ENCUESTA DIAGNÓSTICO) — NUEVA */}
+      {activeTab === "story_lunes_encuesta" && (
+        <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div
+            style={{
+              width: "100%",
+              aspectRatio: "9 / 16",
+              background: "#020a07",
+              backgroundImage: "radial-gradient(circle, rgba(16,185,129,0.06) 0%, rgba(2,6,4,0.98) 100%)",
+              border: "2.5px solid #10B981",
+              borderRadius: "28px",
+              padding: "24px 20px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.7)",
+              boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              alignItems: "center",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+            </div>
+
+            <div style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981" }}>
+              {isPt ? "📊 DIAGNÓSTICO DE VENDAS" : "📊 DIAGNÓSTICO DE VENTAS"}
+            </div>
+
+            <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 950, color: "#ffffff", lineHeight: 1.35 }}>
+              {isPt 
+                ? "Pergunta rápida para lojistas da Nuvemshop 👇" 
+                : "Pregunta rápida para dueños de tiendas en Tiendanube 👇"}
+            </h3>
+
+            {/* Guía punteada sticker encuesta */}
+            <div style={{
+              width: "100%",
+              borderRadius: "18px",
+              border: "2px dashed #10B981",
+              backgroundColor: "rgba(16,185,129,0.04)",
+              padding: "16px 12px",
+              boxSizing: "border-box",
+              textAlign: "center"
+            }}>
+              <span style={{ fontSize: "9px", color: "#10B981", fontWeight: 900, display: "block", marginBottom: "8px" }}>
+                STICKER DE ENCUESTA AQUÍ
+              </span>
+              <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: 800, color: "#ffffff", lineHeight: 1.4 }}>
+                {isPt 
+                  ? "De cada 100 pessoas que entram na sua loja online, quantas compram?" 
+                  : "De cada 100 personas que entran a tu tienda online, ¿cuántas te compran?"}
+              </p>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "10px", padding: "10px", fontSize: "11px", fontWeight: 700, color: "#fff", textAlign: "left" }}>
+                  1 a 3 personas (1-3%)
+                </div>
+                <div style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "10px", padding: "10px", fontSize: "11px", fontWeight: 700, color: "#fff", textAlign: "left" }}>
+                  Más de 10 personas
+                </div>
+              </div>
+            </div>
+
+            <p style={{ margin: 0, fontSize: "11px", color: "#94a3b8", lineHeight: 1.4, padding: "0 10px" }}>
+              {isPt
+                ? "A média de conversão no varejo online é de 1%. Se você está nessa faixa, saiba o que fazer a seguir."
+                : "La conversión promedio en e-commerce ronda el 1%. Si estás en ese promedio, mirá el siguiente story."}
+            </p>
+
+            <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>
+              VE EL DIAGNÓSTICO REVELADOR ➔
+            </span>
+          </div>
+
+          <button
+            disabled={isDownloading}
+            onClick={downloadLunesEncuestaCanvas}
+            style={{
+              width: "100%",
+              background: "#10B981",
+              border: "none",
+              color: "#000",
+              padding: "12px",
+              borderRadius: "12px",
+              fontWeight: 900,
+              fontSize: "13px",
+              cursor: isDownloading ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
+          >
+            <Download size={16} />
+            Descargar Historia: Encuesta Diag (1080×1920)
+          </button>
+        </div>
+      )}
+
+      {/* RENDER TAB: LUNES HISTORIA 2 (DOLOR 97%) */}
       {activeTab === "story_lunes_dolor" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
@@ -1696,7 +1795,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: LUNES HISTORIA 2 (EMPUJE AL FEED) */}
+      {/* RENDER TAB: LUNES HISTORIA 3 (EMPUJE AL FEED) */}
       {activeTab === "story_lunes_feed" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
@@ -2173,11 +2272,11 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: MIÉRCOLES - CARRUSEL 3 PLACAS COMPLETO (APILADO PARA CAPTURAS) */}
+      {/* RENDER TAB: MIÉRCOLES - CARRUSEL 3 PLACAS COMPLETO */}
       {activeTab === "miercoles_carrusel" && (
         <div style={{ width: "100%", maxWidth: "420px", display: "flex", flexDirection: "column", gap: "40px" }}>
           
-          {/* PLACA 01: GANCHO */}
+          {/* PLACA 01 */}
           <div style={{ width: "100%", aspectRatio: "4 / 5", background: "#020a07", border: "3px solid #10B981", borderRadius: "24px", padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(16,185,129,0.15)", paddingBottom: "12px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -2198,7 +2297,6 @@ export default function BannersPage() {
               </h2>
             </div>
 
-            {/* Gráfico comparativo de números de impacto */}
             <div style={{ background: "rgba(11, 41, 32, 0.4)", border: "1.5px solid rgba(16,185,129,0.3)", borderRadius: "18px", padding: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "12px", alignItems: "center" }}>
                 <span style={{ fontSize: "11px", fontWeight: 800, color: "#94a3b8" }}>TIENDA TRADICIONAL ❌</span>
@@ -2216,7 +2314,7 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* PLACA 02: EL COMPARATIVO ANTES VS DESPUÉS */}
+          {/* PLACA 02 */}
           <div style={{ width: "100%", aspectRatio: "4 / 5", background: "#020a07", border: "3px solid #10B981", borderRadius: "24px", padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(16,185,129,0.15)", paddingBottom: "12px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -2227,7 +2325,6 @@ export default function BannersPage() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              {/* Bloque Sin Nevux */}
               <div style={{ background: "rgba(239, 68, 68, 0.05)", border: "1.5px solid rgba(239, 68, 68, 0.3)", borderRadius: "14px", padding: "14px" }}>
                 <div style={{ fontSize: "11px", fontWeight: 900, color: "#ef4444", textTransform: "uppercase", marginBottom: "6px", display: "flex", gap: "4px" }}>
                   ❌ SIN NEVUX (Checkout Frío)
@@ -2237,7 +2334,6 @@ export default function BannersPage() {
                 </p>
               </div>
 
-              {/* Bloque Con Nevux */}
               <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px" }}>
                 <div style={{ fontSize: "11px", fontWeight: 900, color: "#10B981", textTransform: "uppercase", marginBottom: "6px", display: "flex", gap: "4px" }}>
                   ✅ CON NEVUX (Checkout Activo)
@@ -2253,7 +2349,7 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* PLACA 03: EL CIERRE CTA */}
+          {/* PLACA 03 */}
           <div style={{ width: "100%", aspectRatio: "4 / 5", background: "#020a07", border: "3px solid #10B981", borderRadius: "24px", padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(16,185,129,0.15)", paddingBottom: "12px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -2264,7 +2360,7 @@ export default function BannersPage() {
             </div>
 
             <div style={{ textAlign: "center" }}>
-              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16,185,129,0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
+              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
                 🚀 PRUEBA SIN COMPROMISO
               </span>
               <h2 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 950, color: "#ffffff", lineHeight: 1.3 }}>
@@ -2275,7 +2371,6 @@ export default function BannersPage() {
               </p>
             </div>
 
-            {/* Rectángulo de CTA Central */}
             <div style={{ background: "#10B981", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "center" }}>
               <span style={{ fontSize: "11px", fontWeight: 900, color: "#000", display: "block" }}>👉 INICIÁ TU PRUEBA GRATIS POR 7 DÍAS</span>
               <span style={{ fontSize: "16px", fontWeight: 950, color: "#000", display: "block", marginTop: "4px" }}>NEVUX.AR</span>
@@ -2289,11 +2384,11 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: MIÉRCOLES - STORIES (APILADOS PARA CAPTURAS) */}
+      {/* RENDER TAB: MIÉRCOLES - STORIES */}
       {activeTab === "miercoles_stories" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "40px" }}>
           
-          {/* STORY 01: GANCHO / DOLOR PUBLICIDAD */}
+          {/* STORY 01 */}
           <div style={{ width: "100%", aspectRatio: "9 / 16", background: "#0c0e14", border: "3px solid #EF4444", borderRadius: "28px", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", textAlign: "center", boxSizing: "border-box", position: "relative", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
@@ -2310,7 +2405,6 @@ export default function BannersPage() {
                 : "¿Cuánta plata estás gastando en publicidad para que la gente entre y se vaya sin comprar?"}
             </h3>
 
-            {/* Simulación fugas de dinero Ads */}
             <div style={{
               width: "100%",
               borderRadius: "16px",
@@ -2338,7 +2432,7 @@ export default function BannersPage() {
             </div>
           </div>
 
-          {/* STORY 02: REVELACIÓN DE TICKET PROMEDIO */}
+          {/* STORY 02 */}
           <div style={{ width: "100%", aspectRatio: "9 / 16", background: "#020a07", border: "3px solid #10B981", borderRadius: "28px", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", textAlign: "center", boxSizing: "border-box", position: "relative", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
@@ -2355,7 +2449,6 @@ export default function BannersPage() {
                 : "La regla de oro del e-commerce: No necesitás más visitas, necesitás subir tu TICKET PROMEDIO."}
             </h3>
 
-            {/* Simulación de Packs bundles de Nevux */}
             <div style={{
               width: "100%",
               borderRadius: "16px",
@@ -2456,4 +2549,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-      }
+}
