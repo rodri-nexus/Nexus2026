@@ -11,16 +11,8 @@ import {
   Zap
 } from 'lucide-react';
 
-type TabType = 
-  | 'lunes' 
-  | 'martes' 
-  | 'miercoles' 
-  | 'miercoles-stories' 
-  | 'jueves' 
-  | 'jueves-portada';
-
 export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('jueves-portada');
+  const [activeTab, setActiveTab] = useState('jueves-portada');
 
   return (
     <div 
@@ -53,7 +45,7 @@ export default function BannersPage() {
             </Link>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {/* Logo Mini Header */}
-              <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#020a07', fontWeight: 900, fontSize: '13px' }}>N</div>
+              <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#020a07', fontWeight: 900, fontSize: '14px' }}>N</div>
               <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>
                 Ecosistema Nevux
               </h1>
@@ -255,7 +247,7 @@ export default function BannersPage() {
                   </span>
                 </div>
 
-                {/* ZONA SEGURA CENTRADA 1:1 (Para Feed e Historial de Perfil) */}
+                {/* ZONA SEGURA CENTRADA 1:1 */}
                 <div 
                   style={{ 
                     zIndex: 10, 
@@ -366,12 +358,12 @@ export default function BannersPage() {
                       </div>
                       <span style={{ color: '#34d399', fontWeight: 'bold' }}>:</span>
                       <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
-                        <span style={{ fontSize: '16px', fontWeight 900, color: '#ffffff', fontFamily: 'monospace' }}>58</span>
+                        <span style={{ fontSize: '16px', fontWeight: 900, color: '#ffffff', fontFamily: 'monospace' }}>58</span>
                         <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: 'bold' }}>MIN</span>
                       </div>
                       <span style={{ color: '#34d399', fontWeight: 'bold' }}>:</span>
                       <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
-                        <span style={{ fontSize: '16px', fontWeight 900, color: '#34d399', fontFamily: 'monospace' }}>12</span>
+                        <span style={{ fontSize: '16px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace' }}>12</span>
                         <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: 'bold' }}>SEG</span>
                       </div>
                     </div>
@@ -433,4 +425,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-                }
+          }
