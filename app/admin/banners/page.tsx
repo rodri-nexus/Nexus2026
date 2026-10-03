@@ -7,7 +7,8 @@ import {
   Sparkles, 
   Clock, 
   AlertTriangle, 
-  Flame 
+  Flame,
+  Zap
 } from 'lucide-react';
 
 type TabType = 
@@ -51,14 +52,15 @@ export default function BannersPage() {
               <ArrowLeft style={{ width: '20px', height: '20px' }} />
             </Link>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }}></span>
+              {/* Logo Mini Header */}
+              <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#020a07', fontWeight: 900, fontSize: '13px' }}>N</div>
               <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>
-                Ecosistema de Contenido Semanal
+                Ecosistema Nevux
               </h1>
             </div>
           </div>
           <span style={{ fontSize: '11px', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 10px', borderRadius: '9999px', fontWeight: 600 }}>
-            Tiendanube App #37382
+            App Tiendanube #37382
           </span>
         </div>
       </header>
@@ -187,10 +189,10 @@ export default function BannersPage() {
             <div style={{ backgroundColor: 'rgba(6, 30, 20, 0.8)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '16px', padding: '16px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Sparkles style={{ width: '20px', height: '20px', color: '#34d399' }} />
-                Portada Oficial de Reel (Jueves) — Formato 9:16 con Zona Segura 1:1
+                Portada Oficial Nevux (Reel Jueves) — Zona Segura 1:1
               </h2>
               <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', margin: 0 }}>
-                Diseño optimizado para capturas de pantalla directas desde tu celular. Todo el contenido importante está centrado en el medio para que cuando Instagram recorte la miniatura en tu perfil, el título quede perfecto.
+                Diseño exclusivo con la marca oficial Nevux. Todo el contenido importante está centrado en el medio para que cuando Instagram recorte la miniatura en tu perfil, el título quede perfecto.
               </p>
             </div>
 
@@ -206,7 +208,7 @@ export default function BannersPage() {
                   border: '2px solid rgba(16, 185, 129, 0.4)', 
                   borderRadius: '24px', 
                   overflow: 'hidden', 
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)', 
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)', 
                   display: 'flex', 
                   flexDirection: 'column', 
                   justifyContent: 'space-between', 
@@ -215,31 +217,66 @@ export default function BannersPage() {
                   position: 'relative'
                 }}
               >
-                {/* Header Superior del Reel */}
+                {/* Header Superior con LOGO NEVUX */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#061e14', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '6px 12px', borderRadius: '9999px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }}></span>
-                    <span style={{ fontSize: '10px', fontWeight: 'bold', letterSpacing: '0.05em', color: '#6ee7b7' }}>TIENDANUBE OPTIMIZER</span>
+                  
+                  {/* LOGO OFICIAL NEVUX */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div 
+                      style={{ 
+                        width: '32px', 
+                        height: '32px', 
+                        borderRadius: '10px', 
+                        background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        boxShadow: '0 0 16px rgba(16, 185, 129, 0.6)', 
+                        color: '#020a07', 
+                        fontWeight: 900, 
+                        fontSize: '18px',
+                        letterSpacing: '-1px'
+                      }}
+                    >
+                      N
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.05em', lineHeight: 1 }}>
+                        NEVUX<span style={{ color: '#10B981' }}>.AR</span>
+                      </span>
+                      <span style={{ fontSize: '8px', color: '#34d399', fontWeight: 700, letterSpacing: '0.1em', marginTop: '2px' }}>
+                        ECOSISTEMA E-COMMERCE
+                      </span>
+                    </div>
                   </div>
-                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>NEVUX.AR</span>
+
+                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace', backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    APP #37382
+                  </span>
                 </div>
 
-                {/* ZONA SEGURA CENTRADA 1:1 */}
+                {/* ZONA SEGURA CENTRADA 1:1 (Para Feed e Historial de Perfil) */}
                 <div 
                   style={{ 
                     zIndex: 10, 
                     margin: 'auto 0', 
                     padding: '20px', 
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)', 
-                    border: '1px solid rgba(255, 255, 255, 0.08)', 
-                    borderRadius: '16px',
-                    boxSizing: 'border-box'
+                    backgroundColor: 'rgba(6, 30, 20, 0.6)', 
+                    border: '1px solid rgba(16, 185, 129, 0.25)', 
+                    borderRadius: '20px',
+                    boxSizing: 'border-box',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
                   }}
                 >
-                  {/* Tag Peligro */}
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '4px 10px', borderRadius: '8px', color: '#f87171', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', marginBottom: '12px' }}>
-                    <AlertTriangle style={{ width: '14px', height: '14px' }} />
-                    CHECKOUT EN RIESGO
+                  {/* Tag Peligro + Stamp Marca */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '4px 10px', borderRadius: '8px', color: '#f87171', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase' }}>
+                      <AlertTriangle style={{ width: '13px', height: '13px' }} />
+                      CHECKOUT EN RIESGO
+                    </div>
+                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#10B981', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Zap style={{ width: '11px', height: '13px', fill: '#10B981' }} /> NEVUX TIPS
+                    </span>
                   </div>
 
                   {/* Títulos Principales */}
@@ -249,23 +286,23 @@ export default function BannersPage() {
                   <h4 style={{ fontSize: '32px', fontWeight: 900, color: '#10B981', lineHeight: 1, margin: '4px 0 8px 0', letterSpacing: '-0.02em' }}>
                     INVISIBLES
                   </h4>
-                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#cbd5e1', margin: '0 0 16px 0' }}>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#cbd5e1', margin: '0 0 16px 0' }}>
                     que te hacen perder ventas en tu tienda
                   </p>
 
                   {/* Badges con los 3 errores */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#03120c', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#020a07', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
                       <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontWeight: 'bold', fontSize: '12px' }}>✕</span>
                       <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#f1f5f9' }}>1. Cero Urgencia en Checkout</span>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#03120c', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#020a07', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
                       <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontWeight: 'bold', fontSize: '12px' }}>✕</span>
                       <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#f1f5f9' }}>2. Tienda "Silenciosa" (Sin prueba)</span>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#03120c', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#020a07', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
                       <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontWeight: 'bold', fontSize: '12px' }}>✕</span>
                       <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#f1f5f9' }}>3. Venta de productos sueltos</span>
                     </div>
@@ -273,14 +310,14 @@ export default function BannersPage() {
 
                 </div>
 
-                {/* Footer del Reel */}
+                {/* Footer del Reel con la Marca Nevux */}
                 <div style={{ textAlign: 'center', zIndex: 10 }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#10B981', color: '#020a07', fontWeight: 900, fontSize: '12px', padding: '8px 16px', borderRadius: '9999px', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}>
-                    <Flame style={{ width: '14px', height: '14px' }} />
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#10B981', color: '#020a07', fontWeight: 900, fontSize: '12px', padding: '10px 18px', borderRadius: '9999px', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.4)' }}>
+                    <Flame style={{ width: '15px', height: '15px', fill: '#020a07' }} />
                     MIRÁ EL VIDEO Y SOLUCIONALO
                   </div>
-                  <p style={{ fontSize: '10px', color: '#64748b', marginTop: '8px', margin: '8px 0 0 0', fontWeight: 500 }}>
-                    Compatible con Tiendanube • Sin tocar código
+                  <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '8px', margin: '8px 0 0 0', fontWeight: 600 }}>
+                    Sincronizá tu Tiendanube gratis en <span style={{ color: '#10B981', fontWeight: 800 }}>nevux.ar</span>
                   </p>
                 </div>
 
@@ -307,7 +344,7 @@ export default function BannersPage() {
                   <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#34d399', backgroundColor: 'rgba(6, 30, 20, 0.8)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
                     💡 TIP DE CONVERSIÓN
                   </span>
-                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>STORY 1/2</span>
+                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>NEVUX.AR</span>
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -329,12 +366,12 @@ export default function BannersPage() {
                       </div>
                       <span style={{ color: '#34d399', fontWeight: 'bold' }}>:</span>
                       <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
-                        <span style={{ fontSize: '16px', fontWeight: 900, color: '#ffffff', fontFamily: 'monospace' }}>58</span>
+                        <span style={{ fontSize: '16px', fontWeight 900, color: '#ffffff', fontFamily: 'monospace' }}>58</span>
                         <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: 'bold' }}>MIN</span>
                       </div>
                       <span style={{ color: '#34d399', fontWeight: 'bold' }}>:</span>
                       <div style={{ backgroundColor: '#020a07', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)', textAlign: 'center' }}>
-                        <span style={{ fontSize: '16px', fontWeight: 900, color: '#34d399', fontFamily: 'monospace' }}>12</span>
+                        <span style={{ fontSize: '16px', fontWeight 900, color: '#34d399', fontFamily: 'monospace' }}>12</span>
                         <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: 'bold' }}>SEG</span>
                       </div>
                     </div>
@@ -355,7 +392,7 @@ export default function BannersPage() {
                   <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#fbbf24', backgroundColor: 'rgba(120, 53, 15, 0.4)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
                     🔍 AUDITORÍA EXPRESS
                   </span>
-                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>STORY 2/2</span>
+                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>NEVUX.AR</span>
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -396,4 +433,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-    }
+                }
