@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon, ShieldCheck, AlertCircle, TrendingUp } from "lucide-react";
+import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon, ShieldCheck, AlertCircle, TrendingUp, Clock, HelpCircle as QuestionIcon } from "lucide-react";
 
 type TabId = 
   | "reel_cover" 
@@ -18,7 +18,8 @@ type TabId =
   | "story_martes_perdida"
   | "story_martes_reel"
   | "miercoles_carrusel"
-  | "miercoles_stories";
+  | "miercoles_stories"
+  | "jueves_stories";
 
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
@@ -339,6 +340,10 @@ export default function BannersPage() {
   const categoryWednesdayTabs = [
     { id: "miercoles_carrusel" as TabId, label: "Carrusel Miércoles (01-03)", icon: "🎠" },
     { id: "miercoles_stories" as TabId, label: "Stories Miércoles", icon: "📱" },
+  ];
+
+  const categoryThursdayTabs = [
+    { id: "jueves_stories" as TabId, label: "Stories Jueves (Tip + Audit)", icon: "💡" },
   ];
 
   const categoryTextTabs = [
@@ -937,7 +942,7 @@ export default function BannersPage() {
       ctx.font = `700 ${12 * S}px sans-serif`;
       ctx.textAlign = "left";
       ctx.fillText(
-        isPt ? "Ver compras em tempo real 🛒" : "Ver compras en tiempo real 🛒",
+        isPt ? "Ver compras em tempo real 🛒" : "Ver compras en tempo real 🛒",
         boxX + 40 * S,
         boxY + 192 * S
       );
@@ -1556,6 +1561,32 @@ export default function BannersPage() {
             <div style={{ fontSize: "9px", fontWeight: 900, color: "#10B981", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.05em" }}>🟢 Miércoles: Antes vs Después</div>
             <div style={{ display: "flex", gap: "4px", width: "100%", overflowX: "auto", paddingBottom: "4px" }}>
               {categoryWednesdayTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: "8px",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    backgroundColor: activeTab === tab.id ? "#10B981" : "#061a14",
+                    color: activeTab === tab.id ? "#000" : "#6ee7b7",
+                  }}
+                >
+                  {tab.icon} {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Categoría: JUEVES INTERACTIVO */}
+          <div>
+            <div style={{ fontSize: "9px", fontWeight: 900, color: "#10B981", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.05em" }}>🟢 Jueves: Contenido & Engagement</div>
+            <div style={{ display: "flex", gap: "4px", width: "100%", overflowX: "auto", paddingBottom: "4px" }}>
+              {categoryThursdayTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -2349,7 +2380,7 @@ export default function BannersPage() {
 
             <div style={{
               width: "100%",
-              background: "rgba(11, 41, 32, 0.98)",
+              background: "rgba(11, 41, 32, 0.95)",
               border: "1.5px solid #10B981",
               borderRadius: "14px",
               padding: "10px",
@@ -2501,7 +2532,7 @@ export default function BannersPage() {
             </div>
 
             <div style={{ textAlign: "center" }}>
-              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16,185,129,0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
+              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
                 🚀 PRUEBA SIN COMPROMISO
               </span>
               <h2 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 950, color: "#ffffff", lineHeight: 1.3 }}>
@@ -2624,6 +2655,121 @@ export default function BannersPage() {
         </div>
       )}
 
+      {/* RENDER TAB: JUEVES - STORIES APILADOS PARA CAPTURAS */}
+      {activeTab === "jueves_stories" && (
+        <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "40px" }}>
+          
+          {/* STORY 01: TIP DE CONVERSIÓN (CUENTA REGRESIVA) */}
+          <div style={{ width: "100%", aspectRatio: "9 / 16", background: "#020a07", border: "3px solid #10B981", borderRadius: "28px", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", textAlign: "center", boxSizing: "border-box", position: "relative", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+            </div>
+
+            <div style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981" }}>
+              💡 TIP DE CONVERSIÓN
+            </div>
+
+            <h3 style={{ margin: 0, fontSize: "19px", fontWeight: 950, color: "#ffffff", lineHeight: 1.35 }}>
+              {isPt 
+                ? "O elemento simples que aumenta compras por impulso em até 22%" 
+                : "El elemento simple que aumenta las compras por impulso un 22% ⏳"}
+            </h3>
+
+            {/* Simulación del Widget Cuenta Regresiva de Nevux */}
+            <div style={{
+              width: "100%",
+              borderRadius: "16px",
+              backgroundColor: "rgba(11,41,32,0.98)",
+              border: "1.5px solid #10B981",
+              padding: "14px 12px",
+              boxSizing: "border-box"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center", marginBottom: "6px" }}>
+                <Clock size={14} color="#EF4444" />
+                <span style={{ fontSize: "10px", color: "#EF4444", fontWeight: 900 }}>DESCUENTO DE FIN DE SEMANA</span>
+              </div>
+              <span style={{ fontSize: "12px", color: "#ffffff", fontWeight: 800, display: "block" }}>La oferta termina pronto:</span>
+              <div style={{ display: "flex", gap: "4px", justifyContent: "center", marginTop: "8px" }}>
+                <span style={{ background: "#0c0407", color: "#EF4444", padding: "4px 8px", borderRadius: "4px", fontSize: "13px", fontWeight: 950, border: "1px solid rgba(239,68,68,0.3)" }}>02h</span>
+                <span style={{ color: "#fff", fontWeight: 900 }}>:</span>
+                <span style={{ background: "#0c0407", color: "#EF4444", padding: "4px 8px", borderRadius: "4px", fontSize: "13px", fontWeight: 950, border: "1px solid rgba(239,68,68,0.3)" }}>45m</span>
+                <span style={{ color: "#fff", fontWeight: 900 }}>:</span>
+                <span style={{ background: "#0c0407", color: "#EF4444", padding: "4px 8px", borderRadius: "4px", fontSize: "13px", fontWeight: 950, border: "1px solid rgba(239,68,68,0.3)" }}>12s</span>
+              </div>
+            </div>
+
+            <p style={{ margin: 0, fontSize: "11px", color: "#94a3b8", lineHeight: 1.45 }}>
+              {isPt
+                ? "O cérebro humano odeia perder oportunidades. Sem um limite de tempo visível, as pessoas deixam a compra para depois e nunca mais voltam."
+                : "El cerebro humano odia perder oportunidades. Sin un límite de tiempo visible, la gente posterga la compra para 'después'... y no vuelve."}
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+              <span style={{ fontSize: "12px", color: "#10B981", fontWeight: 900 }}>
+                {isPt ? "VEJA O PRÓXIMO STORY ➔" : "DESLIZÁ PARA LA REVELACIÓN ➔"}
+              </span>
+              <ArrowDown size={14} color="#10B981" />
+            </div>
+          </div>
+
+          {/* STORY 02: INTERACTIVA (AUDITORÍA GRATUITA) */}
+          <div style={{ width: "100%", aspectRatio: "9 / 16", background: "#020a07", border: "3px solid #10B981", borderRadius: "28px", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", textAlign: "center", boxSizing: "border-box", position: "relative", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+            </div>
+
+            <div style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981" }}>
+              🔍 AUDITORÍA GRATUITA
+            </div>
+
+            <h3 style={{ margin: 0, fontSize: "19px", fontWeight: 950, color: "#ffffff", lineHeight: 1.35 }}>
+              {isPt 
+                ? "Quer que eu revise a sua Nuvemshop em live hoje?" 
+                : "¿Querés que revise tu Tiendanube gratis en vivo hoy? 🔍"}
+            </h3>
+
+            {/* Espacio reservado para la caja de preguntas de Instagram */}
+            <div style={{
+              width: "100%",
+              height: "140px",
+              borderRadius: "16px",
+              border: "2.5px dashed #10B981",
+              backgroundColor: "rgba(16,185,129,0.06)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+              boxSizing: "border-box"
+            }}>
+              <QuestionIcon size={24} color="#10B981" />
+              <span style={{ fontSize: "11px", color: "#10B981", fontWeight: 900, marginTop: "6px" }}>
+                STICKER CAJA DE PREGUNTAS AQUÍ
+              </span>
+              <span style={{ fontSize: "9px", color: "#86efac", marginTop: "2px" }}>
+                "Escribime el link de tu Tiendanube 👇"
+              </span>
+            </div>
+
+            <p style={{ margin: 0, fontSize: "11px", color: "#a7f3d0", fontWeight: 600 }}>
+              {isPt
+                ? "Vou analisar 5 lojas hoje e dizer exatamente o que falta para triplicar a conversão. Vagas limitadas!"
+                : "Voy a auditar 5 tiendas y decirles qué widget exacto les falta para duplicar las ventas de este fin de semana."}
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+              <span style={{ fontSize: "32px" }}>👇</span>
+              <span style={{ fontSize: "11px", fontWeight: 900, color: "#ffffff" }}>
+                {isPt ? "DEIXE SEU LINK ACIMA" : "DEJÁ TU LINK EN LA CAJA DE ARRIBA"}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      )}
+
       {/* RENDER TAB: HOOKS Y CIERRES */}
       {activeTab === "marketing_assets" && (
         <div style={{ width: "100%", maxWidth: "960px", display: "flex", flexDirection: "column", gap: "32px" }}>
@@ -2690,4 +2836,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-  }
+    }
