@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon, AlertTriangle } from "lucide-react";
+import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon, ShieldCheck } from "lucide-react";
 
 type TabId = 
   | "reel_cover" 
@@ -12,6 +12,7 @@ type TabId =
   | "before_after"
   | "story_lunes_dolor"
   | "story_lunes_feed"
+  | "story_martes_psicologia"
   | "story_martes_encuesta"
   | "story_martes_perdida"
   | "story_martes_reel";
@@ -311,7 +312,7 @@ export default function BannersPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const isPt = lang === "pt";
 
-  // Agrupación de pestañas para que sea legible en celulares
+  // Agrupación de pestañas legibles en celulares
   const categoryFeedTabs = [
     { id: "reel_cover" as TabId, label: "Portada Reel", icon: "🎬" },
     { id: "fb_cover" as TabId, label: "Portada FB Pro", icon: "🖼️" },
@@ -325,9 +326,10 @@ export default function BannersPage() {
   ];
 
   const categoryTuesdayTabs = [
-    { id: "story_martes_encuesta" as TabId, label: "H1: Encuesta", icon: "🗳️" },
-    { id: "story_martes_perdida" as TabId, label: "H2: Pérdida (1 a 3)", icon: "⚠️" },
-    { id: "story_martes_reel" as TabId, label: "H3: Empuje Reel (Link)", icon: "🔗" },
+    { id: "story_martes_psicologia" as TabId, label: "H1: Psicología (Poll)", icon: "🧠" },
+    { id: "story_martes_encuesta" as TabId, label: "H2: Encuesta", icon: "🗳️" },
+    { id: "story_martes_perdida" as TabId, label: "H3: Pérdida (1 a 3)", icon: "⚠️" },
+    { id: "story_martes_reel" as TabId, label: "H4: Empuje Reel (Link)", icon: "🔗" },
   ];
 
   const categoryTextTabs = [
@@ -336,11 +338,9 @@ export default function BannersPage() {
 
   /* ─── CANVAS: COMÚN DE FONDO PREMIUM ─── */
   const preparePremiumBackground = (ctx: CanvasRenderingContext2D, width: number, height: number, S: number) => {
-    // Fondo oscuro
     ctx.fillStyle = "#020a07";
     ctx.fillRect(0, 0, width, height);
 
-    // Radial central glow (Esmeralda Nevux)
     const g = ctx.createRadialGradient(width / 2, height / 2, 50 * S, width / 2, height / 2, 360 * S);
     g.addColorStop(0, "rgba(16,185,129,0.22)");
     g.addColorStop(1, "rgba(0,0,0,0)");
@@ -349,7 +349,6 @@ export default function BannersPage() {
     ctx.arc(width / 2, height / 2, 360 * S, 0, Math.PI * 2);
     ctx.fill();
 
-    // Rejilla de alta conversión sutil
     ctx.strokeStyle = "rgba(16,185,129,0.03)";
     ctx.lineWidth = 1;
     for (let x = 0; x < width; x += 40 * S) {
@@ -387,7 +386,7 @@ export default function BannersPage() {
     ctx.fillText("NEVUX", logoX + logoSize + 12 * S, logoY + logoSize / 2);
   };
 
-  /* ─── DESCARGAR PORTADA DE REEL HD 1080x1920 ─── */
+  /* ─── CANVAS: PORTADA DE REEL HD 1080x1920 ─── */
   const downloadReelCoverCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -406,7 +405,6 @@ export default function BannersPage() {
       preparePremiumBackground(ctx, width, height, S);
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // Badge central
       const bText = isPt ? "🧠 PSICOLOGIA DE VENDAS" : "🧠 PSICOLOGÍA DE VENTAS";
       ctx.font = `900 ${11 * S}px sans-serif`;
       const btw = ctx.measureText(bText).width + 32 * S;
@@ -421,7 +419,6 @@ export default function BannersPage() {
       ctx.textAlign = "center";
       ctx.fillText(bText, width / 2, bY + 16 * S);
 
-      // Título principal gigante
       ctx.fillStyle = "#ffffff";
       ctx.font = `950 ${25 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -437,7 +434,6 @@ export default function BannersPage() {
         36 * S
       );
 
-      // Card Mockup de Prueba Social (Centro del video)
       const mockW = width - 120 * S;
       const mockH = 140 * S;
       const mockX = 60 * S;
@@ -467,7 +463,6 @@ export default function BannersPage() {
       ctx.font = `800 ${10 * S}px sans-serif`;
       ctx.fillText("⚡ há 2 minutos · Prova Social ao Vivo", mockX + 24 * S, mockY + 98 * S);
 
-      // Subtítulo
       ctx.fillStyle = "#a7f3d0";
       ctx.font = `700 ${14 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -482,13 +477,173 @@ export default function BannersPage() {
         22 * S
       );
 
-      // Footer
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${12 * S}px sans-serif`;
       ctx.fillText("NEVUX.AR · 7 DÍAS GRATIS EN TIENDANUBE", width / 2, height - 100 * S);
 
       const a = document.createElement("a");
       a.download = `nevux-portada-reel-martes.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  /* ─── CANVAS: HISTORIA MARTES - PSICOLOGÍA DEL CONSUMIDOR (NUEVA) ─── */
+  const downloadMartesPsicologiaCanvas = async () => {
+    setIsDownloading(true);
+    try {
+      const width = 1080;
+      const height = 1920;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const S = width / 340;
+      let logoImg: HTMLImageElement | null = null;
+      try { logoImg = await loadLogoImage(); } catch (e) { console.warn(e); }
+
+      // 1. FONDO: Simulación de Checkout oscuro
+      ctx.fillStyle = "#0c0e14";
+      ctx.fillRect(0, 0, width, height);
+
+      // Dibujar caja de simulación de Checkout
+      ctx.fillStyle = "rgba(255, 255, 255, 0.015)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.lineWidth = 1 * S;
+      
+      // Rectángulos de "Carga de Tarjeta" simulados
+      drawRoundedRect(ctx, 40 * S, 320 * S, width - 80 * S, 200 * S, 12 * S);
+      ctx.fill(); ctx.stroke();
+      
+      // Líneas de inputs dentro del checkout simulado
+      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+      drawRoundedRect(ctx, 60 * S, 350 * S, width - 120 * S, 35 * S, 6 * S); // Input largo
+      ctx.fill();
+      drawRoundedRect(ctx, 60 * S, 405 * S, 140 * S, 35 * S, 6 * S); // Input vencimiento
+      ctx.fill();
+      drawRoundedRect(ctx, 220 * S, 405 * S, 100 * S, 35 * S, 6 * S); // Input CVV
+      ctx.fill();
+
+      // Botón "Pagar" simulado desactivado al fondo
+      ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
+      ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
+      drawRoundedRect(ctx, 40 * S, 550 * S, width - 80 * S, 45 * S, 10 * S);
+      ctx.fill(); ctx.stroke();
+
+      // Filtro superpuesto oscuro para legibilidad (Glow radial verde Nevux)
+      const g = ctx.createRadialGradient(width / 2, height / 2, 80 * S, width / 2, height / 2, 420 * S);
+      g.addColorStop(0, "rgba(2, 10, 7, 0.92)");
+      g.addColorStop(1, "rgba(2, 6, 4, 0.98)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, width, height);
+
+      drawHeaderLogo(ctx, width, logoImg, S);
+
+      // TEXTO ARRIBA: Pregunta para los que compran online
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${15 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(
+        isPt ? "Pergunta para quem compra online 👇" : "Pregunta para los que compran online 👇",
+        width / 2,
+        240 * S
+      );
+
+      // CAJA GUÍA PUNTEADA DEL STICKER DE ENCUESTA INSTAGRAM
+      const boxW = width - 100 * S;
+      const boxH = 340 * S;
+      const boxX = 50 * S;
+      const boxY = 320 * S;
+
+      ctx.fillStyle = "rgba(16, 185, 129, 0.04)";
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 2 * S;
+      ctx.setLineDash([8 * S, 6 * S]);
+      drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 22 * S);
+      ctx.fill(); ctx.stroke();
+      ctx.setLineDash([]); // Limpiar punteado
+
+      // Textos simulados adentro de la guía para Rodrigo
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "📥 COLOQUE SEU STICKER DE ENQUETE AQUI" : "📥 COLOCÁ TU STICKER DE ENCUESTA ACÁ",
+        width / 2,
+        boxY + 35 * S
+      );
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `800 ${14 * S}px sans-serif`;
+      wrapText(
+        ctx,
+        isPt 
+          ? "Quando você entra em uma nova loja online, o que te dá mais confiança?"
+          : "Cuando entrás a una tienda online nueva, ¿qué te da más confianza?",
+        width / 2,
+        boxY + 75 * S,
+        boxW - 40 * S,
+        20 * S
+      );
+
+      // Botón Simulado A
+      ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1 * S;
+      drawRoundedRect(ctx, boxX + 20 * S, boxY + 165 * S, boxW - 40 * S, 55 * S, 12 * S);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `700 ${12 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText(
+        isPt ? "Ver compras em tempo real 🛒" : "Ver compras en tiempo real 🛒",
+        boxX + 40 * S,
+        boxY + 192 * S
+      );
+
+      // Botón Simulado B
+      ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+      drawRoundedRect(ctx, boxX + 20 * S, boxY + 235 * S, boxW - 40 * S, 55 * S, 12 * S);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(
+        isPt ? "Ver apenas fotos do produto 📸" : "Ver solo las fotos del producto 📸",
+        boxX + 40 * S,
+        boxY + 262 * S
+      );
+
+      // TEXTO INFERIOR: Explicación de la agitación
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = `600 ${13 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      wrapText(
+        ctx,
+        isPt
+          ? "A ciência do e-commerce comprova: ver movimento de outros clientes ativos gera segurança imediata."
+          : "La psicología del consumidor lo dice claro: ver compras de otros genera calma, deseo y seguridad inmediata.",
+        width / 2,
+        height / 2 + 100 * S,
+        width - 100 * S,
+        22 * S
+      );
+
+      // Indicador de avance al pie
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "TOQUE PARA O RESULTADO REVELADOR ➔" : "TOCÁ PARA EL RESULTADO REVELADOR ➔",
+        width / 2,
+        height - 180 * S
+      );
+
+      const a = document.createElement("a");
+      a.download = `nevux-story-martes-psicologia.png`;
       a.href = canvas.toDataURL("image/png");
       a.click();
     } catch (e) {
@@ -514,11 +669,9 @@ export default function BannersPage() {
       let logoImg: HTMLImageElement | null = null;
       try { logoImg = await loadLogoImage(); } catch (e) { console.warn(e); }
 
-      // Fondo oscuro absoluto + rojo agresión
       ctx.fillStyle = "#040508";
       ctx.fillRect(0, 0, width, height);
 
-      // Glow radial rojo
       const g = ctx.createRadialGradient(width / 2, height / 2, 20 * S, width / 2, height / 2, 340 * S);
       g.addColorStop(0, "rgba(239, 68, 68, 0.28)");
       g.addColorStop(1, "rgba(0,0,0,0)");
@@ -529,7 +682,6 @@ export default function BannersPage() {
 
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // Badge
       const bText = isPt ? "🚨 ATENÇÃO LOJISTA" : "🚨 ATENCIÓN COMERCIANTE";
       ctx.font = `900 ${11 * S}px sans-serif`;
       const btw = ctx.measureText(bText).width + 30 * S;
@@ -544,13 +696,11 @@ export default function BannersPage() {
       ctx.textAlign = "center";
       ctx.fillText(bText, width / 2, bY + 16 * S);
 
-      // NÚMERO CRÍTICO GIGANTE
       ctx.fillStyle = "#EF4444";
       ctx.font = `950 ${110 * S}px sans-serif`;
       ctx.textAlign = "center";
       ctx.fillText("97%", width / 2, height / 2 - 10 * S);
 
-      // Texto de Agitación
       ctx.fillStyle = "#ffffff";
       ctx.font = `900 ${23 * S}px sans-serif`;
       wrapText(
@@ -575,7 +725,6 @@ export default function BannersPage() {
         20 * S
       );
 
-      // Call To Action inferior
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${13 * S}px sans-serif`;
       ctx.fillText(
@@ -584,7 +733,6 @@ export default function BannersPage() {
         height - 180 * S
       );
 
-      // Dibujar flechita para deslizar
       ctx.strokeStyle = "#10B981";
       ctx.lineWidth = 3 * S;
       ctx.beginPath();
@@ -623,7 +771,6 @@ export default function BannersPage() {
       preparePremiumBackground(ctx, width, height, S);
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // Badge superior
       const bText = isPt ? "🔥 NOVO POST REVELADOR" : "🔥 NUEVO POST REVELADOR";
       ctx.font = `900 ${11 * S}px sans-serif`;
       const btw = ctx.measureText(bText).width + 30 * S;
@@ -638,7 +785,6 @@ export default function BannersPage() {
       ctx.textAlign = "center";
       ctx.fillText(bText, width / 2, bY + 16 * S);
 
-      // Titulo
       ctx.fillStyle = "#ffffff";
       ctx.font = `950 ${24 * S}px sans-serif`;
       wrapText(
@@ -652,9 +798,8 @@ export default function BannersPage() {
         34 * S
       );
 
-      // Rectángulo simulador de Feed Compartido
       const feedW = width - 120 * S;
-      const feedH = feedW * 1.25; // Proporción 4:5 carrusel
+      const feedH = feedW * 1.25;
       const feedX = 60 * S;
       const feedY = 430 * S;
 
@@ -685,7 +830,6 @@ export default function BannersPage() {
       ctx.font = `900 ${11 * S}px sans-serif`;
       ctx.fillText("DESLIZÁ EN EL FEED PARA VER", width / 2, feedY + feedH - 50 * S);
 
-      // Flecha apuntando abajo al sticker
       ctx.fillStyle = "#10B981";
       ctx.font = `950 ${40 * S}px sans-serif`;
       ctx.fillText("👇", width / 2, feedY + feedH + 110 * S);
@@ -728,7 +872,6 @@ export default function BannersPage() {
       preparePremiumBackground(ctx, width, height, S);
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // Badge
       const bText = isPt ? "🗳️ ENQUETE DE MERCADO" : "🗳️ ENCUESTA DE MERCADO";
       ctx.font = `900 ${11 * S}px sans-serif`;
       const btw = ctx.measureText(bText).width + 30 * S;
@@ -743,7 +886,6 @@ export default function BannersPage() {
       ctx.textAlign = "center";
       ctx.fillText(bText, width / 2, bY + 16 * S);
 
-      // Título interactivo
       ctx.fillStyle = "#ffffff";
       ctx.font = `950 ${24 * S}px sans-serif`;
       wrapText(
@@ -757,7 +899,6 @@ export default function BannersPage() {
         32 * S
       );
 
-      // Caja de guía para colocar el Sticker de Encuesta en Instagram
       const boxW = width - 120 * S;
       const boxH = 220 * S;
       const boxX = 60 * S;
@@ -789,7 +930,6 @@ export default function BannersPage() {
         18 * S
       );
 
-      // Texto de agitación al pie
       ctx.fillStyle = "#a7f3d0";
       ctx.font = `700 ${14 * S}px sans-serif`;
       wrapText(
@@ -822,7 +962,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR HISTORIA MARTES - AGITACIÓN / PÉRDIDA 1 A 3 (NUEVO) ─── */
+  /* ─── DESCARGAR HISTORIA MARTES - AGITACIÓN / PÉRDIDA 1 A 3 ─── */
   const downloadMartesPerdidaCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -838,11 +978,9 @@ export default function BannersPage() {
       let logoImg: HTMLImageElement | null = null;
       try { logoImg = await loadLogoImage(); } catch (e) { console.warn(e); }
 
-      // Fondo ultra premium oscuro Nevux
       ctx.fillStyle = "#020a07";
       ctx.fillRect(0, 0, width, height);
 
-      // Radial Glow Rojo/Esmeralda dual
       const g = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 350 * S);
       g.addColorStop(0, "rgba(239, 68, 68, 0.15)");
       g.addColorStop(0.5, "rgba(16, 185, 129, 0.1)");
@@ -852,7 +990,6 @@ export default function BannersPage() {
       ctx.arc(width / 2, height / 2, 350 * S, 0, Math.PI * 2);
       ctx.fill();
 
-      // Grid sutil
       ctx.strokeStyle = "rgba(16,185,129,0.03)";
       ctx.lineWidth = 1;
       for (let x = 0; x < width; x += 40 * S) {
@@ -864,7 +1001,6 @@ export default function BannersPage() {
 
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // Badge superior
       const bText = isPt ? "⚠️ RETROALIMENTAÇÃO CRÍTICA" : "⚠️ DIAGNÓSTICO EN VIVO";
       ctx.font = `900 ${11 * S}px sans-serif`;
       const btw = ctx.measureText(bText).width + 30 * S;
@@ -879,7 +1015,6 @@ export default function BannersPage() {
       ctx.textAlign = "center";
       ctx.fillText(bText, width / 2, bY + 16 * S);
 
-      // TEXTO 1: Condicional
       ctx.fillStyle = "#ffffff";
       ctx.font = `950 ${24 * S}px sans-serif`;
       wrapText(
@@ -893,12 +1028,10 @@ export default function BannersPage() {
         34 * S
       );
 
-      // Bloque del 97% Gigante
       ctx.fillStyle = "#EF4444";
       ctx.font = `950 ${92 * S}px sans-serif`;
       ctx.fillText("97%", width / 2, height / 2 - 80 * S);
 
-      // Subtexto de agitación
       ctx.fillStyle = "#ffffff";
       ctx.font = `700 ${15 * S}px sans-serif`;
       wrapText(
@@ -912,7 +1045,6 @@ export default function BannersPage() {
         24 * S
       );
 
-      // Tarjeta de Conclusión Esmeralda
       const cardW = width - 100 * S;
       const cardH = 200 * S;
       const cardX = 50 * S;
@@ -925,7 +1057,6 @@ export default function BannersPage() {
       ctx.fill();
       ctx.stroke();
 
-      // Contenido de la tarjeta
       ctx.fillStyle = "#ffffff";
       ctx.font = `900 ${15 * S}px sans-serif`;
       ctx.fillText(
@@ -942,11 +1073,10 @@ export default function BannersPage() {
         cardY + 125 * S
       );
 
-      // Footer interactivo / Deslizar
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${12 * S}px sans-serif`;
       ctx.fillText(
-        isPt ? "DESLIZE PARA VER COMO ACABAR COM ISSO ➔" : "DESLIZÁ PARA VER LA SOLUCIÓN HOY ➔",
+        isPt ? "DESLIZE PARA VER A SOLUÇÃO ➔" : "DESLIZÁ PARA VER LA SOLUCIÓN HOY ➔",
         width / 2,
         height - 180 * S
       );
@@ -981,7 +1111,6 @@ export default function BannersPage() {
       preparePremiumBackground(ctx, width, height, S);
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // Badge
       const bText = "🔔 PRUEBA SOCIAL EN VIVO";
       ctx.font = `900 ${11 * S}px sans-serif`;
       const btw = ctx.measureText(bText).width + 30 * S;
@@ -996,7 +1125,6 @@ export default function BannersPage() {
       ctx.textAlign = "center";
       ctx.fillText(bText, width / 2, bY + 16 * S);
 
-      // Título directo
       ctx.fillStyle = "#ffffff";
       ctx.font = `950 ${24 * S}px sans-serif`;
       wrapText(
@@ -1010,7 +1138,6 @@ export default function BannersPage() {
         34 * S
       );
 
-      // Previsualización de un Widget flotante Nevux
       const widgetW = width - 120 * S;
       const widgetH = 130 * S;
       const widgetX = 60 * S;
@@ -1040,7 +1167,6 @@ export default function BannersPage() {
       ctx.font = `800 ${10 * S}px sans-serif`;
       ctx.fillText("⚡ Compras verificadas · Nevux Analytics", widgetX + 24 * S, widgetY + 92 * S);
 
-      // Texto explicativo del por qué
       ctx.fillStyle = "#a7f3d0";
       ctx.font = `700 ${14 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -1055,7 +1181,6 @@ export default function BannersPage() {
         22 * S
       );
 
-      // Caja del Sticker de Enlace de Instagram
       const linkBoxW = width - 200 * S;
       const linkBoxH = 64 * S;
       const linkBoxX = 100 * S;
@@ -1074,7 +1199,6 @@ export default function BannersPage() {
       ctx.font = `900 ${11 * S}px sans-serif`;
       ctx.fillText("🔗 COLOCÁ TU LINK STICKER ACÁ", width / 2, linkBoxY + 36 * S);
 
-      // Footer marcas
       ctx.fillStyle = "#ffffff";
       ctx.font = `900 ${13 * S}px sans-serif`;
       ctx.fillText("NEVUX.AR", width / 2, height - 260 * S);
@@ -1098,7 +1222,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR OTROS ASSETS ─── */
+  /* ─── DESCARGAR PORTADA FACEBOOK ─── */
   const downloadFbCoverAsset = async () => {
     setIsDownloading(true);
     try {
@@ -1117,7 +1241,6 @@ export default function BannersPage() {
       ctx.fillStyle = "#020a07";
       ctx.fillRect(0, 0, width, height);
 
-      // Radial central glow
       const g = ctx.createRadialGradient(width / 2, height / 2, 80 * S, width / 2, height / 2, 450 * S);
       g.addColorStop(0, "rgba(16,185,129,0.25)");
       g.addColorStop(1, "rgba(0,0,0,0)");
@@ -1642,7 +1765,109 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: MARTES HISTORIA 1 (ENCUESTA CONFIANZA) */}
+      {/* RENDER TAB: MARTES HISTORIA 1 (PSICOLOGÍA - NUEVA) */}
+      {activeTab === "story_martes_psicologia" && (
+        <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div
+            style={{
+              width: "100%",
+              aspectRatio: "9 / 16",
+              background: "#0c0e14",
+              backgroundImage: "radial-gradient(circle, rgba(16,185,129,0.06) 0%, rgba(2,6,4,0.98) 100%)",
+              border: "2.5px solid #10B981",
+              borderRadius: "28px",
+              padding: "24px 20px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.7)",
+              boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              alignItems: "center",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            {/* Candado de checkout flotante */}
+            <div style={{ position: "absolute", top: "70px", right: "20px", opacity: 0.1 }}>
+              <ShieldCheck size={100} color="#10B981" />
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+            </div>
+
+            <div style={{ fontSize: "12px", fontWeight: 900, color: "#10B981", textTransform: "uppercase" }}>
+              {isPt ? "Pergunta para quem compra online 👇" : "Pregunta para los que compran online 👇"}
+            </div>
+
+            {/* Sticker de Encuesta Simulado */}
+            <div style={{
+              width: "100%",
+              borderRadius: "18px",
+              border: "2px dashed #10B981",
+              backgroundColor: "rgba(16,185,129,0.04)",
+              padding: "16px 12px",
+              boxSizing: "border-box",
+              textAlign: "center"
+            }}>
+              <span style={{ fontSize: "9px", color: "#10B981", fontWeight: 900, display: "block", marginBottom: "8px" }}>
+                STICKER DE ENCUESTA AQUÍ
+              </span>
+              <p style={{ margin: "0 0 12px", fontSize: "13px", fontWeight: 800, color: "#ffffff", lineHeight: 1.4 }}>
+                {isPt 
+                  ? "Quando você entra em uma nova loja online, o que te dá mais confiança?" 
+                  : "Cuando entrás a una tienda online nueva, ¿qué te da más confianza?"}
+              </p>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "10px", padding: "10px", fontSize: "11px", fontWeight: 700, color: "#fff", textAlign: "left" }}>
+                  Ver compras en tiempo real 🛒
+                </div>
+                <div style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "10px", padding: "10px", fontSize: "11px", fontWeight: 700, color: "#fff", textAlign: "left" }}>
+                  Ver solo las fotos del producto 📸
+                </div>
+              </div>
+            </div>
+
+            <p style={{ margin: 0, fontSize: "11px", color: "#94a3b8", lineHeight: 1.4, padding: "0 10px" }}>
+              {isPt
+                ? "A ciência do e-commerce comprova: ver movimento de outros clientes gera segurança imediata."
+                : "La psicología del consumidor lo dice claro: ver compras de otros genera calma, deseo y seguridad inmediata."}
+            </p>
+
+            <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>
+              {isPt ? "RESPOSTA REVELADORA A SEGUIR ➔" : "RESPUESTA REVELADORA A SEGUIR ➔"}
+            </span>
+          </div>
+
+          <button
+            disabled={isDownloading}
+            onClick={downloadMartesPsicologiaCanvas}
+            style={{
+              width: "100%",
+              background: "#10B981",
+              border: "none",
+              color: "#000",
+              padding: "12px",
+              borderRadius: "12px",
+              fontWeight: 900,
+              fontSize: "13px",
+              cursor: isDownloading ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
+          >
+            <Download size={16} />
+            Descargar Historia: Psicología (1080×1920)
+          </button>
+        </div>
+      )}
+
+      {/* RENDER TAB: MARTES HISTORIA 2 (ENCUESTA CONFIANZA) */}
       {activeTab === "story_martes_encuesta" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
@@ -1737,7 +1962,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: MARTES HISTORIA 2 (PÉRDIDA 1 A 3) — NUEVA */}
+      {/* RENDER TAB: MARTES HISTORIA 3 (PÉRDIDA 1 A 3) */}
       {activeTab === "story_martes_perdida" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
@@ -1781,7 +2006,6 @@ export default function BannersPage() {
               </p>
             </div>
 
-            {/* Tarjeta conclusión visual */}
             <div style={{
               width: "100%",
               backgroundColor: "rgba(11, 41, 32, 0.95)",
@@ -1828,7 +2052,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: MARTES HISTORIA 3 (EMPUJE AL REEL CON LINK) */}
+      {/* RENDER TAB: MARTES HISTORIA 4 (EMPUJE AL REEL CON LINK) */}
       {activeTab === "story_martes_reel" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
