@@ -11,6 +11,59 @@ import {
   Zap
 } from 'lucide-react';
 
+// Componente del Logo Oficial de Nevux (Círculo + N metálica + Nombre NEVUX)
+function NevuxOfficialLogo({ size = 32 }: { size?: number }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {/* Círculo Negro con N Metálica */}
+      <div 
+        style={{ 
+          width: `${size}px`, 
+          height: `${size}px`, 
+          borderRadius: '50%', 
+          backgroundColor: '#000000', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.9)',
+          flexShrink: 0
+        }}
+      >
+        <svg width={size * 0.52} height={size * 0.52} viewBox="0 0 24 24" fill="none">
+          {/* Tallo Izquierdo */}
+          <path d="M3 3H7.5V21H3V3Z" fill="#FFFFFF" />
+          {/* Tallo Derecho */}
+          <path d="M16.5 3H21V21H16.5V3Z" fill="#FFFFFF" />
+          {/* Barra Diagonal con Gradiente Metálico */}
+          <path d="M7.5 3L21 21H16.5L3 3H7.5Z" fill="url(#nevux_diag_grad)" />
+          <defs>
+            <linearGradient id="nevux_diag_grad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="35%" stopColor="#E4E4E7" />
+              <stop offset="75%" stopColor="#52525B" />
+              <stop offset="100%" stopColor="#18181B" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      {/* Nombre de Marca NEVUX */}
+      <span 
+        style={{ 
+          fontSize: `${size * 0.55}px`, 
+          fontWeight: 900, 
+          color: '#FFFFFF', 
+          letterSpacing: '0.08em', 
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          lineHeight: 1
+        }}
+      >
+        NEVUX
+      </span>
+    </div>
+  );
+}
+
 export default function BannersPage() {
   const [activeTab, setActiveTab] = useState('jueves-portada');
 
@@ -24,7 +77,7 @@ export default function BannersPage() {
         paddingBottom: '96px' 
       }}
     >
-      {/* Header General del Panel Admin */}
+      {/* Header del Panel Admin */}
       <header 
         style={{ 
           borderBottom: '1px solid rgba(16, 185, 129, 0.2)', 
@@ -43,18 +96,10 @@ export default function BannersPage() {
             >
               <ArrowLeft style={{ width: '20px', height: '20px' }} />
             </Link>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {/* Logo Oficial Nevux */}
-              <div style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#020a07', fontWeight: 900, fontSize: '15px', boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)' }}>
-                N
-              </div>
-              <h1 style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff', margin: 0 }}>
-                Ecosistema Nevux
-              </h1>
-            </div>
+            <NevuxOfficialLogo size={28} />
           </div>
           <span style={{ fontSize: '11px', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 10px', borderRadius: '9999px', fontWeight: 600 }}>
-            App Tiendanube #37382
+            Tiendanube App #37382
           </span>
         </div>
       </header>
@@ -186,7 +231,7 @@ export default function BannersPage() {
                 Portada Oficial Nevux (Reel Jueves) — Zona Segura 1:1
               </h2>
               <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '6px', margin: 0 }}>
-                Contenido clave centrado para cuadrícula 1:1 de Instagram con la marca Nevux oficial.
+                Diseño optimizado para capturas de pantalla directas con la identidad visual oficial de Nevux.
               </p>
             </div>
 
@@ -202,7 +247,7 @@ export default function BannersPage() {
                   border: '2px solid rgba(16, 185, 129, 0.4)', 
                   borderRadius: '24px', 
                   overflow: 'hidden', 
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)', 
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9)', 
                   display: 'flex', 
                   flexDirection: 'column', 
                   justifyContent: 'space-between', 
@@ -211,40 +256,10 @@ export default function BannersPage() {
                   position: 'relative'
                 }}
               >
-                {/* Header Superior con ISOLOGOTIPO NEVUX */}
+                {/* Header Superior con LOGO OFICIAL NEVUX */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
-                  
-                  {/* ISOLOGOTIPO OFICIAL NEVUX */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div 
-                      style={{ 
-                        width: '32px', 
-                        height: '32px', 
-                        borderRadius: '10px', 
-                        background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        boxShadow: '0 0 16px rgba(16, 185, 129, 0.6)', 
-                        color: '#020a07', 
-                        fontWeight: 900, 
-                        fontSize: '18px',
-                        letterSpacing: '-1px'
-                      }}
-                    >
-                      N
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '15px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.05em', lineHeight: 1 }}>
-                        NEVUX<span style={{ color: '#10B981' }}>.AR</span>
-                      </span>
-                      <span style={{ fontSize: '8px', color: '#34d399', fontWeight: 700, letterSpacing: '0.1em', marginTop: '2px' }}>
-                        ECOSISTEMA E-COMMERCE
-                      </span>
-                    </div>
-                  </div>
-
-                  <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace', backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <NevuxOfficialLogo size={36} />
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace', backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     APP #37382
                   </span>
                 </div>
@@ -255,11 +270,11 @@ export default function BannersPage() {
                     zIndex: 10, 
                     margin: 'auto 0', 
                     padding: '20px', 
-                    backgroundColor: 'rgba(6, 30, 20, 0.6)', 
-                    border: '1px solid rgba(16, 185, 129, 0.25)', 
+                    backgroundColor: 'rgba(6, 30, 20, 0.7)', 
+                    border: '1px solid rgba(16, 185, 129, 0.3)', 
                     borderRadius: '20px',
                     boxSizing: 'border-box',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
                   }}
                 >
                   {/* Tag Peligro + Stamp Marca */}
@@ -332,15 +347,12 @@ export default function BannersPage() {
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', justifyContent: 'center' }}>
               
-              {/* STORY 1 (TIP CON LOGO NEVUX) */}
+              {/* STORY 1 (TIP CON LOGO OFICIAL NEVUX) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
                 
-                {/* Header Story 1 con LOGO NEVUX */}
+                {/* Header Story 1 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#020a07', fontWeight: 900, fontSize: '14px' }}>N</div>
-                    <span style={{ fontSize: '13px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.05em' }}>NEVUX<span style={{ color: '#10B981' }}>.AR</span></span>
-                  </div>
+                  <NevuxOfficialLogo size={28} />
                   <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#34d399', backgroundColor: 'rgba(6, 30, 20, 0.8)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
                     💡 TIP DE CONVERSIÓN
                   </span>
@@ -385,15 +397,12 @@ export default function BannersPage() {
                 </div>
               </div>
 
-              {/* STORY 2 (AUDITORÍA CON LOGO NEVUX) */}
+              {/* STORY 2 (AUDITORÍA CON LOGO OFICIAL NEVUX) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
                 
-                {/* Header Story 2 con LOGO NEVUX */}
+                {/* Header Story 2 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#020a07', fontWeight: 900, fontSize: '14px' }}>N</div>
-                    <span style={{ fontSize: '13px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.05em' }}>NEVUX<span style={{ color: '#10B981' }}>.AR</span></span>
-                  </div>
+                  <NevuxOfficialLogo size={28} />
                   <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#fbbf24', backgroundColor: 'rgba(120, 53, 15, 0.4)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
                     🔍 AUDITORÍA EXPRESS
                   </span>
@@ -437,4 +446,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-                }
+}
