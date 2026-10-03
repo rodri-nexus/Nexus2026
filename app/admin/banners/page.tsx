@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon } from "lucide-react";
+import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon, AlertTriangle } from "lucide-react";
 
 type TabId = 
   | "reel_cover" 
@@ -13,6 +13,7 @@ type TabId =
   | "story_lunes_dolor"
   | "story_lunes_feed"
   | "story_martes_encuesta"
+  | "story_martes_perdida"
   | "story_martes_reel";
 
 /* ═══════════════════════════════════════════
@@ -197,7 +198,7 @@ const MARKETING_ASSETS: MarketingAsset[] = [
     badgePt: "✨ DESIGN IMPECÁVEL",
     titleEs: "Sincronizado con tu marca en 1 segundo",
     titlePt: "Sincronizado com sua marca em 1 segundo",
-    descEs: "Se ve 100% nativo, elegant y ultra profesional en tu tienda.",
+    descEs: "Se ve 100% nativo, elegante y ultra profesional en tu tienda.",
     descPt: "Parece 100% nativo, elegante e ultra profissional na sua loja.",
     emoji: "✨",
     theme: "purple",
@@ -325,7 +326,8 @@ export default function BannersPage() {
 
   const categoryTuesdayTabs = [
     { id: "story_martes_encuesta" as TabId, label: "H1: Encuesta", icon: "🗳️" },
-    { id: "story_martes_reel" as TabId, label: "H2: Empuje Reel (Link)", icon: "🔗" },
+    { id: "story_martes_perdida" as TabId, label: "H2: Pérdida (1 a 3)", icon: "⚠️" },
+    { id: "story_martes_reel" as TabId, label: "H3: Empuje Reel (Link)", icon: "🔗" },
   ];
 
   const categoryTextTabs = [
@@ -650,21 +652,19 @@ export default function BannersPage() {
         34 * S
       );
 
-      // Rectángulo simulador de Feed Compartido (donde Rodrigo colocará el sticker del feed)
+      // Rectángulo simulador de Feed Compartido
       const feedW = width - 120 * S;
       const feedH = feedW * 1.25; // Proporción 4:5 carrusel
       const feedX = 60 * S;
       const feedY = 430 * S;
 
-      // Sombreado elegante del post
-      ctx.fillStyle = "#0c0407"; // Color oscuro agresión de fondo
+      ctx.fillStyle = "#0c0407";
       ctx.strokeStyle = "rgba(16, 185, 129, 0.4)";
       ctx.lineWidth = 3 * S;
       drawRoundedRect(ctx, feedX, feedY, feedW, feedH, 24 * S);
       ctx.fill();
       ctx.stroke();
 
-      // Contenido simulado en la miniatura de feed
       ctx.fillStyle = "#ef4444";
       ctx.font = `950 ${45 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -766,11 +766,11 @@ export default function BannersPage() {
       ctx.fillStyle = "rgba(16,185,129,0.06)";
       ctx.strokeStyle = "#10B981";
       ctx.lineWidth = 2 * S;
-      ctx.setLineDash([8 * S, 6 * S]); // Línea punteada de guía profesional
+      ctx.setLineDash([8 * S, 6 * S]);
       drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 20 * S);
       ctx.fill();
       ctx.stroke();
-      ctx.setLineDash([]); // Limpiar punteado
+      ctx.setLineDash([]);
 
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${13 * S}px sans-serif`;
@@ -813,6 +813,146 @@ export default function BannersPage() {
 
       const a = document.createElement("a");
       a.download = `nevux-story-martes-encuesta.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  /* ─── DESCARGAR HISTORIA MARTES - AGITACIÓN / PÉRDIDA 1 A 3 (NUEVO) ─── */
+  const downloadMartesPerdidaCanvas = async () => {
+    setIsDownloading(true);
+    try {
+      const width = 1080;
+      const height = 1920;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const S = width / 340;
+      let logoImg: HTMLImageElement | null = null;
+      try { logoImg = await loadLogoImage(); } catch (e) { console.warn(e); }
+
+      // Fondo ultra premium oscuro Nevux
+      ctx.fillStyle = "#020a07";
+      ctx.fillRect(0, 0, width, height);
+
+      // Radial Glow Rojo/Esmeralda dual
+      const g = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 350 * S);
+      g.addColorStop(0, "rgba(239, 68, 68, 0.15)");
+      g.addColorStop(0.5, "rgba(16, 185, 129, 0.1)");
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, 350 * S, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Grid sutil
+      ctx.strokeStyle = "rgba(16,185,129,0.03)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 40 * S) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      drawHeaderLogo(ctx, width, logoImg, S);
+
+      // Badge superior
+      const bText = isPt ? "⚠️ RETROALIMENTAÇÃO CRÍTICA" : "⚠️ DIAGNÓSTICO EN VIVO";
+      ctx.font = `900 ${11 * S}px sans-serif`;
+      const btw = ctx.measureText(bText).width + 30 * S;
+      const bY = 220 * S;
+      ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
+      ctx.strokeStyle = "#EF4444";
+      ctx.lineWidth = 1.5 * S;
+      drawRoundedRect(ctx, (width - btw) / 2, bY, btw, 32 * S, 16 * S);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#EF4444";
+      ctx.textAlign = "center";
+      ctx.fillText(bText, width / 2, bY + 16 * S);
+
+      // TEXTO 1: Condicional
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `950 ${24 * S}px sans-serif`;
+      wrapText(
+        ctx,
+        isPt 
+          ? "Se você respondeu de 1 a 3 pessoas..." 
+          : "Si respondiste de 1 a 3 personas...",
+        width / 2,
+        300 * S,
+        width - 70 * S,
+        34 * S
+      );
+
+      // Bloque del 97% Gigante
+      ctx.fillStyle = "#EF4444";
+      ctx.font = `950 ${92 * S}px sans-serif`;
+      ctx.fillText("97%", width / 2, height / 2 - 80 * S);
+
+      // Subtexto de agitación
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `700 ${15 * S}px sans-serif`;
+      wrapText(
+        ctx,
+        isPt
+          ? "está perdendo 97% das suas vendas potenciais por falta de URGÊNCIA e PROVA SOCIAL."
+          : "estás perdiendo el 97% de tus ventas potenciales por falta de URGENCIAS y PRUEBA SOCIAL.",
+        width / 2,
+        height / 2 + 10 * S,
+        width - 80 * S,
+        24 * S
+      );
+
+      // Tarjeta de Conclusión Esmeralda
+      const cardW = width - 100 * S;
+      const cardH = 200 * S;
+      const cardX = 50 * S;
+      const cardY = height / 2 + 160 * S;
+
+      ctx.fillStyle = "rgba(11, 41, 32, 0.95)";
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 2.5 * S;
+      drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 22 * S);
+      ctx.fill();
+      ctx.stroke();
+
+      // Contenido de la tarjeta
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `900 ${15 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "NÃO TE FALTA TRÁFEGO..." : "NO TE FALTA TRÁFICO...",
+        width / 2,
+        cardY + 65 * S
+      );
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `950 ${26 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "TE FALTA CONVERSÃO!" : "TE FALTA CONVERSIÓN!",
+        width / 2,
+        cardY + 125 * S
+      );
+
+      // Footer interactivo / Deslizar
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "DESLIZE PARA VER COMO ACABAR COM ISSO ➔" : "DESLIZÁ PARA VER LA SOLUCIÓN HOY ➔",
+        width / 2,
+        height - 180 * S
+      );
+
+      const a = document.createElement("a");
+      a.download = `nevux-story-perdida-1-3.png`;
       a.href = canvas.toDataURL("image/png");
       a.click();
     } catch (e) {
@@ -1358,18 +1498,15 @@ export default function BannersPage() {
               overflow: "hidden",
             }}
           >
-            {/* Cabecera */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
               <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
             </div>
 
-            {/* Badge Peligro */}
             <div style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "11px", fontWeight: 900, color: "#EF4444", background: "rgba(239, 68, 68, 0.15)", border: "1px solid #EF4444" }}>
               {isPt ? "🚨 ATENÇÃO LOJISTA" : "🚨 ATENCIÓN COMERCIANTE"}
             </div>
 
-            {/* Número impactante */}
             <div>
               <div style={{ fontSize: "96px", fontWeight: 950, color: "#EF4444", lineHeight: 1 }}>97%</div>
               <div style={{ fontSize: "16px", fontWeight: 900, color: "#ffffff", marginTop: "10px", textTransform: "uppercase", letterSpacing: "0.03em" }}>
@@ -1377,14 +1514,12 @@ export default function BannersPage() {
               </div>
             </div>
 
-            {/* Agitación */}
             <p style={{ margin: 0, fontSize: "12px", color: "#94a3b8", lineHeight: 1.5, padding: "0 10px" }}>
               {isPt 
                 ? "Isso significa que você está jogando dinheiro no lixo mandando visitas para um balde furado."
                 : "Estás gastando plata en anuncios para enviar tráfico a un balde pinchado. Corregí esto hoy."}
             </p>
 
-            {/* Deslizar indicador */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
               <span style={{ fontSize: "12px", color: "#10B981", fontWeight: 900 }}>
                 {isPt ? "VEJA O PRÓXIMO STORY" : "DESLIZÁ PARA EL SECRETO"}
@@ -1440,7 +1575,6 @@ export default function BannersPage() {
               overflow: "hidden",
             }}
           >
-            {/* Cabecera */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
               <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
@@ -1454,7 +1588,6 @@ export default function BannersPage() {
               {isPt ? "COMO ACABAR COM A FUGA DE CLIENTES NA SUA LOJA" : "CÓMO FRENAR LA FUGA DE CLIENTES EN TU TIENDA"}
             </h3>
 
-            {/* Espacio reservado para el sticker de post */}
             <div style={{
               width: "100%",
               aspectRatio: "4 / 5",
@@ -1546,7 +1679,6 @@ export default function BannersPage() {
                 : "¿QUÉ TE DA MÁS CONFIANZA AL ENTRAR A UNA TIENDA ONLINE?"}
             </h3>
 
-            {/* Espacio reservado para encuesta */}
             <div style={{
               width: "100%",
               height: "130px",
@@ -1605,7 +1737,98 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: MARTES HISTORIA 2 (EMPUJE AL REEL CON LINK) */}
+      {/* RENDER TAB: MARTES HISTORIA 2 (PÉRDIDA 1 A 3) — NUEVA */}
+      {activeTab === "story_martes_perdida" && (
+        <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div
+            style={{
+              width: "100%",
+              aspectRatio: "9 / 16",
+              background: "#020a07",
+              border: "2.5px solid #EF4444",
+              borderRadius: "28px",
+              padding: "24px 20px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.7)",
+              boxSizing: "border-box",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              alignItems: "center",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+            </div>
+
+            <div style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#EF4444", background: "rgba(239, 68, 68, 0.15)", border: "1px solid #EF4444" }}>
+              {isPt ? "⚠️ RETROALIMENTAÇÃO CRÍTICA" : "⚠️ DIAGNÓSTICO EN VIVO"}
+            </div>
+
+            <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 950, color: "#ffffff", lineHeight: 1.3 }}>
+              {isPt ? "Se você respondeu de 1 a 3 pessoas..." : "Si respondiste de 1 a 3 personas..."}
+            </h3>
+
+            <div>
+              <div style={{ fontSize: "74px", fontWeight: 950, color: "#EF4444", lineHeight: 1 }}>97%</div>
+              <p style={{ margin: "10px 0 0", fontSize: "13px", color: "#ffffff", fontWeight: 700, lineHeight: 1.4 }}>
+                {isPt 
+                  ? "está perdendo 97% das suas vendas potenciais por falta de URGÊNCIA e PROVA SOCIAL."
+                  : "estás perdiendo el 97% de tus ventas potenciales por falta de URGENCIAS y PRUEBA SOCIAL."}
+              </p>
+            </div>
+
+            {/* Tarjeta conclusión visual */}
+            <div style={{
+              width: "100%",
+              backgroundColor: "rgba(11, 41, 32, 0.95)",
+              border: "1.5px solid #10B981",
+              borderRadius: "18px",
+              padding: "16px 12px",
+              boxSizing: "border-box"
+            }}>
+              <span style={{ fontSize: "12px", fontWeight: 900, color: "#ffffff", display: "block", textTransform: "uppercase" }}>
+                {isPt ? "Não te falta tráfego..." : "No te falta tráfico..."}
+              </span>
+              <span style={{ fontSize: "20px", fontWeight: 950, color: "#10B981", display: "block", marginTop: "4px" }}>
+                {isPt ? "TE FALTA CONVERSÃO!" : "TE FALTA CONVERSIÓN!"}
+              </span>
+            </div>
+
+            <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>
+              {isPt ? "DESLIZE PARA VER A SOLUÇÃO ➔" : "DESLIZÁ PARA VER LA SOLUCIÓN ➔"}
+            </span>
+          </div>
+
+          <button
+            disabled={isDownloading}
+            onClick={downloadMartesPerdidaCanvas}
+            style={{
+              width: "100%",
+              background: "#EF4444",
+              border: "none",
+              color: "#fff",
+              padding: "12px",
+              borderRadius: "12px",
+              fontWeight: 900,
+              fontSize: "13px",
+              cursor: isDownloading ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
+          >
+            <Download size={16} />
+            Descargar Historia: Pérdida (1080×1920)
+          </button>
+        </div>
+      )}
+
+      {/* RENDER TAB: MARTES HISTORIA 3 (EMPUJE AL REEL CON LINK) */}
       {activeTab === "story_martes_reel" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
@@ -1642,7 +1865,6 @@ export default function BannersPage() {
                 : "CÓMO USAR EL EFECTO MANADA PARA VENDER HASTA 3 VECES MÁS"}
             </h3>
 
-            {/* Widget de simulación */}
             <div style={{
               width: "100%",
               background: "rgba(11, 41, 32, 0.98)",
@@ -1662,7 +1884,6 @@ export default function BannersPage() {
                 : "Los clientes compran donde ven que otros están comprando. Activá la prueba social hoy."}
             </p>
 
-            {/* Espacio reservado para link sticker */}
             <div style={{
               width: "80%",
               height: "44px",
@@ -1776,4 +1997,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-   }
+}
