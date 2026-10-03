@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles } from "lucide-react";
+import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play } from "lucide-react";
 
-type TabId = "carousels" | "fb_cover" | "marketing_assets" | "before_after";
+type TabId = "reel_cover" | "fb_cover" | "carousels" | "marketing_assets" | "before_after";
 
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
@@ -296,236 +296,24 @@ const PREMIUM_CAROUSEL_SLIDES: CarouselSlide[] = [
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════ */
 export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("fb_cover");
+  const [activeTab, setActiveTab] = useState<TabId>("reel_cover");
   const [lang, setLang] = useState<"es" | "pt">("es");
   const [isDownloading, setIsDownloading] = useState(false);
   const isPt = lang === "pt";
 
   const tabs = [
+    { id: "reel_cover" as TabId, label: "Portada Reel Martes", icon: "🎬" },
     { id: "fb_cover" as TabId, label: "Portada Facebook Pro", icon: "🖼️" },
     { id: "carousels" as TabId, label: "Carrusel Pro (5 Placas)", icon: "🎠" },
-    { id: "marketing_assets" as TabId, label: "Hooks y Cierres Pro", icon: "🎬" },
     { id: "before_after" as TabId, label: "Antes vs Después", icon: "⚡" },
   ];
 
-  /* ─── DESCARGAR PORTADA FACEBOOK HD 1640x856 ─── */
-  const downloadFbCoverAsset = async () => {
-    setIsDownloading(true);
-    try {
-      const width = 1640;
-      const height = 856;
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const S = width / 500;
-
-      let logoImg: HTMLImageElement | null = null;
-      try {
-        logoImg = await loadLogoImage();
-      } catch (e) {
-        console.warn("Logo fallback:", e);
-      }
-
-      // Fondo oscuro
-      ctx.fillStyle = "#061a14";
-      ctx.fillRect(0, 0, width, height);
-
-      // Gradient glow
-      const g = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 350 * S);
-      g.addColorStop(0, "rgba(16,185,129,0.25)");
-      g.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(width / 2, height / 2, 350 * S, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Rejilla
-      ctx.strokeStyle = "rgba(255,255,255,0.03)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 40 * S) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      // Header logo
-      const logoSize = 44 * S;
-      const logoX = 40 * S;
-      const logoY = 36 * S;
-
-      if (logoImg) {
-        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-      } else {
-        ctx.fillStyle = "#10B981";
-        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 12 * S);
-        ctx.fill();
-      }
-
-      ctx.fillStyle = "#fff";
-      ctx.font = `950 ${20 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
-      ctx.fillText("NEVUX", logoX + logoSize + 12 * S, logoY + logoSize / 2);
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${11 * S}px sans-serif`;
-      ctx.textAlign = "right";
-      ctx.fillText(
-        isPt ? "ECOSSISTEMA OFICIAL N° 1 DE VENDAS DANIUVEMSHOP" : "ECOSISTEMA N° 1 DE VENTAS PARA TIENDANUBE",
-        width - 40 * S,
-        logoY + logoSize / 2
-      );
-
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
-      ctx.beginPath();
-      ctx.moveTo(40 * S, 96 * S);
-      ctx.lineTo(width - 40 * S, 96 * S);
-      ctx.stroke();
-
-      // Título Principal
-      ctx.fillStyle = "#ffffff";
-      ctx.font = `950 ${22 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      wrapText(
-        ctx,
-        isPt
-          ? "MULTIPIQUE AS VENDAS E O TICKET MÉDIO DA SUA LOJA 🚀"
-          : "MULTIPLICÁ LAS VENTAS Y EL TICKET PROMEDIO DE TU TIENDANUBE 🚀",
-        width / 2,
-        115 * S,
-        width - 80 * S,
-        30 * S
-      );
-
-      // Columna 1: WIDGETS
-      const colW = (width - 100 * S) / 3;
-      const colH = 200 * S;
-      const colY = 175 * S;
-
-      ctx.fillStyle = "rgba(11, 41, 32, 0.85)";
-      ctx.strokeStyle = "rgba(16, 185, 129, 0.35)";
-      ctx.lineWidth = 2 * S;
-      drawRoundedRect(ctx, 36 * S, colY, colW, colH, 18 * S);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${11 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      ctx.fillText("⚡ 26+ WIDGETS PRO", 36 * S + colW / 2, colY + 14 * S);
-
-      const itemsW = [
-        "• Temporizadores Hot Sale",
-        "• Urgencia de Stock Crítico",
-        "• Bundles 2x1 y 3x2",
-        "• Info de Despacho 24hs",
-        "• Reseñas Destacadas",
-        "• Popups con Ruleta"
-      ];
-      ctx.fillStyle = "#a7f3d0";
-      ctx.font = `600 ${8.5 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      itemsW.forEach((item, idx) => {
-        ctx.fillText(item, 36 * S + 14 * S, colY + 42 * S + idx * 24 * S);
-      });
-
-      // Columna 2: FUNCIONES IA
-      ctx.fillStyle = "rgba(11, 41, 32, 0.85)";
-      ctx.strokeStyle = "rgba(16, 185, 129, 0.35)";
-      ctx.lineWidth = 2 * S;
-      drawRoundedRect(ctx, 36 * S + colW + 14 * S, colY, colW, colH, 18 * S);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${11 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.fillText("🤖 SUITE INTELIGENCIA ARTIFICIAL", 36 * S + colW + 14 * S + colW / 2, colY + 14 * S);
-
-      const itemsIa = [
-        "• Vendedor Virtual IA 24/7",
-        "• NevuxBot CRM + WhatsApp",
-        "• Notificaciones en Vivo",
-        "• Buscador por Voz IA",
-        "• Traducción Multilingüe",
-        "• Métricas ROI en Tiempo Real"
-      ];
-      ctx.fillStyle = "#a7f3d0";
-      ctx.font = `600 ${8.5 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      itemsIa.forEach((item, idx) => {
-        ctx.fillText(item, 36 * S + colW + 14 * S + 14 * S, colY + 42 * S + idx * 24 * S);
-      });
-
-      // Columna 3: RECOMPENSA Y RECONOCIMIENTO A MIEMBROS FIELES
-      ctx.fillStyle = "rgba(16, 185, 129, 0.14)";
-      ctx.strokeStyle = "#10B981";
-      ctx.lineWidth = 2.5 * S;
-      drawRoundedRect(ctx, 36 * S + (colW + 14 * S) * 2, colY, colW, colH, 18 * S);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = "#10B981";
-      ctx.font = `900 ${11 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.fillText("🎁 RECOMPENSAS Y FIDELIDAD", 36 * S + (colW + 14 * S) * 2 + colW / 2, colY + 14 * S);
-
-      const itemsRec = [
-        "• Premiamos tu fidelidad",
-        "• Meses de regalo acumulables",
-        "• Soporte VIP Prioritario",
-        "• Actualizaciones Pro gratis",
-        "• Comunidad de Alta Conversión",
-        "• 0% comisión por ventas"
-      ];
-      ctx.fillStyle = "#ffffff";
-      ctx.font = `700 ${8.5 * S}px sans-serif`;
-      ctx.textAlign = "left";
-      itemsRec.forEach((item, idx) => {
-        ctx.fillText(item, 36 * S + (colW + 14 * S) * 2 + 14 * S, colY + 42 * S + idx * 24 * S);
-      });
-
-      // CTA FOOTER
-      const ctaY = height - 76 * S;
-      ctx.fillStyle = "#10B981";
-      drawRoundedRect(ctx, 36 * S, ctaY, width - 72 * S, 48 * S, 16 * S);
-      ctx.fill();
-
-      ctx.fillStyle = "#000000";
-      ctx.font = `950 ${13 * S}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        isPt ? "🚀 INSTALE NEVUX NA NUVEMSHOP · 7 DIAS GRÁTIS SEM CARTÃO · NEVUX.AR" : "🚀 INSTALÁ NEVUX EN TU TIENDANUBE · 7 DÍAS GRATIS SIN TARJETA · NEVUX.AR",
-        width / 2,
-        ctaY + 24 * S
-      );
-
-      const a = document.createElement("a");
-      a.download = `nevux-portada-facebook.png`;
-      a.href = canvas.toDataURL("image/png");
-      a.click();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  /* ─── DESCARGAR SLIDES Y ASSETS RESTANTES ─── */
-  const downloadSlideAsImage = async (slideIndex: number) => {
-    const slide = PREMIUM_CAROUSEL_SLIDES[slideIndex];
-    if (!slide) return;
+  /* ─── DESCARGAR PORTADA DE REEL HD 1080x1920 ─── */
+  const downloadReelCoverCanvas = async () => {
     setIsDownloading(true);
     try {
       const width = 1080;
-      const height = 1350;
+      const height = 1920;
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
@@ -541,20 +329,174 @@ export default function BannersPage() {
         console.warn("Logo fallback:", e);
       }
 
-      ctx.fillStyle = "#060913";
+      // Fondo oscuro
+      ctx.fillStyle = "#061a14";
       ctx.fillRect(0, 0, width, height);
 
-      const logoSize = 32 * S;
+      // Glow radial
+      const g = ctx.createRadialGradient(width / 2, height / 2, 40 * S, width / 2, height / 2, 380 * S);
+      g.addColorStop(0, "rgba(16,185,129,0.3)");
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2, 380 * S, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rejilla sutil
+      ctx.strokeStyle = "rgba(255,255,255,0.03)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 48 * S) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      // Header logo
+      const logoSize = 48 * S;
+      const logoX = (width - (logoSize + 120 * S)) / 2;
+      const logoY = 120 * S;
+
       if (logoImg) {
-        ctx.drawImage(logoImg, 36 * S, 32 * S, logoSize, logoSize);
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+      } else {
+        ctx.fillStyle = "#10B981";
+        drawRoundedRect(ctx, logoX, logoY, logoSize, logoSize, 14 * S);
+        ctx.fill();
       }
 
       ctx.fillStyle = "#fff";
-      ctx.font = `900 ${16 * S}px sans-serif`;
-      ctx.fillText("NEVUX", 36 * S + logoSize + 10 * S, 32 * S + logoSize / 2);
+      ctx.font = `950 ${22 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText("NEVUX", logoX + logoSize + 14 * S, logoY + logoSize / 2);
+
+      // Badge central
+      const bText = isPt ? "🧠 PSICOLOGIA DE VENDAS" : "🧠 PSICOLOGÍA DE VENTAS";
+      ctx.font = `900 ${11 * S}px sans-serif`;
+      const btw = ctx.measureText(bText).width + 32 * S;
+      const bY = 240 * S;
+      ctx.fillStyle = "rgba(16,185,129,0.18)";
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 2 * S;
+      drawRoundedRect(ctx, (width - btw) / 2, bY, btw, 32 * S, 16 * S);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#10B981";
+      ctx.textAlign = "center";
+      ctx.fillText(bText, width / 2, bY + 16 * S);
+
+      // Título principal gigante
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `950 ${26 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      wrapText(
+        ctx,
+        isPt
+          ? "O TRUQUE PSICOLÓGICO QUE MULTIPLICA VENDAS NA NUVEMSHOP 📈"
+          : "EL TRUCO PSICOLÓGICO QUE MULTIPLICA VENTAS EN TIENDANUBE 📈",
+        width / 2,
+        300 * S,
+        width - 96 * S,
+        36 * S
+      );
+
+      // Card Mockup de Prueba Social (Centro del video)
+      const mockW = width - 120 * S;
+      const mockH = 140 * S;
+      const mockX = 60 * S;
+      const mockY = 500 * S;
+
+      ctx.fillStyle = "rgba(11, 41, 32, 0.95)";
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 2.5 * S;
+      drawRoundedRect(ctx, mockX, mockY, mockW, mockH, 22 * S);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText("🛒 Camila R. de Buenos Aires", mockX + 24 * S, mockY + 36 * S);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `700 ${11 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "Acabou de comprar o Produto Destaque" : "Acaba de comprar el Producto Destacado",
+        mockX + 24 * S,
+        mockY + 68 * S
+      );
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `800 ${10 * S}px sans-serif`;
+      ctx.fillText("⚡ há 2 minutos · Prova Social ao Vivo", mockX + 24 * S, mockY + 98 * S);
+
+      // Subtítulo
+      ctx.fillStyle = "#a7f3d0";
+      ctx.font = `700 ${14 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      wrapText(
+        ctx,
+        isPt
+          ? "Ative notificações ao vivo e comprove o efeito manada"
+          : "Activá notificaciones en vivo y comprobá el efecto manada",
+        width / 2,
+        height - 240 * S,
+        width - 96 * S,
+        22 * S
+      );
+
+      // Footer
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.fillText("NEVUX.AR · 7 DÍAS GRATIS EN TIENDANUBE", width / 2, height - 100 * S);
 
       const a = document.createElement("a");
-      a.download = `nevux-carrusel-slide-${slideIndex + 1}.png`;
+      a.download = `nevux-portada-reel-martes.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  /* ─── DESCARGAR OTROS ASSETS ─── */
+  const downloadFbCoverAsset = async () => {
+    setIsDownloading(true);
+    try {
+      const width = 1640;
+      const height = 856;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const S = width / 500;
+      let logoImg: HTMLImageElement | null = null;
+      try {
+        logoImg = await loadLogoImage();
+      } catch (e) {
+        console.warn(e);
+      }
+
+      ctx.fillStyle = "#061a14";
+      ctx.fillRect(0, 0, width, height);
+
+      const logoSize = 44 * S;
+      if (logoImg) {
+        ctx.drawImage(logoImg, 40 * S, 36 * S, logoSize, logoSize);
+      }
+
+      ctx.fillStyle = "#fff";
+      ctx.font = `950 ${20 * S}px sans-serif`;
+      ctx.fillText("NEVUX", 40 * S + logoSize + 12 * S, 36 * S + logoSize / 2);
+
+      const a = document.createElement("a");
+      a.download = `nevux-portada-facebook.png`;
       a.href = canvas.toDataURL("image/png");
       a.click();
     } catch (e) {
@@ -657,90 +599,106 @@ export default function BannersPage() {
         </div>
       </div>
 
-      {/* TAB 0: PORTADA FACEBOOK PRO (1640x856 LIMPIA EN PANTALLA) */}
-      {activeTab === "fb_cover" && (
-        <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* TAB 1: PORTADA REEL MARTES (FORMATO 9:16 / 1080x1920 LIMPIO PARA CAPTURA O DESCARGA) */}
+      {activeTab === "reel_cover" && (
+        <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
             style={{
               width: "100%",
+              aspectRatio: "9 / 16",
               background: "#061a14",
-              border: "2px solid #10B981",
-              borderRadius: "20px",
-              padding: "20px",
-              boxShadow: "0 16px 40px rgba(0,0,0,0.6)",
+              border: "2.5px solid #10B981",
+              borderRadius: "28px",
+              padding: "24px 20px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.7)",
               boxSizing: "border-box",
               display: "flex",
               flexDirection: "column",
-              gap: "16px",
+              justifyContent: "space-between",
+              alignItems: "center",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            {/* BRANDING HEADER */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <img src="/icon.svg" alt="Nevux" style={{ width: "32px", height: "32px" }} />
-                <span style={{ fontSize: "16px", fontWeight: 900, color: "#fff" }}>NEVUX</span>
-              </div>
-              <span style={{ fontSize: "10px", fontWeight: 800, color: "#10B981", textTransform: "uppercase" }}>
-                ECOSISTEMA N° 1 TIENDANUBE
+            {/* LOGO SUPERIOR */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.02em" }}>
+                NEVUX
               </span>
             </div>
 
-            {/* TÍTULO PRINCIPAL */}
-            <h2 style={{ margin: 0, fontSize: "17px", fontWeight: 900, color: "#ffffff", textAlign: "center", lineHeight: 1.3 }}>
+            {/* BADGE CENTRAL */}
+            <div
+              style={{
+                padding: "6px 14px",
+                borderRadius: "999px",
+                fontSize: "11px",
+                fontWeight: 900,
+                color: "#10B981",
+                background: "rgba(16, 185, 129, 0.15)",
+                border: "1px solid #10B981",
+              }}
+            >
+              {isPt ? "🧠 PSICOLOGIA DE VENDAS" : "🧠 PSICOLOGÍA DE VENTAS"}
+            </div>
+
+            {/* TÍTULO IMPACTO */}
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "22px",
+                fontWeight: 900,
+                color: "#ffffff",
+                lineHeight: 1.3,
+                letterSpacing: "-0.01em",
+              }}
+            >
               {isPt
-                ? "MULTIPLIQUE AS VENDAS E O TICKET MÉDIO DA SUA NUVEMSHOP 🚀"
-                : "MULTIPLICÁ LAS VENTAS Y EL TICKET PROMEDIO DE TU TIENDANUBE 🚀"}
+                ? "O TRUQUE PSICOLÓGICO QUE MULTIPLICA VENDAS NA NUVEMSHOP 📈"
+                : "EL TRUCO PSICOLÓGICO QUE MULTIPLICA VENTAS EN TIENDANUBE 📈"}
             </h2>
 
-            {/* BLOQUES DE SERVICIOS */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "10px" }}>
-              {/* 1. WIDGETS */}
-              <div style={{ background: "rgba(11, 41, 32, 0.85)", border: "1px solid rgba(16, 185, 129, 0.35)", borderRadius: "12px", padding: "12px" }}>
-                <div style={{ fontSize: "12px", fontWeight: 900, color: "#10B981", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Zap size={14} />
-                  26+ WIDGETS DE CONVERSIÓN
-                </div>
-                <div style={{ fontSize: "10px", color: "#a7f3d0", lineHeight: 1.5, fontWeight: 600 }}>
-                  • Temporizadores Hot Sale · Urgencia de Stock Crítico<br />
-                  • Bundles 2x1 y 3x2 · Info de Despacho 24hs<br />
-                  • Reseñas Destacadas · Popups con Ruleta
-                </div>
+            {/* MOCKUP CARD PRUEBA SOCIAL EN VIVO */}
+            <div
+              style={{
+                width: "100%",
+                background: "rgba(11, 41, 32, 0.95)",
+                border: "1.5px solid #10B981",
+                borderRadius: "18px",
+                padding: "14px",
+                textAlign: "left",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+              }}
+            >
+              <div style={{ fontSize: "12px", fontWeight: 900, color: "#10B981", marginBottom: "4px" }}>
+                🛒 Camila R. de Buenos Aires
               </div>
-
-              {/* 2. IA Y PRO */}
-              <div style={{ background: "rgba(11, 41, 32, 0.85)", border: "1px solid rgba(16, 185, 129, 0.35)", borderRadius: "12px", padding: "12px" }}>
-                <div style={{ fontSize: "12px", fontWeight: 900, color: "#10B981", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Sparkles size={14} />
-                  SUITE INTELIGENCIA ARTIFICIAL
-                </div>
-                <div style={{ fontSize: "10px", color: "#a7f3d0", lineHeight: 1.5, fontWeight: 600 }}>
-                  • Vendedor Virtual IA 24/7 · NevuxBot CRM + WhatsApp<br />
-                  • Notificaciones de Compras en Vivo (Social Proof)<br />
-                  • Buscador por Voz IA · Traducción Multilingüe
-                </div>
+              <div style={{ fontSize: "11px", color: "#ffffff", fontWeight: 700 }}>
+                {isPt ? "Acabou de comprar o Produto Destaque" : "Acaba de comprar el Producto Destacado"}
               </div>
-
-              {/* 3. RECOMPENSAS Y FIDELIDAD */}
-              <div style={{ background: "rgba(16, 185, 129, 0.12)", border: "1.5px solid #10B981", borderRadius: "12px", padding: "12px" }}>
-                <div style={{ fontSize: "12px", fontWeight: 900, color: "#10B981", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Gift size={14} />
-                  🎁 RECOMPENSAS & FIDELIDAD
-                </div>
-                <div style={{ fontSize: "10px", color: "#ffffff", lineHeight: 1.5, fontWeight: 700 }}>
-                  Recompensamos la fidelidad de los comercios con meses de regalo acumulables, Soporte VIP prioritario y actualizaciones Pro exclusivas gratis.
-                </div>
+              <div style={{ fontSize: "10px", color: "#10B981", fontWeight: 800, marginTop: "4px" }}>
+                ⚡ hace 2 min · Prueba Social en Vivo
               </div>
             </div>
 
-            {/* FOOTER */}
-            <div style={{ background: "#10B981", borderRadius: "10px", padding: "10px", textAlign: "center", color: "#000000", fontSize: "11px", fontWeight: 900 }}>
-              APP STORE TIENDANUBE ID #37382 · 7 DÍAS GRATIS · NEVUX.AR
+            {/* SUBTÍTULO */}
+            <p style={{ margin: 0, fontSize: "12px", color: "#a7f3d0", fontWeight: 600, lineHeight: 1.4 }}>
+              {isPt
+                ? "Ative notificações ao vivo e comprove o efeito manada"
+                : "Activá notificaciones en vivo y comprobá el efecto manada"}
+            </p>
+
+            {/* FOOTER MARCA */}
+            <div style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>
+              NEVUX.AR · 7 DÍAS GRATIS EN TIENDANUBE
             </div>
           </div>
 
           <button
             disabled={isDownloading}
-            onClick={downloadFbCoverAsset}
+            onClick={downloadReelCoverCanvas}
             style={{
               width: "100%",
               background: "#10B981",
@@ -758,12 +716,33 @@ export default function BannersPage() {
             }}
           >
             <Download size={16} />
-            Descargar Portada Facebook HD (1640×856)
+            Descargar Portada Reel HD (1080×1920)
           </button>
         </div>
       )}
 
-      {/* TAB 1: CARRUSEL PRO EN CASCADA */}
+      {/* TAB 2: PORTADA FACEBOOK */}
+      {activeTab === "fb_cover" && (
+        <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ width: "100%", background: "#061a14", border: "2px solid #10B981", borderRadius: "20px", padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <img src="/icon.svg" alt="Nevux" style={{ width: "32px", height: "32px" }} />
+                <span style={{ fontSize: "16px", fontWeight: 900, color: "#fff" }}>NEVUX</span>
+              </div>
+              <span style={{ fontSize: "10px", fontWeight: 800, color: "#10B981" }}>ECOSISTEMA N° 1 TIENDANUBE</span>
+            </div>
+            <h2 style={{ margin: 0, fontSize: "17px", fontWeight: 900, color: "#ffffff", textAlign: "center", lineHeight: 1.3 }}>
+              {isPt ? "MULTIPLIQUE AS VENDAS E O TICKET MÉDIO DA SUA NUVEMSHOP 🚀" : "MULTIPLICÁ LAS VENTAS Y EL TICKET PROMEDIO DE TU TIENDANUBE 🚀"}
+            </h2>
+          </div>
+          <button disabled={isDownloading} onClick={downloadFbCoverAsset} style={{ width: "100%", background: "#10B981", border: "none", color: "#000", padding: "12px", borderRadius: "12px", fontWeight: 900, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+            <Download size={16} /> Descargar Portada Facebook HD
+          </button>
+        </div>
+      )}
+
+      {/* TAB 3: CARRUSEL PRO */}
       {activeTab === "carousels" && (
         <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column", gap: "28px" }}>
           {PREMIUM_CAROUSEL_SLIDES.map((slide, index) => {
@@ -771,62 +750,32 @@ export default function BannersPage() {
             const badgeColor = slide.type === "problem" ? "#ef4444" : slide.type === "comparison" ? "#3b82f6" : "#10B981";
 
             return (
-              <div
-                key={index}
-                style={{
-                  width: "100%",
-                  aspectRatio: "4 / 5",
-                  background: slide.type === "problem"
-                    ? "#0c0407"
-                    : slide.type === "comparison"
-                    ? "#070b14"
-                    : slide.type === "solution"
-                    ? "#03120c"
-                    : slide.type === "cta"
-                    ? "#021a12"
-                    : "#060913",
-                  border: "2px solid rgba(16, 185, 129, 0.4)",
-                  borderRadius: "24px",
-                  padding: "24px",
-                  boxShadow: "0 16px 40px rgba(0,0,0,0.6)",
-                  boxSizing: "border-box",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
+              <div key={index} style={{ width: "100%", aspectRatio: "4 / 5", background: slide.type === "problem" ? "#0c0407" : slide.type === "comparison" ? "#070b14" : slide.type === "solution" ? "#03120c" : slide.type === "cta" ? "#021a12" : "#060913", border: "2px solid rgba(16, 185, 129, 0.4)", borderRadius: "24px", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "14px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <img src="/icon.svg" alt="Nevux Logo" style={{ width: "32px", height: "32px", display: "block" }} />
-                    <span style={{ fontSize: "16px", fontWeight: 900, color: "#ffffff", letterSpacing: "0.02em" }}>NEVUX</span>
+                    <img src="/icon.svg" alt="Nevux Logo" style={{ width: "32px", height: "32px" }} />
+                    <span style={{ fontSize: "16px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
                   </div>
                   <span style={{ fontSize: "13px", fontWeight: 800, fontFamily: "monospace", color: "#10B981" }}>0{index + 1} / 05</span>
                 </div>
-
                 <div>
                   <span style={{ display: "inline-block", padding: "5px 12px", borderRadius: "999px", fontSize: "11px", fontWeight: 900, color: badgeColor, background: slide.type === "problem" ? "rgba(239,68,68,0.15)" : slide.type === "comparison" ? "rgba(59,130,246,0.15)" : "rgba(16,185,129,0.15)", border: `1px solid ${badgeColor}` }}>
                     {badgeText}
                   </span>
                 </div>
-
-                <h2 style={{ margin: "0", fontSize: "21px", fontWeight: 900, color: "#ffffff", lineHeight: 1.3, letterSpacing: "-0.01em" }}>
+                <h2 style={{ margin: "0", fontSize: "21px", fontWeight: 900, color: "#ffffff", lineHeight: 1.3 }}>
                   {isPt ? slide.titlePt : slide.titleEs}
                 </h2>
-
                 {slide.metric && (
                   <div style={{ padding: "12px 16px", borderRadius: "14px", background: slide.type === "cta" ? "#10B981" : "rgba(16, 185, 129, 0.12)", border: "1.5px solid #10B981", textAlign: "center", color: slide.type === "cta" ? "#000000" : "#10B981", fontSize: "13px", fontWeight: 900 }}>
                     {slide.metric}
                   </div>
                 )}
-
                 <div style={{ background: "rgba(10, 12, 16, 0.88)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "16px", padding: "16px" }}>
                   <p style={{ margin: 0, fontSize: "13px", color: "#d1fae5", lineHeight: 1.55, whiteSpace: "pre-line", fontWeight: 600 }}>
                     {isPt ? slide.descPt : slide.descEs}
                   </p>
                 </div>
-
                 <div style={{ textAlign: "center", fontSize: "11px", fontWeight: 800, color: "#10B981" }}>
                   {slide.type === "cta" ? "NEVUX.AR · APP OFICIAL" : isPt ? "DESLIZE PARA VER ➔" : "DESLIZÁ PARA CONTINUAR ➔"}
                 </div>
@@ -836,7 +785,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* TAB 2: HOOKS Y CIERRES */}
+      {/* TAB 4: HOOKS Y CIERRES */}
       {activeTab === "marketing_assets" && (
         <div style={{ width: "100%", maxWidth: "960px", display: "flex", flexDirection: "column", gap: "32px" }}>
           {(["hook", "mid", "cta"] as const).map((cat) => (
@@ -863,7 +812,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* TAB 3: ANTES VS DESPUÉS */}
+      {/* TAB 5: ANTES VS DESPUÉS */}
       {activeTab === "before_after" && (
         <div style={{ width: "100%", maxWidth: "440px" }}>
           <div style={{ backgroundColor: "#0b2920", border: "1.5px solid rgba(16,185,129,0.3)", borderRadius: "20px", padding: "20px", textAlign: "center" }}>
@@ -874,31 +823,25 @@ export default function BannersPage() {
 
             <div style={{ background: "#05080f", border: "1.5px solid rgba(16,185,129,0.3)", borderRadius: "16px", padding: "16px", textAlign: "left" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                {/* SIN NEVUX */}
                 <div style={{ background: "rgba(239, 68, 68, 0.08)", border: "1.5px solid rgba(239, 68, 68, 0.3)", borderRadius: "12px", padding: "12px" }}>
                   <div style={{ fontSize: "12px", fontWeight: 900, color: "#ef4444", marginBottom: "8px", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <XCircle size={14} />
-                    {isPt ? "SEM NEVUX" : "SIN NEVUX"}
+                    <XCircle size={14} /> {isPt ? "SEM NEVUX" : "SIN NEVUX"}
                   </div>
                   <ul style={{ margin: 0, paddingLeft: "14px", fontSize: "10px", color: "#fca5a5", lineHeight: 1.6 }}>
                     <li>97% abandono de carrito</li>
                     <li>Sin urgencia ni escasez</li>
                     <li>Visitas entran y se van $0</li>
-                    <li>Sin prueba social flotante</li>
                   </ul>
                 </div>
 
-                {/* CON NEVUX */}
                 <div style={{ background: "rgba(16, 185, 129, 0.12)", border: "1.5px solid #10B981", borderRadius: "12px", padding: "12px" }}>
                   <div style={{ fontSize: "12px", fontWeight: 900, color: "#10B981", marginBottom: "8px", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <CheckCircle2 size={14} />
-                    {isPt ? "COM NEVUX" : "CON NEVUX"}
+                    <CheckCircle2 size={14} /> {isPt ? "COM NEVUX" : "CON NEVUX"}
                   </div>
                   <ul style={{ margin: 0, paddingLeft: "14px", fontSize: "10px", color: "#a7f3d0", lineHeight: 1.6, fontWeight: 700 }}>
                     <li>Conversión ×3 + Métrica ROI</li>
                     <li>Timers de urgencia y stock</li>
                     <li>Vendedor IA cerrando 24/7</li>
-                    <li>Notificaciones en vivo</li>
                   </ul>
                 </div>
               </div>
@@ -908,4 +851,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-   }
+       }
