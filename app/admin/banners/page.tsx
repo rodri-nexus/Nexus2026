@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon, ShieldCheck } from "lucide-react";
+import { Smartphone, Zap, CheckCircle2, XCircle, Award, Download, Gift, Sparkles, Play, ArrowDown, HelpCircle, Link as LinkIcon, ShieldCheck, AlertCircle, TrendingUp } from "lucide-react";
 
 type TabId = 
   | "reel_cover" 
@@ -15,7 +15,9 @@ type TabId =
   | "story_martes_psicologia"
   | "story_martes_encuesta"
   | "story_martes_perdida"
-  | "story_martes_reel";
+  | "story_martes_reel"
+  | "miercoles_carrusel"
+  | "miercoles_stories";
 
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
@@ -332,6 +334,11 @@ export default function BannersPage() {
     { id: "story_martes_reel" as TabId, label: "H4: Empuje Reel (Link)", icon: "🔗" },
   ];
 
+  const categoryWednesdayTabs = [
+    { id: "miercoles_carrusel" as TabId, label: "Carrusel Miércoles (01-03)", icon: "🎠" },
+    { id: "miercoles_stories" as TabId, label: "Stories Miércoles", icon: "📱" },
+  ];
+
   const categoryTextTabs = [
     { id: "marketing_assets" as TabId, label: "Ganchos & Cierres (Textos)", icon: "✍️" },
   ];
@@ -492,7 +499,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── CANVAS: HISTORIA MARTES - PSICOLOGÍA DEL CONSUMIDOR (NUEVA) ─── */
+  /* ─── CANVAS: HISTORIA MARTES - PSICOLOGÍA DEL CONSUMIDOR ─── */
   const downloadMartesPsicologiaCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -508,35 +515,29 @@ export default function BannersPage() {
       let logoImg: HTMLImageElement | null = null;
       try { logoImg = await loadLogoImage(); } catch (e) { console.warn(e); }
 
-      // 1. FONDO: Simulación de Checkout oscuro
       ctx.fillStyle = "#0c0e14";
       ctx.fillRect(0, 0, width, height);
 
-      // Dibujar caja de simulación de Checkout
       ctx.fillStyle = "rgba(255, 255, 255, 0.015)";
       ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
       ctx.lineWidth = 1 * S;
       
-      // Rectángulos de "Carga de Tarjeta" simulados
       drawRoundedRect(ctx, 40 * S, 320 * S, width - 80 * S, 200 * S, 12 * S);
       ctx.fill(); ctx.stroke();
       
-      // Líneas de inputs dentro del checkout simulado
       ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
-      drawRoundedRect(ctx, 60 * S, 350 * S, width - 120 * S, 35 * S, 6 * S); // Input largo
+      drawRoundedRect(ctx, 60 * S, 350 * S, width - 120 * S, 35 * S, 6 * S);
       ctx.fill();
-      drawRoundedRect(ctx, 60 * S, 405 * S, 140 * S, 35 * S, 6 * S); // Input vencimiento
+      drawRoundedRect(ctx, 60 * S, 405 * S, 140 * S, 35 * S, 6 * S);
       ctx.fill();
-      drawRoundedRect(ctx, 220 * S, 405 * S, 100 * S, 35 * S, 6 * S); // Input CVV
+      drawRoundedRect(ctx, 220 * S, 405 * S, 100 * S, 35 * S, 6 * S);
       ctx.fill();
 
-      // Botón "Pagar" simulado desactivado al fondo
       ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
       ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
       drawRoundedRect(ctx, 40 * S, 550 * S, width - 80 * S, 45 * S, 10 * S);
       ctx.fill(); ctx.stroke();
 
-      // Filtro superpuesto oscuro para legibilidad (Glow radial verde Nevux)
       const g = ctx.createRadialGradient(width / 2, height / 2, 80 * S, width / 2, height / 2, 420 * S);
       g.addColorStop(0, "rgba(2, 10, 7, 0.92)");
       g.addColorStop(1, "rgba(2, 6, 4, 0.98)");
@@ -545,7 +546,6 @@ export default function BannersPage() {
 
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // TEXTO ARRIBA: Pregunta para los que compran online
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${15 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -556,7 +556,6 @@ export default function BannersPage() {
         240 * S
       );
 
-      // CAJA GUÍA PUNTEADA DEL STICKER DE ENCUESTA INSTAGRAM
       const boxW = width - 100 * S;
       const boxH = 340 * S;
       const boxX = 50 * S;
@@ -568,9 +567,8 @@ export default function BannersPage() {
       ctx.setLineDash([8 * S, 6 * S]);
       drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 22 * S);
       ctx.fill(); ctx.stroke();
-      ctx.setLineDash([]); // Limpiar punteado
+      ctx.setLineDash([]);
 
-      // Textos simulados adentro de la guía para Rodrigo
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${12 * S}px sans-serif`;
       ctx.fillText(
@@ -584,7 +582,7 @@ export default function BannersPage() {
       wrapText(
         ctx,
         isPt 
-          ? "Quando você entra em uma nova loja online, o que te dá mais confiança?"
+          ? "Quando você entra em uma nova loja online, o que te dá mais confiança?" 
           : "Cuando entrás a una tienda online nueva, ¿qué te da más confianza?",
         width / 2,
         boxY + 75 * S,
@@ -592,7 +590,6 @@ export default function BannersPage() {
         20 * S
       );
 
-      // Botón Simulado A
       ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
       ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
       ctx.lineWidth = 1 * S;
@@ -607,7 +604,6 @@ export default function BannersPage() {
         boxY + 192 * S
       );
 
-      // Botón Simulado B
       ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
       drawRoundedRect(ctx, boxX + 20 * S, boxY + 235 * S, boxW - 40 * S, 55 * S, 12 * S);
       ctx.fill(); ctx.stroke();
@@ -618,7 +614,6 @@ export default function BannersPage() {
         boxY + 262 * S
       );
 
-      // TEXTO INFERIOR: Explicación de la agitación
       ctx.fillStyle = "#94a3b8";
       ctx.font = `600 ${13 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -633,7 +628,6 @@ export default function BannersPage() {
         22 * S
       );
 
-      // Indicador de avance al pie
       ctx.fillStyle = "#10B981";
       ctx.font = `900 ${12 * S}px sans-serif`;
       ctx.fillText(
@@ -653,7 +647,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR HISTORIA LUNES - DOLOR 97% ─── */
+  /* ─── CANVAS: HISTORIA LUNES - DOLOR 97% ─── */
   const downloadLunesDolorCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -752,7 +746,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR HISTORIA LUNES - EMPUJE A FEED ─── */
+  /* ─── CANVAS: HISTORIA LUNES - EMPUJE A FEED ─── */
   const downloadLunesFeedCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -853,7 +847,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR HISTORIA MARTES - ENCUESTA CONFIANZA ─── */
+  /* ─── CANVAS: HISTORIA MARTES - ENCUESTA CONFIANZA ─── */
   const downloadMartesEncuestaCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -962,7 +956,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR HISTORIA MARTES - AGITACIÓN / PÉRDIDA 1 A 3 ─── */
+  /* ─── CANVAS: HISTORIA MARTES - AGITACIÓN / PÉRDIDA 1 A 3 ─── */
   const downloadMartesPerdidaCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -1092,7 +1086,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR HISTORIA MARTES - EMPUJE REEL / LINK CTA ─── */
+  /* ─── CANVAS: HISTORIA MARTES - EMPUJE REEL / LINK CTA ─── */
   const downloadMartesReelCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -1222,7 +1216,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── DESCARGAR PORTADA FACEBOOK ─── */
+  /* ─── CANVAS: PORTADA FACEBOOK ─── */
   const downloadFbCoverAsset = async () => {
     setIsDownloading(true);
     try {
@@ -1398,6 +1392,32 @@ export default function BannersPage() {
             <div style={{ fontSize: "9px", fontWeight: 900, color: "#10B981", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.05em" }}>🟢 Martes: Prueba Social</div>
             <div style={{ display: "flex", gap: "4px", width: "100%", overflowX: "auto", paddingBottom: "4px" }}>
               {categoryTuesdayTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: "8px",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    backgroundColor: activeTab === tab.id ? "#10B981" : "#061a14",
+                    color: activeTab === tab.id ? "#000" : "#6ee7b7",
+                  }}
+                >
+                  {tab.icon} {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Categoría: MIÉRCOLES ESTRATÉGICO */}
+          <div>
+            <div style={{ fontSize: "9px", fontWeight: 900, color: "#10B981", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.05em" }}>🟢 Miércoles: Antes vs Después</div>
+            <div style={{ display: "flex", gap: "4px", width: "100%", overflowX: "auto", paddingBottom: "4px" }}>
+              {categoryWednesdayTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -1765,7 +1785,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: MARTES HISTORIA 1 (PSICOLOGÍA - NUEVA) */}
+      {/* RENDER TAB: MARTES HISTORIA 1 (PSICOLOGÍA) */}
       {activeTab === "story_martes_psicologia" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
@@ -1788,7 +1808,6 @@ export default function BannersPage() {
               overflow: "hidden",
             }}
           >
-            {/* Candado de checkout flotante */}
             <div style={{ position: "absolute", top: "70px", right: "20px", opacity: 0.1 }}>
               <ShieldCheck size={100} color="#10B981" />
             </div>
@@ -1802,7 +1821,6 @@ export default function BannersPage() {
               {isPt ? "Pergunta para quem compra online 👇" : "Pregunta para los que compran online 👇"}
             </div>
 
-            {/* Sticker de Encuesta Simulado */}
             <div style={{
               width: "100%",
               borderRadius: "18px",
@@ -1833,12 +1851,12 @@ export default function BannersPage() {
 
             <p style={{ margin: 0, fontSize: "11px", color: "#94a3b8", lineHeight: 1.4, padding: "0 10px" }}>
               {isPt
-                ? "A ciência do e-commerce comprova: ver movimento de outros clientes gera segurança imediata."
+                ? "A ciência do e-commerce comprova: ver movimento de outros clientes ativos gera segurança imediata."
                 : "La psicología del consumidor lo dice claro: ver compras de otros genera calma, deseo y seguridad inmediata."}
             </p>
 
             <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>
-              {isPt ? "RESPOSTA REVELADORA A SEGUIR ➔" : "RESPUESTA REVELADORA A SEGUIR ➔"}
+              RESPUESTA REVELADORA A SEGUIR ➔
             </span>
           </div>
 
@@ -2091,7 +2109,7 @@ export default function BannersPage() {
 
             <div style={{
               width: "100%",
-              background: "rgba(11, 41, 32, 0.98)",
+              background: "rgba(11, 41, 32, 0.95)",
               border: "1.5px solid #10B981",
               borderRadius: "14px",
               padding: "10px",
@@ -2152,6 +2170,223 @@ export default function BannersPage() {
             <Download size={16} />
             Descargar Historia Martes: Empuje Reel (1080×1920)
           </button>
+        </div>
+      )}
+
+      {/* RENDER TAB: MIÉRCOLES - CARRUSEL 3 PLACAS COMPLETO (APILADO PARA CAPTURAS) */}
+      {activeTab === "miercoles_carrusel" && (
+        <div style={{ width: "100%", maxWidth: "420px", display: "flex", flexDirection: "column", gap: "40px" }}>
+          
+          {/* PLACA 01: GANCHO */}
+          <div style={{ width: "100%", aspectRatio: "4 / 5", background: "#020a07", border: "3px solid #10B981", borderRadius: "24px", padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(16,185,129,0.15)", paddingBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <img src="/icon.svg" alt="Nevux" style={{ width: "28px", height: "28px" }} />
+                <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+              </div>
+              <span style={{ fontSize: "12px", fontWeight: 800, fontFamily: "monospace", color: "#10B981" }}>01 / 03</span>
+            </div>
+
+            <div>
+              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16,185,129,0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
+                ⚡ TRANSFORMACIÓN DE TIENDA
+              </span>
+              <h2 style={{ margin: 0, fontSize: "22px", fontWeight: 950, color: "#ffffff", lineHeight: 1.35 }}>
+                {isPt 
+                  ? "Mesmo tráfego. Mesmos produtos. O triplo de vendas." 
+                  : "Mismo tráfico. Mismos productos. El triple de ventas."} 📈
+              </h2>
+            </div>
+
+            {/* Gráfico comparativo de números de impacto */}
+            <div style={{ background: "rgba(11, 41, 32, 0.4)", border: "1.5px solid rgba(16,185,129,0.3)", borderRadius: "18px", padding: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "12px", alignItems: "center" }}>
+                <span style={{ fontSize: "11px", fontWeight: 800, color: "#94a3b8" }}>TIENDA TRADICIONAL ❌</span>
+                <span style={{ fontSize: "13px", fontWeight: 900, color: "#ef4444" }}>$80.000 (Conv. 0.8%)</span>
+              </div>
+              <div style={{ height: "1px", background: "rgba(16,185,129,0.15)" }}></div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "12px", alignItems: "center" }}>
+                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>CON NEVUX ✅</span>
+                <span style={{ fontSize: "15px", fontWeight: 950, color: "#10B981" }}>$280.000 (Conv. 2.8%)</span>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "center", fontSize: "11px", fontWeight: 800, color: "#10B981", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+              {isPt ? "DESLIZE PARA VER O SEGREDO ➔" : "DESLIZÁ PARA VER EL SECRETO ➔"}
+            </div>
+          </div>
+
+          {/* PLACA 02: EL COMPARATIVO ANTES VS DESPUÉS */}
+          <div style={{ width: "100%", aspectRatio: "4 / 5", background: "#020a07", border: "3px solid #10B981", borderRadius: "24px", padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(16,185,129,0.15)", paddingBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <img src="/icon.svg" alt="Nevux" style={{ width: "28px", height: "28px" }} />
+                <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+              </div>
+              <span style={{ fontSize: "12px", fontWeight: 800, fontFamily: "monospace", color: "#10B981" }}>02 / 03</span>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              {/* Bloque Sin Nevux */}
+              <div style={{ background: "rgba(239, 68, 68, 0.05)", border: "1.5px solid rgba(239, 68, 68, 0.3)", borderRadius: "14px", padding: "14px" }}>
+                <div style={{ fontSize: "11px", fontWeight: 900, color: "#ef4444", textTransform: "uppercase", marginBottom: "6px", display: "flex", gap: "4px" }}>
+                  ❌ SIN NEVUX (Checkout Frío)
+                </div>
+                <p style={{ margin: 0, fontSize: "11px", color: "#fca5a5", fontWeight: 600, lineHeight: 1.4 }}>
+                  97% de carritos abandonados. Clientes con dudas se van por falta de escasez y prueba social. Ticket de venta bajo.
+                </p>
+              </div>
+
+              {/* Bloque Con Nevux */}
+              <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px" }}>
+                <div style={{ fontSize: "11px", fontWeight: 900, color: "#10B981", textTransform: "uppercase", marginBottom: "6px", display: "flex", gap: "4px" }}>
+                  ✅ CON NEVUX (Checkout Activo)
+                </div>
+                <p style={{ margin: 0, fontSize: "11px", color: "#a7f3d0", fontWeight: 700, lineHeight: 1.4 }}>
+                  Notificaciones de compra en vivo + bundles sugeridos para subir el ticket + timers de urgencia. Conversión multiplicada ×3.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "center", fontSize: "11px", fontWeight: 800, color: "#10B981", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+              {isPt ? "DESLIZE PARA O RESULTADO ➔" : "DESLIZÁ PARA EL CIERRE ➔"}
+            </div>
+          </div>
+
+          {/* PLACA 03: EL CIERRE CTA */}
+          <div style={{ width: "100%", aspectRatio: "4 / 5", background: "#020a07", border: "3px solid #10B981", borderRadius: "24px", padding: "28px", display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(16,185,129,0.15)", paddingBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <img src="/icon.svg" alt="Nevux" style={{ width: "28px", height: "28px" }} />
+                <span style={{ fontSize: "14px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+              </div>
+              <span style={{ fontSize: "12px", fontWeight: 800, fontFamily: "monospace", color: "#10B981" }}>03 / 03</span>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16,185,129,0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
+                🚀 PRUEBA SIN COMPROMISO
+              </span>
+              <h2 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 950, color: "#ffffff", lineHeight: 1.3 }}>
+                {isPt ? "Sua Nuvemshop pode vender assim hoje." : "Tu Tiendanube puede vender así hoy."}
+              </h2>
+              <p style={{ margin: "0 auto", fontSize: "12px", color: "#94a3b8", fontWeight: 600, maxWidth: "280px" }}>
+                Instalación instantánea en 15 segundos. Sin tocar código. Activás, medís y decidís.
+              </p>
+            </div>
+
+            {/* Rectángulo de CTA Central */}
+            <div style={{ background: "#10B981", border: "1.5px solid #10B981", borderRadius: "14px", padding: "14px", textAlign: "center" }}>
+              <span style={{ fontSize: "11px", fontWeight: 900, color: "#000", display: "block" }}>👉 INICIÁ TU PRUEBA GRATIS POR 7 DÍAS</span>
+              <span style={{ fontSize: "16px", fontWeight: 950, color: "#000", display: "block", marginTop: "4px" }}>NEVUX.AR</span>
+            </div>
+
+            <div style={{ textAlign: "center", fontSize: "10px", fontWeight: 800, color: "#94a3b8" }}>
+              APP OFICIAL TIENDANUBE · ID #37382
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* RENDER TAB: MIÉRCOLES - STORIES (APILADOS PARA CAPTURAS) */}
+      {activeTab === "miercoles_stories" && (
+        <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "40px" }}>
+          
+          {/* STORY 01: GANCHO / DOLOR PUBLICIDAD */}
+          <div style={{ width: "100%", aspectRatio: "9 / 16", background: "#0c0e14", border: "3px solid #EF4444", borderRadius: "28px", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", textAlign: "center", boxSizing: "border-box", position: "relative", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+            </div>
+
+            <div style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#EF4444", background: "rgba(239, 68, 68, 0.15)", border: "1px solid #EF4444" }}>
+              📈 MENTALIDAD DE VENTAS
+            </div>
+
+            <h3 style={{ margin: 0, fontSize: "19px", fontWeight: 950, color: "#ffffff", lineHeight: 1.35 }}>
+              {isPt 
+                ? "Quanto dinheiro você está jogando no lixo enviando tráfego para uma loja fria?" 
+                : "¿Cuánta plata estás gastando en publicidad para que la gente entre y se vaya sin comprar?"}
+            </h3>
+
+            {/* Simulación fugas de dinero Ads */}
+            <div style={{
+              width: "100%",
+              borderRadius: "16px",
+              backgroundColor: "rgba(239,68,68,0.06)",
+              border: "1.5px dashed #EF4444",
+              padding: "16px 12px",
+              boxSizing: "border-box"
+            }}>
+              <span style={{ fontSize: "36px", display: "block" }}>💸</span>
+              <span style={{ fontSize: "11px", fontWeight: 900, color: "#ef4444", display: "block", marginTop: "4px", textTransform: "uppercase" }}>TU PUBLICIDAD (META ADS)</span>
+              <span style={{ fontSize: "10px", color: "#fca5a5", display: "block", marginTop: "2px" }}>Filtrándose por falta de conversión en checkout.</span>
+            </div>
+
+            <p style={{ margin: 0, fontSize: "11px", color: "#94a3b8", lineHeight: 1.45 }}>
+              {isPt
+                ? "O segredo do crescimento não é trazer mais visitas... é convencer as visitas que você já tem a comprar de você."
+                : "El secreto del crecimiento no es traer más visitas... es convencer a las visitas que ya tenés para que compren."}
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+              <span style={{ fontSize: "12px", color: "#10B981", fontWeight: 900 }}>
+                {isPt ? "VEJA O PRÓXIMO STORY ➔" : "DESLIZÁ PARA EL SECRETO ➔"}
+              </span>
+              <ArrowDown size={14} color="#10B981" />
+            </div>
+          </div>
+
+          {/* STORY 02: REVELACIÓN DE TICKET PROMEDIO */}
+          <div style={{ width: "100%", aspectRatio: "9 / 16", background: "#020a07", border: "3px solid #10B981", borderRadius: "28px", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", textAlign: "center", boxSizing: "border-box", position: "relative", overflow: "hidden", boxShadow: "0 15px 35px rgba(0,0,0,0.6)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <img src="/icon.svg" alt="Nevux" style={{ width: "36px", height: "36px" }} />
+              <span style={{ fontSize: "18px", fontWeight: 900, color: "#ffffff" }}>NEVUX</span>
+            </div>
+
+            <div style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981" }}>
+              💡 EL CAMBIO ESTRATÉGICO
+            </div>
+
+            <h3 style={{ margin: 0, fontSize: "19px", fontWeight: 950, color: "#ffffff", lineHeight: 1.35 }}>
+              {isPt 
+                ? "A regra de ouro do e-commerce: Não precisa de mais visitas, precisa de um TICKET MÉDIO maior." 
+                : "La regla de oro del e-commerce: No necesitás más visitas, necesitás subir tu TICKET PROMEDIO."}
+            </h3>
+
+            {/* Simulación de Packs bundles de Nevux */}
+            <div style={{
+              width: "100%",
+              borderRadius: "16px",
+              backgroundColor: "rgba(16,185,129,0.06)",
+              border: "1.5px solid #10B981",
+              padding: "16px 12px",
+              boxSizing: "border-box",
+              textAlign: "left"
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>🔥 BUNDLE RECOMENDADO</span>
+                <span style={{ fontSize: "10px", fontWeight: 900, background: "#10B981", color: "#000", padding: "2px 6px", borderRadius: "4px" }}>AHORRÁ 20%</span>
+              </div>
+              <span style={{ fontSize: "12px", color: "#ffffff", fontWeight: 700, display: "block" }}>Llevá 3 unidades de tu producto</span>
+              <span style={{ fontSize: "11px", color: "#a7f3d0", display: "block", marginTop: "2px" }}>Subí el ticket en piloto automático.</span>
+            </div>
+
+            <p style={{ margin: 0, fontSize: "11px", color: "#a7f3d0", fontWeight: 600 }}>
+              {isPt
+                ? "Nossa inteligência ajuda o cliente a comprar mais de você sem esforço extra de suporte."
+                : "Aumentá el valor de cada compra ofreciendo bundles dinámicos en tu Tiendanube."}
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+              <span style={{ fontSize: "32px" }}>👇</span>
+              <span style={{ fontSize: "11px", fontWeight: 900, color: "#ffffff" }}>
+                {isPt ? "TOQUE NO POST PARA LER A ESTRATÉGIA" : "TOCÁ EL POST PARA LEER LA ESTRATEGIA"}
+              </span>
+            </div>
+          </div>
+
         </div>
       )}
 
@@ -2221,4 +2456,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-}
+      }
