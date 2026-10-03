@@ -266,7 +266,7 @@ export default function BannersPage() {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#03120c', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 12px', borderRadius: '10px' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', justifyCenter: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontWeight: 'bold', fontSize: '12px' }}>✕</span>
+                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171', fontWeight: 'bold', fontSize: '12px' }}>✕</span>
                       <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#f1f5f9' }}>3. Venta de productos sueltos</span>
                     </div>
                   </div>
@@ -396,4 +396,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-              }
+    }
