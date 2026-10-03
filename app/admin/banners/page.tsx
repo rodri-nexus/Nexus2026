@@ -324,7 +324,7 @@ export default function BannersPage() {
   ];
 
   const categoryMondayTabs = [
-    { id: "story_lunes_encuesta" as TabId, label: "H1: Encuesta Diag (Nueva)", icon: "📊" },
+    { id: "story_lunes_encuesta" as TabId, label: "H1: Encuesta Diag", icon: "📊" },
     { id: "story_lunes_dolor" as TabId, label: "H2: Dolor (97%)", icon: "📉" },
     { id: "story_lunes_feed" as TabId, label: "H3: Empuje Feed", icon: "👉" },
   ];
@@ -501,7 +501,7 @@ export default function BannersPage() {
     }
   };
 
-  /* ─── CANVAS: HISTORIA LUNES - ENCUESTA DIAGNÓSTICO (NUEVA) ─── */
+  /* ─── CANVAS: HISTORIA LUNES - ENCUESTA DIAGNÓSTICO ─── */
   const downloadLunesEncuestaCanvas = async () => {
     setIsDownloading(true);
     try {
@@ -520,7 +520,6 @@ export default function BannersPage() {
       preparePremiumBackground(ctx, width, height, S);
       drawHeaderLogo(ctx, width, logoImg, S);
 
-      // Badge superior
       const bText = isPt ? "📊 ENQUETE DE DIAGNÓSTICO" : "📊 ENCUESTA DE DIAGNÓSTICO";
       ctx.font = `900 ${11 * S}px sans-serif`;
       const btw = ctx.measureText(bText).width + 30 * S;
@@ -534,7 +533,6 @@ export default function BannersPage() {
       ctx.textAlign = "center";
       ctx.fillText(bText, width / 2, bY + 16 * S);
 
-      // Titulo superior
       ctx.fillStyle = "#ffffff";
       ctx.font = `950 ${24 * S}px sans-serif`;
       wrapText(
@@ -548,7 +546,6 @@ export default function BannersPage() {
         34 * S
       );
 
-      // Caja Sticker interactiva
       const boxW = width - 100 * S;
       const boxH = 340 * S;
       const boxX = 50 * S;
@@ -583,7 +580,6 @@ export default function BannersPage() {
         20 * S
       );
 
-      // Opción A simulada
       ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
       ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
       ctx.lineWidth = 1 * S;
@@ -598,7 +594,6 @@ export default function BannersPage() {
         boxY + 192 * S
       );
 
-      // Opción B simulada
       ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
       drawRoundedRect(ctx, boxX + 20 * S, boxY + 235 * S, boxW - 40 * S, 55 * S, 12 * S);
       ctx.fill(); ctx.stroke();
@@ -609,7 +604,6 @@ export default function BannersPage() {
         boxY + 262 * S
       );
 
-      // Texto de agitación al pie
       ctx.fillStyle = "#94a3b8";
       ctx.font = `600 ${13 * S}px sans-serif`;
       ctx.textAlign = "center";
@@ -834,6 +828,154 @@ export default function BannersPage() {
 
       const a = document.createElement("a");
       a.download = `nevux-story-lunes-empuje.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  /* ─── CANVAS: HISTORIA MARTES - PSICOLOGÍA ─── */
+  const downloadMartesPsicologiaCanvas = async () => {
+    setIsDownloading(true);
+    try {
+      const width = 1080;
+      const height = 1920;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const S = width / 340;
+      let logoImg: HTMLImageElement | null = null;
+      try { logoImg = await loadLogoImage(); } catch (e) { console.warn(e); }
+
+      ctx.fillStyle = "#0c0e14";
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.015)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.lineWidth = 1 * S;
+      
+      drawRoundedRect(ctx, 40 * S, 320 * S, width - 80 * S, 200 * S, 12 * S);
+      ctx.fill(); ctx.stroke();
+      
+      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+      drawRoundedRect(ctx, 60 * S, 350 * S, width - 120 * S, 35 * S, 6 * S);
+      ctx.fill();
+      drawRoundedRect(ctx, 60 * S, 405 * S, 140 * S, 35 * S, 6 * S);
+      ctx.fill();
+      drawRoundedRect(ctx, 220 * S, 405 * S, 100 * S, 35 * S, 6 * S);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
+      ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
+      drawRoundedRect(ctx, 40 * S, 550 * S, width - 80 * S, 45 * S, 10 * S);
+      ctx.fill(); ctx.stroke();
+
+      const g = ctx.createRadialGradient(width / 2, height / 2, 80 * S, width / 2, height / 2, 420 * S);
+      g.addColorStop(0, "rgba(2, 10, 7, 0.92)");
+      g.addColorStop(1, "rgba(2, 6, 4, 0.98)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, width, height);
+
+      drawHeaderLogo(ctx, width, logoImg, S);
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${15 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(
+        isPt ? "Pergunta para quem compra online 👇" : "Pregunta para los que compran online 👇",
+        width / 2,
+        240 * S
+      );
+
+      const boxW = width - 100 * S;
+      const boxH = 340 * S;
+      const boxX = 50 * S;
+      const boxY = 320 * S;
+
+      ctx.fillStyle = "rgba(16, 185, 129, 0.04)";
+      ctx.strokeStyle = "#10B981";
+      ctx.lineWidth = 2 * S;
+      ctx.setLineDash([8 * S, 6 * S]);
+      drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 22 * S);
+      ctx.fill(); ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "📥 COLOQUE SEU STICKER DE ENQUETE AQUI" : "📥 COLOCÁ TU STICKER DE ENCUESTA ACÁ",
+        width / 2,
+        boxY + 35 * S
+      );
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `800 ${14 * S}px sans-serif`;
+      wrapText(
+        ctx,
+        isPt 
+          ? "Quando você entra em uma nova loja online, o que te dá mais confiança?" 
+          : "Cuando entrás a una tienda online nueva, ¿qué te da más confianza?",
+        width / 2,
+        boxY + 75 * S,
+        boxW - 40 * S,
+        20 * S
+      );
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 1 * S;
+      drawRoundedRect(ctx, boxX + 20 * S, boxY + 165 * S, boxW - 40 * S, 55 * S, 12 * S);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `700 ${12 * S}px sans-serif`;
+      ctx.textAlign = "left";
+      ctx.fillText(
+        isPt ? "Ver compras em tempo real 🛒" : "Ver compras en tiempo real 🛒",
+        boxX + 40 * S,
+        boxY + 192 * S
+      );
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+      drawRoundedRect(ctx, boxX + 20 * S, boxY + 235 * S, boxW - 40 * S, 55 * S, 12 * S);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(
+        isPt ? "Ver apenas fotos do produto 📸" : "Ver solo las fotos del producto 📸",
+        boxX + 40 * S,
+        boxY + 262 * S
+      );
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = `600 ${13 * S}px sans-serif`;
+      ctx.textAlign = "center";
+      wrapText(
+        ctx,
+        isPt
+          ? "A ciência do e-commerce comprova: ver movimento de outros clientes ativos gera segurança imediata."
+          : "La psicología del consumidor lo dice claro: ver compras de otros genera calma, deseo y seguridad inmediata.",
+        width / 2,
+        height / 2 + 100 * S,
+        width - 100 * S,
+        22 * S
+      );
+
+      ctx.fillStyle = "#10B981";
+      ctx.font = `900 ${12 * S}px sans-serif`;
+      ctx.fillText(
+        isPt ? "TOQUE PARA O RESULTADO REVELADOR ➔" : "TOCÁ PARA EL RESULTADO REVELADOR ➔",
+        width / 2,
+        height - 180 * S
+      );
+
+      const a = document.createElement("a");
+      a.download = `nevux-story-martes-psicologia.png`;
       a.href = canvas.toDataURL("image/png");
       a.click();
     } catch (e) {
@@ -1615,7 +1757,7 @@ export default function BannersPage() {
         </div>
       )}
 
-      {/* RENDER TAB: LUNES HISTORIA 1 (ENCUESTA DIAGNÓSTICO) — NUEVA */}
+      {/* RENDER TAB: LUNES HISTORIA 1 (ENCUESTA DIAGNÓSTICO) */}
       {activeTab === "story_lunes_encuesta" && (
         <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
@@ -1653,7 +1795,6 @@ export default function BannersPage() {
                 : "Pregunta rápida para dueños de tiendas en Tiendanube 👇"}
             </h3>
 
-            {/* Guía punteada sticker encuesta */}
             <div style={{
               width: "100%",
               borderRadius: "18px",
@@ -2140,7 +2281,7 @@ export default function BannersPage() {
             </div>
 
             <span style={{ fontSize: "11px", fontWeight: 900, color: "#10B981" }}>
-              {isPt ? "DESLIZE PARA VER A SOLUÇÃO ➔" : "DESLIZÁ PARA VER LA SOLUCIÓN ➔"}
+              {isPt ? "DESLIZE PARA VER A SOLUÇÃO ➔" : "DESLIZÁ PARA VER LA SOLUCIÓN HOY ➔"}
             </span>
           </div>
 
@@ -2208,7 +2349,7 @@ export default function BannersPage() {
 
             <div style={{
               width: "100%",
-              background: "rgba(11, 41, 32, 0.95)",
+              background: "rgba(11, 41, 32, 0.98)",
               border: "1.5px solid #10B981",
               borderRadius: "14px",
               padding: "10px",
@@ -2360,7 +2501,7 @@ export default function BannersPage() {
             </div>
 
             <div style={{ textAlign: "center" }}>
-              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16, 185, 129, 0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
+              <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "999px", fontSize: "10px", fontWeight: 900, color: "#10B981", background: "rgba(16,185,129,0.15)", border: "1px solid #10B981", marginBottom: "16px" }}>
                 🚀 PRUEBA SIN COMPROMISO
               </span>
               <h2 style={{ margin: "0 0 12px", fontSize: "20px", fontWeight: 950, color: "#ffffff", lineHeight: 1.3 }}>
@@ -2549,4 +2690,4 @@ export default function BannersPage() {
       )}
     </div>
   );
-}
+  }
