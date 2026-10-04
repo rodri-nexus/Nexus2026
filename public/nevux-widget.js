@@ -1672,6 +1672,7 @@
           if (w.widget_slug === "resenas-destacadas") renderResenasDestacadas(w);
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
           if (w.widget_slug === "popup-conversion") renderPopupConversion(w);
+          if (w.widget_slug === "barra-envio-gratis") renderBarraEnvioGratis(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -5274,4 +5275,275 @@ function renderPopupConversion(w) {
     }
   }, delaySeconds * 1000);
 }
+  /* ═══════════════════════════════════════════
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v16)
+   ═══════════════════════════════════════════ */
+function renderBarraEnvioGratis(w) {
+  var elementId = "nvx-shipbar-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var cfg = w.config || {};
+  var template = cfg.template || "moderna";
+  var minAmount = parseFloat(cfg.minAmount) || 50000;
+  var size = cfg.size || "normal";
+  var desktopPos = cfg.desktopPos || "top";
+  var useZones = !!cfg.useZones;
+  var zones = cfg.zones || [];
+  var iconType = cfg.iconType || "fontawesome";
+  var emojiIcon = cfg.emojiIcon || "🚚";
+  var msgProgress = cfg.msgProgress || "Te faltan {{remaining}} para tener ENVÍO GRATIS";
+  var urgencyAmount = parseFloat(cfg.urgencyAmount) || 0;
+  var msgUrgency = cfg.msgUrgency || "¡Solo {{remaining}} más, apurate! 🔥";
+  var msgSuccess = cfg.msgSuccess || "Listo, tenés ENVÍO GRATIS 🎉";
+  var mobilePos = cfg.mobilePos || "same";
+  var stickyGlobal = cfg.stickyGlobal !== false;
+  var inCartDrawer = !!cfg.inCartDrawer;
+  var inProductBanner = !!cfg.inProductBanner;
+  var bgColor = cfg.bgColor || "#111827";
+  var barColor = cfg.barColor || "#10B981";
+  var textColor = cfg.textColor || "#ffffff";
+
+  // Presets de campaña
+  var THEMES = {
+    "black-friday": { bg: "#111827", bar: "#F59E0B", text: "#ffffff" },
+    "hot-sale": { bg: "#0F172A", bar: "#EF4444", text: "#ffffff" },
+    "cyber-monday": { bg: "#090D16", bar: "#3B82F6", text: "#ffffff" },
+    "navidad": { bg: "#064E3B", bar: "#EF4444", text: "#ffffff" },
+    "san-valentin": { bg: "#831843", bar: "#F43F5E", text: "#ffffff" },
+    "dia-padre-madre": { bg: "#312E81", bar: "#10B981", text: "#ffffff" },
+    "liquidacion": { bg: "#7F1D1D", bar: "#FBBF24", text: "#ffffff" }
+  };
+
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    var t = THEMES[cfg.campaignTheme];
+    bgColor = t.bg;
+    barColor = t.bar;
+    textColor = t.text;
+  }
+
+  // Obtener Total del Carrito de Tiendanube
+  function getCartTotal() {
+    try {
+      if (window.LS && window.LS.cart && typeof window.LS.cart.total !== "undefined") {
+        return parseFloat(window.LS.cart.total) || 0;
+      }
+    } catch(e) {}
+    var cartEl = document.querySelector(".js-cart-total, .js-ajax-cart-total, #cart-total");
+    if (cartEl) {
+      var txt = cartEl.textContent || cartEl.innerText || "";
+      var num = parseFloat(txt.replace(/[^0-9]/g, "")) || 0;
+      if (num > 0) return num;
+    }
+    return 0;
+  }
+
+  // Detectar Monto Meta según Zona
+  var targetMin = minAmount;
+  if (useZones && zones.length > 0) {
+    var userZip = "";
+    try {
+      if (window.LS && window.LS.cart && window.LS.cart.shipping_zipcode) {
+        userZip = String(window.LS.cart.shipping_zipcode).trim();
+      }
+    } catch(e) {}
+
+    if (userZip) {
+      var matched = false;
+      for (var z = 0; z < zones.length; z++) {
+        var zone = zones[z];
+        if (zone.zipCodes) {
+          if (zone.zipCodes === "*") {
+            targetMin = parseFloat(zone.amount) || targetMin;
+            matched = true;
+          } else if (zone.zipCodes.indexOf("-") !== -1) {
+            var parts = zone.zipCodes.split("-");
+            var minZ = parseInt(parts[0], 10);
+            var maxZ = parseInt(parts[1], 10);
+            var uZ = parseInt(userZip, 10);
+            if (!isNaN(minZ) && !isNaN(maxZ) && !isNaN(uZ) && uZ >= minZ && uZ <= maxZ) {
+              targetMin = parseFloat(zone.amount) || targetMin;
+              matched = true;
+              break;
+            }
+          } else if (zone.zipCodes.indexOf(userZip) !== -1) {
+            targetMin = parseFloat(zone.amount) || targetMin;
+            matched = true;
+            break;
+          }
+        }
+      }
+      if (!matched && zones[0]) {
+        targetMin = parseFloat(zones[0].amount) || targetMin;
+      }
+    } else if (zones[0]) {
+      targetMin = parseFloat(zones[0].amount) || targetMin;
+    }
+  }
+
+  function formatMoney(val) {
+    var str = Math.round(val).toString();
+    var res = "";
+    var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+      count++;
+      res = str.charAt(i) + res;
+      if (count % 3 === 0 && i !== 0) {
+        res = "." + res;
+      }
+    }
+    return "$" + res;
+  }
+
+  function buildInnerHtml(currentTotal) {
+    var remaining = targetMin - currentTotal;
+    if (remaining < 0) remaining = 0;
+
+    var pct = targetMin > 0 ? Math.min(100, Math.round((currentTotal / targetMin) * 100)) : 100;
+
+    var displayText = msgSuccess;
+    if (remaining > 0) {
+      if (urgencyAmount > 0 && remaining <= urgencyAmount) {
+        displayText = msgUrgency.replace("{{remaining}}", formatMoney(remaining));
+      } else {
+        displayText = msgProgress.replace("{{remaining}}", formatMoney(remaining));
+      }
+    }
+
+    var iconHtml = "";
+    if (iconType === "emoji") {
+      iconHtml = '<span style="font-size:20px !important;line-height:1 !important;">' + emojiIcon + '</span>';
+    } else {
+      iconHtml = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + barColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block !important;"><rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>';
+    }
+
+    var progressHtml = "";
+    if (remaining === 0) {
+      progressHtml = '<div style="width:26px !important;height:26px !important;border-radius:50% !important;background:' + barColor + ' !important;color:#ffffff !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:900 !important;font-size:14px !important;flex-shrink:0 !important;">✓</div>';
+    } else {
+      var barH = template === "bold" ? "12px" : (template === "minimal" ? "4px" : "8px");
+      var barW = template === "minimal" ? "80px" : "110px";
+      progressHtml = '<div style="width:' + barW + ' !important;height:' + barH + ' !important;background:rgba(255,255,255,0.2) !important;border-radius:999px !important;overflow:hidden !important;position:relative !important;flex-shrink:0 !important;">' +
+        '<div style="width:' + pct + '% !important;height:100% !important;background:' + barColor + ' !important;border-radius:999px !important;transition:width 0.4s ease !important;' + (template === "neon" ? 'box-shadow:0 0 8px ' + barColor + ' !important;' : '') + '"></div>' +
+      '</div>';
+    }
+
+    var html =
+      '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;gap:12px !important;width:100% !important;max-width:1100px !important;margin:0 auto !important;box-sizing:border-box !important;">' +
+        '<div style="display:flex !important;align-items:center !important;flex-shrink:0 !important;">' + iconHtml + '</div>' +
+        '<div style="flex:1 !important;font-size:' + (size === "small" ? "12px" : (size === "large" ? "15px" : "13.5px")) + ' !important;font-weight:800 !important;line-height:1.3 !important;text-align:' + (template === "minimal" ? "left" : "center") + ' !important;color:' + textColor + ' !important;">' + displayText + '</div>' +
+        progressHtml +
+      '</div>';
+
+    return html;
+  }
+
+  // Estilos CSS para el Widget
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+
+    var padCss = size === "small" ? "8px 14px" : (size === "large" ? "16px 22px" : "12px 18px");
+    var bgCss = template === "oscura" ? "#000000" : (template === "neon" ? "#090D16" : bgColor);
+    var borderCss = template === "neon" ? "1.5px solid " + barColor : "none";
+    var radiusCss = template === "flotante" ? "999px" : (template === "moderna" ? "12px" : "0px");
+
+    var cssText =
+      "#" + elementId + " { " +
+        "background: " + bgCss + " !important; " +
+        "border: " + borderCss + " !important; " +
+        "border-radius: " + radiusCss + " !important; " +
+        "padding: " + padCss + " !important; " +
+        "color: " + textColor + " !important; " +
+        "box-sizing: border-box !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; " +
+        (template === "neon" ? "box-shadow: 0 0 12px " + barColor + "60 !important; " : "box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; ") +
+      "} ";
+
+    if (mobilePos === "hide") {
+      cssText += "@media (max-width: 768px) { #" + elementId + " { display: none !important; } } ";
+    }
+
+    styleEl.appendChild(document.createTextNode(cssText));
+    document.head.appendChild(styleEl);
+  }
+
+  // Elemento Contenedor Principal (Sticky Global)
+  if (stickyGlobal) {
+    var container = document.createElement("div");
+    container.id = elementId;
+    container.className = "nvx-widget nvx-shipbar-sticky";
+
+    var posIsTop = desktopPos === "top";
+
+    var positionStyle = "position:fixed !important;left:0 !important;right:0 !important;z-index:999998 !important;";
+    if (posIsTop) {
+      positionStyle += "top:0 !important;";
+    } else {
+      positionStyle += "bottom:0 !important;";
+    }
+
+    if (template === "flotante") {
+      positionStyle += "width:calc(100% - 24px) !important;margin:10px auto !important;left:12px !important;right:12px !important;";
+    }
+
+    container.style.cssText = positionStyle;
+    container.innerHTML = buildInnerHtml(getCartTotal());
+
+    if (document.body) {
+      document.body.appendChild(container);
+    }
+  }
+
+  // Render en Página de Producto (si está activo inProductBanner)
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+  if (inProductBanner && currentPage === "product") {
+    var prodBannerId = elementId + "-prod";
+    if (!document.getElementById(prodBannerId)) {
+      var prodContainer = document.createElement("div");
+      prodContainer.id = prodBannerId;
+      prodContainer.className = "nvx-widget nvx-shipbar-product";
+      prodContainer.style.cssText = "margin:14px 0 !important;width:100% !important;box-sizing:border-box !important;";
+      prodContainer.innerHTML = buildInnerHtml(getCartTotal());
+
+      var buyFormSelectors = [
+        "form[action*='/cart/add']",
+        "form.js-product-form",
+        ".js-product-buy-container",
+        ".product-buy-container",
+        "form.js-product-buyform",
+        ".js-add-to-cart-btn"
+      ];
+      var target = null;
+      for (var b = 0; b < buyFormSelectors.length; b++) {
+        var el = document.querySelector(buyFormSelectors[b]);
+        if (el) { target = el; break; }
+      }
+      if (target && target.parentNode) {
+        target.parentNode.insertBefore(prodContainer, target.nextSibling);
+      }
+    }
+  }
+
+  // Suscripción / Polling para actualizar cuando cambia el carrito
+  function updateBar() {
+    var currentCartTotal = getCartTotal();
+    var mainEl = document.getElementById(elementId);
+    if (mainEl) {
+      mainEl.innerHTML = buildInnerHtml(currentCartTotal);
+    }
+    var prodEl = document.getElementById(elementId + "-prod");
+    if (prodEl) {
+      prodEl.innerHTML = buildInnerHtml(currentCartTotal);
+    }
+  }
+
+  setInterval(updateBar, 2000);
+
+  // Telemetría Nevux
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+                        }
 })(); 
