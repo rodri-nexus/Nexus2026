@@ -44,7 +44,7 @@ interface Cfg {
   title: string;
   blockSize: 'compact' | 'normal' | 'large';
   location: 'product_before' | 'product_after' | 'top_bar';
-  template: 'gradient' | 'classic' | 'cards' | 'minimal' | 'neon' | 'pill' | 'outline' | 'glass';
+  template: 'classic' | 'cards' | 'minimal' | 'neon' | 'pill' | 'gradient' | 'blocks' | 'outline' | 'flip' | 'pastel' | 'glass';
   gradStart: string;
   gradEnd: string;
   textColor: string;
@@ -55,7 +55,7 @@ interface Cfg {
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO
+   CONFIG POR DEFECTO (Nuevo Estándar Verde Nevux)
 ═══════════════════════════════════════════ */
 const DEF: Cfg = {
   timerType: 'minutes',
@@ -68,9 +68,9 @@ const DEF: Cfg = {
   title: '¡Oferta por tiempo limitado!',
   blockSize: 'normal',
   location: 'product_before',
-  template: 'gradient',
-  gradStart: '#ef4444',
-  gradEnd: '#eab308',
+  template: 'classic',
+  gradStart: '#111827', // Fondo Principal (Oscuro)
+  gradEnd: '#10B981', // Cajas / Acento (Verde Nevux)
   textColor: '#ffffff',
   coupon: '',
   ctaText: '',
@@ -399,7 +399,7 @@ export default function CuentaRegresivaEditor({
 
   const applyPreset = (slug: string) => {
     const PRESETS_DATA: Record<string, { start: string; end: string; tx: string }> = {
-      'black-friday': { start: '#111827', end: '#111827', tx: '#F59E0B' },
+      'black-friday': { start: '#111827', end: '#F59E0B', tx: '#ffffff' },
       'hot-sale': { start: '#0F172A', end: '#EF4444', tx: '#ffffff' },
       'cyber-monday': { start: '#090D16', end: '#3B82F6', tx: '#ffffff' },
       'navidad': { start: '#064E3B', end: '#EF4444', tx: '#ffffff' },
@@ -492,29 +492,18 @@ export default function CuentaRegresivaEditor({
   ];
 
   const TEMPLATES_LIST: { id: Cfg['template']; label: string }[] = [
-    { id: 'gradient', label: 'Degradado' },
     { id: 'classic', label: 'Clásico' },
     { id: 'cards', label: 'Tarjetas' },
     { id: 'minimal', label: 'Minimal' },
     { id: 'neon', label: 'Neón' },
     { id: 'pill', label: 'Píldora' },
+    { id: 'gradient', label: 'Degradado' },
+    { id: 'blocks', label: 'Bloques' },
     { id: 'outline', label: 'Contorno' },
+    { id: 'flip', label: 'Flip' },
+    { id: 'pastel', label: 'Pastel' },
     { id: 'glass', label: 'Cristal' },
   ];
-
-  const getContainerBg = () => {
-    if (cfg.template === 'gradient') return `linear-gradient(135deg, ${cfg.gradStart}, ${cfg.gradEnd})`;
-    if (cfg.template === 'glass') return 'rgba(17, 24, 39, 0.85)';
-    if (cfg.template === 'outline') return 'transparent';
-    if (cfg.template === 'neon') return '#000000';
-    return cfg.gradStart;
-  };
-
-  const getContainerBorder = () => {
-    if (cfg.template === 'outline') return `2px dashed ${cfg.gradStart}`;
-    if (cfg.template === 'neon') return `2px solid ${cfg.gradEnd}`;
-    return 'none';
-  };
 
   const dD = Math.floor(demoSeconds / (3600 * 24));
   const dH = Math.floor((demoSeconds % (3600 * 24)) / 3600);
@@ -552,6 +541,61 @@ export default function CuentaRegresivaEditor({
       return `${val} día${val === 1 ? '' : 's'}`;
     }
     return '';
+  };
+
+  /* LOGICA DE ESTILOS DE PREVIEW */
+  const containerStyle: React.CSSProperties = {
+    background: cfg.template === 'gradient' ? `linear-gradient(135deg, ${cfg.gradStart}, ${cfg.gradEnd})` 
+              : cfg.template === 'glass' ? `linear-gradient(135deg, ${cfg.gradStart}E6, ${cfg.gradEnd}E6)`
+              : cfg.template === 'outline' ? 'transparent'
+              : cfg.gradStart,
+    border: cfg.template === 'outline' ? `2px dashed ${cfg.gradEnd}` : 'none',
+    borderLeft: cfg.template === 'blocks' ? `8px solid ${cfg.gradEnd}` : 'none',
+    borderTop: cfg.template === 'minimal' ? `1px solid ${cfg.gradEnd}` : 'none',
+    borderBottom: cfg.template === 'minimal' ? `1px solid ${cfg.gradEnd}` : 'none',
+    borderRadius: cfg.template === 'pill' ? 999 : cfg.template === 'blocks' || cfg.template === 'minimal' ? 0 : 16,
+    boxShadow: cfg.template === 'neon' ? `0 0 15px ${cfg.gradStart}40` : '0 8px 24px rgba(0,0,0,0.08)',
+    backdropFilter: cfg.template === 'glass' ? 'blur(10px)' : 'none',
+    padding: cfg.blockSize === 'compact' ? '12px 16px' : cfg.blockSize === 'large' ? '24px 28px' : '18px 22px',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12,
+    transition: 'all 0.3s ease', position: 'relative', overflow: 'hidden', boxSizing: 'border-box'
+  };
+
+  const getDigitBoxStyle = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: cfg.blockSize === 'compact' ? '4px 8px' : cfg.blockSize === 'large' ? '8px 14px' : '6px 11px',
+      borderRadius: cfg.template === 'pill' ? 999 : cfg.template === 'minimal' || cfg.template === 'outline' || cfg.template === 'blocks' ? 0 : 8,
+      position: 'relative', overflow: 'hidden'
+    };
+
+    if (['classic', 'cards', 'pill', 'blocks', 'pastel', 'flip'].includes(cfg.template)) {
+      base.background = cfg.gradEnd;
+      if (cfg.template === 'cards') base.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+    } else if (cfg.template === 'gradient') {
+      base.background = 'rgba(0,0,0,0.2)';
+    } else if (cfg.template === 'glass') {
+      base.background = 'rgba(255,255,255,0.1)';
+      base.border = '1px solid rgba(255,255,255,0.2)';
+    } else if (cfg.template === 'outline' || cfg.template === 'neon') {
+      base.background = 'transparent';
+      base.border = `2px solid ${cfg.gradEnd}`;
+      if (cfg.template === 'neon') base.boxShadow = `0 0 10px ${cfg.gradEnd}80`;
+    } else if (cfg.template === 'minimal') {
+      base.background = 'transparent';
+    }
+
+    return base;
+  };
+
+  const getDigitTextStyle = (): React.CSSProperties => {
+    return {
+      fontSize: cfg.blockSize === 'compact' ? 16 : cfg.blockSize === 'large' ? 24 : 20,
+      fontWeight: 900, fontFamily: 'monospace',
+      color: cfg.template === 'neon' ? cfg.gradEnd : cfg.textColor,
+      textShadow: cfg.template === 'neon' ? `0 0 8px ${cfg.gradEnd}` : 'none',
+      position: 'relative', zIndex: 2
+    };
   };
 
   return (
@@ -624,23 +668,7 @@ export default function CuentaRegresivaEditor({
               VISTA PREVIA EN VIVO
             </div>
 
-            <div
-              style={{
-                background: getContainerBg(),
-                border: getContainerBorder(),
-                borderRadius: cfg.template === 'pill' ? 999 : 16,
-                padding: cfg.blockSize === 'compact' ? '12px 16px' : cfg.blockSize === 'large' ? '24px 28px' : '18px 22px',
-                color: cfg.textColor,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 12,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                backdropFilter: cfg.template === 'glass' ? 'blur(10px)' : 'none',
-                transition: 'all 0.3s ease',
-              }}
-            >
+            <div style={containerStyle}>
               {cfg.title && (
                 <div style={{ fontSize: cfg.blockSize === 'compact' ? 14 : cfg.blockSize === 'large' ? 19 : 16, fontWeight: 800, textAlign: 'center', color: cfg.textColor }}>
                   {cfg.title}
@@ -650,23 +678,15 @@ export default function CuentaRegresivaEditor({
               <div style={{ display: 'flex', alignItems: 'center', gap: cfg.blockSize === 'compact' ? 6 : 10 }}>
                 {previewDigits.map((item, idx) => (
                   <React.Fragment key={idx}>
-                    {idx > 0 && <span style={{ fontSize: 18, fontWeight: 900, opacity: 0.8, color: cfg.textColor }}>:</span>}
+                    {idx > 0 && <span style={{ fontSize: 18, fontWeight: 900, opacity: 0.8, color: cfg.template === 'neon' ? cfg.gradEnd : cfg.textColor }}>:</span>}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div
-                        style={{
-                          background: cfg.template === 'cards' || cfg.template === 'classic' ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.18)',
-                          borderRadius: 8,
-                          padding: cfg.blockSize === 'compact' ? '4px 8px' : cfg.blockSize === 'large' ? '8px 14px' : '6px 11px',
-                          fontSize: cfg.blockSize === 'compact' ? 16 : cfg.blockSize === 'large' ? 24 : 20,
-                          fontWeight: 900,
-                          fontFamily: 'monospace',
-                          color: cfg.textColor,
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                        }}
-                      >
-                        {item.num}
+                      <div style={getDigitBoxStyle()}>
+                        {cfg.template === 'flip' && (
+                          <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: 'rgba(255,255,255,0.3)', zIndex: 1 }} />
+                        )}
+                        <span style={getDigitTextStyle()}>{item.num}</span>
                       </div>
-                      <span style={{ fontSize: 9, textTransform: 'uppercase', opacity: 0.8, marginTop: 3, fontWeight: 700, color: cfg.textColor }}>
+                      <span style={{ fontSize: 9, textTransform: 'uppercase', opacity: 0.8, marginTop: 4, fontWeight: 700, color: cfg.template === 'neon' ? cfg.gradEnd : cfg.textColor }}>
                         {item.label}
                       </span>
                     </div>
@@ -843,15 +863,9 @@ export default function CuentaRegresivaEditor({
                           }}
                           placeholder="15"
                           style={{
-                            flex: 1,
-                            border: 'none',
-                            outline: 'none',
-                            fontSize: 24,
-                            fontWeight: 800,
-                            color: '#000000',
-                            background: 'transparent',
-                            fontFamily: 'inherit',
-                            width: '100%',
+                            flex: 1, border: 'none', outline: 'none',
+                            fontSize: 24, fontWeight: 800, color: '#000000',
+                            background: 'transparent', fontFamily: 'inherit', width: '100%',
                           }}
                         />
                         <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>MIN</span>
@@ -871,15 +885,9 @@ export default function CuentaRegresivaEditor({
                           value={clockValue}
                           onChange={(e) => handleClockChange(e.target.value)}
                           style={{
-                            flex: 1,
-                            border: 'none',
-                            outline: 'none',
-                            fontSize: 24,
-                            fontWeight: 800,
-                            color: '#000000',
-                            background: 'transparent',
-                            fontFamily: 'inherit',
-                            width: '100%',
+                            flex: 1, border: 'none', outline: 'none',
+                            fontSize: 24, fontWeight: 800, color: '#000000',
+                            background: 'transparent', fontFamily: 'inherit', width: '100%',
                           }}
                         />
                         <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>HH:MM</span>
@@ -905,15 +913,9 @@ export default function CuentaRegresivaEditor({
                           }}
                           placeholder="1"
                           style={{
-                            flex: 1,
-                            border: 'none',
-                            outline: 'none',
-                            fontSize: 24,
-                            fontWeight: 800,
-                            color: '#000000',
-                            background: 'transparent',
-                            fontFamily: 'inherit',
-                            width: '100%',
+                            flex: 1, border: 'none', outline: 'none',
+                            fontSize: 24, fontWeight: 800, color: '#000000',
+                            background: 'transparent', fontFamily: 'inherit', width: '100%',
                           }}
                         />
                         <span style={{ fontSize: 14, fontWeight: 700, color: '#10B981' }}>DÍAS</span>
@@ -924,13 +926,8 @@ export default function CuentaRegresivaEditor({
 
                   {/* RESUMEN */}
                   <div style={{
-                    background: '#ecfdf5',
-                    borderRadius: 10,
-                    padding: '10px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    border: '1px solid #a7f3d0',
+                    background: '#ecfdf5', borderRadius: 10, padding: '10px 14px',
+                    display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #a7f3d0',
                   }}>
                     <span style={{ fontSize: 18 }}>✅</span>
                     <span style={{ fontSize: 13, color: '#065f46', fontWeight: 600 }}>
@@ -952,15 +949,9 @@ export default function CuentaRegresivaEditor({
                       value={cfg.exactDate}
                       onChange={(e) => set('exactDate', e.target.value)}
                       style={{
-                        flex: 1,
-                        border: 'none',
-                        outline: 'none',
-                        fontSize: 16,
-                        fontWeight: 700,
-                        color: '#000000',
-                        background: 'transparent',
-                        fontFamily: 'inherit',
-                        width: '100%',
+                        flex: 1, border: 'none', outline: 'none',
+                        fontSize: 16, fontWeight: 700, color: '#000000',
+                        background: 'transparent', fontFamily: 'inherit', width: '100%',
                       }}
                     />
                   </div>
@@ -971,13 +962,8 @@ export default function CuentaRegresivaEditor({
               {/* DIARIO */}
               {cfg.timerType === 'daily' && (
                 <div style={{
-                  background: '#ecfdf5',
-                  borderRadius: 12,
-                  padding: 16,
-                  border: '1px solid #a7f3d0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
+                  background: '#ecfdf5', borderRadius: 12, padding: 16,
+                  border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', gap: 12,
                 }}>
                   <span style={{ fontSize: 28 }}>🔄</span>
                   <div>
@@ -1020,8 +1006,7 @@ export default function CuentaRegresivaEditor({
                           background: active ? '#ecfdf5' : '#ffffff',
                           color: active ? '#059669' : '#000000',
                           fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                          textAlign: 'center',
-                          lineHeight: 1.3,
+                          textAlign: 'center', lineHeight: 1.3,
                         }}
                       >
                         {loc.label}
@@ -1066,7 +1051,7 @@ export default function CuentaRegresivaEditor({
 
           {/* TAB DISEÑO Y COLORES */}
           {tab === 'style' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <div>
                 <FieldLabel>Plantilla de diseño</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 8 }}>
@@ -1095,18 +1080,19 @@ export default function CuentaRegresivaEditor({
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                 <div>
-                  <FieldLabel>Color de Inicio / Fondo</FieldLabel>
+                  <FieldLabel>Fondo / Principal</FieldLabel>
                   <ColorPickerField value={cfg.gradStart} onChange={(v) => setCustomColor('gradStart', v)} />
+                  <FieldHelper>Color base del contenedor.</FieldHelper>
                 </div>
-                {cfg.template === 'gradient' && (
-                  <div>
-                    <FieldLabel>Color Final (Degradado)</FieldLabel>
-                    <ColorPickerField value={cfg.gradEnd} onChange={(v) => setCustomColor('gradEnd', v)} />
-                  </div>
-                )}
                 <div>
-                  <FieldLabel>Color de Texto y Números</FieldLabel>
+                  <FieldLabel>Cajas / Acento (Secundario)</FieldLabel>
+                  <ColorPickerField value={cfg.gradEnd} onChange={(v) => setCustomColor('gradEnd', v)} />
+                  <FieldHelper>Color de cajas, bordes o neón.</FieldHelper>
+                </div>
+                <div>
+                  <FieldLabel>Texto / Números</FieldLabel>
                   <ColorPickerField value={cfg.textColor} onChange={(v) => setCustomColor('textColor', v)} />
+                  <FieldHelper>Color de letras y títulos.</FieldHelper>
                 </div>
               </div>
             </div>
@@ -1247,4 +1233,4 @@ export default function CuentaRegresivaEditor({
       </div>
     </div>
   );
-}
+     }
