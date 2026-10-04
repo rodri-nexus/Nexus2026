@@ -5276,7 +5276,7 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v21 - Full Cart Engine)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v22 - Fix Parser ARS)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
@@ -5325,7 +5325,7 @@ function renderBarraEnvioGratis(w) {
 
   var currentCartTotal = 0;
 
-  // PARSER UNIVERSAL DE MONEDA LATAM / TIENDANUBE
+  // PARSER UNIVERSAL DE MONEDA LATAM / TIENDANUBE (v2 - Fix separador argentino)
   function parseMoneyValue(val) {
     if (typeof val === "number") {
       if (isNaN(val)) return 0;
@@ -5343,20 +5343,26 @@ function renderBarraEnvioGratis(w) {
       } else {
         str = str.replace(/,/g, "");
       }
-    } else if (str.indexOf(",") !== -1) {
+    }
+    else if (str.indexOf(",") !== -1) {
       var cParts = str.split(",");
       if (cParts.length === 2 && cParts[1].length === 2) {
         str = cParts[0] + "." + cParts[1];
       } else {
         str = str.replace(/,/g, "");
       }
-    } else if (str.indexOf(".") !== -1) {
+    }
+    else if (str.indexOf(".") !== -1) {
       var pParts = str.split(".");
       if (pParts.length > 2) {
         str = str.replace(/\./g, "");
       } else if (pParts.length === 2) {
-        if (pParts[1].length === 3) {
-          str = str.replace(/\./g, "");
+        var intPart = pParts[0];
+        var decPart = pParts[1];
+        if (decPart.length === 3) {
+          str = intPart + decPart;
+        } else if (decPart.length >= 4) {
+          str = intPart + decPart;
         }
       }
     }
@@ -5365,7 +5371,6 @@ function renderBarraEnvioGratis(w) {
     return parsed;
   }
 
-  // LECTURA DIRECTA DESDE EL DOM DE TIENDANUBE (FALLBACK SEGURO)
   function readFromDOM() {
     var domSelectors = [
       ".js-ajax-cart-total",
@@ -5398,25 +5403,28 @@ function renderBarraEnvioGratis(w) {
     return 0;
   }
 
-  // LECTOR MULTI-FUENTE DEL TOTAL
   function readCartTotal() {
     try {
       if (window.LS && window.LS.cart) {
-        if (window.LS.cart.items && window.LS.cart.items.length > 0) {
-          var sum = 0;
-          for (var i = 0; i < window.LS.cart.items.length; i++) {
-            var item = window.LS.cart.items[i];
-            var p = parseMoneyValue(item.price !== undefined ? item.price : (item.unit_price !== undefined ? item.unit_price : item.final_price));
-            var q = parseInt(item.quantity || item.qty || 1, 10) || 1;
-            sum += (p * q);
-          }
-          if (sum > 0) return sum;
-        }
         if (window.LS.cart.subtotal_in_cents && window.LS.cart.subtotal_in_cents > 0) {
           return window.LS.cart.subtotal_in_cents / 100;
         }
         if (window.LS.cart.total_in_cents && window.LS.cart.total_in_cents > 0) {
           return window.LS.cart.total_in_cents / 100;
+        }
+        if (window.LS.cart.items && window.LS.cart.items.length > 0) {
+          var sum = 0;
+          for (var i = 0; i < window.LS.cart.items.length; i++) {
+            var item = window.LS.cart.items[i];
+            var p = 0;
+            if (typeof item.price === "number") p = item.price;
+            else if (typeof item.unit_price === "number") p = item.unit_price;
+            else if (typeof item.final_price === "number") p = item.final_price;
+            else p = parseMoneyValue(item.price || item.unit_price || item.final_price);
+            var q = parseInt(item.quantity || item.qty || 1, 10) || 1;
+            sum += (p * q);
+          }
+          if (sum > 0) return sum;
         }
         if (window.LS.cart.subtotal !== undefined && window.LS.cart.subtotal !== null && window.LS.cart.subtotal !== "") {
           var subVal = parseMoneyValue(window.LS.cart.subtotal);
@@ -5455,16 +5463,22 @@ function renderBarraEnvioGratis(w) {
             var cartData = JSON.parse(xhr.responseText);
             if (cartData) {
               var fetchedTotal = 0;
-              if (cartData.items && cartData.items.length > 0) {
+              if (cartData.subtotal_in_cents && cartData.subtotal_in_cents > 0) {
+                fetchedTotal = cartData.subtotal_in_cents / 100;
+              } else if (cartData.total_in_cents && cartData.total_in_cents > 0) {
+                fetchedTotal = cartData.total_in_cents / 100;
+              } else if (cartData.items && cartData.items.length > 0) {
                 for (var k = 0; k < cartData.items.length; k++) {
                   var itm = cartData.items[k];
-                  var ip = parseMoneyValue(itm.price !== undefined ? itm.price : (itm.unit_price !== undefined ? itm.unit_price : itm.final_price));
+                  var ip = 0;
+                  if (typeof itm.price === "number") ip = itm.price;
+                  else if (typeof itm.unit_price === "number") ip = itm.unit_price;
+                  else if (typeof itm.final_price === "number") ip = itm.final_price;
+                  else ip = parseMoneyValue(itm.price || itm.unit_price || itm.final_price);
                   var iq = parseInt(itm.quantity || itm.qty || 1, 10) || 1;
                   fetchedTotal += (ip * iq);
                 }
               }
-              if (fetchedTotal <= 0 && cartData.subtotal_in_cents) fetchedTotal = cartData.subtotal_in_cents / 100;
-              if (fetchedTotal <= 0 && cartData.total_in_cents) fetchedTotal = cartData.total_in_cents / 100;
               if (fetchedTotal <= 0 && cartData.subtotal !== undefined) fetchedTotal = parseMoneyValue(cartData.subtotal);
               if (fetchedTotal <= 0 && cartData.total !== undefined) fetchedTotal = parseMoneyValue(cartData.total);
 
@@ -5486,24 +5500,20 @@ function renderBarraEnvioGratis(w) {
     } catch(e) {}
   }
 
-  // Inicialización inmediata
   currentCartTotal = readCartTotal();
   fetchCartTotal();
 
-  // Polling rápido de arranque
   setTimeout(fetchCartTotal, 300);
   setTimeout(fetchCartTotal, 800);
   setTimeout(fetchCartTotal, 1500);
   setTimeout(fetchCartTotal, 3000);
 
-  // Eventos nativos de Tiendanube
   document.addEventListener("ajaxCart:receive", fetchCartTotal);
   document.addEventListener("cart:updated", fetchCartTotal);
   document.addEventListener("cart:change", fetchCartTotal);
   document.addEventListener("product_added_to_cart", fetchCartTotal);
   window.addEventListener("LS:cart:updated", fetchCartTotal);
 
-  // Hook jQuery de Tiendanube
   try {
     if (window.jQuery) {
       window.jQuery(document).ajaxComplete(function() {
@@ -5513,7 +5523,6 @@ function renderBarraEnvioGratis(w) {
     }
   } catch(e) {}
 
-  // MutationObserver para cambios en el DOM del carrito
   try {
     if (window.MutationObserver && document.body) {
       var cartObserver = new MutationObserver(function() {
@@ -5527,7 +5536,6 @@ function renderBarraEnvioGratis(w) {
     }
   } catch(e) {}
 
-  // Click handler sobre botones de compra
   document.addEventListener("click", function(e) {
     try {
       var target = e.target;
@@ -5565,7 +5573,6 @@ function renderBarraEnvioGratis(w) {
     } catch(err) {}
   }, true);
 
-  // Zonas de Envío
   var targetMin = minAmount;
   if (useZones && zones.length > 0) {
     var userZip = "";
@@ -5640,7 +5647,6 @@ function renderBarraEnvioGratis(w) {
     '</div>';
   }
 
-  // HOJA DE ESTILOS
   var styleId = "style-" + idBase;
   if (!document.getElementById(styleId)) {
     var padCss = size === "small" ? "6px 12px" : (size === "large" ? "12px 18px" : "9px 14px");
@@ -5828,5 +5834,5 @@ function renderBarraEnvioGratis(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-  }
+      }
 })(); 
