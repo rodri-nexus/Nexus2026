@@ -3441,7 +3441,7 @@ function renderContadorVendidos(w) {
     setTimeout(showNextEvent, 1200);
         }
 /* ═══════════════════════════════════════════
-   WIDGET: CUENTA REGRESIVA
+   WIDGET: CUENTA REGRESIVA (v16 - 11 Plantillas)
    ═══════════════════════════════════════════ */
 function renderCuentaRegresiva(w) {
   var elementId = "nvx-timer-" + w.id;
@@ -3461,9 +3461,9 @@ function renderCuentaRegresiva(w) {
   var exactDate = cfg.exactDate || "";
   var title = cfg.title || "¡Oferta por tiempo limitado!";
   var blockSize = cfg.blockSize || "normal";
-  var template = cfg.template || "gradient";
-  var gradStart = cfg.gradStart || "#ef4444";
-  var gradEnd = cfg.gradEnd || "#eab308";
+  var template = cfg.template || "classic";
+  var gradStart = cfg.gradStart || "#111827";
+  var gradEnd = cfg.gradEnd || "#10B981";
   var textColor = cfg.textColor || "#ffffff";
   var coupon = cfg.coupon || "";
   var ctaText = cfg.ctaText || "";
@@ -3471,7 +3471,7 @@ function renderCuentaRegresiva(w) {
 
   // Presets de campaña
   var THEMES = {
-    "black-friday": { start: "#111827", end: "#111827", text: "#F59E0B" },
+    "black-friday": { start: "#111827", end: "#F59E0B", text: "#ffffff" },
     "hot-sale": { start: "#0F172A", end: "#EF4444", text: "#ffffff" },
     "cyber-monday": { start: "#090D16", end: "#3B82F6", text: "#ffffff" },
     "navidad": { start: "#064E3B", end: "#EF4444", text: "#ffffff" },
@@ -3544,12 +3544,7 @@ function renderCuentaRegresiva(w) {
     }
   }
 
-  // Estilos visuales base
-  var borderRadiusCss = "16px";
-  if (template === "pill") {
-    borderRadiusCss = "999px";
-  }
-
+  // Dimensiones según blockSize
   var padCss = "18px 22px";
   var titleSize = "16px";
   var digitSize = "20px";
@@ -3567,45 +3562,91 @@ function renderCuentaRegresiva(w) {
     digitPad = "8px 14px";
   }
 
-  // Inyección de estilos dinámicos para anular de forma segura cualquier override de Tiendanube
+  // Estilos según Template
+  var borderRadiusCss = "16px";
+  if (template === "pill") {
+    borderRadiusCss = "999px";
+  } else if (template === "blocks" || template === "minimal") {
+    borderRadiusCss = "0px";
+  }
+
+  var bgVal = gradStart;
+  if (template === "gradient") {
+    bgVal = "linear-gradient(135deg, " + gradStart + ", " + gradEnd + ")";
+  } else if (template === "glass") {
+    bgVal = "rgba(17,24,39,0.85)";
+  } else if (template === "outline") {
+    bgVal = "transparent";
+  } else if (template === "neon") {
+    bgVal = "#000000";
+  }
+
+  var borderVal = "none !important;";
+  if (template === "outline") {
+    borderVal = "2px dashed " + gradEnd + " !important;";
+  } else if (template === "neon") {
+    borderVal = "2px solid " + gradEnd + " !important;";
+  } else if (template === "blocks") {
+    borderVal = "none !important; border-left: 8px solid " + gradEnd + " !important;";
+  } else if (template === "minimal") {
+    borderVal = "none !important; border-top: 1px solid " + gradEnd + " !important; border-bottom: 1px solid " + gradEnd + " !important;";
+  }
+
+  var digitBg = gradEnd;
+  var digitBorder = "none";
+  var digitShadow = "none";
+  var digitTextColor = textColor;
+
+  if (template === "gradient") {
+    digitBg = "rgba(0,0,0,0.22)";
+  } else if (template === "glass") {
+    digitBg = "rgba(255,255,255,0.12)";
+    digitBorder = "1px solid rgba(255,255,255,0.2)";
+  } else if (template === "outline") {
+    digitBg = "transparent";
+    digitBorder = "2px solid " + gradEnd;
+  } else if (template === "neon") {
+    digitBg = "transparent";
+    digitBorder = "2px solid " + gradEnd;
+    digitShadow = "0 0 10px " + gradEnd;
+    digitTextColor = gradEnd;
+  } else if (template === "minimal") {
+    digitBg = "transparent";
+  } else if (template === "cards") {
+    digitShadow = "0 2px 6px rgba(0,0,0,0.15)";
+  }
+
+  var digitRadius = "8px";
+  if (template === "pill") digitRadius = "999px";
+  if (template === "minimal" || template === "outline" || template === "blocks") digitRadius = "0px";
+
+  // Inyección CSS
   var styleId = "style-" + elementId;
   if (!document.getElementById(styleId)) {
-    var bgVal = gradStart;
-    if (template === "gradient") {
-      bgVal = "linear-gradient(135deg, " + gradStart + ", " + gradEnd + ")";
-    } else if (template === "glass") {
-      bgVal = "rgba(17,24,39,0.85)";
-    } else if (template === "outline") {
-      bgVal = "transparent";
-    } else if (template === "neon") {
-      bgVal = "#000000";
-    }
-
-    var borderVal = "none";
-    if (template === "outline") {
-      borderVal = "2px dashed " + gradStart;
-    } else if (template === "neon") {
-      borderVal = "2px solid " + gradEnd;
-    }
-
     var styleEl = document.createElement("style");
     styleEl.id = styleId;
     styleEl.type = "text/css";
     var cssText =
       "#" + elementId + " { " +
         "background: " + bgVal + " !important; " +
-        "border: " + borderVal + " !important; " +
+        borderVal + " " +
         "border-radius: " + borderRadiusCss + " !important; " +
         "padding: " + padCss + " !important; " +
         "color: " + textColor + " !important; " +
         "box-sizing: border-box !important;" +
+        (template === "neon" ? "box-shadow: 0 0 15px " + gradEnd + "60 !important;" : "") +
       "} " +
       "#" + elementId + " .nvx-text { " +
-        "color: " + textColor + " !important; " +
+        "color: " + (template === "neon" ? gradEnd : textColor) + " !important; " +
       "} " +
       "#" + elementId + " .nvx-digit { " +
-        "color: " + textColor + " !important; " +
-        "background: rgba(0,0,0,0.22) !important; " +
+        "color: " + digitTextColor + " !important; " +
+        "background: " + digitBg + " !important; " +
+        "border: " + digitBorder + " !important; " +
+        "box-shadow: " + digitShadow + " !important; " +
+        "border-radius: " + digitRadius + " !important; " +
+        "position: relative !important; " +
+        "overflow: hidden !important; " +
       "}";
 
     styleEl.appendChild(document.createTextNode(cssText));
@@ -3616,16 +3657,16 @@ function renderCuentaRegresiva(w) {
   container.id = elementId;
   container.className = "nvx-widget nvx-timer-wrapper";
   container.style.cssText =
-    "margin:14px 0;" +
-    "box-shadow:0 8px 24px rgba(0,0,0,0.08);" +
-    "display:flex;" +
-    "flex-direction:column;" +
-    "align-items:center;" +
-    "justify-content:center;" +
-    "gap:12px;" +
-    "font-family:system-ui,-apple-system,sans-serif;" +
-    "text-align:center;" +
-    "width:100%;";
+    "margin:14px 0 !important;" +
+    "box-shadow:0 8px 24px rgba(0,0,0,0.08) !important;" +
+    "display:flex !important;" +
+    "flex-direction:column !important;" +
+    "align-items:center !important;" +
+    "justify-content:center !important;" +
+    "gap:12px !important;" +
+    "font-family:system-ui,-apple-system,sans-serif !important;" +
+    "text-align:center !important;" +
+    "width:100% !important;";
 
   var safeTitle = typeof escapeHtml === "function" ? escapeHtml(title) : title;
   var titleHtml = title ? '<div class="nvx-text" style="font-size:' + titleSize + ';font-weight:800;line-height:1.2;">' + safeTitle + '</div>' : '';
@@ -3633,15 +3674,17 @@ function renderCuentaRegresiva(w) {
   var couponHtml = "";
   if (coupon) {
     var safeCoupon = typeof escapeHtml === "function" ? escapeHtml(coupon) : coupon;
-    couponHtml = '<div id="' + elementId + '-coupon" class="nvx-text" style="background:rgba(255,255,255,0.2);border:1px dashed rgba(255,255,255,0.6);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:800;letter-spacing:0.05em;cursor:pointer;user-select:none;">🎟️ CUPÓN: ' + safeCoupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span></div>';
+    couponHtml = '<div id="' + elementId + '-coupon" class="nvx-text" style="background:rgba(255,255,255,0.2) !important;border:1px dashed rgba(255,255,255,0.6) !important;border-radius:6px !important;padding:4px 10px !important;font-size:12px !important;font-weight:800 !important;letter-spacing:0.05em !important;cursor:pointer !important;user-select:none !important;">🎟️ CUPÓN: ' + safeCoupon + ' <span style="font-weight:600;opacity:0.8;">(Copiar)</span></div>';
   }
 
   var ctaHtml = "";
   if (ctaText && ctaUrl) {
     var safeCtaText = typeof escapeHtml === "function" ? escapeHtml(ctaText) : ctaText;
     var safeCtaUrl = typeof escapeHtml === "function" ? escapeHtml(ctaUrl) : ctaUrl;
-    ctaHtml = '<a href="' + safeCtaUrl + '" target="_blank" style="background:#ffffff;color:#111827 !important;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,0.15);">' + safeCtaText + ' →</a>';
+    ctaHtml = '<a href="' + safeCtaUrl + '" target="_blank" style="background:#ffffff !important;color:#111827 !important;border-radius:999px !important;padding:6px 16px !important;font-size:12px !important;font-weight:800 !important;text-decoration:none !important;display:inline-block !important;box-shadow:0 2px 6px rgba(0,0,0,0.15) !important;">' + safeCtaText + ' →</a>';
   }
+
+  var flipLineHtml = template === "flip" ? '<div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,255,255,0.35);z-index:1;"></div>' : '';
 
   // Construcción dinámica de dígitos adaptativos
   var digitsHtml = '<div style="display:flex;align-items:center;gap:8px;justify-content:center;">';
@@ -3649,7 +3692,7 @@ function renderCuentaRegresiva(w) {
   if (showDays) {
     digitsHtml +=
       '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-d" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+        '<div id="' + elementId + '-d" class="nvx-digit" style="padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">' + flipLineHtml + '<span style="position:relative;z-index:2;">00</span></div>' +
         '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Días</span>' +
       '</div>' +
       '<span class="nvx-text" style="font-size:18px;font-weight:900;opacity:0.8;">:</span>';
@@ -3658,7 +3701,7 @@ function renderCuentaRegresiva(w) {
   if (showHours) {
     digitsHtml +=
       '<div style="display:flex;flex-direction:column;align-items:center;">' +
-        '<div id="' + elementId + '-h" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+        '<div id="' + elementId + '-h" class="nvx-digit" style="padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">' + flipLineHtml + '<span style="position:relative;z-index:2;">00</span></div>' +
         '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Horas</span>' +
       '</div>' +
       '<span class="nvx-text" style="font-size:18px;font-weight:900;opacity:0.8;">:</span>';
@@ -3666,12 +3709,12 @@ function renderCuentaRegresiva(w) {
 
   digitsHtml +=
     '<div style="display:flex;flex-direction:column;align-items:center;">' +
-      '<div id="' + elementId + '-m" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+      '<div id="' + elementId + '-m" class="nvx-digit" style="padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">' + flipLineHtml + '<span style="position:relative;z-index:2;">00</span></div>' +
       '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Min</span>' +
     '</div>' +
     '<span class="nvx-text" style="font-size:18px;font-weight:900;opacity:0.8;">:</span>' +
     '<div style="display:flex;flex-direction:column;align-items:center;">' +
-      '<div id="' + elementId + '-s" class="nvx-digit" style="border-radius:8px;padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">00</div>' +
+      '<div id="' + elementId + '-s" class="nvx-digit" style="padding:' + digitPad + ';font-size:' + digitSize + ';font-weight:900;font-family:monospace;">' + flipLineHtml + '<span style="position:relative;z-index:2;">00</span></div>' +
       '<span class="nvx-text" style="font-size:9px;text-transform:uppercase;opacity:0.8;margin-top:3px;font-weight:700;">Seg</span>' +
     '</div>' +
   '</div>';
@@ -3765,10 +3808,21 @@ function renderCuentaRegresiva(w) {
     var mEl = document.getElementById(elementId + "-m");
     var sEl = document.getElementById(elementId + "-s");
 
-    if (dEl) dEl.textContent = (d < 10 ? "0" : "") + d;
-    if (hEl) hEl.textContent = (h < 10 ? "0" : "") + h;
-    if (mEl) mEl.textContent = (m < 10 ? "0" : "") + m;
-    if (sEl) sEl.textContent = (s < 10 ? "0" : "") + s;
+    function setVal(el, val) {
+      if (!el) return;
+      var strVal = (val < 10 ? "0" : "") + val;
+      var span = el.querySelector("span");
+      if (span) {
+        span.textContent = strVal;
+      } else {
+        el.textContent = strVal;
+      }
+    }
+
+    setVal(dEl, d);
+    setVal(hEl, h);
+    setVal(mEl, m);
+    setVal(sEl, s);
   }
 
   updateTimer();
@@ -3778,7 +3832,7 @@ function renderCuentaRegresiva(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
- }
+}
 /* ═══════════════════════════════════════════
    WIDGET: INFORMACIÓN DE DESPACHO
    ═══════════════════════════════════════════ */
