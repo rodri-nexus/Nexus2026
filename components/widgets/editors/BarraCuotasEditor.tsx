@@ -76,6 +76,17 @@ const DEF: CfgCuotas = {
   campaignTheme: 'none',
 };
 
+/* Temas con borde + glow (igual que el script público) */
+const THEME_FX: Record<string, { bg: string; accent: string; text: string; border: string; shadow: string }> = {
+  'black-friday': { bg: '#111827', accent: '#F59E0B', text: '#F59E0B', border: '1.5px solid #F59E0B', shadow: '0 0 12px rgba(245,158,11,0.4)' },
+  'hot-sale': { bg: '#0F172A', accent: '#EF4444', text: '#ffffff', border: '1.5px solid #EF4444', shadow: '0 0 12px rgba(239,68,68,0.4)' },
+  'cyber-monday': { bg: '#090D16', accent: '#3B82F6', text: '#60A5FA', border: '1.5px solid #3B82F6', shadow: '0 0 12px rgba(59,130,246,0.5)' },
+  'navidad': { bg: '#064E3B', accent: '#EF4444', text: '#ffffff', border: '1.5px solid #EF4444', shadow: '0 0 10px rgba(16,185,129,0.3)' },
+  'san-valentin': { bg: '#831843', accent: '#F43F5E', text: '#ffffff', border: '1.5px solid #F43F5E', shadow: '0 0 10px rgba(244,63,94,0.3)' },
+  'dia-padre-madre': { bg: '#312E81', accent: '#10B981', text: '#ffffff', border: '1.5px solid #10B981', shadow: '0 0 10px rgba(16,185,129,0.3)' },
+  'liquidacion': { bg: '#7F1D1D', accent: '#FBBF24', text: '#FBBF24', border: '1.5px solid #FBBF24', shadow: '0 0 10px rgba(251,191,36,0.4)' },
+};
+
 /* ═══════════════════════════════════════════
    COMPONENTES AUXILIARES
 ═══════════════════════════════════════════ */
@@ -85,12 +96,6 @@ const IconStore = () => (
     <line x1="2" y1="7" x2="22" y2="7"/>
     <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
     <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
-  </svg>
-);
-
-const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 
@@ -257,8 +262,8 @@ export default function BarraCuotasEditor({
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
 
-  // Demo simulación de producto / carrito
-  const [demoPrice, setDemoCart] = useState(35000);
+  // Demo: 0 = mensaje default | >0 = mensaje calculado
+  const [demoPrice, setDemoPrice] = useState(0);
 
   const isForAll = targetType === 'all';
   const scopeLabel = isForAll ? 'General' : 'Producto';
@@ -280,32 +285,24 @@ export default function BarraCuotasEditor({
   };
 
   const applyPreset = (slug: string) => {
-    const PRESETS_DATA: Record<string, { bg: string; accentColor: string; tx: string }> = {
-      'black-friday': { bg: '#111827', accentColor: '#F59E0B', tx: '#ffffff' },
-      'hot-sale': { bg: '#0F172A', accentColor: '#EF4444', tx: '#ffffff' },
-      'cyber-monday': { bg: '#090D16', accentColor: '#3B82F6', tx: '#ffffff' },
-      'navidad': { bg: '#064E3B', accentColor: '#EF4444', tx: '#ffffff' },
-      'san-valentin': { bg: '#831843', accentColor: '#F43F5E', tx: '#ffffff' },
-      'dia-padre-madre': { bg: '#312E81', accentColor: '#10B981', tx: '#ffffff' },
-      'liquidacion': { bg: '#7F1D1D', accentColor: '#FBBF24', tx: '#ffffff' },
-    };
-
     if (slug === 'none') {
       setCfg((prev) => ({
         ...prev,
-        campaignTheme: slug,
+        campaignTheme: 'none',
         bgColor: DEF.bgColor,
         accentColor: DEF.accentColor,
         textColor: DEF.textColor,
       }));
-    } else if (PRESETS_DATA[slug]) {
-      const p = PRESETS_DATA[slug];
+      return;
+    }
+    const p = THEME_FX[slug];
+    if (p) {
       setCfg((prev) => ({
         ...prev,
         campaignTheme: slug,
         bgColor: p.bg,
-        accentColor: p.accentColor,
-        textColor: p.tx,
+        accentColor: p.accent,
+        textColor: p.text,
       }));
     }
   };
@@ -340,24 +337,61 @@ export default function BarraCuotasEditor({
     }
   };
 
-  const formatMoney = (val: number) => '$' + Math.round(val).toLocaleString('es-AR');
+  const formatMoney = (val: number) =>
+    '$' + Math.round(val).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
+  // Lógica idéntica a la tienda: $0 → msgDefault | precio → msgCalculated
   const getDisplayMessage = () => {
     const numCuotas = cfg.cuotas || 1;
-    if (demoPrice > 0 && demoPrice >= cfg.minAmount) {
+    if (demoPrice > 0 && (cfg.minAmount <= 0 || demoPrice >= cfg.minAmount)) {
       const montoCuota = demoPrice / numCuotas;
       return cfg.msgCalculated
-        .replace(/\{\{cuotas\}\}/g, numCuotas.toString())
+        .replace(/\{\{cuotas\}\}/g, String(numCuotas))
         .replace(/\{\{monto_cuota\}\}/g, formatMoney(montoCuota));
     }
-    return cfg.msgDefault.replace(/\{\{cuotas\}\}/g, numCuotas.toString());
+    return cfg.msgDefault.replace(/\{\{cuotas\}\}/g, String(numCuotas));
   };
+
+  // Estilos de preview = misma lógica visual que el script público
+  const getPreviewStyles = () => {
+    const theme = cfg.campaignTheme && cfg.campaignTheme !== 'none' ? THEME_FX[cfg.campaignTheme] : null;
+
+    let bg = cfg.bgColor;
+    let accent = cfg.accentColor;
+    let text = cfg.textColor;
+    let border = 'none';
+    let shadow = '0 4px 12px rgba(0,0,0,0.08)';
+
+    if (cfg.template === 'oscura') {
+      bg = '#000000';
+    } else if (cfg.template === 'neon') {
+      bg = '#090D16';
+      border = '1.5px solid ' + accent;
+      shadow = '0 0 12px ' + accent + '60';
+    }
+
+    if (theme) {
+      bg = theme.bg;
+      accent = theme.accent;
+      text = theme.text;
+      border = theme.border;
+      shadow = theme.shadow;
+    }
+
+    const radius = cfg.template === 'flotante' ? 999 : cfg.template === 'moderna' ? 12 : 0;
+    const pad = cfg.size === 'small' ? '8px 14px' : cfg.size === 'large' ? '16px 22px' : '12px 18px';
+    const fontSize = cfg.size === 'small' ? 12 : cfg.size === 'large' ? 15 : 13.5;
+
+    return { bg, accent, text, border, shadow, radius, pad, fontSize };
+  };
+
+  const ps = getPreviewStyles();
 
   const CAMPAIGN_PRESETS = [
     { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo oscuro con resaltado dorado.' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Degradado nocturno a rojo fuego.' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Azul cibernético profundo.' },
+    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo oscuro con borde y texto dorado.' },
+    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Nocturno con borde rojo fuego y resplandor.' },
+    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Azul cibernético profundo con glow neón.' },
     { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino con rojo navideño.' },
     { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión.' },
     { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con verde esmeralda.' },
@@ -398,7 +432,6 @@ export default function BarraCuotasEditor({
       {/* MAIN */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* Scope chip */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#ffffff',
@@ -421,7 +454,6 @@ export default function BarraCuotasEditor({
           </div>
         )}
 
-        {/* Título */}
         <h1 style={{
           fontSize: 26, fontWeight: 800, color: '#000000',
           margin: '0 0 20px', lineHeight: 1.2,
@@ -430,7 +462,6 @@ export default function BarraCuotasEditor({
           {wd.name} ({scopeLabel})
         </h1>
 
-        {/* Contenedor Principal */}
         <div style={{
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 20, marginBottom: 20,
@@ -439,45 +470,45 @@ export default function BarraCuotasEditor({
 
           {/* PREVIEW GRANDE EN VIVO */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 VISTA PREVIA EN VIVO
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#4b5563' }}>
-                <span>Probá con un precio:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#4b5563', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 600 }}>Probá el mensaje:</span>
                 <button
                   type="button"
-                  onClick={() => setDemoCart(0)}
-                  style={{ padding: '2px 8px', borderRadius: 6, border: '1px solid #d1d5db', background: demoPrice === 0 ? '#10B981' : '#ffffff', color: demoPrice === 0 ? '#fff' : '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                  onClick={() => setDemoPrice(0)}
+                  style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d1d5db', background: demoPrice === 0 ? '#10B981' : '#ffffff', color: demoPrice === 0 ? '#fff' : '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
                 >
-                  $0
+                  $0 (General)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDemoCart(35000)}
-                  style={{ padding: '2px 8px', borderRadius: 6, border: '1px solid #d1d5db', background: demoPrice === 35000 ? '#10B981' : '#ffffff', color: demoPrice === 35000 ? '#fff' : '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                  onClick={() => setDemoPrice(35000)}
+                  style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d1d5db', background: demoPrice === 35000 ? '#10B981' : '#ffffff', color: demoPrice === 35000 ? '#fff' : '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
                 >
                   $35.000
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDemoCart(90000)}
-                  style={{ padding: '2px 8px', borderRadius: 6, border: '1px solid #d1d5db', background: demoPrice === 90000 ? '#10B981' : '#ffffff', color: demoPrice === 90000 ? '#fff' : '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                  onClick={() => setDemoPrice(90000)}
+                  style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d1d5db', background: demoPrice === 90000 ? '#10B981' : '#ffffff', color: demoPrice === 90000 ? '#fff' : '#000', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
                 >
                   $90.000
                 </button>
               </div>
             </div>
 
-            {/* BARRA DE PREVIEW */}
+            {/* BARRA DE PREVIEW — efectos idénticos a la tienda */}
             <div
               style={{
-                background: cfg.template === 'oscura' ? '#000000' : cfg.template === 'neon' ? '#090D16' : cfg.bgColor,
-                color: cfg.textColor,
-                borderRadius: cfg.template === 'flotante' ? 999 : cfg.template === 'moderna' ? 12 : 0,
-                border: cfg.template === 'neon' ? `1.5px solid ${cfg.accentColor}` : 'none',
-                boxShadow: cfg.template === 'neon' ? `0 0 12px ${cfg.accentColor}60` : '0 4px 12px rgba(0,0,0,0.08)',
-                padding: cfg.size === 'small' ? '8px 14px' : cfg.size === 'large' ? '16px 22px' : '12px 18px',
+                background: ps.bg,
+                color: ps.text,
+                borderRadius: ps.radius,
+                border: ps.border,
+                boxShadow: ps.shadow,
+                padding: ps.pad,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -487,18 +518,15 @@ export default function BarraCuotasEditor({
                 boxSizing: 'border-box',
               }}
             >
-              {/* Ícono */}
               <div style={{
-                color: cfg.accentColor,
+                color: ps.accent,
                 fontSize: cfg.size === 'small' ? 16 : cfg.size === 'large' ? 24 : 20,
                 display: 'flex', alignItems: 'center', flexShrink: 0,
               }}>
                 {cfg.iconType === 'emoji' ? cfg.emojiIcon : <IconCard />}
               </div>
-
-              {/* Mensaje principal */}
               <div style={{
-                fontSize: cfg.size === 'small' ? 12 : cfg.size === 'large' ? 15 : 13.5,
+                fontSize: ps.fontSize,
                 fontWeight: 800,
                 lineHeight: 1.3,
                 textAlign: 'center',
@@ -506,9 +534,15 @@ export default function BarraCuotasEditor({
                 {getDisplayMessage()}
               </div>
             </div>
+
+            <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 8, textAlign: 'center', marginBottom: 0 }}>
+              {demoPrice === 0
+                ? 'Mostrando mensaje general (sin precio / home / catálogo)'
+                : 'Mostrando mensaje calculado con el precio del producto'}
+            </p>
           </div>
 
-          {/* Cartel Informativo Requerido */}
+          {/* Cartel Informativo */}
           <div style={{
             background: '#fff7ed', border: '1px solid #fdba74',
             borderRadius: 10, padding: '14px 16px',
@@ -559,7 +593,6 @@ export default function BarraCuotasEditor({
           {tab === 'gen' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-              {/* PLANTILLA DE DISEÑO */}
               <div>
                 <FieldLabel>Plantilla de diseño</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 8 }}>
@@ -588,7 +621,6 @@ export default function BarraCuotasEditor({
                 </div>
               </div>
 
-              {/* CUOTAS Y MONTO MÍNIMO */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
                   <FieldLabel required>Cantidad de Cuotas Sin Interés</FieldLabel>
@@ -600,7 +632,6 @@ export default function BarraCuotasEditor({
                   />
                   <FieldHelper>Ejemplo: 3, 6, 12, etc.</FieldHelper>
                 </div>
-
                 <div>
                   <FieldLabel>Monto Mínimo (Opcional)</FieldLabel>
                   <TextInput
@@ -613,7 +644,6 @@ export default function BarraCuotasEditor({
                 </div>
               </div>
 
-              {/* TAMAÑO Y POSICIÓN EN ESCRITORIO */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
                   <FieldLabel>Tamaño de la Barra</FieldLabel>
@@ -640,7 +670,6 @@ export default function BarraCuotasEditor({
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <FieldLabel>Posición en Escritorio (Fija)</FieldLabel>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 4 }}>
@@ -667,13 +696,12 @@ export default function BarraCuotasEditor({
                 </div>
               </div>
 
-              {/* TIPO DE ÍCONO */}
               <div>
                 <FieldLabel>Tipo de Ícono</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
                   {[
-                    { id: 'emoji', label: '💳 Emoji Personalizado', icon: '💳' },
-                    { id: 'fontawesome', label: '💳 Vectorial Tarjeta', icon: '💳' },
+                    { id: 'emoji', label: '💳 Emoji Personalizado' },
+                    { id: 'fontawesome', label: '💳 Vectorial Tarjeta' },
                   ].map((ic) => (
                     <button
                       key={ic.id}
@@ -692,7 +720,6 @@ export default function BarraCuotasEditor({
                     </button>
                   ))}
                 </div>
-
                 {cfg.iconType === 'emoji' && (
                   <div style={{ marginTop: 10 }}>
                     <FieldLabel>Ingresá el Emoji deseado</FieldLabel>
@@ -705,30 +732,26 @@ export default function BarraCuotasEditor({
                 )}
               </div>
 
-              {/* MENSAJES */}
               <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>💬 MENSAJES PERSONALIZADOS</div>
-
                 <div>
-                  <FieldLabel>Mensaje Default (General / Sin precio)</FieldLabel>
+                  <FieldLabel>Mensaje Default (sin precio / home)</FieldLabel>
                   <TextInput
                     value={cfg.msgDefault}
                     onChange={(v) => set('msgDefault', v)}
                   />
-                  <FieldHelper>Usá <strong>{"{{cuotas}}"}</strong> para insertar la cantidad de cuotas.</FieldHelper>
+                  <FieldHelper>Usá <strong>{"{{cuotas}}"}</strong>. Se muestra con el botón $0 (General).</FieldHelper>
                 </div>
-
                 <div>
-                  <FieldLabel>Mensaje Calculado (Con precio de producto)</FieldLabel>
+                  <FieldLabel>Mensaje Calculado (con precio de producto)</FieldLabel>
                   <TextInput
                     value={cfg.msgCalculated}
                     onChange={(v) => set('msgCalculated', v)}
                   />
-                  <FieldHelper>Usá <strong>{"{{cuotas}}"}</strong> y <strong>{"{{monto_cuota}}"}</strong> para la cuota exacta.</FieldHelper>
+                  <FieldHelper>Usá <strong>{"{{cuotas}}"}</strong> y <strong>{"{{monto_cuota}}"}</strong>. Se muestra con $35.000 / $90.000.</FieldHelper>
                 </div>
               </div>
 
-              {/* POSICIÓN EN CELULAR */}
               <div>
                 <FieldLabel>📱 Posición en Celular</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 4 }}>
@@ -757,16 +780,14 @@ export default function BarraCuotasEditor({
                 </div>
               </div>
 
-              {/* OPCIONES DE INTEGRACIÓN / SWITCHES */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>💳 Barra fija sticky en toda la tienda</div>
-                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Sigue al comprador (se apila automáticamente si está la de envío)</div>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Sigue al comprador (se apila si está la de envío)</div>
                   </div>
                   <ToggleSwitch checked={cfg.stickyGlobal} onChange={(v) => set('stickyGlobal', v)} />
                 </div>
-
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>🛒 Barra dentro del cajón del carrito</div>
@@ -774,16 +795,14 @@ export default function BarraCuotasEditor({
                   </div>
                   <ToggleSwitch checked={cfg.inCartDrawer} onChange={(v) => set('inCartDrawer', v)} />
                 </div>
-
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>🏷️ Banner en página de producto</div>
-                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Aparece debajo del botón de compra de forma fluida</div>
+                    <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Aparece debajo del botón de compra</div>
                   </div>
                   <ToggleSwitch checked={cfg.inProductBanner} onChange={(v) => set('inProductBanner', v)} />
                 </div>
               </div>
-
             </div>
           )}
 
@@ -813,10 +832,9 @@ export default function BarraCuotasEditor({
               <div style={{ marginBottom: 20 }}>
                 <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
                 <FieldHelper>
-                  Elegí una campaña activa para vestir la barra de cuotas con colores festivos.
+                  Elegí una campaña: la vista previa de arriba se actualiza al instante con el mismo efecto que verá el cliente en la tienda.
                 </FieldHelper>
               </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {CAMPAIGN_PRESETS.map((preset) => {
                   const isSelected = cfg.campaignTheme === preset.id;
@@ -860,7 +878,6 @@ export default function BarraCuotasEditor({
             </div>
           )}
 
-          {/* ALERTAS */}
           <div style={{ marginTop: 20 }}>
             {ok && (
               <div style={{
@@ -882,7 +899,6 @@ export default function BarraCuotasEditor({
             )}
           </div>
 
-          {/* BOTÓN GUARDAR */}
           <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' }}>
             <button
               onClick={save}
@@ -902,11 +918,10 @@ export default function BarraCuotasEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL */}
         <div style={{ marginTop: 40, width: '100%' }}>
           <CentroAyuda />
         </div>
       </div>
     </div>
   );
-     }
+   }
