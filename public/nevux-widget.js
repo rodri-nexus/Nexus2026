@@ -5276,7 +5276,7 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v18 - Smart Engine)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v18.1 - Bulletproof ES5)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
@@ -5325,7 +5325,7 @@ function renderBarraEnvioGratis(w) {
   var idProd = idBase + "-prod";
   var idCart = idBase + "-cart";
 
-  // CONTROL DE ESTADO GLOBAL DEL CARRITO (v18 Smart Sync)
+  // CONTROL DE ESTADO GLOBAL DEL CARRITO
   var currentCartTotal = 0;
 
   function readLocalTotal() {
@@ -5362,17 +5362,42 @@ function renderBarraEnvioGratis(w) {
   // Inicializar fetch
   fetchCartTotal();
 
-  // Interceptar clics en botones de compra para sincronizar de inmediato
+  // Interceptor de clicks ES5 Ultra Compatible con try/catch para evitar congelamientos
   document.addEventListener("click", function(e) {
-    var target = e.target;
-    if (target && (
-      target.matches(".js-add-to-cart-btn, .js-prod-submit-form, [type='submit'].js-add-to-cart, .product-buy-container, .js-product-buy-container") ||
-      target.closest(".js-add-to-cart-btn, .js-prod-submit-form, [type='submit'].js-add-to-cart")
-    )) {
-      setTimeout(fetchCartTotal, 800);
-      setTimeout(fetchCartTotal, 1800);
-      setTimeout(fetchCartTotal, 3000);
-    }
+    try {
+      var target = e.target;
+      if (!target) return;
+      var current = target;
+      var isAddToCart = false;
+
+      while (current && current !== document && current.nodeType === 1) {
+        var classes = current.className || "";
+        if (typeof classes !== "string") {
+          classes = current.getAttribute ? (current.getAttribute("class") || "") : "";
+        }
+        var type = current.type || "";
+        var id = current.id || "";
+
+        if (
+          classes.indexOf("js-add-to-cart-btn") !== -1 ||
+          classes.indexOf("js-prod-submit-form") !== -1 ||
+          classes.indexOf("product-buy-container") !== -1 ||
+          classes.indexOf("js-product-buy-container") !== -1 ||
+          (type === "submit" && classes.indexOf("js-add-to-cart") !== -1) ||
+          id.indexOf("add-to-cart") !== -1
+        ) {
+          isAddToCart = true;
+          break;
+        }
+        current = current.parentNode;
+      }
+
+      if (isAddToCart) {
+        setTimeout(fetchCartTotal, 800);
+        setTimeout(fetchCartTotal, 1800);
+        setTimeout(fetchCartTotal, 3000);
+      }
+    } catch(err) {}
   }, true);
 
   // Detección Dinámica de Zonas de Envío
@@ -5503,19 +5528,16 @@ function renderBarraEnvioGratis(w) {
     document.head.appendChild(styleEl);
   }
 
-  // UBICADOR DE BOTÓN DE COMPRA INTELIGENTE (Bug 1 Fix)
+  // UBICADOR DE BOTÓN DE COMPRA INTELIGENTE
   function findProductTarget() {
-    // 1. Selector prioritario: Detrás del formulario de compra completo (Garantiza ir debajo del botón)
     var form = document.querySelector("form[action*='/cart/add'], #product-form, .js-product-form, .product-form");
-    if (form) return { el: form, method: "after" };
+    if (form) return form;
 
-    // 2. Selector secundario: Detrás de la caja contenedora del botón
     var container = document.querySelector(".js-product-buy-container, .product-buy-container, .js-add-to-cart-container");
-    if (container) return { el: container, method: "after" };
+    if (container) return container;
 
-    // 3. Fallback: Botón nativo directamente
     var btn = document.querySelector(".js-add-to-cart-btn, .js-prod-submit-form, [type='submit'].js-add-to-cart");
-    if (btn) return { el: btn, method: "after" };
+    if (btn) return btn;
 
     return null;
   }
@@ -5526,6 +5548,14 @@ function renderBarraEnvioGratis(w) {
       var container = document.createElement("div");
       container.id = idSticky; 
       container.className = "nvx-widget nvx-shipbar-sticky";
+      
+      // Inline styling ultra robusto
+      var inlineStyle = "position:fixed !important;left:0 !important;right:0 !important;z-index:999998 !important;height:auto !important;min-height:0 !important;max-height:70px !important;overflow:hidden !important;transform:translateZ(0) !important;box-sizing:border-box !important;";
+      inlineStyle += (desktopPos === "top") ? "top:0 !important;bottom:auto !important;" : "bottom:0 !important;top:auto !important;";
+      if (template === "flotante") {
+        inlineStyle += "width:calc(100% - 24px) !important;max-width:1100px !important;margin:8px auto !important;left:12px !important;right:12px !important;";
+      }
+      container.style.cssText = inlineStyle;
       container.innerHTML = buildInnerHtml(currentCartTotal);
       if (document.body) document.body.appendChild(container);
     }
@@ -5535,17 +5565,14 @@ function renderBarraEnvioGratis(w) {
   function injectProductBanner() {
     if (!inProductBanner || !isProductPage) return;
     if (!document.getElementById(idProd)) {
-      var targetInfo = findProductTarget();
-      if (targetInfo && targetInfo.el && targetInfo.el.parentNode) {
+      var target = findProductTarget();
+      if (target && target.parentNode) {
         var container = document.createElement("div");
         container.id = idProd; 
         container.className = "nvx-widget nvx-shipbar-product";
-        container.style.cssText = "margin: 16px 0 !important; width: 100% !important; max-height: 80px !important; overflow: hidden !important; display: block !important;";
+        container.style.cssText = "margin: 16px 0 !important; width: 100% !important; max-height: 80px !important; overflow: hidden !important; display: block !important; box-sizing: border-box !important;";
         container.innerHTML = buildInnerHtml(currentCartTotal);
-        
-        if (targetInfo.method === "after") {
-          targetInfo.el.parentNode.insertBefore(container, targetInfo.el.nextSibling);
-        }
+        target.parentNode.insertBefore(container, target.nextSibling);
       }
     }
   }
@@ -5561,7 +5588,7 @@ function renderBarraEnvioGratis(w) {
           var container = document.createElement("div");
           container.id = idCart; 
           container.className = "nvx-widget nvx-shipbar-cart";
-          container.style.cssText = "margin: 12px auto 0 !important; width: 94% !important; max-height: 80px !important; overflow: hidden !important;";
+          container.style.cssText = "margin: 12px auto 0 !important; width: 94% !important; max-height: 80px !important; overflow: hidden !important; display: block !important; box-sizing: border-box !important;";
           container.innerHTML = buildInnerHtml(currentCartTotal);
           insertPoint.parentNode.insertBefore(container, insertPoint);
         }
@@ -5580,55 +5607,56 @@ function renderBarraEnvioGratis(w) {
     if (cCart) cCart.innerHTML = buildInnerHtml(currentCartTotal);
   }
 
-  // Motor dinámico en tiempo real (Bug 3 y SPA Fix)
+  // Motor dinámico en tiempo real (SPA Fix)
   function syncEngine() {
-    // Re-evaluar tipo de página en cada tick (por si es una tienda SPA)
-    isProductPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
+    var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
 
-    // EXCLUSIÓN MUTUA INTELIGENTE: Si estamos en producto y 'Banner en producto' está activo, APAGAMOS la barra sticky solo en esta página
+    // EXCLUSIÓN MUTUA: Si es ficha de producto y el banner de producto está prendido, apagamos sticky en esta página
     var shouldShowStickyThisPage = stickyGlobal;
-    if (isProductPage && inProductBanner) {
+    if (isProdPage && inProductBanner) {
       shouldShowStickyThisPage = false;
     }
 
-    // Gestionar la barra Sticky dinámicamente
-    var cSticky = document.getElementById(idSticky);
+    // Sticky
     if (shouldShowStickyThisPage) {
       injectSticky();
-      if (cSticky) {
-        cSticky.style.setProperty("display", "block", "important");
+      var cStickyNow = document.getElementById(idSticky);
+      if (cStickyNow) {
+        cStickyNow.style.cssText += "; display: block !important;";
       }
     } else {
-      if (cSticky) {
-        cSticky.style.setProperty("display", "none", "important");
+      var cStickyNow = document.getElementById(idSticky);
+      if (cStickyNow) {
+        cStickyNow.style.cssText += "; display: none !important;";
       }
     }
 
-    // Gestionar el Banner de Producto
-    if (inProductBanner && isProductPage) {
+    // Banner de producto
+    if (inProductBanner && isProdPage) {
       injectProductBanner();
     } else {
       var cProd = document.getElementById(idProd);
-      if (cProd) cProd.parentNode.removeChild(cProd);
+      if (cProd && cProd.parentNode) {
+        cProd.parentNode.removeChild(cProd);
+      }
     }
 
-    // Gestionar el Carrito
+    // Carrito
     if (inCartDrawer) {
       injectCartDrawer();
     }
 
-    // Refrescar contenido
     updateRenderedBars();
   }
 
-  // Inicializar bucle de polling adaptativo
+  // Polling adaptativo
   syncEngine();
   setInterval(syncEngine, 2000);
-  setInterval(fetchCartTotal, 3500); // Polling silencioso en background para asegurar sincronía perfecta
+  setInterval(fetchCartTotal, 3500);
 
   // Telemetría Nevux
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-}
+                     }
 })(); 
