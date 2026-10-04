@@ -280,14 +280,14 @@ export default function BarraCuotasEditor({
   };
 
   const applyPreset = (slug: string) => {
-    const PRESETS_DATA: Record<string, { bg: string; acc: string; tx: string }> = {
-      'black-friday': { bg: '#111827', acc: '#F59E0B', tx: '#ffffff' },
-      'hot-sale': { bg: '#0F172A', acc: '#EF4444', tx: '#ffffff' },
-      'cyber-monday': { bg: '#090D16', acc: '#3B82F6', tx: '#ffffff' },
-      'navidad': { bg: '#064E3B', acc: '#EF4444', tx: '#ffffff' },
-      'san-valentin': { bg: '#831843', acc: '#F43F5E', tx: '#ffffff' },
-      'dia-padre-madre': { bg: '#312E81', acc: '#10B981', tx: '#ffffff' },
-      'liquidacion': { bg: '#7F1D1D', acc: '#FBBF24', tx: '#ffffff' },
+    const PRESETS_DATA: Record<string, { bg: string; accentColor: string; tx: string }> = {
+      'black-friday': { bg: '#111827', accentColor: '#F59E0B', tx: '#ffffff' },
+      'hot-sale': { bg: '#0F172A', accentColor: '#EF4444', tx: '#ffffff' },
+      'cyber-monday': { bg: '#090D16', accentColor: '#3B82F6', tx: '#ffffff' },
+      'navidad': { bg: '#064E3B', accentColor: '#EF4444', tx: '#ffffff' },
+      'san-valentin': { bg: '#831843', accentColor: '#F43F5E', tx: '#ffffff' },
+      'dia-padre-madre': { bg: '#312E81', accentColor: '#10B981', tx: '#ffffff' },
+      'liquidacion': { bg: '#7F1D1D', accentColor: '#FBBF24', tx: '#ffffff' },
     };
 
     if (slug === 'none') {
@@ -304,7 +304,7 @@ export default function BarraCuotasEditor({
         ...prev,
         campaignTheme: slug,
         bgColor: p.bg,
-        accentColor: p.acc,
+        accentColor: p.accentColor,
         textColor: p.tx,
       }));
     }
@@ -344,7 +344,7 @@ export default function BarraCuotasEditor({
 
   const getDisplayMessage = () => {
     const numCuotas = cfg.cuotas || 1;
-    if (demoPrice > 0) {
+    if (demoPrice > 0 && demoPrice >= cfg.minAmount) {
       const montoCuota = demoPrice / numCuotas;
       return cfg.msgCalculated
         .replace(/\{\{cuotas\}\}/g, numCuotas.toString())
@@ -909,4 +909,4 @@ export default function BarraCuotasEditor({
       </div>
     </div>
   );
-         }
+     }
