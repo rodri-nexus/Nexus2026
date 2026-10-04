@@ -1673,6 +1673,7 @@
           if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
           if (w.widget_slug === "popup-conversion") renderPopupConversion(w);
           if (w.widget_slug === "barra-envio-gratis") renderBarraEnvioGratis(w);
+          if (w.widget_slug === "barra-cuotas") renderBarraCuotas(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -5842,4 +5843,354 @@ function renderBarraEnvioGratis(w) {
     nvxTrack(w.id, "impression");
   }
     }
+/* ═══════════════════════════════════════════
+   WIDGET #8: BARRA DE CUOTAS SIN INTERÉS (v1)
+   ═══════════════════════════════════════════ */
+function renderBarraCuotas(w) {
+  var idBase = "nvx-cuotasbar-" + w.id;
+  if (window['nvx_cuotasbar_' + w.id]) return;
+  window['nvx_cuotasbar_' + w.id] = true;
+
+  var cfg = w.config || {};
+  var cuotas = parseInt(cfg.cuotas, 10) || 3;
+  var minAmount = parseFloat(cfg.minAmount) || 0;
+  var msgDefault = cfg.msgDefault || "¡Hasta {{cuotas}} cuotas sin interés en toda la tienda! 🎉";
+  var msgCalculated = cfg.msgCalculated || "Pagá en {{cuotas}} cuotas sin interés de {{monto_cuota}}";
+  var template = cfg.template || "moderna";
+  var size = cfg.size || "normal";
+  var desktopPos = cfg.desktopPos || "top";
+  var mobilePos = cfg.mobilePos || "same";
+  var iconType = cfg.iconType || "emoji";
+  var emojiIcon = cfg.emojiIcon || "💳";
+  var stickyGlobal = cfg.stickyGlobal !== false;
+  var inCartDrawer = !!cfg.inCartDrawer;
+  var inProductBanner = cfg.inProductBanner !== false;
+  var bgColor = cfg.bgColor || "#111827";
+  var accentColor = cfg.accentColor || "#10B981";
+  var textColor = cfg.textColor || "#ffffff";
+
+  var THEMES = {
+    "black-friday": { bg: "#111827", acc: "#F59E0B", text: "#ffffff" },
+    "hot-sale": { bg: "#0F172A", acc: "#EF4444", text: "#ffffff" },
+    "cyber-monday": { bg: "#090D16", acc: "#3B82F6", text: "#ffffff" },
+    "navidad": { bg: "#064E3B", acc: "#EF4444", text: "#ffffff" },
+    "san-valentin": { bg: "#831843", acc: "#F43F5E", text: "#ffffff" },
+    "dia-padre-madre": { bg: "#312E81", acc: "#10B981", text: "#ffffff" },
+    "liquidacion": { bg: "#7F1D1D", acc: "#FBBF24", text: "#ffffff" }
+  };
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    bgColor = THEMES[cfg.campaignTheme].bg;
+    accentColor = THEMES[cfg.campaignTheme].acc;
+    textColor = THEMES[cfg.campaignTheme].text;
+  }
+
+  var idSticky = idBase + "-sticky";
+  var idProd = idBase + "-prod";
+  var idCart = idBase + "-cart";
+
+  var currentPrice = 0;
+
+  function parseMoneyValue(val) {
+    if (typeof val === "number") {
+      if (isNaN(val)) return 0;
+      return val;
+    }
+    if (!val) return 0;
+    var str = String(val).trim().replace(/[^0-9,\.]/g, "");
+    if (!str) return 0;
+
+    if (str.indexOf(",") !== -1 && str.indexOf(".") !== -1) {
+      if (str.lastIndexOf(",") > str.lastIndexOf(".")) {
+        str = str.replace(/\./g, "").replace(",", ".");
+      } else {
+        str = str.replace(/,/g, "");
+      }
+    } else if (str.indexOf(",") !== -1) {
+      var cParts = str.split(",");
+      if (cParts.length === 2 && cParts[1].length === 2) {
+        str = cParts[0] + "." + cParts[1];
+      } else {
+        str = str.replace(/,/g, "");
+      }
+    } else if (str.indexOf(".") !== -1) {
+      var pParts = str.split(".");
+      if (pParts.length === 2 && (pParts[1].length === 3 || pParts[1].length >= 4)) {
+        str = pParts[0] + pParts[1];
+      }
+    }
+    return parseFloat(str) || 0;
+  }
+
+  function normalizeToPesos(rawVal) {
+    if (rawVal === undefined || rawVal === null) return 0;
+    var val = parseMoneyValue(rawVal);
+    if (val <= 0) return 0;
+    if (val >= 100000 && val % 10 === 0) return val / 100;
+    if (val >= 500000) return val / 100;
+    return val;
+  }
+
+  function detectProductPrice() {
+    try {
+      if (window.LS && window.LS.product && window.LS.product.price) {
+        var pPrice = normalizeToPesos(window.LS.product.price);
+        if (pPrice > 0) return pPrice;
+      }
+    } catch(e) {}
+
+    var priceSelectors = [
+      "#price_display",
+      ".js-price-display",
+      ".js-product-price",
+      "[data-product-price]",
+      ".product-price",
+      ".price-display",
+      ".js-compare-price-display"
+    ];
+    for (var i = 0; i < priceSelectors.length; i++) {
+      var el = document.querySelector(priceSelectors[i]);
+      if (el) {
+        var txt = el.textContent || el.innerText || "";
+        var pVal = normalizeToPesos(txt);
+        if (pVal > 0) return pVal;
+      }
+    }
+    return 0;
+  }
+
+  currentPrice = detectProductPrice();
+
+  function formatMoney(val) {
+    var str = Math.round(val).toString();
+    var res = ""; var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+      count++; res = str.charAt(i) + res;
+      if (count % 3 === 0 && i !== 0) res = "." + res;
+    }
+    return "$" + res;
+  }
+
+  function buildInnerHtml(price) {
+    var displayText = "";
+    if (price > 0 && price >= minAmount) {
+      var cuotaVal = price / cuotas;
+      displayText = msgCalculated
+        .replace(/\{\{cuotas\}\}/g, cuotas)
+        .replace(/\{\{monto_cuota\}\}/g, formatMoney(cuotaVal));
+    } else {
+      displayText = msgDefault.replace(/\{\{cuotas\}\}/g, cuotas);
+    }
+
+    var iconHtml = iconType === "emoji"
+      ? '<span style="font-size:18px !important;line-height:1 !important;display:inline-block !important;">' + emojiIcon + '</span>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block !important;flex-shrink:0 !important;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>';
+
+    return '<div style="display:flex !important;align-items:center !important;justify-content:center !important;gap:10px !important;width:100% !important;max-width:1100px !important;margin:0 auto !important;box-sizing:border-box !important;">' +
+      '<div style="display:flex !important;align-items:center !important;flex-shrink:0 !important;">' + iconHtml + '</div>' +
+      '<div style="font-size:' + (size === "small" ? "11.5px" : (size === "large" ? "14px" : "12.5px")) + ' !important;font-weight:800 !important;line-height:1.25 !important;text-align:center !important;color:' + textColor + ' !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:normal !important;">' + displayText + '</div>' +
+    '</div>';
+  }
+
+  var styleId = "style-" + idBase;
+  if (!document.getElementById(styleId)) {
+    var padCss = size === "small" ? "6px 12px" : (size === "large" ? "12px 18px" : "9px 14px");
+    var bgCss = template === "oscura" ? "#000000" : (template === "neon" ? "#090D16" : bgColor);
+    var borderCss = template === "neon" ? "1.5px solid " + accentColor : "none";
+    var radiusCss = template === "flotante" ? "999px" : (template === "moderna" ? "10px" : "0px");
+    var shadowCss = template === "neon" ? "box-shadow: 0 0 12px " + accentColor + "60 !important;" : "box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;";
+
+    var deskTopCss = (desktopPos === "top") ? "top:0 !important;bottom:auto !important;" : "bottom:0 !important;top:auto !important;";
+
+    var cssText = "";
+
+    cssText += "#" + idSticky + ", #" + idProd + ", #" + idCart + " { " +
+      "background: " + bgCss + " !important; border: " + borderCss + " !important; border-radius: " + radiusCss + " !important; " +
+      "padding: " + padCss + " !important; color: " + textColor + " !important; box-sizing: border-box !important; " +
+      "font-family: system-ui, -apple-system, sans-serif !important; " + shadowCss +
+      "height: auto !important; min-height: 0 !important; max-height: 70px !important; overflow: hidden !important; " +
+      "width: 100% !important; margin: 0 !important; " +
+    "} ";
+
+    cssText += "@media (min-width: 769px) { " +
+      "html body #" + idSticky + " { " +
+        "position: fixed !important; left: 0 !important; right: 0 !important; " +
+        deskTopCss +
+        "z-index: 999997 !important; display: block !important; " +
+      "} ";
+
+    if (template === "flotante") {
+      cssText += "html body #" + idSticky + " { " +
+        "width: calc(100% - 24px) !important; max-width: 1100px !important; " +
+        "left: 0 !important; right: 0 !important; " +
+        (desktopPos === "top" ? "margin: 8px auto 0 auto !important; top: 0 !important; bottom: auto !important; " : "margin: 0 auto 8px auto !important; bottom: 0 !important; top: auto !important; ") +
+      "} ";
+    }
+    cssText += "} ";
+
+    cssText += "@media (max-width: 768px) { ";
+    if (mobilePos === "hide") {
+      cssText += "html body #" + idSticky + " { display: none !important; } ";
+    } else {
+      var mobileFinalPos = deskTopCss;
+      if (mobilePos === "top") mobileFinalPos = "top: 0 !important; bottom: auto !important;";
+      else if (mobilePos === "bottom") mobileFinalPos = "bottom: 0 !important; top: auto !important;";
+
+      cssText += "html body #" + idSticky + " { " +
+        "position: fixed !important; left: 0 !important; right: 0 !important; " +
+        mobileFinalPos +
+        "z-index: 999997 !important; display: block !important; " +
+      "} ";
+
+      if (template === "flotante") {
+        cssText += "html body #" + idSticky + " { " +
+          "width: calc(100% - 16px) !important; left: 0 !important; right: 0 !important; " +
+          (mobilePos === "bottom" ? "margin: 0 auto 6px auto !important;" : "margin: 6px auto 0 auto !important;") +
+        "} ";
+      }
+    }
+    cssText += "} ";
+
+    cssText += "body.js-cart-slide-open #" + idSticky + ", body.js-modal-open #" + idSticky + ", .cart-active #" + idSticky + " { display: none !important; } ";
+
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    styleEl.setAttribute("data-nvx", "cuotasbar");
+    styleEl.appendChild(document.createTextNode(cssText));
+    (document.head || document.documentElement).appendChild(styleEl);
+  }
+
+  function findProductTarget() {
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form"
+    ];
+    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
+      var bEl = document.querySelector(buySelectors[sIdx]);
+      if (bEl) return bEl;
+    }
+    return null;
+  }
+
+  function adjustStackingPosition() {
+    var stEl = document.getElementById(idSticky);
+    if (!stEl) return;
+    
+    var shipbarEl = document.querySelector(".nvx-shipbar-sticky");
+    if (shipbarEl && shipbarEl.offsetHeight > 0) {
+      var shipH = shipbarEl.offsetHeight;
+      if (desktopPos === "top") {
+        stEl.style.top = shipH + "px";
+      } else {
+        stEl.style.bottom = shipH + "px";
+      }
+    } else {
+      if (desktopPos === "top") {
+        stEl.style.top = "0px";
+      } else {
+        stEl.style.bottom = "0px";
+      }
+    }
+  }
+
+  function injectSticky() {
+    if (!document.getElementById(idSticky)) {
+      var container = document.createElement("div");
+      container.id = idSticky;
+      container.className = "nvx-widget nvx-cuotasbar-sticky";
+      container.innerHTML = buildInnerHtml(currentPrice);
+      if (document.body) document.body.appendChild(container);
+    }
+    adjustStackingPosition();
+  }
+
+  function injectProductBanner(isProductPageLocal) {
+    if (!inProductBanner || !isProductPageLocal) return;
+    if (!document.getElementById(idProd)) {
+      var target = findProductTarget();
+      if (target && target.parentNode) {
+        var container = document.createElement("div");
+        container.id = idProd;
+        container.className = "nvx-widget nvx-cuotasbar-product";
+        container.style.cssText = "margin: 12px 0 !important; width: 100% !important; max-height: 80px !important; overflow: hidden !important; display: block !important; box-sizing: border-box !important;";
+        container.innerHTML = buildInnerHtml(currentPrice);
+        target.parentNode.insertBefore(container, target.nextSibling);
+      }
+    }
+  }
+
+  function injectCartDrawer() {
+    if (!inCartDrawer) return;
+    if (!document.getElementById(idCart)) {
+      var cartContainer = document.querySelector(".js-cart-panel, #cart-slide, .js-modal-cart, .cart-slide, .cart-summary, .js-cart-content, #shopping-cart");
+      if (cartContainer) {
+        var insertPoint = cartContainer.querySelector(".js-ajax-cart-list, .cart-body, .cart-table, .cart-row");
+        if (insertPoint && insertPoint.parentNode) {
+          var container = document.createElement("div");
+          container.id = idCart;
+          container.className = "nvx-widget nvx-cuotasbar-cart";
+          container.style.cssText = "margin: 10px auto 0 !important; width: 94% !important; max-height: 80px !important; overflow: hidden !important; display: block !important; box-sizing: border-box !important;";
+          container.innerHTML = buildInnerHtml(currentPrice);
+          insertPoint.parentNode.insertBefore(container, insertPoint);
+        }
+      }
+    }
+  }
+
+  function updateRenderedBars() {
+    var cSticky = document.getElementById(idSticky);
+    var cProd = document.getElementById(idProd);
+    var cCart = document.getElementById(idCart);
+
+    if (cSticky) cSticky.innerHTML = buildInnerHtml(currentPrice);
+    if (cProd) cProd.innerHTML = buildInnerHtml(currentPrice);
+    if (cCart) cCart.innerHTML = buildInnerHtml(currentPrice);
+  }
+
+  function syncEngine() {
+    var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
+    currentPrice = detectProductPrice();
+
+    var shouldShowStickyThisPage = stickyGlobal;
+    if (isProdPage && inProductBanner) {
+      shouldShowStickyThisPage = false;
+    }
+
+    if (shouldShowStickyThisPage) {
+      injectSticky();
+    } else {
+      var cStickyNow = document.getElementById(idSticky);
+      if (cStickyNow && cStickyNow.parentNode) {
+        cStickyNow.parentNode.removeChild(cStickyNow);
+      }
+    }
+
+    if (inProductBanner && isProdPage) {
+      injectProductBanner(true);
+    } else {
+      var cProd = document.getElementById(idProd);
+      if (cProd && cProd.parentNode) {
+        cProd.parentNode.removeChild(cProd);
+      }
+    }
+
+    if (inCartDrawer) {
+      injectCartDrawer();
+    }
+
+    updateRenderedBars();
+  }
+
+  syncEngine();
+  setInterval(syncEngine, 2000);
+
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+      }
 })(); 
