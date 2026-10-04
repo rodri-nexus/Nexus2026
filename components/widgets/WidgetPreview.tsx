@@ -8,6 +8,31 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function BarraCuotasPreview() {
+  return (
+    <div
+      style={{
+        background: "#111827",
+        borderRadius: "10px",
+        padding: "8px 12px",
+        width: "92%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+        border: "1.5px solid #10B981",
+        color: "#ffffff",
+      }}
+    >
+      <span style={{ fontSize: "12px" }}>💳</span>
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#ffffff", textAlign: "center" }}>
+        3 cuotas sin interés de <strong style={{ color: "#10B981" }}>$11.666</strong>
+      </div>
+    </div>
+  );
+}
+
 function BarraEnvioGratisPreview() {
   return (
     <div
@@ -739,6 +764,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "barra-cuotas":
+      return <BarraCuotasPreview />;
     case "barra-envio-gratis":
       return <BarraEnvioGratisPreview />;
     case "popup-conversion":
@@ -792,4 +819,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-      }
+          }
