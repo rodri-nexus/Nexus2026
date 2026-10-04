@@ -8,6 +8,50 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function BarraEnvioGratisPreview() {
+  return (
+    <div
+      style={{
+        background: "#111827",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+        border: "1.5px solid #10B981",
+        color: "#ffffff",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px" }}>
+        <span style={{ fontSize: "11px" }}>🚚</span>
+        <div style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff", flex: 1, textAlign: "center" }}>
+          Te faltan <strong style={{ color: "#10B981" }}>$20.000</strong> para ENVÍO GRATIS
+        </div>
+      </div>
+      <div
+        style={{
+          width: "100%",
+          height: "5px",
+          background: "rgba(255, 255, 255, 0.2)",
+          borderRadius: "999px",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: "65%",
+            height: "100%",
+            background: "#10B981",
+            borderRadius: "999px",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function PopupConversionPreview() {
   return (
     <div
@@ -695,6 +739,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "barra-envio-gratis":
+      return <BarraEnvioGratisPreview />;
     case "popup-conversion":
       return <PopupConversionPreview />;
     case "bundle-promociones":
@@ -746,4 +792,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-                   }
+      }
