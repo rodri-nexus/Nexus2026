@@ -5276,7 +5276,7 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v18.1 - Bulletproof ES5)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v19 - Bulletproof Engine)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
@@ -5339,7 +5339,7 @@ function renderBarraEnvioGratis(w) {
 
   currentCartTotal = readLocalTotal();
 
-  // Consumo por AJAX de la API del Carrito de Tiendanube (Evita desincronizaciones)
+  // Consumo por AJAX de la API del Carrito de Tiendanube
   function fetchCartTotal() {
     try {
       var xhr = new XMLHttpRequest();
@@ -5359,10 +5359,15 @@ function renderBarraEnvioGratis(w) {
     } catch(e) {}
   }
 
-  // Inicializar fetch
+  // Sincronizar al arrancar
   fetchCartTotal();
 
-  // Interceptor de clicks ES5 Ultra Compatible con try/catch para evitar congelamientos
+  // Escuchar eventos nativos de actualización del carrito de Tiendanube
+  document.addEventListener("ajaxCart:receive", fetchCartTotal);
+  document.addEventListener("cart:updated", fetchCartTotal);
+  document.addEventListener("cart:change", fetchCartTotal);
+
+  // Escuchador manual complementario para clicks de compra
   document.addEventListener("click", function(e) {
     try {
       var target = e.target;
@@ -5475,7 +5480,7 @@ function renderBarraEnvioGratis(w) {
     '</div>';
   }
 
-  // INYECCIÓN DE ESTILOS COMUNES
+  // INYECCIÓN DE ESTILOS COMUNES (Lógica clásica que sí funcionaba)
   var styleId = "style-" + idBase;
   if (!document.getElementById(styleId)) {
     var selectors = "#" + idSticky + ", #" + idProd + ", #" + idCart;
@@ -5511,7 +5516,7 @@ function renderBarraEnvioGratis(w) {
       "} ";
     }
 
-    // Regla inteligente: Ocultar si Tiendanube abre carrito slide modal
+    // Regla inteligente: Ocultar si Tiendanube abre el carrito slide modal
     cssText += "body.js-cart-slide-open #" + idSticky + ", body.js-modal-open #" + idSticky + ", .cart-active #" + idSticky + " { display: none !important; } ";
 
     if (mobilePos === "hide") {
@@ -5528,17 +5533,21 @@ function renderBarraEnvioGratis(w) {
     document.head.appendChild(styleEl);
   }
 
-  // UBICADOR DE BOTÓN DE COMPRA INTELIGENTE
+  // UBICADOR CON CASCADA EXACTA DEL WIDGET BUNDLE (SÍ funciona)
   function findProductTarget() {
-    var form = document.querySelector("form[action*='/cart/add'], #product-form, .js-product-form, .product-form");
-    if (form) return form;
-
-    var container = document.querySelector(".js-product-buy-container, .product-buy-container, .js-add-to-cart-container");
-    if (container) return container;
-
-    var btn = document.querySelector(".js-add-to-cart-btn, .js-prod-submit-form, [type='submit'].js-add-to-cart");
-    if (btn) return btn;
-
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form"
+    ];
+    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
+      var bEl = document.querySelector(buySelectors[sIdx]);
+      if (bEl) return bEl;
+    }
     return null;
   }
 
@@ -5549,7 +5558,6 @@ function renderBarraEnvioGratis(w) {
       container.id = idSticky; 
       container.className = "nvx-widget nvx-shipbar-sticky";
       
-      // Inline styling ultra robusto
       var inlineStyle = "position:fixed !important;left:0 !important;right:0 !important;z-index:999998 !important;height:auto !important;min-height:0 !important;max-height:70px !important;overflow:hidden !important;transform:translateZ(0) !important;box-sizing:border-box !important;";
       inlineStyle += (desktopPos === "top") ? "top:0 !important;bottom:auto !important;" : "bottom:0 !important;top:auto !important;";
       if (template === "flotante") {
@@ -5561,7 +5569,7 @@ function renderBarraEnvioGratis(w) {
     }
   }
 
-  // 2. Inyectar Banner en Producto (Debajo del Botón de Compra)
+  // 2. Inyectar Banner en Producto (Exactamente debajo de su ancla como el Bundle)
   function injectProductBanner() {
     if (!inProductBanner || !isProductPage) return;
     if (!document.getElementById(idProd)) {
@@ -5607,7 +5615,7 @@ function renderBarraEnvioGratis(w) {
     if (cCart) cCart.innerHTML = buildInnerHtml(currentCartTotal);
   }
 
-  // Motor dinámico en tiempo real (SPA Fix)
+  // Motor dinámico en tiempo real
   function syncEngine() {
     var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
 
@@ -5617,17 +5625,17 @@ function renderBarraEnvioGratis(w) {
       shouldShowStickyThisPage = false;
     }
 
-    // Sticky
+    // Sticky - NO forzamos display block inline para que la hoja de estilos controle móvil al 100%
     if (shouldShowStickyThisPage) {
       injectSticky();
       var cStickyNow = document.getElementById(idSticky);
       if (cStickyNow) {
-        cStickyNow.style.cssText += "; display: block !important;";
+        cStickyNow.style.display = ""; // Vuelve al estado natural respetando las reglas de estilo de mobilePos
       }
     } else {
       var cStickyNow = document.getElementById(idSticky);
       if (cStickyNow) {
-        cStickyNow.style.cssText += "; display: none !important;";
+        cStickyNow.style.display = "none";
       }
     }
 
@@ -5658,5 +5666,5 @@ function renderBarraEnvioGratis(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-                     }
+}
 })(); 
