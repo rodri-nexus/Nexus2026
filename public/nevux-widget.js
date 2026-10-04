@@ -5844,7 +5844,7 @@ function renderBarraEnvioGratis(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #8: BARRA DE CUOTAS SIN INTERÉS (v2 - Fix Themes & Price Calculation)
+   WIDGET #8: BARRA DE CUOTAS SIN INTERÉS (v3 - Universal Price & Variant Engine)
    ═══════════════════════════════════════════ */
 function renderBarraCuotas(w) {
   var idBase = "nvx-cuotasbar-" + w.id;
@@ -5939,11 +5939,21 @@ function renderBarraCuotas(w) {
   function detectProductPrice() {
     try {
       if (window.LS && window.LS.product) {
-        var rawP = window.LS.product.price || window.LS.product.promotional_price;
+        var p = window.LS.product;
+        var rawP = (p.promotional_price !== undefined && p.promotional_price !== null && p.promotional_price !== 0 && p.promotional_price !== "0")
+          ? p.promotional_price
+          : p.price;
         if (rawP) {
-          var pPrice = normalizeToPesos(rawP);
-          if (pPrice > 0) return pPrice;
+          var pVal = normalizeToPesos(rawP);
+          if (pVal > 0) return pVal;
         }
+      }
+    } catch(e) {}
+
+    try {
+      if (window.LS && window.LS.variant && window.LS.variant.price) {
+        var vVal = normalizeToPesos(window.LS.variant.price);
+        if (vVal > 0) return vVal;
       }
     } catch(e) {}
 
@@ -5955,16 +5965,36 @@ function renderBarraCuotas(w) {
       ".product-price",
       ".price-display",
       ".js-price-container",
+      "#product-price",
       ".js-compare-price-display",
-      ".price",
-      "[data-component='product.price']"
+      "[data-component='product.price']",
+      ".js-price",
+      ".price-product"
     ];
+
     for (var i = 0; i < priceSelectors.length; i++) {
-      var el = document.querySelector(priceSelectors[i]);
-      if (el) {
+      var els = document.querySelectorAll(priceSelectors[i]);
+      for (var j = 0; j < els.length; j++) {
+        var el = els[j];
+        if (!el) continue;
+        var cls = (el.className || "").toString().toLowerCase();
+        if (cls.indexOf("compare") !== -1 || cls.indexOf("crossed") !== -1 || cls.indexOf("old") !== -1 || cls.indexOf("original") !== -1) {
+          continue;
+        }
         var txt = el.textContent || el.innerText || "";
-        var pVal = normalizeToPesos(txt);
-        if (pVal > 0) return pVal;
+        if (!txt) continue;
+
+        var matches = txt.match(/\$?\s*([0-9]{1,3}(?:[\.\,][0-9]{3})*(?:[\.\,][0-9]{2})?|[0-9]+)/g);
+        if (matches && matches.length > 0) {
+          for (var m = 0; m < matches.length; m++) {
+            var cleaned = matches[m].replace(/[^0-9,\.]/g, "");
+            if (cleaned) {
+              var parsed = parseMoneyValue(cleaned);
+              var norm = normalizeToPesos(parsed);
+              if (norm > 0) return norm;
+            }
+          }
+        }
       }
     }
     return 0;
@@ -5986,9 +6016,12 @@ function renderBarraCuotas(w) {
     var displayText = "";
     if (price > 0 && (minAmount <= 0 || price >= minAmount)) {
       var cuotaVal = price / cuotas;
+      var formattedCuota = formatMoney(cuotaVal);
       displayText = msgCalculated
-        .replace(/\{\{?cuotas\}\}?/gi, cuotas)
-        .replace(/\{\{?monto_cuota\}\}?/gi, formatMoney(cuotaVal));
+        .replace(/\$\s*\{\{?monto_cuota\}\}?/gi, formattedCuota)
+        .replace(/\{\{?monto_cuota\}\}?/gi, formattedCuota)
+        .replace(/\{\{?cuotas\}\}?/gi, cuotas);
+      displayText = displayText.replace(/\$\s*\$/g, "$");
     } else {
       displayText = msgDefault
         .replace(/\{\{?cuotas\}\}?/gi, cuotas);
@@ -6093,7 +6126,7 @@ function renderBarraCuotas(w) {
   function adjustStackingPosition() {
     var stEl = document.getElementById(idSticky);
     if (!stEl) return;
-    
+
     var shipbarEl = document.querySelector(".nvx-shipbar-sticky");
     if (shipbarEl && shipbarEl.offsetHeight > 0) {
       var shipH = shipbarEl.offsetHeight;
@@ -6200,10 +6233,18 @@ function renderBarraCuotas(w) {
   }
 
   syncEngine();
-  setInterval(syncEngine, 1500);
+  setInterval(syncEngine, 1000);
+
+  // Reaccionar a selección de variantes de Tiendanube
+  document.addEventListener("change", function(e) {
+    if (e && e.target && (e.target.tagName === "SELECT" || e.target.type === "radio")) {
+      setTimeout(syncEngine, 200);
+      setTimeout(syncEngine, 600);
+    }
+  });
 
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+    }
 })(); 
