@@ -5276,7 +5276,7 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v22 - Fix Parser ARS)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v23 - Conversor Centavos a Pesos)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
@@ -5325,7 +5325,7 @@ function renderBarraEnvioGratis(w) {
 
   var currentCartTotal = 0;
 
-  // PARSER UNIVERSAL DE MONEDA LATAM / TIENDANUBE (v2 - Fix separador argentino)
+  // PARSER DE TEXTO A NÚMERO
   function parseMoneyValue(val) {
     if (typeof val === "number") {
       if (isNaN(val)) return 0;
@@ -5343,25 +5343,21 @@ function renderBarraEnvioGratis(w) {
       } else {
         str = str.replace(/,/g, "");
       }
-    }
-    else if (str.indexOf(",") !== -1) {
+    } else if (str.indexOf(",") !== -1) {
       var cParts = str.split(",");
       if (cParts.length === 2 && cParts[1].length === 2) {
         str = cParts[0] + "." + cParts[1];
       } else {
         str = str.replace(/,/g, "");
       }
-    }
-    else if (str.indexOf(".") !== -1) {
+    } else if (str.indexOf(".") !== -1) {
       var pParts = str.split(".");
       if (pParts.length > 2) {
         str = str.replace(/\./g, "");
       } else if (pParts.length === 2) {
         var intPart = pParts[0];
         var decPart = pParts[1];
-        if (decPart.length === 3) {
-          str = intPart + decPart;
-        } else if (decPart.length >= 4) {
+        if (decPart.length === 3 || decPart.length >= 4) {
           str = intPart + decPart;
         }
       }
@@ -5369,6 +5365,23 @@ function renderBarraEnvioGratis(w) {
 
     var parsed = parseFloat(str) || 0;
     return parsed;
+  }
+
+  // CONVERSOR DE CENTAVOS TIENDANUBE A PESOS REALES
+  function normalizeToPesos(rawVal) {
+    if (rawVal === undefined || rawVal === null) return 0;
+    var val = parseMoneyValue(rawVal);
+    if (val <= 0) return 0;
+
+    // Tiendanube LS.cart.total viene en centavos (3.500.000 para $35.000,00)
+    // Si el valor es mayor a 100.000 y termina en 0, son centavos -> dividir por 100
+    if (val >= 100000 && val % 10 === 0) {
+      return val / 100;
+    }
+    if (val >= 500000) {
+      return val / 100;
+    }
+    return val;
   }
 
   function readFromDOM() {
@@ -5395,7 +5408,7 @@ function renderBarraEnvioGratis(w) {
       for (var e = 0; e < els.length; e++) {
         var txt = els[e].textContent || els[e].innerText || "";
         if (txt && txt.replace(/[^0-9]/g, "").length > 0) {
-          var pVal = parseMoneyValue(txt);
+          var pVal = normalizeToPesos(txt);
           if (pVal > 0) return pVal;
         }
       }
@@ -5416,22 +5429,19 @@ function renderBarraEnvioGratis(w) {
           var sum = 0;
           for (var i = 0; i < window.LS.cart.items.length; i++) {
             var item = window.LS.cart.items[i];
-            var p = 0;
-            if (typeof item.price === "number") p = item.price;
-            else if (typeof item.unit_price === "number") p = item.unit_price;
-            else if (typeof item.final_price === "number") p = item.final_price;
-            else p = parseMoneyValue(item.price || item.unit_price || item.final_price);
+            var rawPrice = item.price !== undefined ? item.price : (item.unit_price !== undefined ? item.unit_price : item.final_price);
+            var p = normalizeToPesos(rawPrice);
             var q = parseInt(item.quantity || item.qty || 1, 10) || 1;
             sum += (p * q);
           }
           if (sum > 0) return sum;
         }
         if (window.LS.cart.subtotal !== undefined && window.LS.cart.subtotal !== null && window.LS.cart.subtotal !== "") {
-          var subVal = parseMoneyValue(window.LS.cart.subtotal);
+          var subVal = normalizeToPesos(window.LS.cart.subtotal);
           if (subVal > 0) return subVal;
         }
         if (window.LS.cart.total !== undefined && window.LS.cart.total !== null && window.LS.cart.total !== "") {
-          var totVal = parseMoneyValue(window.LS.cart.total);
+          var totVal = normalizeToPesos(window.LS.cart.total);
           if (totVal > 0) return totVal;
         }
       }
@@ -5470,17 +5480,14 @@ function renderBarraEnvioGratis(w) {
               } else if (cartData.items && cartData.items.length > 0) {
                 for (var k = 0; k < cartData.items.length; k++) {
                   var itm = cartData.items[k];
-                  var ip = 0;
-                  if (typeof itm.price === "number") ip = itm.price;
-                  else if (typeof itm.unit_price === "number") ip = itm.unit_price;
-                  else if (typeof itm.final_price === "number") ip = itm.final_price;
-                  else ip = parseMoneyValue(itm.price || itm.unit_price || itm.final_price);
+                  var rawP = itm.price !== undefined ? itm.price : (itm.unit_price !== undefined ? itm.unit_price : itm.final_price);
+                  var ip = normalizeToPesos(rawP);
                   var iq = parseInt(itm.quantity || itm.qty || 1, 10) || 1;
                   fetchedTotal += (ip * iq);
                 }
               }
-              if (fetchedTotal <= 0 && cartData.subtotal !== undefined) fetchedTotal = parseMoneyValue(cartData.subtotal);
-              if (fetchedTotal <= 0 && cartData.total !== undefined) fetchedTotal = parseMoneyValue(cartData.total);
+              if (fetchedTotal <= 0 && cartData.subtotal !== undefined) fetchedTotal = normalizeToPesos(cartData.subtotal);
+              if (fetchedTotal <= 0 && cartData.total !== undefined) fetchedTotal = normalizeToPesos(cartData.total);
 
               if (fetchedTotal > 0 || cartData.items_count === 0 || (cartData.items && cartData.items.length === 0)) {
                 currentCartTotal = fetchedTotal;
@@ -5834,5 +5841,5 @@ function renderBarraEnvioGratis(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+    }
 })(); 
