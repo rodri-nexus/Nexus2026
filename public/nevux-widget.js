@@ -5276,7 +5276,7 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v16.1 - Smart Logic)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v17 - Bulletproof Fix)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
@@ -5338,10 +5338,10 @@ function renderBarraEnvioGratis(w) {
   function getCartTotal() {
     try {
       if (window.LS && window.LS.cart && window.LS.cart.total !== undefined) {
-        return parseFloat(window.LS.cart.total) / 100; // Fundamental: Convertir centavos a pesos
+        return parseFloat(window.LS.cart.total) / 100; // Convertir centavos a pesos
       }
     } catch(e) {}
-    return 0; // Se actualizará automáticamente en el polling
+    return 0;
   }
 
   // Detección de Zona y Meta
@@ -5398,23 +5398,23 @@ function renderBarraEnvioGratis(w) {
     }
 
     var iconHtml = iconType === "emoji" 
-      ? '<span style="font-size:20px !important;line-height:1 !important;">' + emojiIcon + '</span>'
-      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + barColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block !important;"><rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>';
+      ? '<span style="font-size:18px !important;line-height:1 !important;display:inline-block !important;">' + emojiIcon + '</span>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + barColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block !important;flex-shrink:0 !important;"><rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>';
 
     var progressHtml = "";
     if (remaining === 0) {
-      progressHtml = '<div style="width:26px !important;height:26px !important;border-radius:50% !important;background:' + barColor + ' !important;color:#ffffff !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:900 !important;font-size:14px !important;flex-shrink:0 !important;box-shadow:0 2px 6px rgba(0,0,0,0.2) !important;">✓</div>';
+      progressHtml = '<div style="width:24px !important;height:24px !important;min-width:24px !important;border-radius:50% !important;background:' + barColor + ' !important;color:#ffffff !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:900 !important;font-size:13px !important;flex-shrink:0 !important;box-shadow:0 2px 6px rgba(0,0,0,0.2) !important;line-height:1 !important;">✓</div>';
     } else {
-      var barH = template === "bold" ? "12px" : (template === "minimal" ? "4px" : "8px");
-      var barW = template === "minimal" ? "80px" : "110px";
-      progressHtml = '<div style="width:' + barW + ' !important;height:' + barH + ' !important;background:rgba(255,255,255,0.2) !important;border-radius:999px !important;overflow:hidden !important;position:relative !important;flex-shrink:0 !important;">' +
+      var barH = template === "bold" ? "10px" : (template === "minimal" ? "4px" : "7px");
+      var barW = template === "minimal" ? "70px" : "90px";
+      progressHtml = '<div style="width:' + barW + ' !important;min-width:' + barW + ' !important;height:' + barH + ' !important;background:rgba(255,255,255,0.2) !important;border-radius:999px !important;overflow:hidden !important;position:relative !important;flex-shrink:0 !important;">' +
         '<div style="width:' + pct + '% !important;height:100% !important;background:' + barColor + ' !important;border-radius:999px !important;transition:width 0.4s ease !important;' + (template === "neon" ? 'box-shadow:0 0 8px ' + barColor + ' !important;' : '') + '"></div>' +
       '</div>';
     }
 
-    return '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;gap:12px !important;width:100% !important;max-width:1100px !important;margin:0 auto !important;box-sizing:border-box !important;">' +
+    return '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;width:100% !important;max-width:1100px !important;margin:0 auto !important;box-sizing:border-box !important;height:auto !important;min-height:0 !important;">' +
       '<div style="display:flex !important;align-items:center !important;flex-shrink:0 !important;">' + iconHtml + '</div>' +
-      '<div style="flex:1 !important;font-size:' + (size === "small" ? "12px" : (size === "large" ? "15px" : "13.5px")) + ' !important;font-weight:800 !important;line-height:1.3 !important;text-align:' + (template === "minimal" ? "left" : "center") + ' !important;color:' + textColor + ' !important;">' + displayText + '</div>' +
+      '<div style="flex:1 1 auto !important;font-size:' + (size === "small" ? "12px" : (size === "large" ? "14.5px" : "13px")) + ' !important;font-weight:800 !important;line-height:1.25 !important;text-align:' + (template === "minimal" ? "left" : "center") + ' !important;color:' + textColor + ' !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:normal !important;">' + displayText + '</div>' +
       progressHtml +
     '</div>';
   }
@@ -5423,27 +5423,47 @@ function renderBarraEnvioGratis(w) {
   var styleId = "style-" + idBase;
   if (!document.getElementById(styleId)) {
     var selectors = "#" + idSticky + ", #" + idProd + ", #" + idCart;
-    var padCss = size === "small" ? "8px 14px" : (size === "large" ? "16px 22px" : "12px 18px");
+    var padCss = size === "small" ? "6px 12px" : (size === "large" ? "12px 18px" : "9px 14px");
     var bgCss = template === "oscura" ? "#000000" : (template === "neon" ? "#090D16" : bgColor);
     var borderCss = template === "neon" ? "1.5px solid " + barColor : "none";
-    var radiusCss = template === "flotante" ? "999px" : (template === "moderna" ? "12px" : "0px");
-    var shadowCss = template === "neon" ? "box-shadow: 0 0 12px " + barColor + "60 !important;" : "box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;";
+    var radiusCss = template === "flotante" ? "999px" : (template === "moderna" ? "10px" : "0px");
+    var shadowCss = template === "neon" ? "box-shadow: 0 0 12px " + barColor + "60 !important;" : "box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;";
 
     var cssText = selectors + " { " +
       "background: " + bgCss + " !important; border: " + borderCss + " !important; border-radius: " + radiusCss + " !important; " +
       "padding: " + padCss + " !important; color: " + textColor + " !important; box-sizing: border-box !important; " +
       "font-family: system-ui, -apple-system, sans-serif !important; " + shadowCss +
+      "height: auto !important; min-height: 0 !important; max-height: 70px !important; overflow: hidden !important; " +
+      "display: block !important; width: 100% !important; margin: 0 !important; " +
     "} ";
+
+    // Reglas específicas para el STICKY (Protección contra expansión de pantalla completa)
+    cssText += "#" + idSticky + " { " +
+      "position: fixed !important; " +
+      "left: 0 !important; right: 0 !important; " +
+      (desktopPos === "top" ? "top: 0 !important; bottom: auto !important; " : "bottom: 0 !important; top: auto !important; ") +
+      "z-index: 999998 !important; " +
+      "height: auto !important; min-height: 0 !important; max-height: 70px !important; overflow: hidden !important; " +
+      "transform: translateZ(0) !important; " +
+    "} ";
+
+    if (template === "flotante") {
+      cssText += "#" + idSticky + " { " +
+        "width: calc(100% - 24px) !important; max-width: 1100px !important; " +
+        "left: 0 !important; right: 0 !important; " +
+        (desktopPos === "top" ? "margin: 8px auto 0 auto !important; top: 0 !important; bottom: auto !important; " : "margin: 0 auto 8px auto !important; bottom: 0 !important; top: auto !important; ") +
+      "} ";
+    }
 
     // Regla inteligente: Ocultar la barra fija si Tiendanube abre el modal del carrito
     cssText += "body.js-cart-slide-open #" + idSticky + ", body.js-modal-open #" + idSticky + ", .cart-active #" + idSticky + " { display: none !important; } ";
 
     if (mobilePos === "hide") {
-      cssText += "@media (max-width: 768px) { " + selectors + " { display: none !important; } } ";
+      cssText += "@media (max-width: 768px) { #" + idSticky + " { display: none !important; } } ";
     } else if (mobilePos === "top") {
-      cssText += "@media (max-width: 768px) { #" + idSticky + " { top: 0 !important; bottom: auto !important; } } ";
+      cssText += "@media (max-width: 768px) { #" + idSticky + " { top: 0 !important; bottom: auto !important; " + (template === "flotante" ? "margin: 6px auto 0 auto !important;" : "") + " } } ";
     } else if (mobilePos === "bottom") {
-      cssText += "@media (max-width: 768px) { #" + idSticky + " { bottom: 0 !important; top: auto !important; } } ";
+      cssText += "@media (max-width: 768px) { #" + idSticky + " { bottom: 0 !important; top: auto !important; " + (template === "flotante" ? "margin: 0 auto 6px auto !important;" : "") + " } } ";
     }
 
     var styleEl = document.createElement("style");
@@ -5457,11 +5477,8 @@ function renderBarraEnvioGratis(w) {
     if (!showSticky) return;
     if (!document.getElementById(idSticky)) {
       var container = document.createElement("div");
-      container.id = idSticky; container.className = "nvx-widget nvx-shipbar-sticky";
-      var posStyle = "position:fixed !important;left:0 !important;right:0 !important;z-index:999998 !important;";
-      posStyle += (desktopPos === "top") ? "top:0 !important;" : "bottom:0 !important;";
-      if (template === "flotante") posStyle += "width:calc(100% - 24px) !important;margin:10px auto !important;left:12px !important;right:12px !important;";
-      container.style.cssText = posStyle;
+      container.id = idSticky; 
+      container.className = "nvx-widget nvx-shipbar-sticky";
       container.innerHTML = buildInnerHtml(getCartTotal());
       if (document.body) document.body.appendChild(container);
     }
@@ -5474,8 +5491,9 @@ function renderBarraEnvioGratis(w) {
       var target = document.querySelector("form[action*='/cart/add'], .js-product-buy-container, .js-add-to-cart-btn, .product-buy-container");
       if (target && target.parentNode) {
         var container = document.createElement("div");
-        container.id = idProd; container.className = "nvx-widget nvx-shipbar-product";
-        container.style.cssText = "margin:14px 0 !important;width:100% !important;box-sizing:border-box !important;";
+        container.id = idProd; 
+        container.className = "nvx-widget nvx-shipbar-product";
+        container.style.cssText = "margin: 14px 0 !important; width: 100% !important; max-height: 80px !important; overflow: hidden !important;";
         container.innerHTML = buildInnerHtml(getCartTotal());
         target.parentNode.insertBefore(container, target.nextSibling);
       }
@@ -5491,8 +5509,9 @@ function renderBarraEnvioGratis(w) {
         var insertPoint = cartContainer.querySelector(".js-ajax-cart-list, .cart-body, .cart-table, .cart-row");
         if (insertPoint && insertPoint.parentNode) {
           var container = document.createElement("div");
-          container.id = idCart; container.className = "nvx-widget nvx-shipbar-cart";
-          container.style.cssText = "margin:14px auto 0 !important;width:92% !important;box-sizing:border-box !important;";
+          container.id = idCart; 
+          container.className = "nvx-widget nvx-shipbar-cart";
+          container.style.cssText = "margin: 12px auto 0 !important; width: 94% !important; max-height: 80px !important; overflow: hidden !important;";
           container.innerHTML = buildInnerHtml(getCartTotal());
           insertPoint.parentNode.insertBefore(container, insertPoint);
         }
@@ -5516,7 +5535,6 @@ function renderBarraEnvioGratis(w) {
 
     if (cSticky) cSticky.innerHTML = buildInnerHtml(total);
     if (cProd) cProd.innerHTML = buildInnerHtml(total);
-    // El carrito suele borrarse vía AJAX en Tiendanube, si existe lo actualizamos
     if (cCart) cCart.innerHTML = buildInnerHtml(total);
   }
 
@@ -5527,5 +5545,5 @@ function renderBarraEnvioGratis(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-    }
+}
 })(); 
