@@ -1,6 +1,7 @@
 // app/widgets/editar/[widgetSlug]/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import BarraEnvioGratisEditor from '@/components/widgets/editors/BarraEnvioGratisEditor';
 import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedadesEditor';
 import HorarioAtencionEditor from '@/components/widgets/editors/HorarioAtencionEditor';
 import CalculadoraAhorroEditor from '@/components/widgets/editors/CalculadoraAhorroEditor';
@@ -69,6 +70,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: BARRA DE ENVÍO GRATIS
+  if (params.widgetSlug === 'barra-envio-gratis') {
+    return (
+      <BarraEnvioGratisEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: POPUP DE CONVERSIÓN
   if (params.widgetSlug === 'popup-conversion') {
@@ -226,4 +240,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+                                              }
