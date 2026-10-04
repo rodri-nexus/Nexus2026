@@ -5844,7 +5844,7 @@ function renderBarraEnvioGratis(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #8: BARRA DE CUOTAS SIN INTERÉS (v1)
+   WIDGET #8: BARRA DE CUOTAS SIN INTERÉS (v2 - Fix Themes & Price Calculation)
    ═══════════════════════════════════════════ */
 function renderBarraCuotas(w) {
   var idBase = "nvx-cuotasbar-" + w.id;
@@ -5854,8 +5854,8 @@ function renderBarraCuotas(w) {
   var cfg = w.config || {};
   var cuotas = parseInt(cfg.cuotas, 10) || 3;
   var minAmount = parseFloat(cfg.minAmount) || 0;
-  var msgDefault = cfg.msgDefault || "¡Hasta {{cuotas}} cuotas sin interés en toda la tienda! 🎉";
-  var msgCalculated = cfg.msgCalculated || "Pagá en {{cuotas}} cuotas sin interés de {{monto_cuota}}";
+  var msgDefault = (cfg.msgDefault && String(cfg.msgDefault).trim()) ? String(cfg.msgDefault) : "¡Hasta {{cuotas}} cuotas sin interés en toda la tienda! 🎉";
+  var msgCalculated = (cfg.msgCalculated && String(cfg.msgCalculated).trim()) ? String(cfg.msgCalculated) : "Pagá en {{cuotas}} cuotas sin interés de {{monto_cuota}}";
   var template = cfg.template || "moderna";
   var size = cfg.size || "normal";
   var desktopPos = cfg.desktopPos || "top";
@@ -5868,20 +5868,26 @@ function renderBarraCuotas(w) {
   var bgColor = cfg.bgColor || "#111827";
   var accentColor = cfg.accentColor || "#10B981";
   var textColor = cfg.textColor || "#ffffff";
+  var customBorder = "none";
+  var customShadow = "box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;";
 
   var THEMES = {
-    "black-friday": { bg: "#111827", acc: "#F59E0B", text: "#ffffff" },
-    "hot-sale": { bg: "#0F172A", acc: "#EF4444", text: "#ffffff" },
-    "cyber-monday": { bg: "#090D16", acc: "#3B82F6", text: "#ffffff" },
-    "navidad": { bg: "#064E3B", acc: "#EF4444", text: "#ffffff" },
-    "san-valentin": { bg: "#831843", acc: "#F43F5E", text: "#ffffff" },
-    "dia-padre-madre": { bg: "#312E81", acc: "#10B981", text: "#ffffff" },
-    "liquidacion": { bg: "#7F1D1D", acc: "#FBBF24", text: "#ffffff" }
+    "black-friday": { bg: "#111827", acc: "#F59E0B", text: "#F59E0B", border: "1.5px solid #F59E0B", shadow: "0 0 12px rgba(245,158,11,0.4)" },
+    "hot-sale": { bg: "#0F172A", acc: "#EF4444", text: "#ffffff", border: "1.5px solid #EF4444", shadow: "0 0 12px rgba(239,68,68,0.4)" },
+    "cyber-monday": { bg: "#090D16", acc: "#3B82F6", text: "#60A5FA", border: "1.5px solid #3B82F6", shadow: "0 0 12px rgba(59,130,246,0.5)" },
+    "navidad": { bg: "#064E3B", acc: "#EF4444", text: "#ffffff", border: "1.5px solid #EF4444", shadow: "0 0 10px rgba(16,185,129,0.3)" },
+    "san-valentin": { bg: "#831843", acc: "#F43F5E", text: "#ffffff", border: "1.5px solid #F43F5E", shadow: "0 0 10px rgba(244,63,94,0.3)" },
+    "dia-padre-madre": { bg: "#312E81", acc: "#10B981", text: "#ffffff", border: "1.5px solid #10B981", shadow: "0 0 10px rgba(16,185,129,0.3)" },
+    "liquidacion": { bg: "#7F1D1D", acc: "#FBBF24", text: "#FBBF24", border: "1.5px solid #FBBF24", shadow: "0 0 10px rgba(251,191,36,0.4)" }
   };
+
   if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
-    bgColor = THEMES[cfg.campaignTheme].bg;
-    accentColor = THEMES[cfg.campaignTheme].acc;
-    textColor = THEMES[cfg.campaignTheme].text;
+    var tm = THEMES[cfg.campaignTheme];
+    bgColor = tm.bg;
+    accentColor = tm.acc;
+    textColor = tm.text;
+    customBorder = tm.border;
+    if (tm.shadow) customShadow = "box-shadow: " + tm.shadow + " !important;";
   }
 
   var idSticky = idBase + "-sticky";
@@ -5932,9 +5938,12 @@ function renderBarraCuotas(w) {
 
   function detectProductPrice() {
     try {
-      if (window.LS && window.LS.product && window.LS.product.price) {
-        var pPrice = normalizeToPesos(window.LS.product.price);
-        if (pPrice > 0) return pPrice;
+      if (window.LS && window.LS.product) {
+        var rawP = window.LS.product.price || window.LS.product.promotional_price;
+        if (rawP) {
+          var pPrice = normalizeToPesos(rawP);
+          if (pPrice > 0) return pPrice;
+        }
       }
     } catch(e) {}
 
@@ -5945,7 +5954,10 @@ function renderBarraCuotas(w) {
       "[data-product-price]",
       ".product-price",
       ".price-display",
-      ".js-compare-price-display"
+      ".js-price-container",
+      ".js-compare-price-display",
+      ".price",
+      "[data-component='product.price']"
     ];
     for (var i = 0; i < priceSelectors.length; i++) {
       var el = document.querySelector(priceSelectors[i]);
@@ -5972,13 +5984,14 @@ function renderBarraCuotas(w) {
 
   function buildInnerHtml(price) {
     var displayText = "";
-    if (price > 0 && price >= minAmount) {
+    if (price > 0 && (minAmount <= 0 || price >= minAmount)) {
       var cuotaVal = price / cuotas;
       displayText = msgCalculated
-        .replace(/\{\{cuotas\}\}/g, cuotas)
-        .replace(/\{\{monto_cuota\}\}/g, formatMoney(cuotaVal));
+        .replace(/\{\{?cuotas\}\}?/gi, cuotas)
+        .replace(/\{\{?monto_cuota\}\}?/gi, formatMoney(cuotaVal));
     } else {
-      displayText = msgDefault.replace(/\{\{cuotas\}\}/g, cuotas);
+      displayText = msgDefault
+        .replace(/\{\{?cuotas\}\}?/gi, cuotas);
     }
 
     var iconHtml = iconType === "emoji"
@@ -5995,9 +6008,9 @@ function renderBarraCuotas(w) {
   if (!document.getElementById(styleId)) {
     var padCss = size === "small" ? "6px 12px" : (size === "large" ? "12px 18px" : "9px 14px");
     var bgCss = template === "oscura" ? "#000000" : (template === "neon" ? "#090D16" : bgColor);
-    var borderCss = template === "neon" ? "1.5px solid " + accentColor : "none";
+    var borderCss = template === "neon" ? "1.5px solid " + accentColor : customBorder;
     var radiusCss = template === "flotante" ? "999px" : (template === "moderna" ? "10px" : "0px");
-    var shadowCss = template === "neon" ? "box-shadow: 0 0 12px " + accentColor + "60 !important;" : "box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;";
+    var shadowCss = template === "neon" ? "box-shadow: 0 0 12px " + accentColor + "60 !important;" : customShadow;
 
     var deskTopCss = (desktopPos === "top") ? "top:0 !important;bottom:auto !important;" : "bottom:0 !important;top:auto !important;";
 
@@ -6187,7 +6200,7 @@ function renderBarraCuotas(w) {
   }
 
   syncEngine();
-  setInterval(syncEngine, 2000);
+  setInterval(syncEngine, 1500);
 
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
