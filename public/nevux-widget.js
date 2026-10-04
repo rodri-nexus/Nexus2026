@@ -5276,7 +5276,7 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v20 - Final Fix)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v21 - Full Cart Engine)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
@@ -5325,59 +5325,209 @@ function renderBarraEnvioGratis(w) {
 
   var currentCartTotal = 0;
 
-  // LECTURA INTELIGENTE DEL CARRITO (Fix 3: detecta si viene en centavos o en pesos)
-  function normalizeTotal(rawTotal) {
-    var val = parseFloat(rawTotal) || 0;
-    // Si es un número muy grande terminado en 00, asumimos que son centavos
-    // Umbral: si val > 1000000 y es múltiplo de 100, dividimos por 100
-    if (val >= 100000 && val % 100 === 0) {
-      return val / 100;
+  // PARSER UNIVERSAL DE MONEDA LATAM / TIENDANUBE
+  function parseMoneyValue(val) {
+    if (typeof val === "number") {
+      if (isNaN(val)) return 0;
+      return val;
     }
-    return val;
+    if (!val) return 0;
+    var str = String(val).trim();
+    if (!str) return 0;
+    str = str.replace(/[^0-9,\.]/g, "");
+    if (!str) return 0;
+
+    if (str.indexOf(",") !== -1 && str.indexOf(".") !== -1) {
+      if (str.lastIndexOf(",") > str.lastIndexOf(".")) {
+        str = str.replace(/\./g, "").replace(",", ".");
+      } else {
+        str = str.replace(/,/g, "");
+      }
+    } else if (str.indexOf(",") !== -1) {
+      var cParts = str.split(",");
+      if (cParts.length === 2 && cParts[1].length === 2) {
+        str = cParts[0] + "." + cParts[1];
+      } else {
+        str = str.replace(/,/g, "");
+      }
+    } else if (str.indexOf(".") !== -1) {
+      var pParts = str.split(".");
+      if (pParts.length > 2) {
+        str = str.replace(/\./g, "");
+      } else if (pParts.length === 2) {
+        if (pParts[1].length === 3) {
+          str = str.replace(/\./g, "");
+        }
+      }
+    }
+
+    var parsed = parseFloat(str) || 0;
+    return parsed;
   }
 
-  function readLocalTotal() {
-    try {
-      if (window.LS && window.LS.cart && window.LS.cart.total !== undefined) {
-        return normalizeTotal(window.LS.cart.total);
+  // LECTURA DIRECTA DESDE EL DOM DE TIENDANUBE (FALLBACK SEGURO)
+  function readFromDOM() {
+    var domSelectors = [
+      ".js-ajax-cart-total",
+      ".js-cart-total",
+      ".js-cart-subtotal",
+      ".js-ajax-cart-subtotal",
+      ".js-cart-widget-amount",
+      ".cart-total-amount",
+      ".cart-subtotal-amount",
+      ".cart-total .js-price",
+      ".cart-total",
+      ".cart-subtotal",
+      "[data-component='cart.total']",
+      "[data-component='cart.subtotal']",
+      ".js-cart-panel .js-cart-total",
+      ".js-modal-cart .js-cart-total",
+      "#cart-total",
+      "#ajax-cart-total"
+    ];
+    for (var d = 0; d < domSelectors.length; d++) {
+      var els = document.querySelectorAll(domSelectors[d]);
+      for (var e = 0; e < els.length; e++) {
+        var txt = els[e].textContent || els[e].innerText || "";
+        if (txt && txt.replace(/[^0-9]/g, "").length > 0) {
+          var pVal = parseMoneyValue(txt);
+          if (pVal > 0) return pVal;
+        }
       }
-    } catch(e) {}
+    }
     return 0;
   }
 
-  currentCartTotal = readLocalTotal();
+  // LECTOR MULTI-FUENTE DEL TOTAL
+  function readCartTotal() {
+    try {
+      if (window.LS && window.LS.cart) {
+        if (window.LS.cart.items && window.LS.cart.items.length > 0) {
+          var sum = 0;
+          for (var i = 0; i < window.LS.cart.items.length; i++) {
+            var item = window.LS.cart.items[i];
+            var p = parseMoneyValue(item.price !== undefined ? item.price : (item.unit_price !== undefined ? item.unit_price : item.final_price));
+            var q = parseInt(item.quantity || item.qty || 1, 10) || 1;
+            sum += (p * q);
+          }
+          if (sum > 0) return sum;
+        }
+        if (window.LS.cart.subtotal_in_cents && window.LS.cart.subtotal_in_cents > 0) {
+          return window.LS.cart.subtotal_in_cents / 100;
+        }
+        if (window.LS.cart.total_in_cents && window.LS.cart.total_in_cents > 0) {
+          return window.LS.cart.total_in_cents / 100;
+        }
+        if (window.LS.cart.subtotal !== undefined && window.LS.cart.subtotal !== null && window.LS.cart.subtotal !== "") {
+          var subVal = parseMoneyValue(window.LS.cart.subtotal);
+          if (subVal > 0) return subVal;
+        }
+        if (window.LS.cart.total !== undefined && window.LS.cart.total !== null && window.LS.cart.total !== "") {
+          var totVal = parseMoneyValue(window.LS.cart.total);
+          if (totVal > 0) return totVal;
+        }
+      }
+    } catch(e) {}
+
+    try {
+      var domVal = readFromDOM();
+      if (domVal > 0) return domVal;
+    } catch(e) {}
+
+    return 0;
+  }
 
   function fetchCartTotal() {
+    var localVal = readCartTotal();
+    if (localVal > 0 || (window.LS && window.LS.cart && window.LS.cart.items && window.LS.cart.items.length === 0)) {
+      currentCartTotal = localVal;
+      updateRenderedBars();
+    }
+
     try {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "/cart.json", true);
+      xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
           try {
             var cartData = JSON.parse(xhr.responseText);
-            if (cartData && cartData.total !== undefined) {
-              currentCartTotal = normalizeTotal(cartData.total);
-              updateRenderedBars();
-            } else if (cartData && cartData.subtotal !== undefined) {
-              currentCartTotal = normalizeTotal(cartData.subtotal);
+            if (cartData) {
+              var fetchedTotal = 0;
+              if (cartData.items && cartData.items.length > 0) {
+                for (var k = 0; k < cartData.items.length; k++) {
+                  var itm = cartData.items[k];
+                  var ip = parseMoneyValue(itm.price !== undefined ? itm.price : (itm.unit_price !== undefined ? itm.unit_price : itm.final_price));
+                  var iq = parseInt(itm.quantity || itm.qty || 1, 10) || 1;
+                  fetchedTotal += (ip * iq);
+                }
+              }
+              if (fetchedTotal <= 0 && cartData.subtotal_in_cents) fetchedTotal = cartData.subtotal_in_cents / 100;
+              if (fetchedTotal <= 0 && cartData.total_in_cents) fetchedTotal = cartData.total_in_cents / 100;
+              if (fetchedTotal <= 0 && cartData.subtotal !== undefined) fetchedTotal = parseMoneyValue(cartData.subtotal);
+              if (fetchedTotal <= 0 && cartData.total !== undefined) fetchedTotal = parseMoneyValue(cartData.total);
+
+              if (fetchedTotal > 0 || cartData.items_count === 0 || (cartData.items && cartData.items.length === 0)) {
+                currentCartTotal = fetchedTotal;
+                updateRenderedBars();
+              }
+            }
+          } catch(err) {
+            var domVal2 = readFromDOM();
+            if (domVal2 > 0) {
+              currentCartTotal = domVal2;
               updateRenderedBars();
             }
-          } catch(e) {}
+          }
         }
       };
       xhr.send();
     } catch(e) {}
   }
 
+  // Inicialización inmediata
+  currentCartTotal = readCartTotal();
   fetchCartTotal();
+
+  // Polling rápido de arranque
+  setTimeout(fetchCartTotal, 300);
+  setTimeout(fetchCartTotal, 800);
+  setTimeout(fetchCartTotal, 1500);
+  setTimeout(fetchCartTotal, 3000);
 
   // Eventos nativos de Tiendanube
   document.addEventListener("ajaxCart:receive", fetchCartTotal);
   document.addEventListener("cart:updated", fetchCartTotal);
   document.addEventListener("cart:change", fetchCartTotal);
   document.addEventListener("product_added_to_cart", fetchCartTotal);
+  window.addEventListener("LS:cart:updated", fetchCartTotal);
 
-  // Click handler sobre todo el documento
+  // Hook jQuery de Tiendanube
+  try {
+    if (window.jQuery) {
+      window.jQuery(document).ajaxComplete(function() {
+        setTimeout(fetchCartTotal, 300);
+        setTimeout(fetchCartTotal, 1000);
+      });
+    }
+  } catch(e) {}
+
+  // MutationObserver para cambios en el DOM del carrito
+  try {
+    if (window.MutationObserver && document.body) {
+      var cartObserver = new MutationObserver(function() {
+        var curDom = readCartTotal();
+        if (curDom > 0 && curDom !== currentCartTotal) {
+          currentCartTotal = curDom;
+          updateRenderedBars();
+        }
+      });
+      cartObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+    }
+  } catch(e) {}
+
+  // Click handler sobre botones de compra
   document.addEventListener("click", function(e) {
     try {
       var target = e.target;
@@ -5395,6 +5545,7 @@ function renderBarraEnvioGratis(w) {
           classes.indexOf("js-prod-submit-form") !== -1 ||
           classes.indexOf("product-buy-container") !== -1 ||
           classes.indexOf("js-product-buy-container") !== -1 ||
+          classes.indexOf("js-cart-quantity-btn") !== -1 ||
           (type === "submit" && classes.indexOf("js-add-to-cart") !== -1) ||
           id.indexOf("add-to-cart") !== -1
         ) {
@@ -5405,10 +5556,11 @@ function renderBarraEnvioGratis(w) {
       }
 
       if (isAddToCart) {
-        setTimeout(fetchCartTotal, 600);
-        setTimeout(fetchCartTotal, 1500);
-        setTimeout(fetchCartTotal, 2800);
-        setTimeout(fetchCartTotal, 4500);
+        setTimeout(fetchCartTotal, 400);
+        setTimeout(fetchCartTotal, 1000);
+        setTimeout(fetchCartTotal, 2000);
+        setTimeout(fetchCartTotal, 3500);
+        setTimeout(fetchCartTotal, 5000);
       }
     } catch(err) {}
   }, true);
@@ -5488,7 +5640,7 @@ function renderBarraEnvioGratis(w) {
     '</div>';
   }
 
-  // HOJA DE ESTILOS - Fix 1: Media queries con MÁXIMA especificidad al final del <head>
+  // HOJA DE ESTILOS
   var styleId = "style-" + idBase;
   if (!document.getElementById(styleId)) {
     var padCss = size === "small" ? "6px 12px" : (size === "large" ? "12px 18px" : "9px 14px");
@@ -5497,12 +5649,10 @@ function renderBarraEnvioGratis(w) {
     var radiusCss = template === "flotante" ? "999px" : (template === "moderna" ? "10px" : "0px");
     var shadowCss = template === "neon" ? "box-shadow: 0 0 12px " + barColor + "60 !important;" : "box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;";
 
-    // Posición desktop base
     var deskTopCss = (desktopPos === "top") ? "top:0 !important;bottom:auto !important;" : "bottom:0 !important;top:auto !important;";
 
     var cssText = "";
 
-    // Estilos comunes a los 3 contenedores
     cssText += "#" + idSticky + ", #" + idProd + ", #" + idCart + " { " +
       "background: " + bgCss + " !important; border: " + borderCss + " !important; border-radius: " + radiusCss + " !important; " +
       "padding: " + padCss + " !important; color: " + textColor + " !important; box-sizing: border-box !important; " +
@@ -5511,7 +5661,6 @@ function renderBarraEnvioGratis(w) {
       "width: 100% !important; margin: 0 !important; " +
     "} ";
 
-    // Sticky SOLO Desktop (bloqueado por media query 769+)
     cssText += "@media (min-width: 769px) { " +
       "html body #" + idSticky + " { " +
         "position: fixed !important; left: 0 !important; right: 0 !important; " +
@@ -5529,7 +5678,6 @@ function renderBarraEnvioGratis(w) {
 
     cssText += "} ";
 
-    // Sticky Mobile - Fix 1: media query con alta especificidad SIEMPRE DESPUÉS
     cssText += "@media (max-width: 768px) { ";
     if (mobilePos === "hide") {
       cssText += "html body #" + idSticky + " { display: none !important; } ";
@@ -5560,7 +5708,6 @@ function renderBarraEnvioGratis(w) {
     }
     cssText += "} ";
 
-    // Ocultar sticky si Tiendanube abre modal de carrito
     cssText += "body.js-cart-slide-open #" + idSticky + ", body.js-modal-open #" + idSticky + ", .cart-active #" + idSticky + " { display: none !important; } ";
 
     var styleEl = document.createElement("style");
@@ -5568,11 +5715,9 @@ function renderBarraEnvioGratis(w) {
     styleEl.type = "text/css";
     styleEl.setAttribute("data-nvx", "shipbar");
     styleEl.appendChild(document.createTextNode(cssText));
-    // Append al final del head para máxima prioridad
     (document.head || document.documentElement).appendChild(styleEl);
   }
 
-  // Ubicador del botón de compra (idéntico al Bundle probado)
   function findProductTarget() {
     var buySelectors = [
       "form[action*='/cart/add']",
@@ -5590,7 +5735,6 @@ function renderBarraEnvioGratis(w) {
     return null;
   }
 
-  // 1. Inyectar Sticky Fijo
   function injectSticky() {
     if (!document.getElementById(idSticky)) {
       var container = document.createElement("div");
@@ -5601,7 +5745,6 @@ function renderBarraEnvioGratis(w) {
     }
   }
 
-  // 2. Inyectar Banner en Producto - Fix 2: usa isProductPage local (no global rota)
   function injectProductBanner(isProductPageLocal) {
     if (!inProductBanner || !isProductPageLocal) return;
     if (!document.getElementById(idProd)) {
@@ -5617,7 +5760,6 @@ function renderBarraEnvioGratis(w) {
     }
   }
 
-  // 3. Inyectar en Carrito Drawer
   function injectCartDrawer() {
     if (!inCartDrawer) return;
     if (!document.getElementById(idCart)) {
@@ -5646,7 +5788,6 @@ function renderBarraEnvioGratis(w) {
     if (cCart) cCart.innerHTML = buildInnerHtml(currentCartTotal);
   }
 
-  // Motor dinámico - Fix 2: recalcula el tipo de página en CADA tick
   function syncEngine() {
     var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
 
@@ -5682,10 +5823,10 @@ function renderBarraEnvioGratis(w) {
 
   syncEngine();
   setInterval(syncEngine, 2000);
-  setInterval(fetchCartTotal, 3500);
+  setInterval(fetchCartTotal, 2500);
 
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-}
+  }
 })(); 
