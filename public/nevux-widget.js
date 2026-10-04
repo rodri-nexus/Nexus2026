@@ -5276,11 +5276,11 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v19 - Bulletproof Engine)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v20 - Final Fix)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
-  if (window['nvx_shipbar_' + w.id]) return; // Evitar inicialización duplicada
+  if (window['nvx_shipbar_' + w.id]) return;
   window['nvx_shipbar_' + w.id] = true;
 
   var cfg = w.config || {};
@@ -5304,7 +5304,6 @@ function renderBarraEnvioGratis(w) {
   var barColor = cfg.barColor || "#10B981";
   var textColor = cfg.textColor || "#ffffff";
 
-  // Presets de Campañas
   var THEMES = {
     "black-friday": { bg: "#111827", bar: "#F59E0B", text: "#ffffff" },
     "hot-sale": { bg: "#0F172A", bar: "#EF4444", text: "#ffffff" },
@@ -5320,18 +5319,27 @@ function renderBarraEnvioGratis(w) {
     textColor = THEMES[cfg.campaignTheme].text;
   }
 
-  // IDs Únicos e Independientes
   var idSticky = idBase + "-sticky";
   var idProd = idBase + "-prod";
   var idCart = idBase + "-cart";
 
-  // CONTROL DE ESTADO GLOBAL DEL CARRITO
   var currentCartTotal = 0;
+
+  // LECTURA INTELIGENTE DEL CARRITO (Fix 3: detecta si viene en centavos o en pesos)
+  function normalizeTotal(rawTotal) {
+    var val = parseFloat(rawTotal) || 0;
+    // Si es un número muy grande terminado en 00, asumimos que son centavos
+    // Umbral: si val > 1000000 y es múltiplo de 100, dividimos por 100
+    if (val >= 100000 && val % 100 === 0) {
+      return val / 100;
+    }
+    return val;
+  }
 
   function readLocalTotal() {
     try {
       if (window.LS && window.LS.cart && window.LS.cart.total !== undefined) {
-        return parseFloat(window.LS.cart.total) / 100;
+        return normalizeTotal(window.LS.cart.total);
       }
     } catch(e) {}
     return 0;
@@ -5339,7 +5347,6 @@ function renderBarraEnvioGratis(w) {
 
   currentCartTotal = readLocalTotal();
 
-  // Consumo por AJAX de la API del Carrito de Tiendanube
   function fetchCartTotal() {
     try {
       var xhr = new XMLHttpRequest();
@@ -5349,7 +5356,10 @@ function renderBarraEnvioGratis(w) {
           try {
             var cartData = JSON.parse(xhr.responseText);
             if (cartData && cartData.total !== undefined) {
-              currentCartTotal = parseFloat(cartData.total) / 100;
+              currentCartTotal = normalizeTotal(cartData.total);
+              updateRenderedBars();
+            } else if (cartData && cartData.subtotal !== undefined) {
+              currentCartTotal = normalizeTotal(cartData.subtotal);
               updateRenderedBars();
             }
           } catch(e) {}
@@ -5359,15 +5369,15 @@ function renderBarraEnvioGratis(w) {
     } catch(e) {}
   }
 
-  // Sincronizar al arrancar
   fetchCartTotal();
 
-  // Escuchar eventos nativos de actualización del carrito de Tiendanube
+  // Eventos nativos de Tiendanube
   document.addEventListener("ajaxCart:receive", fetchCartTotal);
   document.addEventListener("cart:updated", fetchCartTotal);
   document.addEventListener("cart:change", fetchCartTotal);
+  document.addEventListener("product_added_to_cart", fetchCartTotal);
 
-  // Escuchador manual complementario para clicks de compra
+  // Click handler sobre todo el documento
   document.addEventListener("click", function(e) {
     try {
       var target = e.target;
@@ -5376,10 +5386,7 @@ function renderBarraEnvioGratis(w) {
       var isAddToCart = false;
 
       while (current && current !== document && current.nodeType === 1) {
-        var classes = current.className || "";
-        if (typeof classes !== "string") {
-          classes = current.getAttribute ? (current.getAttribute("class") || "") : "";
-        }
+        var classes = (current.className && typeof current.className === "string") ? current.className : (current.getAttribute ? (current.getAttribute("class") || "") : "");
         var type = current.type || "";
         var id = current.id || "";
 
@@ -5398,14 +5405,15 @@ function renderBarraEnvioGratis(w) {
       }
 
       if (isAddToCart) {
-        setTimeout(fetchCartTotal, 800);
-        setTimeout(fetchCartTotal, 1800);
-        setTimeout(fetchCartTotal, 3000);
+        setTimeout(fetchCartTotal, 600);
+        setTimeout(fetchCartTotal, 1500);
+        setTimeout(fetchCartTotal, 2800);
+        setTimeout(fetchCartTotal, 4500);
       }
     } catch(err) {}
   }, true);
 
-  // Detección Dinámica de Zonas de Envío
+  // Zonas de Envío
   var targetMin = minAmount;
   if (useZones && zones.length > 0) {
     var userZip = "";
@@ -5480,60 +5488,91 @@ function renderBarraEnvioGratis(w) {
     '</div>';
   }
 
-  // INYECCIÓN DE ESTILOS COMUNES (Lógica clásica que sí funcionaba)
+  // HOJA DE ESTILOS - Fix 1: Media queries con MÁXIMA especificidad al final del <head>
   var styleId = "style-" + idBase;
   if (!document.getElementById(styleId)) {
-    var selectors = "#" + idSticky + ", #" + idProd + ", #" + idCart;
     var padCss = size === "small" ? "6px 12px" : (size === "large" ? "12px 18px" : "9px 14px");
     var bgCss = template === "oscura" ? "#000000" : (template === "neon" ? "#090D16" : bgColor);
     var borderCss = template === "neon" ? "1.5px solid " + barColor : "none";
     var radiusCss = template === "flotante" ? "999px" : (template === "moderna" ? "10px" : "0px");
     var shadowCss = template === "neon" ? "box-shadow: 0 0 12px " + barColor + "60 !important;" : "box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;";
 
-    var cssText = selectors + " { " +
+    // Posición desktop base
+    var deskTopCss = (desktopPos === "top") ? "top:0 !important;bottom:auto !important;" : "bottom:0 !important;top:auto !important;";
+
+    var cssText = "";
+
+    // Estilos comunes a los 3 contenedores
+    cssText += "#" + idSticky + ", #" + idProd + ", #" + idCart + " { " +
       "background: " + bgCss + " !important; border: " + borderCss + " !important; border-radius: " + radiusCss + " !important; " +
       "padding: " + padCss + " !important; color: " + textColor + " !important; box-sizing: border-box !important; " +
       "font-family: system-ui, -apple-system, sans-serif !important; " + shadowCss +
       "height: auto !important; min-height: 0 !important; max-height: 70px !important; overflow: hidden !important; " +
-      "display: block !important; width: 100% !important; margin: 0 !important; " +
+      "width: 100% !important; margin: 0 !important; " +
     "} ";
 
-    // Estilos del Sticky Fijo
-    cssText += "#" + idSticky + " { " +
-      "position: fixed !important; " +
-      "left: 0 !important; right: 0 !important; " +
-      (desktopPos === "top" ? "top: 0 !important; bottom: auto !important; " : "bottom: 0 !important; top: auto !important; ") +
-      "z-index: 999998 !important; " +
-      "height: auto !important; min-height: 0 !important; max-height: 70px !important; overflow: hidden !important; " +
-      "transform: translateZ(0) !important; " +
-    "} ";
+    // Sticky SOLO Desktop (bloqueado por media query 769+)
+    cssText += "@media (min-width: 769px) { " +
+      "html body #" + idSticky + " { " +
+        "position: fixed !important; left: 0 !important; right: 0 !important; " +
+        deskTopCss +
+        "z-index: 999998 !important; display: block !important; " +
+      "} ";
 
     if (template === "flotante") {
-      cssText += "#" + idSticky + " { " +
+      cssText += "html body #" + idSticky + " { " +
         "width: calc(100% - 24px) !important; max-width: 1100px !important; " +
         "left: 0 !important; right: 0 !important; " +
         (desktopPos === "top" ? "margin: 8px auto 0 auto !important; top: 0 !important; bottom: auto !important; " : "margin: 0 auto 8px auto !important; bottom: 0 !important; top: auto !important; ") +
       "} ";
     }
 
-    // Regla inteligente: Ocultar si Tiendanube abre el carrito slide modal
+    cssText += "} ";
+
+    // Sticky Mobile - Fix 1: media query con alta especificidad SIEMPRE DESPUÉS
+    cssText += "@media (max-width: 768px) { ";
+    if (mobilePos === "hide") {
+      cssText += "html body #" + idSticky + " { display: none !important; } ";
+    } else {
+      var mobileFinalPos;
+      if (mobilePos === "same") {
+        mobileFinalPos = deskTopCss;
+      } else if (mobilePos === "top") {
+        mobileFinalPos = "top: 0 !important; bottom: auto !important;";
+      } else if (mobilePos === "bottom") {
+        mobileFinalPos = "bottom: 0 !important; top: auto !important;";
+      } else {
+        mobileFinalPos = deskTopCss;
+      }
+
+      cssText += "html body #" + idSticky + " { " +
+        "position: fixed !important; left: 0 !important; right: 0 !important; " +
+        mobileFinalPos +
+        "z-index: 999998 !important; display: block !important; " +
+      "} ";
+
+      if (template === "flotante") {
+        cssText += "html body #" + idSticky + " { " +
+          "width: calc(100% - 16px) !important; left: 0 !important; right: 0 !important; " +
+          (mobilePos === "bottom" ? "margin: 0 auto 6px auto !important;" : "margin: 6px auto 0 auto !important;") +
+        "} ";
+      }
+    }
+    cssText += "} ";
+
+    // Ocultar sticky si Tiendanube abre modal de carrito
     cssText += "body.js-cart-slide-open #" + idSticky + ", body.js-modal-open #" + idSticky + ", .cart-active #" + idSticky + " { display: none !important; } ";
 
-    if (mobilePos === "hide") {
-      cssText += "@media (max-width: 768px) { #" + idSticky + " { display: none !important; } } ";
-    } else if (mobilePos === "top") {
-      cssText += "@media (max-width: 768px) { #" + idSticky + " { top: 0 !important; bottom: auto !important; " + (template === "flotante" ? "margin: 6px auto 0 auto !important;" : "") + " } } ";
-    } else if (mobilePos === "bottom") {
-      cssText += "@media (max-width: 768px) { #" + idSticky + " { bottom: 0 !important; top: auto !important; " + (template === "flotante" ? "margin: 0 auto 6px auto !important;" : "") + " } } ";
-    }
-
     var styleEl = document.createElement("style");
-    styleEl.id = styleId; styleEl.type = "text/css";
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    styleEl.setAttribute("data-nvx", "shipbar");
     styleEl.appendChild(document.createTextNode(cssText));
-    document.head.appendChild(styleEl);
+    // Append al final del head para máxima prioridad
+    (document.head || document.documentElement).appendChild(styleEl);
   }
 
-  // UBICADOR CON CASCADA EXACTA DEL WIDGET BUNDLE (SÍ funciona)
+  // Ubicador del botón de compra (idéntico al Bundle probado)
   function findProductTarget() {
     var buySelectors = [
       "form[action*='/cart/add']",
@@ -5551,32 +5590,25 @@ function renderBarraEnvioGratis(w) {
     return null;
   }
 
-  // 1. Inyectar Fija (Sticky)
+  // 1. Inyectar Sticky Fijo
   function injectSticky() {
     if (!document.getElementById(idSticky)) {
       var container = document.createElement("div");
-      container.id = idSticky; 
+      container.id = idSticky;
       container.className = "nvx-widget nvx-shipbar-sticky";
-      
-      var inlineStyle = "position:fixed !important;left:0 !important;right:0 !important;z-index:999998 !important;height:auto !important;min-height:0 !important;max-height:70px !important;overflow:hidden !important;transform:translateZ(0) !important;box-sizing:border-box !important;";
-      inlineStyle += (desktopPos === "top") ? "top:0 !important;bottom:auto !important;" : "bottom:0 !important;top:auto !important;";
-      if (template === "flotante") {
-        inlineStyle += "width:calc(100% - 24px) !important;max-width:1100px !important;margin:8px auto !important;left:12px !important;right:12px !important;";
-      }
-      container.style.cssText = inlineStyle;
       container.innerHTML = buildInnerHtml(currentCartTotal);
       if (document.body) document.body.appendChild(container);
     }
   }
 
-  // 2. Inyectar Banner en Producto (Exactamente debajo de su ancla como el Bundle)
-  function injectProductBanner() {
-    if (!inProductBanner || !isProductPage) return;
+  // 2. Inyectar Banner en Producto - Fix 2: usa isProductPage local (no global rota)
+  function injectProductBanner(isProductPageLocal) {
+    if (!inProductBanner || !isProductPageLocal) return;
     if (!document.getElementById(idProd)) {
       var target = findProductTarget();
       if (target && target.parentNode) {
         var container = document.createElement("div");
-        container.id = idProd; 
+        container.id = idProd;
         container.className = "nvx-widget nvx-shipbar-product";
         container.style.cssText = "margin: 16px 0 !important; width: 100% !important; max-height: 80px !important; overflow: hidden !important; display: block !important; box-sizing: border-box !important;";
         container.innerHTML = buildInnerHtml(currentCartTotal);
@@ -5594,7 +5626,7 @@ function renderBarraEnvioGratis(w) {
         var insertPoint = cartContainer.querySelector(".js-ajax-cart-list, .cart-body, .cart-table, .cart-row");
         if (insertPoint && insertPoint.parentNode) {
           var container = document.createElement("div");
-          container.id = idCart; 
+          container.id = idCart;
           container.className = "nvx-widget nvx-shipbar-cart";
           container.style.cssText = "margin: 12px auto 0 !important; width: 94% !important; max-height: 80px !important; overflow: hidden !important; display: block !important; box-sizing: border-box !important;";
           container.innerHTML = buildInnerHtml(currentCartTotal);
@@ -5604,7 +5636,6 @@ function renderBarraEnvioGratis(w) {
     }
   }
 
-  // Renderizador de updates de contenido
   function updateRenderedBars() {
     var cSticky = document.getElementById(idSticky);
     var cProd = document.getElementById(idProd);
@@ -5615,33 +5646,26 @@ function renderBarraEnvioGratis(w) {
     if (cCart) cCart.innerHTML = buildInnerHtml(currentCartTotal);
   }
 
-  // Motor dinámico en tiempo real
+  // Motor dinámico - Fix 2: recalcula el tipo de página en CADA tick
   function syncEngine() {
     var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
 
-    // EXCLUSIÓN MUTUA: Si es ficha de producto y el banner de producto está prendido, apagamos sticky en esta página
     var shouldShowStickyThisPage = stickyGlobal;
     if (isProdPage && inProductBanner) {
       shouldShowStickyThisPage = false;
     }
 
-    // Sticky - NO forzamos display block inline para que la hoja de estilos controle móvil al 100%
     if (shouldShowStickyThisPage) {
       injectSticky();
-      var cStickyNow = document.getElementById(idSticky);
-      if (cStickyNow) {
-        cStickyNow.style.display = ""; // Vuelve al estado natural respetando las reglas de estilo de mobilePos
-      }
     } else {
       var cStickyNow = document.getElementById(idSticky);
-      if (cStickyNow) {
-        cStickyNow.style.display = "none";
+      if (cStickyNow && cStickyNow.parentNode) {
+        cStickyNow.parentNode.removeChild(cStickyNow);
       }
     }
 
-    // Banner de producto
     if (inProductBanner && isProdPage) {
-      injectProductBanner();
+      injectProductBanner(true);
     } else {
       var cProd = document.getElementById(idProd);
       if (cProd && cProd.parentNode) {
@@ -5649,7 +5673,6 @@ function renderBarraEnvioGratis(w) {
       }
     }
 
-    // Carrito
     if (inCartDrawer) {
       injectCartDrawer();
     }
@@ -5657,12 +5680,10 @@ function renderBarraEnvioGratis(w) {
     updateRenderedBars();
   }
 
-  // Polling adaptativo
   syncEngine();
   setInterval(syncEngine, 2000);
   setInterval(fetchCartTotal, 3500);
 
-  // Telemetría Nevux
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
