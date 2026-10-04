@@ -5276,7 +5276,7 @@ function renderPopupConversion(w) {
   }, delaySeconds * 1000);
 }
   /* ═══════════════════════════════════════════
-   WIDGET #7: BARRA DE ENVÍO GRATIS (v17 - Bulletproof Fix)
+   WIDGET #7: BARRA DE ENVÍO GRATIS (v18 - Smart Engine)
    ═══════════════════════════════════════════ */
 function renderBarraEnvioGratis(w) {
   var idBase = "nvx-shipbar-" + w.id;
@@ -5304,7 +5304,7 @@ function renderBarraEnvioGratis(w) {
   var barColor = cfg.barColor || "#10B981";
   var textColor = cfg.textColor || "#ffffff";
 
-  // Presets
+  // Presets de Campañas
   var THEMES = {
     "black-friday": { bg: "#111827", bar: "#F59E0B", text: "#ffffff" },
     "hot-sale": { bg: "#0F172A", bar: "#EF4444", text: "#ffffff" },
@@ -5320,31 +5320,62 @@ function renderBarraEnvioGratis(w) {
     textColor = THEMES[cfg.campaignTheme].text;
   }
 
-  // Lógica de Visibilidad Mutuamente Excluyente
-  var isProductPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
-  var showSticky = stickyGlobal;
-  
-  // Si estamos en producto y el banner de producto está activo, APAGAMOS la barra fija para no duplicar
-  if (isProductPage && inProductBanner) {
-    showSticky = false; 
-  }
-
-  // IDS Independientes
+  // IDs Únicos e Independientes
   var idSticky = idBase + "-sticky";
   var idProd = idBase + "-prod";
   var idCart = idBase + "-cart";
 
-  // LECTURA CORRECTA DEL CARRITO (Tiendanube devuelve en centavos)
-  function getCartTotal() {
+  // CONTROL DE ESTADO GLOBAL DEL CARRITO (v18 Smart Sync)
+  var currentCartTotal = 0;
+
+  function readLocalTotal() {
     try {
       if (window.LS && window.LS.cart && window.LS.cart.total !== undefined) {
-        return parseFloat(window.LS.cart.total) / 100; // Convertir centavos a pesos
+        return parseFloat(window.LS.cart.total) / 100;
       }
     } catch(e) {}
     return 0;
   }
 
-  // Detección de Zona y Meta
+  currentCartTotal = readLocalTotal();
+
+  // Consumo por AJAX de la API del Carrito de Tiendanube (Evita desincronizaciones)
+  function fetchCartTotal() {
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/cart.json", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          try {
+            var cartData = JSON.parse(xhr.responseText);
+            if (cartData && cartData.total !== undefined) {
+              currentCartTotal = parseFloat(cartData.total) / 100;
+              updateRenderedBars();
+            }
+          } catch(e) {}
+        }
+      };
+      xhr.send();
+    } catch(e) {}
+  }
+
+  // Inicializar fetch
+  fetchCartTotal();
+
+  // Interceptar clics en botones de compra para sincronizar de inmediato
+  document.addEventListener("click", function(e) {
+    var target = e.target;
+    if (target && (
+      target.matches(".js-add-to-cart-btn, .js-prod-submit-form, [type='submit'].js-add-to-cart, .product-buy-container, .js-product-buy-container") ||
+      target.closest(".js-add-to-cart-btn, .js-prod-submit-form, [type='submit'].js-add-to-cart")
+    )) {
+      setTimeout(fetchCartTotal, 800);
+      setTimeout(fetchCartTotal, 1800);
+      setTimeout(fetchCartTotal, 3000);
+    }
+  }, true);
+
+  // Detección Dinámica de Zonas de Envío
   var targetMin = minAmount;
   if (useZones && zones.length > 0) {
     var userZip = "";
@@ -5414,12 +5445,12 @@ function renderBarraEnvioGratis(w) {
 
     return '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;width:100% !important;max-width:1100px !important;margin:0 auto !important;box-sizing:border-box !important;height:auto !important;min-height:0 !important;">' +
       '<div style="display:flex !important;align-items:center !important;flex-shrink:0 !important;">' + iconHtml + '</div>' +
-      '<div style="flex:1 1 auto !important;font-size:' + (size === "small" ? "12px" : (size === "large" ? "14.5px" : "13px")) + ' !important;font-weight:800 !important;line-height:1.25 !important;text-align:' + (template === "minimal" ? "left" : "center") + ' !important;color:' + textColor + ' !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:normal !important;">' + displayText + '</div>' +
+      '<div style="flex:1 1 auto !important;font-size:' + (size === "small" ? "11.5px" : (size === "large" ? "14px" : "12.5px")) + ' !important;font-weight:800 !important;line-height:1.25 !important;text-align:' + (template === "minimal" ? "left" : "center") + ' !important;color:' + textColor + ' !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:normal !important;">' + displayText + '</div>' +
       progressHtml +
     '</div>';
   }
 
-  // INYECCIÓN DE ESTILOS COMUNES A LOS 3 IDS
+  // INYECCIÓN DE ESTILOS COMUNES
   var styleId = "style-" + idBase;
   if (!document.getElementById(styleId)) {
     var selectors = "#" + idSticky + ", #" + idProd + ", #" + idCart;
@@ -5437,7 +5468,7 @@ function renderBarraEnvioGratis(w) {
       "display: block !important; width: 100% !important; margin: 0 !important; " +
     "} ";
 
-    // Reglas específicas para el STICKY (Protección contra expansión de pantalla completa)
+    // Estilos del Sticky Fijo
     cssText += "#" + idSticky + " { " +
       "position: fixed !important; " +
       "left: 0 !important; right: 0 !important; " +
@@ -5455,7 +5486,7 @@ function renderBarraEnvioGratis(w) {
       "} ";
     }
 
-    // Regla inteligente: Ocultar la barra fija si Tiendanube abre el modal del carrito
+    // Regla inteligente: Ocultar si Tiendanube abre carrito slide modal
     cssText += "body.js-cart-slide-open #" + idSticky + ", body.js-modal-open #" + idSticky + ", .cart-active #" + idSticky + " { display: none !important; } ";
 
     if (mobilePos === "hide") {
@@ -5472,35 +5503,54 @@ function renderBarraEnvioGratis(w) {
     document.head.appendChild(styleEl);
   }
 
-  // 1. INYECTAR BARRA FIJA (Sticky)
+  // UBICADOR DE BOTÓN DE COMPRA INTELIGENTE (Bug 1 Fix)
+  function findProductTarget() {
+    // 1. Selector prioritario: Detrás del formulario de compra completo (Garantiza ir debajo del botón)
+    var form = document.querySelector("form[action*='/cart/add'], #product-form, .js-product-form, .product-form");
+    if (form) return { el: form, method: "after" };
+
+    // 2. Selector secundario: Detrás de la caja contenedora del botón
+    var container = document.querySelector(".js-product-buy-container, .product-buy-container, .js-add-to-cart-container");
+    if (container) return { el: container, method: "after" };
+
+    // 3. Fallback: Botón nativo directamente
+    var btn = document.querySelector(".js-add-to-cart-btn, .js-prod-submit-form, [type='submit'].js-add-to-cart");
+    if (btn) return { el: btn, method: "after" };
+
+    return null;
+  }
+
+  // 1. Inyectar Fija (Sticky)
   function injectSticky() {
-    if (!showSticky) return;
     if (!document.getElementById(idSticky)) {
       var container = document.createElement("div");
       container.id = idSticky; 
       container.className = "nvx-widget nvx-shipbar-sticky";
-      container.innerHTML = buildInnerHtml(getCartTotal());
+      container.innerHTML = buildInnerHtml(currentCartTotal);
       if (document.body) document.body.appendChild(container);
     }
   }
 
-  // 2. INYECTAR BANNER DE PRODUCTO
+  // 2. Inyectar Banner en Producto (Debajo del Botón de Compra)
   function injectProductBanner() {
     if (!inProductBanner || !isProductPage) return;
     if (!document.getElementById(idProd)) {
-      var target = document.querySelector("form[action*='/cart/add'], .js-product-buy-container, .js-add-to-cart-btn, .product-buy-container");
-      if (target && target.parentNode) {
+      var targetInfo = findProductTarget();
+      if (targetInfo && targetInfo.el && targetInfo.el.parentNode) {
         var container = document.createElement("div");
         container.id = idProd; 
         container.className = "nvx-widget nvx-shipbar-product";
-        container.style.cssText = "margin: 14px 0 !important; width: 100% !important; max-height: 80px !important; overflow: hidden !important;";
-        container.innerHTML = buildInnerHtml(getCartTotal());
-        target.parentNode.insertBefore(container, target.nextSibling);
+        container.style.cssText = "margin: 16px 0 !important; width: 100% !important; max-height: 80px !important; overflow: hidden !important; display: block !important;";
+        container.innerHTML = buildInnerHtml(currentCartTotal);
+        
+        if (targetInfo.method === "after") {
+          targetInfo.el.parentNode.insertBefore(container, targetInfo.el.nextSibling);
+        }
       }
     }
   }
 
-  // 3. INYECTAR EN EL CARRITO
+  // 3. Inyectar en Carrito Drawer
   function injectCartDrawer() {
     if (!inCartDrawer) return;
     if (!document.getElementById(idCart)) {
@@ -5512,34 +5562,69 @@ function renderBarraEnvioGratis(w) {
           container.id = idCart; 
           container.className = "nvx-widget nvx-shipbar-cart";
           container.style.cssText = "margin: 12px auto 0 !important; width: 94% !important; max-height: 80px !important; overflow: hidden !important;";
-          container.innerHTML = buildInnerHtml(getCartTotal());
+          container.innerHTML = buildInnerHtml(currentCartTotal);
           insertPoint.parentNode.insertBefore(container, insertPoint);
         }
       }
     }
   }
 
-  // Bucle de sincronización en tiempo real con el carrito de Tiendanube
-  function syncEngine() {
-    var total = getCartTotal();
-    
-    // Inyectar si no existen
-    injectSticky();
-    injectProductBanner();
-    injectCartDrawer();
-
-    // Actualizar contenido
+  // Renderizador de updates de contenido
+  function updateRenderedBars() {
     var cSticky = document.getElementById(idSticky);
     var cProd = document.getElementById(idProd);
     var cCart = document.getElementById(idCart);
 
-    if (cSticky) cSticky.innerHTML = buildInnerHtml(total);
-    if (cProd) cProd.innerHTML = buildInnerHtml(total);
-    if (cCart) cCart.innerHTML = buildInnerHtml(total);
+    if (cSticky) cSticky.innerHTML = buildInnerHtml(currentCartTotal);
+    if (cProd) cProd.innerHTML = buildInnerHtml(currentCartTotal);
+    if (cCart) cCart.innerHTML = buildInnerHtml(currentCartTotal);
   }
 
+  // Motor dinámico en tiempo real (Bug 3 y SPA Fix)
+  function syncEngine() {
+    // Re-evaluar tipo de página en cada tick (por si es una tienda SPA)
+    isProductPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
+
+    // EXCLUSIÓN MUTUA INTELIGENTE: Si estamos en producto y 'Banner en producto' está activo, APAGAMOS la barra sticky solo en esta página
+    var shouldShowStickyThisPage = stickyGlobal;
+    if (isProductPage && inProductBanner) {
+      shouldShowStickyThisPage = false;
+    }
+
+    // Gestionar la barra Sticky dinámicamente
+    var cSticky = document.getElementById(idSticky);
+    if (shouldShowStickyThisPage) {
+      injectSticky();
+      if (cSticky) {
+        cSticky.style.setProperty("display", "block", "important");
+      }
+    } else {
+      if (cSticky) {
+        cSticky.style.setProperty("display", "none", "important");
+      }
+    }
+
+    // Gestionar el Banner de Producto
+    if (inProductBanner && isProductPage) {
+      injectProductBanner();
+    } else {
+      var cProd = document.getElementById(idProd);
+      if (cProd) cProd.parentNode.removeChild(cProd);
+    }
+
+    // Gestionar el Carrito
+    if (inCartDrawer) {
+      injectCartDrawer();
+    }
+
+    // Refrescar contenido
+    updateRenderedBars();
+  }
+
+  // Inicializar bucle de polling adaptativo
   syncEngine();
-  setInterval(syncEngine, 1500);
+  setInterval(syncEngine, 2000);
+  setInterval(fetchCartTotal, 3500); // Polling silencioso en background para asegurar sincronía perfecta
 
   // Telemetría Nevux
   if (typeof nvxTrack === "function") {
