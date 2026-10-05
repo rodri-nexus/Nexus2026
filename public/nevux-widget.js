@@ -6249,25 +6249,26 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v3 - Instant Sync & Exact Placement)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v4 - Identical Bundle Placement)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
-  var idBase = "nvx-cross-sell-" + w.id;
-  if (window['nvx_cross_sell_' + w.id]) return;
-  window['nvx_cuotasbar_' + w.id] = true; // flag de resguardo
+  var elementId = "nvx-cross-sell-" + w.id;
+  if (document.getElementById(elementId)) return;
+
+  var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+  if (currentPage !== "product") return;
 
   var cfg = w.config || {};
   var title = cfg.title !== undefined ? cfg.title : "También te puede interesar";
   var subtitle = cfg.subtitle || "";
-  var aiAutocomplete = cfg.aiAutocomplete !== false;
   var selectedProducts = Array.isArray(cfg.selectedProducts) ? cfg.selectedProducts : [];
   var maxProducts = parseInt(cfg.maxProducts, 10) || 3;
   var showDiscountBadge = cfg.showDiscountBadge !== false;
   var discountText = cfg.discountText || "-15% OFF";
   var inProductBanner = cfg.inProductBanner !== false;
-  var inCartDrawer = !!cfg.inCartDrawer;
   var openCartOnAdd = cfg.openCartOnAdd !== false;
-  var position = cfg.position || "before_cart";
+  var position = cfg.position || "before_desc";
+
   var bgColor = cfg.bgColor || "#ffffff";
   var buttonBg = cfg.buttonBg || "#111827";
   var buttonText = cfg.buttonText || "#ffffff";
@@ -6293,9 +6294,6 @@ function renderProductosComplementarios(w) {
     customBorder = tm.border;
   }
 
-  var idProd = idBase + "-prod";
-  var idCart = idBase + "-cart";
-
   function formatMoney(val) {
     var str = Math.round(val).toString();
     var res = ""; var count = 0;
@@ -6306,136 +6304,87 @@ function renderProductosComplementarios(w) {
     return "$" + res;
   }
 
-  // Lista activa de productos a renderizar
-  var activeProductsList = [];
-
-  if (selectedProducts.length > 0) {
-    activeProductsList = selectedProducts.slice(0, maxProducts);
-  } else {
-    // Fallback inicial para que la UI renderice sí o sí
-    activeProductsList = [
-      { id: "p1", variantId: "v1", title: "Producto Complementario 1", price: 15000, image: "" },
-      { id: "p2", variantId: "v2", title: "Producto Complementario 2", price: 22000, image: "" }
+  var products = selectedProducts.slice(0, maxProducts);
+  if (products.length === 0) {
+    products = [
+      { id: "p1", variantId: "v1", title: "Funda protectora de silicona", price: 15500, image: "" },
+      { id: "p2", variantId: "v2", title: "Cargador rápido USB-C 20W", price: 22000, image: "" }
     ].slice(0, maxProducts);
   }
 
-  function renderProductListHtml(products) {
-    if (!products || products.length === 0) return "";
+  var styleId = "style-" + elementId;
+  if (!document.getElementById(styleId)) {
+    var styleEl = document.createElement("style");
+    styleEl.id = styleId;
+    styleEl.type = "text/css";
+    var css =
+      "#" + elementId + " { " +
+        "background: " + bgColor + " !important; " +
+        "border: " + customBorder + " !important; " +
+        "border-radius: 16px !important; " +
+        "padding: 16px !important; " +
+        "color: " + textColor + " !important; " +
+        "box-sizing: border-box !important; " +
+        "box-shadow: 0 4px 14px rgba(0,0,0,0.05) !important; " +
+        "display: flex !important; " +
+        "flex-direction: column !important; " +
+        "gap: 12px !important; " +
+        "margin: 14px 0 !important; " +
+        "width: 100% !important; " +
+        "font-family: system-ui, -apple-system, sans-serif !important; " +
+      "} ";
+    styleEl.appendChild(document.createTextNode(css));
+    document.head.appendChild(styleEl);
+  }
 
-    var html = '<div style="background:' + bgColor + ' !important; border:' + customBorder + ' !important; border-radius:16px !important; padding:16px !important; color:' + textColor + ' !important; box-sizing:border-box !important; margin:16px 0 !important; font-family:system-ui, -apple-system, sans-serif !important; width:100% !important; clear:both !important; display:block !important;">';
+  var container = document.createElement("div");
+  container.id = elementId;
+  container.className = "nvx-widget nvx-cross-sell-wrapper";
 
-    if (title) {
-      html += '<div style="font-size:15px !important; font-weight:800 !important; margin-bottom:' + (subtitle ? '2px' : '12px') + ' !important; color:' + textColor + ' !important;">' + title + '</div>';
-    }
-    if (subtitle) {
-      html += '<div style="font-size:12px !important; opacity:0.8 !important; margin-bottom:12px !important; color:' + textColor + ' !important;">' + subtitle + '</div>';
-    }
+  var html = "";
+  if (title) {
+    html += '<div style="font-size:15px !important; font-weight:800 !important; margin-bottom:' + (subtitle ? '2px' : '12px') + ' !important; color:' + textColor + ' !important;">' + title + '</div>';
+  }
+  if (subtitle) {
+    html += '<div style="font-size:12px !important; opacity:0.8 !important; margin-bottom:12px !important; color:' + textColor + ' !important;">' + subtitle + '</div>';
+  }
 
-    html += '<div style="display:flex !important; flex-direction:column !important; gap:10px !important;">';
+  html += '<div style="display:flex !important; flex-direction:column !important; gap:10px !important;">';
 
-    for (var i = 0; i < products.length; i++) {
-      var item = products[i];
-      var pVal = parseFloat(item.price) || 0;
-      var pStr = formatMoney(pVal);
-      var vId = item.variantId || item.id;
+  for (var i = 0; i < products.length; i++) {
+    var item = products[i];
+    var pVal = parseFloat(item.price) || 0;
+    var pStr = formatMoney(pVal);
+    var vId = item.variantId || item.id;
 
-      var imgHtml = item.image 
-        ? '<img src="' + item.image + '" style="width:48px !important; height:48px !important; border-radius:8px !important; object-fit:cover !important; flex-shrink:0 !important;" />'
-        : '<div style="width:48px !important; height:48px !important; border-radius:8px !important; background:rgba(156,163,175,0.2) !important; display:flex !important; align-items:center !important; justify-content:center !important; flex-shrink:0 !important;"><svg width="20" height="20" fill="none" stroke="currentColor" opacity="0.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
+    var imgHtml = item.image 
+      ? '<img src="' + item.image + '" style="width:48px !important; height:48px !important; border-radius:8px !important; object-fit:cover !important; flex-shrink:0 !important;" />'
+      : '<div style="width:48px !important; height:48px !important; border-radius:8px !important; background:rgba(156,163,175,0.2) !important; display:flex !important; align-items:center !important; justify-content:center !important; flex-shrink:0 !important;"><svg width="20" height="20" fill="none" stroke="currentColor" opacity="0.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
 
-      var badgeHtml = showDiscountBadge 
-        ? '<span style="background:rgba(16,185,129,0.15) !important; color:#10B981 !important; border:1px solid rgba(16,185,129,0.3) !important; font-size:10px !important; font-weight:800 !important; padding:1px 5px !important; border-radius:4px !important; display:inline-block !important; margin-top:2px !important;">' + discountText + '</span>'
-        : '';
+    var badgeHtml = showDiscountBadge 
+      ? '<span style="background:rgba(16,185,129,0.15) !important; color:#10B981 !important; border:1px solid rgba(16,185,129,0.3) !important; font-size:10px !important; font-weight:800 !important; padding:1px 5px !important; border-radius:4px !important; display:inline-block !important; margin-top:2px !important;">' + discountText + '</span>'
+      : '';
 
-      html += '<div style="display:flex !important; align-items:center !important; gap:12px !important; background:rgba(255,255,255,0.05) !important; border:1px solid rgba(156,163,175,0.2) !important; border-radius:12px !important; padding:8px 12px !important; width:100% !important; box-sizing:border-box !important;">' +
-        imgHtml +
-        '<div style="flex:1 !important; min-width:0 !important;">' +
-          '<div style="font-size:13px !important; font-weight:700 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; color:' + textColor + ' !important;">' + item.title + '</div>' +
-          '<div style="display:flex !important; align-items:center !important; gap:6px !important; margin-top:2px !important;">' +
-            '<span style="font-size:13px !important; font-weight:800 !important; color:' + textColor + ' !important;">' + pStr + '</span>' +
-          '</div>' +
-          badgeHtml +
+    html += '<div style="display:flex !important; align-items:center !important; gap:12px !important; background:rgba(255,255,255,0.05) !important; border:1px solid rgba(156,163,175,0.2) !important; border-radius:12px !important; padding:8px 12px !important; width:100% !important; box-sizing:border-box !important;">' +
+      imgHtml +
+      '<div style="flex:1 !important; min-width:0 !important;">' +
+        '<div style="font-size:13px !important; font-weight:700 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; color:' + textColor + ' !important;">' + item.title + '</div>' +
+        '<div style="display:flex !important; align-items:center !important; gap:6px !important; margin-top:2px !important;">' +
+          '<span style="font-size:13px !important; font-weight:800 !important; color:' + textColor + ' !important;">' + pStr + '</span>' +
         '</div>' +
-        '<button type="button" data-nvx-variant="' + vId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important; color:' + buttonText + ' !important; padding:8px 16px !important; border-radius:999px !important; font-size:12px !important; font-weight:800 !important; border:none !important; cursor:pointer !important; flex-shrink:0 !important;">Agregar</button>' +
-      '</div>';
-    }
-
-    html += '</div></div>';
-    return html;
+        badgeHtml +
+      '</div>' +
+      '<button type="button" data-nvx-variant="' + vId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important; color:' + buttonText + ' !important; padding:8px 16px !important; border-radius:999px !important; font-size:12px !important; font-weight:800 !important; border:none !important; cursor:pointer !important; flex-shrink:0 !important;">Agregar</button>' +
+    '</div>';
   }
 
-  function handleAddToCart(variantId, btnEl) {
-    if (!variantId) return;
-    if (btnEl) {
-      btnEl.innerText = "¡Agregado!";
-      btnEl.style.opacity = "0.7";
-    }
+  html += '</div>';
+  container.innerHTML = html;
 
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/cart/add", true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
-          document.dispatchEvent(new CustomEvent("cart:updated"));
-          document.dispatchEvent(new CustomEvent("cart:change"));
-          document.dispatchEvent(new CustomEvent("product_added_to_cart"));
+  // LÓGICA DE UBICACIÓN IDÉNTICA A BUNDLE DE PROMOCIONES
+  var targetEl = null;
 
-          if (openCartOnAdd) {
-            var cartTriggers = [".js-toggle-cart", ".js-modal-open", "#cart-button", ".cart-btn", "[data-component='cart.toggle']"];
-            for (var c = 0; c < cartTriggers.length; c++) {
-              var btn = document.querySelector(cartTriggers[c]);
-              if (btn) { btn.click(); break; }
-            }
-          }
-
-          setTimeout(function() {
-            if (btnEl) {
-              btnEl.innerText = "Agregar";
-              btnEl.style.opacity = "1";
-            }
-          }, 2000);
-        }
-      };
-      xhr.send("add_to_cart=" + encodeURIComponent(variantId) + "&quantity=1");
-    } catch(e) {}
-  }
-
-  function bindEvents(container) {
-    if (!container) return;
-    var btns = container.querySelectorAll(".nvx-btn-add-cross");
-    for (var b = 0; b < btns.length; b++) {
-      btns[b].addEventListener("click", function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var vId = this.getAttribute("data-nvx-variant");
-        handleAddToCart(vId, this);
-      });
-    }
-  }
-
-  // SELECTORES IDÉNTICOS A BARRA DE CUOTAS Y BUNDLE DE PROMOCIONES
-  function findBuyFormTarget() {
-    var buySelectors = [
-      "form[action*='/cart/add']",
-      "form.js-product-form",
-      ".js-product-buy-container",
-      ".product-buy-container",
-      "form.js-product-buyform",
-      ".js-add-to-cart-btn",
-      "#product_form",
-      "[data-component='product.add-to-cart']"
-    ];
-    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
-      var bEl = document.querySelector(buySelectors[sIdx]);
-      if (bEl) return bEl;
-    }
-    return null;
-  }
-
-  function findDescriptionTarget() {
+  if (position === "after_desc") {
     var descSelectors = [
       ".js-product-description",
       ".product-description",
@@ -6444,108 +6393,87 @@ function renderProductosComplementarios(w) {
       "[data-component='product.description']",
       ".user-content"
     ];
-    for (var dIdx = 0; sIdx < descSelectors.length; dIdx++) {
+    for (var dIdx = 0; dIdx < descSelectors.length; dIdx++) {
       var dEl = document.querySelector(descSelectors[dIdx]);
-      if (dEl) return dEl;
+      if (dEl) { targetEl = dEl; break; }
     }
-    return null;
-  }
-
-  function injectWidget() {
-    if (!activeProductsList || activeProductsList.length === 0) return;
-    var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
-
-    // 1. INYECCIÓN EN FICHA DE PRODUCTO
-    if (inProductBanner && isProdPage && !document.getElementById(idProd)) {
-      var buyTarget = findBuyFormTarget();
-      var descTarget = findDescriptionTarget();
-
-      var container = document.createElement("div");
-      container.id = idProd;
-      container.className = "nvx-widget nvx-cross-sell-product";
-      container.innerHTML = renderProductListHtml(activeProductsList);
-
-      if (position === "before_cart" && buyTarget && buyTarget.parentNode) {
-        // Arriba del botón / formulario de compra
-        buyTarget.parentNode.insertBefore(container, buyTarget);
-        bindEvents(container);
-      } else if (position === "after_desc" && descTarget && descTarget.parentNode) {
-        // Después de la descripción
-        descTarget.parentNode.insertBefore(container, descTarget.nextSibling);
-        bindEvents(container);
-      } else if (buyTarget && buyTarget.parentNode) {
-        // "before_desc" / Debajo del botón de compra (Opción por defecto)
-        buyTarget.parentNode.insertBefore(container, buyTarget.nextSibling);
-        bindEvents(container);
-      }
-    }
-
-    // 2. INYECCIÓN EN CARRITO LATERAL
-    if (inCartDrawer && !document.getElementById(idCart)) {
-      var cartContainer = document.querySelector(".js-cart-panel, #cart-slide, .js-modal-cart, .cart-slide, .cart-summary, .js-cart-content, #shopping-cart");
-      if (cartContainer) {
-        var insertPoint = cartContainer.querySelector(".js-ajax-cart-list, .cart-body, .cart-table, .cart-row");
-        if (insertPoint && insertPoint.parentNode) {
-          var containerCart = document.createElement("div");
-          containerCart.id = idCart;
-          containerCart.className = "nvx-widget nvx-cross-sell-cart";
-          containerCart.innerHTML = renderProductListHtml(activeProductsList);
-          insertPoint.parentNode.insertBefore(containerCart, insertPoint);
-          bindEvents(containerCart);
-        }
-      }
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
     }
   }
 
-  // Ejecución síncrona inmediata
-  injectWidget();
+  if (!container.parentNode) {
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form"
+    ];
+    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
+      var bEl = document.querySelector(buySelectors[sIdx]);
+      if (bEl) { targetEl = bEl; break; }
+    }
+    if (targetEl && targetEl.parentNode) {
+      if (position === "before_cart") {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      }
+    } else {
+      var main = document.querySelector("main, #content, .main-content, .js-product-container");
+      if (main) main.insertBefore(container, main.firstChild);
+    }
+  }
 
-  // Polling de sincronización
-  setTimeout(injectWidget, 100);
-  setTimeout(injectWidget, 500);
-  setTimeout(injectWidget, 1200);
-  setInterval(injectWidget, 2000);
+  // Listener para botones de agregar
+  var btns = container.querySelectorAll(".nvx-btn-add-cross");
+  for (var b = 0; b < btns.length; b++) {
+    btns[b].addEventListener("click", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var btnEl = this;
+      var variantId = btnEl.getAttribute("data-nvx-variant");
+      if (!variantId) return;
 
-  // Consulta asíncrona secundaría en segundo plano (si autocompletar está activo)
-  if (aiAutocomplete && selectedProducts.length === 0) {
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", "/products.json", true);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          try {
-            var data = JSON.parse(xhr.responseText);
-            var items = Array.isArray(data) ? data : (data.products || []);
-            var currentId = (window.LS && window.LS.product) ? window.LS.product.id : null;
-            var fetched = [];
-            for (var i = 0; i < items.length; i++) {
-              if (items[i].id !== currentId && items[i].variants && items[i].variants[0]) {
-                fetched.push({
-                  id: items[i].id,
-                  variantId: items[i].variants[0].id,
-                  title: items[i].name ? (items[i].name.es || items[i].name.pt || items[i].name) : "Producto sugerido",
-                  price: items[i].variants[0].price,
-                  image: items[i].images && items[i].images[0] ? items[i].images[0].src : "",
-                  url: items[i].url || "#"
-                });
+      btnEl.innerText = "¡Agregado!";
+      btnEl.style.opacity = "0.7";
+
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/cart/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
+            document.dispatchEvent(new CustomEvent("cart:updated"));
+            document.dispatchEvent(new CustomEvent("cart:change"));
+            document.dispatchEvent(new CustomEvent("product_added_to_cart"));
+
+            if (openCartOnAdd) {
+              var cartTriggers = [".js-toggle-cart", ".js-modal-open", "#cart-button", ".cart-btn", "[data-component='cart.toggle']"];
+              for (var c = 0; c < cartTriggers.length; c++) {
+                var trig = document.querySelector(cartTriggers[c]);
+                if (trig) { trig.click(); break; }
               }
-              if (fetched.length >= maxProducts) break;
             }
-            if (fetched.length > 0) {
-              activeProductsList = fetched;
-              var existingProd = document.getElementById(idProd);
-              if (existingProd) existingProd.parentNode.removeChild(existingProd);
-              injectWidget();
-            }
-          } catch(e) {}
-        }
-      };
-      xhr.send();
-    } catch(e) {}
+
+            setTimeout(function() {
+              btnEl.innerText = "Agregar";
+              btnEl.style.opacity = "1";
+            }, 2000);
+          }
+        };
+        xhr.send("add_to_cart=" + encodeURIComponent(variantId) + "&quantity=1");
+      } catch(err) {}
+    });
   }
 
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      } 
+}
 })(); 
