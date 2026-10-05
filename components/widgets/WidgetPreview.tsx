@@ -39,7 +39,7 @@ function ProductosComplementariosPreview() {
           gap: "4px",
         }}
       >
-        <div style={{ width: "16px", height: "16px", borderRadius: "4px", background: "#e5e7eb", flexShrink: 0, display: "flex", alignItems: "center", justifyCenter: "center" }} />
+        <div style={{ width: "16px", height: "16px", borderRadius: "4px", background: "#e5e7eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }} />
         <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
           <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             Funda compacta
@@ -882,4 +882,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-          }
+            }
