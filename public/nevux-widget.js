@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v166 - Botón "Agregar al carrito" Nativo)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v167 - Agregado Directo a Carrito)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6276,21 +6276,19 @@ function renderProductosComplementarios(w) {
   var buttonBg = cfg.buttonBg || "#111827";
   var textColor = cfg.textColor || "#111827";
 
-  // Separación limpia entre Color de Texto y Etiqueta del Botón
-  var buttonTextColor = "#ffffff";
-  var buttonLabel = "Agregar al carrito";
-
-  if (cfg.buttonText) {
-    var btStr = String(cfg.buttonText).trim();
-    if (btStr.indexOf("#") === 0) {
-      buttonTextColor = btStr;
-    } else {
-      buttonLabel = btStr;
+  // Corrección estricta: Evitar que un código hexadecimal como #ffffff se use de texto
+  var buttonText = "Agregar al carrito";
+  if (cfg.buttonText && typeof cfg.buttonText === "string") {
+    var txt = cfg.buttonText.trim();
+    if (txt.indexOf("#") !== 0 && txt.length > 1) {
+      buttonText = txt;
     }
   }
-  if (cfg.buttonTextColor) buttonTextColor = String(cfg.buttonTextColor);
-  if (cfg.buttonLabel) buttonLabel = String(cfg.buttonLabel);
-  if (cfg.buttonTitle) buttonLabel = String(cfg.buttonTitle);
+
+  var buttonTextColor = "#ffffff";
+  if (cfg.buttonTextColor && typeof cfg.buttonTextColor === "string" && cfg.buttonTextColor.indexOf("#") === 0) {
+    buttonTextColor = cfg.buttonTextColor;
+  }
 
   var THEMES = {
     "black-friday": { bg: "#111827", btnBg: "#F59E0B", btnTx: "#111827", text: "#ffffff", border: "1px solid #374151" },
@@ -6360,7 +6358,7 @@ function renderProductosComplementarios(w) {
         "</div>" +
         badgeHtml +
         "</div>" +
-        '<button type="button" data-nvx-idx="' + i + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonTextColor + ' !important;padding:8px 14px !important;border-radius:8px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;white-space:nowrap !important;transition:all 0.2s ease !important;">' + buttonLabel + "</button>" +
+        '<button type="button" data-nvx-idx="' + i + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonTextColor + ' !important;padding:8px 14px !important;border-radius:8px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;white-space:nowrap !important;transition:all 0.2s ease !important;">' + buttonText + "</button>" +
         "</div>";
     }
 
@@ -6419,13 +6417,53 @@ function renderProductosComplementarios(w) {
     }
   }
 
+  function getVariantIdFromItem(item) {
+    if (!item) return null;
+    if (item.variantId && String(item.variantId) !== String(item.id)) return item.variantId;
+    if (item.variant_id && String(item.variant_id) !== String(item.id)) return item.variant_id;
+    if (item.variants && item.variants[0] && item.variants[0].id) return item.variants[0].id;
+    return null;
+  }
+
+  function resolveVariantId(item, callback) {
+    var directVid = getVariantIdFromItem(item);
+    if (directVid) {
+      callback(directVid);
+      return;
+    }
+
+    var itemUrl = item.url || "";
+    if (itemUrl) {
+      var cleanUrl = itemUrl.split("?")[0].replace(/\/$/, "") + ".js";
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", cleanUrl, true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              try {
+                var data = JSON.parse(xhr.responseText);
+                if (data && data.variants && data.variants[0] && data.variants[0].id) {
+                  callback(data.variants[0].id);
+                  return;
+                }
+              } catch (eP) {}
+            }
+            callback(item.id);
+          }
+        };
+        xhr.send();
+        return;
+      } catch (eX) {}
+    }
+
+    callback(item.id);
+  }
+
   function handleAddOnlyComplementary(item, btnEl) {
     if (!item) return;
 
-    var variantId = item.variantId || item.variant_id || (item.variants && item.variants[0] ? item.variants[0].id : null) || item.id;
-    if (!variantId) return;
-
-    var defaultLabel = buttonLabel || "Agregar al carrito";
+    var defaultLabel = buttonText || "Agregar al carrito";
 
     if (btnEl) {
       btnEl.innerText = "Agregando...";
@@ -6433,94 +6471,99 @@ function renderProductosComplementarios(w) {
       btnEl.disabled = true;
     }
 
-    function markSuccess() {
-      if (btnEl) {
-        btnEl.innerText = "¡Agregado! ✓";
-        btnEl.style.opacity = "1";
-      }
+    resolveVariantId(item, function (realVariantId) {
+      function markSuccess() {
+        if (btnEl) {
+          btnEl.innerText = "¡Agregado! ✓";
+          btnEl.style.opacity = "1";
+        }
 
-      triggerCartRefreshEvents();
+        triggerCartRefreshEvents();
 
-      if (openCartOnAdd) {
+        if (openCartOnAdd) {
+          setTimeout(function () {
+            openCartDrawer();
+          }, 300);
+        }
+
         setTimeout(function () {
-          openCartDrawer();
-        }, 300);
+          if (btnEl) {
+            btnEl.innerText = defaultLabel;
+            btnEl.disabled = false;
+          }
+        }, 2500);
       }
 
-      setTimeout(function () {
+      function markError() {
         if (btnEl) {
           btnEl.innerText = defaultLabel;
+          btnEl.style.opacity = "1";
           btnEl.disabled = false;
         }
-      }, 2500);
-    }
+      }
 
-    function markError() {
-      if (btnEl) {
-        btnEl.innerText = defaultLabel;
-        btnEl.style.opacity = "1";
-        btnEl.disabled = false;
+      // Método 1: SDK Oficial LS.cart.add de Tiendanube
+      var lsCalled = false;
+      if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
+        try {
+          window.LS.cart.add(realVariantId, 1, function (err) {
+            if (!err) {
+              markSuccess();
+            } else {
+              doAjaxAdd(realVariantId, markSuccess, markError);
+            }
+          });
+          lsCalled = true;
+        } catch (eLS) {}
+      }
+
+      if (!lsCalled) {
+        doAjaxAdd(realVariantId, markSuccess, markError);
+      }
+    });
+
+    function doAjaxAdd(vId, cbSuccess, cbError) {
+      if (window.jQuery && typeof window.jQuery.ajax === "function") {
+        window.jQuery.ajax({
+          url: "/cart/add",
+          type: "POST",
+          dataType: "json",
+          data: { add_to_cart: String(vId), quantity: 1 },
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .done(function () {
+          cbSuccess();
+        })
+        .fail(function () {
+          rawXhrAdd(vId, cbSuccess, cbError);
+        });
+      } else {
+        rawXhrAdd(vId, cbSuccess, cbError);
       }
     }
 
-    // Capa 1: Método Oficial SDK Tiendanube (LS.cart.add)
-    var lsCalled = false;
-    if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
+    function rawXhrAdd(vId, cbSuccess, cbError) {
       try {
-        window.LS.cart.add(variantId, 1, function (err) {
-          if (!err) {
-            markSuccess();
-          } else {
-            doAjaxAdd(variantId, markSuccess, markError);
-          }
-        });
-        lsCalled = true;
-      } catch (eLS) {}
-    }
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/cart/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+        xhr.withCredentials = true;
 
-    if (!lsCalled) {
-      doAjaxAdd(variantId, markSuccess, markError);
-    }
-  }
-
-  function doAjaxAdd(vId, cbSuccess, cbError) {
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/cart/add", true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-      xhr.withCredentials = true;
-
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status >= 200 && xhr.status < 400) {
-            cbSuccess();
-          } else {
-            try {
-              var xhr2 = new XMLHttpRequest();
-              xhr2.open("POST", "/cart/add.js", true);
-              xhr2.setRequestHeader("Content-Type", "application/json");
-              xhr2.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-              xhr2.onreadystatechange = function () {
-                if (xhr2.readyState === 4) {
-                  if (xhr2.status >= 200 && xhr2.status < 400) {
-                    cbSuccess();
-                  } else {
-                    cbError();
-                  }
-                }
-              };
-              xhr2.send(JSON.stringify({ variant_id: Number(vId), quantity: 1 }));
-            } catch (e2) {
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+              cbSuccess();
+            } else {
               cbError();
             }
           }
-        }
-      };
-      xhr.send("add_to_cart=" + encodeURIComponent(String(vId)) + "&quantity=1");
-    } catch (err) {
-      cbError();
+        };
+        xhr.send("add_to_cart=" + encodeURIComponent(String(vId)) + "&quantity=1");
+      } catch (err) {
+        cbError();
+      }
     }
   }
 
@@ -6665,5 +6708,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-    }
+      }
 })(); 
