@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v164 - AJAX Puro con Extractor de Variante)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v165 - Botón Agregar al Carrito)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6274,7 +6274,7 @@ function renderProductosComplementarios(w) {
 
   var bgColor = cfg.bgColor || "#ffffff";
   var buttonBg = cfg.buttonBg || "#111827";
-  var buttonText = cfg.buttonText || "#ffffff";
+  var buttonText = cfg.buttonText || "Agregar al carrito";
   var textColor = cfg.textColor || "#111827";
 
   var THEMES = {
@@ -6336,7 +6336,7 @@ function renderProductosComplementarios(w) {
         : "";
 
       html +=
-        '<div style="display:flex !important;align-items:center !important;gap:12px !important;background:rgba(255,255,255,0.05) !important;border:1px solid rgba(156,163,175,0.2) !important;border-radius:12px !important;padding:8px 12px !important;width:100% !important;box-sizing:border-box !important;">' +
+        '<div style="display:flex !important;align-items:center !important;gap:10px !important;background:rgba(255,255,255,0.05) !important;border:1px solid rgba(156,163,175,0.2) !important;border-radius:12px !important;padding:8px 12px !important;width:100% !important;box-sizing:border-box !important;">' +
         imgHtml +
         '<div style="flex:1 !important;min-width:0 !important;">' +
         '<div style="font-size:13px !important;font-weight:700 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;color:' + textColor + ' !important;">' + (item.title || "Producto") + "</div>" +
@@ -6345,7 +6345,7 @@ function renderProductosComplementarios(w) {
         "</div>" +
         badgeHtml +
         "</div>" +
-        '<button type="button" data-nvx-idx="' + i + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 16px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;transition:all 0.2s ease !important;">Agregar</button>' +
+        '<button type="button" data-nvx-idx="' + i + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 12px !important;border-radius:8px !important;font-size:11px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;white-space:nowrap !important;transition:all 0.2s ease !important;">' + (buttonText || "Agregar al carrito") + '</button>' +
         "</div>";
     }
 
@@ -6404,7 +6404,7 @@ function renderProductosComplementarios(w) {
     }
   }
 
-  function resolveRealVariantId(item, callback) {
+  function resolveVariantId(item, callback) {
     var vId = item.variantId || item.variant_id;
     if (vId && String(vId) !== String(item.id) && String(vId).length > 3) {
       callback(vId);
@@ -6446,14 +6446,16 @@ function renderProductosComplementarios(w) {
   function handleAddOnlyComplementary(item, btnEl) {
     if (!item) return;
 
+    var defaultLabel = buttonText || "Agregar al carrito";
+
     if (btnEl) {
       btnEl.innerText = "Agregando...";
       btnEl.style.opacity = "0.7";
       btnEl.disabled = true;
     }
 
-    resolveRealVariantId(item, function (realVariantId) {
-      function onSuccess() {
+    resolveVariantId(item, function (realVariantId) {
+      function markSuccess() {
         if (btnEl) {
           btnEl.innerText = "¡Agregado! ✓";
           btnEl.style.opacity = "1";
@@ -6464,26 +6466,45 @@ function renderProductosComplementarios(w) {
         if (openCartOnAdd) {
           setTimeout(function () {
             openCartDrawer();
-          }, 350);
+          }, 300);
         }
 
         setTimeout(function () {
           if (btnEl) {
-            btnEl.innerText = "Agregar";
+            btnEl.innerText = defaultLabel;
             btnEl.disabled = false;
           }
-        }, 2000);
+        }, 2500);
       }
 
-      function onError() {
+      function markError() {
         if (btnEl) {
-          btnEl.innerText = "Agregar";
+          btnEl.innerText = defaultLabel;
           btnEl.style.opacity = "1";
           btnEl.disabled = false;
         }
       }
 
-      // Método Principal: AJAX XHR directo a /cart/add (No redirige ni recarga)
+      var lsCalled = false;
+      if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
+        try {
+          window.LS.cart.add(realVariantId, 1, function (err) {
+            if (!err) {
+              markSuccess();
+            } else {
+              doPostAdd(realVariantId, markSuccess, markError);
+            }
+          });
+          lsCalled = true;
+        } catch (eLS) {}
+      }
+
+      if (!lsCalled) {
+        doPostAdd(realVariantId, markSuccess, markError);
+      }
+    });
+
+    function doPostAdd(variantId, cbOk, cbFail) {
       try {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/cart/add", true);
@@ -6495,32 +6516,17 @@ function renderProductosComplementarios(w) {
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4) {
             if (xhr.status >= 200 && xhr.status < 400) {
-              onSuccess();
+              cbOk();
             } else {
-              // Intento secundario con LS.cart.add si está disponible
-              if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
-                try {
-                  window.LS.cart.add(realVariantId, 1, function (err) {
-                    if (!err) {
-                      onSuccess();
-                    } else {
-                      onError();
-                    }
-                  });
-                } catch (eLS) {
-                  onError();
-                }
-              } else {
-                onError();
-              }
+              cbFail();
             }
           }
         };
-        xhr.send("add_to_cart=" + encodeURIComponent(String(realVariantId)) + "&quantity=1");
+        xhr.send("add_to_cart=" + encodeURIComponent(String(variantId)) + "&quantity=1");
       } catch (err) {
-        onError();
+        cbFail();
       }
-    });
+    }
   }
 
   function bindButtons(root, products) {
@@ -6664,5 +6670,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-    }
+      }
 })(); 
