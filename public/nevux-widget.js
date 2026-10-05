@@ -1674,6 +1674,7 @@
           if (w.widget_slug === "popup-conversion") renderPopupConversion(w);
           if (w.widget_slug === "barra-envio-gratis") renderBarraEnvioGratis(w);
           if (w.widget_slug === "barra-cuotas") renderBarraCuotas(w);
+          if (w.widget_slug === "productos-complementarios") renderProductosComplementarios(w);
         } catch (err) {
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
@@ -6247,4 +6248,258 @@ function renderBarraCuotas(w) {
     nvxTrack(w.id, "impression");
   }
     }
+  /* ═══════════════════════════════════════════
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v1)
+   ═══════════════════════════════════════════ */
+function renderProductosComplementarios(w) {
+  var idBase = "nvx-cross-sell-" + w.id;
+  if (window['nvx_cross_sell_' + w.id]) return;
+  window['nvx_cross_sell_' + w.id] = true;
+
+  var cfg = w.config || {};
+  var title = cfg.title !== undefined ? cfg.title : "También te puede interesar";
+  var subtitle = cfg.subtitle || "";
+  var aiAutocomplete = cfg.aiAutocomplete !== false;
+  var manualUrls = cfg.manualUrls || "";
+  var maxProducts = parseInt(cfg.maxProducts, 10) || 3;
+  var showDiscountBadge = cfg.showDiscountBadge !== false;
+  var discountText = cfg.discountText || "-15% OFF";
+  var inProductBanner = cfg.inProductBanner !== false;
+  var inCartDrawer = !!cfg.inCartDrawer;
+  var openCartOnAdd = cfg.openCartOnAdd !== false;
+  var position = cfg.position || "before_cart";
+  var bgColor = cfg.bgColor || "#ffffff";
+  var buttonBg = cfg.buttonBg || "#111827";
+  var buttonText = cfg.buttonText || "#ffffff";
+  var textColor = cfg.textColor || "#111827";
+
+  var THEMES = {
+    "black-friday": { bg: "#111827", btnBg: "#F59E0B", btnTx: "#111827", text: "#ffffff", border: "1px solid #374151" },
+    "hot-sale": { bg: "#0F172A", btnBg: "#EF4444", btnTx: "#ffffff", text: "#ffffff", border: "1px solid #1E293B" },
+    "cyber-monday": { bg: "#090D16", btnBg: "#3B82F6", btnTx: "#ffffff", text: "#ffffff", border: "1px solid #1E3A8A" },
+    "navidad": { bg: "#064E3B", btnBg: "#EF4444", btnTx: "#ffffff", text: "#ffffff", border: "1px solid #047857" },
+    "san-valentin": { bg: "#fff1f2", btnBg: "#F43F5E", btnTx: "#ffffff", text: "#831843", border: "1px solid #fecdd3" },
+    "dia-padre-madre": { bg: "#EEF2FF", btnBg: "#312E81", btnTx: "#ffffff", text: "#312E81", border: "1px solid #c7d2fe" },
+    "liquidacion": { bg: "#FEF2F2", btnBg: "#FBBF24", btnTx: "#7F1D1D", text: "#7F1D1D", border: "1px solid #fecaca" }
+  };
+
+  var customBorder = "1px solid #e5e7eb";
+  if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+    var tm = THEMES[cfg.campaignTheme];
+    bgColor = tm.bg;
+    buttonBg = tm.btnBg;
+    buttonText = tm.btnTx;
+    textColor = tm.text;
+    customBorder = tm.border;
+  }
+
+  var idProd = idBase + "-prod";
+  var idCart = idBase + "-cart";
+
+  function formatMoney(val) {
+    var str = Math.round(val).toString();
+    var res = ""; var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+      count++; res = str.charAt(i) + res;
+      if (count % 3 === 0 && i !== 0) res = "." + res;
+    }
+    return "$" + res;
+  }
+
+  // Carga de productos dinámicos o parseo de URLs
+  var complementProducts = [];
+
+  function fetchComplementaryProducts(callback) {
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/products.json", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            var items = Array.isArray(data) ? data : (data.products || []);
+            var currentId = (window.LS && window.LS.product) ? window.LS.product.id : null;
+            
+            var filtered = [];
+            for (var i = 0; i < items.length; i++) {
+              if (items[i].id !== currentId && items[i].variants && items[i].variants[0]) {
+                filtered.push({
+                  id: items[i].id,
+                  variantId: items[i].variants[0].id,
+                  title: items[i].name ? (items[i].name.es || items[i].name) : "Producto sugerido",
+                  price: items[i].variants[0].price,
+                  image: items[i].images && items[i].images[0] ? items[i].images[0].src : "",
+                  url: items[i].url || "#"
+                });
+              }
+              if (filtered.length >= maxProducts) break;
+            }
+            callback(filtered);
+          } catch(e) { callback([]); }
+        }
+      };
+      xhr.send();
+    } catch(e) { callback([]); }
+  }
+
+  function renderProductListHtml(products) {
+    if (!products || products.length === 0) return "";
+
+    var html = '<div style="background:' + bgColor + ' !important; border:' + customBorder + ' !important; border-radius:16px !important; padding:16px !important; color:' + textColor + ' !important; box-sizing:border-box !important; margin:16px 0 !important; font-family:system-ui, -apple-system, sans-serif !important;">';
+    
+    if (title) {
+      html += '<div style="font-size:15px !important; font-weight:800 !important; margin-bottom:' + (subtitle ? '2px' : '12px') + ' !important;">' + title + '</div>';
+    }
+    if (subtitle) {
+      html += '<div style="font-size:12px !important; opacity:0.8 !important; margin-bottom:12px !important;">' + subtitle + '</div>';
+    }
+
+    html += '<div style="display:flex !important; flex-direction:column !important; gap:10px !important;">';
+
+    for (var i = 0; i < products.length; i++) {
+      var item = products[i];
+      var pVal = parseFloat(item.price) || 0;
+      var pStr = formatMoney(pVal);
+
+      var imgHtml = item.image 
+        ? '<img src="' + item.image + '" style="width:48px !important; height:48px !important; border-radius:8px !important; object-fit:cover !important; flex-shrink:0 !important;" />'
+        : '<div style="width:48px !important; height:48px !important; border-radius:8px !important; background:rgba(156,163,175,0.2) !important; display:flex !important; align-items:center !important; justify-content:center !important; flex-shrink:0 !important;"><svg width="20" height="20" fill="none" stroke="currentColor" opacity="0.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
+
+      var badgeHtml = showDiscountBadge 
+        ? '<span style="background:rgba(16,185,129,0.15) !important; color:#10B981 !important; border:1px solid rgba(16,185,129,0.3) !important; font-size:10px !important; font-weight:800 !important; padding:1px 5px !important; border-radius:4px !important; display:inline-block !important; margin-top:2px !important;">' + discountText + '</span>'
+        : '';
+
+      html += '<div style="display:flex !important; align-items:center !important; gap:12px !important; background:rgba(255,255,255,0.05) !important; border:1px solid rgba(156,163,175,0.2) !important; border-radius:12px !important; padding:8px 12px !important;">' +
+        imgHtml +
+        '<div style="flex:1 !important; min-width:0 !important;">' +
+          '<div style="font-size:13px !important; font-weight:700 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;">' + item.title + '</div>' +
+          '<div style="display:flex !important; align-items:center !important; gap:6px !important; margin-top:2px !important;">' +
+            '<span style="font-size:13px !important; font-weight:800 !important;">' + pStr + '</span>' +
+          '</div>' +
+          badgeHtml +
+        '</div>' +
+        '<button type="button" data-nvx-variant="' + item.variantId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important; color:' + buttonText + ' !important; padding:8px 16px !important; border-radius:999px !important; font-size:12px !important; font-weight:800 !important; border:none !important; cursor:pointer !important; flex-shrink:0 !important; transition:transform 0.1s ease !important;">Agregar</button>' +
+      '</div>';
+    }
+
+    html += '</div></div>';
+    return html;
+  }
+
+  function handleAddToCart(variantId, btnEl) {
+    if (!variantId) return;
+    if (btnEl) {
+      btnEl.innerText = "¡Agregado!";
+      btnEl.style.opacity = "0.7";
+    }
+
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/cart/add", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          // Disparar eventos nativos de actualización de carrito en Tiendanube
+          document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
+          document.dispatchEvent(new CustomEvent("cart:updated"));
+          document.dispatchEvent(new CustomEvent("cart:change"));
+          document.dispatchEvent(new CustomEvent("product_added_to_cart"));
+
+          if (openCartOnAdd) {
+            var cartTriggers = [".js-toggle-cart", ".js-modal-open", "#cart-button", ".cart-btn", "[data-component='cart.toggle']"];
+            for (var c = 0; c < cartTriggers.length; c++) {
+              var btn = document.querySelector(cartTriggers[c]);
+              if (btn) { btn.click(); break; }
+            }
+          }
+
+          setTimeout(function() {
+            if (btnEl) {
+              btnEl.innerText = "Agregar";
+              btnEl.style.opacity = "1";
+            }
+          }, 2000);
+        }
+      };
+      xhr.send("add_to_cart=" + encodeURIComponent(variantId) + "&quantity=1");
+    } catch(e) {}
+  }
+
+  function bindEvents(container) {
+    if (!container) return;
+    var btns = container.querySelectorAll(".nvx-btn-add-cross");
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var vId = this.getAttribute("data-nvx-variant");
+        handleAddToCart(vId, this);
+      });
+    }
+  }
+
+  function findProductTarget() {
+    if (position === "before_cart") {
+      var buyForm = document.querySelector("form[action*='/cart/add'], form.js-product-form, .js-product-buy-container, .product-buy-container");
+      if (buyForm) return buyForm;
+    } else if (position === "after_desc") {
+      var desc = document.querySelector(".js-product-description, .product-description, #product-description");
+      if (desc) return desc;
+    }
+    var fallback = document.querySelector("form[action*='/cart/add'], form.js-product-form, .js-product-buy-container");
+    return fallback;
+  }
+
+  function injectWidget(products) {
+    if (!products || products.length === 0) return;
+    var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
+
+    // 1. Inyectar en Ficha de Producto
+    if (inProductBanner && isProdPage && !document.getElementById(idProd)) {
+      var target = findProductTarget();
+      if (target && target.parentNode) {
+        var container = document.createElement("div");
+        container.id = idProd;
+        container.className = "nvx-widget nvx-cross-sell-product";
+        container.innerHTML = renderProductListHtml(products);
+        if (position === "before_cart") {
+          target.parentNode.insertBefore(container, target);
+        } else {
+          target.parentNode.insertBefore(container, target.nextSibling);
+        }
+        bindEvents(container);
+      }
+    }
+
+    // 2. Inyectar en Cajón del Carrito Lateral
+    if (inCartDrawer && !document.getElementById(idCart)) {
+      var cartContainer = document.querySelector(".js-cart-panel, #cart-slide, .js-modal-cart, .cart-slide, .cart-summary, .js-cart-content, #shopping-cart");
+      if (cartContainer) {
+        var insertPoint = cartContainer.querySelector(".js-ajax-cart-list, .cart-body, .cart-table, .cart-row");
+        if (insertPoint && insertPoint.parentNode) {
+          var containerCart = document.createElement("div");
+          containerCart.id = idCart;
+          containerCart.className = "nvx-widget nvx-cross-sell-cart";
+          containerCart.innerHTML = renderProductListHtml(products);
+          insertPoint.parentNode.insertBefore(containerCart, insertPoint);
+          bindEvents(containerCart);
+        }
+      }
+    }
+  }
+
+  fetchComplementaryProducts(function(products) {
+    complementProducts = products;
+    injectWidget(products);
+
+    setInterval(function() {
+      injectWidget(complementProducts);
+    }, 2500);
+  });
+
+  if (typeof nvxTrack === "function") {
+    nvxTrack(w.id, "impression");
+  }
+                     }
 })(); 
