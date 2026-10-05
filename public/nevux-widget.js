@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v162 - Formulario Aislado Nativo)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v163 - AJAX Puro con Extractor de Variante)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6269,6 +6269,7 @@ function renderProductosComplementarios(w) {
   var showDiscountBadge = cfg.showDiscountBadge !== false;
   var discountText = cfg.discountText || "-15% OFF";
   var inProductBanner = cfg.inProductBanner !== false;
+  var openCartOnAdd = cfg.openCartOnAdd !== false;
   var position = cfg.position || "before_desc";
 
   var bgColor = cfg.bgColor || "#ffffff";
@@ -6352,83 +6353,119 @@ function renderProductosComplementarios(w) {
     return html;
   }
 
+  function openCartDrawer() {
+    var cartTriggers = [
+      ".js-toggle-cart",
+      ".js-modal-open[data-target='#modal-cart']",
+      ".js-modal-open[data-target='#cart-modal']",
+      ".js-cart-notification",
+      ".js-ajax-cart-open",
+      ".js-cart-modal",
+      "#cart-button",
+      ".cart-btn",
+      "[data-component='cart.toggle']",
+      ".js-open-cart",
+      ".js-cart-summary"
+    ];
+    for (var c = 0; c < cartTriggers.length; c++) {
+      var trig = document.querySelector(cartTriggers[c]);
+      if (trig && trig.offsetParent !== null) {
+        try {
+          trig.click();
+          return;
+        } catch (e) {}
+      }
+    }
+  }
+
+  function triggerCartRefreshEvents() {
+    if (window.jQuery) {
+      try {
+        window.jQuery(document).trigger("ajaxCart:receive");
+        window.jQuery(document).trigger("cart:updated");
+        window.jQuery(document).trigger("cart:change");
+        window.jQuery(document).trigger("product_added_to_cart");
+        window.jQuery(document).trigger("cart.updated");
+        window.jQuery(document).trigger("LS:cart:updated");
+        window.jQuery("body").trigger("cart:updated");
+      } catch (eJQ) {}
+    }
+
+    try {
+      document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
+      document.dispatchEvent(new CustomEvent("cart:updated"));
+      document.dispatchEvent(new CustomEvent("cart:change"));
+      document.dispatchEvent(new CustomEvent("product_added_to_cart"));
+      window.dispatchEvent(new CustomEvent("LS:cart:updated"));
+    } catch (eDOM) {}
+
+    if (window.LS && window.LS.cart && typeof window.LS.cart.get === "function") {
+      try { window.LS.cart.get(); } catch (eLS) {}
+    }
+  }
+
+  function resolveRealVariantId(item, callback) {
+    var vId = item.variantId || item.variant_id;
+    if (vId && String(vId) !== String(item.id) && String(vId).length > 3) {
+      callback(vId);
+      return;
+    }
+    if (item.variants && item.variants[0] && item.variants[0].id) {
+      callback(item.variants[0].id);
+      return;
+    }
+
+    var itemUrl = item.url || "";
+    if (itemUrl) {
+      var cleanUrl = itemUrl.split("?")[0].replace(/\/$/, "") + ".js";
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", cleanUrl, true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              try {
+                var data = JSON.parse(xhr.responseText);
+                if (data && data.variants && data.variants[0] && data.variants[0].id) {
+                  callback(data.variants[0].id);
+                  return;
+                }
+              } catch (eP) {}
+            }
+            callback(vId || item.id);
+          }
+        };
+        xhr.send();
+        return;
+      } catch (eX) {}
+    }
+
+    callback(vId || item.id);
+  }
+
   function handleAddOnlyComplementary(item, btnEl) {
     if (!item) return;
 
-    var targetVariantId = item.variantId || item.variant_id || (item.variants && item.variants[0] ? item.variants[0].id : null);
+    if (btnEl) {
+      btnEl.innerText = "Agregando...";
+      btnEl.style.opacity = "0.7";
+      btnEl.disabled = true;
+    }
 
-    function executeSubmit(vId) {
-      if (!vId) return;
-
-      if (btnEl) {
-        btnEl.innerText = "Agregando...";
-        btnEl.style.opacity = "0.7";
-        btnEl.disabled = true;
-      }
-
-      // Creamos un formulario limpio e independiente, específico para este producto complementario
-      var cleanForm = document.createElement("form");
-      cleanForm.action = "/cart/add";
-      cleanForm.method = "POST";
-      cleanForm.className = "js-product-form js-product-buyform nvx-isolated-form";
-      cleanForm.style.cssText = "display:none !important;";
-
-      var inputAdd = document.createElement("input");
-      inputAdd.type = "hidden";
-      inputAdd.name = "add_to_cart";
-      inputAdd.value = String(vId);
-      cleanForm.appendChild(inputAdd);
-
-      var inputVar = document.createElement("input");
-      inputVar.type = "hidden";
-      inputVar.name = "variant_id";
-      inputVar.value = String(vId);
-      cleanForm.appendChild(inputVar);
-
-      var inputQty = document.createElement("input");
-      inputQty.type = "hidden";
-      inputQty.name = "quantity";
-      inputQty.value = "1";
-      cleanForm.appendChild(inputQty);
-
-      var submitBtn = document.createElement("button");
-      submitBtn.type = "submit";
-      submitBtn.className = "js-add-to-cart-btn js-prod-submit-form btn btn-primary";
-      cleanForm.appendChild(submitBtn);
-
-      document.body.appendChild(cleanForm);
-
-      var themeHandled = false;
-
-      // Opción A: Disparar evento jQuery si el tema usa jQuery
-      if (window.jQuery) {
-        try {
-          window.jQuery(cleanForm).trigger("submit");
-          themeHandled = true;
-        } catch (eJQ) {}
-      }
-
-      // Opción B: Disparar click nativo en el botón del form aislado
-      if (!themeHandled) {
-        try {
-          submitBtn.click();
-          themeHandled = true;
-        } catch (eClick) {}
-      }
-
-      // Feedback y limpieza
-      setTimeout(function () {
+    resolveRealVariantId(item, function (realVariantId) {
+      function onSuccess() {
         if (btnEl) {
           btnEl.innerText = "¡Agregado! ✓";
           btnEl.style.opacity = "1";
         }
 
-        // Limpiamos el formulario temporal
-        try {
-          if (cleanForm && cleanForm.parentNode) {
-            cleanForm.parentNode.removeChild(cleanForm);
-          }
-        } catch (eRem) {}
+        triggerCartRefreshEvents();
+
+        if (openCartOnAdd) {
+          setTimeout(function () {
+            openCartDrawer();
+          }, 350);
+        }
 
         setTimeout(function () {
           if (btnEl) {
@@ -6436,38 +6473,70 @@ function renderProductosComplementarios(w) {
             btnEl.disabled = false;
           }
         }, 2000);
-      }, 1000);
-    }
-
-    // Si no tenemos el variant_id o es igual al product_id, lo resolvemos primero desde la URL del producto
-    if (!targetVariantId || String(targetVariantId) === String(item.id)) {
-      var prodUrl = item.url ? (item.url.indexOf(".json") > -1 ? item.url : item.url.replace(/\/$/, "") + ".json") : null;
-      if (prodUrl) {
-        try {
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", prodUrl, true);
-          xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-              if (xhr.status === 200) {
-                try {
-                  var pData = JSON.parse(xhr.responseText);
-                  if (pData.variants && pData.variants[0] && pData.variants[0].id) {
-                    targetVariantId = pData.variants[0].id;
-                  }
-                } catch (eParse) {}
-              }
-              executeSubmit(targetVariantId || item.id);
-            }
-          };
-          xhr.send();
-        } catch (eXhr) {
-          executeSubmit(item.id);
-        }
-      } else {
-        executeSubmit(item.id);
       }
-    } else {
-      executeSubmit(targetVariantId);
+
+      function onError() {
+        if (btnEl) {
+          btnEl.innerText = "Agregar";
+          btnEl.style.opacity = "1";
+          btnEl.disabled = false;
+        }
+      }
+
+      // Capa 1: SDK Oficial Tiendanube LS.cart.add
+      var lsUsed = false;
+      if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
+        try {
+          window.LS.cart.add(realVariantId, 1, function (err) {
+            if (!err) {
+              onSuccess();
+            } else {
+              executeAjaxFetch(realVariantId, onSuccess, onError);
+            }
+          });
+          lsUsed = true;
+        } catch (eLS) {}
+      }
+
+      if (!lsUsed) {
+        executeAjaxFetch(realVariantId, onSuccess, onError);
+      }
+    });
+
+    function executeAjaxFetch(variantId, cbSuccess, cbError) {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/cart/add.js", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+              cbSuccess();
+            } else {
+              // Fallback urlencoded
+              var xhr2 = new XMLHttpRequest();
+              xhr2.open("POST", "/cart/add", true);
+              xhr2.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+              xhr2.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+              xhr2.onreadystatechange = function () {
+                if (xhr2.readyState === 4) {
+                  if (xhr2.status >= 200 && xhr2.status < 400) {
+                    cbSuccess();
+                  } else {
+                    cbError();
+                  }
+                }
+              };
+              xhr2.send("add_to_cart=" + encodeURIComponent(String(variantId)) + "&quantity=1");
+            }
+          }
+        };
+        xhr.send(JSON.stringify({ variant_id: Number(variantId), quantity: 1 }));
+      } catch (err) {
+        cbError();
+      }
     }
   }
 
@@ -6612,5 +6681,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-}
+                         }
 })(); 
