@@ -33,11 +33,20 @@ interface ProductosComplementariosEditorProps {
   storeId: string | number;
 }
 
+export interface SelectedProductItem {
+  id: number | string;
+  variantId?: number | string;
+  title: string;
+  image: string;
+  price: number;
+  url: string;
+}
+
 export interface CfgComplementarios {
   title: string;
   subtitle: string;
   aiAutocomplete: boolean;
-  manualUrls: string; // URLs separadas por salto de línea
+  selectedProducts: SelectedProductItem[];
   maxProducts: number;
   showDiscountBadge: boolean;
   discountText: string;
@@ -59,7 +68,7 @@ const DEF: CfgComplementarios = {
   title: 'También te puede interesar',
   subtitle: '',
   aiAutocomplete: true,
-  manualUrls: '',
+  selectedProducts: [],
   maxProducts: 3,
   showDiscountBadge: true,
   discountText: '-15% OFF',
@@ -223,7 +232,7 @@ function parseCfg(raw: Record<string, unknown> | undefined): CfgComplementarios 
     title: raw.title !== undefined ? String(raw.title) : DEF.title,
     subtitle: raw.subtitle !== undefined ? String(raw.subtitle) : DEF.subtitle,
     aiAutocomplete: typeof raw.aiAutocomplete === 'boolean' ? raw.aiAutocomplete : DEF.aiAutocomplete,
-    manualUrls: raw.manualUrls !== undefined ? String(raw.manualUrls) : DEF.manualUrls,
+    selectedProducts: Array.isArray(raw.selectedProducts) ? (raw.selectedProducts as SelectedProductItem[]) : DEF.selectedProducts,
     maxProducts: typeof raw.maxProducts === 'number' ? raw.maxProducts : DEF.maxProducts,
     showDiscountBadge: typeof raw.showDiscountBadge === 'boolean' ? raw.showDiscountBadge : DEF.showDiscountBadge,
     discountText: raw.discountText !== undefined ? String(raw.discountText) : DEF.discountText,
@@ -257,6 +266,12 @@ export default function ProductosComplementariosEditor({
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
 
+  // Modal de productos reales de la tienda
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [storeProducts, setStoreProducts] = useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const isForAll = targetType === 'all';
   const scopeLabel = isForAll ? 'General' : 'Producto';
 
@@ -273,6 +288,64 @@ export default function ProductosComplementariosEditor({
       ...prev,
       [key]: val,
       campaignTheme: 'none',
+    }));
+  };
+
+  const openProductSelectorModal = async () => {
+    setIsModalOpen(true);
+    if (storeProducts.length === 0) {
+      setLoadingProducts(true);
+      try {
+        const res = await fetch(`/api/products?store_id=${storeId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : (data.products || []);
+          setStoreProducts(items);
+        }
+      } catch (e) {
+        console.error("Error cargando productos", e);
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+  };
+
+  const toggleSelectProduct = (p: any) => {
+    const pId = p.id;
+    const exists = cfg.selectedProducts.some((item) => String(item.id) === String(pId));
+
+    if (exists) {
+      setCfg((prev) => ({
+        ...prev,
+        selectedProducts: prev.selectedProducts.filter((item) => String(item.id) !== String(pId)),
+      }));
+    } else {
+      var variantId = p.variants && p.variants[0] ? p.variants[0].id : p.id;
+      var title = typeof p.name === 'object' ? (p.name.es || p.name.pt || p.name.en || 'Producto') : (p.name || 'Producto');
+      var price = p.variants && p.variants[0] ? parseFloat(p.variants[0].price) : (parseFloat(p.price) || 0);
+      var image = p.images && p.images[0] ? p.images[0].src : '';
+      var url = p.url || '#';
+
+      var newItem: SelectedProductItem = {
+        id: pId,
+        variantId: variantId,
+        title: title,
+        price: price,
+        image: image,
+        url: url,
+      };
+
+      setCfg((prev) => ({
+        ...prev,
+        selectedProducts: [...prev.selectedProducts, newItem],
+      }));
+    }
+  };
+
+  const removeSelectedProduct = (pId: string | number) => {
+    setCfg((prev) => ({
+      ...prev,
+      selectedProducts: prev.selectedProducts.filter((item) => String(item.id) !== String(pId)),
     }));
   };
 
@@ -331,6 +404,8 @@ export default function ProductosComplementariosEditor({
     }
   };
 
+  const formatMoney = (val: number) => '$' + Math.round(val).toLocaleString('es-AR');
+
   const getPreviewStyles = () => {
     const theme = cfg.campaignTheme && cfg.campaignTheme !== 'none' ? THEME_FX[cfg.campaignTheme] : null;
     let bg = cfg.bgColor;
@@ -351,6 +426,20 @@ export default function ProductosComplementariosEditor({
   };
 
   const ps = getPreviewStyles();
+
+  // Productos mostrados en la vista previa
+  const previewList = cfg.aiAutocomplete || cfg.selectedProducts.length === 0
+    ? [
+        { id: 'd1', title: 'Funda protectora de silicona', price: 15500, image: '' },
+        { id: 'd2', title: 'Cargador rápido USB-C 20W', price: 22000, image: '' },
+        { id: 'd3', title: 'Cable reforzado de tela 1.5m', price: 8900, image: '' },
+      ].slice(0, cfg.maxProducts)
+    : cfg.selectedProducts.slice(0, cfg.maxProducts);
+
+  const filteredModalProducts = storeProducts.filter((p) => {
+    const t = typeof p.name === 'object' ? (p.name.es || p.name.pt || '') : (p.name || '');
+    return t.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const CAMPAIGN_PRESETS = [
     { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
@@ -452,29 +541,30 @@ export default function ProductosComplementariosEditor({
               )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {Array.from({ length: cfg.maxProducts }).map((_, i) => (
-                  <div key={i} style={{
+                {previewList.map((item, i) => (
+                  <div key={item.id || i} style={{
                     display: 'flex', alignItems: 'center', gap: 12,
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(156,163,175,0.2)',
                     borderRadius: 12, padding: '10px 12px'
                   }}>
-                    {/* Dummy Image */}
-                    <div style={{
-                      width: 48, height: 48, borderRadius: 8, background: 'rgba(156,163,175,0.2)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                    }}>
-                      <svg width="20" height="20" fill="none" stroke="currentColor" opacity="0.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    </div>
+                    {item.image ? (
+                      <img src={item.image} alt={item.title} style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                    ) : (
+                      <div style={{
+                        width: 48, height: 48, borderRadius: 8, background: 'rgba(156,163,175,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                      }}>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" opacity="0.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      </div>
+                    )}
 
-                    {/* Product Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        Producto sugerido {i + 1}
+                        {item.title}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                        <span style={{ fontSize: 13, fontWeight: 800 }}>$15.500</span>
-                        <span style={{ fontSize: 11, textDecoration: 'line-through', opacity: 0.5 }}>$20.000</span>
+                        <span style={{ fontSize: 13, fontWeight: 800 }}>{formatMoney(item.price)}</span>
                       </div>
                       {cfg.showDiscountBadge && (
                         <div style={{ marginTop: 4 }}>
@@ -488,7 +578,6 @@ export default function ProductosComplementariosEditor({
                       )}
                     </div>
 
-                    {/* Add Button */}
                     <div style={{
                       background: ps.btnBg, color: ps.btnTx,
                       padding: '8px 16px', borderRadius: 999,
@@ -511,7 +600,7 @@ export default function ProductosComplementariosEditor({
           }}>
             <div style={{ fontSize: 20, flexShrink: 0 }}>⚠️</div>
             <span style={{ fontSize: 13, color: '#9a3412', lineHeight: 1.5, fontWeight: 500 }}>
-              <strong>IMPORTANTE:</strong> Según las políticas de Tiendanube, no es posible aplicar descuentos con precios personalizados directamente por código. Si ofrecés un descuento visual acá, asegurate de tener una <strong>Promoción Automática</strong> configurada en tu panel de Tiendanube (ej: 2x1, o % OFF llevando X) para que el descuento se aplique realmente en el checkout.
+              <strong>IMPORTANTE:</strong> Según las políticas de Tiendanube, los descuentos con precios modificados se aplican configurando una <strong>Promoción Automática</strong> en tu panel de Tiendanube (ej: Llevando 2 productos, % OFF).
             </span>
           </div>
 
@@ -574,9 +663,10 @@ export default function ProductosComplementariosEditor({
                 </div>
               </div>
 
+              {/* SELECCIÓN DE PRODUCTOS */}
               <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
                 <FieldLabel>Agrega productos complementarios</FieldLabel>
-                
+
                 <div style={{
                   background: cfg.aiAutocomplete ? '#eff6ff' : '#ffffff',
                   border: cfg.aiAutocomplete ? '1px solid #bfdbfe' : '1px solid #e5e7eb',
@@ -591,34 +681,69 @@ export default function ProductosComplementariosEditor({
                       Autocompletar productos
                     </div>
                     <div style={{ fontSize: 13, color: '#3b82f6', marginTop: 4, lineHeight: 1.4 }}>
-                      <strong style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconSparkles/> Nevux AI</strong> elige automáticamente los productos relacionados por vos buscando en tu tienda.
+                      <strong style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconSparkles/> Nevux AI</strong> elige automáticamente los productos relacionados por vos.
                     </div>
                   </div>
                 </div>
 
                 {!cfg.aiAutocomplete && (
                   <div style={{ marginTop: 16, background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 10, padding: 16 }}>
-                    <FieldLabel>URLs de los Productos</FieldLabel>
-                    <textarea
-                      value={cfg.manualUrls}
-                      onChange={(e) => set('manualUrls', e.target.value)}
-                      placeholder="https://mitienda.com/productos/remera/&#10;https://mitienda.com/productos/pantalon/"
-                      style={{
-                        width: '100%', minHeight: 100, padding: '12px', fontSize: 13,
-                        border: '1.5px solid #e5e7eb', borderRadius: 8,
-                        background: '#f9fafb', color: '#000000', outline: 'none',
-                        fontFamily: 'monospace', resize: 'vertical'
-                      }}
-                      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-                      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
-                    />
-                    <FieldHelper>Pegá la URL completa de cada producto que quieras sugerir (una por línea).</FieldHelper>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>
+                        Productos seleccionados ({cfg.selectedProducts.length})
+                      </span>
+                      <button
+                        type="button"
+                        onClick={openProductSelectorModal}
+                        style={{
+                          background: '#10B981', color: '#ffffff', border: 'none',
+                          padding: '8px 14px', borderRadius: 8, fontSize: 13,
+                          fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6
+                        }}
+                      >
+                        + Seleccionar productos de tu tienda
+                      </button>
+                    </div>
+
+                    {cfg.selectedProducts.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '20px 10px', color: '#9ca3af', fontSize: 13 }}>
+                        Aún no seleccionaste ningún producto. Tocá el botón de arriba para elegir de tu tienda.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {cfg.selectedProducts.map((p) => (
+                          <div key={p.id} style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 8, background: '#f9fafb'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              {p.image ? (
+                                <img src={p.image} alt={p.title} style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: 32, height: 32, borderRadius: 6, background: '#e5e7eb' }} />
+                              )}
+                              <div>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{p.title}</div>
+                                <div style={{ fontSize: 12, color: '#10B981', fontWeight: 800 }}>{formatMoney(p.price)}</div>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeSelectedProduct(p.id)}
+                              style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 16, fontWeight: 800, cursor: 'pointer', padding: 4 }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
               <div>
-                <FieldLabel>Cantidad de productos a mostrar</FieldLabel>
+                <FieldLabel>Cantidad máxima de productos a mostrar</FieldLabel>
                 <select
                   value={cfg.maxProducts}
                   onChange={(e) => set('maxProducts', parseInt(e.target.value))}
@@ -658,13 +783,12 @@ export default function ProductosComplementariosEditor({
           {/* TAB UBICACIÓN */}
           {tab === 'ubicacion' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 16 }}>
                 <ToggleSwitch checked={cfg.inProductBanner} onChange={(v) => set('inProductBanner', v)} />
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>Mostrar en la ficha de producto</div>
                   <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>El widget sugerirá productos complementarios en la página de cada producto.</div>
-                  
+
                   {cfg.inProductBanner && (
                     <div style={{ marginTop: 16 }}>
                       <FieldLabel>Posición en la ficha de producto</FieldLabel>
@@ -703,7 +827,6 @@ export default function ProductosComplementariosEditor({
                   <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>Si está activado, al tocar "Agregar" en un producto sugerido, se abrirá el carrito automáticamente.</div>
                 </div>
               </div>
-
             </div>
           )}
 
@@ -827,6 +950,114 @@ export default function ProductosComplementariosEditor({
           <CentroAyuda />
         </div>
       </div>
+
+      {/* MODAL BUSCADOR DE PRODUCTOS DE LA TIENDA */}
+      {isModalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16
+        }}>
+          <div style={{
+            background: '#ffffff', borderRadius: 16, width: '100%', maxWidth: 520,
+            maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: '#111827', margin: 0 }}>
+                Elegí productos de tu tienda
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                style={{ background: 'none', border: 'none', fontSize: 18, fontWeight: 800, color: '#9ca3af', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por nombre..."
+                style={{
+                  width: '100%', padding: '10px 14px', fontSize: 13, border: '1.5px solid #e5e7eb',
+                  borderRadius: 8, outline: 'none', boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {loadingProducts ? (
+                <div style={{ textAlign: 'center', padding: 30, color: '#6b7280', fontSize: 13 }}>
+                  Cargando tus productos...
+                </div>
+              ) : filteredModalProducts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 30, color: '#6b7280', fontSize: 13 }}>
+                  No se encontraron productos.
+                </div>
+              ) : (
+                filteredModalProducts.map((p) => {
+                  const isSelected = cfg.selectedProducts.some((item) => String(item.id) === String(p.id));
+                  const title = typeof p.name === 'object' ? (p.name.es || p.name.pt || 'Producto') : (p.name || 'Producto');
+                  const image = p.images && p.images[0] ? p.images[0].src : '';
+                  const price = p.variants && p.variants[0] ? parseFloat(p.variants[0].price) : (parseFloat(p.price) || 0);
+
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => toggleSelectProduct(p)}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '10px 12px', border: isSelected ? '2px solid #10B981' : '1px solid #e5e7eb',
+                        borderRadius: 10, background: isSelected ? '#ecfdf5' : '#ffffff', cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        {image ? (
+                          <img src={image} alt={title} style={{ width: 40, height: 48, borderRadius: 6, objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: 40, height: 48, borderRadius: 6, background: '#e5e7eb' }} />
+                        )}
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{title}</div>
+                          <div style={{ fontSize: 12, color: '#10B981', fontWeight: 800 }}>{formatMoney(price)}</div>
+                        </div>
+                      </div>
+
+                      <div style={{
+                        background: isSelected ? '#10B981' : '#f3f4f6',
+                        color: isSelected ? '#ffffff' : '#374151',
+                        padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 800
+                      }}>
+                        {isSelected ? '✓ Seleccionado' : '+ Agregar'}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div style={{ padding: 16, borderTop: '1px solid #e5e7eb', textAlign: 'right' }}>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                style={{
+                  background: '#10B981', color: '#ffffff', border: 'none',
+                  padding: '10px 24px', borderRadius: 999, fontSize: 14,
+                  fontWeight: 800, cursor: 'pointer'
+                }}
+              >
+                Listo ({cfg.selectedProducts.length} seleccionados)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
-  }
+                                          }
