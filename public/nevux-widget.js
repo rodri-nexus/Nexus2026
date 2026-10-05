@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v6 - Solo Agregar el tocado)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v7 - Agregado Universal Blindado)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6326,7 +6326,7 @@ function renderProductosComplementarios(w) {
       var item = products[i];
       var pVal = parseFloat(item.price) || 0;
       var pStr = formatMoney(pVal);
-      var vId = item.variantId || item.id;
+      var vId = item.variantId || item.variant_id || (item.variants && item.variants[0] ? (item.variants[0].id || item.variants[0].variant_id) : null) || item.id;
 
       var imgHtml = item.image
         ? '<img src="' + item.image + '" alt="" style="width:48px !important;height:48px !important;border-radius:8px !important;object-fit:cover !important;flex-shrink:0 !important;" />'
@@ -6346,7 +6346,7 @@ function renderProductosComplementarios(w) {
         "</div>" +
         badgeHtml +
         "</div>" +
-        '<button type="button" data-nvx-variant="' + vId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 16px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;">Agregar</button>' +
+        '<button type="button" data-nvx-variant="' + vId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 16px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;transition:all 0.2s ease !important;">Agregar</button>' +
         "</div>";
     }
 
@@ -6355,61 +6355,181 @@ function renderProductosComplementarios(w) {
   }
 
   function openCartDrawer() {
-    var cartTriggers = [".js-toggle-cart", ".js-modal-open", "#cart-button", ".cart-btn", "[data-component='cart.toggle']", ".js-open-cart"];
+    var cartTriggers = [
+      ".js-toggle-cart",
+      ".js-modal-open[data-target='#modal-cart']",
+      ".js-modal-open[data-target='#cart-modal']",
+      ".js-cart-notification",
+      ".js-ajax-cart-open",
+      ".js-cart-modal",
+      "#cart-button",
+      ".cart-btn",
+      "[data-component='cart.toggle']",
+      ".js-open-cart",
+      ".js-cart-summary",
+      ".cart-summary"
+    ];
     for (var c = 0; c < cartTriggers.length; c++) {
       var trig = document.querySelector(cartTriggers[c]);
-      if (trig) {
-        try { trig.click(); } catch (e) {}
-        break;
+      if (trig && trig.offsetParent !== null) {
+        try {
+          trig.click();
+          return;
+        } catch (e) {}
       }
     }
   }
 
-  // SOLO agrega al carrito el producto complementario tocado (1, 2, 3 o 4)
+  function triggerCartRefreshEvents() {
+    if (window.jQuery) {
+      try {
+        window.jQuery(document).trigger("ajaxCart:receive");
+        window.jQuery(document).trigger("cart:updated");
+        window.jQuery(document).trigger("cart:change");
+        window.jQuery(document).trigger("product_added_to_cart");
+        window.jQuery(document).trigger("cart.updated");
+        window.jQuery(document).trigger("LS:cart:updated");
+        window.jQuery("body").trigger("cart:updated");
+        window.jQuery("body").trigger("cart:change");
+      } catch (eJQ) {}
+    }
+
+    try {
+      document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
+      document.dispatchEvent(new CustomEvent("cart:updated"));
+      document.dispatchEvent(new CustomEvent("cart:change"));
+      document.dispatchEvent(new CustomEvent("product_added_to_cart"));
+      window.dispatchEvent(new CustomEvent("LS:cart:updated"));
+      if (document.body) {
+        document.body.dispatchEvent(new CustomEvent("cart:updated"));
+      }
+    } catch (eDOM) {}
+
+    if (window.LS && window.LS.cart) {
+      try {
+        if (typeof window.LS.cart.get === "function") window.LS.cart.get();
+      } catch (eLS) {}
+    }
+  }
+
   function handleAddOnlyComplementary(variantId, btnEl) {
     if (!variantId) return;
+
     if (btnEl) {
-      btnEl.innerText = "¡Agregado!";
+      btnEl.innerText = "Agregando...";
       btnEl.style.opacity = "0.7";
       btnEl.disabled = true;
     }
 
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/cart/add", true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          try {
-            document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
-            document.dispatchEvent(new CustomEvent("cart:updated"));
-            document.dispatchEvent(new CustomEvent("cart:change"));
-            document.dispatchEvent(new CustomEvent("product_added_to_cart"));
-            window.dispatchEvent(new CustomEvent("LS:cart:updated"));
-          } catch (e) {}
+    function onAddSuccess() {
+      if (btnEl) {
+        btnEl.innerText = "¡Agregado! ✓";
+        btnEl.style.opacity = "1";
+      }
 
-          if (openCartOnAdd) {
-            setTimeout(function () { openCartDrawer(); }, 400);
-          }
+      triggerCartRefreshEvents();
 
-          setTimeout(function () {
-            if (btnEl) {
-              btnEl.innerText = "Agregar";
-              btnEl.style.opacity = "1";
-              btnEl.disabled = false;
-            }
-          }, 1600);
+      if (openCartOnAdd) {
+        setTimeout(function () {
+          openCartDrawer();
+        }, 350);
+      }
+
+      setTimeout(function () {
+        if (btnEl) {
+          btnEl.innerText = "Agregar";
+          btnEl.style.opacity = "1";
+          btnEl.disabled = false;
         }
-      };
-      // Solo este variantId — el producto que el cliente tocó
-      xhr.send("add_to_cart=" + encodeURIComponent(String(variantId)) + "&quantity=1");
-    } catch (err) {
+      }, 2000);
+    }
+
+    function onAddError() {
       if (btnEl) {
         btnEl.innerText = "Agregar";
         btnEl.style.opacity = "1";
         btnEl.disabled = false;
+      }
+    }
+
+    var lsAdded = false;
+    if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
+      try {
+        window.LS.cart.add(variantId, 1, function (err) {
+          if (!err) {
+            onAddSuccess();
+          } else {
+            fallbackAjaxAdd();
+          }
+        });
+        lsAdded = true;
+      } catch (eLSAdd) {
+        lsAdded = false;
+      }
+    }
+
+    if (!lsAdded) {
+      fallbackAjaxAdd();
+    }
+
+    function fallbackAjaxAdd() {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/cart/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+        xhr.withCredentials = true;
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+              onAddSuccess();
+            } else {
+              tryFormDataAdd();
+            }
+          }
+        };
+
+        var payload =
+          "add_to_cart=" + encodeURIComponent(String(variantId)) +
+          "&variant_id=" + encodeURIComponent(String(variantId)) +
+          "&quantity=1";
+        xhr.send(payload);
+      } catch (errXHR) {
+        tryFormDataAdd();
+      }
+    }
+
+    function tryFormDataAdd() {
+      try {
+        var fd = new FormData();
+        fd.append("add_to_cart", String(variantId));
+        fd.append("variant_id", String(variantId));
+        fd.append("quantity", "1");
+
+        var tok = document.querySelector("input[name='authenticity_token'], input[name='_token'], input[name='csrf_token']");
+        if (tok && tok.value) {
+          fd.append(tok.name, tok.value);
+        }
+
+        var xhrFd = new XMLHttpRequest();
+        xhrFd.open("POST", "/cart/add", true);
+        xhrFd.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhrFd.withCredentials = true;
+
+        xhrFd.onreadystatechange = function () {
+          if (xhrFd.readyState === 4) {
+            if (xhrFd.status >= 200 && xhrFd.status < 400) {
+              onAddSuccess();
+            } else {
+              onAddError();
+            }
+          }
+        };
+        xhrFd.send(fd);
+      } catch (errFd) {
+        onAddError();
       }
     }
   }
@@ -6554,5 +6674,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+                 }
 })(); 
