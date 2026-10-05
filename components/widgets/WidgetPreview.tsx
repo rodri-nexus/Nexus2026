@@ -15,18 +15,34 @@ function ProductosComplementariosPreview() {
         background: "#ffffff",
         borderRadius: "10px",
         padding: "8px 10px",
-        width: "92%",
+        width: "94%",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-        border: "1.5px solid #e5e7eb",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+        border: "1.5px solid #10B981",
       }}
     >
-      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827" }}>
-        También te puede interesar
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827", display: "flex", alignItems: "center", gap: "3px" }}>
+          <span>🎁</span> PACK COMPLEMENTARIO
+        </div>
+        <span
+          style={{
+            background: "#ecfdf5",
+            color: "#059669",
+            fontSize: "5.5px",
+            fontWeight: 800,
+            padding: "1px 4px",
+            borderRadius: "4px",
+            border: "1px solid #a7f3d0",
+          }}
+        >
+          -15% EXTRA
+        </span>
       </div>
 
+      {/* Item 1 */}
       <div
         style={{
           background: "#f9fafb",
@@ -39,30 +55,94 @@ function ProductosComplementariosPreview() {
           gap: "4px",
         }}
       >
-        <div style={{ width: "16px", height: "16px", borderRadius: "4px", background: "#e5e7eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }} />
-        <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-          <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            Funda compacta
-          </span>
-          <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$15.000</span>
-            <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "3px" }}>
-              -15%
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              width: "18px",
+              height: "18px",
+              borderRadius: "4px",
+              background: "#10B981",
+              color: "#ffffff",
+              fontSize: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            🎧
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              Funda de Auriculares
             </span>
+            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 12.000</span>
           </div>
         </div>
         <div
           style={{
-            background: "#10B981",
+            background: "#111827",
             color: "#ffffff",
             borderRadius: "4px",
-            padding: "2px 6px",
+            padding: "2px 5px",
             fontSize: "6px",
             fontWeight: 800,
             flexShrink: 0,
           }}
         >
-          Agregar
+          + Agregar
+        </div>
+      </div>
+
+      {/* Item 2 */}
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "4px 6px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "4px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              width: "18px",
+              height: "18px",
+              borderRadius: "4px",
+              background: "#111827",
+              color: "#ffffff",
+              fontSize: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            🔌
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              Cargador Rápido 20W
+            </span>
+            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$ 18.500</span>
+          </div>
+        </div>
+        <div
+          style={{
+            background: "#111827",
+            color: "#ffffff",
+            borderRadius: "4px",
+            padding: "2px 5px",
+            fontSize: "6px",
+            fontWeight: 800,
+            flexShrink: 0,
+          }}
+        >
+          + Agregar
         </div>
       </div>
     </div>
@@ -882,4 +962,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-            }
+              }
