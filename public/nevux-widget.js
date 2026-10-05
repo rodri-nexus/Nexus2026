@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v167 - Agregado Directo a Carrito)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v168 - Estándar Oficial Tiendanube /comprar/)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6276,7 +6276,6 @@ function renderProductosComplementarios(w) {
   var buttonBg = cfg.buttonBg || "#111827";
   var textColor = cfg.textColor || "#111827";
 
-  // Corrección estricta: Evitar que un código hexadecimal como #ffffff se use de texto
   var buttonText = "Agregar al carrito";
   if (cfg.buttonText && typeof cfg.buttonText === "string") {
     var txt = cfg.buttonText.trim();
@@ -6391,11 +6390,17 @@ function renderProductosComplementarios(w) {
     }
   }
 
-  function triggerCartRefreshEvents() {
+  function triggerCartRefreshEvents(cartData) {
+    // 1. Evento oficial especificado por Bren de Tiendanube
+    try {
+      document.dispatchEvent(new CustomEvent("cart:updated", { detail: cartData || {} }));
+    } catch (eEv) {}
+
+    // 2. Disparos adicionales para máxima compatibilidad con todos los temas
     if (window.jQuery) {
       try {
         window.jQuery(document).trigger("ajaxCart:receive");
-        window.jQuery(document).trigger("cart:updated");
+        window.jQuery(document).trigger("cart:updated", [cartData]);
         window.jQuery(document).trigger("cart:change");
         window.jQuery(document).trigger("product_added_to_cart");
         window.jQuery(document).trigger("cart.updated");
@@ -6406,7 +6411,6 @@ function renderProductosComplementarios(w) {
 
     try {
       document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
-      document.dispatchEvent(new CustomEvent("cart:updated"));
       document.dispatchEvent(new CustomEvent("cart:change"));
       document.dispatchEvent(new CustomEvent("product_added_to_cart"));
       window.dispatchEvent(new CustomEvent("LS:cart:updated"));
@@ -6472,13 +6476,13 @@ function renderProductosComplementarios(w) {
     }
 
     resolveVariantId(item, function (realVariantId) {
-      function markSuccess() {
+      function markSuccess(cartData) {
         if (btnEl) {
-          btnEl.innerText = "¡Agregado! ✓";
+          btnEl.innerText = "¡Agregado al carrito! ✓";
           btnEl.style.opacity = "1";
         }
 
-        triggerCartRefreshEvents();
+        triggerCartRefreshEvents(cartData);
 
         if (openCartOnAdd) {
           setTimeout(function () {
@@ -6502,50 +6506,14 @@ function renderProductosComplementarios(w) {
         }
       }
 
-      // Método 1: SDK Oficial LS.cart.add de Tiendanube
-      var lsCalled = false;
-      if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
-        try {
-          window.LS.cart.add(realVariantId, 1, function (err) {
-            if (!err) {
-              markSuccess();
-            } else {
-              doAjaxAdd(realVariantId, markSuccess, markError);
-            }
-          });
-          lsCalled = true;
-        } catch (eLS) {}
-      }
-
-      if (!lsCalled) {
-        doAjaxAdd(realVariantId, markSuccess, markError);
-      }
-    });
-
-    function doAjaxAdd(vId, cbSuccess, cbError) {
-      if (window.jQuery && typeof window.jQuery.ajax === "function") {
-        window.jQuery.ajax({
-          url: "/cart/add",
-          type: "POST",
-          dataType: "json",
-          data: { add_to_cart: String(vId), quantity: 1 },
-          headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .done(function () {
-          cbSuccess();
-        })
-        .fail(function () {
-          rawXhrAdd(vId, cbSuccess, cbError);
-        });
-      } else {
-        rawXhrAdd(vId, cbSuccess, cbError);
-      }
-    }
-
-    function rawXhrAdd(vId, cbSuccess, cbError) {
+      // PETICIÓN OFICIAL OFRECIDA POR TIENDANUBE BREN:
+      // Endpoint: /comprar/
+      // Method: POST
+      // Headers: Content-Type: application/x-www-form-urlencoded, X-Requested-With: XMLHttpRequest
+      // Body: add_to_cart=VARIANT_ID&quantity=1
       try {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/cart/add", true);
+        xhr.open("POST", "/comprar/", true);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
@@ -6554,17 +6522,22 @@ function renderProductosComplementarios(w) {
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4) {
             if (xhr.status >= 200 && xhr.status < 400) {
-              cbSuccess();
+              var cartRes = null;
+              try {
+                cartRes = JSON.parse(xhr.responseText);
+              } catch (eJson) {}
+              markSuccess(cartRes);
             } else {
-              cbError();
+              markError();
             }
           }
         };
-        xhr.send("add_to_cart=" + encodeURIComponent(String(vId)) + "&quantity=1");
-      } catch (err) {
-        cbError();
+        var bodyPayload = "add_to_cart=" + encodeURIComponent(String(realVariantId)) + "&quantity=1";
+        xhr.send(bodyPayload);
+      } catch (errXhr) {
+        markError();
       }
-    }
+    });
   }
 
   function bindButtons(root, products) {
@@ -6708,5 +6681,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+    }
 })(); 
