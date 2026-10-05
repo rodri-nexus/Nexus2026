@@ -8,6 +8,67 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function ProductosComplementariosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827" }}>
+        También te puede interesar
+      </div>
+
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "4px 6px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "4px",
+        }}
+      >
+        <div style={{ width: "16px", height: "16px", borderRadius: "4px", background: "#e5e7eb", flexShrink: 0, display: "flex", alignItems: "center", justifyCenter: "center" }} />
+        <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+          <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            Funda compacta
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>$15.000</span>
+            <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "3px" }}>
+              -15%
+            </span>
+          </div>
+        </div>
+        <div
+          style={{
+            background: "#10B981",
+            color: "#ffffff",
+            borderRadius: "4px",
+            padding: "2px 6px",
+            fontSize: "6px",
+            fontWeight: 800,
+            flexShrink: 0,
+          }}
+        >
+          Agregar
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BarraCuotasPreview() {
   return (
     <div
@@ -764,6 +825,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "productos-complementarios":
+      return <ProductosComplementariosPreview />;
     case "barra-cuotas":
       return <BarraCuotasPreview />;
     case "barra-envio-gratis":
