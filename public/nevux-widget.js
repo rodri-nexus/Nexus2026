@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v163 - AJAX Puro con Extractor de Variante)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v164 - AJAX Puro con Extractor de Variante)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6483,61 +6483,44 @@ function renderProductosComplementarios(w) {
         }
       }
 
-      // Capa 1: SDK Oficial Tiendanube LS.cart.add
-      var lsUsed = false;
-      if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
-        try {
-          window.LS.cart.add(realVariantId, 1, function (err) {
-            if (!err) {
-              onSuccess();
-            } else {
-              executeAjaxFetch(realVariantId, onSuccess, onError);
-            }
-          });
-          lsUsed = true;
-        } catch (eLS) {}
-      }
-
-      if (!lsUsed) {
-        executeAjaxFetch(realVariantId, onSuccess, onError);
-      }
-    });
-
-    function executeAjaxFetch(variantId, cbSuccess, cbError) {
+      // Método Principal: AJAX XHR directo a /cart/add (No redirige ni recarga)
       try {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/cart/add.js", true);
-        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.open("POST", "/cart/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+        xhr.withCredentials = true;
 
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4) {
             if (xhr.status >= 200 && xhr.status < 400) {
-              cbSuccess();
+              onSuccess();
             } else {
-              // Fallback urlencoded
-              var xhr2 = new XMLHttpRequest();
-              xhr2.open("POST", "/cart/add", true);
-              xhr2.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-              xhr2.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-              xhr2.onreadystatechange = function () {
-                if (xhr2.readyState === 4) {
-                  if (xhr2.status >= 200 && xhr2.status < 400) {
-                    cbSuccess();
-                  } else {
-                    cbError();
-                  }
+              // Intento secundario con LS.cart.add si está disponible
+              if (window.LS && window.LS.cart && typeof window.LS.cart.add === "function") {
+                try {
+                  window.LS.cart.add(realVariantId, 1, function (err) {
+                    if (!err) {
+                      onSuccess();
+                    } else {
+                      onError();
+                    }
+                  });
+                } catch (eLS) {
+                  onError();
                 }
-              };
-              xhr2.send("add_to_cart=" + encodeURIComponent(String(variantId)) + "&quantity=1");
+              } else {
+                onError();
+              }
             }
           }
         };
-        xhr.send(JSON.stringify({ variant_id: Number(variantId), quantity: 1 }));
+        xhr.send("add_to_cart=" + encodeURIComponent(String(realVariantId)) + "&quantity=1");
       } catch (err) {
-        cbError();
+        onError();
       }
-    }
+    });
   }
 
   function bindButtons(root, products) {
@@ -6681,5 +6664,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-                         }
+    }
 })(); 
