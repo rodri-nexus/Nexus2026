@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
   /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v1)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v2 - Universal Placement & Fallback Engine)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var idBase = "nvx-cross-sell-" + w.id;
@@ -6260,7 +6260,7 @@ function renderProductosComplementarios(w) {
   var title = cfg.title !== undefined ? cfg.title : "También te puede interesar";
   var subtitle = cfg.subtitle || "";
   var aiAutocomplete = cfg.aiAutocomplete !== false;
-  var manualUrls = cfg.manualUrls || "";
+  var selectedProducts = Array.isArray(cfg.selectedProducts) ? cfg.selectedProducts : [];
   var maxProducts = parseInt(cfg.maxProducts, 10) || 3;
   var showDiscountBadge = cfg.showDiscountBadge !== false;
   var discountText = cfg.discountText || "-15% OFF";
@@ -6306,52 +6306,16 @@ function renderProductosComplementarios(w) {
     return "$" + res;
   }
 
-  // Carga de productos dinámicos o parseo de URLs
-  var complementProducts = [];
-
-  function fetchComplementaryProducts(callback) {
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", "/products.json", true);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          try {
-            var data = JSON.parse(xhr.responseText);
-            var items = Array.isArray(data) ? data : (data.products || []);
-            var currentId = (window.LS && window.LS.product) ? window.LS.product.id : null;
-            
-            var filtered = [];
-            for (var i = 0; i < items.length; i++) {
-              if (items[i].id !== currentId && items[i].variants && items[i].variants[0]) {
-                filtered.push({
-                  id: items[i].id,
-                  variantId: items[i].variants[0].id,
-                  title: items[i].name ? (items[i].name.es || items[i].name) : "Producto sugerido",
-                  price: items[i].variants[0].price,
-                  image: items[i].images && items[i].images[0] ? items[i].images[0].src : "",
-                  url: items[i].url || "#"
-                });
-              }
-              if (filtered.length >= maxProducts) break;
-            }
-            callback(filtered);
-          } catch(e) { callback([]); }
-        }
-      };
-      xhr.send();
-    } catch(e) { callback([]); }
-  }
-
   function renderProductListHtml(products) {
     if (!products || products.length === 0) return "";
 
-    var html = '<div style="background:' + bgColor + ' !important; border:' + customBorder + ' !important; border-radius:16px !important; padding:16px !important; color:' + textColor + ' !important; box-sizing:border-box !important; margin:16px 0 !important; font-family:system-ui, -apple-system, sans-serif !important;">';
-    
+    var html = '<div style="background:' + bgColor + ' !important; border:' + customBorder + ' !important; border-radius:16px !important; padding:16px !important; color:' + textColor + ' !important; box-sizing:border-box !important; margin:16px 0 !important; font-family:system-ui, -apple-system, sans-serif !important; width:100% !important; clear:both !important;">';
+
     if (title) {
-      html += '<div style="font-size:15px !important; font-weight:800 !important; margin-bottom:' + (subtitle ? '2px' : '12px') + ' !important;">' + title + '</div>';
+      html += '<div style="font-size:15px !important; font-weight:800 !important; margin-bottom:' + (subtitle ? '2px' : '12px') + ' !important; color:' + textColor + ' !important;">' + title + '</div>';
     }
     if (subtitle) {
-      html += '<div style="font-size:12px !important; opacity:0.8 !important; margin-bottom:12px !important;">' + subtitle + '</div>';
+      html += '<div style="font-size:12px !important; opacity:0.8 !important; margin-bottom:12px !important; color:' + textColor + ' !important;">' + subtitle + '</div>';
     }
 
     html += '<div style="display:flex !important; flex-direction:column !important; gap:10px !important;">';
@@ -6360,6 +6324,7 @@ function renderProductosComplementarios(w) {
       var item = products[i];
       var pVal = parseFloat(item.price) || 0;
       var pStr = formatMoney(pVal);
+      var vId = item.variantId || item.id;
 
       var imgHtml = item.image 
         ? '<img src="' + item.image + '" style="width:48px !important; height:48px !important; border-radius:8px !important; object-fit:cover !important; flex-shrink:0 !important;" />'
@@ -6369,16 +6334,16 @@ function renderProductosComplementarios(w) {
         ? '<span style="background:rgba(16,185,129,0.15) !important; color:#10B981 !important; border:1px solid rgba(16,185,129,0.3) !important; font-size:10px !important; font-weight:800 !important; padding:1px 5px !important; border-radius:4px !important; display:inline-block !important; margin-top:2px !important;">' + discountText + '</span>'
         : '';
 
-      html += '<div style="display:flex !important; align-items:center !important; gap:12px !important; background:rgba(255,255,255,0.05) !important; border:1px solid rgba(156,163,175,0.2) !important; border-radius:12px !important; padding:8px 12px !important;">' +
+      html += '<div style="display:flex !important; align-items:center !important; gap:12px !important; background:rgba(255,255,255,0.05) !important; border:1px solid rgba(156,163,175,0.2) !important; border-radius:12px !important; padding:8px 12px !important; width:100% !important; box-sizing:border-box !important;">' +
         imgHtml +
         '<div style="flex:1 !important; min-width:0 !important;">' +
-          '<div style="font-size:13px !important; font-weight:700 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;">' + item.title + '</div>' +
+          '<div style="font-size:13px !important; font-weight:700 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; color:' + textColor + ' !important;">' + item.title + '</div>' +
           '<div style="display:flex !important; align-items:center !important; gap:6px !important; margin-top:2px !important;">' +
-            '<span style="font-size:13px !important; font-weight:800 !important;">' + pStr + '</span>' +
+            '<span style="font-size:13px !important; font-weight:800 !important; color:' + textColor + ' !important;">' + pStr + '</span>' +
           '</div>' +
           badgeHtml +
         '</div>' +
-        '<button type="button" data-nvx-variant="' + item.variantId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important; color:' + buttonText + ' !important; padding:8px 16px !important; border-radius:999px !important; font-size:12px !important; font-weight:800 !important; border:none !important; cursor:pointer !important; flex-shrink:0 !important; transition:transform 0.1s ease !important;">Agregar</button>' +
+        '<button type="button" data-nvx-variant="' + vId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important; color:' + buttonText + ' !important; padding:8px 16px !important; border-radius:999px !important; font-size:12px !important; font-weight:800 !important; border:none !important; cursor:pointer !important; flex-shrink:0 !important;">Agregar</button>' +
       '</div>';
     }
 
@@ -6400,7 +6365,6 @@ function renderProductosComplementarios(w) {
       xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
-          // Disparar eventos nativos de actualización de carrito en Tiendanube
           document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
           document.dispatchEvent(new CustomEvent("cart:updated"));
           document.dispatchEvent(new CustomEvent("cart:change"));
@@ -6439,16 +6403,55 @@ function renderProductosComplementarios(w) {
     }
   }
 
-  function findProductTarget() {
-    if (position === "before_cart") {
-      var buyForm = document.querySelector("form[action*='/cart/add'], form.js-product-form, .js-product-buy-container, .product-buy-container");
-      if (buyForm) return buyForm;
-    } else if (position === "after_desc") {
-      var desc = document.querySelector(".js-product-description, .product-description, #product-description");
-      if (desc) return desc;
+  // BUSCADOR UNIVERSAL DE UBICACIONES EN TIENDANUBE
+  function findPlacementTarget(pos) {
+    var buySelectors = [
+      ".js-add-to-cart-btn",
+      "form[action*='/cart/add']",
+      ".js-prod-submit-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      "#product_form",
+      "input[name='add_to_cart']",
+      ".btn-add-to-cart",
+      "[data-component='product.add-to-cart']"
+    ];
+
+    var descSelectors = [
+      ".js-product-description",
+      ".product-description",
+      "#product-description",
+      ".product-detail-description",
+      "[data-component='product.description']",
+      ".user-content"
+    ];
+
+    if (pos === "before_cart") {
+      for (var b = 0; b < buySelectors.length; b++) {
+        var elB = document.querySelector(buySelectors[b]);
+        if (elB) return { el: elB, where: "before" };
+      }
+    } else if (pos === "after_desc") {
+      for (var d = 0; d < descSelectors.length; d++) {
+        var elD = document.querySelector(descSelectors[d]);
+        if (elD) return { el: elD, where: "after" };
+      }
+    } else if (pos === "before_desc") {
+      // "Antes de la descripción" equivale a DEBAJO del botón de compra
+      for (var b2 = 0; b2 < buySelectors.length; b2++) {
+        var elB2 = document.querySelector(buySelectors[b2]);
+        if (elB2) return { el: elB2, where: "after" };
+      }
     }
-    var fallback = document.querySelector("form[action*='/cart/add'], form.js-product-form, .js-product-buy-container");
-    return fallback;
+
+    // FALLBACK DE SEGURIDAD
+    for (var f = 0; f < buySelectors.length; f++) {
+      var elF = document.querySelector(buySelectors[f]);
+      if (elF) return { el: elF, where: "after" };
+    }
+
+    return null;
   }
 
   function injectWidget(products) {
@@ -6457,22 +6460,23 @@ function renderProductosComplementarios(w) {
 
     // 1. Inyectar en Ficha de Producto
     if (inProductBanner && isProdPage && !document.getElementById(idProd)) {
-      var target = findProductTarget();
-      if (target && target.parentNode) {
+      var targetObj = findPlacementTarget(position);
+      if (targetObj && targetObj.el && targetObj.el.parentNode) {
         var container = document.createElement("div");
         container.id = idProd;
         container.className = "nvx-widget nvx-cross-sell-product";
         container.innerHTML = renderProductListHtml(products);
-        if (position === "before_cart") {
-          target.parentNode.insertBefore(container, target);
+
+        if (targetObj.where === "before") {
+          targetObj.el.parentNode.insertBefore(container, targetObj.el);
         } else {
-          target.parentNode.insertBefore(container, target.nextSibling);
+          targetObj.el.parentNode.insertBefore(container, targetObj.el.nextSibling);
         }
         bindEvents(container);
       }
     }
 
-    // 2. Inyectar en Cajón del Carrito Lateral
+    // 2. Inyectar en Cajón del Carrito
     if (inCartDrawer && !document.getElementById(idCart)) {
       var cartContainer = document.querySelector(".js-cart-panel, #cart-slide, .js-modal-cart, .cart-slide, .cart-summary, .js-cart-content, #shopping-cart");
       if (cartContainer) {
@@ -6489,17 +6493,63 @@ function renderProductosComplementarios(w) {
     }
   }
 
-  fetchComplementaryProducts(function(products) {
-    complementProducts = products;
-    injectWidget(products);
+  // RESOLUCIÓN DE PRODUCTOS (Manual primero, luego Autocompletar)
+  if (!aiAutocomplete && selectedProducts.length > 0) {
+    var manualList = selectedProducts.slice(0, maxProducts);
+    injectWidget(manualList);
+    setInterval(function() { injectWidget(manualList); }, 2000);
+  } else {
+    // Modo Autocompletar / API
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/products.json", true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var fetched = [];
+          if (xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              var items = Array.isArray(data) ? data : (data.products || []);
+              var currentId = (window.LS && window.LS.product) ? window.LS.product.id : null;
+              for (var i = 0; i < items.length; i++) {
+                if (items[i].id !== currentId && items[i].variants && items[i].variants[0]) {
+                  fetched.push({
+                    id: items[i].id,
+                    variantId: items[i].variants[0].id,
+                    title: items[i].name ? (items[i].name.es || items[i].name.pt || items[i].name) : "Producto sugerido",
+                    price: items[i].variants[0].price,
+                    image: items[i].images && items[i].images[0] ? items[i].images[0].src : "",
+                    url: items[i].url || "#"
+                  });
+                }
+                if (fetched.length >= maxProducts) break;
+              }
+            } catch(e) {}
+          }
 
-    setInterval(function() {
-      injectWidget(complementProducts);
-    }, 2500);
-  });
+          // Si la llamada falló o está vacío pero el usuario seleccionó productos manualmente, usar los manuales como respaldo
+          if (fetched.length === 0 && selectedProducts.length > 0) {
+            fetched = selectedProducts.slice(0, maxProducts);
+          }
+
+          if (fetched.length > 0) {
+            injectWidget(fetched);
+            setInterval(function() { injectWidget(fetched); }, 2000);
+          }
+        }
+      };
+      xhr.send();
+    } catch(e) {
+      if (selectedProducts.length > 0) {
+        var fb = selectedProducts.slice(0, maxProducts);
+        injectWidget(fb);
+        setInterval(function() { injectWidget(fb); }, 2000);
+      }
+    }
+  }
 
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-                     }
+ }
 })(); 
