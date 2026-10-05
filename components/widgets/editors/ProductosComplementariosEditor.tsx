@@ -310,6 +310,12 @@ export default function ProductosComplementariosEditor({
     }
   };
 
+  // Al tocar "Agregar" en la vista previa, pasamos a modo Manual y abrimos modal
+  const handlePreviewAgregarClick = () => {
+    set('aiAutocomplete', false);
+    openProductSelectorModal();
+  };
+
   const toggleSelectProduct = (p: any) => {
     const pId = p.id;
     const exists = cfg.selectedProducts.some((item) => String(item.id) === String(pId));
@@ -427,12 +433,14 @@ export default function ProductosComplementariosEditor({
 
   const ps = getPreviewStyles();
 
-  // Productos mostrados en la vista previa
+  // Productos mostrados en la vista previa:
+  // Si Autocompletar está activo o no hay nada elegido manual, mostramos dummies.
   const previewList = cfg.aiAutocomplete || cfg.selectedProducts.length === 0
     ? [
         { id: 'd1', title: 'Funda protectora de silicona', price: 15500, image: '' },
         { id: 'd2', title: 'Cargador rápido USB-C 20W', price: 22000, image: '' },
         { id: 'd3', title: 'Cable reforzado de tela 1.5m', price: 8900, image: '' },
+        { id: 'd4', title: 'Auriculares In-Ear Premium', price: 32000, image: '' },
       ].slice(0, cfg.maxProducts)
     : cfg.selectedProducts.slice(0, cfg.maxProducts);
 
@@ -516,7 +524,7 @@ export default function ProductosComplementariosEditor({
           {/* PREVIEW GRANDE EN VIVO */}
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>
-              VISTA PREVIA EN VIVO
+              VISTA PREVIA EN VIVO (Muestra {cfg.maxProducts} {cfg.maxProducts === 1 ? 'producto' : 'productos'})
             </div>
 
             <div
@@ -578,11 +586,18 @@ export default function ProductosComplementariosEditor({
                       )}
                     </div>
 
-                    <div style={{
-                      background: ps.btnBg, color: ps.btnTx,
-                      padding: '8px 16px', borderRadius: 999,
-                      fontSize: 12, fontWeight: 800, cursor: 'pointer', flexShrink: 0
-                    }}>
+                    <div 
+                      onClick={handlePreviewAgregarClick}
+                      style={{
+                        background: ps.btnBg, color: ps.btnTx,
+                        padding: '8px 16px', borderRadius: 999,
+                        fontSize: 12, fontWeight: 800, cursor: 'pointer', flexShrink: 0,
+                        transition: 'transform 0.1s'
+                      }}
+                      onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                      onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    >
                       Agregar
                     </div>
                   </div>
@@ -600,7 +615,7 @@ export default function ProductosComplementariosEditor({
           }}>
             <div style={{ fontSize: 20, flexShrink: 0 }}>⚠️</div>
             <span style={{ fontSize: 13, color: '#9a3412', lineHeight: 1.5, fontWeight: 500 }}>
-              <strong>IMPORTANTE:</strong> Según las políticas de Tiendanube, los descuentos con precios modificados se aplican configurando una <strong>Promoción Automática</strong> en tu panel de Tiendanube (ej: Llevando 2 productos, % OFF).
+              <strong>IMPORTANTE:</strong> Según las políticas de Tiendanube, no es posible aplicar descuentos directos por código en el checkout. Si ofrecés un descuento visual acá, asegurate de tener una <strong>Promoción Automática</strong> configurada en tu panel de Tiendanube (ej: 2x1, o % OFF llevando X) para que el descuento se aplique realmente al final de la compra.
             </span>
           </div>
 
@@ -707,7 +722,7 @@ export default function ProductosComplementariosEditor({
 
                     {cfg.selectedProducts.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: '20px 10px', color: '#9ca3af', fontSize: 13 }}>
-                        Aún no seleccionaste ningún producto. Tocá el botón de arriba para elegir de tu tienda.
+                        Aún no seleccionaste ningún producto. Tocá el botón de arriba o el de Agregar en la vista previa.
                       </div>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1060,4 +1075,4 @@ export default function ProductosComplementariosEditor({
 
     </div>
   );
-                                          }
+}
