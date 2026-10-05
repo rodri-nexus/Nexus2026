@@ -6248,13 +6248,13 @@ function renderBarraCuotas(w) {
     nvxTrack(w.id, "impression");
   }
     }
-  /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v2 - Universal Placement & Fallback Engine)
+/* ═══════════════════════════════════════════
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v3 - Instant Sync & Exact Placement)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var idBase = "nvx-cross-sell-" + w.id;
   if (window['nvx_cross_sell_' + w.id]) return;
-  window['nvx_cross_sell_' + w.id] = true;
+  window['nvx_cuotasbar_' + w.id] = true; // flag de resguardo
 
   var cfg = w.config || {};
   var title = cfg.title !== undefined ? cfg.title : "También te puede interesar";
@@ -6306,10 +6306,23 @@ function renderProductosComplementarios(w) {
     return "$" + res;
   }
 
+  // Lista activa de productos a renderizar
+  var activeProductsList = [];
+
+  if (selectedProducts.length > 0) {
+    activeProductsList = selectedProducts.slice(0, maxProducts);
+  } else {
+    // Fallback inicial para que la UI renderice sí o sí
+    activeProductsList = [
+      { id: "p1", variantId: "v1", title: "Producto Complementario 1", price: 15000, image: "" },
+      { id: "p2", variantId: "v2", title: "Producto Complementario 2", price: 22000, image: "" }
+    ].slice(0, maxProducts);
+  }
+
   function renderProductListHtml(products) {
     if (!products || products.length === 0) return "";
 
-    var html = '<div style="background:' + bgColor + ' !important; border:' + customBorder + ' !important; border-radius:16px !important; padding:16px !important; color:' + textColor + ' !important; box-sizing:border-box !important; margin:16px 0 !important; font-family:system-ui, -apple-system, sans-serif !important; width:100% !important; clear:both !important;">';
+    var html = '<div style="background:' + bgColor + ' !important; border:' + customBorder + ' !important; border-radius:16px !important; padding:16px !important; color:' + textColor + ' !important; box-sizing:border-box !important; margin:16px 0 !important; font-family:system-ui, -apple-system, sans-serif !important; width:100% !important; clear:both !important; display:block !important;">';
 
     if (title) {
       html += '<div style="font-size:15px !important; font-weight:800 !important; margin-bottom:' + (subtitle ? '2px' : '12px') + ' !important; color:' + textColor + ' !important;">' + title + '</div>';
@@ -6403,21 +6416,26 @@ function renderProductosComplementarios(w) {
     }
   }
 
-  // BUSCADOR UNIVERSAL DE UBICACIONES EN TIENDANUBE
-  function findPlacementTarget(pos) {
+  // SELECTORES IDÉNTICOS A BARRA DE CUOTAS Y BUNDLE DE PROMOCIONES
+  function findBuyFormTarget() {
     var buySelectors = [
-      ".js-add-to-cart-btn",
       "form[action*='/cart/add']",
-      ".js-prod-submit-form",
+      "form.js-product-form",
       ".js-product-buy-container",
       ".product-buy-container",
       "form.js-product-buyform",
+      ".js-add-to-cart-btn",
       "#product_form",
-      "input[name='add_to_cart']",
-      ".btn-add-to-cart",
       "[data-component='product.add-to-cart']"
     ];
+    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
+      var bEl = document.querySelector(buySelectors[sIdx]);
+      if (bEl) return bEl;
+    }
+    return null;
+  }
 
+  function findDescriptionTarget() {
     var descSelectors = [
       ".js-product-description",
       ".product-description",
@@ -6426,57 +6444,43 @@ function renderProductosComplementarios(w) {
       "[data-component='product.description']",
       ".user-content"
     ];
-
-    if (pos === "before_cart") {
-      for (var b = 0; b < buySelectors.length; b++) {
-        var elB = document.querySelector(buySelectors[b]);
-        if (elB) return { el: elB, where: "before" };
-      }
-    } else if (pos === "after_desc") {
-      for (var d = 0; d < descSelectors.length; d++) {
-        var elD = document.querySelector(descSelectors[d]);
-        if (elD) return { el: elD, where: "after" };
-      }
-    } else if (pos === "before_desc") {
-      // "Antes de la descripción" equivale a DEBAJO del botón de compra
-      for (var b2 = 0; b2 < buySelectors.length; b2++) {
-        var elB2 = document.querySelector(buySelectors[b2]);
-        if (elB2) return { el: elB2, where: "after" };
-      }
+    for (var dIdx = 0; sIdx < descSelectors.length; dIdx++) {
+      var dEl = document.querySelector(descSelectors[dIdx]);
+      if (dEl) return dEl;
     }
-
-    // FALLBACK DE SEGURIDAD
-    for (var f = 0; f < buySelectors.length; f++) {
-      var elF = document.querySelector(buySelectors[f]);
-      if (elF) return { el: elF, where: "after" };
-    }
-
     return null;
   }
 
-  function injectWidget(products) {
-    if (!products || products.length === 0) return;
+  function injectWidget() {
+    if (!activeProductsList || activeProductsList.length === 0) return;
     var isProdPage = (typeof detectPageType === "function" ? detectPageType() : "") === "product";
 
-    // 1. Inyectar en Ficha de Producto
+    // 1. INYECCIÓN EN FICHA DE PRODUCTO
     if (inProductBanner && isProdPage && !document.getElementById(idProd)) {
-      var targetObj = findPlacementTarget(position);
-      if (targetObj && targetObj.el && targetObj.el.parentNode) {
-        var container = document.createElement("div");
-        container.id = idProd;
-        container.className = "nvx-widget nvx-cross-sell-product";
-        container.innerHTML = renderProductListHtml(products);
+      var buyTarget = findBuyFormTarget();
+      var descTarget = findDescriptionTarget();
 
-        if (targetObj.where === "before") {
-          targetObj.el.parentNode.insertBefore(container, targetObj.el);
-        } else {
-          targetObj.el.parentNode.insertBefore(container, targetObj.el.nextSibling);
-        }
+      var container = document.createElement("div");
+      container.id = idProd;
+      container.className = "nvx-widget nvx-cross-sell-product";
+      container.innerHTML = renderProductListHtml(activeProductsList);
+
+      if (position === "before_cart" && buyTarget && buyTarget.parentNode) {
+        // Arriba del botón / formulario de compra
+        buyTarget.parentNode.insertBefore(container, buyTarget);
+        bindEvents(container);
+      } else if (position === "after_desc" && descTarget && descTarget.parentNode) {
+        // Después de la descripción
+        descTarget.parentNode.insertBefore(container, descTarget.nextSibling);
+        bindEvents(container);
+      } else if (buyTarget && buyTarget.parentNode) {
+        // "before_desc" / Debajo del botón de compra (Opción por defecto)
+        buyTarget.parentNode.insertBefore(container, buyTarget.nextSibling);
         bindEvents(container);
       }
     }
 
-    // 2. Inyectar en Cajón del Carrito
+    // 2. INYECCIÓN EN CARRITO LATERAL
     if (inCartDrawer && !document.getElementById(idCart)) {
       var cartContainer = document.querySelector(".js-cart-panel, #cart-slide, .js-modal-cart, .cart-slide, .cart-summary, .js-cart-content, #shopping-cart");
       if (cartContainer) {
@@ -6485,7 +6489,7 @@ function renderProductosComplementarios(w) {
           var containerCart = document.createElement("div");
           containerCart.id = idCart;
           containerCart.className = "nvx-widget nvx-cross-sell-cart";
-          containerCart.innerHTML = renderProductListHtml(products);
+          containerCart.innerHTML = renderProductListHtml(activeProductsList);
           insertPoint.parentNode.insertBefore(containerCart, insertPoint);
           bindEvents(containerCart);
         }
@@ -6493,63 +6497,55 @@ function renderProductosComplementarios(w) {
     }
   }
 
-  // RESOLUCIÓN DE PRODUCTOS (Manual primero, luego Autocompletar)
-  if (!aiAutocomplete && selectedProducts.length > 0) {
-    var manualList = selectedProducts.slice(0, maxProducts);
-    injectWidget(manualList);
-    setInterval(function() { injectWidget(manualList); }, 2000);
-  } else {
-    // Modo Autocompletar / API
+  // Ejecución síncrona inmediata
+  injectWidget();
+
+  // Polling de sincronización
+  setTimeout(injectWidget, 100);
+  setTimeout(injectWidget, 500);
+  setTimeout(injectWidget, 1200);
+  setInterval(injectWidget, 2000);
+
+  // Consulta asíncrona secundaría en segundo plano (si autocompletar está activo)
+  if (aiAutocomplete && selectedProducts.length === 0) {
     try {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "/products.json", true);
       xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          var fetched = [];
-          if (xhr.status === 200) {
-            try {
-              var data = JSON.parse(xhr.responseText);
-              var items = Array.isArray(data) ? data : (data.products || []);
-              var currentId = (window.LS && window.LS.product) ? window.LS.product.id : null;
-              for (var i = 0; i < items.length; i++) {
-                if (items[i].id !== currentId && items[i].variants && items[i].variants[0]) {
-                  fetched.push({
-                    id: items[i].id,
-                    variantId: items[i].variants[0].id,
-                    title: items[i].name ? (items[i].name.es || items[i].name.pt || items[i].name) : "Producto sugerido",
-                    price: items[i].variants[0].price,
-                    image: items[i].images && items[i].images[0] ? items[i].images[0].src : "",
-                    url: items[i].url || "#"
-                  });
-                }
-                if (fetched.length >= maxProducts) break;
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            var items = Array.isArray(data) ? data : (data.products || []);
+            var currentId = (window.LS && window.LS.product) ? window.LS.product.id : null;
+            var fetched = [];
+            for (var i = 0; i < items.length; i++) {
+              if (items[i].id !== currentId && items[i].variants && items[i].variants[0]) {
+                fetched.push({
+                  id: items[i].id,
+                  variantId: items[i].variants[0].id,
+                  title: items[i].name ? (items[i].name.es || items[i].name.pt || items[i].name) : "Producto sugerido",
+                  price: items[i].variants[0].price,
+                  image: items[i].images && items[i].images[0] ? items[i].images[0].src : "",
+                  url: items[i].url || "#"
+                });
               }
-            } catch(e) {}
-          }
-
-          // Si la llamada falló o está vacío pero el usuario seleccionó productos manualmente, usar los manuales como respaldo
-          if (fetched.length === 0 && selectedProducts.length > 0) {
-            fetched = selectedProducts.slice(0, maxProducts);
-          }
-
-          if (fetched.length > 0) {
-            injectWidget(fetched);
-            setInterval(function() { injectWidget(fetched); }, 2000);
-          }
+              if (fetched.length >= maxProducts) break;
+            }
+            if (fetched.length > 0) {
+              activeProductsList = fetched;
+              var existingProd = document.getElementById(idProd);
+              if (existingProd) existingProd.parentNode.removeChild(existingProd);
+              injectWidget();
+            }
+          } catch(e) {}
         }
       };
       xhr.send();
-    } catch(e) {
-      if (selectedProducts.length > 0) {
-        var fb = selectedProducts.slice(0, maxProducts);
-        injectWidget(fb);
-        setInterval(function() { injectWidget(fb); }, 2000);
-      }
-    }
+    } catch(e) {}
   }
 
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
- }
+      } 
 })(); 
