@@ -1,6 +1,7 @@
 // app/widgets/editar/[widgetSlug]/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import ProductosComplementariosEditor from '@/components/widgets/editors/ProductosComplementariosEditor';
 import BarraCuotasEditor from '@/components/widgets/editors/BarraCuotasEditor';
 import BarraEnvioGratisEditor from '@/components/widgets/editors/BarraEnvioGratisEditor';
 import MarqueeNovedadesEditor from '@/components/widgets/editors/MarqueeNovedadesEditor';
@@ -71,6 +72,19 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   const { data: existingWidgets } = await existingQuery;
   const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // WIDGET: PRODUCTOS COMPLEMENTARIOS
+  if (params.widgetSlug === 'productos-complementarios') {
+    return (
+      <ProductosComplementariosEditor
+        widgetDefinition={widgetDef}
+        existingWidget={existingWidget}
+        targetType={targetType as 'product' | 'all'}
+        productId={productId}
+        storeId={store.store_id}
+      />
+    );
+  }
 
   // WIDGET: BARRA DE CUOTAS SIN INTERÉS
   if (params.widgetSlug === 'barra-cuotas') {
@@ -254,4 +268,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+        }
