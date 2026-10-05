@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v9 - Inyección Nativa por Clonación de Formulario)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v9 - Inyección Nativa Directa Bundle Style)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6354,32 +6354,6 @@ function renderProductosComplementarios(w) {
     return html;
   }
 
-  function triggerCartRefreshEvents() {
-    if (window.jQuery) {
-      try {
-        window.jQuery(document).trigger("ajaxCart:receive");
-        window.jQuery(document).trigger("cart:updated");
-        window.jQuery(document).trigger("cart:change");
-        window.jQuery(document).trigger("product_added_to_cart");
-        window.jQuery(document).trigger("cart.updated");
-        window.jQuery(document).trigger("LS:cart:updated");
-        window.jQuery("body").trigger("cart:updated");
-      } catch (eJQ) {}
-    }
-
-    try {
-      document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
-      document.dispatchEvent(new CustomEvent("cart:updated"));
-      document.dispatchEvent(new CustomEvent("cart:change"));
-      document.dispatchEvent(new CustomEvent("product_added_to_cart"));
-      window.dispatchEvent(new CustomEvent("LS:cart:updated"));
-    } catch (eDOM) {}
-
-    if (window.LS && window.LS.cart && typeof window.LS.cart.get === "function") {
-      try { window.LS.cart.get(); } catch (eLS) {}
-    }
-  }
-
   function handleAddOnlyComplementary(variantId, btnEl) {
     if (!variantId) return;
 
@@ -6389,110 +6363,78 @@ function renderProductosComplementarios(w) {
       btnEl.disabled = true;
     }
 
-    // Buscamos el formulario nativo del producto principal de la tienda
+    // Buscamos el formulario nativo del producto principal
     var nativeForm = document.querySelector('form[action*="/cart/add"], form.js-product-form, #product_form');
     
     if (nativeForm) {
-      try {
-        // Clonamos el formulario nativo entero
-        var clonedForm = nativeForm.cloneNode(true);
-        clonedForm.id = "nvx-temp-form-" + variantId;
-        clonedForm.style.display = "none";
+      // 1. Buscamos y guardamos el valor de las variantes originales del formulario para restaurarlas después
+      var varInputs = nativeForm.querySelectorAll('[name="variant_id"], [name="add_to_cart"]');
+      var originalVariants = [];
+      for (var v = 0; v < varInputs.length; v++) {
+        originalVariants.push({ el: varInputs[v], val: varInputs[v].value });
+        // Cambiamos el valor de la variante por el del producto complementario
+        varInputs[v].value = String(variantId);
+      }
 
-        // Removemos campos de variante y cantidad viejos del clon para que no hagan ruido
-        var oldInputs = clonedForm.querySelectorAll("input[name='variant_id'], input[name='add_to_cart'], input[name='quantity'], select[name='variant_id']");
-        for (var o = 0; o < oldInputs.length; o++) {
-          oldInputs[o].parentNode.removeChild(oldInputs[o]);
+      // 2. Buscamos y guardamos la cantidad original para restaurarla después, y seteamos cantidad en 1
+      var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
+      var originalQuantities = [];
+      for (var q = 0; q < qtyInputs.length; q++) {
+        originalQuantities.push({ el: qtyInputs[q], val: qtyInputs[q].value });
+        qtyInputs[q].value = "1";
+        try {
+          var evt = document.createEvent("HTMLEvents");
+          evt.initEvent("change", true, true);
+          qtyInputs[q].dispatchEvent(evt);
+        } catch (e) {}
+      }
+
+      // 3. Buscamos el botón de submit nativo tal cual lo hace el bundle de promociones
+      var targetBtn = document.querySelector('form[action*="/cart/add"] [type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type="submit"]');
+
+      if (targetBtn) {
+        // Disparamos la acción nativa de compra
+        targetBtn.click();
+      } else {
+        // Fallback si no hay botón físico visible, submitimos el form directo
+        nativeForm.submit();
+      }
+
+      // 4. Restauramos los valores originales del producto de la página después de un pequeño delay
+      setTimeout(function () {
+        for (var vr = 0; vr < originalVariants.length; vr++) {
+          originalVariants[vr].el.value = originalVariants[vr].val;
+        }
+        for (var qt = 0; qt < originalQuantities.length; qt++) {
+          originalQuantities[qt].el.value = originalQuantities[qt].val;
+          try {
+            var evt2 = document.createEvent("HTMLEvents");
+            evt2.initEvent("change", true, true);
+            originalQuantities[qt].el.dispatchEvent(evt2);
+          } catch (e) {}
         }
 
-        // Agregamos la variante específica del producto complementario
-        var varInput = document.createElement("input");
-        varInput.type = "hidden";
-        varInput.name = "variant_id";
-        varInput.value = String(variantId);
-        clonedForm.appendChild(varInput);
-
-        var addInput = document.createElement("input");
-        addInput.type = "hidden";
-        addInput.name = "add_to_cart";
-        addInput.value = String(variantId);
-        clonedForm.appendChild(addInput);
-
-        // Fijamos cantidad en 1
-        var qtyInput = document.createElement("input");
-        qtyInput.type = "hidden";
-        qtyInput.name = "quantity";
-        qtyInput.value = "1";
-        clonedForm.appendChild(qtyInput);
-
-        document.body.appendChild(clonedForm);
-
-        // Buscamos el botón de submit nativo dentro del clon y le hacemos click
-        var nativeSubmit = clonedForm.querySelector('[type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart');
-        
-        if (nativeSubmit) {
-          // Esto dispara el evento nativo del tema de Tiendanube (abre carrito AJAX)
-          nativeSubmit.click();
-        } else {
-          // Si no tiene botón físico de submit, disparamos submit() programático
-          clonedForm.submit();
-        }
-
-        // Limpieza y feedback de éxito
-        setTimeout(function () {
-          if (btnEl) {
-            btnEl.innerText = "¡Agregado! ✓";
-            btnEl.style.opacity = "1";
-          }
-          triggerCartRefreshEvents();
-          
-          try { clonedForm.parentNode.removeChild(clonedForm); } catch (e) {}
-
-          setTimeout(function () {
-            if (btnEl) {
-              btnEl.innerText = "Agregar";
-              btnEl.style.opacity = "1";
-              btnEl.disabled = false;
-            }
-          }, 2000);
-        }, 1000);
-
-        return;
-      } catch (errClone) {}
-    }
-
-    // Fallback absoluto por AJAX en caso de que la clonación falle catastróficamente
-    if (window.jQuery) {
-      window.jQuery.ajax({
-        url: "/cart/add",
-        type: "POST",
-        dataType: "json",
-        data: {
-          variant_id: String(variantId),
-          add_to_cart: String(variantId),
-          quantity: 1
-        }
-      })
-      .done(function () {
         if (btnEl) {
           btnEl.innerText = "¡Agregado! ✓";
           btnEl.style.opacity = "1";
         }
-        triggerCartRefreshEvents();
+
         setTimeout(function () {
           if (btnEl) {
             btnEl.innerText = "Agregar";
+            btnEl.style.opacity = "1";
             btnEl.disabled = false;
           }
         }, 2000);
-      })
-      .fail(function () {
-        if (btnEl) {
-          btnEl.innerText = "Agregar";
-          btnEl.style.opacity = "1";
-          btnEl.disabled = false;
-        }
-      });
+      }, 800);
+
+    } else {
+      // Fallback si no hay formulario nativo en la página (extremadamente raro)
+      if (btnEl) {
+        btnEl.innerText = "Agregar";
+        btnEl.style.opacity = "1";
+        btnEl.disabled = false;
+      }
     }
   }
 
