@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v9 - Inyección Nativa Directa Bundle Style)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v161 - Agregado AJAX + Notificación Flotante)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6346,7 +6346,7 @@ function renderProductosComplementarios(w) {
         "</div>" +
         badgeHtml +
         "</div>" +
-        '<button type="button" data-nvx-variant="' + vId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 16px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;transition:all 0.2s ease !important;">Agregar</button>' +
+        '<button type="button" data-nvx-idx="' + i + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 16px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;transition:all 0.2s ease !important;">Agregar</button>' +
         "</div>";
     }
 
@@ -6354,8 +6354,97 @@ function renderProductosComplementarios(w) {
     return html;
   }
 
-  function handleAddOnlyComplementary(variantId, btnEl) {
-    if (!variantId) return;
+  function showCartBannerPopup(item) {
+    var oldBanner = document.getElementById("nvx-cart-banner-pop");
+    if (oldBanner && oldBanner.parentNode) {
+      oldBanner.parentNode.removeChild(oldBanner);
+    }
+
+    var banner = document.createElement("div");
+    banner.id = "nvx-cart-banner-pop";
+    banner.style.cssText =
+      "position: fixed !important; " +
+      "top: 15px !important; " +
+      "left: 50% !important; " +
+      "transform: translateX(-50%) !important; " +
+      "width: 92% !important; " +
+      "max-width: 440px !important; " +
+      "background: #ffffff !important; " +
+      "border: 1px solid #e5e7eb !important; " +
+      "border-radius: 12px !important; " +
+      "box-shadow: 0 10px 25px -3px rgba(0,0,0,0.15), 0 4px 6px -2px rgba(0,0,0,0.05) !important; " +
+      "padding: 12px 14px !important; " +
+      "z-index: 9999999 !important; " +
+      "display: flex !important; " +
+      "align-items: center !important; " +
+      "gap: 12px !important; " +
+      "box-sizing: border-box !important; " +
+      "font-family: system-ui, -apple-system, sans-serif !important;";
+
+    var imgHtml = item.image
+      ? '<img src="' + item.image + '" style="width:52px !important;height:52px !important;object-fit:cover !important;border-radius:8px !important;flex-shrink:0 !important;" />'
+      : '<div style="width:52px !important;height:52px !important;background:#f3f4f6 !important;border-radius:8px !important;flex-shrink:0 !important;"></div>';
+
+    var badgeHtml = showDiscountBadge
+      ? '<span style="background:#10B981 !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:2px 6px !important;border-radius:4px !important;display:inline-block !important;margin-left:6px !important;">' + discountText + "</span>"
+      : "";
+
+    var pPriceStr = item.price ? formatMoney(item.price) : "";
+
+    banner.innerHTML =
+      imgHtml +
+      '<div style="flex:1 !important;min-width:0 !important;">' +
+        '<div style="font-size:13px !important;font-weight:600 !important;color:#111827 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.2 !important;">' + (item.title || "Producto") + "</div>" +
+        '<div style="font-size:12px !important;color:#4b5563 !important;margin-top:3px !important;display:flex !important;align-items:center !important;">' +
+          "1x" + pPriceStr + badgeHtml +
+        "</div>" +
+        '<div style="font-size:13px !important;font-weight:800 !important;color:#111827 !important;margin-top:3px !important;">¡Agregado al carrito!</div>' +
+      "</div>" +
+      '<button type="button" onclick="var p=this.parentNode;if(p&&p.parentNode)p.parentNode.removeChild(p);" style="background:none !important;border:none !important;font-size:18px !important;color:#9ca3af !important;cursor:pointer !important;padding:4px !important;line-height:1 !important;flex-shrink:0 !important;">✕</button>';
+
+    document.body.appendChild(banner);
+
+    setTimeout(function () {
+      if (banner && banner.parentNode) {
+        banner.style.transition = "opacity 0.4s ease";
+        banner.style.opacity = "0";
+        setTimeout(function () {
+          if (banner && banner.parentNode) banner.parentNode.removeChild(banner);
+        }, 400);
+      }
+    }, 4500);
+  }
+
+  function triggerCartRefreshEvents() {
+    if (window.jQuery) {
+      try {
+        window.jQuery(document).trigger("ajaxCart:receive");
+        window.jQuery(document).trigger("cart:updated");
+        window.jQuery(document).trigger("cart:change");
+        window.jQuery(document).trigger("product_added_to_cart");
+        window.jQuery(document).trigger("cart.updated");
+        window.jQuery(document).trigger("LS:cart:updated");
+        window.jQuery("body").trigger("cart:updated");
+      } catch (eJQ) {}
+    }
+
+    try {
+      document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
+      document.dispatchEvent(new CustomEvent("cart:updated"));
+      document.dispatchEvent(new CustomEvent("cart:change"));
+      document.dispatchEvent(new CustomEvent("product_added_to_cart"));
+      window.dispatchEvent(new CustomEvent("LS:cart:updated"));
+    } catch (eDOM) {}
+
+    if (window.LS && window.LS.cart && typeof window.LS.cart.get === "function") {
+      try { window.LS.cart.get(); } catch (eLS) {}
+    }
+  }
+
+  function handleAddOnlyComplementary(item, btnEl) {
+    if (!item) return;
+    var vId = item.variantId || item.variant_id || (item.variants && item.variants[0] ? item.variants[0].id : null) || item.id;
+    if (!vId) return;
 
     if (btnEl) {
       btnEl.innerText = "Agregando...";
@@ -6363,90 +6452,91 @@ function renderProductosComplementarios(w) {
       btnEl.disabled = true;
     }
 
-    // Buscamos el formulario nativo del producto principal
-    var nativeForm = document.querySelector('form[action*="/cart/add"], form.js-product-form, #product_form');
-    
-    if (nativeForm) {
-      // 1. Buscamos y guardamos el valor de las variantes originales del formulario para restaurarlas después
-      var varInputs = nativeForm.querySelectorAll('[name="variant_id"], [name="add_to_cart"]');
-      var originalVariants = [];
-      for (var v = 0; v < varInputs.length; v++) {
-        originalVariants.push({ el: varInputs[v], val: varInputs[v].value });
-        // Cambiamos el valor de la variante por el del producto complementario
-        varInputs[v].value = String(variantId);
+    function onSuccess() {
+      if (btnEl) {
+        btnEl.innerText = "¡Agregado! ✓";
+        btnEl.style.opacity = "1";
       }
 
-      // 2. Buscamos y guardamos la cantidad original para restaurarla después, y seteamos cantidad en 1
-      var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
-      var originalQuantities = [];
-      for (var q = 0; q < qtyInputs.length; q++) {
-        originalQuantities.push({ el: qtyInputs[q], val: qtyInputs[q].value });
-        qtyInputs[q].value = "1";
-        try {
-          var evt = document.createEvent("HTMLEvents");
-          evt.initEvent("change", true, true);
-          qtyInputs[q].dispatchEvent(evt);
-        } catch (e) {}
-      }
+      showCartBannerPopup(item);
+      triggerCartRefreshEvents();
 
-      // 3. Buscamos el botón de submit nativo tal cual lo hace el bundle de promociones
-      var targetBtn = document.querySelector('form[action*="/cart/add"] [type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type="submit"]');
-
-      if (targetBtn) {
-        // Disparamos la acción nativa de compra
-        targetBtn.click();
-      } else {
-        // Fallback si no hay botón físico visible, submitimos el form directo
-        nativeForm.submit();
-      }
-
-      // 4. Restauramos los valores originales del producto de la página después de un pequeño delay
       setTimeout(function () {
-        for (var vr = 0; vr < originalVariants.length; vr++) {
-          originalVariants[vr].el.value = originalVariants[vr].val;
-        }
-        for (var qt = 0; qt < originalQuantities.length; qt++) {
-          originalQuantities[qt].el.value = originalQuantities[qt].val;
-          try {
-            var evt2 = document.createEvent("HTMLEvents");
-            evt2.initEvent("change", true, true);
-            originalQuantities[qt].el.dispatchEvent(evt2);
-          } catch (e) {}
-        }
-
         if (btnEl) {
-          btnEl.innerText = "¡Agregado! ✓";
+          btnEl.innerText = "Agregar";
           btnEl.style.opacity = "1";
+          btnEl.disabled = false;
         }
+      }, 2500);
+    }
 
-        setTimeout(function () {
-          if (btnEl) {
-            btnEl.innerText = "Agregar";
-            btnEl.style.opacity = "1";
-            btnEl.disabled = false;
-          }
-        }, 2000);
-      }, 800);
-
-    } else {
-      // Fallback si no hay formulario nativo en la página (extremadamente raro)
+    function onError() {
       if (btnEl) {
         btnEl.innerText = "Agregar";
         btnEl.style.opacity = "1";
         btnEl.disabled = false;
       }
     }
+
+    // Petición AJAX limpia a Tiendanube sin interferir con el form de la página
+    if (window.jQuery) {
+      window.jQuery.ajax({
+        url: "/cart/add",
+        type: "POST",
+        dataType: "json",
+        data: {
+          add_to_cart: String(vId),
+          quantity: 1
+        },
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+      .done(function () {
+        onSuccess();
+      })
+      .fail(function () {
+        sendXhrFallback(vId, onSuccess, onError);
+      });
+    } else {
+      sendXhrFallback(vId, onSuccess, onError);
+    }
+
+    function sendXhrFallback(varId, cbSuccess, cbError) {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/cart/add", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+        xhr.withCredentials = true;
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+              cbSuccess();
+            } else {
+              cbError();
+            }
+          }
+        };
+        xhr.send("add_to_cart=" + encodeURIComponent(String(varId)) + "&quantity=1");
+      } catch (err) {
+        cbError();
+      }
+    }
   }
 
-  function bindButtons(root) {
+  function bindButtons(root, products) {
     if (!root) return;
     var btns = root.querySelectorAll(".nvx-btn-add-cross");
     for (var b = 0; b < btns.length; b++) {
       btns[b].addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var vId = this.getAttribute("data-nvx-variant");
-        handleAddOnlyComplementary(vId, this);
+        var idx = parseInt(this.getAttribute("data-nvx-idx"), 10);
+        var targetProduct = products[idx];
+        handleAddOnlyComplementary(targetProduct, this);
       });
     }
   }
@@ -6533,7 +6623,7 @@ function renderProductosComplementarios(w) {
     }
 
     if (container.parentNode) {
-      bindButtons(container);
+      bindButtons(container, products);
     }
   }
 
@@ -6578,5 +6668,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+                        }
 })(); 
