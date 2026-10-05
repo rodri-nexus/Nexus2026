@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v7 - Agregado Definitivo Tiendanube)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v9 - Inyección Nativa por Clonación de Formulario)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6297,8 +6297,6 @@ function renderProductosComplementarios(w) {
     customBorder = tm.border;
   }
 
-  var variantMap = {};
-
   function formatMoney(val) {
     var str = Math.round(val).toString();
     var res = "";
@@ -6309,60 +6307,6 @@ function renderProductosComplementarios(w) {
       if (count % 3 === 0 && i !== 0) res = "." + res;
     }
     return "$" + res;
-  }
-
-  function resolveVariant(item, cb) {
-    if (item.variantId && String(item.variantId) !== String(item.id)) {
-      cb(item.variantId);
-      return;
-    }
-    if (item.variant_id && String(item.variant_id) !== String(item.id)) {
-      cb(item.variant_id);
-      return;
-    }
-    if (item.variants && item.variants[0] && item.variants[0].id) {
-      cb(item.variants[0].id);
-      return;
-    }
-    if (variantMap[item.id]) {
-      cb(variantMap[item.id]);
-      return;
-    }
-
-    try {
-      var fetchUrl = item.url ? (item.url.indexOf(".json") > -1 ? item.url : item.url.replace(/\/$/, "") + ".json") : "/products.json";
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", fetchUrl, true);
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            try {
-              var data = JSON.parse(xhr.responseText);
-              var vId = null;
-              if (data.variants && data.variants[0]) {
-                vId = data.variants[0].id;
-              } else if (Array.isArray(data)) {
-                for (var i = 0; i < data.length; i++) {
-                  if (String(data[i].id) === String(item.id) && data[i].variants && data[i].variants[0]) {
-                    vId = data[i].variants[0].id;
-                    break;
-                  }
-                }
-              }
-              if (vId) {
-                variantMap[item.id] = vId;
-                cb(vId);
-                return;
-              }
-            } catch (eP) {}
-          }
-          cb(item.variantId || item.id);
-        }
-      };
-      xhr.send();
-    } catch (eX) {
-      cb(item.variantId || item.id);
-    }
   }
 
   function buildListHtml(products) {
@@ -6382,7 +6326,7 @@ function renderProductosComplementarios(w) {
       var item = products[i];
       var pVal = parseFloat(item.price) || 0;
       var pStr = formatMoney(pVal);
-      var initialVid = item.variantId || item.variant_id || item.id;
+      var vId = item.variantId || item.variant_id || (item.variants && item.variants[0] ? item.variants[0].id : null) || item.id;
 
       var imgHtml = item.image
         ? '<img src="' + item.image + '" alt="" style="width:48px !important;height:48px !important;border-radius:8px !important;object-fit:cover !important;flex-shrink:0 !important;" />'
@@ -6402,7 +6346,7 @@ function renderProductosComplementarios(w) {
         "</div>" +
         badgeHtml +
         "</div>" +
-        '<button type="button" data-nvx-idx="' + i + '" data-nvx-variant="' + initialVid + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 16px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;transition:all 0.2s ease !important;">Agregar</button>' +
+        '<button type="button" data-nvx-variant="' + vId + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonText + ' !important;padding:8px 16px !important;border-radius:999px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;transition:all 0.2s ease !important;">Agregar</button>' +
         "</div>";
     }
 
@@ -6410,33 +6354,7 @@ function renderProductosComplementarios(w) {
     return html;
   }
 
-  function openCartDrawer() {
-    var cartTriggers = [
-      ".js-toggle-cart",
-      ".js-modal-open[data-target='#modal-cart']",
-      ".js-modal-open[data-target='#cart-modal']",
-      ".js-cart-notification",
-      ".js-ajax-cart-open",
-      ".js-cart-modal",
-      "#cart-button",
-      ".cart-btn",
-      "[data-component='cart.toggle']",
-      ".js-open-cart",
-      ".js-cart-summary",
-      ".cart-summary"
-    ];
-    for (var c = 0; c < cartTriggers.length; c++) {
-      var trig = document.querySelector(cartTriggers[c]);
-      if (trig && trig.offsetParent !== null) {
-        try {
-          trig.click();
-          return;
-        } catch (e) {}
-      }
-    }
-  }
-
-  function triggerCartRefresh() {
+  function triggerCartRefreshEvents() {
     if (window.jQuery) {
       try {
         window.jQuery(document).trigger("ajaxCart:receive");
@@ -6462,96 +6380,131 @@ function renderProductosComplementarios(w) {
     }
   }
 
-  function executeCartAdd(realVariantId, btnEl) {
+  function handleAddOnlyComplementary(variantId, btnEl) {
+    if (!variantId) return;
+
+    if (btnEl) {
+      btnEl.innerText = "Agregando...";
+      btnEl.style.opacity = "0.7";
+      btnEl.disabled = true;
+    }
+
+    // Buscamos el formulario nativo del producto principal de la tienda
+    var nativeForm = document.querySelector('form[action*="/cart/add"], form.js-product-form, #product_form');
+    
+    if (nativeForm) {
+      try {
+        // Clonamos el formulario nativo entero
+        var clonedForm = nativeForm.cloneNode(true);
+        clonedForm.id = "nvx-temp-form-" + variantId;
+        clonedForm.style.display = "none";
+
+        // Removemos campos de variante y cantidad viejos del clon para que no hagan ruido
+        var oldInputs = clonedForm.querySelectorAll("input[name='variant_id'], input[name='add_to_cart'], input[name='quantity'], select[name='variant_id']");
+        for (var o = 0; o < oldInputs.length; o++) {
+          oldInputs[o].parentNode.removeChild(oldInputs[o]);
+        }
+
+        // Agregamos la variante específica del producto complementario
+        var varInput = document.createElement("input");
+        varInput.type = "hidden";
+        varInput.name = "variant_id";
+        varInput.value = String(variantId);
+        clonedForm.appendChild(varInput);
+
+        var addInput = document.createElement("input");
+        addInput.type = "hidden";
+        addInput.name = "add_to_cart";
+        addInput.value = String(variantId);
+        clonedForm.appendChild(addInput);
+
+        // Fijamos cantidad en 1
+        var qtyInput = document.createElement("input");
+        qtyInput.type = "hidden";
+        qtyInput.name = "quantity";
+        qtyInput.value = "1";
+        clonedForm.appendChild(qtyInput);
+
+        document.body.appendChild(clonedForm);
+
+        // Buscamos el botón de submit nativo dentro del clon y le hacemos click
+        var nativeSubmit = clonedForm.querySelector('[type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart');
+        
+        if (nativeSubmit) {
+          // Esto dispara el evento nativo del tema de Tiendanube (abre carrito AJAX)
+          nativeSubmit.click();
+        } else {
+          // Si no tiene botón físico de submit, disparamos submit() programático
+          clonedForm.submit();
+        }
+
+        // Limpieza y feedback de éxito
+        setTimeout(function () {
+          if (btnEl) {
+            btnEl.innerText = "¡Agregado! ✓";
+            btnEl.style.opacity = "1";
+          }
+          triggerCartRefreshEvents();
+          
+          try { clonedForm.parentNode.removeChild(clonedForm); } catch (e) {}
+
+          setTimeout(function () {
+            if (btnEl) {
+              btnEl.innerText = "Agregar";
+              btnEl.style.opacity = "1";
+              btnEl.disabled = false;
+            }
+          }, 2000);
+        }, 1000);
+
+        return;
+      } catch (errClone) {}
+    }
+
+    // Fallback absoluto por AJAX en caso de que la clonación falle catastróficamente
     if (window.jQuery) {
       window.jQuery.ajax({
         url: "/cart/add",
         type: "POST",
         dataType: "json",
         data: {
-          add_to_cart: String(realVariantId),
+          variant_id: String(variantId),
+          add_to_cart: String(variantId),
           quantity: 1
         }
-      }).done(function (resp) {
+      })
+      .done(function () {
         if (btnEl) {
           btnEl.innerText = "¡Agregado! ✓";
           btnEl.style.opacity = "1";
         }
-        triggerCartRefresh();
-        if (openCartOnAdd) {
-          setTimeout(function () { openCartDrawer(); }, 300);
-        }
+        triggerCartRefreshEvents();
         setTimeout(function () {
           if (btnEl) {
             btnEl.innerText = "Agregar";
             btnEl.disabled = false;
           }
         }, 2000);
-      }).fail(function () {
-        submitFallbackForm(realVariantId, btnEl);
+      })
+      .fail(function () {
+        if (btnEl) {
+          btnEl.innerText = "Agregar";
+          btnEl.style.opacity = "1";
+          btnEl.disabled = false;
+        }
       });
-    } else {
-      submitFallbackForm(realVariantId, btnEl);
     }
   }
 
-  function submitFallbackForm(realVariantId, btnEl) {
-    try {
-      var form = document.createElement("form");
-      form.method = "POST";
-      form.action = "/cart/add";
-      form.style.display = "none";
-
-      var inputVar = document.createElement("input");
-      inputVar.type = "hidden";
-      inputVar.name = "add_to_cart";
-      inputVar.value = String(realVariantId);
-      form.appendChild(inputVar);
-
-      var inputQty = document.createElement("input");
-      inputQty.type = "hidden";
-      inputQty.name = "quantity";
-      inputQty.value = "1";
-      form.appendChild(inputQty);
-
-      var tok = document.querySelector("input[name='authenticity_token'], input[name='_token'], input[name='csrf_token']");
-      if (tok && tok.value) {
-        var inputTok = document.createElement("input");
-        inputTok.type = "hidden";
-        inputTok.name = tok.name;
-        inputTok.value = tok.value;
-        form.appendChild(inputTok);
-      }
-
-      document.body.appendChild(form);
-      form.submit();
-    } catch (errF) {
-      if (btnEl) {
-        btnEl.innerText = "Agregar";
-        btnEl.style.opacity = "1";
-        btnEl.disabled = false;
-      }
-    }
-  }
-
-  function bindButtons(root, products) {
+  function bindButtons(root) {
     if (!root) return;
     var btns = root.querySelectorAll(".nvx-btn-add-cross");
     for (var b = 0; b < btns.length; b++) {
       btns[b].addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var selfBtn = this;
-        var idx = parseInt(selfBtn.getAttribute("data-nvx-idx"), 10) || 0;
-        var targetProduct = products[idx] || {};
-
-        selfBtn.innerText = "Agregando...";
-        selfBtn.style.opacity = "0.7";
-        selfBtn.disabled = true;
-
-        resolveVariant(targetProduct, function (resolvedVariantId) {
-          executeCartAdd(resolvedVariantId, selfBtn);
-        });
+        var vId = this.getAttribute("data-nvx-variant");
+        handleAddOnlyComplementary(vId, this);
       });
     }
   }
@@ -6638,7 +6591,7 @@ function renderProductosComplementarios(w) {
     }
 
     if (container.parentNode) {
-      bindButtons(container, products);
+      bindButtons(container);
     }
   }
 
