@@ -15,6 +15,7 @@ import {
   Store,
   Package,
   AlertCircle,
+  Tag,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -42,6 +43,7 @@ interface WidgetRow {
   widget_type: string;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: number | string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -55,11 +57,17 @@ interface ProductInfo {
   slug: string;
 }
 
+interface CategoryInfo {
+  id: number | string;
+  name: string;
+}
+
 interface WidgetsClientProps {
   email: string;
   store: StoreData | null;
   widgets: WidgetRow[];
   productsMap: Record<number, ProductInfo | null>;
+  categoriesMap?: Record<string, CategoryInfo | null>;
 }
 
 export default function WidgetsClient({
@@ -67,6 +75,7 @@ export default function WidgetsClient({
   store,
   widgets,
   productsMap,
+  categoriesMap = {},
 }: WidgetsClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -84,6 +93,7 @@ export default function WidgetsClient({
 
   const createdSlug = searchParams.get("created");
   const createdProductId = searchParams.get("product");
+  const createdCategoryId = searchParams.get("category");
   const showCreatedBanner = !!createdSlug && !dismissBanner;
 
   const createdWidget = useMemo(() => {
@@ -93,12 +103,27 @@ export default function WidgetsClient({
       if (createdProductId) {
         return String(w.target_product_id) === createdProductId;
       }
+      if (createdCategoryId) {
+        return String(w.target_category_id || "") === String(createdCategoryId);
+      }
       return w.target_type === "all";
     });
-  }, [createdSlug, createdProductId, widgets]);
+  }, [createdSlug, createdProductId, createdCategoryId, widgets]);
 
   const createdWidgetName =
     createdWidget?.definition?.name ?? createdSlug ?? "Widget";
+
+  const getCategoryName = useCallback(
+    (widget: WidgetRow): string => {
+      const cid = widget.target_category_id;
+      if (cid === null || cid === undefined || cid === "") return "Categoría";
+      const key = String(cid);
+      const cat = categoriesMap[key];
+      if (cat?.name) return cat.name;
+      return `Categoría #${cid}`;
+    },
+    [categoriesMap]
+  );
 
   const filteredWidgets = useMemo(() => {
     if (!search.trim()) return widgets;
@@ -111,19 +136,33 @@ export default function WidgetsClient({
         w.target_product_id && productsMap[w.target_product_id]
           ? productsMap[w.target_product_id]!.name.toLowerCase()
           : "";
+      const categoryName =
+        w.target_type === "category" ? getCategoryName(w).toLowerCase() : "";
       return (
         name.includes(q) ||
         cat.includes(q) ||
         slug.includes(q) ||
-        productName.includes(q)
+        productName.includes(q) ||
+        categoryName.includes(q)
       );
     });
-  }, [widgets, search, productsMap]);
+  }, [widgets, search, productsMap, getCategoryName]);
 
   const groupedWidgets = useMemo(() => {
-    const generales = filteredWidgets.filter((w) => w.target_type === "all");
-    const porProducto = new Map<number, WidgetRow[]>();
+    const generales = filteredWidgets.filter(
+      (w) => w.target_type === "all" || (!w.target_type && !w.target_product_id && !w.target_category_id)
+    );
 
+    const porCategoria = new Map<string, WidgetRow[]>();
+    filteredWidgets
+      .filter((w) => w.target_type === "category" && w.target_category_id != null && w.target_category_id !== "")
+      .forEach((w) => {
+        const cid = String(w.target_category_id);
+        if (!porCategoria.has(cid)) porCategoria.set(cid, []);
+        porCategoria.get(cid)!.push(w);
+      });
+
+    const porProducto = new Map<number, WidgetRow[]>();
     filteredWidgets
       .filter((w) => w.target_type === "product" && w.target_product_id)
       .forEach((w) => {
@@ -132,7 +171,7 @@ export default function WidgetsClient({
         porProducto.get(pid)!.push(w);
       });
 
-    return { generales, porProducto };
+    return { generales, porCategoria, porProducto };
   }, [filteredWidgets]);
 
   const totalWidgets = widgets.length;
@@ -212,7 +251,10 @@ export default function WidgetsClient({
   const getScopeLabel = useCallback(
     (widget: WidgetRow): string => {
       if (widget.target_type === "all") {
-        return "Todos los productos";
+        return "Widgets para la tienda";
+      }
+      if (widget.target_type === "category") {
+        return `Categoría: ${getCategoryName(widget)}`;
       }
       if (widget.target_product_id) {
         const product = productsMap[widget.target_product_id];
@@ -223,17 +265,23 @@ export default function WidgetsClient({
       }
       return "—";
     },
-    [productsMap]
+    [productsMap, getCategoryName]
   );
 
   const goToEditor = useCallback(
     (widget: WidgetRow) => {
       const base = `/widgets/editar/${widget.widget_slug}`;
-      const url =
-        widget.target_type === "product" && widget.target_product_id
-          ? `${base}?product=${widget.target_product_id}`
-          : base;
-      router.push(url);
+      if (widget.target_type === "product" && widget.target_product_id) {
+        router.push(`${base}?product=${widget.target_product_id}`);
+        return;
+      }
+      if (widget.target_type === "category" && widget.target_category_id != null) {
+        router.push(
+          `${base}?category=${widget.target_category_id}&target=category`
+        );
+        return;
+      }
+      router.push(`${base}?target=all`);
     },
     [router]
   );
@@ -269,7 +317,6 @@ export default function WidgetsClient({
           boxSizing: "border-box",
         }}
       >
-        {/* Volver al dashboard */}
         <Link
           href="/dashboard"
           style={{
@@ -291,7 +338,6 @@ export default function WidgetsClient({
           Volver al dashboard
         </Link>
 
-        {/* Banner de widget creado */}
         <AnimatePresence>
           {showCreatedBanner && createdWidget && (
             <motion.div
@@ -407,7 +453,6 @@ export default function WidgetsClient({
           )}
         </AnimatePresence>
 
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -455,7 +500,7 @@ export default function WidgetsClient({
 
             {store && (
               <Link
-                href="/widgets/nuevo"
+                href="/dashboard"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -487,7 +532,6 @@ export default function WidgetsClient({
           </div>
         </motion.div>
 
-        {/* Buscador */}
         {store && hasWidgets && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -538,7 +582,6 @@ export default function WidgetsClient({
           </motion.div>
         )}
 
-        {/* Contenido principal */}
         {!store ? (
           <EmptyState
             title="Conectá tu Tiendanube"
@@ -549,7 +592,7 @@ export default function WidgetsClient({
             title="Aún no tenés widgets"
             description="Empezá creando tu primer widget para aumentar tus ventas."
             ctaLabel="Crear widget"
-            ctaHref="/widgets/nuevo"
+            ctaHref="/dashboard"
           />
         ) : filteredWidgets.length === 0 ? (
           <EmptyState
@@ -558,6 +601,7 @@ export default function WidgetsClient({
           />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            {/* GRUPO 1: Widgets para la tienda */}
             {groupedWidgets.generales.length > 0 && (
               <WidgetGroup
                 icon={
@@ -566,18 +610,18 @@ export default function WidgetsClient({
                       width: "44px",
                       height: "44px",
                       borderRadius: "12px",
-                      background: "#10B981",
+                      background: "#DBEAFE",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#fff",
+                      color: "#2563EB",
                       flexShrink: 0,
                     }}
                   >
                     <Store size={22} />
                   </div>
                 }
-                title="Todos los productos"
+                title="Widgets para la tienda"
                 subtitle={`${groupedWidgets.generales.length} widget${
                   groupedWidgets.generales.length === 1 ? "" : "s"
                 }`}
@@ -589,12 +633,50 @@ export default function WidgetsClient({
               />
             )}
 
+            {/* GRUPO 2: Por categoría (ej: SMARTWATCHES) */}
+            {Array.from(groupedWidgets.porCategoria.entries()).map(
+              ([categoryId, wgs]) => {
+                const cat = categoriesMap[String(categoryId)];
+                const catTitle = cat?.name || `Categoría #${categoryId}`;
+                return (
+                  <WidgetGroup
+                    key={`cat-${categoryId}`}
+                    icon={
+                      <div
+                        style={{
+                          width: "44px",
+                          height: "44px",
+                          borderRadius: "12px",
+                          background: "#FEF3C7",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#D97706",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Tag size={22} />
+                      </div>
+                    }
+                    title={catTitle}
+                    subtitle={`${wgs.length} widget${wgs.length === 1 ? "" : "s"}`}
+                    widgets={wgs}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                    onEdit={goToEditor}
+                    busyId={busyId}
+                  />
+                );
+              }
+            )}
+
+            {/* GRUPO 3: Por producto específico */}
             {Array.from(groupedWidgets.porProducto.entries()).map(
               ([productId, wgs]) => {
                 const product = productsMap[productId];
                 return (
                   <WidgetGroup
-                    key={productId}
+                    key={`prod-${productId}`}
                     icon={
                       product?.image ? (
                         <img
@@ -650,13 +732,11 @@ export default function WidgetsClient({
           </div>
         )}
 
-        {/* Centro de ayuda */}
         <div style={{ marginTop: "2.5rem" }}>
           <CentroAyuda />
         </div>
       </main>
 
-      {/* Toast */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -706,8 +786,6 @@ export default function WidgetsClient({
     </div>
   );
 }
-
-/* ================= EMPTY STATE ================= */
 
 function EmptyState({
   title,
@@ -802,8 +880,6 @@ function EmptyState({
   );
 }
 
-/* ================= WIDGET GROUP ================= */
-
 function WidgetGroup({
   icon,
   title,
@@ -892,8 +968,6 @@ function WidgetGroup({
   );
 }
 
-/* ================= WIDGET ROW ================= */
-
 function WidgetRowItem({
   widget,
   onToggle,
@@ -925,7 +999,6 @@ function WidgetRowItem({
         flexWrap: "wrap",
       }}
     >
-      {/* Toggle */}
       <button
         type="button"
         onClick={() => onToggle(widget)}
@@ -965,7 +1038,6 @@ function WidgetRowItem({
         </div>
       </button>
 
-      {/* Chip con nombre */}
       <div
         style={{
           display: "inline-flex",
@@ -996,7 +1068,6 @@ function WidgetRowItem({
 
       <div style={{ flex: 1 }} />
 
-      {/* Editar */}
       <button
         type="button"
         onClick={() => onEdit(widget)}
@@ -1033,7 +1104,6 @@ function WidgetRowItem({
         <Pencil size={16} />
       </button>
 
-      {/* Eliminar */}
       <button
         type="button"
         onClick={() => onDelete(widget)}
@@ -1069,4 +1139,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-  }
+         }
