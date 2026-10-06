@@ -6285,7 +6285,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v174 - NubeSDK + Fallback FormData /comprar/)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v175 - Sin error 404 / Reload Suave)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6481,7 +6481,10 @@ function renderProductosComplementarios(w) {
             try {
               window.nube.send("cart:open");
             } catch (eOpen) {
-              openCartDrawer();
+              var openedNube = openCartDrawer();
+              if (!openedNube) {
+                window.location.reload();
+              }
             }
           }, 300);
         }
@@ -6513,8 +6516,8 @@ function renderProductosComplementarios(w) {
               var opened = openCartDrawer();
               if (!opened) {
                 setTimeout(function () {
-                  window.location.href = "/cart";
-                }, 600);
+                  window.location.reload();
+                }, 400);
               }
             }
           } else {
