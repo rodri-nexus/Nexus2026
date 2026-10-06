@@ -11,7 +11,8 @@ interface WidgetCatalogClientProps {
   chip?: React.ReactNode;
   baseUrl: string;
   productId?: number;
-  target?: "all";
+  categoryId?: string | number;
+  target?: "all" | "category" | string;
   selectedType?: string;
 }
 
@@ -37,6 +38,7 @@ export default function WidgetCatalogClient({
   chip,
   baseUrl,
   productId,
+  categoryId,
   target,
   selectedType,
 }: WidgetCatalogClientProps) {
@@ -56,25 +58,25 @@ export default function WidgetCatalogClient({
       if (match) {
         const params = new URLSearchParams();
         if (productId) params.set("product", String(productId));
+        if (categoryId) params.set("category", String(categoryId));
         if (target) params.set("target", target);
         router.push(`${baseUrl}/${match.slug}?${params.toString()}`);
       }
     }
-  }, [selectedType, definitions, baseUrl, productId, target, router]);
+  }, [selectedType, definitions, baseUrl, productId, categoryId, target, router]);
 
-  // TAREA 3: Filtrado inteligente para Producto Específico
-  // Si hay un "productId", filtramos por completo los widgets exclusivos de la Home
+  // Filtrado inteligente para Producto Específico o Categoría Específica
   const widgetsPermitidos = useMemo(() => {
     return definitions.filter((d) => {
-      if (productId) {
+      if (productId || categoryId) {
         const esWidgetDeHome = ["menu-circulos", "slider-categorias", "resenas-foto"].includes(d.slug);
-        return !esWidgetDeHome; // Ocultar para evitar configuraciones erróneas en páginas de producto
+        return !esWidgetDeHome; // Ocultar widgets exclusivos de la Home
       }
       return true;
     });
-  }, [definitions, productId]);
+  }, [definitions, productId, categoryId]);
 
-  // TAREA 5: Categorías dinámicas para los filtros con contador real
+  // Categorías dinámicas para los filtros con contador real
   const categoriasConConteo = useMemo(() => {
     return [
       { id: "todos" as Categoria, label: "✨ Todos", count: widgetsPermitidos.length },
@@ -95,6 +97,7 @@ export default function WidgetCatalogClient({
   function handleSelect(widget: WidgetDefinition) {
     const params = new URLSearchParams();
     if (productId) params.set("product", String(productId));
+    if (categoryId) params.set("category", String(categoryId));
     if (target) params.set("target", target);
     router.push(`${baseUrl}/${widget.slug}?${params.toString()}`);
   }
@@ -118,7 +121,7 @@ export default function WidgetCatalogClient({
         {title}
       </h1>
 
-      {/* TAREA 5: Selector de categorías horizontal premium con contadores */}
+      {/* Selector de categorías horizontal premium con contadores */}
       <div
         style={{
           display: "flex",
@@ -176,9 +179,9 @@ export default function WidgetCatalogClient({
       <WidgetCatalog
         widgets={widgetsFiltradosYVisibles}
         onSelectWidget={handleSelect}
-        title="" // Pasamos vacío para que no duplique el título que ya renderizamos arriba
+        title=""
         chip={null}
       />
     </div>
   );
-}
+  }
