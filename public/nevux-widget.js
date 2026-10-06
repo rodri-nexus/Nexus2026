@@ -6285,7 +6285,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v170 - Payload Combinado Oficial Tiendanube)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v174 - NubeSDK + Fallback FormData /comprar/)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6362,10 +6362,10 @@ function renderProductosComplementarios(w) {
 
     var html = "";
     if (title) {
-      html += '<div style="font-size:15px !important;font-weight:800 !important;margin-bottom:' + (subtitle ? "2px" : "12px") + ' !important;color:' + textColor + ' !important;">' + title + "</div>";
+      html += '<div style="font-size:15px !important;font-weight:800 !important;margin-bottom:' + (subtitle ? "2px" : "12px") + ' !important;color:' + textColor + ' !important;">' + title + '</div>';
     }
     if (subtitle) {
-      html += '<div style="font-size:12px !important;opacity:0.8 !important;margin-bottom:12px !important;color:' + textColor + ' !important;">' + subtitle + "</div>";
+      html += '<div style="font-size:12px !important;opacity:0.8 !important;margin-bottom:12px !important;color:' + textColor + ' !important;">' + subtitle + '</div>';
     }
 
     html += '<div style="display:flex !important;flex-direction:column !important;gap:10px !important;">';
@@ -6380,24 +6380,24 @@ function renderProductosComplementarios(w) {
         : '<div style="width:48px !important;height:48px !important;border-radius:8px !important;background:rgba(156,163,175,0.2) !important;display:flex !important;align-items:center !important;justify-content:center !important;flex-shrink:0 !important;"><svg width="20" height="20" fill="none" stroke="currentColor" opacity="0.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>';
 
       var badgeHtml = showDiscountBadge
-        ? '<span style="background:rgba(16,185,129,0.15) !important;color:#10B981 !important;border:1px solid rgba(16,185,129,0.3) !important;font-size:10px !important;font-weight:800 !important;padding:1px 5px !important;border-radius:4px !important;display:inline-block !important;margin-top:2px !important;">' + discountText + "</span>"
+        ? '<span style="background:rgba(16,185,129,0.15) !important;color:#10B981 !important;border:1px solid rgba(16,185,129,0.3) !important;font-size:10px !important;font-weight:800 !important;padding:1px 5px !important;border-radius:4px !important;display:inline-block !important;margin-top:2px !important;">' + discountText + '</span>'
         : "";
 
       html +=
         '<div style="display:flex !important;align-items:center !important;gap:10px !important;background:rgba(255,255,255,0.05) !important;border:1px solid rgba(156,163,175,0.2) !important;border-radius:12px !important;padding:8px 12px !important;width:100% !important;box-sizing:border-box !important;">' +
         imgHtml +
         '<div style="flex:1 !important;min-width:0 !important;">' +
-        '<div style="font-size:13px !important;font-weight:700 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;color:' + textColor + ' !important;">' + (item.title || "Producto") + "</div>" +
+        '<div style="font-size:13px !important;font-weight:700 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;color:' + textColor + ' !important;">' + (item.title || "Producto") + '</div>' +
         '<div style="display:flex !important;align-items:center !important;gap:6px !important;margin-top:2px !important;">' +
-        '<span style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + pStr + "</span>" +
-        "</div>" +
+        '<span style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + pStr + '</span>' +
+        '</div>' +
         badgeHtml +
-        "</div>" +
-        '<button type="button" data-nvx-idx="' + i + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonTextColor + ' !important;padding:8px 14px !important;border-radius:8px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;white-space:nowrap !important;transition:all 0.2s ease !important;">' + buttonText + "</button>" +
-        "</div>";
+        '</div>' +
+        '<button type="button" data-nvx-idx="' + i + '" class="nvx-btn-add-cross" style="background:' + buttonBg + ' !important;color:' + buttonTextColor + ' !important;padding:8px 14px !important;border-radius:8px !important;font-size:12px !important;font-weight:800 !important;border:none !important;cursor:pointer !important;flex-shrink:0 !important;white-space:nowrap !important;transition:all 0.2s ease !important;">' + buttonText + '</button>' +
+        '</div>';
     }
 
-    html += "</div>";
+    html += '</div>';
     return html;
   }
 
@@ -6420,39 +6420,11 @@ function renderProductosComplementarios(w) {
       if (trig && trig.offsetParent !== null) {
         try {
           trig.click();
-          return;
+          return true;
         } catch (e) {}
       }
     }
-  }
-
-  function triggerCartRefreshEvents(cartData) {
-    try {
-      document.dispatchEvent(new CustomEvent("cart:updated", { detail: cartData || {} }));
-    } catch (eEv) {}
-
-    if (window.jQuery) {
-      try {
-        window.jQuery(document).trigger("ajaxCart:receive");
-        window.jQuery(document).trigger("cart:updated", [cartData]);
-        window.jQuery(document).trigger("cart:change");
-        window.jQuery(document).trigger("product_added_to_cart");
-        window.jQuery(document).trigger("cart.updated");
-        window.jQuery(document).trigger("LS:cart:updated");
-        window.jQuery("body").trigger("cart:updated");
-      } catch (eJQ) {}
-    }
-
-    try {
-      document.dispatchEvent(new CustomEvent("ajaxCart:receive"));
-      document.dispatchEvent(new CustomEvent("cart:change"));
-      document.dispatchEvent(new CustomEvent("product_added_to_cart"));
-      window.dispatchEvent(new CustomEvent("LS:cart:updated"));
-    } catch (eDOM) {}
-
-    if (window.LS && window.LS.cart && typeof window.LS.cart.get === "function") {
-      try { window.LS.cart.get(); } catch (eLS) {}
-    }
+    return false;
   }
 
   function handleAddOnlyComplementary(item, btnEl) {
@@ -6469,18 +6441,10 @@ function renderProductosComplementarios(w) {
       btnEl.disabled = true;
     }
 
-    function markSuccess(cartData) {
+    function markSuccess() {
       if (btnEl) {
         btnEl.innerText = "¡Agregado al carrito! ✓";
         btnEl.style.opacity = "1";
-      }
-
-      triggerCartRefreshEvents(cartData);
-
-      if (openCartOnAdd) {
-        setTimeout(function () {
-          openCartDrawer();
-        }, 200);
       }
 
       setTimeout(function () {
@@ -6499,48 +6463,69 @@ function renderProductosComplementarios(w) {
       }
     }
 
-    // PAYLOAD COMBINADO CONFIRMADO POR TIENDANUBE:
-    // add_to_cart = ID PRODUCTO
-    // variant_id  = ID VARIANTE
-    // quantity    = 1
-    var payload = "add_to_cart=" + encodeURIComponent(String(productId)) +
-                  "&variant_id=" + encodeURIComponent(String(variantId)) +
-                  "&quantity=1";
-
-    function sendPayloadToUrl(endpointUrl) {
+    // 🚀 RUTA 1: VÍA OFICIAL NUBESDK
+    if (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function") {
       try {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", endpointUrl, true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-        xhr.withCredentials = true;
-
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            if (xhr.status >= 200 && xhr.status < 400) {
-              var cartRes = null;
-              try { cartRes = JSON.parse(xhr.responseText); } catch (eJson) {}
-              markSuccess(cartRes);
-            } else if (endpointUrl === "/comprar/") {
-              // Fallback a /cart/add si /comprar/ falla
-              sendPayloadToUrl("/cart/add");
-            } else {
-              markError();
+        window.nube.send("cart:add", function () {
+          return {
+            cart: {
+              items: [{ product_id: Number(productId), variant_id: Number(variantId), quantity: 1 }]
             }
-          }
-        };
-        xhr.send(payload);
-      } catch (errXhr) {
-        if (endpointUrl === "/comprar/") {
-          sendPayloadToUrl("/cart/add");
-        } else {
-          markError();
+          };
+        });
+
+        markSuccess();
+
+        if (openCartOnAdd) {
+          setTimeout(function () {
+            try {
+              window.nube.send("cart:open");
+            } catch (eOpen) {
+              openCartDrawer();
+            }
+          }, 300);
         }
+        return;
+      } catch (errNube) {
+        console.warn("[Nevux] Error en NubeSDK, usando fallback /comprar/:", errNube);
       }
     }
 
-    sendPayloadToUrl("/comprar/");
+    // 🔄 RUTA 2: FALLBACK CLÁSICO CON FORM DATA A /comprar/
+    try {
+      var formData = new FormData();
+      formData.append("add_to_cart", String(productId));
+      if (variantId) {
+        formData.append("variant_id", String(variantId));
+      }
+      formData.append("quantity", "1");
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/comprar/", true);
+      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+      xhr.withCredentials = true;
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status >= 200 && xhr.status < 400) {
+            markSuccess();
+            if (openCartOnAdd) {
+              var opened = openCartDrawer();
+              if (!opened) {
+                setTimeout(function () {
+                  window.location.href = "/cart";
+                }, 600);
+              }
+            }
+          } else {
+            markError();
+          }
+        }
+      };
+      xhr.send(formData);
+    } catch (errXhr) {
+      markError();
+    }
   }
 
   function bindButtons(root, products) {
@@ -6719,5 +6704,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+    }
 })(); 
