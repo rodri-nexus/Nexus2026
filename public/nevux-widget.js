@@ -6249,7 +6249,7 @@ function renderBarraCuotas(w) {
   }
     }
 /* ═══════════════════════════════════════════
-   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v169 - Pre-resolución de Variantes + /comprar/ Oficial)
+   WIDGET #9: PRODUCTOS COMPLEMENTARIOS (v170 - Payload Combinado Oficial Tiendanube)
    ═══════════════════════════════════════════ */
 function renderProductosComplementarios(w) {
   var elementId = "nvx-cross-sell-" + w.id;
@@ -6422,8 +6422,8 @@ function renderProductosComplementarios(w) {
   function handleAddOnlyComplementary(item, btnEl) {
     if (!item) return;
 
-    var targetVariantId = item.variantId || item.variant_id || (item.variants && item.variants[0] ? item.variants[0].id : null) || item.id;
-    if (!targetVariantId) return;
+    var productId = item.id;
+    var variantId = item.variantId || item.variant_id || (item.variants && item.variants[0] ? item.variants[0].id : null) || productId;
 
     var defaultLabel = buttonText || "Agregar al carrito";
 
@@ -6463,32 +6463,48 @@ function renderProductosComplementarios(w) {
       }
     }
 
-    // PETICIÓN A /comprar/ (ESTÁNDAR OFICIAL BREN TIENDANUBE)
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/comprar/", true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-      xhr.withCredentials = true;
+    // PAYLOAD COMBINADO CONFIRMADO POR TIENDANUBE:
+    // add_to_cart = ID PRODUCTO
+    // variant_id  = ID VARIANTE
+    // quantity    = 1
+    var payload = "add_to_cart=" + encodeURIComponent(String(productId)) +
+                  "&variant_id=" + encodeURIComponent(String(variantId)) +
+                  "&quantity=1";
 
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status >= 200 && xhr.status < 400) {
-            var cartRes = null;
-            try {
-              cartRes = JSON.parse(xhr.responseText);
-            } catch (eJson) {}
-            markSuccess(cartRes);
-          } else {
-            markError();
+    function sendPayloadToUrl(endpointUrl) {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", endpointUrl, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+        xhr.withCredentials = true;
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 400) {
+              var cartRes = null;
+              try { cartRes = JSON.parse(xhr.responseText); } catch (eJson) {}
+              markSuccess(cartRes);
+            } else if (endpointUrl === "/comprar/") {
+              // Fallback a /cart/add si /comprar/ falla
+              sendPayloadToUrl("/cart/add");
+            } else {
+              markError();
+            }
           }
+        };
+        xhr.send(payload);
+      } catch (errXhr) {
+        if (endpointUrl === "/comprar/") {
+          sendPayloadToUrl("/cart/add");
+        } else {
+          markError();
         }
-      };
-      xhr.send("add_to_cart=" + encodeURIComponent(String(targetVariantId)) + "&quantity=1");
-    } catch (errXhr) {
-      markError();
+      }
     }
+
+    sendPayloadToUrl("/comprar/");
   }
 
   function bindButtons(root, products) {
@@ -6506,7 +6522,6 @@ function renderProductosComplementarios(w) {
   }
 
   function resolveVariantsMapAndInject(products) {
-    // Consulta previa rápida para mapear Product.ID -> Variant.ID
     try {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "/products.json", true);
@@ -6524,8 +6539,7 @@ function renderProductosComplementarios(w) {
               }
               for (var k = 0; k < products.length; k++) {
                 var p = products[k];
-                var curV = p.variantId || p.variant_id;
-                if (!curV || String(curV) === String(p.id)) {
+                if (!p.variantId || String(p.variantId) === String(p.id)) {
                   if (vMap[String(p.id)]) {
                     products[k].variantId = vMap[String(p.id)];
                   }
@@ -6669,5 +6683,5 @@ function renderProductosComplementarios(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-    }
+      }
 })(); 
