@@ -1687,18 +1687,46 @@
         return false;
       }
 
-      if (!data.widgets || data.widgets.length === 0) {
+            if (!data.widgets || data.widgets.length === 0) {
         console.log("[Nevux] No hay widgets activos");
         return;
       }
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
+
+      // Helper ultra-seguro para verificar la categoría en Tiendanube
+      function checkCategoryMatch(targetCatId) {
+        if (!targetCatId) return false;
+        var targetStr = String(targetCatId).trim();
+        
+        if (typeof window !== "undefined" && window.LS && window.LS.product) {
+          var prod = window.LS.product;
+          if (prod.categories && Array.isArray(prod.categories)) {
+            for (var i = 0; i < prod.categories.length; i++) {
+              var c = prod.categories[i];
+              if (!c) continue;
+              var cId = typeof c === "object" && c.id != null ? c.id : c;
+              if (String(cId).trim() === targetStr) return true;
+            }
+          }
+          if (prod.category_id != null && String(prod.category_id).trim() === targetStr) {
+            return true;
+          }
+        }
+
+        if (typeof window !== "undefined" && window.LS && window.LS.category && window.LS.category.id != null) {
+          if (String(window.LS.category.id).trim() === targetStr) return true;
+        }
+
+        return false;
+      }
+
       data.widgets.forEach(function (w) {
         try {
           // 🏷️ FILTRO DE SEGMENTACIÓN POR CATEGORÍA
           if (w.target_type === "category") {
-            var catId = w.target_category_id || (w.config && w.config.category_id);
-            if (!catId || !isProductInCategory(catId)) {
-              console.log("[Nevux] Widget omitido (producto fuera de categoría " + catId + "):", w.widget_slug);
+            var catId = w.target_category_id || (w.config && (w.config.category_id || w.config.target_category_id));
+            if (!catId || !checkCategoryMatch(catId)) {
+              console.log("[Nevux] Widget omitido por categoría:", w.widget_slug);
               return;
             }
           }
