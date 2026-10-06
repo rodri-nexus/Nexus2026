@@ -19,6 +19,7 @@ interface WidgetRow {
   widget_type: string;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -32,15 +33,22 @@ interface ProductInfo {
   slug: string;
 }
 
+interface CategoryInfo {
+  id: string | number;
+  name: string;
+}
+
 interface DbWidgetRow {
   id: string;
   widget_slug: string;
   widget_type: string;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  config?: any;
 }
 
 interface DbWidgetDefinition {
@@ -61,7 +69,7 @@ export default async function WidgetsPage() {
     redirect("/login");
   }
 
-  // 1. Obtener la tienda activa usando supabaseAdmin (evitando bloqueos RLS)
+  // 1. Obtener la tienda activa
   const { data: storesList } = await supabaseAdmin
     .from("stores")
     .select("store_id, access_token, installed_at, is_active")
@@ -75,11 +83,11 @@ export default async function WidgetsPage() {
   let widgets: WidgetRow[] = [];
 
   if (store?.store_id) {
-    // 2. Traer widgets vinculados
+    // 2. Traer widgets vinculados incluyendo target_category_id y config
     const { data: widgetsData, error: widgetsError } = await supabaseAdmin
       .from("widgets")
       .select(
-        "id, widget_slug, widget_type, target_type, target_product_id, is_active, created_at, updated_at"
+        "id, widget_slug, widget_type, target_type, target_product_id, target_category_id, is_active, created_at, updated_at, config"
       )
       .eq("user_id", user.id)
       .eq("store_id", store.store_id)
@@ -110,17 +118,23 @@ export default async function WidgetsPage() {
     });
 
     // 5. Combinar datos
-    widgets = ((widgetsData as DbWidgetRow[]) || []).map((w) => ({
-      id: w.id,
-      widget_slug: w.widget_slug,
-      widget_type: w.widget_type,
-      target_type: w.target_type,
-      target_product_id: w.target_product_id,
-      is_active: Boolean(w.is_active),
-      created_at: w.created_at,
-      updated_at: w.updated_at,
-      definition: defsMap.get(w.widget_slug) ?? null,
-    }));
+    widgets = ((widgetsData as DbWidgetRow[]) || []).map((w) => {
+      const catIdFromConfig = w.config?.category_id || w.config?.target_category_id || w.config?.category;
+      const finalCatId = w.target_category_id || catIdFromConfig || null;
+
+      return {
+        id: w.id,
+        widget_slug: w.widget_slug,
+        widget_type: w.widget_type,
+        target_type: w.target_type || (finalCatId ? "category" : w.target_product_id ? "product" : "all"),
+        target_product_id: w.target_product_id,
+        target_category_id: finalCatId,
+        is_active: Boolean(w.is_active),
+        created_at: w.created_at,
+        updated_at: w.updated_at,
+        definition: defsMap.get(w.widget_slug) ?? null,
+      };
+    });
   }
 
   // 6. Consultar productos únicos en Tiendanube
@@ -159,6 +173,47 @@ export default async function WidgetsPage() {
     });
   }
 
+  // 7. Consultar categorías únicas en Tiendanube
+  const categoryIds = Array.from(
+    new Set(
+      widgets
+        .filter((w) => w.target_type === "category" && w.target_category_id)
+        .map((w) => String(w.target_category_id))
+    )
+  );
+
+  const categoriesMap: Record<string, CategoryInfo | null> = {};
+
+  if (store?.store_id && store?.access_token && categoryIds.length > 0) {
+    await Promise.all(
+      categoryIds.map(async (cid) => {
+        try {
+          const res = await fetch(
+            `https://api.tiendanube.com/v1/${store.store_id}/categories/${cid}`,
+            {
+              headers: {
+                Authentication: `bearer ${store.access_token}`,
+                "User-Agent": "Nevux (soportenevux@gmail.com)",
+              },
+            }
+          );
+          if (res.ok) {
+            const catData = await res.json();
+            const catName =
+              typeof catData?.name === "object"
+                ? catData.name.es || catData.name.pt || catData.name.en || `Categoría #${cid}`
+                : String(catData?.name || `Categoría #${cid}`);
+            categoriesMap[cid] = { id: cid, name: catName };
+          } else {
+            categoriesMap[cid] = { id: cid, name: `Categoría #${cid}` };
+          }
+        } catch {
+          categoriesMap[cid] = { id: cid, name: `Categoría #${cid}` };
+        }
+      })
+    );
+  }
+
   const storeData = store
     ? {
         store_id: store.store_id,
@@ -173,6 +228,7 @@ export default async function WidgetsPage() {
       store={storeData}
       widgets={widgets}
       productsMap={productsMap}
+      categoriesMap={categoriesMap}
     />
   );
-}
+        }
