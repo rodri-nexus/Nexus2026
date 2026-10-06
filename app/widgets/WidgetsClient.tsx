@@ -16,6 +16,7 @@ import {
   Package,
   AlertCircle,
   Tag,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -116,7 +117,7 @@ export default function WidgetsClient({
   const getCategoryName = useCallback(
     (widget: WidgetRow): string => {
       const cid = widget.target_category_id;
-      if (cid === null || cid === undefined || cid === "") return "Categoría";
+      if (cid === null || cid === undefined || cid === "") return "Categoría sin asignar";
       const key = String(cid);
       const cat = categoriesMap[key];
       if (cat?.name) return cat.name;
@@ -155,7 +156,7 @@ export default function WidgetsClient({
 
     const porCategoria = new Map<string, WidgetRow[]>();
     filteredWidgets
-      .filter((w) => w.target_type === "category" && w.target_category_id != null && w.target_category_id !== "")
+      .filter((w) => w.target_type === "category" && w.target_category_id != null && String(w.target_category_id).trim() !== "")
       .forEach((w) => {
         const cid = String(w.target_category_id);
         if (!porCategoria.has(cid)) porCategoria.set(cid, []);
@@ -171,7 +172,15 @@ export default function WidgetsClient({
         porProducto.get(pid)!.push(w);
       });
 
-    return { generales, porCategoria, porProducto };
+    // 🛡️ CAPTURADOR DE WIDGETS HUÉRFANOS O INCOMPLETOS:
+    const huerfanos = filteredWidgets.filter((w) => {
+      const esGeneral = w.target_type === "all" || (!w.target_type && !w.target_product_id && !w.target_category_id);
+      const esCatValida = w.target_type === "category" && w.target_category_id != null && String(w.target_category_id).trim() !== "";
+      const esProdValido = w.target_type === "product" && w.target_product_id != null;
+      return !esGeneral && !esCatValida && !esProdValido;
+    });
+
+    return { generales, porCategoria, porProducto, huerfanos };
   }, [filteredWidgets]);
 
   const totalWidgets = widgets.length;
@@ -263,7 +272,7 @@ export default function WidgetsClient({
         }
         return `Producto #${widget.target_product_id}`;
       }
-      return "—";
+      return "Widget sin asignar";
     },
     [productsMap, getCategoryName]
   );
@@ -601,6 +610,37 @@ export default function WidgetsClient({
           />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            
+            {/* GRUPO HUÉRFANOS / INCOMPLETOS */}
+            {groupedWidgets.huerfanos.length > 0 && (
+              <WidgetGroup
+                icon={
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "12px",
+                      background: "#FEE2E2",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#DC2626",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <AlertTriangle size={22} />
+                  </div>
+                }
+                title="Widgets incompletos / Sin categoría"
+                subtitle="Podés eliminarlos para limpiar tu panel"
+                widgets={groupedWidgets.huerfanos}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onEdit={goToEditor}
+                busyId={busyId}
+              />
+            )}
+
             {/* GRUPO 1: Widgets para la tienda */}
             {groupedWidgets.generales.length > 0 && (
               <WidgetGroup
@@ -633,7 +673,7 @@ export default function WidgetsClient({
               />
             )}
 
-            {/* GRUPO 2: Por categoría (ej: SMARTWATCHES) */}
+            {/* GRUPO 2: Por categoría */}
             {Array.from(groupedWidgets.porCategoria.entries()).map(
               ([categoryId, wgs]) => {
                 const cat = categoriesMap[String(categoryId)];
@@ -1139,4 +1179,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-         }
+}
