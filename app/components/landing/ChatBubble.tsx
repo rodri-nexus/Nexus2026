@@ -91,25 +91,32 @@ export default function ChatBubble() {
             </button>
 
             {/* Contenido */}
-            <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
-              {/* Avatar Verde Esmeralda Marca Nevux */}
+            <div style={{ display: "flex", gap: "0.65rem", alignItems: "center" }}>
+              {/* Avatar Logo Oficial Nevux */}
               <div
                 style={{
-                  width: "36px",
-                  height: "36px",
+                  width: "38px",
+                  height: "38px",
                   borderRadius: "50%",
-                  background: "#10B981",
+                  overflow: "hidden",
+                  flexShrink: 0,
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                  background: "#000000",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#ffffff",
-                  fontSize: "0.85rem",
-                  fontWeight: 800,
-                  flexShrink: 0,
-                  boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
+                  border: "1px solid #e5e7eb",
                 }}
               >
-                N
+                <img
+                  src="/icon.svg"
+                  alt="Nevux"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
               </div>
 
               {/* Texto */}
@@ -239,4 +246,4 @@ export default function ChatBubble() {
       </a>
     </div>
   );
-            }
+    }
