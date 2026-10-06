@@ -23,13 +23,15 @@ interface ExWidget {
   is_active: boolean;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
 }
 
 interface PopupConversionEditorProps {
   widgetDefinition: WidgetDef;
   existingWidget: ExWidget | null;
-  targetType: 'product' | 'all';
+  targetType: 'product' | 'all' | 'category';
   productId: number | null;
+  categoryId?: string | number | null;
   storeId: string | number;
 }
 
@@ -245,6 +247,7 @@ export default function PopupConversionEditor({
   existingWidget: ew,
   targetType,
   productId,
+  categoryId,
   storeId,
 }: PopupConversionEditorProps) {
   const router = useRouter();
@@ -256,7 +259,8 @@ export default function PopupConversionEditor({
   const [err, setErr] = useState('');
 
   const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
+  const isCategory = targetType === 'category';
+  const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
   useEffect(() => {
     setOk(false);
@@ -319,9 +323,13 @@ export default function PopupConversionEditor({
         id: ew?.id ?? null,
         store_id: storeId,
         widget_slug: wd.slug,
-        config: cfg,
+        config: {
+          ...cfg,
+          ...(categoryId ? { category_id: String(categoryId) } : {}),
+        },
         target_type: targetType,
         target_product_id: productId,
+        target_category_id: categoryId ? String(categoryId) : null,
         is_active: true,
       };
       const res = await fetch('/api/widgets', {
@@ -385,6 +393,16 @@ export default function PopupConversionEditor({
           }}>
             <IconStore />
             <span>Todos los productos</span>
+          </div>
+        ) : isCategory ? (
+          <div style={{
+            background: '#FEF3C7', color: '#D97706',
+            border: '1px solid #FCD34D',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
+          }}>
+            <span>🏷️ Widget para Categoría</span>
           </div>
         ) : (
           <div style={{
@@ -837,4 +855,4 @@ export default function PopupConversionEditor({
       </div>
     </div>
   );
-  }
+   }
