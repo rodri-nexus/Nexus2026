@@ -53,7 +53,8 @@ export default function EliminarWidgetModal({
     }
   }, [isOpen]);
 
-  const isConfirmValid = confirmText.trim() === "ELIMINAR";
+  // Validación ESTRICTA EXACTA: sin trim, sin toUpperCase, sin espacios
+  const isConfirmValid = confirmText === "ELIMINAR";
   const canDelete = isConfirmValid && !isDeleting;
 
   const handleConfirm = async () => {
@@ -350,6 +351,17 @@ export default function EliminarWidgetModal({
                       : "#e5e7eb";
                   }}
                 />
+                <p
+                  style={{
+                    margin: "0.5rem 0 0 0",
+                    fontSize: "0.8rem",
+                    color: "#dc2626",
+                    fontWeight: 500,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  ⚠️ Debe escribir EXACTAMENTE la palabra ELIMINAR en mayúsculas, sin espacios.
+                </p>
               </div>
 
               {/* Botones */}
@@ -401,8 +413,8 @@ export default function EliminarWidgetModal({
                     padding: "0.7rem 1.4rem",
                     borderRadius: "999px",
                     border: "none",
-                    background: canDelete ? "#dc2626" : "#fca5a5",
-                    color: "#ffffff",
+                    background: canDelete ? "#dc2626" : "#e5e7eb",
+                    color: canDelete ? "#ffffff" : "#9ca3af",
                     fontSize: "0.9rem",
                     fontWeight: 700,
                     cursor: canDelete ? "pointer" : "not-allowed",
@@ -410,7 +422,7 @@ export default function EliminarWidgetModal({
                     boxShadow: canDelete
                       ? "0 4px 12px rgba(220, 38, 38, 0.3)"
                       : "none",
-                    transition: "background 0.15s, box-shadow 0.15s",
+                    transition: "background 0.15s, box-shadow 0.15s, color 0.15s",
                   }}
                   onMouseEnter={(e) => {
                     if (canDelete) e.currentTarget.style.background = "#b91c1c";
@@ -453,4 +465,4 @@ export default function EliminarWidgetModal({
       )}
     </AnimatePresence>
   );
-      }
+                }
