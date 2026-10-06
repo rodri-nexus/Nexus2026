@@ -10,8 +10,9 @@ interface WidgetPayload {
   store_id: number;
   widget_slug: string;
   widget_type?: string;
-  target_type: "all" | "product" | string;
+  target_type: "all" | "product" | "category" | string;
   target_product_id?: string | number | null;
+  target_category_id?: string | number | null;
   config?: Record<string, unknown>;
   is_active?: boolean;
 }
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
       widget_type,
       target_type,
       target_product_id,
+      target_category_id,
       config,
       is_active,
     } = body;
@@ -80,10 +82,24 @@ export async function POST(req: NextRequest) {
       return corsResponse({ error: "Tienda no autorizada o inactiva" }, 403);
     }
 
-    const targetTypeFinal = target_type || "all";
+    let targetTypeFinal = target_type || "all";
+    const categoryIdFromConfig = config?.category_id || config?.target_category_id;
+    const targetCategoryIdFinal =
+      target_category_id || categoryIdFromConfig || null;
+
+    if (targetCategoryIdFinal || target_type === "category") {
+      targetTypeFinal = "category";
+    }
+
     const targetProductIdFinal = targetTypeFinal === "product" ? target_product_id : null;
 
-    // 🔍 PREVENCION DE DUPLICADOS: Si no viene un ID, buscar si ya existe una fila activa o previa
+    // Inyectar category_id dentro de config para doble respaldo
+    const updatedConfig = {
+      ...(config || {}),
+      ...(targetCategoryIdFinal ? { category_id: String(targetCategoryIdFinal) } : {}),
+    };
+
+    // 🔍 PREVENCIÓN DE DUPLICADOS:
     let targetWidgetId = id;
 
     if (!targetWidgetId) {
@@ -95,7 +111,9 @@ export async function POST(req: NextRequest) {
         .eq("widget_slug", widget_slug)
         .eq("target_type", targetTypeFinal);
 
-      if (targetTypeFinal === "product" && targetProductIdFinal) {
+      if (targetTypeFinal === "category" && targetCategoryIdFinal) {
+        checkQuery = checkQuery.or(`target_category_id.eq.${targetCategoryIdFinal},config->>category_id.eq.${targetCategoryIdFinal}`);
+      } else if (targetTypeFinal === "product" && targetProductIdFinal) {
         checkQuery = checkQuery.eq("target_product_id", targetProductIdFinal);
       } else {
         checkQuery = checkQuery.is("target_product_id", null);
@@ -119,7 +137,8 @@ export async function POST(req: NextRequest) {
       widget_type: widget_type || widget_slug,
       target_type: targetTypeFinal,
       target_product_id: targetProductIdFinal,
-      config: config || {},
+      target_category_id: targetCategoryIdFinal ? String(targetCategoryIdFinal) : null,
+      config: updatedConfig,
       is_active: is_active !== undefined ? is_active : true,
       updated_at: now,
     };
@@ -278,4 +297,4 @@ export async function DELETE(req: NextRequest) {
     const message = error instanceof Error ? error.message : "Error interno";
     return corsResponse({ error: message }, 500);
   }
-      }
+  }
