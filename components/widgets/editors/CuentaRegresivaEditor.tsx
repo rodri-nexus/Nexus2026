@@ -23,13 +23,15 @@ interface ExWidget {
   is_active: boolean;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
 }
 
 interface CuentaRegresivaEditorProps {
   widgetDefinition: WidgetDef;
   existingWidget: ExWidget | null;
-  targetType: 'product' | 'all';
+  targetType: 'product' | 'all' | 'category';
   productId: number | null;
+  categoryId?: string | number | null;
   storeId: string | number;
 }
 
@@ -69,8 +71,8 @@ const DEF: Cfg = {
   blockSize: 'normal',
   location: 'product_before',
   template: 'classic',
-  gradStart: '#111827', // Fondo Principal (Oscuro)
-  gradEnd: '#10B981', // Cajas / Acento (Verde Nevux)
+  gradStart: '#111827',
+  gradEnd: '#10B981',
   textColor: '#ffffff',
   coupon: '',
   ctaText: '',
@@ -252,6 +254,7 @@ export default function CuentaRegresivaEditor({
   existingWidget: ew,
   targetType,
   productId,
+  categoryId,
   storeId,
 }: CuentaRegresivaEditorProps) {
   const router = useRouter();
@@ -293,7 +296,8 @@ export default function CuentaRegresivaEditor({
   }, []);
 
   const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
+  const isCategory = targetType === 'category';
+  const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
   useEffect(() => {
     setOk(false);
@@ -460,9 +464,13 @@ export default function CuentaRegresivaEditor({
         id: ew?.id ?? null,
         store_id: storeId,
         widget_slug: wd.slug,
-        config: safeCfg,
+        config: {
+          ...safeCfg,
+          ...(categoryId ? { category_id: String(categoryId) } : {}),
+        },
         target_type: targetType,
         target_product_id: productId,
+        target_category_id: categoryId ? String(categoryId) : null,
         is_active: true,
       };
       const res = await fetch('/api/widgets', {
@@ -543,9 +551,8 @@ export default function CuentaRegresivaEditor({
     return '';
   };
 
-  /* LOGICA DE ESTILOS DE PREVIEW */
   const containerStyle: React.CSSProperties = {
-    background: cfg.template === 'gradient' ? `linear-gradient(135deg, ${cfg.gradStart}, ${cfg.gradEnd})` 
+    background: cfg.template === 'gradient' ? `linear-gradient(135deg, ${cfg.gradStart}, ${cfg.gradEnd})`
               : cfg.template === 'glass' ? `linear-gradient(135deg, ${cfg.gradStart}E6, ${cfg.gradEnd}E6)`
               : cfg.template === 'outline' ? 'transparent'
               : cfg.gradStart,
@@ -633,6 +640,16 @@ export default function CuentaRegresivaEditor({
           }}>
             <IconStore />
             <span>Todos los productos</span>
+          </div>
+        ) : isCategory ? (
+          <div style={{
+            background: '#FEF3C7', color: '#D97706',
+            border: '1px solid #FCD34D',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
+          }}>
+            <span>🏷️ Widget para Categoría</span>
           </div>
         ) : (
           <div style={{
@@ -779,7 +796,6 @@ export default function CuentaRegresivaEditor({
           {tab === 'gen' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-              {/* TIPO DE CUENTA REGRESIVA */}
               <div>
                 <FieldLabel>Tipo de cuenta regresiva</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
@@ -811,7 +827,6 @@ export default function CuentaRegresivaEditor({
                 </div>
               </div>
 
-              {/* CONFIGURACIÓN DE DURACIÓN */}
               {cfg.timerType === 'minutes' && (
                 <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
@@ -846,7 +861,6 @@ export default function CuentaRegresivaEditor({
                     </div>
                   </div>
 
-                  {/* MINUTOS */}
                   {cfg.durationUnit === 'minutes' && (
                     <div>
                       <FieldLabel>Cantidad de minutos por visita</FieldLabel>
@@ -874,7 +888,6 @@ export default function CuentaRegresivaEditor({
                     </div>
                   )}
 
-                  {/* HORAS + MINUTOS */}
                   {cfg.durationUnit === 'hours' && (
                     <div>
                       <FieldLabel>Hora y minutos exactos (reloj)</FieldLabel>
@@ -896,7 +909,6 @@ export default function CuentaRegresivaEditor({
                     </div>
                   )}
 
-                  {/* DÍAS */}
                   {cfg.durationUnit === 'days' && (
                     <div>
                       <FieldLabel>Cantidad de días por visita</FieldLabel>
@@ -924,7 +936,6 @@ export default function CuentaRegresivaEditor({
                     </div>
                   )}
 
-                  {/* RESUMEN */}
                   <div style={{
                     background: '#ecfdf5', borderRadius: 10, padding: '10px 14px',
                     display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #a7f3d0',
@@ -937,7 +948,6 @@ export default function CuentaRegresivaEditor({
                 </div>
               )}
 
-              {/* FECHA EXACTA */}
               {cfg.timerType === 'date' && (
                 <div style={{ background: '#f9fafb', padding: 16, borderRadius: 12, border: '1px solid #e5e7eb' }}>
                   <FieldLabel>Fecha y hora límite de la oferta</FieldLabel>
@@ -959,7 +969,6 @@ export default function CuentaRegresivaEditor({
                 </div>
               )}
 
-              {/* DIARIO */}
               {cfg.timerType === 'daily' && (
                 <div style={{
                   background: '#ecfdf5', borderRadius: 12, padding: 16,
@@ -975,7 +984,6 @@ export default function CuentaRegresivaEditor({
                 </div>
               )}
 
-              {/* TÍTULO */}
               <div>
                 <FieldLabel>Título del temporizador</FieldLabel>
                 <TextInput
@@ -985,7 +993,6 @@ export default function CuentaRegresivaEditor({
                 />
               </div>
 
-              {/* UBICACIÓN */}
               <div>
                 <FieldLabel>¿Dónde mostrarlo?</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
@@ -1016,7 +1023,6 @@ export default function CuentaRegresivaEditor({
                 </div>
               </div>
 
-              {/* TAMAÑO DEL BLOQUE */}
               <div>
                 <FieldLabel>Tamaño del bloque</FieldLabel>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
@@ -1226,11 +1232,10 @@ export default function CuentaRegresivaEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL */}
         <div style={{ marginTop: 40, width: '100%' }}>
           <CentroAyuda />
         </div>
       </div>
     </div>
   );
-     }
+}
