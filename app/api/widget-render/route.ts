@@ -384,17 +384,17 @@ export async function GET(req: NextRequest) {
     // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
     let query = supabase
       .from('widgets')
-      .select('id, widget_slug, widget_type, target_type, target_product_id, config, is_active, updated_at')
+      .select('id, widget_slug, widget_type, target_type, target_product_id, target_category_id, config, is_active, updated_at')
       .eq('store_id', storeId)
       .eq('is_active', true)
       .order('updated_at', { ascending: false })
 
     if (productId) {
       query = query.or(
-        `target_type.eq.all,and(target_type.eq.product,target_product_id.eq.${productId})`
+        `target_type.eq.all,target_type.eq.category,and(target_type.eq.product,target_product_id.eq.${productId})`
       )
     } else {
-      query = query.eq('target_type', 'all')
+      query = query.or('target_type.eq.all,target_type.eq.category')
     }
 
     const { data: rawWidgets, error: widgetsError } = await query
@@ -407,11 +407,14 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 🧹 DEDUPLICACIÓN ESTRICTA: Conservar ÚNICAMENTE la configuración MÁS RECIENTE guardada para cada widget_slug
+    // 🧹 DEDUPLICACIÓN INTELIGENTE POR ALCANCE: Permite widgets generales + de categoría sin pisarse
     const uniqueMap = new Map<string, any>()
     for (const w of rawWidgets || []) {
-      if (!uniqueMap.has(w.widget_slug)) {
-        uniqueMap.set(w.widget_slug, w)
+      const catId = w.target_category_id || w.config?.category_id || ''
+      const prodId = w.target_product_id || ''
+      const scopeKey = `${w.widget_slug}_${w.target_type || 'all'}_${prodId}_${catId}`
+      if (!uniqueMap.has(scopeKey)) {
+        uniqueMap.set(scopeKey, w)
       }
     }
     const widgets = Array.from(uniqueMap.values())
