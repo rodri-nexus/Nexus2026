@@ -1654,13 +1654,55 @@
         }
       }
 
-            if (!data.widgets || data.widgets.length === 0) {
+                  function isProductInCategory(targetCatId) {
+        if (!targetCatId) return false;
+        var targetStr = String(targetCatId).trim();
+        if (typeof window === "undefined" || !window.LS) return false;
+        
+        var prod = window.LS.product;
+        if (prod) {
+          // Si categories es un array de IDs o de Objetos
+          if (prod.categories && Array.isArray(prod.categories)) {
+            for (var c = 0; c < prod.categories.length; c++) {
+              var catItem = prod.categories[c];
+              if (catItem == null) continue;
+              if (typeof catItem === "object" && catItem.id != null) {
+                if (String(catItem.id).trim() === targetStr) return true;
+              } else {
+                if (String(catItem).trim() === targetStr) return true;
+              }
+            }
+          }
+          // Si tiene category_id directo
+          if (prod.category_id != null && String(prod.category_id).trim() === targetStr) {
+            return true;
+          }
+        }
+        
+        // Fallback si está navegando dentro del listado de la categoría
+        if (window.LS.category && window.LS.category.id != null) {
+          if (String(window.LS.category.id).trim() === targetStr) return true;
+        }
+
+        return false;
+      }
+
+      if (!data.widgets || data.widgets.length === 0) {
         console.log("[Nevux] No hay widgets activos");
         return;
       }
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
       data.widgets.forEach(function (w) {
         try {
+          // 🏷️ FILTRO DE SEGMENTACIÓN POR CATEGORÍA
+          if (w.target_type === "category") {
+            var catId = w.target_category_id || (w.config && w.config.category_id);
+            if (!catId || !isProductInCategory(catId)) {
+              console.log("[Nevux] Widget omitido (producto fuera de categoría " + catId + "):", w.widget_slug);
+              return;
+            }
+          }
+
           if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
           if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
           if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
@@ -1679,10 +1721,6 @@
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
       });
-    })
-    .catch(function (err) {
-      console.error("[Nevux] Error cargando widgets:", err);
-    });
   
 /* ═══════════════════════════════════════════
    DETECCIÓN SEGURA DE PÁGINA (ES5 Safe)
