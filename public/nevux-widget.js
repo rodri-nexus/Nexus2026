@@ -1607,11 +1607,37 @@
 
   // Detectar idioma del comprador (desde la etiqueta <html lang="..."> o configuración del navegador)
   var clientLang = document.documentElement.lang || navigator.language || "es";
-
   const url = API_BASE + "/api/widget-render?store_id=" + storeId +
     (productId ? "&product_id=" + productId : "") +
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
+
+  // Helper ultra-seguro para verificar la categoría en Tiendanube (ES5 puro)
+  var checkCategoryMatch = function (targetCatId) {
+    if (!targetCatId) return false;
+    var targetStr = String(targetCatId).trim();
+
+    if (typeof window !== "undefined" && window.LS && window.LS.product) {
+      var prod = window.LS.product;
+      if (prod.categories && Array.isArray(prod.categories)) {
+        for (var i = 0; i < prod.categories.length; i++) {
+          var c = prod.categories[i];
+          if (!c) continue;
+          var cId = typeof c === "object" && c.id != null ? c.id : c;
+          if (String(cId).trim() === targetStr) return true;
+        }
+      }
+      if (prod.category_id != null && String(prod.category_id).trim() === targetStr) {
+        return true;
+      }
+    }
+
+    if (typeof window !== "undefined" && window.LS && window.LS.category && window.LS.category.id != null) {
+      if (String(window.LS.category.id).trim() === targetStr) return true;
+    }
+
+    return false;
+  };
 
   fetch(url)
     .then(function (r) { return r.json(); })
@@ -1626,7 +1652,7 @@
         if (document.body) {
           renderNevuxVoiceUI(data.voiceSearch);
         } else {
-          document.addEventListener("DOMContentLoaded", function() {
+          document.addEventListener("DOMContentLoaded", function () {
             renderNevuxVoiceUI(data.voiceSearch);
           });
         }
@@ -1637,7 +1663,7 @@
         if (document.body) {
           renderNevuxSalesmanUI(data.virtualSalesman);
         } else {
-          document.addEventListener("DOMContentLoaded", function() {
+          document.addEventListener("DOMContentLoaded", function () {
             renderNevuxSalesmanUI(data.virtualSalesman);
           });
         }
@@ -1648,77 +1674,17 @@
         if (document.body) {
           renderSocialProof(data.socialProof);
         } else {
-          document.addEventListener("DOMContentLoaded", function() {
+          document.addEventListener("DOMContentLoaded", function () {
             renderSocialProof(data.socialProof);
           });
         }
       }
 
-                  function isProductInCategory(targetCatId) {
-        if (!targetCatId) return false;
-        var targetStr = String(targetCatId).trim();
-        if (typeof window === "undefined" || !window.LS) return false;
-        
-        var prod = window.LS.product;
-        if (prod) {
-          // Si categories es un array de IDs o de Objetos
-          if (prod.categories && Array.isArray(prod.categories)) {
-            for (var c = 0; c < prod.categories.length; c++) {
-              var catItem = prod.categories[c];
-              if (catItem == null) continue;
-              if (typeof catItem === "object" && catItem.id != null) {
-                if (String(catItem.id).trim() === targetStr) return true;
-              } else {
-                if (String(catItem).trim() === targetStr) return true;
-              }
-            }
-          }
-          // Si tiene category_id directo
-          if (prod.category_id != null && String(prod.category_id).trim() === targetStr) {
-            return true;
-          }
-        }
-        
-        // Fallback si está navegando dentro del listado de la categoría
-        if (window.LS.category && window.LS.category.id != null) {
-          if (String(window.LS.category.id).trim() === targetStr) return true;
-        }
-
-        return false;
-      }
-
-            if (!data.widgets || data.widgets.length === 0) {
+      if (!data.widgets || data.widgets.length === 0) {
         console.log("[Nevux] No hay widgets activos");
         return;
       }
       console.log("[Nevux] Widgets recibidos:", data.widgets.length);
-
-      // Helper ultra-seguro para verificar la categoría en Tiendanube
-      function checkCategoryMatch(targetCatId) {
-        if (!targetCatId) return false;
-        var targetStr = String(targetCatId).trim();
-        
-        if (typeof window !== "undefined" && window.LS && window.LS.product) {
-          var prod = window.LS.product;
-          if (prod.categories && Array.isArray(prod.categories)) {
-            for (var i = 0; i < prod.categories.length; i++) {
-              var c = prod.categories[i];
-              if (!c) continue;
-              var cId = typeof c === "object" && c.id != null ? c.id : c;
-              if (String(cId).trim() === targetStr) return true;
-            }
-          }
-          if (prod.category_id != null && String(prod.category_id).trim() === targetStr) {
-            return true;
-          }
-        }
-
-        if (typeof window !== "undefined" && window.LS && window.LS.category && window.LS.category.id != null) {
-          if (String(window.LS.category.id).trim() === targetStr) return true;
-        }
-
-        return false;
-      }
 
       data.widgets.forEach(function (w) {
         try {
@@ -1749,6 +1715,10 @@
           console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
       });
+    })
+    .catch(function (err) {
+      console.error("[Nevux] Error cargando widgets:", err);
+    });
   
 /* ═══════════════════════════════════════════
    DETECCIÓN SEGURA DE PÁGINA (ES5 Safe)
