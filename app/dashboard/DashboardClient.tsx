@@ -22,6 +22,8 @@ import {
   Mic,
   MessageSquare,
   Bot,
+  Folder,
+  Tag,
   type LucideIcon,
 } from "lucide-react";
 import DashboardHeader from "./components/DashboardHeader";
@@ -79,6 +81,12 @@ interface Product {
   images?: { src: string }[];
 }
 
+interface Category {
+  id: number | string;
+  name: string;
+  products_count?: number;
+}
+
 interface ProFeature {
   label: string;
   desc: string;
@@ -86,6 +94,8 @@ interface ProFeature {
   icon: LucideIcon;
   badge?: string;
 }
+
+type ModalStep = "selection" | "products" | "categories";
 
 /* ═══════════════════════════════════════════
    CONSTANTES Y HELPERS (Regla #9 al inicio)
@@ -169,9 +179,11 @@ export default function DashboardClient({
 
   // Estados del modal flotante de creación de widgets
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalStep, setModalStep] = useState<"selection" | "products">("selection");
+  const [modalStep, setModalStep] = useState<ModalStep>("selection");
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const hasStore = store !== null;
@@ -255,6 +267,46 @@ export default function DashboardClient({
     }
   };
 
+  const loadCategories = async () => {
+    if (!store?.store_id) return;
+    setIsLoadingCategories(true);
+    setSearchQuery("");
+    try {
+      const res = await fetch(`/api/categories?storeId=${store.store_id}`);
+      if (res.ok) {
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data.categories || [];
+        setCategories(list);
+      } else {
+        // Fallback si no hay endpoint directo de categorías
+        const prodRes = await fetch(`/api/products?storeId=${store.store_id}`);
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          const pList: any[] = Array.isArray(prodData) ? prodData : prodData.products || [];
+          const catMap: Record<string, Category> = {};
+          pList.forEach((p) => {
+            if (p.categories && Array.isArray(p.categories)) {
+              p.categories.forEach((c: any) => {
+                const cId = c.id || c.name;
+                const cName = typeof c.name === "object" ? (c.name.es || c.name.pt || "Categoría") : String(c.name || cId);
+                if (!catMap[cId]) {
+                  catMap[cId] = { id: cId, name: cName, products_count: 1 };
+                } else {
+                  catMap[cId].products_count = (catMap[cId].products_count || 0) + 1;
+                }
+              });
+            }
+          });
+          setCategories(Object.values(catMap));
+        }
+      }
+    } catch (err) {
+      console.error("Error cargando categorías:", err);
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  };
+
   const handleOpenModal = () => {
     setModalStep("selection");
     setSearchQuery("");
@@ -266,9 +318,19 @@ export default function DashboardClient({
     loadProducts();
   };
 
+  const handleSelectCategoryOption = () => {
+    setModalStep("categories");
+    loadCategories();
+  };
+
   const handleSelectProduct = (product: Product) => {
     setIsModalOpen(false);
     window.location.href = `/widgets/nuevo/producto/${product.id}`;
+  };
+
+  const handleSelectCategory = (category: Category) => {
+    setIsModalOpen(false);
+    window.location.href = `/widgets/nuevo/categoria/${category.id}`;
   };
 
   const handleSelectAllProducts = () => {
@@ -292,6 +354,10 @@ export default function DashboardClient({
 
   const filteredProducts = products.filter((p) =>
     (p.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredCategories = categories.filter((c) =>
+    (c.name || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const planInfo: PlanInfo | null = plan
@@ -864,7 +930,7 @@ export default function DashboardClient({
         </div>
       </main>
 
-      {/* MODAL FLOTANTE DE CREACIÓN CON TÍTULOS RESALTADOS */}
+      {/* MODAL FLOTANTE DE CREACIÓN CON 4 BLOQUES */}
       <AnimatePresence>
         {isModalOpen && (
           <div
@@ -947,7 +1013,7 @@ export default function DashboardClient({
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  {modalStep === "products" && (
+                  {modalStep !== "selection" && (
                     <button
                       type="button"
                       onClick={() => setModalStep("selection")}
@@ -977,6 +1043,7 @@ export default function DashboardClient({
                     >
                       {modalStep === "selection" && "Crear nuevo widget"}
                       {modalStep === "products" && "Seleccionar producto"}
+                      {modalStep === "categories" && "Seleccionar categoría"}
                     </h3>
                     {modalStep === "selection" && (
                       <p
@@ -998,6 +1065,17 @@ export default function DashboardClient({
                         }}
                       >
                         Elegí un producto para asignarle sus widgets
+                      </p>
+                    )}
+                    {modalStep === "categories" && (
+                      <p
+                        style={{
+                          margin: "0.25rem 0 0",
+                          fontSize: "0.85rem",
+                          color: "#6b7280",
+                        }}
+                      >
+                        Elegí una categoría para asignarle sus widgets
                       </p>
                     )}
                   </div>
@@ -1174,7 +1252,76 @@ export default function DashboardClient({
                       </span>
                     </button>
 
-                    {/* BLOQUE 3: Funciones Pro para tu tienda */}
+                    {/* BLOQUE 3: Widget para categoría (NUEVO BLOQUE 4) */}
+                    <button
+                      type="button"
+                      onClick={handleSelectCategoryOption}
+                      style={{
+                        padding: "1.15rem",
+                        borderRadius: "16px",
+                        border: "1.5px solid #e5e7eb",
+                        background: "#ffffff",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                        textAlign: "left",
+                        width: "100%",
+                        fontFamily: "inherit",
+                        transition: "all 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "#10B981";
+                        e.currentTarget.style.background = "#f0fdf4";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "#e5e7eb";
+                        e.currentTarget.style.background = "#ffffff";
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          borderRadius: "14px",
+                          background: "#ecfdf5",
+                          border: "1px solid #a7f3d0",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Folder size={24} color="#10B981" />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: "1.08rem",
+                            fontWeight: 800,
+                            color: "#000000",
+                            letterSpacing: "-0.01em",
+                            marginBottom: "0.25rem",
+                          }}
+                        >
+                          Widget para categoría
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "0.82rem",
+                            color: "#6b7280",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          Asociá widgets a todos los productos de una categoría
+                        </div>
+                      </div>
+                      <span style={{ color: "#10B981", fontSize: "1.3rem", fontWeight: 600 }}>
+                        ›
+                      </span>
+                    </button>
+
+                    {/* BLOQUE 4: Funciones Pro para tu tienda */}
                     <div
                       style={{
                         padding: "1.15rem",
@@ -1187,7 +1334,7 @@ export default function DashboardClient({
                         boxSizing: "border-box",
                       }}
                     >
-                      {/* Header del bloque 3 */}
+                      {/* Header del bloque 4 */}
                       <div
                         style={{
                           display: "flex",
@@ -1520,6 +1667,161 @@ export default function DashboardClient({
                             </button>
                           );
                         })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* PASO CATEGORÍAS */}
+                {modalStep === "categories" && (
+                  <div>
+                    <div style={{ position: "relative", marginBottom: "1rem" }}>
+                      <Search
+                        size={18}
+                        color="#9ca3af"
+                        style={{
+                          position: "absolute",
+                          left: "14px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          pointerEvents: "none",
+                        }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Buscar categoría (ej: AUDIO - AURICULARES)..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "0.75rem 1rem 0.75rem 2.6rem",
+                          border: "1.5px solid #e5e7eb",
+                          borderRadius: "12px",
+                          fontSize: "0.9rem",
+                          outline: "none",
+                          boxSizing: "border-box",
+                          fontFamily: "inherit",
+                          background: "#ffffff",
+                        }}
+                        onFocus={(e) => (e.target.style.borderColor = "#10B981")}
+                        onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                      />
+                    </div>
+
+                    {isLoadingCategories ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          padding: "3rem 1rem",
+                          gap: "0.75rem",
+                        }}
+                      >
+                        <Loader2 size={28} color="#10B981" className="animate-spin" />
+                        <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>
+                          Cargando categorías de la tienda...
+                        </span>
+                      </div>
+                    ) : filteredCategories.length === 0 ? (
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "2.5rem 1rem",
+                          color: "#6b7280",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {searchQuery
+                          ? "No se encontraron categorías."
+                          : "No hay categorías registradas en esta tienda."}
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        {filteredCategories.map((cat) => (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => handleSelectCategory(cat)}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.85rem",
+                              padding: "0.85rem 1rem",
+                              borderRadius: "14px",
+                              border: "1.5px solid #f3f4f6",
+                              background: "#ffffff",
+                              cursor: "pointer",
+                              textAlign: "left",
+                              width: "100%",
+                              fontFamily: "inherit",
+                              transition: "all 0.15s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.borderColor = "#10B981";
+                              e.currentTarget.style.background = "#f0fdf4";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.borderColor = "#f3f4f6";
+                              e.currentTarget.style.background = "#ffffff";
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "42px",
+                                height: "42px",
+                                borderRadius: "10px",
+                                background: "#ecfdf5",
+                                border: "1px solid #a7f3d0",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0,
+                              }}
+                            >
+                              <Tag size={20} color="#10B981" />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div
+                                style={{
+                                  fontSize: "0.95rem",
+                                  fontWeight: 800,
+                                  color: "#000000",
+                                  lineHeight: 1.25,
+                                  marginBottom: "0.15rem",
+                                }}
+                              >
+                                {cat.name}
+                              </div>
+                              {cat.products_count !== undefined && (
+                                <div
+                                  style={{
+                                    fontSize: "0.78rem",
+                                    color: "#6b7280",
+                                  }}
+                                >
+                                  {cat.products_count} {cat.products_count === 1 ? "producto" : "productos"}
+                                </div>
+                              )}
+                            </div>
+                            <span
+                              style={{
+                                color: "#10B981",
+                                fontSize: "1.25rem",
+                                flexShrink: 0,
+                                fontWeight: 600,
+                              }}
+                            >
+                              ›
+                            </span>
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
