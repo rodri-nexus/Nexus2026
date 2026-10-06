@@ -18,7 +18,7 @@ import PopupConversionEditor from '@/components/widgets/editors/PopupConversionE
 
 interface PageProps {
   params: { widgetSlug: string };
-  searchParams: { product?: string; target?: string };
+  searchParams: { product?: string; category?: string; target?: string };
 }
 
 export default async function EditWidgetPage({ params, searchParams }: PageProps) {
@@ -52,207 +52,142 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   if (!widgetDef) redirect('/dashboard');
 
-  const targetType = searchParams.product ? 'product' : 'all';
+  const categoryId = searchParams.category || (searchParams.target === 'category' ? searchParams.category : null) || null;
   const productId = searchParams.product ? parseInt(searchParams.product, 10) : null;
+
+  let targetType = 'all';
+  if (categoryId || searchParams.target === 'category') {
+    targetType = 'category';
+  } else if (productId) {
+    targetType = 'product';
+  }
 
   // Consulta ordenada por actualización más reciente
   let existingQuery = supabase
     .from('widgets')
-    .select('id, config, is_active, target_type, target_product_id')
+    .select('id, config, is_active, target_type, target_product_id, target_category_id')
     .eq('user_id', user.id)
     .eq('store_id', store.store_id)
     .eq('widget_slug', params.widgetSlug)
     .order('updated_at', { ascending: false });
 
-  if (targetType === 'product' && productId) {
-    existingQuery = existingQuery.eq('target_product_id', productId);
+  if (targetType === 'category' && categoryId) {
+    existingQuery = existingQuery
+      .eq('target_type', 'category')
+      .or(`target_category_id.eq.${categoryId},config->>category_id.eq.${categoryId}`);
+  } else if (targetType === 'product' && productId) {
+    existingQuery = existingQuery
+      .eq('target_type', 'product')
+      .eq('target_product_id', productId);
   } else {
     existingQuery = existingQuery.eq('target_type', 'all');
   }
 
   const { data: existingWidgets } = await existingQuery;
-  const existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+  let existingWidget = existingWidgets && existingWidgets.length > 0 ? existingWidgets[0] : null;
+
+  // Inyectar category_id en la config si es tipo categoría
+  if (targetType === 'category' && categoryId) {
+    if (existingWidget) {
+      existingWidget = {
+        ...existingWidget,
+        target_type: 'category',
+        target_category_id: categoryId,
+        config: {
+          ...(existingWidget.config || {}),
+          category_id: categoryId,
+        },
+      };
+    } else {
+      existingWidget = {
+        id: null as any,
+        is_active: true,
+        target_type: 'category',
+        target_product_id: null,
+        target_category_id: categoryId,
+        config: {
+          category_id: categoryId,
+        },
+      } as any;
+    }
+  }
+
+  const editorProps = {
+    widgetDefinition: widgetDef,
+    existingWidget: existingWidget,
+    targetType: targetType as any,
+    productId: productId,
+    storeId: store.store_id,
+  };
 
   // WIDGET: PRODUCTOS COMPLEMENTARIOS
   if (params.widgetSlug === 'productos-complementarios') {
-    return (
-      <ProductosComplementariosEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <ProductosComplementariosEditor {...editorProps} />;
   }
 
   // WIDGET: BARRA DE CUOTAS SIN INTERÉS
   if (params.widgetSlug === 'barra-cuotas') {
-    return (
-      <BarraCuotasEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <BarraCuotasEditor {...editorProps} />;
   }
 
   // WIDGET: BARRA DE ENVÍO GRATIS
   if (params.widgetSlug === 'barra-envio-gratis') {
-    return (
-      <BarraEnvioGratisEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <BarraEnvioGratisEditor {...editorProps} />;
   }
 
   // WIDGET: POPUP DE CONVERSIÓN
   if (params.widgetSlug === 'popup-conversion') {
-    return (
-      <PopupConversionEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <PopupConversionEditor {...editorProps} />;
   }
 
   // WIDGET: BUNDLE DE PROMOCIONES
   if (params.widgetSlug === 'bundle-promociones') {
-    return (
-      <BundlePromocionesEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <BundlePromocionesEditor {...editorProps} />;
   }
 
   // WIDGET: RESEÑAS DESTACADAS
   if (params.widgetSlug === 'resenas-destacadas') {
-    return (
-      <ResenasDestacadasEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <ResenasDestacadasEditor {...editorProps} />;
   }
 
   // WIDGET: URGENCIA DE STOCK
   if (params.widgetSlug === 'urgencia-stock') {
-    return (
-      <UrgenciaStockEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <UrgenciaStockEditor {...editorProps} />;
   }
 
   // WIDGET: INFORMACIÓN DE DESPACHO
   if (params.widgetSlug === 'info-despacho') {
-    return (
-      <InfoDespachoEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <InfoDespachoEditor {...editorProps} />;
   }
 
   // WIDGET: CUENTA REGRESIVA
   if (params.widgetSlug === 'cuenta-regresiva') {
-    return (
-      <CuentaRegresivaEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <CuentaRegresivaEditor {...editorProps} />;
   }
 
   // WIDGET: CONTADOR DE VENDIDOS
   if (params.widgetSlug === 'contador-vendidos') {
-    return (
-      <ContadorVendidosEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <ContadorVendidosEditor {...editorProps} />;
   }
 
   // WIDGET: STICKER EDICIÓN LIMITADA
   if (params.widgetSlug === 'edicion-limitada') {
-    return (
-      <EdicionLimitadaEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <EdicionLimitadaEditor {...editorProps} />;
   }
 
   // WIDGET: CALCULADORA DE AHORRO
   if (params.widgetSlug === 'calculadora-ahorro') {
-    return (
-      <CalculadoraAhorroEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <CalculadoraAhorroEditor {...editorProps} />;
   }
 
   // WIDGET: HORARIO DE ATENCIÓN
   if (params.widgetSlug === 'horario-atencion') {
-    return (
-      <HorarioAtencionEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <HorarioAtencionEditor {...editorProps} />;
   }
 
   // WIDGET: MARQUEE DE NOVEDADES
   if (params.widgetSlug === 'marquee-novedades') {
-    return (
-      <MarqueeNovedadesEditor
-        widgetDefinition={widgetDef}
-        existingWidget={existingWidget}
-        targetType={targetType as 'product' | 'all'}
-        productId={productId}
-        storeId={store.store_id}
-      />
-    );
+    return <MarqueeNovedadesEditor {...editorProps} />;
   }
 
   return (
