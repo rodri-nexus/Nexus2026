@@ -52,7 +52,8 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
 
   if (!widgetDef) redirect('/dashboard');
 
-  const categoryId = searchParams.category || (searchParams.target === 'category' ? searchParams.category : null) || null;
+  const rawCategoryId = searchParams.category || (searchParams.target === 'category' ? searchParams.category : null) || null;
+  const categoryId = rawCategoryId ? String(rawCategoryId).trim() : null;
   const productId = searchParams.product ? parseInt(searchParams.product, 10) : null;
 
   let targetType = 'all';
@@ -117,6 +118,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     existingWidget: existingWidget,
     targetType: targetType as any,
     productId: productId,
+    categoryId: categoryId,
     storeId: store.store_id,
   };
 
@@ -203,4 +205,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-        }
+             }
