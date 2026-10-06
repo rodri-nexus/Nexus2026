@@ -1,545 +1,306 @@
-// app/api/widget-render/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { isStorePlanActive } from '@/lib/plan'
-import { getProducts } from '@/lib/tiendanube'
+// app/api/widgets/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase";
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const dynamic = "force-dynamic";
 
-/* ═══════════════════════════════════════════
-   DICCIONARIO NEURONAL ECOMMERCE (Regla #9 al inicio)
-═══════════════════════════════════════════ */
-const ECOMMERCE_DICTIONARY: Record<string, { pt: string; en: string }> = {
-  "¡envío gratis!": { pt: "¡Frete grátis!", en: "Free shipping!" },
-  "envío gratis": { pt: "Frete grátis", en: "Free shipping" },
-  "oferta termina en:": { pt: "A oferta termina em:", en: "Offer ends in:" },
-  "oferta termina pronto": { pt: "A oferta termina em breve", en: "Offer ends soon" },
-  "¡cupón exclusivo!": { pt: "¡Cupom exclusivo!", en: "Exclusive coupon!" },
-  "copiar": { pt: "Copiar", en: "Copy" },
-  "¡copiado!": { pt: "¡Copiado!", en: "Copied!" },
-  "¡girá y ganá un descuento!": { pt: "¡Gire e ganhe um desconto!", en: "Spin and win a discount!" },
-  "¡girar ruleta ahora!": { pt: "¡Girar roleta agora!", en: "Spin wheel now!" },
-  "garantía de satisfacción": { pt: "Garantia de satisfação", en: "Satisfaction guarantee" },
-  "devolución sin cargo": { pt: "Devolução sem custos", en: "Free returns" },
-  "comprados juntos frecuentemente": { pt: "Frequentemente comprados juntos", en: "Frequently bought together" },
-  "agregar al carrito": { pt: "Adicionar ao carrinho", en: "Add to cart" },
-  "cuotas sin interés": { pt: "Parcelas sem juros", en: "Interest-free installments" },
-  "despacho en 24hs": { pt: "Envio em 24h", en: "Dispatched in 24h" },
+interface WidgetPayload {
+  id?: string;
+  store_id: number;
+  widget_slug: string;
+  widget_type?: string;
+  target_type: "all" | "product" | "category" | string;
+  target_product_id?: string | number | null;
+  target_category_id?: string | number | null;
+  config?: Record<string, unknown>;
+  is_active?: boolean;
+}
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
 };
 
-function translateEcommerceText(text: string, targetLang: "pt" | "en"): string {
-  if (!text || typeof text !== "string") return "";
-  const lower = text.trim().toLowerCase();
-
-  if (ECOMMERCE_DICTIONARY[lower]) {
-    return ECOMMERCE_DICTIONARY[lower][targetLang];
-  }
-
-  if (targetLang === "pt") {
-    return text
-      .replace(/envío gratis/gi, "Frete grátis")
-      .replace(/descuento/gi, "desconto")
-      .replace(/oferta/gi, "oferta")
-      .replace(/comprar/gi, "comprar")
-      .replace(/garantía/gi, "garantia")
-      .replace(/días/gi, "dias")
-      .replace(/exclusivo/gi, "exclusivo")
-      .replace(/copiar código/gi, "copiar cupom")
-      .replace(/ahorrá/gi, "economize")
-      .replace(/cuotas sin interés/gi, "parcelas sem juros");
-  }
-
-  if (targetLang === "en") {
-    return text
-      .replace(/envío gratis/gi, "Free shipping")
-      .replace(/descuento/gi, "discount")
-      .replace(/oferta/gi, "offer")
-      .replace(/comprar/gi, "buy now")
-      .replace(/garantía/gi, "guarantee")
-      .replace(/días/gi, "days")
-      .replace(/exclusivo/gi, "exclusive")
-      .replace(/copiar código/gi, "copy code")
-      .replace(/ahorrá/gi, "save")
-      .replace(/cuotas sin interés/gi, "interest-free installments");
-  }
-
-  return text;
-}
-
-function translateWidgetConfig(
-  slug: string,
-  config: Record<string, unknown>,
-  targetLang: "pt" | "en"
-): Record<string, unknown> {
-  const translated = { ...config };
-
-  if (typeof translated.titulo === "string") {
-    translated.titulo = translateEcommerceText(translated.titulo, targetLang);
-  }
-  if (typeof translated.title === "string") {
-    translated.title = translateEcommerceText(translated.title, targetLang);
-  }
-  if (typeof translated.subtexto === "string") {
-    translated.subtexto = translateEcommerceText(translated.subtexto, targetLang);
-  }
-  if (typeof translated.subtitle === "string") {
-    translated.subtitle = translateEcommerceText(translated.subtitle, targetLang);
-  }
-  if (typeof translated.subtitulo === "string") {
-    translated.subtitulo = translateEcommerceText(translated.subtitulo, targetLang);
-  }
-  if (typeof translated.textoBoton === "string") {
-    translated.textoBoton = translateEcommerceText(translated.textoBoton, targetLang);
-  }
-  if (typeof translated.textoBotonGirar === "string") {
-    translated.textoBotonGirar = translateEcommerceText(translated.textoBotonGirar, targetLang);
-  }
-  if (typeof translated.texto === "string") {
-    translated.texto = translateEcommerceText(translated.texto, targetLang);
-  }
-  if (Array.isArray(translated.mensajes)) {
-    translated.mensajes = translated.mensajes.map((m) =>
-      typeof m === "string" ? translateEcommerceText(m, targetLang) : m
-    );
-  }
-
-  return translated;
-}
-
-/* ═══════════════════════════════════════════
-   HELPERS DE SOCIAL PROOF (Regla #9 al inicio)
-═══════════════════════════════════════════ */
-const LATAM_NAMES = ["María L.", "Sofía G.", "Agustina K.", "Lucas M.", "Camila R.", "Valentina B.", "Mateo T.", "Facundo S.", "Lucía M.", "Joaquín C."];
-const LATAM_CITIES = ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "La Plata", "Tucumán", "Mar del Plata", "Salta", "Santa Fe", "San Juan"];
-const RECENT_TIMES = ["hace un momento", "hace 3 minutos", "hace 7 minutos", "hace 12 minutos", "hace 18 minutos"];
-
-function getRandomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function parseProductName(raw: unknown): string {
-  if (!raw) return "Producto destacado";
-  if (typeof raw === "string") return raw;
-  if (typeof raw === "object" && raw !== null) {
-    const obj = raw as Record<string, unknown>;
-    return String(obj.es || obj.pt || Object.values(obj)[0] || "Producto destacado");
-  }
-  return "Producto destacado";
-}
-
-function getProductImageUrl(p: Record<string, unknown>): string {
-  if (typeof p.image_url === "string") return p.image_url;
-  if (Array.isArray(p.images) && p.images.length > 0) {
-    const first = p.images[0];
-    if (typeof first === "string") return first;
-    if (typeof first === "object" && first !== null && "src" in first) {
-      return String((first as { src: unknown }).src || "");
-    }
-  }
-  return "";
-}
-
-function generateSocialProofEvents(products: unknown[], settings: Record<string, any>) {
-  const events: any[] = [];
-  const parsedProducts = (Array.isArray(products) ? products : [])
-    .map((item) => {
-      const p = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
-      return { id: Number(p.id) || 0, name: parseProductName(p.name), image: getProductImageUrl(p) };
-    })
-    .filter((p) => p.id > 0);
-
-  const availableProducts = parsedProducts.length > 0
-    ? parsedProducts
-    : [
-        { id: 1, name: "Producto destacado de la tienda", image: "" },
-        { id: 2, name: "Oferta especial recomendada", image: "" }
-      ];
-
-  if (settings.enable_recent_sales !== false) {
-    for (let i = 0; i < 4; i++) {
-      const prod = getRandomItem(availableProducts);
-      const name = getRandomItem(LATAM_NAMES);
-      const city = getRandomItem(settings.custom_cities || LATAM_CITIES);
-      const timeAgo = getRandomItem(RECENT_TIMES);
-
-      events.push({
-        id: `sale-${i}-${Date.now()}`,
-        type: "sale",
-        title: `${name} de ${city}`,
-        subtitle: `Compró ${prod.name}`,
-        timeAgo,
-        icon: "🛒",
-        productName: prod.name,
-        productImage: prod.image,
-        location: city,
-      });
-    }
-  }
-
-  if (settings.enable_live_visitors !== false) {
-    const count = Math.floor(Math.random() * 18) + 8;
-    events.push({
-      id: `visitor-${Date.now()}`,
-      type: "visitor",
-      title: "🔥 ¡Alta demanda!",
-      subtitle: `${count} personas están viendo productos en vivo`,
-      icon: "👀",
-      count,
-    });
-  }
-
-  if (settings.enable_low_stock !== false && availableProducts.length > 0) {
-    const prod = getRandomItem(availableProducts);
-    const stock = Math.floor(Math.random() * 4) + 2;
-    events.push({
-      id: `stock-${Date.now()}`,
-      type: "stock",
-      title: "⚠️ Quedan pocas unidades",
-      subtitle: `Solo quedan ${stock} unidades de ${prod.name}`,
-      icon: "⚡",
-      productName: prod.name,
-      productImage: prod.image,
-      count: stock,
-    });
-  }
-
-  return events.sort(() => Math.random() - 0.5);
-}
-
-/* ═══════════════════════════════════════════
-   FUNCIONES AUXILIARES Y TIPOS DEL SISTEMA (Regla #9 al inicio)
-═══════════════════════════════════════════ */
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept',
-  'Access-Control-Max-Age': '86400',
-  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-}
-
-function defaultStats() {
-  return {
-    total: 0,
-    promedio: 0,
-    distribucion: { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 },
-  }
-}
-
-function calcularStats(reviews: any[]) {
-  const total = reviews.length
-  if (total === 0) return defaultStats()
-
-  const distribucion: Record<string, number> = {
-    '5': 0,
-    '4': 0,
-    '3': 0,
-    '2': 0,
-    '1': 0,
-  }
-
-  let suma = 0
-  for (const r of reviews) {
-    suma += r.estrellas || 0
-    const key = String(r.estrellas)
-    if (distribucion[key] !== undefined) {
-      distribucion[key]++
-    }
-  }
-
-  const promedio = parseFloat((suma / total).toFixed(2))
-  return { total, promedio, distribucion }
+function corsResponse(data: unknown, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: CORS_HEADERS,
+  });
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: corsHeaders })
+  return new NextResponse(null, {
+    status: 200,
+    headers: CORS_HEADERS,
+  });
 }
 
-/* ═══════════════════════════════════════════
-   ENDPOINT PRINCIPAL GET
-═══════════════════════════════════════════ */
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url)
-    const storeIdParam = searchParams.get('store_id')
-    const productIdParam = searchParams.get('product_id')
-    const clientLangParam = searchParams.get('lang')
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    if (!storeIdParam) {
-      return NextResponse.json(
-        { error: 'store_id es requerido', widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null },
-        { status: 400, headers: corsHeaders }
-      )
+    if (authError || !user) {
+      return corsResponse({ error: "No autorizado" }, 401);
     }
 
-    const storeId = parseInt(storeIdParam, 10)
-    if (isNaN(storeId)) {
-      return NextResponse.json(
-        { error: 'store_id inválido', widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null },
-        { status: 400, headers: corsHeaders }
-      )
+    const body: WidgetPayload = await req.json();
+    const {
+      id,
+      store_id,
+      widget_slug,
+      widget_type,
+      target_type,
+      target_product_id,
+      target_category_id,
+      config,
+      is_active,
+    } = body;
+
+    if (!store_id || !widget_slug) {
+      return corsResponse(
+        { error: "Faltan datos obligatorios (store_id o widget_slug)" },
+        400
+      );
     }
 
-    const productId = productIdParam ? parseInt(productIdParam, 10) : null
+    const { data: store } = await supabase
+      .from("stores")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("store_id", store_id)
+      .eq("is_active", true)
+      .single();
 
-    // 🔒 Verificación de plan activo
-    const isActivePlan = await isStorePlanActive(storeId)
-    if (!isActivePlan) {
-      return NextResponse.json(
-        { widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null, message: 'El plan o la prueba gratuita de 7 días ha expirado.' },
-        { status: 200, headers: corsHeaders }
-      )
+    if (!store) {
+      return corsResponse({ error: "Tienda no autorizada o inactiva" }, 403);
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseKey =
-      process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    })
-
-    // 🎙️ Obtener ajustes de Búsqueda por Voz
-    const { data: voiceRow } = await supabase
-      .from('store_voice_search_settings')
-      .select('is_active, position, button_color, listening_text, placeholder_text, language')
-      .eq('store_id', storeId)
-      .maybeSingle()
-
-    const voiceSearchData = voiceRow || {
-      is_active: false,
-      position: "bottom-right",
-      button_color: "#10B981",
-      listening_text: "Escuchando... Decí lo que buscás",
-      placeholder_text: "Buscá por voz en la tienda...",
-      language: "es-AR",
+    // Extraer category_id con respaldos profundos
+    const categoryIdFromConfig = (config?.category_id || config?.target_category_id || config?.category) as string | number | undefined;
+    
+    let targetCategoryIdFinal: string | null = null;
+    if (target_category_id !== undefined && target_category_id !== null && String(target_category_id).trim() !== "") {
+      targetCategoryIdFinal = String(target_category_id).trim();
+    } else if (categoryIdFromConfig !== undefined && categoryIdFromConfig !== null && String(categoryIdFromConfig).trim() !== "") {
+      targetCategoryIdFinal = String(categoryIdFromConfig).trim();
     }
 
-    // 🤖 Obtener ajustes del Vendedor Virtual IA
-    const { data: salesmanRow } = await supabase
-      .from('store_virtual_salesman_settings')
-      .select('is_active, agent_name, welcome_message, agent_avatar, personality, whatsapp_number, enable_whatsapp_escalation, theme_color')
-      .eq('store_id', storeId)
-      .maybeSingle()
-
-    const virtualSalesmanData = salesmanRow || {
-      is_active: false,
-      agent_name: "Sofía (Asesora Virtual)",
-      welcome_message: "¡Hola! 👋 ¿Buscás algo en especial hoy? Contame y te ayudo a encontrar el producto ideal.",
-      agent_avatar: "👩‍💼",
-      personality: "friendly",
-      whatsapp_number: "",
-      enable_whatsapp_escalation: true,
-      theme_color: "#10B981",
+    let targetTypeFinal = target_type || "all";
+    if (targetCategoryIdFinal || target_type === "category") {
+      targetTypeFinal = "category";
     }
 
-    // 🔥 Obtener ajustes de Social Proof IA desde la tabla 'widgets'
-    const { data: socialProofRow } = await supabase
-      .from('widgets')
-      .select('is_active, config')
-      .eq('store_id', storeId)
-      .eq('widget_slug', 'social-proof')
-      .maybeSingle()
+    const targetProductIdFinal = targetTypeFinal === "product" && target_product_id ? Number(target_product_id) : null;
 
-    const cfg = socialProofRow?.config || {}
+    // Inyectar category_id dentro de config para doble respaldo
+    const updatedConfig = {
+      ...(config || {}),
+      ...(targetCategoryIdFinal ? { category_id: String(targetCategoryIdFinal) } : {}),
+    };
 
-    // SI EL USUARIO NO TIENE REGISTRO O EL REGISTRO NO FUE APAGADO MANUALMENTE EXPLICITAMENTE -> ACTIVAR SIEMPRE
-    const userExplicitlyDisabled = socialProofRow && socialProofRow.is_active === false && (cfg.user_disabled === true || cfg.user_disabled === "true");
+    // 🔍 PREVENCIÓN DE DUPLICADOS:
+    let targetWidgetId = id;
 
-    let socialProofData = {
-      // 🌟 REGLA DE ORO: SIEMPRE ACTIVO PARA TODAS LAS TIENDAS SALVO APAGADO MANUAL
-      is_active: !userExplicitlyDisabled,
-      position: cfg.position || "bottom-left",
-      display_duration: Number(cfg.display_duration) || 5,
-      delay_between: Number(cfg.delay_between) || 8,
-      enable_recent_sales: cfg.enable_recent_sales !== false,
-      enable_live_visitors: cfg.enable_live_visitors !== false,
-      enable_low_stock: cfg.enable_low_stock !== false,
-      theme_style: cfg.theme_style || "light",
-      custom_cities: cfg.custom_cities || LATAM_CITIES,
-      events: [] as any[],
-    }
+    if (!targetWidgetId) {
+      let checkQuery = supabase
+        .from("widgets")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("store_id", store_id)
+        .eq("widget_slug", widget_slug)
+        .eq("target_type", targetTypeFinal);
 
-    if (socialProofData.is_active) {
-      const { data: storeRow } = await supabase
-        .from('stores')
-        .select('access_token')
-        .eq('store_id', storeId)
-        .maybeSingle()
-
-      let rawProds: unknown[] = []
-      if (storeRow?.access_token) {
-        try {
-          const prods = await getProducts(storeId, storeRow.access_token)
-          rawProds = Array.isArray(prods) ? prods : (prods as { products?: unknown[] })?.products || []
-        } catch (e) {
-          console.error('[Nevux Social Proof] Error obteniendo productos:', e)
-        }
+      if (targetTypeFinal === "category" && targetCategoryIdFinal) {
+        checkQuery = checkQuery.or(`target_category_id.eq.${targetCategoryIdFinal},config->>category_id.eq.${targetCategoryIdFinal}`);
+      } else if (targetTypeFinal === "product" && targetProductIdFinal) {
+        checkQuery = checkQuery.eq("target_product_id", targetProductIdFinal);
+      } else {
+        checkQuery = checkQuery.is("target_product_id", null);
       }
 
-      socialProofData.events = generateSocialProofEvents(rawProds, socialProofData)
-    }
+      const { data: existingFound } = await checkQuery
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    // 2. Buscar widgets activos ordenados por la fecha de actualización MÁS RECIENTE
-    let query = supabase
-      .from('widgets')
-      .select('id, widget_slug, widget_type, target_type, target_product_id, target_category_id, config, is_active, updated_at')
-      .eq('store_id', storeId)
-      .eq('is_active', true)
-      .order('updated_at', { ascending: false })
-
-    if (productId) {
-      query = query.or(
-        `target_type.eq.all,target_type.eq.category,and(target_type.eq.product,target_product_id.eq.${productId})`
-      )
-    } else {
-      query = query.or('target_type.eq.all,target_type.eq.category')
-    }
-
-    const { data: rawWidgets, error: widgetsError } = await query
-
-    if (widgetsError) {
-      console.error('Error obteniendo widgets:', widgetsError)
-      return NextResponse.json(
-        { error: widgetsError.message, widgets: [], voiceSearch: voiceSearchData, virtualSalesman: virtualSalesmanData, socialProof: socialProofData },
-        { status: 500, headers: corsHeaders }
-      )
-    }
-
-    // 🧹 DEDUPLICACIÓN INTELIGENTE POR ALCANCE: Permite widgets generales + de categoría sin pisarse
-    const uniqueMap = new Map<string, any>()
-    for (const w of rawWidgets || []) {
-      const catId = w.target_category_id || w.config?.category_id || ''
-      const prodId = w.target_product_id || ''
-      const scopeKey = `${w.widget_slug}_${w.target_type || 'all'}_${prodId}_${catId}`
-      if (!uniqueMap.has(scopeKey)) {
-        uniqueMap.set(scopeKey, w)
-      }
-    }
-    const widgets = Array.from(uniqueMap.values())
-
-    // Enriquecer widgets con sus definiciones
-    const slugs = widgets.map((w) => w.widget_slug)
-    let definitions: any[] = []
-
-    if (slugs.length > 0) {
-      const { data: defs } = await supabase
-        .from('widget_definitions')
-        .select('*')
-        .in('slug', slugs)
-
-      definitions = defs || []
-    }
-
-    let enrichedWidgets = widgets.map((w) => ({
-      ...w,
-      definition: definitions.find((d) => d.slug === w.widget_slug) || null,
-    }))
-
-    // Enriquecer widgets de reseñas si existen
-    const widgetsResenas = enrichedWidgets.filter(
-      (w) => w.widget_slug === 'resenas-clientes'
-    )
-
-    if (widgetsResenas.length > 0) {
-      const enriquecidos = await Promise.all(
-        widgetsResenas.map(async (w) => {
-          let reviewsQuery = supabase
-            .from('reviews')
-            .select(
-              'id, nombre, estrellas, texto, foto_url, talle, ajuste_talle, ' +
-              'verificada, desde_calificar, respuesta_texto, respuesta_fecha, ' +
-              'fecha_resena, orden, product_id'
-            )
-            .eq('widget_id', w.id)
-            .eq('estado', 'aprobada')
-            .order('orden', { ascending: true })
-            .order('created_at', { ascending: false })
-            .limit(100)
-
-          if (w.target_type === 'product' && w.target_product_id) {
-            reviewsQuery = reviewsQuery.eq('product_id', w.target_product_id)
-          }
-
-          const { data: reviews, error: reviewsError } = await reviewsQuery
-
-          if (reviewsError) {
-            console.error(`Error obteniendo reseñas para widget ${w.id}:`, reviewsError)
-            return { ...w, reviews: [], stats: defaultStats() }
-          }
-
-          const aprobadas = reviews || []
-          const stats = calcularStats(aprobadas)
-
-          return { ...w, reviews: aprobadas, stats }
-        })
-      )
-
-      enrichedWidgets = enrichedWidgets.map((w) => {
-        if (w.widget_slug !== 'resenas-clientes') return w
-        const enriquecido = enriquecidos.find((e) => e.id === w.id)
-        return enriquecido ?? w
-      })
-    }
-
-    // 🌎 INTERCEPCIÓN IDIOMA: Traducir los widgets automáticamente si el cliente tiene habilitado otro idioma
-    const { data: langSettings } = await supabase
-      .from("store_language_settings")
-      .select("*")
-      .eq("store_id", storeId)
-      .maybeSingle();
-
-    if (langSettings) {
-      const defaultLang = (langSettings.default_language || "es") as "es" | "pt" | "en";
-      const autoDetect = langSettings.auto_detect ?? true;
-      const enabledLangs = (langSettings.enabled_languages || ["es", "pt", "en"]) as ("es" | "pt" | "en")[];
-      const savedTranslations = langSettings.translations || {};
-
-      let targetLang: "es" | "pt" | "en" = defaultLang;
-      if (autoDetect && clientLangParam) {
-        const slicedLang = clientLangParam.slice(0, 2).toLowerCase() as any;
-        if (enabledLangs.includes(slicedLang)) {
-          targetLang = slicedLang;
-        }
-      }
-
-      if (targetLang !== "es") {
-        enrichedWidgets = enrichedWidgets.map((w) => {
-          let translatedConfig = { ...w.config };
-
-          if (savedTranslations[w.id] && savedTranslations[w.id][targetLang]) {
-            translatedConfig = {
-              ...translatedConfig,
-              ...(savedTranslations[w.id][targetLang] as Record<string, unknown>),
-            };
-          } else {
-            translatedConfig = translateWidgetConfig(w.widget_slug, translatedConfig, targetLang);
-          }
-
-          return {
-            ...w,
-            config: translatedConfig,
-          };
-        });
+      if (existingFound?.id) {
+        targetWidgetId = existingFound.id;
       }
     }
 
-    return NextResponse.json(
-      { 
-        widgets: enrichedWidgets, 
-        voiceSearch: voiceSearchData,
-        virtualSalesman: virtualSalesmanData,
-        socialProof: socialProofData,
-        ts: Date.now() 
-      },
-      { status: 200, headers: corsHeaders }
-    )
-  } catch (error: any) {
-    console.error('Error en GET /api/widget-render:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message, widgets: [], voiceSearch: null, virtualSalesman: null, socialProof: null },
-      { status: 500, headers: corsHeaders }
-    )
+    const now = new Date().toISOString();
+    const payload = {
+      user_id: user.id,
+      store_id,
+      widget_slug,
+      widget_type: widget_type || widget_slug,
+      target_type: targetTypeFinal,
+      target_product_id: targetProductIdFinal,
+      target_category_id: targetCategoryIdFinal ? String(targetCategoryIdFinal) : null,
+      config: updatedConfig,
+      is_active: is_active !== undefined ? is_active : true,
+      updated_at: now,
+    };
+
+    const { data, error } = await supabase
+      .from("widgets")
+      .upsert(
+        {
+          ...(targetWidgetId ? { id: targetWidgetId } : {}),
+          ...payload,
+          ...(targetWidgetId ? {} : { created_at: now }),
+        },
+        { onConflict: "id" }
+      )
+      .select()
+      .single();
+
+    if (error) throw error;
+    return corsResponse({ data, widget: data });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error interno";
+    return corsResponse({ error: message }, 500);
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const storeIdParam = searchParams.get("store_id");
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // 1. Caso Público (Script inyectado en la tienda del cliente)
+    if (!user) {
+      if (!storeIdParam) {
+        return corsResponse(
+          { error: "No autorizado. Se requiere store_id" },
+          401
+        );
+      }
+
+      const parsedStoreId = parseInt(storeIdParam, 10);
+      if (isNaN(parsedStoreId)) {
+        return corsResponse({ error: "store_id inválido" }, 400);
+      }
+
+      const { data: widgets, error: publicErr } = await supabaseAdmin
+        .from("widgets")
+        .select("*")
+        .eq("store_id", parsedStoreId)
+        .eq("is_active", true)
+        .order("updated_at", { ascending: false });
+
+      if (publicErr) {
+        throw publicErr;
+      }
+
+      return corsResponse({
+        widgets: widgets || [],
+        ts: Date.now(),
+      });
+    }
+
+    // 2. Caso Privado (Dashboard del comerciante logueado)
+    let query = supabase
+      .from("widgets")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+
+    if (storeIdParam) {
+      const parsedStoreId = parseInt(storeIdParam, 10);
+      if (!isNaN(parsedStoreId)) {
+        query = query.eq("store_id", parsedStoreId);
+      }
+    }
+
+    const { data: widgets, error: privateErr } = await query;
+    if (privateErr) {
+      throw privateErr;
+    }
+
+    return corsResponse({ widgets: widgets || [] });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error interno";
+    return corsResponse({ error: message }, 500);
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return corsResponse({ error: "No autorizado" }, 401);
+    }
+
+    const body = await req.json();
+    const { id, is_active } = body;
+
+    if (!id) {
+      return corsResponse({ error: "Falta el ID del widget" }, 400);
+    }
+
+    const { data, error } = await supabase
+      .from("widgets")
+      .update({
+        is_active,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return corsResponse({ data });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error interno";
+    return corsResponse({ error: message }, 500);
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return corsResponse({ error: "No autorizado" }, 401);
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return corsResponse({ error: "Falta el ID del widget" }, 400);
+    }
+
+    const { error } = await supabase
+      .from("widgets")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+    return corsResponse({ success: true });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error interno";
+    return corsResponse({ error: message }, 500);
+  }
+       }
