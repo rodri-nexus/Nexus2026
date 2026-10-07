@@ -23,13 +23,15 @@ interface ExWidget {
   is_active: boolean;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null; // Regla #40b
 }
 
 interface HorarioAtencionEditorProps {
   widgetDefinition: WidgetDef;
   existingWidget: ExWidget | null;
-  targetType: 'product' | 'all';
+  targetType: 'product' | 'all' | 'category'; // Regla #40c
   productId: number | null;
+  categoryId?: string | number | null; // Regla #40a
   storeId: string | number;
 }
 
@@ -45,6 +47,8 @@ interface Cfg {
   showIcon: boolean;
   campaignTheme: string;
 }
+
+type TabType = 'gen' | 'style' | 'dates'; // Regla #30
 
 /* ═══════════════════════════════════════════
    CONFIG POR DEFECTO
@@ -235,19 +239,21 @@ export default function HorarioAtencionEditor({
   existingWidget: ew,
   targetType,
   productId,
+  categoryId, // Regla #40a
   storeId,
 }: HorarioAtencionEditorProps) {
   const router = useRouter();
 
   const [cfg, setCfg] = useState<Cfg>(() => parseCfg(ew?.config));
-  const [tab, setTab] = useState<'gen' | 'style' | 'dates'>('gen');
+  const [tab, setTab] = useState<TabType>('gen'); // Regla #30
   const [saving, setSaving] = useState(false);
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState('');
   const [isOpenNow, setIsOpenNow] = useState(true);
 
   const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
+  const isCategory = targetType === 'category'; // Regla #40d
+  const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto'; // Regla #40d
 
   useEffect(() => {
     const checkOpenStatus = () => {
@@ -330,9 +336,13 @@ export default function HorarioAtencionEditor({
         id: ew?.id ?? null,
         store_id: storeId,
         widget_slug: wd.slug,
-        config: cfg,
+        config: {
+          ...cfg,
+          ...(categoryId ? { category_id: String(categoryId) } : {}) // Regla #40f
+        },
         target_type: targetType,
-        target_product_id: productId,
+        target_product_id: targetType === 'product' ? productId : null,
+        target_category_id: targetType === 'category' ? (categoryId ? String(categoryId) : null) : null, // Regla #40f
         is_active: true,
       };
       const res = await fetch('/api/widgets', {
@@ -387,7 +397,7 @@ export default function HorarioAtencionEditor({
       {/* MAIN */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* Scope chip */}
+        {/* Scope chip (Reglas #40d y #40e) */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#ffffff',
@@ -398,6 +408,16 @@ export default function HorarioAtencionEditor({
             <IconStore />
             <span>Todos los productos</span>
           </div>
+        ) : isCategory ? (
+          <div style={{
+            background: '#FEF3C7', border: '1px solid #FCD34D',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#D97706',
+          }}>
+            <span>🏷️</span>
+            <span>Widget para Categoría</span>
+          </div>
         ) : (
           <div style={{
             background: '#ffffff', border: '1px solid #e5e7eb',
@@ -405,7 +425,7 @@ export default function HorarioAtencionEditor({
             display: 'inline-flex', alignItems: 'center', gap: 10,
             marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000000',
           }}>
-            <span style={{ fontSize: 18 }}>🛍</span>
+            <span style={{ fontSize: 18 }}>🛍️</span>
             <span>NEVUX Widget</span>
           </div>
         )}
@@ -509,7 +529,8 @@ export default function HorarioAtencionEditor({
                     color: act ? '#10B981' : '#000000',
                     opacity: act ? 1 : 0.6,
                     fontSize: 15, fontWeight: act ? 700 : 500,
-                    cursor: 'pointer', fontFamily: 'inherit',
+                    cursor: act ? 'wait' : 'pointer',
+                    fontFamily: 'inherit',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -758,4 +779,4 @@ export default function HorarioAtencionEditor({
       </div>
     </div>
   );
-}
+   }
