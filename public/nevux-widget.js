@@ -1589,12 +1589,12 @@
     `;
     document.head.appendChild(style);
         }
-/* ═══════════════════════════════════════════
-     INIT (ES5 STRICT COMPATIBLE - v187)
+  /* ═══════════════════════════════════════════
+     INIT
   ═══════════════════════════════════════════ */
-  var storeId = detectStoreId();
-  var productId = detectProductId();
-  var pageType = detectPageType();
+  const storeId = detectStoreId();
+  const productId = detectProductId();
+  const pageType = detectPageType();
 
   console.log("[Nevux] storeId:", storeId, "productId:", productId, "pageType:", pageType);
 
@@ -1607,12 +1607,12 @@
 
   // Detectar idioma del comprador (desde la etiqueta <html lang="..."> o configuración del navegador)
   var clientLang = document.documentElement.lang || navigator.language || "es";
-  var url = API_BASE + "/api/widget-render?store_id=" + storeId +
+  const url = API_BASE + "/api/widget-render?store_id=" + storeId +
     (productId ? "&product_id=" + productId : "") +
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
-  /* ═══════════════════════════════════════════
+      /* ═══════════════════════════════════════════
      HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (Regla #38 y #39)
   ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId) {
@@ -1680,7 +1680,6 @@
 
     return false;
   };
-
   /* ═══════════════════════════════════════════
      FETCH UNIFICADO: UN SOLO VIAJE AL SERVIDOR
   ═══════════════════════════════════════════ */
@@ -1786,8 +1785,6 @@
     .catch(function (err) {
       console.error("[Nevux] Error crítico en el despachador Nevux:", err);
     });
-
-})(); // <-- CIERRE CORRECTO DEL WRAPPER PRINCIPAL DEL ARCHIVO
   
 /* ═══════════════════════════════════════════
    DETECCIÓN SEGURA DE PÁGINA (ES5 Safe)
@@ -2911,35 +2908,6 @@ function renderHorarioAtencion(w) {
   var borderColor = cfg.borderColor || "#e5e7eb";
   var showIcon = typeof cfg.showIcon === "boolean" ? cfg.showIcon : true;
 
-  // Formateador dinámico ES5 (Regla #19 y #39)
-  var formatWorkDaysLocal = function(days) {
-    if (!days || days.length === 0) return "Ningún día";
-    if (days.length === 7) return "Todos los días";
-
-    var sortedDays = days.slice().sort(function(a, b) {
-      var valA = a === 0 ? 7 : a;
-      var valB = b === 0 ? 7 : b;
-      return valA - valB;
-    });
-
-    var hasDay = function(arr, d) { return arr.indexOf(d) !== -1; };
-    var isMonFri = days.length === 5 && hasDay(days, 1) && hasDay(days, 2) && hasDay(days, 3) && hasDay(days, 4) && hasDay(days, 5);
-    if (isMonFri) return "Lunes a Viernes";
-
-    var isMonSat = days.length === 6 && hasDay(days, 1) && hasDay(days, 2) && hasDay(days, 3) && hasDay(days, 4) && hasDay(days, 5) && hasDay(days, 6);
-    if (isMonSat) return "Lunes a Sábado";
-
-    var names = {
-      1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb", 0: "Dom"
-    };
-
-    var result = [];
-    for (var i = 0; i < sortedDays.length; i++) {
-      result.push(names[sortedDays[i]]);
-    }
-    return result.join(", ");
-  };
-
   // Cálculo en vivo del estado abierto/cerrado
   var now = new Date();
   var day = now.getDay(); // 0: Dom, 1: Lun, etc.
@@ -2960,49 +2928,36 @@ function renderHorarioAtencion(w) {
   var container = document.createElement('div');
   container.id = 'nvx-horario-' + w.id;
   container.className = 'nvx-widget nvx-horario-wrapper';
-  container.style.cssText = 'background:' + bgColor + ' !important;border:1.5px solid ' + borderColor + ' !important;border-radius:12px !important;padding:14px 18px !important;margin:12px 0 !important;box-sizing:border-box !important;box-shadow:0 3px 10px rgba(0,0,0,0.03) !important;display:flex !important;align-items:center !important;gap:12px !important;font-family:system-ui,-apple-system,sans-serif !important;color:' + textColor + ' !important;';
+  container.style.cssText = 'background:' + bgColor + ';border:1.5px solid ' + borderColor + ';border-radius:12px;padding:14px 18px;margin:12px 0;box-sizing:border-box;box-shadow:0 3px 10px rgba(0,0,0,0.03);display:flex;align-items:center;gap:12px;font-family:system-ui,-apple-system,sans-serif;color:' + textColor + ';';
 
-  var iconHtml = showIcon ? '<div style="font-size:26px !important;line-height:1 !important;flex-shrink:0 !important;margin-right:4px !important;">⏰</div>' : '';
+  var iconHtml = showIcon ? '<div style="font-size:26px;line-height:1;flex-shrink:0;">⏰</div>' : '';
   var statusBadge = isOpen
-    ? '<span style="background:#ecfdf5 !important;color:#059669 !important;font-size:10px !important;font-weight:900 !important;padding:2px 7px !important;border-radius:999px !important;display:inline-flex !important;align-items:center !important;gap:4px !important;margin-bottom:4px !important;"><span style="width:6px !important;height:6px !important;border-radius:50% !important;background:#10B981 !important;display:inline-block !important;"></span>ABIERTO AHORA</span>'
-    : '<span style="background:#fef2f2 !important;color:#dc2626 !important;font-size:10px !important;font-weight:900 !important;padding:2px 7px !important;border-radius:999px !important;display:inline-flex !important;align-items:center !important;gap:4px !important;margin-bottom:4px !important;"><span style="width:6px !important;height:6px !important;border-radius:50% !important;background:#ef4444 !important;display:inline-block !important;"></span>CERRADO</span>';
+    ? '<span style="background:#ecfdf5;color:#059669;font-size:10px;font-weight:900;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block;"></span>ABIERTO AHORA</span>'
+    : '<span style="background:#fef2f2;color:#dc2626;font-size:10px;font-weight:900;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;"></span>CERRADO</span>';
 
   var mainMsg = isOpen ? openText : closedText;
 
   container.innerHTML = iconHtml +
-    '<div style="flex:1 !important;min-width:0 !important;">' +
+    '<div style="flex:1;min-width:0;">' +
       '<div>' + statusBadge + '</div>' +
-      '<div style="font-size:13px !important;font-weight:800 !important;line-height:1.3 !important;margin-bottom:3px !important;color:' + textColor + ' !important;">' + mainMsg + '</div>' +
-      '<div style="font-size:11px !important;opacity:0.65 !important;font-weight:600 !important;color:' + textColor + ' !important;">Atención: ' + formatWorkDaysLocal(workDays) + ' ' + openTime + ' a ' + closeTime + ' hs.</div>' +
+      '<div style="font-size:13px;font-weight:800;line-height:1.3;margin-bottom:3px;">' + mainMsg + '</div>' +
+      '<div style="font-size:11px;opacity:0.65;font-weight:600;">Atención: Lun a Vie ' + openTime + ' a ' + closeTime + ' hs.</div>' +
     '</div>';
 
-    // Inserción en el DOM Inteligente para Productos y Categorías (v183)
+  // Inserción en el DOM
   var targetEl = null;
-  var isProductPage = typeof window !== "undefined" && window.LS && window.LS.product;
-
-  if (isProductPage) {
+  if (w.target_type === 'product' && w.target_product_id) {
     targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
     if (targetEl && targetEl.parentNode) {
-      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
-    }
-  } else if (w.target_type === 'category' || (window.LS && window.LS.category)) {
-    targetEl = document.querySelector('.js-product-grid, #product-grid, .product-grid, h1.category-title, h1.header-title, .category-header');
-    if (targetEl && targetEl.parentNode) {
       targetEl.parentNode.insertBefore(container, targetEl);
-    } else {
-      var mainContainer = document.querySelector('main, #content, .main-content, .js-main-content');
-      if (mainContainer && mainContainer.firstChild) {
-        mainContainer.insertBefore(container, mainContainer.firstChild);
-      } else if (document.body) {
-        document.body.insertBefore(container, document.body.firstChild);
-      }
     }
   } else {
-    var generalMain = document.querySelector('main, #content, .main-content, .js-main-content');
-    if (generalMain && generalMain.firstChild) {
-      generalMain.insertBefore(container, generalMain.firstChild);
-    } else if (document.body) {
-      document.body.insertBefore(container, document.body.firstChild);
+    var main = document.querySelector('main, #content, .main-content, .js-main-content');
+    if (main) {
+      main.insertBefore(container, main.firstChild);
+    } else {
+      var body = document.body;
+      if (body) body.insertBefore(container, body.firstChild);
     }
   }
 
@@ -3010,6 +2965,7 @@ function renderHorarioAtencion(w) {
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
+    } 
 /* ═══════════════════════════════════════════
    WIDGET: CALCULADORA DE AHORRO
    ═══════════════════════════════════════════ */
@@ -3448,252 +3404,213 @@ function renderContadorVendidos(w) {
   }
 }
             /* ═══════════════════════════════════════════
-   SOCIAL PROOF IA — 3 TIPOS DE NOTIFICACIONES + ESCÁNER DE PRODUCTOS REALES (v183)
-═══════════════════════════════════════════ */
-function renderSocialProof(spData) {
-  if (!spData || spData.is_active === false || spData.user_disabled) return;
+     SOCIAL PROOF IA — 3 TIPOS DE NOTIFICACIONES + FOTOS REALES (v180)
+  ═══════════════════════════════════════════ */
+  function renderSocialProof(spData) {
+    if (!spData || spData.is_active === false || spData.user_disabled) return;
 
-  var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
-  var rootId = nsPrefix + "-social-proof-root";
-  
-  var existingContainer = document.getElementById(rootId);
-  if (existingContainer && existingContainer.parentNode) {
-    existingContainer.parentNode.removeChild(existingContainer);
-  }
-
-  var container = document.createElement("div");
-  container.id = rootId;
-  container.className = nsPrefix + "-root";
-
-  var pos = (spData.config && spData.config.position) || spData.position || "bottom-left";
-  var posStyles = "position:fixed !important;z-index:999995 !important;max-width:290px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
-  
-  if (pos.indexOf("bottom") !== -1) posStyles += "bottom:16px !important;";
-  if (pos.indexOf("top") !== -1) posStyles += "top:16px !important;";
-  if (pos.indexOf("left") !== -1) posStyles += "left:16px !important;";
-  if (pos.indexOf("right") !== -1) posStyles += "right:16px !important;";
-
-  container.style.cssText = posStyles;
-
-  if (document.body) {
-    document.body.appendChild(container);
-  } else {
-    return;
-  }
-
-  // Helper para validar URLs de imagen reales (ignora placeholders y data:image base64)
-  var isValidImageUrl = function(src) {
-    if (!src || typeof src !== "string") return false;
-    var s = src.trim();
-    if (s.length === 0) return false;
-    if (s.indexOf("data:image") === 0) return false;
-    if (s.indexOf("blank.gif") !== -1 || s.indexOf("pixel.gif") !== -1 || s.indexOf("spacer") !== -1) return false;
-    return true;
-  };
-
-  // 1. Obtener imagen y nombre del producto si está en ficha de producto
-  var currentProdImg = "";
-  var currentProdName = "";
-  if (typeof window !== "undefined" && window.LS && window.LS.product) {
-    currentProdName = window.LS.product.name || "";
-    if (window.LS.product.images && window.LS.product.images.length > 0) {
-      var imgObj = window.LS.product.images[0];
-      var candImg = typeof imgObj === "string" ? imgObj : (imgObj.src || imgObj.url || "");
-      if (isValidImageUrl(candImg)) currentProdImg = candImg;
-    } else if (isValidImageUrl(window.LS.product.image)) {
-      currentProdImg = window.LS.product.image;
-    }
-  }
-
-  // 2. ESCÁNER AUTOMÁTICO DE PRODUCTOS EN LA TIENDA (Para Home y Catálogo)
-  var scrapedProducts = [];
-  try {
-    var productElements = document.querySelectorAll(".js-item-product, .item-product, .product-item, .grid-item, [data-product-id], article.product");
-    for (var p = 0; p < productElements.length; p++) {
-      var el = productElements[p];
-      var nameEl = el.querySelector(".item-name, .product-title, .title, h2, h3, a[title]");
-      var imgEl = el.querySelector("img[src], img[data-src], img[data-srcset]");
-      
-      var pName = nameEl ? (nameEl.getAttribute("title") || nameEl.innerText || "").trim() : "";
-      var pImg = "";
-      if (imgEl) {
-        var rawSrc = imgEl.getAttribute("src") || imgEl.getAttribute("data-src") || "";
-        if (isValidImageUrl(rawSrc)) {
-          pImg = rawSrc;
-        }
-      }
-
-      if (pName && pImg) {
-        scrapedProducts.push({ name: pName, image: pImg });
-      }
-    }
-  } catch (eScan) {}
-
-  var buyers = [
-    { name: "Sofía M.", city: "Palermo, CABA" },
-    { name: "Martín G.", city: "Córdoba Capital" },
-    { name: "Lucía R.", city: "Rosario, Santa Fe" },
-    { name: "Valentina D.", city: "Belgrano, CABA" },
-    { name: "Joaquín B.", city: "Mendoza" },
-    { name: "Camila S.", city: "La Plata" },
-    { name: "Mateo P.", city: "San Isidro" }
-  ];
-
-  var getRandomProduct = function() {
-    if (scrapedProducts.length > 0) {
-      var rIdx = Math.floor(Math.random() * scrapedProducts.length);
-      return scrapedProducts[rIdx];
-    }
-    return null;
-  };
-
-  var prodA = getRandomProduct();
-  var prodB = getRandomProduct();
-
-  var itemAName = currentProdName || (prodA ? prodA.name : "un producto destacado");
-  var itemAImg = currentProdImg || (prodA ? prodA.image : "");
-
-  var itemBName = currentProdName || (prodB ? prodB.name : "una oferta del día");
-  var itemBImg = currentProdImg || (prodB ? prodB.image : "");
-
-  var events = [
-    {
-      type: "sale",
-      title: buyers[0].name + " de " + buyers[0].city,
-      subtitle: "Compró " + itemAName,
-      badge: "⚡ Compra verificada",
-      icon: "🛍️",
-      image: itemAImg
-    },
-    {
-      type: "visitors",
-      title: (Math.floor(Math.random() * 18) + 14) + " personas mirando ahora",
-      subtitle: currentProdName ? "Interesados en este producto" : "Viendo productos de la tienda",
-      badge: "🔥 Tendencia en vivo",
-      icon: "👀",
-      image: itemAImg
-    },
-    {
-      type: "stock",
-      title: "¡Últimas " + (Math.floor(Math.random() * 3) + 2) + " unidades disponibles!",
-      subtitle: "Alta demanda en las últimas horas",
-      badge: "⚠️ Se agota rápido",
-      icon: "📦",
-      image: itemBImg
-    },
-    {
-      type: "sale",
-      title: buyers[1].name + " de " + buyers[1].city,
-      subtitle: "Compró " + itemBName,
-      badge: "⚡ Envío despachado",
-      icon: "🚀",
-      image: itemBImg
-    }
-  ];
-
-  var currentIdx = 0;
-  var displayMs = ((spData.config && spData.config.displayTime) || spData.display_duration || 5) * 1000;
-  var delayMs = ((spData.config && spData.config.delayBetween) || spData.delay_between || 7) * 1000;
-  var theme = (spData.config && spData.config.theme_style) || spData.theme_style || "dark";
-
-  function safeEscape(str) {
-    if (!str) return "";
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function showNextEvent() {
-    if (!events || events.length === 0) return;
-    var ev = events[currentIdx];
-    currentIdx = (currentIdx + 1) % events.length;
-
-    var bgStyle = "#ffffff";
-    var textColor = "#111827";
-    var subColor = "#6b7280";
-    var borderStyle = "1px solid #e5e7eb";
-
-    if (theme === "dark") {
-      bgStyle = "#111827";
-      textColor = "#ffffff";
-      subColor = "#9ca3af";
-      borderStyle = "1px solid #374151";
+    var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
+    var rootId = nsPrefix + "-social-proof-root";
+    
+    var existingContainer = document.getElementById(rootId);
+    if (existingContainer && existingContainer.parentNode) {
+      existingContainer.parentNode.removeChild(existingContainer);
     }
 
-    var cardId = nsPrefix + "-sp-card";
-    var closeId = nsPrefix + "-sp-close";
+    var container = document.createElement("div");
+    container.id = rootId;
+    container.className = nsPrefix + "-root";
 
-    var visualMediaHtml = "";
-    if (isValidImageUrl(ev.image)) {
-      visualMediaHtml = '<img src="' + safeEscape(ev.image) + '" style="width:38px !important;height:38px !important;object-fit:cover !important;border-radius:9px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;background:#fff !important;" />';
+    var pos = (spData.config && spData.config.position) || spData.position || "bottom-left";
+    var posStyles = "position:fixed !important;z-index:999995 !important;max-width:280px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
+    
+    if (pos.indexOf("bottom") !== -1) posStyles += "bottom:16px !important;";
+    if (pos.indexOf("top") !== -1) posStyles += "top:16px !important;";
+    if (pos.indexOf("left") !== -1) posStyles += "left:16px !important;";
+    if (pos.indexOf("right") !== -1) posStyles += "right:16px !important;";
+
+    container.style.cssText = posStyles;
+
+    if (document.body) {
+      document.body.appendChild(container);
     } else {
-      visualMediaHtml = '<div style="width:38px !important;height:38px !important;border-radius:9px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:18px !important;flex-shrink:0 !important;">' + ev.icon + '</div>';
+      return;
     }
 
-    var cardHtml = '<div id="' + cardId + '" style="' +
-      'background:' + bgStyle + ' !important;' +
-      'color:' + textColor + ' !important;' +
-      'border:' + borderStyle + ' !important;' +
-      'border-radius:14px !important;' +
-      'padding:9px 12px !important;' +
-      'display:flex !important;' +
-      'align-items:center !important;' +
-      'gap:9px !important;' +
-      'box-shadow:0 10px 25px rgba(0,0,0,0.22) !important;' +
-      'pointer-events:auto !important;' +
-      'transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
-      'transform:translateY(20px) !important;' +
-      'opacity:0 !important;' +
-      'box-sizing:border-box !important;' +
-      'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;' +
-      'margin:0 !important;' +
-      'width:100% !important;' +
-      '">' +
-      visualMediaHtml +
-      '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-        '<div style="font-size:11.5px !important;font-weight:700 !important;line-height:1.25 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;color:' + textColor + ' !important;margin:0 !important;">' + safeEscape(ev.title) + '</div>' +
-        '<div style="font-size:10.5px !important;color:' + subColor + ' !important;line-height:1.25 !important;margin-top:1px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEscape(ev.subtitle) + '</div>' +
-        '<div style="font-size:9.5px !important;color:#10B981 !important;font-weight:700 !important;margin-top:2px !important;display:flex !important;align-items:center !important;gap:2px !important;">' + safeEscape(ev.badge) + '</div>' +
-      '</div>' +
-      '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:2px !important;font-size:13px !important;line-height:1 !important;margin-left:2px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
-    '</div>';
+    // Obtener imagen y nombre del producto actual de la tienda si está en ficha de producto
+    var currentProdImg = "";
+    var currentProdName = "";
+    if (typeof window !== "undefined" && window.LS && window.LS.product) {
+      currentProdName = window.LS.product.name || "";
+      if (window.LS.product.images && window.LS.product.images.length > 0) {
+        var imgObj = window.LS.product.images[0];
+        currentProdImg = typeof imgObj === "string" ? imgObj : (imgObj.src || imgObj.url || "");
+      } else if (window.LS.product.image) {
+        currentProdImg = window.LS.product.image;
+      }
+    }
 
-    container.innerHTML = cardHtml;
+    // Fallback: buscar imagen de producto en el DOM
+    if (!currentProdImg) {
+      var domImg = document.querySelector(".product-image img, .js-product-slide img, [data-main-image] img, img[itemprop='image']");
+      if (domImg && domImg.getAttribute("src")) {
+        currentProdImg = domImg.getAttribute("src");
+      }
+    }
 
-    var cardEl = document.getElementById(cardId);
-    var closeBtn = document.getElementById(closeId);
+    // GENERADOR DINÁMICO DE LOS 3 TIPOS DE NOTIFICACIONES
+    var buyers = [
+      { name: "Sofía M.", city: "Palermo, CABA" },
+      { name: "Martín G.", city: "Córdoba Capital" },
+      { name: "Lucía R.", city: "Rosario, Santa Fe" },
+      { name: "Valentina D.", city: "Belgrano, CABA" },
+      { name: "Joaquín B.", city: "Mendoza" },
+      { name: "Camila S.", city: "La Plata" },
+      { name: "Mateo P.", city: "San Isidro" }
+    ];
 
-    if (closeBtn) {
-      closeBtn.onclick = function(e) {
-        if (e && e.stopPropagation) e.stopPropagation();
+    var events = [
+      // 1. Compra reciente
+      {
+        type: "sale",
+        title: buyers[0].name + " de " + buyers[0].city,
+        subtitle: "Compró " + (currentProdName ? currentProdName : "hace 4 minutos"),
+        badge: "⚡ Compra verificada",
+        icon: "🛍️",
+        image: currentProdImg
+      },
+      // 2. Visitantes en vivo
+      {
+        type: "visitors",
+        title: (Math.floor(Math.random() * 21) + 18) + " personas mirando ahora",
+        subtitle: currentProdName ? "Interesados en este producto" : "Viendo productos de la tienda",
+        badge: "🔥 Tendencia en vivo",
+        icon: "👀",
+        image: currentProdImg
+      },
+      // 3. Alerta de stock crítico
+      {
+        type: "stock",
+        title: "¡Últimas " + (Math.floor(Math.random() * 3) + 2) + " unidades disponibles!",
+        subtitle: "Alta demanda en las últimas horas",
+        badge: "⚠️ Se agota rápido",
+        icon: "📦",
+        image: currentProdImg
+      },
+      // 4. Otra compra reciente
+      {
+        type: "sale",
+        title: buyers[1].name + " de " + buyers[1].city,
+        subtitle: "Compró hace 9 minutos",
+        badge: "⚡ Envío despachado",
+        icon: "🚀",
+        image: currentProdImg
+      }
+    ];
+
+    var currentIdx = 0;
+    var displayMs = ((spData.config && spData.config.displayTime) || spData.display_duration || 5) * 1000;
+    var delayMs = ((spData.config && spData.config.delayBetween) || spData.delay_between || 7) * 1000;
+    var theme = (spData.config && spData.config.theme_style) || spData.theme_style || "dark";
+
+    function safeEscape(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function showNextEvent() {
+      if (!events || events.length === 0) return;
+      var ev = events[currentIdx];
+      currentIdx = (currentIdx + 1) % events.length;
+
+      var bgStyle = "#ffffff";
+      var textColor = "#111827";
+      var subColor = "#6b7280";
+      var borderStyle = "1px solid #e5e7eb";
+
+      if (theme === "dark") {
+        bgStyle = "#111827";
+        textColor = "#ffffff";
+        subColor = "#9ca3af";
+        borderStyle = "1px solid #374151";
+      }
+
+      var cardId = nsPrefix + "-sp-card";
+      var closeId = nsPrefix + "-sp-close";
+
+      var visualMediaHtml = "";
+      if (ev.image) {
+        visualMediaHtml = '<img src="' + safeEscape(ev.image) + '" style="width:38px !important;height:38px !important;object-fit:cover !important;border-radius:9px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;background:#fff !important;" />';
+      } else {
+        visualMediaHtml = '<div style="width:38px !important;height:38px !important;border-radius:9px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:18px !important;flex-shrink:0 !important;">' + ev.icon + '</div>';
+      }
+
+      var cardHtml = '<div id="' + cardId + '" style="' +
+        'background:' + bgStyle + ' !important;' +
+        'color:' + textColor + ' !important;' +
+        'border:' + borderStyle + ' !important;' +
+        'border-radius:14px !important;' +
+        'padding:9px 12px !important;' +
+        'display:flex !important;' +
+        'align-items:center !important;' +
+        'gap:9px !important;' +
+        'box-shadow:0 10px 25px rgba(0,0,0,0.22) !important;' +
+        'pointer-events:auto !important;' +
+        'transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
+        'transform:translateY(20px) !important;' +
+        'opacity:0 !important;' +
+        'box-sizing:border-box !important;' +
+        'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;' +
+        'margin:0 !important;' +
+        'width:100% !important;' +
+        '">' +
+        visualMediaHtml +
+        '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
+          '<div style="font-size:11.5px !important;font-weight:700 !important;line-height:1.25 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;color:' + textColor + ' !important;margin:0 !important;">' + safeEscape(ev.title) + '</div>' +
+          '<div style="font-size:10.5px !important;color:' + subColor + ' !important;line-height:1.25 !important;margin-top:1px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEscape(ev.subtitle) + '</div>' +
+          '<div style="font-size:9.5px !important;color:#10B981 !important;font-weight:700 !important;margin-top:2px !important;display:flex !important;align-items:center !important;gap:2px !important;">' + safeEscape(ev.badge) + '</div>' +
+        '</div>' +
+        '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:2px !important;font-size:13px !important;line-height:1 !important;margin-left:2px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
+      '</div>';
+
+      container.innerHTML = cardHtml;
+
+      var cardEl = document.getElementById(cardId);
+      var closeBtn = document.getElementById(closeId);
+
+      if (closeBtn) {
+        closeBtn.onclick = function(e) {
+          if (e && e.stopPropagation) e.stopPropagation();
+          if (cardEl) {
+            cardEl.style.setProperty("opacity", "0", "important");
+            cardEl.style.setProperty("transform", "translateY(20px)", "important");
+          }
+        };
+      }
+
+      setTimeout(function() {
+        if (cardEl) {
+          cardEl.style.setProperty("opacity", "1", "important");
+          cardEl.style.setProperty("transform", "translateY(0px)", "important");
+        }
+      }, 80);
+
+      setTimeout(function() {
         if (cardEl) {
           cardEl.style.setProperty("opacity", "0", "important");
           cardEl.style.setProperty("transform", "translateY(20px)", "important");
         }
-      };
+        setTimeout(showNextEvent, delayMs);
+      }, displayMs);
     }
 
-    setTimeout(function() {
-      if (cardEl) {
-        cardEl.style.setProperty("opacity", "1", "important");
-        cardEl.style.setProperty("transform", "translateY(0px)", "important");
-      }
-    }, 80);
-
-    setTimeout(function() {
-      if (cardEl) {
-        cardEl.style.setProperty("opacity", "0", "important");
-        cardEl.style.setProperty("transform", "translateY(20px)", "important");
-      }
-      setTimeout(showNextEvent, delayMs);
-    }, displayMs);
-  }
-
-  setTimeout(showNextEvent, 1200);
-}
+    setTimeout(showNextEvent, 1200);
+        }
 /* ═══════════════════════════════════════════
    WIDGET: CUENTA REGRESIVA (v16 - 11 Plantillas)
    ═══════════════════════════════════════════ */
@@ -5205,8 +5122,8 @@ function renderBundlePromociones(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-  }
-/* ═══════════════════════════════════════════
+        }
+  /* ═══════════════════════════════════════════
    WIDGET: POPUP DE CONVERSIÓN (v233 - Alineación Ruleta 10/10)
    ═══════════════════════════════════════════ */
 function renderPopupConversion(w) {
