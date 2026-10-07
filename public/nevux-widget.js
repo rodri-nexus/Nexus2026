@@ -1819,7 +1819,7 @@ function detectPageType() {
 }
   
 /* ═══════════════════════════════════════════
-   WIDGET: MARQUEE DE NOVEDADES (v11 Layout-Safe Buy Button)
+   WIDGET: MARQUEE DE NOVEDADES (v193 - COMPLETA Y SEGURA)
    ═══════════════════════════════════════════ */
 function renderMarqueeNovedades(w) {
   if (document.getElementById('nvx-marquee-' + w.id)) return;
@@ -1849,10 +1849,10 @@ function renderMarqueeNovedades(w) {
   var container = document.createElement('div');
   container.id = 'nvx-marquee-' + w.id;
   container.className = 'nvx-widget nvx-marquee-wrapper';
-  container.style.cssText = 'display:block;width:100%;max-width:100%;clear:both;overflow:hidden;background:' + bgColor + ';padding:10px 0;box-sizing:border-box;margin:12px 0;position:relative;z-index:99;cursor:default;';
+  container.style.cssText = 'display:block !important;width:100% !important;max-width:100% !important;clear:both !important;overflow:hidden !important;background:' + bgColor + ' !important;padding:10px 0 !important;box-sizing:border-box !important;margin:12px 0 !important;position:relative !important;z-index:99 !important;cursor:default !important;';
 
   var track = document.createElement('div');
-  track.style.cssText = 'display:flex;white-space:nowrap;width:max-content;animation:' + animName + ' ' + dur + ' linear infinite;';
+  track.style.cssText = 'display:flex !important;white-space:nowrap !important;width:max-content !important;animation:' + animName + ' ' + dur + ' linear infinite !important;';
   track.onmouseenter = function () { track.style.animationPlayState = 'paused'; };
   track.onmouseleave = function () { track.style.animationPlayState = 'running'; };
 
@@ -1868,9 +1868,9 @@ function renderMarqueeNovedades(w) {
     html +=
       '<span style="color:' +
       textColor +
-      ';font-size:' +
+      ' !important;font-size:' +
       fontSize +
-      ';font-weight:700;padding:0 24px;display:inline-flex;align-items:center;letter-spacing:0.02em;font-family:system-ui,-apple-system,sans-serif;">' +
+      ' !important;font-weight:700 !important;padding:0 24px !important;display:inline-flex !important;align-items:center !important;letter-spacing:0.02em !important;font-family:system-ui,-apple-system,sans-serif !important;">' +
       safeMsg +
       '</span>';
   }
@@ -1879,8 +1879,10 @@ function renderMarqueeNovedades(w) {
 
   var targetEl = null;
   var insertMethod = 'before';
+  var isProductPage = typeof window !== "undefined" && window.LS && window.LS.product;
 
-  if (w.target_type === 'product' && w.target_product_id) {
+  if (isProductPage) {
+    // 1. FICHA DE PRODUCTO (Se inyecta según la posición configurada)
     var priceEl = document.querySelector(
       '.js-price-display, .price-display, #price_display, .price-container, .product-price-container, .js-product-price-container, .product-price, .js-price-container'
     );
@@ -1946,8 +1948,23 @@ function renderMarqueeNovedades(w) {
         insertMethod = 'before';
       }
     }
+  } else if (w.target_type === 'category' || (window.LS && window.LS.category)) {
+    // 2. LISTADO DE CATEGORÍA (Inyección inteligente arriba de la grilla de productos)
+    targetEl = document.querySelector('.js-product-grid, #product-grid, .product-grid, .product-list, h1.category-title, h1.header-title, .category-header, #products');
+    if (targetEl) {
+      insertMethod = 'before';
+    } else {
+      var mainContainer = document.querySelector('main, #content, .main-content, .js-main-content');
+      if (mainContainer) {
+        targetEl = mainContainer;
+        insertMethod = 'prepend';
+      } else {
+        targetEl = document.body;
+        insertMethod = 'prepend';
+      }
+    }
   } else {
-    // 🎯 UBICACIÓN EXACTA ARRIBA DEL BANNER PRINCIPAL DE LA HOME
+    // 3. HOME O PÁGINAS GENERALES
     var homeBanner = document.querySelector(
       '.js-home-slider, .home-slider, .js-home-main-slider, [data-store*="slider"], [data-store*="banner"], .section-slider, .section-main-slider, .home-banners, .js-home-banner, .home-slider-wrapper, section.slider'
     );
@@ -1988,7 +2005,7 @@ function renderMarqueeNovedades(w) {
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
-      }
+        }
 /* ═══════════════════════════════════════════
    WIDGET: MARQUEE DE NOVEDADES (v11 Layout-Safe Buy Button)
    ═══════════════════════════════════════════ */
