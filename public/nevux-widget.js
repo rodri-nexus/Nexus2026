@@ -3446,14 +3446,18 @@ function renderContadorVendidos(w) {
   }
 }
             /* ═══════════════════════════════════════════
-     SOCIAL PROOF IA — 3 TIPOS DE NOTIFICACIONES + FOTOS REALES (v180)
+     SOCIAL PROOF IA — 3 TIPOS + PRODUCTOS REALES ROTATIVOS (v191)
   ═══════════════════════════════════════════ */
   function renderSocialProof(spData) {
-    if (!spData || spData.is_active === false || spData.user_disabled) return;
+    // Filtro ultra-estricto de desactivación (fix bug de apagado)
+    if (!spData) return;
+    if (spData.is_active === false || spData.is_active === "false") return;
+    if (spData.user_disabled === true || spData.user_disabled === "true") return;
+    if (spData.config && (spData.config.user_disabled === true || spData.config.user_disabled === "true")) return;
 
     var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
     var rootId = nsPrefix + "-social-proof-root";
-    
+
     var existingContainer = document.getElementById(rootId);
     if (existingContainer && existingContainer.parentNode) {
       existingContainer.parentNode.removeChild(existingContainer);
@@ -3464,8 +3468,8 @@ function renderContadorVendidos(w) {
     container.className = nsPrefix + "-root";
 
     var pos = (spData.config && spData.config.position) || spData.position || "bottom-left";
-    var posStyles = "position:fixed !important;z-index:999995 !important;max-width:280px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
-    
+    var posStyles = "position:fixed !important;z-index:999995 !important;max-width:290px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
+
     if (pos.indexOf("bottom") !== -1) posStyles += "bottom:16px !important;";
     if (pos.indexOf("top") !== -1) posStyles += "top:16px !important;";
     if (pos.indexOf("left") !== -1) posStyles += "left:16px !important;";
@@ -3479,28 +3483,63 @@ function renderContadorVendidos(w) {
       return;
     }
 
-    // Obtener imagen y nombre del producto actual de la tienda si está en ficha de producto
+    // Helper: validar que una URL de imagen sea real (no placeholder ni data:image)
+    var isValidImg = function(src) {
+      if (!src || typeof src !== "string") return false;
+      var s = src.trim();
+      if (s.length < 5) return false;
+      if (s.indexOf("data:image") === 0) return false;
+      if (s.indexOf("blank.gif") !== -1 || s.indexOf("pixel") !== -1 || s.indexOf("spacer") !== -1) return false;
+      return true;
+    };
+
+    // 1. Producto actual si está en ficha de producto
     var currentProdImg = "";
     var currentProdName = "";
     if (typeof window !== "undefined" && window.LS && window.LS.product) {
       currentProdName = window.LS.product.name || "";
       if (window.LS.product.images && window.LS.product.images.length > 0) {
         var imgObj = window.LS.product.images[0];
-        currentProdImg = typeof imgObj === "string" ? imgObj : (imgObj.src || imgObj.url || "");
-      } else if (window.LS.product.image) {
+        var cand = typeof imgObj === "string" ? imgObj : (imgObj.src || imgObj.url || "");
+        if (isValidImg(cand)) currentProdImg = cand;
+      } else if (isValidImg(window.LS.product.image)) {
         currentProdImg = window.LS.product.image;
       }
     }
 
-    // Fallback: buscar imagen de producto en el DOM
-    if (!currentProdImg) {
-      var domImg = document.querySelector(".product-image img, .js-product-slide img, [data-main-image] img, img[itemprop='image']");
-      if (domImg && domImg.getAttribute("src")) {
-        currentProdImg = domImg.getAttribute("src");
+    // 2. Escáner de productos reales de la tienda (para Home y Catálogo)
+    var scrapedProducts = [];
+    try {
+      var prodEls = document.querySelectorAll(".js-item-product, .item-product, .product-item, .grid-item, [data-product-id], article.product");
+      for (var p = 0; p < prodEls.length; p++) {
+        var el = prodEls[p];
+        var nameEl = el.querySelector(".item-name, .product-title, .title, h2, h3, a[title]");
+        var imgEl = el.querySelector("img[src], img[data-src]");
+        var pName = nameEl ? (nameEl.getAttribute("title") || nameEl.innerText || "").trim() : "";
+        var pImg = "";
+        if (imgEl) {
+          var rawSrc = imgEl.getAttribute("src") || imgEl.getAttribute("data-src") || "";
+          if (isValidImg(rawSrc)) pImg = rawSrc;
+        }
+        if (pName && pImg) {
+          scrapedProducts.push({ name: pName, image: pImg });
+        }
       }
-    }
+    } catch (eScan) {}
 
-    // GENERADOR DINÁMICO DE LOS 3 TIPOS DE NOTIFICACIONES
+    // Helper: obtener producto aleatorio del escáner
+    var lastRndIdx = -1;
+    var getRandomProduct = function() {
+      if (scrapedProducts.length === 0) return null;
+      var rIdx = Math.floor(Math.random() * scrapedProducts.length);
+      // Evitar repetir el mismo producto dos veces seguidas
+      if (scrapedProducts.length > 1 && rIdx === lastRndIdx) {
+        rIdx = (rIdx + 1) % scrapedProducts.length;
+      }
+      lastRndIdx = rIdx;
+      return scrapedProducts[rIdx];
+    };
+
     var buyers = [
       { name: "Sofía M.", city: "Palermo, CABA" },
       { name: "Martín G.", city: "Córdoba Capital" },
@@ -3511,51 +3550,60 @@ function renderContadorVendidos(w) {
       { name: "Mateo P.", city: "San Isidro" }
     ];
 
-    var events = [
-      // 1. Compra reciente
-      {
-        type: "sale",
-        title: buyers[0].name + " de " + buyers[0].city,
-        subtitle: "Compró " + (currentProdName ? currentProdName : "hace 4 minutos"),
-        badge: "⚡ Compra verificada",
-        icon: "🛍️",
-        image: currentProdImg
-      },
-      // 2. Visitantes en vivo
-      {
-        type: "visitors",
-        title: (Math.floor(Math.random() * 21) + 18) + " personas mirando ahora",
-        subtitle: currentProdName ? "Interesados en este producto" : "Viendo productos de la tienda",
-        badge: "🔥 Tendencia en vivo",
-        icon: "👀",
-        image: currentProdImg
-      },
-      // 3. Alerta de stock crítico
-      {
-        type: "stock",
-        title: "¡Últimas " + (Math.floor(Math.random() * 3) + 2) + " unidades disponibles!",
-        subtitle: "Alta demanda en las últimas horas",
-        badge: "⚠️ Se agota rápido",
-        icon: "📦",
-        image: currentProdImg
-      },
-      // 4. Otra compra reciente
-      {
-        type: "sale",
-        title: buyers[1].name + " de " + buyers[1].city,
-        subtitle: "Compró hace 9 minutos",
-        badge: "⚡ Envío despachado",
-        icon: "🚀",
-        image: currentProdImg
-      }
-    ];
+    // Construir eventos dinámicamente
+    var buildEvents = function() {
+      var rndA = getRandomProduct();
+      var rndB = getRandomProduct();
 
+      var saleName = currentProdName || (rndA ? rndA.name : "un producto destacado");
+      var saleImg = currentProdImg || (rndA ? rndA.image : "");
+
+      var sale2Name = currentProdName || (rndB ? rndB.name : "una oferta del día");
+      var sale2Img = currentProdImg || (rndB ? rndB.image : "");
+
+      return [
+        {
+          type: "sale",
+          title: buyers[0].name + " de " + buyers[0].city,
+          subtitle: "Compró " + saleName,
+          badge: "⚡ Compra verificada",
+          icon: "🛍️",
+          image: saleImg
+        },
+        {
+          type: "visitors",
+          title: (Math.floor(Math.random() * 18) + 14) + " personas mirando ahora",
+          subtitle: currentProdName ? "Interesados en este producto" : "Viendo productos de la tienda",
+          badge: "🔥 Tendencia en vivo",
+          icon: "👀",
+          image: ""
+        },
+        {
+          type: "stock",
+          title: "¡Últimas " + (Math.floor(Math.random() * 3) + 2) + " unidades!",
+          subtitle: "Alta demanda en las últimas horas",
+          badge: "⚠️ Se agota rápido",
+          icon: "📦",
+          image: ""
+        },
+        {
+          type: "sale",
+          title: buyers[1].name + " de " + buyers[1].city,
+          subtitle: "Compró " + sale2Name,
+          badge: "⚡ Envío despachado",
+          icon: "🚀",
+          image: sale2Img
+        }
+      ];
+    };
+
+    var events = buildEvents();
     var currentIdx = 0;
     var displayMs = ((spData.config && spData.config.displayTime) || spData.display_duration || 5) * 1000;
     var delayMs = ((spData.config && spData.config.delayBetween) || spData.delay_between || 7) * 1000;
     var theme = (spData.config && spData.config.theme_style) || spData.theme_style || "dark";
 
-    function safeEscape(str) {
+    var safeEscape = function(str) {
       if (!str) return "";
       return String(str)
         .replace(/&/g, "&amp;")
@@ -3563,10 +3611,16 @@ function renderContadorVendidos(w) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-    }
+    };
 
-    function showNextEvent() {
+    var showNextEvent = function() {
       if (!events || events.length === 0) return;
+
+      // Reconstruir eventos cada ciclo para rotar productos
+      if (currentIdx === 0) {
+        events = buildEvents();
+      }
+
       var ev = events[currentIdx];
       currentIdx = (currentIdx + 1) % events.length;
 
@@ -3586,10 +3640,12 @@ function renderContadorVendidos(w) {
       var closeId = nsPrefix + "-sp-close";
 
       var visualMediaHtml = "";
-      if (ev.image) {
-        visualMediaHtml = '<img src="' + safeEscape(ev.image) + '" style="width:38px !important;height:38px !important;object-fit:cover !important;border-radius:9px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;background:#fff !important;" />';
+      if (ev.type === "sale" && isValidImg(ev.image)) {
+        // Compras: mostrar foto real del producto
+        visualMediaHtml = '<img src="' + safeEscape(ev.image) + '" style="width:40px !important;height:40px !important;object-fit:cover !important;border-radius:9px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;background:#fff !important;" />';
       } else {
-        visualMediaHtml = '<div style="width:38px !important;height:38px !important;border-radius:9px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:18px !important;flex-shrink:0 !important;">' + ev.icon + '</div>';
+        // Visitantes y Stock: mostrar sticker/emoji grande
+        visualMediaHtml = '<div style="width:40px !important;height:40px !important;border-radius:9px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:22px !important;flex-shrink:0 !important;">' + ev.icon + '</div>';
       }
 
       var cardHtml = '<div id="' + cardId + '" style="' +
@@ -3597,10 +3653,10 @@ function renderContadorVendidos(w) {
         'color:' + textColor + ' !important;' +
         'border:' + borderStyle + ' !important;' +
         'border-radius:14px !important;' +
-        'padding:9px 12px !important;' +
+        'padding:10px 12px !important;' +
         'display:flex !important;' +
         'align-items:center !important;' +
-        'gap:9px !important;' +
+        'gap:10px !important;' +
         'box-shadow:0 10px 25px rgba(0,0,0,0.22) !important;' +
         'pointer-events:auto !important;' +
         'transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
@@ -3649,10 +3705,10 @@ function renderContadorVendidos(w) {
         }
         setTimeout(showNextEvent, delayMs);
       }, displayMs);
-    }
+    };
 
     setTimeout(showNextEvent, 1200);
-        }
+  }
 /* ═══════════════════════════════════════════
    WIDGET: CUENTA REGRESIVA (v16 - 11 Plantillas)
    ═══════════════════════════════════════════ */
