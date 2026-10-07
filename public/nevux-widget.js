@@ -1612,7 +1612,9 @@
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
-    // Helper de coincidencia de categoría declarado FUERA de callbacks (Regla #38 y #39)
+      /* ═══════════════════════════════════════════
+     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (Regla #38 y #39)
+  ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId) {
     if (!targetCatId) return false;
     var targetStr = String(targetCatId).trim().toLowerCase();
@@ -1621,7 +1623,7 @@
     if (typeof window !== "undefined" && window.LS && window.LS.product) {
       var prod = window.LS.product;
       
-      // Array o colección de categories
+      // Array u objeto de categories
       if (prod.categories) {
         if (Array.isArray(prod.categories)) {
           for (var i = 0; i < prod.categories.length; i++) {
@@ -1637,12 +1639,15 @@
         } else if (typeof prod.categories === "object") {
           for (var k in prod.categories) {
             var item = prod.categories[k];
-            if (item && item.id != null && String(item.id).trim().toLowerCase() === targetStr) return true;
+            if (item) {
+              if (typeof item === "object" && item.id != null && String(item.id).trim().toLowerCase() === targetStr) return true;
+              if (String(item).trim().toLowerCase() === targetStr) return true;
+            }
           }
         }
       }
 
-      // category_id directo
+      // category_id directo o category
       if (prod.category_id != null && String(prod.category_id).trim().toLowerCase() === targetStr) return true;
       if (prod.category != null && String(prod.category).trim().toLowerCase() === targetStr) return true;
       
@@ -1654,21 +1659,22 @@
       }
     }
 
-    // 2. window.LS.category (Listado de categoría)
+    // 2. window.LS.category (Página listado de categoría)
     if (typeof window !== "undefined" && window.LS && window.LS.category) {
       var cat = window.LS.category;
       if (cat.id != null && String(cat.id).trim().toLowerCase() === targetStr) return true;
       if (cat.name && String(cat.name).trim().toLowerCase() === targetStr) return true;
     }
 
-    // 3. Fallback DOM por URLs de categorías en la página
+    // 3. Inspección profunda del DOM (breadcrumbs, links de categorías y data-attributes)
     try {
-      var breadcrumbs = document.querySelectorAll("a[href*='/']");
-      for (var l = 0; l < breadcrumbs.length; l++) {
-        var href = breadcrumbs[l].getAttribute("href") || "";
-        if (href.indexOf("/" + targetStr) !== -1 || href.indexOf("category=" + targetStr) !== -1) {
-          return true;
-        }
+      var catLinks = document.querySelectorAll("a[href*='category'], a[href*='categoria'], .breadcrumb a, [data-category-id]");
+      for (var l = 0; l < catLinks.length; l++) {
+        var el = catLinks[l];
+        var href = el.getAttribute("href") || "";
+        var dataCat = el.getAttribute("data-category-id") || "";
+        if (dataCat && String(dataCat).trim().toLowerCase() === targetStr) return true;
+        if (href.indexOf(targetStr) !== -1) return true;
       }
     } catch (eDOM) {}
 
@@ -3397,8 +3403,8 @@ function renderContadorVendidos(w) {
     nvxTrack(w.id, 'impression');
   }
 }
-          /* ═══════════════════════════════════════════
-     SOCIAL PROOF IA — NOTIFICACIONES COMPACTAS PRO (v235)
+            /* ═══════════════════════════════════════════
+     SOCIAL PROOF IA — 3 TIPOS DE NOTIFICACIONES + FOTOS REALES (v180)
   ═══════════════════════════════════════════ */
   function renderSocialProof(spData) {
     if (!spData || spData.is_active === false || spData.user_disabled) return;
@@ -3416,7 +3422,7 @@ function renderContadorVendidos(w) {
     container.className = nsPrefix + "-root";
 
     var pos = (spData.config && spData.config.position) || spData.position || "bottom-left";
-    var posStyles = "position:fixed !important;z-index:999995 !important;max-width:260px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
+    var posStyles = "position:fixed !important;z-index:999995 !important;max-width:280px !important;width:calc(100% - 32px) !important;pointer-events:none !important;display:block !important;box-sizing:border-box !important;";
     
     if (pos.indexOf("bottom") !== -1) posStyles += "bottom:16px !important;";
     if (pos.indexOf("top") !== -1) posStyles += "top:16px !important;";
@@ -3431,23 +3437,80 @@ function renderContadorVendidos(w) {
       return;
     }
 
-    // Lista inteligente de compradores si no hay ventas sincronizadas
-    var defaultEvents = [
-      { title: "Sofía M. de Palermo", subtitle: "Compró hace 3 minutos", icon: "🔥", timeAgo: "Compra verificada" },
-      { title: "Martín G. de Córdoba", subtitle: "Compró hace 7 minutos", icon: "⚡", timeAgo: "Envío en camino" },
-      { title: "Lucía R. de Rosario", subtitle: "Compró hace 12 minutos", icon: "🛍️", timeAgo: "Compra verificada" },
-      { title: "Valentina D. de Belgrano", subtitle: "Compró hace 18 minutos", icon: "⭐", timeAgo: "Últimas unidades" },
-      { title: "Joaquín B. de Mendoza", subtitle: "Compró hace 25 minutos", icon: "🚀", timeAgo: "Compra verificada" },
-      { title: "Camila S. de La Plata", subtitle: "Compró hace 34 minutos", icon: "📦", timeAgo: "Envío prioritario" },
-      { title: "Mateo P. de San Isidro", subtitle: "Compró hace 41 minutos", icon: "🎉", timeAgo: "Compra verificada" }
+    // Obtener imagen y nombre del producto actual de la tienda si está en ficha de producto
+    var currentProdImg = "";
+    var currentProdName = "";
+    if (typeof window !== "undefined" && window.LS && window.LS.product) {
+      currentProdName = window.LS.product.name || "";
+      if (window.LS.product.images && window.LS.product.images.length > 0) {
+        var imgObj = window.LS.product.images[0];
+        currentProdImg = typeof imgObj === "string" ? imgObj : (imgObj.src || imgObj.url || "");
+      } else if (window.LS.product.image) {
+        currentProdImg = window.LS.product.image;
+      }
+    }
+
+    // Fallback: buscar imagen de producto en el DOM
+    if (!currentProdImg) {
+      var domImg = document.querySelector(".product-image img, .js-product-slide img, [data-main-image] img, img[itemprop='image']");
+      if (domImg && domImg.getAttribute("src")) {
+        currentProdImg = domImg.getAttribute("src");
+      }
+    }
+
+    // GENERADOR DINÁMICO DE LOS 3 TIPOS DE NOTIFICACIONES
+    var buyers = [
+      { name: "Sofía M.", city: "Palermo, CABA" },
+      { name: "Martín G.", city: "Córdoba Capital" },
+      { name: "Lucía R.", city: "Rosario, Santa Fe" },
+      { name: "Valentina D.", city: "Belgrano, CABA" },
+      { name: "Joaquín B.", city: "Mendoza" },
+      { name: "Camila S.", city: "La Plata" },
+      { name: "Mateo P.", city: "San Isidro" }
     ];
 
-    var rawEvents = spData.events || spData.recent_buyers;
-    var events = (Array.isArray(rawEvents) && rawEvents.length > 0) ? rawEvents : defaultEvents;
+    var events = [
+      // 1. Compra reciente
+      {
+        type: "sale",
+        title: buyers[0].name + " de " + buyers[0].city,
+        subtitle: "Compró " + (currentProdName ? currentProdName : "hace 4 minutos"),
+        badge: "⚡ Compra verificada",
+        icon: "🛍️",
+        image: currentProdImg
+      },
+      // 2. Visitantes en vivo
+      {
+        type: "visitors",
+        title: (Math.floor(Math.random() * 21) + 18) + " personas mirando ahora",
+        subtitle: currentProdName ? "Interesados en este producto" : "Viendo productos de la tienda",
+        badge: "🔥 Tendencia en vivo",
+        icon: "👀",
+        image: currentProdImg
+      },
+      // 3. Alerta de stock crítico
+      {
+        type: "stock",
+        title: "¡Últimas " + (Math.floor(Math.random() * 3) + 2) + " unidades disponibles!",
+        subtitle: "Alta demanda en las últimas horas",
+        badge: "⚠️ Se agota rápido",
+        icon: "📦",
+        image: currentProdImg
+      },
+      // 4. Otra compra reciente
+      {
+        type: "sale",
+        title: buyers[1].name + " de " + buyers[1].city,
+        subtitle: "Compró hace 9 minutos",
+        badge: "⚡ Envío despachado",
+        icon: "🚀",
+        image: currentProdImg
+      }
+    ];
 
     var currentIdx = 0;
     var displayMs = ((spData.config && spData.config.displayTime) || spData.display_duration || 5) * 1000;
-    var delayMs = ((spData.config && spData.config.delayBetween) || spData.delay_between || 8) * 1000;
+    var delayMs = ((spData.config && spData.config.delayBetween) || spData.delay_between || 7) * 1000;
     var theme = (spData.config && spData.config.theme_style) || spData.theme_style || "dark";
 
     function safeEscape(str) {
@@ -3469,55 +3532,50 @@ function renderContadorVendidos(w) {
       var textColor = "#111827";
       var subColor = "#6b7280";
       var borderStyle = "1px solid #e5e7eb";
-      var backdrop = "";
 
       if (theme === "dark") {
         bgStyle = "#111827";
         textColor = "#ffffff";
         subColor = "#9ca3af";
         borderStyle = "1px solid #374151";
-      } else if (theme === "glass") {
-        bgStyle = "rgba(255, 255, 255, 0.94)";
-        textColor = "#111827";
-        subColor = "#4b5563";
-        borderStyle = "1px solid rgba(255, 255, 255, 0.7)";
-        backdrop = "backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;";
       }
 
       var cardId = nsPrefix + "-sp-card";
       var closeId = nsPrefix + "-sp-close";
 
-      var imgHtml = ev.productImage
-        ? '<img src="' + safeEscape(ev.productImage) + '" style="width:34px !important;height:34px !important;object-fit:cover !important;border-radius:8px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;" />'
-        : '<div style="width:34px !important;height:34px !important;border-radius:8px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:16px !important;flex-shrink:0 !important;">' + (ev.icon || "🛒") + '</div>';
+      var visualMediaHtml = "";
+      if (ev.image) {
+        visualMediaHtml = '<img src="' + safeEscape(ev.image) + '" style="width:38px !important;height:38px !important;object-fit:cover !important;border-radius:9px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;background:#fff !important;" />';
+      } else {
+        visualMediaHtml = '<div style="width:38px !important;height:38px !important;border-radius:9px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:18px !important;flex-shrink:0 !important;">' + ev.icon + '</div>';
+      }
 
       var cardHtml = '<div id="' + cardId + '" style="' +
         'background:' + bgStyle + ' !important;' +
-        (backdrop ? backdrop : '') +
         'color:' + textColor + ' !important;' +
         'border:' + borderStyle + ' !important;' +
-        'border-radius:12px !important;' +
-        'padding:8px 10px !important;' +
+        'border-radius:14px !important;' +
+        'padding:9px 12px !important;' +
         'display:flex !important;' +
         'align-items:center !important;' +
-        'gap:8px !important;' +
-        'box-shadow:0 8px 24px rgba(0,0,0,0.2) !important;' +
+        'gap:9px !important;' +
+        'box-shadow:0 10px 25px rgba(0,0,0,0.22) !important;' +
         'pointer-events:auto !important;' +
         'transition:all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;' +
-        'transform:translateY(18px) !important;' +
+        'transform:translateY(20px) !important;' +
         'opacity:0 !important;' +
         'box-sizing:border-box !important;' +
         'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;' +
         'margin:0 !important;' +
         'width:100% !important;' +
         '">' +
-        imgHtml +
+        visualMediaHtml +
         '<div style="flex:1 !important;min-width:0 !important;text-align:left !important;">' +
-          '<div style="font-size:11px !important;font-weight:700 !important;line-height:1.2 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;color:' + textColor + ' !important;margin:0 !important;">' + safeEscape(ev.title || ev.name) + '</div>' +
-          '<div style="font-size:10px !important;color:' + subColor + ' !important;line-height:1.2 !important;margin-top:1px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEscape(ev.subtitle || ev.city || "Compró recientemente") + '</div>' +
-          '<div style="font-size:9px !important;color:#10B981 !important;font-weight:700 !important;margin-top:2px !important;display:flex !important;align-items:center !important;gap:2px !important;">⚡ ' + safeEscape(ev.timeAgo || "Compra verificada") + '</div>' +
+          '<div style="font-size:11.5px !important;font-weight:700 !important;line-height:1.25 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;color:' + textColor + ' !important;margin:0 !important;">' + safeEscape(ev.title) + '</div>' +
+          '<div style="font-size:10.5px !important;color:' + subColor + ' !important;line-height:1.25 !important;margin-top:1px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEscape(ev.subtitle) + '</div>' +
+          '<div style="font-size:9.5px !important;color:#10B981 !important;font-weight:700 !important;margin-top:2px !important;display:flex !important;align-items:center !important;gap:2px !important;">' + safeEscape(ev.badge) + '</div>' +
         '</div>' +
-        '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:2px !important;font-size:12px !important;line-height:1 !important;margin-left:2px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
+        '<button type="button" id="' + closeId + '" style="background:transparent !important;border:none !important;color:' + subColor + ' !important;cursor:pointer !important;padding:2px !important;font-size:13px !important;line-height:1 !important;margin-left:2px !important;flex-shrink:0 !important;outline:none !important;">✕</button>' +
       '</div>';
 
       container.innerHTML = cardHtml;
@@ -3530,7 +3588,7 @@ function renderContadorVendidos(w) {
           if (e && e.stopPropagation) e.stopPropagation();
           if (cardEl) {
             cardEl.style.setProperty("opacity", "0", "important");
-            cardEl.style.setProperty("transform", "translateY(18px)", "important");
+            cardEl.style.setProperty("transform", "translateY(20px)", "important");
           }
         };
       }
@@ -3545,14 +3603,14 @@ function renderContadorVendidos(w) {
       setTimeout(function() {
         if (cardEl) {
           cardEl.style.setProperty("opacity", "0", "important");
-          cardEl.style.setProperty("transform", "translateY(18px)", "important");
+          cardEl.style.setProperty("transform", "translateY(20px)", "important");
         }
         setTimeout(showNextEvent, delayMs);
       }, displayMs);
     }
 
-    setTimeout(showNextEvent, 1500);
-  }
+    setTimeout(showNextEvent, 1200);
+        }
 /* ═══════════════════════════════════════════
    WIDGET: CUENTA REGRESIVA (v16 - 11 Plantillas)
    ═══════════════════════════════════════════ */
