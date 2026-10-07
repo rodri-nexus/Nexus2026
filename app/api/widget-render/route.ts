@@ -1,25 +1,11 @@
-// app/api/widgets/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
-interface WidgetPayload {
-  id?: string;
-  store_id: number;
-  widget_slug: string;
-  widget_type?: string;
-  target_type: "all" | "product" | "category" | string;
-  target_product_id?: string | number | null;
-  target_category_id?: string | number | null;
-  config?: Record<string, unknown>;
-  is_active?: boolean;
-}
-
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
 };
@@ -38,269 +24,115 @@ export async function OPTIONS() {
   });
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const supabase = createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return corsResponse({ error: "No autorizado" }, 401);
-    }
-
-    const body: WidgetPayload = await req.json();
-    const {
-      id,
-      store_id,
-      widget_slug,
-      widget_type,
-      target_type,
-      target_product_id,
-      target_category_id,
-      config,
-      is_active,
-    } = body;
-
-    if (!store_id || !widget_slug) {
-      return corsResponse(
-        { error: "Faltan datos obligatorios (store_id o widget_slug)" },
-        400
-      );
-    }
-
-    const { data: store } = await supabase
-      .from("stores")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("store_id", store_id)
-      .eq("is_active", true)
-      .single();
-
-    if (!store) {
-      return corsResponse({ error: "Tienda no autorizada o inactiva" }, 403);
-    }
-
-    // Extraer category_id con respaldos profundos
-    const categoryIdFromConfig = (config?.category_id || config?.target_category_id || config?.category) as string | number | undefined;
-    
-    let targetCategoryIdFinal: string | null = null;
-    if (target_category_id !== undefined && target_category_id !== null && String(target_category_id).trim() !== "") {
-      targetCategoryIdFinal = String(target_category_id).trim();
-    } else if (categoryIdFromConfig !== undefined && categoryIdFromConfig !== null && String(categoryIdFromConfig).trim() !== "") {
-      targetCategoryIdFinal = String(categoryIdFromConfig).trim();
-    }
-
-    let targetTypeFinal = target_type || "all";
-    if (targetCategoryIdFinal || target_type === "category") {
-      targetTypeFinal = "category";
-    }
-
-    const targetProductIdFinal = targetTypeFinal === "product" && target_product_id ? Number(target_product_id) : null;
-
-    // Inyectar category_id dentro de config para doble respaldo
-    const updatedConfig = {
-      ...(config || {}),
-      ...(targetCategoryIdFinal ? { category_id: String(targetCategoryIdFinal) } : {}),
-    };
-
-    // 🔍 PREVENCIÓN DE DUPLICADOS:
-    let targetWidgetId = id;
-
-    if (!targetWidgetId) {
-      let checkQuery = supabase
-        .from("widgets")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("store_id", store_id)
-        .eq("widget_slug", widget_slug)
-        .eq("target_type", targetTypeFinal);
-
-      if (targetTypeFinal === "category" && targetCategoryIdFinal) {
-        checkQuery = checkQuery.or(`target_category_id.eq.${targetCategoryIdFinal},config->>category_id.eq.${targetCategoryIdFinal}`);
-      } else if (targetTypeFinal === "product" && targetProductIdFinal) {
-        checkQuery = checkQuery.eq("target_product_id", targetProductIdFinal);
-      } else {
-        checkQuery = checkQuery.is("target_product_id", null);
-      }
-
-      const { data: existingFound } = await checkQuery
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (existingFound?.id) {
-        targetWidgetId = existingFound.id;
-      }
-    }
-
-    const now = new Date().toISOString();
-    const payload = {
-      user_id: user.id,
-      store_id,
-      widget_slug,
-      widget_type: widget_type || widget_slug,
-      target_type: targetTypeFinal,
-      target_product_id: targetProductIdFinal,
-      target_category_id: targetCategoryIdFinal ? String(targetCategoryIdFinal) : null,
-      config: updatedConfig,
-      is_active: is_active !== undefined ? is_active : true,
-      updated_at: now,
-    };
-
-    const { data, error } = await supabase
-      .from("widgets")
-      .upsert(
-        {
-          ...(targetWidgetId ? { id: targetWidgetId } : {}),
-          ...payload,
-          ...(targetWidgetId ? {} : { created_at: now }),
-        },
-        { onConflict: "id" }
-      )
-      .select()
-      .single();
-
-    if (error) throw error;
-    return corsResponse({ data, widget: data });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Error interno";
-    return corsResponse({ error: message }, 500);
-  }
-}
-
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const storeIdParam = searchParams.get("store_id");
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const productIdParam = searchParams.get("product_id");
 
-    // 1. Caso Público (Script inyectado en la tienda del cliente)
-    if (!user) {
-      if (!storeIdParam) {
-        return corsResponse(
-          { error: "No autorizado. Se requiere store_id" },
-          401
-        );
-      }
-
-      const parsedStoreId = parseInt(storeIdParam, 10);
-      if (isNaN(parsedStoreId)) {
-        return corsResponse({ error: "store_id inválido" }, 400);
-      }
-
-      const { data: widgets, error: publicErr } = await supabaseAdmin
-        .from("widgets")
-        .select("*")
-        .eq("store_id", parsedStoreId)
-        .eq("is_active", true)
-        .order("updated_at", { ascending: false });
-
-      if (publicErr) {
-        throw publicErr;
-      }
-
-      return corsResponse({
-        widgets: widgets || [],
-        ts: Date.now(),
-      });
+    if (!storeIdParam) {
+      return corsResponse({ error: "Falta store_id" }, 400);
     }
 
-    // 2. Caso Privado (Dashboard del comerciante logueado)
-    let query = supabase
+    const storeId = parseInt(storeIdParam, 10);
+    if (isNaN(storeId)) {
+      return corsResponse({ error: "store_id inválido" }, 400);
+    }
+
+    // 1. Obtener todos los widgets activos de la tienda (Generales, Categorías y Productos)
+    const { data: rawWidgets, error: widgetsErr } = await supabaseAdmin
       .from("widgets")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("store_id", storeId)
+      .eq("is_active", true)
       .order("updated_at", { ascending: false });
 
-    if (storeIdParam) {
-      const parsedStoreId = parseInt(storeIdParam, 10);
-      if (!isNaN(parsedStoreId)) {
-        query = query.eq("store_id", parsedStoreId);
+    if (widgetsErr) {
+      console.error("[WidgetRender] Error widgets:", widgetsErr);
+    }
+
+    const allWidgets = rawWidgets || [];
+
+    // 2. Obtener configuración de Notificaciones de Compra (Social Proof) - Regla #29 Activo por defecto
+    let socialProofData: Record<string, unknown> | null = null;
+    try {
+      const { data: spRow } = await supabaseAdmin
+        .from("social_proof_config")
+        .select("*")
+        .eq("store_id", storeId)
+        .maybeSingle();
+
+      if (spRow) {
+        socialProofData = {
+          is_active: spRow.is_active !== false && !spRow.user_disabled,
+          user_disabled: !!spRow.user_disabled,
+          config: spRow.config || {},
+          recent_buyers: spRow.recent_buyers || [],
+        };
+      } else {
+        // Por defecto activo para todas las tiendas
+        socialProofData = {
+          is_active: true,
+          user_disabled: false,
+          config: {
+            displayTime: 5,
+            delayBetween: 8,
+            position: "bottom-left",
+          },
+          recent_buyers: [],
+        };
       }
+    } catch {
+      socialProofData = { is_active: true, user_disabled: false };
     }
 
-    const { data: widgets, error: privateErr } = await query;
-    if (privateErr) {
-      throw privateErr;
-    }
+    // 3. Obtener configuración de Vendedor Virtual IA
+    let virtualSalesmanData: Record<string, unknown> | null = null;
+    try {
+      const { data: vsRow } = await supabaseAdmin
+        .from("virtual_salesman_config")
+        .select("*")
+        .eq("store_id", storeId)
+        .eq("is_active", true)
+        .maybeSingle();
 
-    return corsResponse({ widgets: widgets || [] });
+      if (vsRow) {
+        virtualSalesmanData = {
+          is_active: true,
+          config: vsRow.config || {},
+        };
+      }
+    } catch {}
+
+    // 4. Obtener configuración de Búsqueda por Voz
+    let voiceSearchData: Record<string, unknown> | null = null;
+    try {
+      const { data: vsRow } = await supabaseAdmin
+        .from("voice_search_config")
+        .select("*")
+        .eq("store_id", storeId)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (vsRow) {
+        voiceSearchData = {
+          is_active: true,
+          config: vsRow.config || {},
+        };
+      }
+    } catch {}
+
+    // 5. Retornar payload unificado para la tienda
+    return corsResponse({
+      widgets: allWidgets,
+      socialProof: socialProofData,
+      virtualSalesman: virtualSalesmanData,
+      voiceSearch: voiceSearchData,
+      activeCampaign: null,
+      ts: Date.now(),
+    });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Error interno";
+    const message = error instanceof Error ? error.message : "Error en render";
     return corsResponse({ error: message }, 500);
   }
-}
-
-export async function PATCH(req: NextRequest) {
-  try {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return corsResponse({ error: "No autorizado" }, 401);
-    }
-
-    const body = await req.json();
-    const { id, is_active } = body;
-
-    if (!id) {
-      return corsResponse({ error: "Falta el ID del widget" }, 400);
-    }
-
-    const { data, error } = await supabase
-      .from("widgets")
-      .update({
-        is_active,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return corsResponse({ data });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Error interno";
-    return corsResponse({ error: message }, 500);
-  }
-}
-
-export async function DELETE(req: NextRequest) {
-  try {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return corsResponse({ error: "No autorizado" }, 401);
-    }
-
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return corsResponse({ error: "Falta el ID del widget" }, 400);
-    }
-
-    const { error } = await supabase
-      .from("widgets")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", user.id);
-
-    if (error) throw error;
-    return corsResponse({ success: true });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Error interno";
-    return corsResponse({ error: message }, 500);
-  }
-       }
+        }
