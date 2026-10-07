@@ -1680,41 +1680,132 @@
         }
       }
 
-      if (!data.widgets || data.widgets.length === 0) {
-        console.log("[Nevux] No hay widgets activos");
-        return;
-      }
-      console.log("[Nevux] Widgets recibidos:", data.widgets.length);
+        /* ═══════════════════════════════════════════
+     HELPER: COINCIDENCIA DE CATEGORÍA (Regla #38 y #39)
+  ═══════════════════════════════════════════ */
+  var checkCategoryMatch = function (targetCatId) {
+    if (!targetCatId) return false;
+    var targetStr = String(targetCatId).trim();
 
-      data.widgets.forEach(function (w) {
-        try {
-          // 🏷️ FILTRO DE SEGMENTACIÓN POR CATEGORÍA
-          if (w.target_type === "category") {
-            var catId = w.target_category_id || (w.config && (w.config.category_id || w.config.target_category_id));
-            if (!catId || !checkCategoryMatch(catId)) {
-              console.log("[Nevux] Widget omitido por categoría:", w.widget_slug);
-              return;
+    // 1. Revisar si estamos en un producto con categorías
+    if (window.LS && window.LS.product) {
+      // En Tiendanube window.LS.product.categories es un array
+      if (window.LS.product.categories && window.LS.product.categories.length) {
+        for (var i = 0; i < window.LS.product.categories.length; i++) {
+          var cat = window.LS.product.categories[i];
+          if (cat) {
+            if (typeof cat === "object" && cat.id && String(cat.id).trim() === targetStr) {
+              return true;
+            }
+            if (typeof cat === "number" || typeof cat === "string") {
+              if (String(cat).trim() === targetStr) {
+                return true;
+              }
             }
           }
-
-          if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
-          if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
-          if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
-          if (w.widget_slug === "edicion-limitada") renderEdicionLimitada(w);
-          if (w.widget_slug === "contador-vendidos") renderContadorVendidos(w);
-          if (w.widget_slug === "cuenta-regresiva") renderCuentaRegresiva(w);
-          if (w.widget_slug === "info-despacho") renderInfoDespacho(w);
-          if (w.widget_slug === "urgencia-stock") renderUrgenciaStock(w);
-          if (w.widget_slug === "resenas-destacadas") renderResenasDestacadas(w);
-          if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
-          if (w.widget_slug === "popup-conversion") renderPopupConversion(w);
-          if (w.widget_slug === "barra-envio-gratis") renderBarraEnvioGratis(w);
-          if (w.widget_slug === "barra-cuotas") renderBarraCuotas(w);
-          if (w.widget_slug === "productos-complementarios") renderProductosComplementarios(w);
-        } catch (err) {
-          console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
         }
-      });
+      }
+      // Fallback por category_id directo en producto
+      if (window.LS.product.category_id && String(window.LS.product.category_id).trim() === targetStr) {
+        return true;
+      }
+    }
+
+    // 2. Revisar si estamos navegando en la página de esa categoría
+    if (window.LS && window.LS.category && window.LS.category.id) {
+      if (String(window.LS.category.id).trim() === targetStr) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  /* ═══════════════════════════════════════════
+     FETCH Y DESPACHO PRINCIPAL DE WIDGETS
+  ═══════════════════════════════════════════ */
+  fetch(API_BASE + "/api/widgets?store_id=" + storeId, {
+    headers: { "Cache-Control": "no-store" },
+  })
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data.widgets || data.widgets.length === 0) {
+        console.log("[Nevux] No hay widgets activos");
+      } else {
+        console.log("[Nevux] Widgets recibidos:", data.widgets.length);
+
+        data.widgets.forEach(function (w) {
+          try {
+            // 📦 1. FILTRO DE SEGMENTACIÓN POR PRODUCTO ESPECÍFICO
+            if (w.target_type === "product") {
+              var curProdId = null;
+              if (window.LS && window.LS.product && window.LS.product.id) {
+                curProdId = String(window.LS.product.id).trim();
+              }
+              var targetProdId = w.target_product_id
+                ? String(w.target_product_id).trim()
+                : w.config && w.config.product_id
+                ? String(w.config.product_id).trim()
+                : null;
+
+              if (!curProdId || !targetProdId || curProdId !== targetProdId) {
+                // No coincide el producto o no estamos en ficha de producto
+                return;
+              }
+            }
+
+            // 🏷️ 2. FILTRO DE SEGMENTACIÓN POR CATEGORÍA
+            if (w.target_type === "category") {
+              var catId =
+                w.target_category_id ||
+                (w.config && (w.config.category_id || w.config.target_category_id));
+              if (!catId || !checkCategoryMatch(catId)) {
+                // No coincide la categoría
+                return;
+              }
+            }
+
+            // 3. DESPACHADOR OFICIAL DE WIDGETS
+            if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
+            if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
+            if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
+            if (w.widget_slug === "edicion-limitada") renderEdicionLimitada(w);
+            if (w.widget_slug === "contador-vendidos") renderContadorVendidos(w);
+            if (w.widget_slug === "cuenta-regresiva") renderCuentaRegresiva(w);
+            if (w.widget_slug === "info-despacho") renderInfoDespacho(w);
+            if (w.widget_slug === "urgencia-stock") renderUrgenciaStock(w);
+            if (w.widget_slug === "resenas-destacadas") renderResenasDestacadas(w);
+            if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
+            if (w.widget_slug === "popup-conversion") renderPopupConversion(w);
+            if (w.widget_slug === "barra-envio-gratis") renderBarraEnvioGratis(w);
+            if (w.widget_slug === "barra-cuotas") renderBarraCuotas(w);
+            if (w.widget_slug === "productos-complementarios") renderProductosComplementarios(w);
+            if (w.widget_slug === "social-proof") renderSocialProof(w);
+          } catch (err) {
+            console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
+          }
+        });
+      }
+
+      // 🔔 4. DISPARADOR AUTOMÁTICO DE NOTIFICACIONES DE COMPRA / PRUEBA SOCIAL (Regla #29)
+      try {
+        if (typeof renderSocialProof === "function") {
+          fetch(API_BASE + "/api/social-proof?store_id=" + storeId, {
+            headers: { "Cache-Control": "no-store" },
+          })
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (spData) {
+              if (spData && spData.is_active !== false && !spData.user_disabled) {
+                renderSocialProof(spData);
+              }
+            })
+            .catch(function () {});
+        }
+      } catch (eSP) {}
     })
     .catch(function (err) {
       console.error("[Nevux] Error cargando widgets:", err);
