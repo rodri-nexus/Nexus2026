@@ -2892,7 +2892,7 @@ function renderMarqueeNovedades(w) {
   }
 }
  /* ═══════════════════════════════════════════
-   WIDGET: HORARIO DE ATENCIÓN
+   WIDGET: HORARIO DE ATENCIÓN (v190 - ES5 STRICT)
    ═══════════════════════════════════════════ */
 function renderHorarioAtencion(w) {
   if (document.getElementById('nvx-horario-' + w.id)) return;
@@ -2907,6 +2907,35 @@ function renderHorarioAtencion(w) {
   var textColor = cfg.textColor || "#111827";
   var borderColor = cfg.borderColor || "#e5e7eb";
   var showIcon = typeof cfg.showIcon === "boolean" ? cfg.showIcon : true;
+
+  // Formateador dinámico ES5 (Regla #19 y #39)
+  var formatWorkDaysLocal = function(days) {
+    if (!days || days.length === 0) return "Ningún día";
+    if (days.length === 7) return "Todos los días";
+
+    var sortedDays = days.slice().sort(function(a, b) {
+      var valA = a === 0 ? 7 : a;
+      var valB = b === 0 ? 7 : b;
+      return valA - valB;
+    });
+
+    var hasDay = function(arr, d) { return arr.indexOf(d) !== -1; };
+    var isMonFri = days.length === 5 && hasDay(days, 1) && hasDay(days, 2) && hasDay(days, 3) && hasDay(days, 4) && hasDay(days, 5);
+    if (isMonFri) return "Lunes a Viernes";
+
+    var isMonSat = days.length === 6 && hasDay(days, 1) && hasDay(days, 2) && hasDay(days, 3) && hasDay(days, 4) && hasDay(days, 5) && hasDay(days, 6);
+    if (isMonSat) return "Lunes a Sábado";
+
+    var names = {
+      1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb", 0: "Dom"
+    };
+
+    var result = [];
+    for (var i = 0; i < sortedDays.length; i++) {
+      result.push(names[sortedDays[i]]);
+    }
+    return result.join(", ");
+  };
 
   // Cálculo en vivo del estado abierto/cerrado
   var now = new Date();
@@ -2928,36 +2957,49 @@ function renderHorarioAtencion(w) {
   var container = document.createElement('div');
   container.id = 'nvx-horario-' + w.id;
   container.className = 'nvx-widget nvx-horario-wrapper';
-  container.style.cssText = 'background:' + bgColor + ';border:1.5px solid ' + borderColor + ';border-radius:12px;padding:14px 18px;margin:12px 0;box-sizing:border-box;box-shadow:0 3px 10px rgba(0,0,0,0.03);display:flex;align-items:center;gap:12px;font-family:system-ui,-apple-system,sans-serif;color:' + textColor + ';';
+  container.style.cssText = 'background:' + bgColor + ' !important;border:1.5px solid ' + borderColor + ' !important;border-radius:12px !important;padding:14px 18px !important;margin:12px 0 !important;box-sizing:border-box !important;box-shadow:0 3px 10px rgba(0,0,0,0.03) !important;display:flex !important;align-items:center !important;gap:12px !important;font-family:system-ui,-apple-system,sans-serif !important;color:' + textColor + ' !important;';
 
-  var iconHtml = showIcon ? '<div style="font-size:26px;line-height:1;flex-shrink:0;">⏰</div>' : '';
+  var iconHtml = showIcon ? '<div style="font-size:26px !important;line-height:1 !important;flex-shrink:0 !important;margin-right:4px !important;">⏰</div>' : '';
   var statusBadge = isOpen
-    ? '<span style="background:#ecfdf5;color:#059669;font-size:10px;font-weight:900;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block;"></span>ABIERTO AHORA</span>'
-    : '<span style="background:#fef2f2;color:#dc2626;font-size:10px;font-weight:900;padding:2px 7px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;"></span>CERRADO</span>';
+    ? '<span style="background:#ecfdf5 !important;color:#059669 !important;font-size:10px !important;font-weight:900 !important;padding:2px 7px !important;border-radius:999px !important;display:inline-flex !important;align-items:center !important;gap:4px !important;margin-bottom:4px !important;"><span style="width:6px !important;height:6px !important;border-radius:50% !important;background:#10B981 !important;display:inline-block !important;"></span>ABIERTO AHORA</span>'
+    : '<span style="background:#fef2f2 !important;color:#dc2626 !important;font-size:10px !important;font-weight:900 !important;padding:2px 7px !important;border-radius:999px !important;display:inline-flex !important;align-items:center !important;gap:4px !important;margin-bottom:4px !important;"><span style="width:6px !important;height:6px !important;border-radius:50% !important;background:#ef4444 !important;display:inline-block !important;"></span>CERRADO</span>';
 
   var mainMsg = isOpen ? openText : closedText;
 
   container.innerHTML = iconHtml +
-    '<div style="flex:1;min-width:0;">' +
+    '<div style="flex:1 !important;min-width:0 !important;">' +
       '<div>' + statusBadge + '</div>' +
-      '<div style="font-size:13px;font-weight:800;line-height:1.3;margin-bottom:3px;">' + mainMsg + '</div>' +
-      '<div style="font-size:11px;opacity:0.65;font-weight:600;">Atención: Lun a Vie ' + openTime + ' a ' + closeTime + ' hs.</div>' +
+      '<div style="font-size:13px !important;font-weight:800 !important;line-height:1.3 !important;margin-bottom:3px !important;color:' + textColor + ' !important;">' + mainMsg + '</div>' +
+      '<div style="font-size:11px !important;opacity:0.65 !important;font-weight:600 !important;color:' + textColor + ' !important;">Atención: ' + formatWorkDaysLocal(workDays) + ' ' + openTime + ' a ' + closeTime + ' hs.</div>' +
     '</div>';
 
-  // Inserción en el DOM
+  // Inserción en el DOM inteligente para Producto y Categorías (v190)
   var targetEl = null;
-  if (w.target_type === 'product' && w.target_product_id) {
+  var isProductPage = typeof window !== "undefined" && window.LS && window.LS.product;
+
+  if (isProductPage) {
     targetEl = document.querySelector('form[action*="/cart/add"], .js-product-form, .js-product-container, form.js-product-buyform');
     if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    }
+  } else if (w.target_type === 'category' || (window.LS && window.LS.category)) {
+    targetEl = document.querySelector('.js-product-grid, #product-grid, .product-grid, h1.category-title, h1.header-title, .category-header');
+    if (targetEl && targetEl.parentNode) {
       targetEl.parentNode.insertBefore(container, targetEl);
+    } else {
+      var mainContainer = document.querySelector('main, #content, .main-content, .js-main-content');
+      if (mainContainer && mainContainer.firstChild) {
+        mainContainer.insertBefore(container, mainContainer.firstChild);
+      } else if (document.body) {
+        document.body.insertBefore(container, document.body.firstChild);
+      }
     }
   } else {
-    var main = document.querySelector('main, #content, .main-content, .js-main-content');
-    if (main) {
-      main.insertBefore(container, main.firstChild);
-    } else {
-      var body = document.body;
-      if (body) body.insertBefore(container, body.firstChild);
+    var generalMain = document.querySelector('main, #content, .main-content, .js-main-content');
+    if (generalMain && generalMain.firstChild) {
+      generalMain.insertBefore(container, generalMain.firstChild);
+    } else if (document.body) {
+      document.body.insertBefore(container, document.body.firstChild);
     }
   }
 
@@ -2965,7 +3007,7 @@ function renderHorarioAtencion(w) {
   if (typeof nvxTrack === 'function') {
     nvxTrack(w.id, 'impression');
   }
-    } 
+}
 /* ═══════════════════════════════════════════
    WIDGET: CALCULADORA DE AHORRO
    ═══════════════════════════════════════════ */
