@@ -73,6 +73,35 @@ const DAYS_NAME = [
 ];
 
 /* ═══════════════════════════════════════════
+   FUNCIONES AUXILIARES / FORMATTERS (Regla #9 al inicio)
+═══════════════════════════════════════════ */
+const formatWorkDays = (days: number[]): string => {
+  if (!days || days.length === 0) return "Ningún día";
+  if (days.length === 7) return "Todos los días";
+
+  // Ordenar días lógicamente de Lunes (1) a Domingo (0 -> tratamos como 7 para ordenar)
+  const sortedDays = [...days].sort((a, b) => {
+    const valA = a === 0 ? 7 : a;
+    const valB = b === 0 ? 7 : b;
+    return valA - valB;
+  });
+
+  // Verificar si es exactamente Lun-Vie [1, 2, 3, 4, 5]
+  const isMonFri = days.length === 5 && [1, 2, 3, 4, 5].every(d => days.includes(d));
+  if (isMonFri) return "Lunes a Viernes";
+
+  // Verificar si es exactamente Lun-Sáb [1, 2, 3, 4, 5, 6]
+  const isMonSat = days.length === 6 && [1, 2, 3, 4, 5, 6].every(d => days.includes(d));
+  if (isMonSat) return "Lunes a Sábado";
+
+  const names: Record<number, string> = {
+    1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb", 0: "Dom"
+  };
+
+  return sortedDays.map(d => names[d]).join(", ");
+};
+
+/* ═══════════════════════════════════════════
    ICONOS
 ═══════════════════════════════════════════ */
 const IconStore = () => (
@@ -91,7 +120,7 @@ const IconInfo = () => (
 );
 
 /* ═══════════════════════════════════════════
-   COMPONENTES AUXILIARES DE FORMULARIO (Regla #9)
+   COMPONENTES AUXILIARES DE FORMULARIO
 ═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -107,76 +136,6 @@ function FieldHelper({ children }: { children: React.ReactNode }) {
     <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
       {children}
     </p>
-  );
-}
-
-function TextInput({
-  value, onChange, placeholder, maxLength,
-}: {
-  value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number;
-}) {
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      maxLength={maxLength}
-      style={{
-        width: '100%', padding: '12px 14px', fontSize: 15,
-        border: '1.5px solid #e5e7eb', borderRadius: 10,
-        background: '#ffffff', color: '#000000', outline: 'none',
-        boxSizing: 'border-box', fontFamily: 'inherit',
-        transition: 'border-color 0.2s',
-      }}
-      onFocus={(e) => (e.target.style.borderColor = '#10B981')}
-      onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
-    />
-  );
-}
-
-function CheckboxCard({
-  checked, onChange, label, helper, children,
-}: {
-  checked: boolean; onChange: (v: boolean) => void;
-  label: string; helper?: string; children?: React.ReactNode;
-}) {
-  return (
-    <div style={{
-      background: '#ffffff', border: checked ? '1.5px solid #10B981' : '1.5px solid #e5e7eb',
-      borderRadius: 12, padding: 16, marginBottom: 12, transition: 'border-color 0.2s',
-    }}>
-      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
-        <div
-          onClick={() => onChange(!checked)}
-          style={{
-            width: 22, height: 22, borderRadius: 5,
-            background: checked ? '#10B981' : '#ffffff',
-            border: checked ? '2px solid #10B981' : '2px solid #d1d5db',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, transition: 'all 0.2s',
-            marginTop: 1,
-          }}
-        >
-          {checked && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          )}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#000000', lineHeight: 1.35 }}>
-            {label}
-          </div>
-          {helper && (
-            <div style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, lineHeight: 1.5 }}>
-              {helper}
-            </div>
-          )}
-        </div>
-      </label>
-      {children && <div style={{ marginTop: 16 }}>{children}</div>}
-    </div>
   );
 }
 
@@ -403,7 +362,6 @@ export default function HorarioAtencionEditor({
     { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
   ];
 
-  /* ═══ RENDER ═══ */
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
 
@@ -493,7 +451,7 @@ export default function HorarioAtencionEditor({
               <div style={{ flex: 1 }}>
                 <div
                   style={{
-                    fontSize: 17, // AGRANDADO de 14px a 17px para mayor jerarquía
+                    fontSize: 17,
                     fontWeight: 800,
                     lineHeight: 1.3,
                   }}
@@ -502,13 +460,13 @@ export default function HorarioAtencionEditor({
                 </div>
                 <div
                   style={{
-                    fontSize: 13, // AGRANDADO de 11px a 13px para mejor lectura
+                    fontSize: 13,
                     opacity: 0.65,
                     marginTop: 4,
                     fontWeight: 600,
                   }}
                 >
-                  Atención: Lunes a Viernes {cfg.openTime} a {cfg.closeTime} hs.
+                  Atención: {formatWorkDays(cfg.workDays)} {cfg.openTime} a {cfg.closeTime} hs.
                 </div>
               </div>
             </div>
@@ -660,7 +618,7 @@ export default function HorarioAtencionEditor({
 
             {tab === 'style' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                {/* Colores — Grid Autoadaptable Premium sin desbordes */}
+                {/* Colores */}
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
@@ -800,4 +758,4 @@ export default function HorarioAtencionEditor({
       </div>
     </div>
   );
-   }
+}
