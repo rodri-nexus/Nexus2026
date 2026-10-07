@@ -6,6 +6,9 @@ import WidgetsClient from "./WidgetsClient";
 
 export const dynamic = "force-dynamic";
 
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES (Regla #9 al inicio)
+═══════════════════════════════════════════ */
 interface WidgetDefinition {
   name: string;
   icon: string;
@@ -59,6 +62,9 @@ interface DbWidgetDefinition {
   description: string;
 }
 
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL (SERVER COMPONENT)
+═══════════════════════════════════════════ */
 export default async function WidgetsPage() {
   const supabase = createClient();
   const {
@@ -81,6 +87,7 @@ export default async function WidgetsPage() {
   const store = storesList && storesList.length > 0 ? storesList[0] : null;
 
   let widgets: WidgetRow[] = [];
+  const categoriesMap: Record<string, CategoryInfo | null> = {};
 
   if (store?.store_id) {
     // 2. Traer widgets vinculados incluyendo target_category_id y config
@@ -173,45 +180,34 @@ export default async function WidgetsPage() {
     });
   }
 
-  // 7. Consultar categorías únicas en Tiendanube
-  const categoryIds = Array.from(
-    new Set(
-      widgets
-        .filter((w) => w.target_type === "category" && w.target_category_id)
-        .map((w) => String(w.target_category_id))
-    )
-  );
-
-  const categoriesMap: Record<string, CategoryInfo | null> = {};
-
-  if (store?.store_id && store?.access_token && categoryIds.length > 0) {
-    await Promise.all(
-      categoryIds.map(async (cid) => {
-        try {
-          const res = await fetch(
-            `https://api.tiendanube.com/v1/${store.store_id}/categories/${cid}`,
-            {
-              headers: {
-                Authentication: `bearer ${store.access_token}`,
-                "User-Agent": "Nevux (soportenevux@gmail.com)",
-              },
-            }
-          );
-          if (res.ok) {
-            const catData = await res.json();
+  // 7. CONSULTAR TODAS LAS CATEGORÍAS DE LA TIENDA (Fix para creación fluida - v22)
+  if (store?.store_id && store?.access_token) {
+    try {
+      const res = await fetch(
+        `https://api.tiendanube.com/v1/${store.store_id}/categories`,
+        {
+          headers: {
+            Authentication: `bearer ${store.access_token}`,
+            "User-Agent": "Nevux (soportenevux@gmail.com)",
+          },
+        }
+      );
+      if (res.ok) {
+        const catsData = await res.json();
+        if (Array.isArray(catsData)) {
+          catsData.forEach((catData) => {
+            const cid = String(catData.id);
             const catName =
               typeof catData?.name === "object"
                 ? catData.name.es || catData.name.pt || catData.name.en || `Categoría #${cid}`
                 : String(catData?.name || `Categoría #${cid}`);
             categoriesMap[cid] = { id: cid, name: catName };
-          } else {
-            categoriesMap[cid] = { id: cid, name: `Categoría #${cid}` };
-          }
-        } catch {
-          categoriesMap[cid] = { id: cid, name: `Categoría #${cid}` };
+          });
         }
-      })
-    );
+      }
+    } catch (err) {
+      console.error("[widgets/page] Error al traer todas las categorías:", err);
+    }
   }
 
   const storeData = store
@@ -231,4 +227,4 @@ export default async function WidgetsPage() {
       categoriesMap={categoriesMap}
     />
   );
-        }
+           }
