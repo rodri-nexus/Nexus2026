@@ -1612,7 +1612,36 @@
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
-     /* ═══════════════════════════════════════════
+       /* ═══════════════════════════════════════════
+     DETECCIÓN DE PRODUCTO Y ARMADO DE URL (v183 - ES5 ESTRICTO)
+  ═══════════════════════════════════════════ */
+  var productId = null;
+  if (typeof window !== "undefined" && window.LS && window.LS.product && window.LS.product.id) {
+    productId = String(window.LS.product.id).trim();
+  }
+  if (!productId) {
+    try {
+      var prodInput = document.querySelector('input[name="add_to_cart"], [data-product-id]');
+      if (prodInput) {
+        productId = prodInput.value || prodInput.getAttribute('data-product-id');
+      }
+    } catch (eProd) {}
+  }
+
+  var clientLang = "es";
+  if (typeof navigator !== "undefined") {
+    clientLang = navigator.language || navigator.userLanguage || "es";
+  }
+  if (document.documentElement && document.documentElement.lang) {
+    clientLang = document.documentElement.lang;
+  }
+
+  var url = API_BASE + "/api/widget-render?store_id=" + storeId +
+    (productId ? "&product_id=" + productId : "") +
+    "&lang=" + encodeURIComponent(clientLang) +
+    "&_t=" + Date.now();
+
+  /* ═══════════════════════════════════════════
      HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (Regla #38 y #39)
   ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId) {
@@ -1746,7 +1775,6 @@
                 : null;
 
               if (!curProdId || !targetProdId || curProdId !== targetProdId) {
-                // No coincide con este producto, omitir silenciosamente
                 return;
               }
             }
@@ -1755,7 +1783,6 @@
             if (w.target_type === "category") {
               var catId = w.target_category_id || (w.config && (w.config.category_id || w.config.target_category_id));
               if (!catId || !checkCategoryMatch(catId)) {
-                // No coincide con esta categoría, omitir silenciosamente
                 return;
               }
             }
@@ -1785,7 +1812,7 @@
     })
     .catch(function (err) {
       console.error("[Nevux] Error crítico en el despachador Nevux:", err);
-    }); 
+    });
   
 /* ═══════════════════════════════════════════
    DETECCIÓN SEGURA DE PÁGINA (ES5 Safe)
