@@ -24,6 +24,7 @@ import DashboardHeader from "../dashboard/components/DashboardHeader";
 import SideMenu from "../dashboard/components/SideMenu";
 import CentroAyuda from "../dashboard/components/CentroAyuda";
 import EliminarWidgetModal from "@/components/widgets/EliminarWidgetModal";
+import CrearWidgetModal from "@/components/widgets/CrearWidgetModal";
 
 interface StoreData {
   store_id: number;
@@ -81,6 +82,7 @@ export default function WidgetsClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState<{
     type: "success" | "error";
@@ -172,7 +174,6 @@ export default function WidgetsClient({
         porProducto.get(pid)!.push(w);
       });
 
-    // 🛡️ CAPTURADOR DE WIDGETS HUÉRFANOS O INCOMPLETOS:
     const huerfanos = filteredWidgets.filter((w) => {
       const esGeneral = w.target_type === "all" || (!w.target_type && !w.target_product_id && !w.target_category_id);
       const esCatValida = w.target_type === "category" && w.target_category_id != null && String(w.target_category_id).trim() !== "";
@@ -508,8 +509,9 @@ export default function WidgetsClient({
             </div>
 
             {store && (
-              <Link
-                href="/dashboard"
+              <button
+                type="button"
+                onClick={() => setIsCreateOpen(true)}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -524,7 +526,6 @@ export default function WidgetsClient({
                   cursor: "pointer",
                   boxShadow: "0 4px 14px rgba(16, 185, 129, 0.3)",
                   fontFamily: "inherit",
-                  textDecoration: "none",
                   transition: "background 0.15s ease",
                 }}
                 onMouseEnter={(e) =>
@@ -536,7 +537,7 @@ export default function WidgetsClient({
               >
                 <Plus size={16} />
                 Crear widget
-              </Link>
+              </button>
             )}
           </div>
         </motion.div>
@@ -601,7 +602,7 @@ export default function WidgetsClient({
             title="Aún no tenés widgets"
             description="Empezá creando tu primer widget para aumentar tus ventas."
             ctaLabel="Crear widget"
-            ctaHref="/dashboard"
+            ctaOnClick={() => setIsCreateOpen(true)}
           />
         ) : filteredWidgets.length === 0 ? (
           <EmptyState
@@ -823,6 +824,23 @@ export default function WidgetsClient({
         scopeLabel={deleteTarget ? getScopeLabel(deleteTarget) : ""}
         isDeleting={isDeleting}
       />
+
+      <CrearWidgetModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSelectTodos={() => {
+          setIsCreateOpen(false);
+          router.push("/widgets/nuevo/todos");
+        }}
+        onSelectProducto={() => {
+          setIsCreateOpen(false);
+          router.push("/dashboard?select=product");
+        }}
+        onSelectCategoria={() => {
+          setIsCreateOpen(false);
+          router.push("/dashboard?select=category");
+        }}
+      />
     </div>
   );
 }
@@ -831,12 +849,12 @@ function EmptyState({
   title,
   description,
   ctaLabel,
-  ctaHref,
+  ctaOnClick,
 }: {
   title: string;
   description: string;
   ctaLabel?: string;
-  ctaHref?: string;
+  ctaOnClick?: () => void;
 }) {
   return (
     <motion.div
@@ -892,9 +910,10 @@ function EmptyState({
         {description}
       </p>
 
-      {ctaLabel && ctaHref && (
-        <Link
-          href={ctaHref}
+      {ctaLabel && ctaOnClick && (
+        <button
+          type="button"
+          onClick={ctaOnClick}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -905,7 +924,8 @@ function EmptyState({
             color: "#ffffff",
             fontSize: "0.9rem",
             fontWeight: 700,
-            textDecoration: "none",
+            border: "none",
+            cursor: "pointer",
             boxShadow: "0 4px 12px rgba(16, 185, 129, 0.35)",
             transition: "background 0.15s ease",
           }}
@@ -914,7 +934,7 @@ function EmptyState({
         >
           <Plus size={16} />
           {ctaLabel}
-        </Link>
+        </button>
       )}
     </motion.div>
   );
@@ -1179,4 +1199,4 @@ function WidgetRowItem({
       </button>
     </div>
   );
-}
+    }
