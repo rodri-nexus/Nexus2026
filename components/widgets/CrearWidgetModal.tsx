@@ -13,6 +13,7 @@ import {
   Mic,
   MessageSquare,
   Bot,
+  Tag,
   type LucideIcon,
 } from "lucide-react";
 
@@ -24,6 +25,7 @@ interface CrearWidgetModalProps {
   onClose: () => void;
   onSelectProducto: () => void;
   onSelectTodos: () => void;
+  onSelectCategoria: () => void;
 }
 
 interface ProFeature {
@@ -90,6 +92,7 @@ export default function CrearWidgetModal({
   onClose,
   onSelectProducto,
   onSelectTodos,
+  onSelectCategoria,
 }: CrearWidgetModalProps) {
   const router = useRouter();
 
@@ -216,6 +219,7 @@ export default function CrearWidgetModal({
 
               {/* Opciones */}
               <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                
                 {/* Opción A: Producto específico */}
                 <button
                   onClick={onSelectProducto}
@@ -374,7 +378,86 @@ export default function CrearWidgetModal({
                   </svg>
                 </button>
 
-                {/* Opción C: TERCER BLOQUE DE FUNCIONES PRO / IA */}
+                {/* Opción C: Widget para una Categoría (NUEVO REGULADO v21) */}
+                <button
+                  onClick={onSelectCategoria}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1rem",
+                    padding: "1rem 1.25rem",
+                    background: "#ffffff",
+                    border: "1.5px solid #e5e7eb",
+                    borderRadius: "14px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    width: "100%",
+                    transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s",
+                    boxSizing: "border-box",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#D97706";
+                    e.currentTarget.style.background = "#FEF3C7";
+                    e.currentTarget.style.boxShadow =
+                      "0 0 0 3px rgba(217, 119, 6, 0.15)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#e5e7eb";
+                    e.currentTarget.style.background = "#ffffff";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "12px",
+                      background: "#FEF3C7",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Tag size={22} color="#D97706" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        color: "#000000",
+                        marginBottom: "0.2rem",
+                      }}
+                    >
+                      🏷️ Widget para una categoría
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.82rem",
+                        color: "#000000",
+                        opacity: 0.6,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      Asociá widgets a una categoría de productos completa
+                    </div>
+                  </div>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#D97706"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+
+                {/* Opción D: TERCER BLOQUE DE FUNCIONES PRO / IA */}
                 <div
                   style={{
                     display: "flex",
@@ -387,7 +470,7 @@ export default function CrearWidgetModal({
                     boxSizing: "border-box",
                   }}
                 >
-                  {/* Encabezado del bloque 3 */}
+                  {/* Encabezado del bloque 4 */}
                   <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                     <div
                       style={{
@@ -545,4 +628,4 @@ export default function CrearWidgetModal({
       )}
     </AnimatePresence>
   );
-                        }
+              }
