@@ -825,15 +825,21 @@ export default function WidgetsClient({
         isDeleting={isDeleting}
       />
 
-            <CrearWidgetModal
+                  <CrearWidgetModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onSelectTodos={() => {
           setIsCreateOpen(false);
           router.push("/widgets/nuevo/todos");
         }}
-        storeId={store?.store_id}
-        categoriesMap={categoriesMap}
+        onSelectProducto={() => {
+          setIsCreateOpen(false);
+          router.push("/dashboard?select=product");
+        }}
+        onSelectCategoria={() => {
+          setIsCreateOpen(false);
+          router.push("/dashboard?select=category");
+        }}
       />
     </div>
   );
