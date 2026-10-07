@@ -1590,11 +1590,11 @@
     document.head.appendChild(style);
         }
   /* ═══════════════════════════════════════════
-     INIT
+     INIT (ES5 STRICT COMPATIBLE - v186)
   ═══════════════════════════════════════════ */
-  const storeId = detectStoreId();
-  const productId = detectProductId();
-  const pageType = detectPageType();
+  var storeId = detectStoreId();
+  var productId = detectProductId();
+  var pageType = detectPageType();
 
   console.log("[Nevux] storeId:", storeId, "productId:", productId, "pageType:", pageType);
 
@@ -1607,7 +1607,7 @@
 
   // Detectar idioma del comprador (desde la etiqueta <html lang="..."> o configuración del navegador)
   var clientLang = document.documentElement.lang || navigator.language || "es";
-  const url = API_BASE + "/api/widget-render?store_id=" + storeId +
+  var url = API_BASE + "/api/widget-render?store_id=" + storeId +
     (productId ? "&product_id=" + productId : "") +
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
