@@ -1612,37 +1612,7 @@
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
-         /* ═══════════════════════════════════════════
-     DETECCIÓN DE PRODUCTO Y ARMADO DE URL (v184 - AUTO-CONTENIDO)
-  ═══════════════════════════════════════════ */
-  var productId = null;
-  if (typeof window !== "undefined" && window.LS && window.LS.product && window.LS.product.id) {
-    productId = String(window.LS.product.id).trim();
-  }
-  if (!productId) {
-    try {
-      var prodInput = document.querySelector('input[name="add_to_cart"], [data-product-id]');
-      if (prodInput) {
-        productId = prodInput.value || prodInput.getAttribute('data-product-id');
-      }
-    } catch (eProd) {}
-  }
-
-  var clientLang = "es";
-  if (typeof navigator !== "undefined") {
-    clientLang = navigator.language || navigator.userLanguage || "es";
-  }
-  if (document.documentElement && document.documentElement.lang) {
-    clientLang = document.documentElement.lang;
-  }
-
-  // Definición segura de la URL del endpoint unificado de Nevux
-  var url = "https://nevux.ar/api/widget-render?store_id=" + storeId +
-    (productId ? "&product_id=" + productId : "") +
-    "&lang=" + encodeURIComponent(clientLang) +
-    "&_t=" + Date.now();
-
-  /* ═══════════════════════════════════════════
+      /* ═══════════════════════════════════════════
      HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (Regla #38 y #39)
   ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId) {
@@ -1710,7 +1680,6 @@
 
     return false;
   };
-
   /* ═══════════════════════════════════════════
      FETCH UNIFICADO: UN SOLO VIAJE AL SERVIDOR
   ═══════════════════════════════════════════ */
@@ -1776,6 +1745,7 @@
                 : null;
 
               if (!curProdId || !targetProdId || curProdId !== targetProdId) {
+                // No coincide con este producto, omitir silenciosamente
                 return;
               }
             }
@@ -1784,6 +1754,7 @@
             if (w.target_type === "category") {
               var catId = w.target_category_id || (w.config && (w.config.category_id || w.config.target_category_id));
               if (!catId || !checkCategoryMatch(catId)) {
+                // No coincide con esta categoría, omitir silenciosamente
                 return;
               }
             }
