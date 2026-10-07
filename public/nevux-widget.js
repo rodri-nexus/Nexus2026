@@ -1612,8 +1612,8 @@
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
-       /* ═══════════════════════════════════════════
-     DETECCIÓN DE PRODUCTO Y ARMADO DE URL (v183 - ES5 ESTRICTO)
+         /* ═══════════════════════════════════════════
+     DETECCIÓN DE PRODUCTO Y ARMADO DE URL (v184 - AUTO-CONTENIDO)
   ═══════════════════════════════════════════ */
   var productId = null;
   if (typeof window !== "undefined" && window.LS && window.LS.product && window.LS.product.id) {
@@ -1636,7 +1636,8 @@
     clientLang = document.documentElement.lang;
   }
 
-  var url = API_BASE + "/api/widget-render?store_id=" + storeId +
+  // Definición segura de la URL del endpoint unificado de Nevux
+  var url = "https://nevux.ar/api/widget-render?store_id=" + storeId +
     (productId ? "&product_id=" + productId : "") +
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
