@@ -1612,14 +1612,30 @@
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
-      /* ═══════════════════════════════════════════
-     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (Regla #38 y #39)
+        /* ═══════════════════════════════════════════
+     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (v192 - ES5 STRICT)
   ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId) {
     if (!targetCatId) return false;
     var targetStr = String(targetCatId).trim().toLowerCase();
 
-    // 1. window.LS.product (Ficha de producto)
+    // 1. Escáner de clases de Body (Super-Escáner Tiendanube 100% inmune si window.LS no cargó)
+    if (typeof document !== "undefined" && document.body && document.body.className) {
+      var bodyClass = String(document.body.className).toLowerCase();
+      if (bodyClass.indexOf("category-" + targetStr) !== -1) return true;
+      if (bodyClass.indexOf("cat-" + targetStr) !== -1) return true;
+    }
+
+    // 2. Escáner de atributos HTML en la grilla de productos
+    try {
+      var gridEl = document.querySelector("[data-category-id], [data-category], .js-product-grid, #product-grid");
+      if (gridEl) {
+        var dataId = gridEl.getAttribute("data-category-id") || gridEl.getAttribute("data-category") || "";
+        if (dataId && String(dataId).trim().toLowerCase() === targetStr) return true;
+      }
+    } catch (eGrid) {}
+
+    // 3. window.LS.product (Ficha de producto)
     if (typeof window !== "undefined" && window.LS && window.LS.product) {
       var prod = window.LS.product;
       
@@ -1659,14 +1675,14 @@
       }
     }
 
-    // 2. window.LS.category (Página listado de categoría)
+    // 4. window.LS.category (Página listado de categoría)
     if (typeof window !== "undefined" && window.LS && window.LS.category) {
       var cat = window.LS.category;
       if (cat.id != null && String(cat.id).trim().toLowerCase() === targetStr) return true;
       if (cat.name && String(cat.name).trim().toLowerCase() === targetStr) return true;
     }
 
-    // 3. Inspección profunda del DOM (breadcrumbs, links de categorías y data-attributes)
+    // 5. Inspección profunda del DOM (breadcrumbs, links de categorías y data-attributes)
     try {
       var catLinks = document.querySelectorAll("a[href*='category'], a[href*='categoria'], .breadcrumb a, [data-category-id]");
       for (var l = 0; l < catLinks.length; l++) {
