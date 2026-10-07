@@ -1589,8 +1589,8 @@
     `;
     document.head.appendChild(style);
         }
-  /* ═══════════════════════════════════════════
-     INIT (ES5 STRICT COMPATIBLE - v186)
+/* ═══════════════════════════════════════════
+     INIT (ES5 STRICT COMPATIBLE - v187)
   ═══════════════════════════════════════════ */
   var storeId = detectStoreId();
   var productId = detectProductId();
@@ -1612,7 +1612,7 @@
     "&lang=" + encodeURIComponent(clientLang) +
     "&_t=" + Date.now();
 
-      /* ═══════════════════════════════════════════
+  /* ═══════════════════════════════════════════
      HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (Regla #38 y #39)
   ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId) {
@@ -1680,6 +1680,7 @@
 
     return false;
   };
+
   /* ═══════════════════════════════════════════
      FETCH UNIFICADO: UN SOLO VIAJE AL SERVIDOR
   ═══════════════════════════════════════════ */
@@ -1785,6 +1786,8 @@
     .catch(function (err) {
       console.error("[Nevux] Error crítico en el despachador Nevux:", err);
     });
+
+})(); // <-- CIERRE CORRECTO DEL WRAPPER PRINCIPAL DEL ARCHIVO
   
 /* ═══════════════════════════════════════════
    DETECCIÓN SEGURA DE PÁGINA (ES5 Safe)
