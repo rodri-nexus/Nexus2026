@@ -6,8 +6,10 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS Y ENUMS (Declarados al inicio - Regla #9 y #30)
 ═══════════════════════════════════════════ */
+export type TabType = 'general' | 'ubicacion' | 'estilos' | 'fechas';
+
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -23,13 +25,15 @@ interface ExistingWidget {
   is_active: boolean;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
 }
 
 interface ContadorVendidosEditorProps {
   widgetDefinition: WidgetDefinition;
   existingWidget: ExistingWidget | null;
-  targetType: 'product' | 'all';
+  targetType: 'product' | 'all' | 'category';
   productId: number | null;
+  categoryId?: string | number | null;
   storeId: string;
 }
 
@@ -55,7 +59,7 @@ export interface ContadorVendidosConfig {
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO
+   CONFIG POR DEFECTO Y MAPS
 ═══════════════════════════════════════════ */
 const defaultConfig: ContadorVendidosConfig = {
   cantidadVendida: 247,
@@ -107,11 +111,11 @@ const CAMPAIGN_COLORS: Record<string, { bg: string; text: string; border: string
 };
 
 /* ═══════════════════════════════════════════
-   SUBCOMPONENTES Y CONTROLES
+   SUBCOMPONENTES Y CONTROLES VISUALES
 ═══════════════════════════════════════════ */
 function IconStore() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
       <line x1="2" y1="7" x2="22" y2="7"/>
       <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
@@ -382,7 +386,7 @@ function SelectField({
 }
 
 /* ═══════════════════════════════════════════
-   PREVIEW LIVE INTEGRADO (Regla #16)
+   PREVIEW EN VIVO (Regla #13 - camelCase obligatorio)
 ═══════════════════════════════════════════ */
 function ContadorVendidosPreview({ config }: { config: ContadorVendidosConfig }) {
   const theme = config.campaignTheme && config.campaignTheme !== 'none'
@@ -535,13 +539,14 @@ function ContadorVendidosPreview({ config }: { config: ContadorVendidosConfig })
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL DEL EDITOR
+   COMPONENTE PRINCIPAL DEL EDITOR (Estándar v13/v22)
 ═══════════════════════════════════════════ */
 export default function ContadorVendidosEditor({
   widgetDefinition,
   existingWidget,
   targetType,
   productId,
+  categoryId = null,
   storeId,
 }: ContadorVendidosEditorProps) {
   const router = useRouter();
@@ -554,14 +559,22 @@ export default function ContadorVendidosEditor({
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos' | 'fechas'>('general');
+  const [activeTab, setActiveTab] = useState<TabType>('general');
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
+  const isCategory = targetType === 'category';
+  const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
   const update = <K extends keyof ContadorVendidosConfig>(key: K, value: ContadorVendidosConfig[K]) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    setConfig((prev) => {
+      const next = { ...prev, [key]: value };
+      // Regla #8: Si se cambia cualquier color, desactivar campaña automáticamente
+      if (['colorFondo', 'colorTexto', 'colorIcono', 'colorBorde'].includes(key as string)) {
+        next.campaignTheme = 'none';
+      }
+      return next;
+    });
   };
 
   const handlePeriodoChange = (periodoKey: string) => {
@@ -586,8 +599,12 @@ export default function ContadorVendidosEditor({
           widget_slug: widgetDefinition.slug,
           store_id: storeId,
           target_type: targetType,
-          target_product_id: productId,
-          config,
+          target_product_id: targetType === 'product' ? productId : null,
+          target_category_id: targetType === 'category' ? (categoryId ? String(categoryId) : null) : null,
+          config: {
+            ...config,
+            ...(targetType === 'category' && categoryId ? { category_id: String(categoryId) } : {})
+          },
           is_active: isActive,
         }),
       });
@@ -601,6 +618,9 @@ export default function ContadorVendidosEditor({
         if (targetType === 'product' && productId) {
           params.set('product', String(productId));
         }
+        if (targetType === 'category' && categoryId) {
+          params.set('category', String(categoryId));
+        }
         router.push(`/widgets?${params.toString()}`);
       } else {
         router.push('/widgets');
@@ -611,7 +631,7 @@ export default function ContadorVendidosEditor({
     }
   };
 
-  /* ═══ TAB GENERAL ═══ */
+  /* ═══ TABS CONTENT ═══ */
   const tabGeneral = (
     <div>
       {/* Cantidad Vendida */}
@@ -699,7 +719,6 @@ export default function ContadorVendidosEditor({
     </div>
   );
 
-  /* ═══ TAB UBICACIÓN ═══ */
   const tabUbicacion = (
     <div>
       <div style={{ marginBottom: 24 }}>
@@ -742,7 +761,6 @@ export default function ContadorVendidosEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS (DISEÑO RE-ACOMODADO ADAPTABLE) ═══ */
   const tabEstilos = (
     <div>
       {/* Estilo visual */}
@@ -846,7 +864,6 @@ export default function ContadorVendidosEditor({
     </div>
   );
 
-  /* ═══ TAB FECHAS ESPECIALES ═══ */
   const CAMPAIGN_PRESETS = [
     { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
     { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro con dorado de alto contraste.', themeColor: '#111827', accentColor: '#F59E0B' },
@@ -923,10 +940,8 @@ export default function ContadorVendidosEditor({
     { id: 'fechas', label: '🔥 Fechas Especiales' },
   ];
 
-  /* ═══ RENDER PRINCIPAL ═══ */
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
-
       {/* HEADER OFICIAL */}
       <div style={{
         background: '#ffffff', borderBottom: '1px solid #e5e7eb',
@@ -948,8 +963,7 @@ export default function ContadorVendidosEditor({
 
       {/* MAIN CONTAINER */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
-
-        {/* Scope chip */}
+        {/* Scope chip (Regla #40) */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#ffffff',
@@ -960,6 +974,15 @@ export default function ContadorVendidosEditor({
             <IconStore />
             <span>Todos los productos</span>
           </div>
+        ) : isCategory ? (
+          <div style={{
+            background: '#FEF3C7', color: '#D97706', border: '1px solid #FCD34D',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
+          }}>
+            <span>🏷️ Widget para Categoría</span>
+          </div>
         ) : (
           <div style={{
             background: '#ffffff', border: '1px solid #e5e7eb',
@@ -967,8 +990,8 @@ export default function ContadorVendidosEditor({
             display: 'inline-flex', alignItems: 'center', gap: 10,
             marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000000',
           }}>
-            <span style={{ fontSize: 18 }}>🛍</span>
-            <span>NEVUX Widget</span>
+            <span style={{ fontSize: 18 }}>🛍️</span>
+            <span>NEVUX Widget de Producto</span>
           </div>
         )}
 
@@ -1001,7 +1024,7 @@ export default function ContadorVendidosEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              El contador genera urgencia y confianza mostrando cuántas unidades fueron adquiridas sin tocar tu carrito.
+              El contador genera urgencia y confianza mostrando cuántas unidades fueron adquiridas sin tocar tu stock real ni interferir con carritos de compra.
             </span>
           </div>
 
@@ -1016,7 +1039,7 @@ export default function ContadorVendidosEditor({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as TabType)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
                     border: 'none', borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
@@ -1097,4 +1120,4 @@ export default function ContadorVendidosEditor({
       </div>
     </div>
   );
-     }
+   }
