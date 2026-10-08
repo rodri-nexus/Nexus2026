@@ -343,8 +343,37 @@ export default function DashboardClient({
     window.location.href = href;
   };
 
-  const getProductImage = (p: Product) =>
-    p.image_url || p.images?.[0]?.src || "";
+  // Helper blindado que soporta todos los formatos de imagen de Tiendanube
+  const getProductImage = (p: Product): string => {
+    if (p.image_url && typeof p.image_url === "string") return p.image_url;
+
+    const anyProd = p as unknown as Record<string, unknown>;
+    const imagesArr = anyProd.images as unknown[] | undefined;
+    if (Array.isArray(imagesArr) && imagesArr.length > 0) {
+      const first = imagesArr[0];
+      if (typeof first === "string") return first;
+      if (first && typeof first === "object") {
+        const imgObj = first as Record<string, unknown>;
+        if (typeof imgObj.src === "string") return imgObj.src;
+        if (typeof imgObj.url === "string") return imgObj.url;
+        if (typeof imgObj.thumbnail === "string") return imgObj.thumbnail;
+        if (typeof imgObj.href === "string") return imgObj.href;
+        if (typeof imgObj.image === "string") return imgObj.image;
+      }
+    }
+
+    if (typeof anyProd.image === "string") return anyProd.image as string;
+    if (typeof anyProd.thumbnail === "string") return anyProd.thumbnail as string;
+    if (typeof anyProd.main_image === "string") return anyProd.main_image as string;
+
+    const imgSingle = anyProd.image as Record<string, unknown> | undefined;
+    if (imgSingle && typeof imgSingle === "object") {
+      if (typeof imgSingle.src === "string") return imgSingle.src;
+      if (typeof imgSingle.url === "string") return imgSingle.url;
+    }
+
+    return "";
+  };
 
   const getProductPrice = (p: Product) => {
     if (typeof p.price === "number") return p.price.toLocaleString("es-AR");
@@ -1252,7 +1281,7 @@ export default function DashboardClient({
                       </span>
                     </button>
 
-                    {/* BLOQUE 3: Widget para categoría (NUEVO BLOQUE 4) */}
+                    {/* BLOQUE 3: Widget para categoría */}
                     <button
                       type="button"
                       onClick={handleSelectCategoryOption}
@@ -1334,7 +1363,6 @@ export default function DashboardClient({
                         boxSizing: "border-box",
                       }}
                     >
-                      {/* Header del bloque 4 */}
                       <div
                         style={{
                           display: "flex",
@@ -1381,7 +1409,6 @@ export default function DashboardClient({
                         </div>
                       </div>
 
-                      {/* Lista de las 6 herramientas */}
                       <div
                         style={{
                           display: "flex",
@@ -1604,32 +1631,53 @@ export default function DashboardClient({
                             >
                               <div
                                 style={{
-                                  width: "48px",
-                                  height: "48px",
-                                  borderRadius: "10px",
-                                  background: "#f3f4f6",
+                                  width: "55px",
+                                  height: "55px",
+                                  borderRadius: "12px",
+                                  background: "#f9fafb",
+                                  border: "1.5px solid #e5e7eb",
                                   overflow: "hidden",
                                   flexShrink: 0,
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
+                                  position: "relative",
                                 }}
                               >
                                 {img ? (
                                   <img
                                     src={img}
-                                    alt=""
+                                    alt={p.name}
+                                    loading="lazy"
                                     onError={(e) => {
+                                      const parent = e.currentTarget.parentElement;
                                       e.currentTarget.style.display = "none";
+                                      if (parent) {
+                                        parent.style.background = "#ecfdf5";
+                                        parent.innerHTML =
+                                          '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>';
+                                      }
                                     }}
                                     style={{
                                       width: "100%",
                                       height: "100%",
                                       objectFit: "cover",
+                                      display: "block",
                                     }}
                                   />
                                 ) : (
-                                  <Package size={20} color="#9ca3af" />
+                                  <div
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      background: "#ecfdf5",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Package size={22} color="#10B981" />
+                                  </div>
                                 )}
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1833,4 +1881,4 @@ export default function DashboardClient({
       </AnimatePresence>
     </div>
   );
-}
+         }
