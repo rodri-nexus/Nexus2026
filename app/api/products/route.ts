@@ -53,14 +53,20 @@ export async function GET(req: NextRequest) {
     // Obtener productos desde la API oficial de Tiendanube
     const rawProducts = await getProducts(store.store_id, store.access_token, q);
 
-    // Mapear la primera imagen como `image` principal para el modal
+    // Mapear imagen y precio principal para cada producto
     const formattedProducts = rawProducts.map((p) => {
       const firstImg = p.images && p.images.length > 0 ? p.images[0].src : null;
+      const firstVariant = p.variants && p.variants.length > 0 ? p.variants[0] : null;
+      const mainPrice = firstVariant
+        ? (firstVariant.promotional_price || firstVariant.price || null)
+        : null;
+
       return {
         id: p.id,
         name: p.name,
         slug: p.slug,
         image: firstImg,
+        price: mainPrice,
         images: p.images,
         variants: p.variants,
         categories: p.categories,
