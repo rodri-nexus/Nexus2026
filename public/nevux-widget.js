@@ -1613,7 +1613,7 @@
     "&_t=" + Date.now();
 
         /* ═══════════════════════════════════════════
-     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (v195 - ES5 STRICT)
+     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (v196 - ES5 STRICT)
   ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId, targetHandle, targetName) {
     if (!targetCatId) return false;
@@ -1621,14 +1621,9 @@
     var handleStr = targetHandle ? String(targetHandle).trim().toLowerCase() : "";
     var nameStr = targetName ? String(targetName).trim().toLowerCase() : "";
 
-    // 1. URL Pathname (La prueba más rápida para listados de categorías como /auriculares/)
-    if (typeof window !== "undefined" && window.location && window.location.pathname) {
-      var path = window.location.pathname.toLowerCase();
-      if (handleStr && (path.indexOf("/" + handleStr) !== -1 || path.indexOf(handleStr) !== -1)) return true;
-      if (targetStr && path.indexOf(targetStr) !== -1) return true;
-    }
+    var isProdPage = typeof window !== "undefined" && window.LS && window.LS.product;
 
-    // 2. Escáner de clases de Body (Super-Escáner Tiendanube 100% inmune)
+    // 1. Escáner de clases de Body (La forma más segura y estricta en Tiendanube)
     if (typeof document !== "undefined" && document.body && document.body.className) {
       var bodyClass = String(document.body.className).toLowerCase();
       if (bodyClass.indexOf("category-" + targetStr) !== -1) return true;
@@ -1636,8 +1631,33 @@
       if (handleStr && (bodyClass.indexOf("category-" + handleStr) !== -1 || bodyClass.indexOf("cat-" + handleStr) !== -1)) return true;
     }
 
-    // 3. window.LS.product (Ficha de producto)
-    if (typeof window !== "undefined" && window.LS && window.LS.product) {
+    // 2. Si estamos en un Listado de Categoría (NO en ficha de producto)
+    if (!isProdPage) {
+      // Validar por URL Pathname exacta para evitar falsos positivos
+      if (typeof window !== "undefined" && window.location && window.location.pathname) {
+        var path = window.location.pathname.toLowerCase();
+        var cleanPath = path.replace(/^\/|\/$/g, ""); // Quita barra inicial y final
+        if (handleStr && (cleanPath === handleStr || cleanPath.indexOf("categoria/" + handleStr) !== -1)) return true;
+        if (targetStr && (cleanPath === targetStr || cleanPath.indexOf("categoria/" + targetStr) !== -1)) return true;
+      }
+
+      // Validar por objeto global window.LS.category
+      if (typeof window !== "undefined" && window.LS && window.LS.category) {
+        var cat = window.LS.category;
+        if (typeof cat === "number" || typeof cat === "string") {
+          var catRaw = String(cat).trim().toLowerCase();
+          if (catRaw === targetStr || catRaw === handleStr) return true;
+        }
+        if (typeof cat === "object") {
+          if (cat.id != null && String(cat.id).trim().toLowerCase() === targetStr) return true;
+          if (cat.handle && String(cat.handle).trim().toLowerCase() === handleStr) return true;
+          if (cat.name && String(cat.name).trim().toLowerCase() === targetStr) return true;
+        }
+      }
+    }
+
+    // 3. Si estamos en Ficha de Producto
+    if (isProdPage) {
       var prod = window.LS.product;
       
       // Array u objeto de categories
@@ -1650,8 +1670,9 @@
               if (c.id != null && String(c.id).trim().toLowerCase() === targetStr) return true;
               if (c.handle && String(c.handle).trim().toLowerCase() === handleStr) return true;
               if (c.name && String(c.name).trim().toLowerCase() === nameStr) return true;
-            } else if (String(c).trim().toLowerCase() === targetStr) {
-              return true;
+            } else {
+              var cVal = String(c).trim().toLowerCase();
+              if (cVal === targetStr || cVal === handleStr) return true;
             }
           }
         } else if (typeof prod.categories === "object") {
@@ -1664,8 +1685,7 @@
                 if (item.name && String(item.name).trim().toLowerCase() === nameStr) return true;
               } else {
                 var itemVal = String(item).trim().toLowerCase();
-                if (itemVal === targetStr) return true;
-                if (handleStr && itemVal === handleStr) return true;
+                if (itemVal === targetStr || itemVal === handleStr) return true;
               }
             }
           }
@@ -1684,42 +1704,130 @@
       }
     }
 
-    // 4. window.LS.category (Página listado de categoría)
-    if (typeof window !== "undefined" && window.LS && window.LS.category) {
-      var cat = window.LS.category;
-      
-      // Si LS.category es directamente el ID como número o string
-      if (typeof cat === "number" || typeof cat === "string") {
-        if (String(cat).trim().toLowerCase() === targetStr) return true;
-        if (handleStr && String(cat).trim().toLowerCase() === handleStr) return true;
-      }
-      
-      // Si LS.category es un objeto estándar
-      if (typeof cat === "object") {
-        if (cat.id != null && String(cat.id).trim().toLowerCase() === targetStr) return true;
-        if (cat.handle && String(cat.handle).trim().toLowerCase() === handleStr) return true;
-        if (cat.name && String(cat.name).trim().toLowerCase() === targetStr) return true;
-      }
-    }
-
-    // 5. Inspección profunda del DOM (breadcrumbs, links de categorías y data-attributes)
+    // 4. Inspección profunda de Breadcrumbs (Solo el rastro de navegación del producto actual)
     try {
-      var catLinks = document.querySelectorAll("a[href*='category'], a[href*='categoria'], .breadcrumb a, .breadcrumbs a, [data-category-id]");
-      for (var l = 0; l < catLinks.length; l++) {
-        var el = catLinks[l];
-        var href = el.getAttribute("href") || "";
-        var dataCat = el.getAttribute("data-category-id") || "";
+      var breadcrumbs = document.querySelectorAll(".breadcrumb a, .breadcrumbs a, .breadcrumb-item a, [data-store='breadcrumb'] a");
+      for (var l = 0; l < breadcrumbs.length; l++) {
+        var el = breadcrumbs[l];
+        var href = (el.getAttribute("href") || "").toLowerCase();
         var text = (el.textContent || el.innerText || "").trim().toLowerCase();
 
-        if (dataCat && String(dataCat).trim().toLowerCase() === targetStr) return true;
-        if (href.indexOf(targetStr) !== -1) return true;
-        if (handleStr && href.indexOf(handleStr) !== -1) return true;
+        if (handleStr && href.indexOf("/" + handleStr) !== -1) return true;
+        if (targetStr && href.indexOf("/" + targetStr) !== -1) return true;
         if (nameStr && text === nameStr) return true;
       }
     } catch (eDOM) {}
 
     return false;
   };
+
+  /* ═══════════════════════════════════════════
+     FETCH UNIFICADO: UN SOLO VIAJE AL SERVIDOR
+  ═══════════════════════════════════════════ */
+  fetch(url)
+    .then(function (r) { 
+      return r.json(); 
+    })
+    .then(function (data) {
+      // 🌟 1. INYECCIÓN DE EFECTOS ATMOSFÉRICOS SI HAY CAMPAÑA ACTIVA
+      if (data.activeCampaign) {
+        renderAtmosphericEffects(data.activeCampaign);
+      }
+
+      // 🎙️ 2. INYECCIÓN UNIFICADA DE BÚSQUEDA POR VOZ
+      if (data.voiceSearch && data.voiceSearch.is_active) {
+        if (document.body) {
+          renderNevuxVoiceUI(data.voiceSearch);
+        } else {
+          document.addEventListener("DOMContentLoaded", function () {
+            renderNevuxVoiceUI(data.voiceSearch);
+          });
+        }
+      }
+
+      // 🤖 3. INYECCIÓN UNIFICADA DE VENDEDOR VIRTUAL IA
+      if (data.virtualSalesman && data.virtualSalesman.is_active) {
+        if (document.body) {
+          renderNevuxSalesmanUI(data.virtualSalesman);
+        } else {
+          document.addEventListener("DOMContentLoaded", function () {
+            renderNevuxSalesmanUI(data.virtualSalesman);
+          });
+        }
+      }
+
+      // 🔥 4. INYECCIÓN UNIFICADA DE PRUEBA SOCIAL / NOTIFICACIONES (Regla #29)
+      if (data.socialProof && data.socialProof.is_active !== false && !data.socialProof.user_disabled) {
+        if (document.body) {
+          renderSocialProof(data.socialProof);
+        } else {
+          document.addEventListener("DOMContentLoaded", function () {
+            renderSocialProof(data.socialProof);
+          });
+        }
+      }
+
+      // 📦 5. DESPACHADOR INTELIGENTE DE WIDGETS
+      if (data.widgets && data.widgets.length > 0) {
+        console.log("[Nevux] Widgets activos recibidos:", data.widgets.length);
+
+        data.widgets.forEach(function (w) {
+          try {
+            // 📦 5.1 FILTRO POR PRODUCTO ESPECÍFICO
+            if (w.target_type === "product") {
+              var curProdId = null;
+              if (window.LS && window.LS.product && window.LS.product.id) {
+                curProdId = String(window.LS.product.id).trim();
+              }
+              var targetProdId = w.target_product_id
+                ? String(w.target_product_id).trim()
+                : w.config && w.config.product_id
+                ? String(w.config.product_id).trim()
+                : null;
+
+              if (!curProdId || !targetProdId || curProdId !== targetProdId) {
+                // No coincide con este producto, omitir silenciosamente
+                return;
+              }
+            }
+
+            // 🏷️ 5.2 FILTRO POR CATEGORÍA
+            if (w.target_type === "category") {
+              var catId = w.target_category_id || (w.config && (w.config.category_id || w.config.target_category_id));
+              var catHandle = w.category_handle || "";
+              var catName = w.category_name || "";
+              if (!catId || !checkCategoryMatch(catId, catHandle, catName)) {
+                // No coincide con esta categoría, omitir silenciosamente
+                return;
+              }
+            }
+
+            // 5.3 EJECUCIÓN DE CADA RENDEREADOR EN COINCIDENCIA
+            if (w.widget_slug === "marquee-novedades") renderMarqueeNovedades(w);
+            if (w.widget_slug === "horario-atencion") renderHorarioAtencion(w);
+            if (w.widget_slug === "calculadora-ahorro") renderCalculadoraAhorro(w);
+            if (w.widget_slug === "edicion-limitada") renderEdicionLimitada(w);
+            if (w.widget_slug === "contador-vendidos") renderContadorVendidos(w);
+            if (w.widget_slug === "cuenta-regresiva") renderCuentaRegresiva(w);
+            if (w.widget_slug === "info-despacho") renderInfoDespacho(w);
+            if (w.widget_slug === "urgencia-stock") renderUrgenciaStock(w);
+            if (w.widget_slug === "resenas-destacadas") renderResenasDestacadas(w);
+            if (w.widget_slug === "bundle-promociones") renderBundlePromociones(w);
+            if (w.widget_slug === "popup-conversion") renderPopupConversion(w);
+            if (w.widget_slug === "barra-envio-gratis") renderBarraEnvioGratis(w);
+            if (w.widget_slug === "barra-cuotas") renderBarraCuotas(w);
+            if (w.widget_slug === "productos-complementarios") renderProductosComplementarios(w);
+          } catch (err) {
+            console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
+          }
+        });
+      } else {
+        console.log("[Nevux] No se hallaron widgets activos para esta página");
+      }
+    })
+    .catch(function (err) {
+      console.error("[Nevux] Error crítico en el despachador Nevux:", err);
+    });
 
   /* ═══════════════════════════════════════════
      FETCH UNIFICADO: UN SOLO VIAJE AL SERVIDOR
