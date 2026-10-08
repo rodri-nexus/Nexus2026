@@ -216,12 +216,22 @@ export async function GET(req: NextRequest) {
       .eq("widget_slug", "social-proof")
       .maybeSingle();
 
-    const cfg = (widgetRow?.config || {}) as Record<string, unknown>;
+    const { data: spRow } = await supabase
+      .from("social_proof_config")
+      .select("*")
+      .eq("store_id", storeId)
+      .maybeSingle();
+
+    // Evaluar si fue desactivado en cualquiera de las dos tablas
+    const isWidgetDisabled = widgetRow ? widgetRow.is_active === false : false;
+    const isConfigDisabled = spRow ? (spRow.is_active === false || spRow.user_disabled === true) : false;
+    const isCurrentlyActive = !isWidgetDisabled && !isConfigDisabled;
+
+    const cfg = (widgetRow?.config || spRow?.config || {}) as Record<string, unknown>;
 
     const currentSettings: SocialProofSettingsPayload = {
       store_id: storeId,
-      // SI NO EXISTE AÚN EN BD, POR DEFECTO ESTÁ ACTIVO (TRUE)
-      is_active: widgetRow ? widgetRow.is_active : true,
+      is_active: isCurrentlyActive,
       position: (cfg.position as any) || "bottom-left",
       display_duration: Number(cfg.display_duration) || 5,
       delay_between: Number(cfg.delay_between) || 8,
@@ -265,7 +275,7 @@ export async function GET(req: NextRequest) {
 }
 
 /* ═══════════════════════════════════════════
-   ENDPOINT POST: GUARDAR AJUSTES EN WIDGETS
+   ENDPOINT POST: GUARDAR AJUSTES EN WIDGETS Y SOCIAL_PROOF_CONFIG
 ═══════════════════════════════════════════ */
 export async function POST(req: NextRequest) {
   try {
@@ -298,6 +308,7 @@ export async function POST(req: NextRequest) {
     }
 
     const storeIdNum = Number(store_id);
+    const activeBool = Boolean(is_active);
 
     const { data: store, error: storeErr } = await supabase
       .from("stores")
@@ -312,15 +323,6 @@ export async function POST(req: NextRequest) {
       return jsonResponse({ error: "Tienda no encontrada o no autorizada" }, 403);
     }
 
-    const { data: existingWidget, error: widgetSearchErr } = await supabase
-      .from("widgets")
-      .select("id")
-      .eq("store_id", storeIdNum)
-      .eq("widget_slug", "social-proof")
-      .maybeSingle();
-
-    if (widgetSearchErr) throw widgetSearchErr;
-
     const configPayload = {
       position,
       display_duration: Number(display_duration) || 5,
@@ -334,19 +336,25 @@ export async function POST(req: NextRequest) {
 
     const nowIso = new Date().toISOString();
 
+    // 1. Sincronizar en la tabla 'widgets'
+    const { data: existingWidget } = await supabase
+      .from("widgets")
+      .select("id")
+      .eq("store_id", storeIdNum)
+      .eq("widget_slug", "social-proof")
+      .maybeSingle();
+
     if (existingWidget) {
-      const { error: updateError } = await supabase
+      await supabase
         .from("widgets")
         .update({
-          is_active: Boolean(is_active),
+          is_active: activeBool,
           config: configPayload,
           updated_at: nowIso,
         })
         .eq("id", existingWidget.id);
-
-      if (updateError) throw updateError;
     } else {
-      const { error: insertError } = await supabase
+      await supabase
         .from("widgets")
         .insert({
           user_id: user.id,
@@ -354,13 +362,25 @@ export async function POST(req: NextRequest) {
           widget_slug: "social-proof",
           widget_type: "social-proof",
           target_type: "all",
-          is_active: Boolean(is_active),
+          is_active: activeBool,
           config: configPayload,
           updated_at: nowIso,
         });
-
-      if (insertError) throw insertError;
     }
+
+    // 2. Sincronizar en la tabla 'social_proof_config'
+    await supabase
+      .from("social_proof_config")
+      .upsert(
+        {
+          store_id: storeIdNum,
+          is_active: activeBool,
+          user_disabled: !activeBool,
+          config: configPayload,
+          updated_at: nowIso,
+        },
+        { onConflict: "store_id" }
+      );
 
     return jsonResponse({
       success: true,
@@ -369,4 +389,4 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     return jsonResponse({ error: parseErrorMessage(error) }, 500);
   }
-        }
+     }
