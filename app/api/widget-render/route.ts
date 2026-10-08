@@ -99,26 +99,38 @@ export async function GET(req: NextRequest) {
       return w;
     });
 
-    // 5. Social Proof (VERIFICACIÓN DOBLE BLINDADA)
+    // 5. Social Proof (DETECCIÓN ESTRICTA DEL ESTADO APAGADO)
     let socialProofData: Record<string, unknown> | null = null;
     try {
-      const spWidget = (rawWidgets || []).find((w) => w.widget_slug === "social-proof");
-      
+      // Buscar explícitamente la fila del widget en la BD para verificar si fue desactivado
+      const { data: spWidgetRow } = await supabaseAdmin
+        .from("widgets")
+        .select("is_active, config")
+        .eq("store_id", storeId)
+        .eq("widget_slug", "social-proof")
+        .maybeSingle();
+
       const { data: spRow } = await supabaseAdmin
         .from("social_proof_config")
         .select("*")
         .eq("store_id", storeId)
         .maybeSingle();
 
-      // Evaluar si fue desactivado manualmente en CUALQUIERA de las dos fuentes
-      const isDisabledInWidget = spWidget ? spWidget.is_active === false : false;
-      const isDisabledInConfig = spRow ? (spRow.is_active === false || spRow.user_disabled === true) : false;
+      let isSocialProofActive = true;
 
-      const isSocialProofActive = !isDisabledInWidget && !isDisabledInConfig;
+      // Si el widget fue desactivado desde "Mis Widgets"
+      if (spWidgetRow && spWidgetRow.is_active === false) {
+        isSocialProofActive = false;
+      }
+
+      // Si fue desactivado desde la página de Notificaciones
+      if (spRow && (spRow.is_active === false || spRow.user_disabled === true)) {
+        isSocialProofActive = false;
+      }
 
       const mergedConfig = {
         ...(spRow?.config || {}),
-        ...(spWidget?.config || {}),
+        ...(spWidgetRow?.config || {}),
       };
 
       socialProofData = {
@@ -174,4 +186,4 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : "Error en render";
     return corsResponse({ error: message }, 500);
   }
-                                     }
+}
