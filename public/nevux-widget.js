@@ -1613,20 +1613,30 @@
     "&_t=" + Date.now();
 
         /* ═══════════════════════════════════════════
-     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (v193 - ES5 STRICT)
+     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (v194 - ES5 STRICT)
   ═══════════════════════════════════════════ */
-  var checkCategoryMatch = function (targetCatId) {
+  var checkCategoryMatch = function (targetCatId, targetHandle, targetName) {
     if (!targetCatId) return false;
     var targetStr = String(targetCatId).trim().toLowerCase();
+    var handleStr = targetHandle ? String(targetHandle).trim().toLowerCase() : "";
+    var nameStr = targetName ? String(targetName).trim().toLowerCase() : "";
 
-    // 1. Escáner de clases de Body (Super-Escáner Tiendanube 100% inmune)
+    // 1. URL Pathname (La prueba más rápida para listados de categorías como /auriculares/)
+    if (typeof window !== "undefined" && window.location && window.location.pathname) {
+      var path = window.location.pathname.toLowerCase();
+      if (handleStr && (path.indexOf("/" + handleStr) !== -1 || path.indexOf(handleStr) !== -1)) return true;
+      if (targetStr && path.indexOf(targetStr) !== -1) return true;
+    }
+
+    // 2. Escáner de clases de Body (Super-Escáner Tiendanube 100% inmune)
     if (typeof document !== "undefined" && document.body && document.body.className) {
       var bodyClass = String(document.body.className).toLowerCase();
       if (bodyClass.indexOf("category-" + targetStr) !== -1) return true;
       if (bodyClass.indexOf("cat-" + targetStr) !== -1) return true;
+      if (handleStr && (bodyClass.indexOf("category-" + handleStr) !== -1 || bodyClass.indexOf("cat-" + handleStr) !== -1)) return true;
     }
 
-    // 2. window.LS.product (Ficha de producto)
+    // 3. window.LS.product (Ficha de producto)
     if (typeof window !== "undefined" && window.LS && window.LS.product) {
       var prod = window.LS.product;
       
@@ -1666,23 +1676,25 @@
       }
     }
 
-    // 3. window.LS.category (Página listado de categoría)
+    // 4. window.LS.category (Página listado de categoría)
     if (typeof window !== "undefined" && window.LS && window.LS.category) {
       var cat = window.LS.category;
       
       // Si LS.category es directamente el ID como número o string (Común en temas legacy)
       if (typeof cat === "number" || typeof cat === "string") {
         if (String(cat).trim().toLowerCase() === targetStr) return true;
+        if (handleStr && String(cat).trim().toLowerCase() === handleStr) return true;
       }
       
       // Si LS.category es un objeto estándar
       if (typeof cat === "object") {
         if (cat.id != null && String(cat.id).trim().toLowerCase() === targetStr) return true;
+        if (cat.handle && String(cat.handle).trim().toLowerCase() === handleStr) return true;
         if (cat.name && String(cat.name).trim().toLowerCase() === targetStr) return true;
       }
     }
 
-    // 4. Inspección profunda del DOM (breadcrumbs, links de categorías y data-attributes)
+    // 5. Inspección profunda del DOM (breadcrumbs, links de categorías y data-attributes)
     try {
       var catLinks = document.querySelectorAll("a[href*='category'], a[href*='categoria'], .breadcrumb a, [data-category-id]");
       for (var l = 0; l < catLinks.length; l++) {
@@ -1691,11 +1703,13 @@
         var dataCat = el.getAttribute("data-category-id") || "";
         if (dataCat && String(dataCat).trim().toLowerCase() === targetStr) return true;
         if (href.indexOf(targetStr) !== -1) return true;
+        if (handleStr && href.indexOf(handleStr) !== -1) return true;
       }
     } catch (eDOM) {}
 
     return false;
   };
+
   /* ═══════════════════════════════════════════
      FETCH UNIFICADO: UN SOLO VIAJE AL SERVIDOR
   ═══════════════════════════════════════════ */
@@ -1769,7 +1783,9 @@
             // 🏷️ 5.2 FILTRO POR CATEGORÍA
             if (w.target_type === "category") {
               var catId = w.target_category_id || (w.config && (w.config.category_id || w.config.target_category_id));
-              if (!catId || !checkCategoryMatch(catId)) {
+              var catHandle = w.category_handle || "";
+              var catName = w.category_name || "";
+              if (!catId || !checkCategoryMatch(catId, catHandle, catName)) {
                 // No coincide con esta categoría, omitir silenciosamente
                 return;
               }
