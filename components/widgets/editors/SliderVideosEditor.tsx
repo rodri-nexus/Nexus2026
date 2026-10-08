@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 
-// Declaración de interfaces y tipos al INICIO (Regla #9 y #30)
 type TabType = 'general' | 'ubicacion' | 'estilos';
 type DisplayFormat = 'slider' | 'circles';
 type VideoPosition = 'before-cart' | 'after-description';
@@ -38,6 +37,21 @@ const CAMPAIGN_THEMES: Record<string, { bg: string; text: string; border: string
   'liquidacion': { bg: '#7F1D1D', text: '#ffffff', border: '#991b1b', accent: '#FBBF24', btn: '#FBBF24', btnText: '#7F1D1D' }
 };
 
+function cleanVideoTitle(raw: string, fallbackIndex: number) {
+  if (!raw) return 'Video ' + fallbackIndex;
+  var t = String(raw).trim();
+  // Nombres feos de galería: solo números, UUIDs, guiones largos, etc.
+  var looksUgly =
+    /^[0-9_\-]+$/.test(t) ||
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(t) ||
+    t.length > 40 ||
+    /_all_/i.test(t) ||
+    /^VID_/i.test(t) ||
+    /^IMG_/i.test(t);
+  if (looksUgly) return 'Video ' + fallbackIndex;
+  return t;
+}
+
 export default function SliderVideosEditor({
   widgetDefinition,
   existingWidget,
@@ -53,31 +67,35 @@ export default function SliderVideosEditor({
 }: SliderVideosEditorProps) {
   const [activeTab, setActiveTab] = useState('general');
 
-  // Recuperar config existente si existe
   const cfg = initialConfig || existingWidget?.config || {};
 
-  // Configuración del widget
   const [title, setTitle] = useState(cfg.title || 'MIRA NUESTROS PRODUCTOS EN ACCIÓN');
   const [subtitle, setSubtitle] = useState(cfg.subtitle || 'Videos reales de clientes y demostraciones');
   const [displayFormat, setDisplayFormat] = useState(cfg.displayFormat || 'slider');
   const [position, setPosition] = useState(cfg.position || 'before-cart');
   const [autoplay, setAutoplay] = useState(cfg.autoplay || 'muted');
-  const [videos, setVideos] = useState(cfg.videos || []);
-  
-  // Estilos
+
+  // Limpiar títulos feos al cargar widgets ya guardados
+  const initialVideos = (cfg.videos || []).map(function (v: VideoItem, idx: number) {
+    return {
+      id: v.id || ('v_' + idx),
+      url: v.url,
+      title: cleanVideoTitle(v.title || '', idx + 1),
+    };
+  });
+  const [videos, setVideos] = useState(initialVideos);
+
   const [bgColor, setBgColor] = useState(cfg.bgColor || '#ffffff');
   const [textColor, setTextColor] = useState(cfg.textColor || '#111827');
   const [accentColor, setAccentColor] = useState(cfg.accentColor || '#10B981');
   const [borderRadius, setBorderRadius] = useState(cfg.borderRadius || 16);
   const [titleAlign, setTitleAlign] = useState(cfg.titleAlign || 'center');
   const [campaignTheme, setCampaignTheme] = useState(cfg.campaignTheme || 'none');
-  
-  // Botón CTA dentro del video
+
   const [ctaText, setCtaText] = useState(cfg.ctaText || 'Comprar ahora');
   const [ctaBgColor, setCtaBgColor] = useState(cfg.ctaBgColor || '#111827');
   const [ctaTextColor, setCtaTextColor] = useState(cfg.ctaTextColor || '#ffffff');
 
-  // Estados de subida y guardado
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [isSavingInternal, setIsSavingInternal] = useState(false);
@@ -87,7 +105,6 @@ export default function SliderVideosEditor({
   const isForAll = effectiveTargetType === 'all';
   const scopeLabel = isForAll ? 'Todos los productos' : isCategory ? 'Categoría' : 'Producto específico';
 
-  // Manejador de subida de video
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -122,10 +139,12 @@ export default function SliderVideosEditor({
         throw new Error(data.error || 'Error al subir el video');
       }
 
+      const nextIndex = videos.length + 1;
+      const rawName = (file.name || '').replace(/\.[^/.]+$/, '');
       const newVideo: VideoItem = {
         id: 'v_' + Date.now(),
         url: data.url,
-        title: file.name.replace(/\.[^/.]+$/, ''),
+        title: cleanVideoTitle(rawName, nextIndex),
       };
 
       setVideos([...videos, newVideo]);
@@ -139,6 +158,17 @@ export default function SliderVideosEditor({
 
   const handleRemoveVideo = (id: string) => {
     setVideos(videos.filter((v: VideoItem) => v.id !== id));
+  };
+
+  const handleRenameVideo = (id: string, newTitle: string) => {
+    setVideos(
+      videos.map(function (v: VideoItem) {
+        if (v.id === id) {
+          return { id: v.id, url: v.url, title: newTitle };
+        }
+        return v;
+      })
+    );
   };
 
   const applyPresetTheme = (themeKey: string) => {
@@ -159,13 +189,22 @@ export default function SliderVideosEditor({
   };
 
   const handleSave = async () => {
+    // Asegurar títulos limpios al guardar
+    const cleanedVideos = videos.map(function (v: VideoItem, idx: number) {
+      return {
+        id: v.id,
+        url: v.url,
+        title: cleanVideoTitle(v.title || '', idx + 1),
+      };
+    });
+
     const configData = {
       title,
       subtitle,
       displayFormat,
       position,
       autoplay,
-      videos,
+      videos: cleanedVideos,
       bgColor,
       textColor,
       accentColor,
@@ -189,10 +228,10 @@ export default function SliderVideosEditor({
         target_product_id: finalProductId,
         target_category_id: finalCategoryId,
       });
+      window.location.href = '/widgets';
       return;
     }
 
-    // Guardado por defecto mediante la API de Nevux (con store_id e id de widget)
     setIsSavingInternal(true);
     try {
       const res = await fetch('/api/widgets', {
@@ -215,10 +254,10 @@ export default function SliderVideosEditor({
         throw new Error(errData.error || 'Error al guardar el widget');
       }
 
-      alert('¡Widget "Slider de Videos" guardado exitosamente!');
+      // Redirigir a Mis Widgets (sin alert bloqueante)
+      window.location.href = '/widgets';
     } catch (err: any) {
-      alert(`Error al guardar: ${err.message || 'Error desconocido'}`);
-    } finally {
+      alert('Error al guardar: ' + (err.message || 'Error desconocido'));
       setIsSavingInternal(false);
     }
   };
@@ -228,7 +267,6 @@ export default function SliderVideosEditor({
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '16px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       
-      {/* Scope Chip */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
         <span style={{
           fontSize: '12px',
@@ -237,7 +275,7 @@ export default function SliderVideosEditor({
           borderRadius: '999px',
           backgroundColor: isCategory ? '#FEF3C7' : isForAll ? '#D1FAE5' : '#E0E7FF',
           color: isCategory ? '#D97706' : isForAll ? '#059669' : '#3730A3',
-          border: `1px solid ${isCategory ? '#FCD34D' : isForAll ? '#6EE7B7' : '#A5B4FC'}`
+          border: '1px solid ' + (isCategory ? '#FCD34D' : isForAll ? '#6EE7B7' : '#A5B4FC')
         }}>
           {isCategory ? '🏷️' : isForAll ? '🏪' : '📦'} {scopeLabel}
         </span>
@@ -247,7 +285,6 @@ export default function SliderVideosEditor({
         Slider de Videos (Reels / Shorts)
       </h1>
 
-      {/* Info Box */}
       <div style={{ backgroundColor: '#ECFDF5', border: '1px solid #10B981', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', fontSize: '13px', color: '#065F46', display: 'flex', gap: '10px', alignItems: 'center' }}>
         <span style={{ fontSize: '18px' }}>💡</span>
         <div>
@@ -264,7 +301,7 @@ export default function SliderVideosEditor({
         <div style={{
           backgroundColor: bgColor,
           color: textColor,
-          borderRadius: `${borderRadius}px`,
+          borderRadius: borderRadius + 'px',
           padding: '20px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
           maxWidth: '500px',
@@ -281,14 +318,12 @@ export default function SliderVideosEditor({
             </div>
           )}
 
-          {/* Renderizado de vista previa según el formato elegido */}
           {videos.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '30px 10px', border: '2px dashed #D1D5DB', borderRadius: '12px', color: '#9CA3AF' }}>
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>🎬</div>
               <div style={{ fontSize: '13px', fontWeight: 600 }}>Sube videos para ver la vista previa aquí</div>
             </div>
           ) : displayFormat === 'circles' ? (
-            /* Vista previa formato CÍRCULOS (Stories) */
             <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
               {videos.map((v: VideoItem) => (
                 <div key={v.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
@@ -297,7 +332,7 @@ export default function SliderVideosEditor({
                     height: '68px',
                     borderRadius: '50%',
                     padding: '3px',
-                    background: `linear-gradient(45deg, ${accentColor}, #F59E0B)`,
+                    background: 'linear-gradient(45deg, ' + accentColor + ', #F59E0B)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -311,7 +346,6 @@ export default function SliderVideosEditor({
               ))}
             </div>
           ) : (
-            /* Vista previa formato SLIDER */
             <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
               {videos.map((v: VideoItem) => (
                 <div key={v.id} style={{
@@ -358,60 +392,33 @@ export default function SliderVideosEditor({
         </div>
       </div>
 
-      {/* TABS DE CONFIGURACIÓN */}
+      {/* TABS */}
       <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', marginBottom: '20px', gap: '4px' }}>
-        <button
-          type="button"
-          onClick={() => setActiveTab('general')}
-          style={{
-            padding: '10px 16px',
-            fontSize: '14px',
-            fontWeight: 700,
-            border: 'none',
-            background: 'none',
-            cursor: 'pointer',
-            borderBottom: activeTab === 'general' ? '3px solid #10B981' : 'none',
-            color: activeTab === 'general' ? '#10B981' : '#6B7280'
-          }}>
+        <button type="button" onClick={() => setActiveTab('general')} style={{
+          padding: '10px 16px', fontSize: '14px', fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer',
+          borderBottom: activeTab === 'general' ? '3px solid #10B981' : 'none',
+          color: activeTab === 'general' ? '#10B981' : '#6B7280'
+        }}>
           📽️ Videos ({videos.length})
         </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('ubicacion')}
-          style={{
-            padding: '10px 16px',
-            fontSize: '14px',
-            fontWeight: 700,
-            border: 'none',
-            background: 'none',
-            cursor: 'pointer',
-            borderBottom: activeTab === 'ubicacion' ? '3px solid #10B981' : 'none',
-            color: activeTab === 'ubicacion' ? '#10B981' : '#6B7280'
-          }}>
+        <button type="button" onClick={() => setActiveTab('ubicacion')} style={{
+          padding: '10px 16px', fontSize: '14px', fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer',
+          borderBottom: activeTab === 'ubicacion' ? '3px solid #10B981' : 'none',
+          color: activeTab === 'ubicacion' ? '#10B981' : '#6B7280'
+        }}>
           📍 Ubicación & Formato
         </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('estilos')}
-          style={{
-            padding: '10px 16px',
-            fontSize: '14px',
-            fontWeight: 700,
-            border: 'none',
-            background: 'none',
-            cursor: 'pointer',
-            borderBottom: activeTab === 'estilos' ? '3px solid #10B981' : 'none',
-            color: activeTab === 'estilos' ? '#10B981' : '#6B7280'
-          }}>
+        <button type="button" onClick={() => setActiveTab('estilos')} style={{
+          padding: '10px 16px', fontSize: '14px', fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer',
+          borderBottom: activeTab === 'estilos' ? '3px solid #10B981' : 'none',
+          color: activeTab === 'estilos' ? '#10B981' : '#6B7280'
+        }}>
           🎨 Diseño & Fechas
         </button>
       </div>
 
-      {/* CONTENIDO DE TABS */}
       {activeTab === 'general' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          
-          {/* Zona Drag & Drop / Subida de Archivos */}
           <div style={{ border: '2px dashed #10B981', borderRadius: '12px', padding: '24px', textAlign: 'center', backgroundColor: '#F0FDF4' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📤</div>
             <div style={{ fontSize: '15px', fontWeight: 800, color: '#065F46', marginBottom: '4px' }}>
@@ -449,11 +456,13 @@ export default function SliderVideosEditor({
             )}
           </div>
 
-          {/* Lista de videos subidos */}
           <div style={{ marginTop: '12px' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#111827', marginBottom: '12px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#111827', marginBottom: '8px' }}>
               Videos agregados ({videos.length}/10)
             </h3>
+            <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>
+              Podés renombrar cada video para que se vea profesional en la tienda (ej: &quot;Unboxing&quot;, &quot;En uso&quot;, &quot;Detalle&quot;).
+            </p>
 
             {videos.length === 0 ? (
               <div style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>
@@ -465,21 +474,34 @@ export default function SliderVideosEditor({
                   <div key={v.id} style={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
+                    gap: '10px',
                     padding: '10px 14px',
                     backgroundColor: '#ffffff',
                     border: '1px solid #E5E7EB',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    flexWrap: 'wrap'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 800, color: '#6B7280' }}>#{idx + 1}</span>
-                      <video src={v.url} style={{ width: '36px', height: '50px', borderRadius: '4px', objectFit: 'cover' }} />
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>{v.title}</span>
-                    </div>
-
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#6B7280' }}>#{idx + 1}</span>
+                    <video src={v.url} style={{ width: '36px', height: '50px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0 }} />
+                    <input
+                      type="text"
+                      value={v.title || ''}
+                      onChange={function (e) { handleRenameVideo(v.id, e.target.value); }}
+                      placeholder={'Video ' + (idx + 1)}
+                      style={{
+                        flex: 1,
+                        minWidth: '120px',
+                        padding: '8px 10px',
+                        borderRadius: '6px',
+                        border: '1px solid #D1D5DB',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#111827'
+                      }}
+                    />
                     <button
                       type="button"
-                      onClick={() => handleRemoveVideo(v.id)}
+                      onClick={function () { handleRemoveVideo(v.id); }}
                       style={{
                         backgroundColor: '#FEE2E2',
                         color: '#EF4444',
@@ -488,8 +510,10 @@ export default function SliderVideosEditor({
                         padding: '6px 12px',
                         fontSize: '12px',
                         fontWeight: 700,
-                        cursor: 'pointer'
-                      }}>
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    >
                       🗑️ Eliminar
                     </button>
                   </div>
@@ -497,83 +521,51 @@ export default function SliderVideosEditor({
               </div>
             )}
           </div>
-
         </div>
       )}
 
       {activeTab === 'ubicacion' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          
-          {/* Formato de visualización */}
           <div>
             <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '6px' }}>
               Formatos de visualización
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={() => setDisplayFormat('slider')}
-                style={{
-                  padding: '14px',
-                  borderRadius: '10px',
-                  border: displayFormat === 'slider' ? '2px solid #10B981' : '1px solid #E5E7EB',
-                  backgroundColor: displayFormat === 'slider' ? '#ECFDF5' : '#ffffff',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}>
+              <button type="button" onClick={() => setDisplayFormat('slider')} style={{
+                padding: '14px', borderRadius: '10px',
+                border: displayFormat === 'slider' ? '2px solid #10B981' : '1px solid #E5E7EB',
+                backgroundColor: displayFormat === 'slider' ? '#ECFDF5' : '#ffffff',
+                fontWeight: 700, fontSize: '13px', cursor: 'pointer', textAlign: 'center'
+              }}>
                 🎞️ Slider Deslizante
               </button>
-
-              <button
-                type="button"
-                onClick={() => setDisplayFormat('circles')}
-                style={{
-                  padding: '14px',
-                  borderRadius: '10px',
-                  border: displayFormat === 'circles' ? '2px solid #10B981' : '1px solid #E5E7EB',
-                  backgroundColor: displayFormat === 'circles' ? '#ECFDF5' : '#ffffff',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}>
+              <button type="button" onClick={() => setDisplayFormat('circles')} style={{
+                padding: '14px', borderRadius: '10px',
+                border: displayFormat === 'circles' ? '2px solid #10B981' : '1px solid #E5E7EB',
+                backgroundColor: displayFormat === 'circles' ? '#ECFDF5' : '#ffffff',
+                fontWeight: 700, fontSize: '13px', cursor: 'pointer', textAlign: 'center'
+              }}>
                 ⭕ Círculos (Instagram Stories)
               </button>
             </div>
           </div>
 
-          {/* Posición en la tienda */}
           <div>
             <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '6px' }}>
               Posición del widget
             </label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                <input
-                  type="radio"
-                  name="pos"
-                  checked={position === 'before-cart'}
-                  onChange={() => setPosition('before-cart')}
-                  style={{ accentColor: '#10B981' }}
-                />
-                Debajo del botón "Agregar al carrito"
+                <input type="radio" name="pos" checked={position === 'before-cart'} onChange={() => setPosition('before-cart')} style={{ accentColor: '#10B981' }} />
+                Debajo del botón &quot;Agregar al carrito&quot;
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                <input
-                  type="radio"
-                  name="pos"
-                  checked={position === 'after-description'}
-                  onChange={() => setPosition('after-description')}
-                  style={{ accentColor: '#10B981' }}
-                />
+                <input type="radio" name="pos" checked={position === 'after-description'} onChange={() => setPosition('after-description')} style={{ accentColor: '#10B981' }} />
                 Después de la descripción del producto (Ancho completo)
               </label>
             </div>
           </div>
 
-          {/* Reproducción automática */}
           <div>
             <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '6px' }}>
               Reproducción automática
@@ -581,58 +573,31 @@ export default function SliderVideosEditor({
             <select
               value={autoplay}
               onChange={(e) => setAutoplay(e.target.value as AutoplayMode)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}>
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
+            >
               <option value="muted">Sí, en silencio (Recomendado)</option>
               <option value="sound">Sí, con sonido</option>
               <option value="none">No, reproducir al hacer clic</option>
             </select>
           </div>
-
         </div>
       )}
 
       {activeTab === 'estilos' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          
-          {/* Títulos y Subtítulos */}
           <div>
-            <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '4px' }}>
-              Título principal
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
-            />
+            <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '4px' }}>Título principal</label>
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '4px' }}>Subtítulo (opcional)</label>
+            <input type="text" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '4px' }}>Texto del botón dentro del video</label>
+            <input type="text" value={ctaText} onChange={(e) => setCtaText(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }} />
           </div>
 
-          <div>
-            <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '4px' }}>
-              Subtítulo (opcional)
-            </label>
-            <input
-              type="text"
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
-            />
-          </div>
-
-          {/* Texto de botón CTA dentro del video */}
-          <div>
-            <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '4px' }}>
-              Texto del botón dentro del video
-            </label>
-            <input
-              type="text"
-              value={ctaText}
-              onChange={(e) => setCtaText(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
-            />
-          </div>
-
-          {/* Colores */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Fondo del widget</label>
@@ -652,7 +617,6 @@ export default function SliderVideosEditor({
             </div>
           </div>
 
-          {/* Fechas Especiales Presets */}
           <div style={{ marginTop: '12px' }}>
             <label style={{ fontSize: '13px', fontWeight: 800, color: '#374151', display: 'block', marginBottom: '8px' }}>
               🔥 Fechas Especiales (Presets de Campaña)
@@ -671,17 +635,16 @@ export default function SliderVideosEditor({
                     border: campaignTheme === key ? '2px solid #10B981' : '1px solid #D1D5DB',
                     backgroundColor: campaignTheme === key ? '#ECFDF5' : '#ffffff',
                     cursor: 'pointer'
-                  }}>
+                  }}
+                >
                   {key.replace('-', ' ').toUpperCase()}
                 </button>
               ))}
             </div>
           </div>
-
         </div>
       )}
 
-      {/* BOTÓN GUARDAR Y CENTRO DE AYUDA */}
       <div style={{ marginTop: '28px', borderTop: '1px solid #E5E7EB', paddingTop: '20px' }}>
         <button
           type="button"
@@ -697,13 +660,15 @@ export default function SliderVideosEditor({
             fontWeight: 800,
             border: 'none',
             cursor: saving ? 'not-allowed' : 'pointer',
-            boxShadow: '0 4px 12px rgba(16,185,129,0.3)',
-            transition: 'all 0.2s'
-          }}>
+            boxShadow: '0 4px 12px rgba(16,185,129,0.3)'
+          }}
+        >
           {saving ? 'Guardando widget...' : '💾 Guardar Slider de Videos'}
         </button>
+        <p style={{ fontSize: '12px', color: '#6B7280', textAlign: 'center', marginTop: '10px' }}>
+          Al guardar vas a volver a <strong>Mis Widgets</strong>
+        </p>
       </div>
-
     </div>
   );
-    }
+      }
