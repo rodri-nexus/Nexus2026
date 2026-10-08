@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9 y #30 al inicio)
 ═══════════════════════════════════════════ */
+export type TabType = 'general' | 'estilos' | 'fechas';
+
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -23,17 +25,19 @@ interface ExistingWidget {
   is_active: boolean;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
 }
 
 interface MarqueeNovedadesEditorProps {
   widgetDefinition: WidgetDefinition;
   existingWidget: ExistingWidget | null;
-  targetType: 'product' | 'all';
+  targetType: 'product' | 'all' | 'category';
   productId: number | null;
+  categoryId?: string | number | null;
   storeId: string;
 }
 
-interface MarqueeNovedadesConfig {
+export interface MarqueeNovedadesConfig {
   messages: string[];
   speed: string;
   direction: string;
@@ -41,11 +45,11 @@ interface MarqueeNovedadesConfig {
   textColor: string;
   fontSize: string;
   campaignTheme?: string;
-  position?: string; // ← Ubicación dinámica v11
+  position?: string;
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO
+   CONFIG POR DEFECTO Y CONSTANTES
 ═══════════════════════════════════════════ */
 const defaultConfig: MarqueeNovedadesConfig = {
   messages: ['✨ Nuevo ingreso', '🔥 Más vendido', '📦 Envío gratis hoy'],
@@ -55,7 +59,7 @@ const defaultConfig: MarqueeNovedadesConfig = {
   textColor: '#ffffff',
   fontSize: '14',
   campaignTheme: 'none',
-  position: 'above_form', 
+  position: 'above_form',
 };
 
 const DUR: Record<string, string> = {
@@ -64,27 +68,49 @@ const DUR: Record<string, string> = {
   rapido: '6s',
 };
 
-/* ═══════════════════════════════════════════
-   ICONOS
-═══════════════════════════════════════════ */
-const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
-    <line x1="2" y1="7" x2="22" y2="7"/>
-    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
-    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
-  </svg>
-);
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
 
-const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-  </svg>
-);
+const PRESETS_DATA: Record<string, { bg: string; tx: string }> = {
+  'black-friday': { bg: '#111827', tx: '#F59E0B' },
+  'hot-sale': { bg: '#0F172A', tx: '#EF4444' },
+  'cyber-monday': { bg: '#090D16', tx: '#3B82F6' },
+  'navidad': { bg: '#064E3B', tx: '#EF4444' },
+  'san-valentin': { bg: '#831843', tx: '#F43F5E' },
+  'dia-padre-madre': { bg: '#312E81', tx: '#10B981' },
+  'liquidacion': { bg: '#7F1D1D', tx: '#FBBF24' },
+};
 
 /* ═══════════════════════════════════════════
-   COMPONENTES REUTILIZABLES
+   SUBCOMPONENTES VISUALES Y CONTROLES
 ═══════════════════════════════════════════ */
+function IconStore() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+      <line x1="2" y1="7" x2="22" y2="7"/>
+      <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
+      <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
+    </svg>
+  );
+}
+
+function IconInfo() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+  );
+}
+
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
@@ -175,9 +201,7 @@ function ToggleField({
   checked: boolean; onChange: (v: boolean) => void; label: string;
 }) {
   return (
-    <label style={{
-      display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-    }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
       <div
         onClick={() => onChange(!checked)}
         style={{
@@ -260,13 +284,72 @@ function RangeSlider({
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
+   PREVIEW EN VIVO INTEGRADO (Regla #13 camelCase)
+═══════════════════════════════════════════ */
+function MarqueeNovedadesPreview({ config }: { config: MarqueeNovedadesConfig }) {
+  const animName = config.direction === 'right' ? 'nvxMqR' : 'nvxMqL';
+  const dur = DUR[config.speed] || '12s';
+
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1.5px solid #e5e7eb',
+        borderRadius: 14,
+        padding: 16,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+      }}
+    >
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+        VISTA PREVIA EN VIVO
+      </div>
+
+      <div
+        style={{
+          overflow: 'hidden',
+          background: config.bgColor,
+          borderRadius: 10,
+          padding: '14px 0',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            whiteSpace: 'nowrap',
+            animation: `${animName} ${dur} linear infinite`,
+            width: 'max-content',
+          }}
+        >
+          {[...config.messages, ...config.messages].map((m, i) => (
+            <span
+              key={i}
+              style={{
+                color: config.textColor,
+                fontSize: `${config.fontSize}px`,
+                fontWeight: 700,
+                padding: '0 28px',
+                letterSpacing: '0.02em',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+              }}
+            >
+              {m}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL (Estándar v13/v22)
 ═══════════════════════════════════════════ */
 export default function MarqueeNovedadesEditor({
   widgetDefinition,
   existingWidget,
   targetType,
   productId,
+  categoryId = null,
   storeId,
 }: MarqueeNovedadesEditorProps) {
   const router = useRouter();
@@ -286,15 +369,23 @@ export default function MarqueeNovedadesEditor({
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
+  const [activeTab, setActiveTab] = useState<TabType>('general');
   const [newMsg, setNewMsg] = useState('');
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
+  const isCategory = targetType === 'category';
+  const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
   const update = <K extends keyof MarqueeNovedadesConfig>(key: K, value: MarqueeNovedadesConfig[K]) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    setConfig((prev) => {
+      const next = { ...prev, [key]: value };
+      // Regla #8: Si se cambia cualquier color, desactivar la campaña activa
+      if (['bgColor', 'textColor'].includes(key as string)) {
+        next.campaignTheme = 'none';
+      }
+      return next;
+    });
   };
 
   const addMsg = () => {
@@ -315,20 +406,10 @@ export default function MarqueeNovedadesEditor({
   };
 
   const applyPreset = (slug: string) => {
-    const PRESETS_DATA: Record<string, { bg: string; tx: string }> = {
-      'black-friday': { bg: '#111827', tx: '#F59E0B' },
-      'hot-sale': { bg: '#0F172A', tx: '#EF4444' },
-      'cyber-monday': { bg: '#090D16', tx: '#3B82F6' },
-      'navidad': { bg: '#064E3B', tx: '#EF4444' },
-      'san-valentin': { bg: '#831843', tx: '#F43F5E' },
-      'dia-padre-madre': { bg: '#312E81', tx: '#10B981' },
-      'liquidacion': { bg: '#7F1D1D', tx: '#FBBF24' },
-    };
-
     if (slug === 'none') {
       setConfig((prev) => ({
         ...prev,
-        campaignTheme: slug,
+        campaignTheme: 'none',
         bgColor: defaultConfig.bgColor,
         textColor: defaultConfig.textColor,
       }));
@@ -356,8 +437,12 @@ export default function MarqueeNovedadesEditor({
           widget_slug: widgetDefinition.slug,
           store_id: storeId,
           target_type: targetType,
-          target_product_id: productId,
-          config,
+          target_product_id: targetType === 'product' ? productId : null,
+          target_category_id: targetType === 'category' ? (categoryId ? String(categoryId) : null) : null,
+          config: {
+            ...config,
+            ...(targetType === 'category' && categoryId ? { category_id: String(categoryId) } : {})
+          },
           is_active: isActive,
         }),
       });
@@ -371,6 +456,9 @@ export default function MarqueeNovedadesEditor({
         if (targetType === 'product' && productId) {
           params.set('product', String(productId));
         }
+        if (targetType === 'category' && categoryId) {
+          params.set('category', String(categoryId));
+        }
         router.push(`/widgets?${params.toString()}`);
       } else {
         router.push('/widgets');
@@ -380,9 +468,6 @@ export default function MarqueeNovedadesEditor({
       setSaving(false);
     }
   };
-
-  const animName = config.direction === 'right' ? 'nvxMqR' : 'nvxMqL';
-  const dur = DUR[config.speed] || '12s';
 
   /* ═══ TAB GENERAL ═══ */
   const tabGeneral = (
@@ -443,16 +528,16 @@ export default function MarqueeNovedadesEditor({
         </div>
       </div>
 
-      {/* ⚡ SELECTOR DE POSICIÓN DESTACADO v11 (Imposible de ignorar) */}
+      {/* Selector de Posición */}
       {!isForAll && (
         <div style={{ 
           marginBottom: 28,
-          background: '#f0fdf4', // Fondo verde suave
-          borderLeft: '4px solid #10B981', // Borde verde brillante
+          background: '#f0fdf4',
+          borderLeft: '4px solid #10B981',
           padding: '20px 16px',
           borderRadius: '0 12px 12px 0',
           boxShadow: '0 2px 12px rgba(16, 185, 129, 0.05)',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <span style={{ fontSize: 18 }}>📍</span>
@@ -468,7 +553,7 @@ export default function MarqueeNovedadesEditor({
                 letterSpacing: '0.05em',
                 boxShadow: '0 2px 6px rgba(16, 185, 129, 0.2)'
               }}>
-                ¡NUEVO!
+                DINÁMICA
               </span>
             </label>
           </div>
@@ -519,7 +604,7 @@ export default function MarqueeNovedadesEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS (Grid adaptativo sin desbordes) ═══ */
+  /* ═══ TAB ESTILOS ═══ */
   const tabEstilos = (
     <div>
       <div style={{ 
@@ -554,17 +639,6 @@ export default function MarqueeNovedadesEditor({
   );
 
   /* ═══ TAB FECHAS ESPECIALES ═══ */
-  const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
-  ];
-
   const tabFechasEspeciales = (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -629,7 +703,6 @@ export default function MarqueeNovedadesEditor({
     { id: 'fechas', label: '🔥 Fechas Especiales' },
   ];
 
-  /* ═══ RENDER ═══ */
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
       <style>{`
@@ -637,7 +710,7 @@ export default function MarqueeNovedadesEditor({
         @keyframes nvxMqR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
       `}</style>
 
-      {/* HEADER CON LOGO OFICIAL */}
+      {/* HEADER OFICIAL */}
       <div style={{
         background: '#ffffff', borderBottom: '1px solid #e5e7eb',
         padding: '14px 20px', display: 'flex', alignItems: 'center',
@@ -656,10 +729,9 @@ export default function MarqueeNovedadesEditor({
         </div>
       </div>
 
-      {/* MAIN */}
+      {/* MAIN CONTAINER */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
-
-        {/* Scope chip */}
+        {/* Scope chip (Regla #40) */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#ffffff',
@@ -670,6 +742,15 @@ export default function MarqueeNovedadesEditor({
             <IconStore />
             <span>Todos los productos</span>
           </div>
+        ) : isCategory ? (
+          <div style={{
+            background: '#FEF3C7', color: '#D97706', border: '1px solid #FCD34D',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
+          }}>
+            <span>🏷️ Widget para Categoría</span>
+          </div>
         ) : (
           <div style={{
             background: '#ffffff', border: '1px solid #e5e7eb',
@@ -677,8 +758,8 @@ export default function MarqueeNovedadesEditor({
             display: 'inline-flex', alignItems: 'center', gap: 10,
             marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000000',
           }}>
-            <span style={{ fontSize: 18 }}>🛍</span>
-            <span>NEVUX Widget</span>
+            <span style={{ fontSize: 18 }}>🛍️</span>
+            <span>NEVUX Widget de Producto</span>
           </div>
         )}
 
@@ -691,48 +772,15 @@ export default function MarqueeNovedadesEditor({
           {widgetDefinition.name} ({scopeLabel})
         </h1>
 
-        {/* Contenedor principal */}
+        {/* Contenedor del Editor */}
         <div style={{
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 20, marginBottom: 20,
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
-          
-          {/* Live Preview del Marquee */}
+          {/* Live Preview Integrado */}
           <div style={{ marginBottom: 20 }}>
-            <div
-              style={{
-                overflow: 'hidden',
-                background: config.bgColor,
-                borderRadius: 10,
-                padding: '14px 0',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  whiteSpace: 'nowrap',
-                  animation: `${animName} ${dur} linear infinite`,
-                  width: 'max-content',
-                }}
-              >
-                {[...config.messages, ...config.messages].map((m, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      color: config.textColor,
-                      fontSize: `${config.fontSize}px`,
-                      fontWeight: 700,
-                      padding: '0 28px',
-                      letterSpacing: '0.02em',
-                      fontFamily: 'system-ui, -apple-system, sans-serif',
-                    }}
-                  >
-                    {m}
-                  </span>
-                ))}
-              </div>
-            </div>
+            <MarqueeNovedadesPreview config={config} />
           </div>
 
           {/* Info box */}
@@ -744,7 +792,7 @@ export default function MarqueeNovedadesEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              El marquee se muestra como una cinta animada arriba o en la ubicación elegida de la tienda con tus mensajes destacados.
+              El marquee se muestra como una cinta animada en tu tienda rotando tus avisos y mensajes destacados sin interrupciones.
             </span>
           </div>
 
@@ -759,10 +807,11 @@ export default function MarqueeNovedadesEditor({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as TabType)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
-                    border: 'none', borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
+                    border: 'none',
+                    borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
                     color: act ? '#10B981' : '#000000',
                     opacity: act ? 1 : 0.6,
                     fontSize: 15, fontWeight: act ? 700 : 500,
@@ -776,7 +825,7 @@ export default function MarqueeNovedadesEditor({
             })}
           </div>
 
-          {/* Contenido del tab */}
+          {/* Contenido del Tab */}
           <div>
             {activeTab === 'general' && tabGeneral}
             {activeTab === 'estilos' && tabEstilos}
@@ -817,7 +866,7 @@ export default function MarqueeNovedadesEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        {/* CENTRO DE AYUDA OFICIAL */}
         <div style={{ marginTop: 40, width: '100%' }}>
           <CentroAyuda />
         </div>
@@ -839,4 +888,4 @@ export default function MarqueeNovedadesEditor({
       </div>
     </div>
   );
-   }
+}
