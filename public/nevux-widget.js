@@ -7009,7 +7009,7 @@ function renderProductosComplementarios(w) {
   }
     }
           /* ═══════════════════════════════════════════
-     RENDER: BUNDLE DE CANTIDAD (v206 — precios + complementarios al carrito)
+     RENDER: BUNDLE DE CANTIDAD (v207 — precios + complementarios al carrito)
   ═══════════════════════════════════════════ */
   function renderBundleCantidad(w) {
     if (!w || !w.config) return;
@@ -7364,7 +7364,7 @@ function renderProductosComplementarios(w) {
       var compChks = root.querySelectorAll(".nvx-bc-comp-chk");
       for (var i = 0; i < compChks.length; i++) {
         if (compChks[i].checked) {
-          compTotal += parseFloat(compChks[i].getAttribute("data-comp-price") || "0") || 0;
+          compTotal += parseFloat(compChks[i].getAttribute("data-comp-price" || "0") || 0) || 0;
         }
       }
 
@@ -7483,13 +7483,17 @@ function renderProductosComplementarios(w) {
           }
           return chain;
         }).then(function () {
-          try { window.nube.send("cart:open"); } catch (e3) {}
-          restoreBtn();
+          if (redirectCheckout) {
+            window.location.href = "/comprar/";
+          } else {
+            try { window.nube.send("cart:open"); } catch (e3) {}
+            restoreBtn();
+          }
         });
         return;
       }
 
-      // Sin NubeSDK: POST secuencial del pack + cada complementario, luego reload
+      // Sin NubeSDK: POST secuencial del pack + cada complementario, luego redirect o reload
       addViaComprar(prodId, qty).then(function () {
         var chain = Promise.resolve();
         for (var s2 = 0; s2 < compIds.length; s2++) {
@@ -7500,7 +7504,7 @@ function renderProductosComplementarios(w) {
         return chain;
       }).then(function () {
         if (redirectCheckout) {
-          window.location.href = "/checkout/";
+          window.location.href = "/comprar/";
         } else {
           window.location.reload();
         }
@@ -7508,5 +7512,5 @@ function renderProductosComplementarios(w) {
         window.location.reload();
       });
     };
-  }
+        }
 })(); 
