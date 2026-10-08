@@ -15,6 +15,7 @@ import UrgenciaStockEditor from '@/components/widgets/editors/UrgenciaStockEdito
 import ResenasDestacadasEditor from '@/components/widgets/editors/ResenasDestacadasEditor';
 import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
 import PopupConversionEditor from '@/components/widgets/editors/PopupConversionEditor';
+import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -122,6 +123,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
+  // WIDGET: BUNDLE DE CANTIDAD (NUEVO)
+  if (params.widgetSlug === 'bundle-cantidad') {
+    return <BundleCantidadEditor {...editorProps} />;
+  }
+
   // WIDGET: PRODUCTOS COMPLEMENTARIOS
   if (params.widgetSlug === 'productos-complementarios') {
     return <ProductosComplementariosEditor {...editorProps} />;
@@ -205,4 +211,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-             }
+}
