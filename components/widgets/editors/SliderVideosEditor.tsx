@@ -15,12 +15,16 @@ interface VideoItem {
 }
 
 interface SliderVideosEditorProps {
+  widgetDefinition?: any;
+  existingWidget?: any;
+  storeId?: string | number;
   initialConfig?: any;
   widgetId?: string;
   targetType?: 'product' | 'all' | 'category';
-  targetProductId?: string;
+  targetProductId?: string | number | null;
+  productId?: string | number | null;
   categoryId?: string | number | null;
-  onSave: (config: any) => Promise<void>;
+  onSave?: (config: any) => Promise<void>;
   isSaving?: boolean;
 }
 
@@ -35,43 +39,52 @@ const CAMPAIGN_THEMES: Record<string, { bg: string; text: string; border: string
 };
 
 export default function SliderVideosEditor({
-  initialConfig = {},
+  widgetDefinition,
+  existingWidget,
+  storeId,
+  initialConfig,
   widgetId,
   targetType = 'all',
   targetProductId,
+  productId,
   categoryId,
   onSave,
   isSaving = false,
 }: SliderVideosEditorProps) {
   const [activeTab, setActiveTab] = useState('general');
 
+  // Recuperar config existente si existe
+  const cfg = initialConfig || existingWidget?.config || {};
+
   // Configuración del widget
-  const [title, setTitle] = useState(initialConfig.title || 'MIRA NUESTROS PRODUCTOS EN ACCIÓN');
-  const [subtitle, setSubtitle] = useState(initialConfig.subtitle || 'Videos reales de clientes y demostraciones');
-  const [displayFormat, setDisplayFormat] = useState(initialConfig.displayFormat || 'slider');
-  const [position, setPosition] = useState(initialConfig.position || 'before-cart');
-  const [autoplay, setAutoplay] = useState(initialConfig.autoplay || 'muted');
-  const [videos, setVideos] = useState(initialConfig.videos || []);
+  const [title, setTitle] = useState(cfg.title || 'MIRA NUESTROS PRODUCTOS EN ACCIÓN');
+  const [subtitle, setSubtitle] = useState(cfg.subtitle || 'Videos reales de clientes y demostraciones');
+  const [displayFormat, setDisplayFormat] = useState(cfg.displayFormat || 'slider');
+  const [position, setPosition] = useState(cfg.position || 'before-cart');
+  const [autoplay, setAutoplay] = useState(cfg.autoplay || 'muted');
+  const [videos, setVideos] = useState(cfg.videos || []);
   
   // Estilos
-  const [bgColor, setBgColor] = useState(initialConfig.bgColor || '#ffffff');
-  const [textColor, setTextColor] = useState(initialConfig.textColor || '#111827');
-  const [accentColor, setAccentColor] = useState(initialConfig.accentColor || '#10B981');
-  const [borderRadius, setBorderRadius] = useState(initialConfig.borderRadius || 16);
-  const [titleAlign, setTitleAlign] = useState(initialConfig.titleAlign || 'center');
-  const [campaignTheme, setCampaignTheme] = useState(initialConfig.campaignTheme || 'none');
+  const [bgColor, setBgColor] = useState(cfg.bgColor || '#ffffff');
+  const [textColor, setTextColor] = useState(cfg.textColor || '#111827');
+  const [accentColor, setAccentColor] = useState(cfg.accentColor || '#10B981');
+  const [borderRadius, setBorderRadius] = useState(cfg.borderRadius || 16);
+  const [titleAlign, setTitleAlign] = useState(cfg.titleAlign || 'center');
+  const [campaignTheme, setCampaignTheme] = useState(cfg.campaignTheme || 'none');
   
   // Botón CTA dentro del video
-  const [ctaText, setCtaText] = useState(initialConfig.ctaText || 'Comprar ahora');
-  const [ctaBgColor, setCtaBgColor] = useState(initialConfig.ctaBgColor || '#111827');
-  const [ctaTextColor, setCtaTextColor] = useState(initialConfig.ctaTextColor || '#ffffff');
+  const [ctaText, setCtaText] = useState(cfg.ctaText || 'Comprar ahora');
+  const [ctaBgColor, setCtaBgColor] = useState(cfg.ctaBgColor || '#111827');
+  const [ctaTextColor, setCtaTextColor] = useState(cfg.ctaTextColor || '#ffffff');
 
-  // Estados de subida
+  // Estados de subida y guardado
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [isSavingInternal, setIsSavingInternal] = useState(false);
 
-  const isCategory = targetType === 'category' || !!categoryId;
-  const isForAll = targetType === 'all';
+  const effectiveTargetType = targetType || existingWidget?.target_type || (categoryId ? 'category' : productId ? 'product' : 'all');
+  const isCategory = effectiveTargetType === 'category' || !!categoryId;
+  const isForAll = effectiveTargetType === 'all';
   const scopeLabel = isForAll ? 'Todos los productos' : isCategory ? 'Categoría' : 'Producto específico';
 
   // Manejador de subida de video
@@ -95,7 +108,8 @@ export default function SliderVideosEditor({
     try {
       const formData = new FormData();
       formData.append('file', file);
-      if (widgetId) formData.append('widget_id', widgetId);
+      const activeWidgetId = widgetId || existingWidget?.id;
+      if (activeWidgetId) formData.append('widget_id', String(activeWidgetId));
 
       const res = await fetch('/api/upload-video', {
         method: 'POST',
@@ -145,7 +159,7 @@ export default function SliderVideosEditor({
   };
 
   const handleSave = async () => {
-    const config = {
+    const configData = {
       title,
       subtitle,
       displayFormat,
@@ -164,13 +178,50 @@ export default function SliderVideosEditor({
       ...(categoryId ? { category_id: String(categoryId) } : {}),
     };
 
-    await onSave({
-      config,
-      target_type: targetType,
-      target_product_id: targetProductId || null,
-      target_category_id: categoryId ? String(categoryId) : null,
-    });
+    const finalTargetType = effectiveTargetType;
+    const finalProductId = productId || targetProductId || existingWidget?.target_product_id || null;
+    const finalCategoryId = categoryId || existingWidget?.target_category_id || null;
+
+    if (onSave) {
+      await onSave({
+        config: configData,
+        target_type: finalTargetType,
+        target_product_id: finalProductId,
+        target_category_id: finalCategoryId,
+      });
+      return;
+    }
+
+    // Guardado por defecto mediante la API de Nevux
+    setIsSavingInternal(true);
+    try {
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          widget_slug: 'slider-videos',
+          config: configData,
+          is_active: true,
+          target_type: finalTargetType,
+          target_product_id: finalProductId ? String(finalProductId) : null,
+          target_category_id: finalCategoryId ? String(finalCategoryId) : null,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Error al guardar el widget');
+      }
+
+      alert('¡Widget "Slider de Videos" guardado exitosamente!');
+    } catch (err: any) {
+      alert(`Error al guardar: ${err.message || 'Error desconocido'}`);
+    } finally {
+      setIsSavingInternal(false);
+    }
   };
+
+  const saving = isSaving || isSavingInternal;
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '16px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -633,7 +684,7 @@ export default function SliderVideosEditor({
         <button
           type="button"
           onClick={handleSave}
-          disabled={isSaving}
+          disabled={saving}
           style={{
             width: '100%',
             backgroundColor: '#10B981',
@@ -643,14 +694,14 @@ export default function SliderVideosEditor({
             fontSize: '16px',
             fontWeight: 800,
             border: 'none',
-            cursor: isSaving ? 'not-allowed' : 'pointer',
+            cursor: saving ? 'not-allowed' : 'pointer',
             boxShadow: '0 4px 12px rgba(16,185,129,0.3)',
             transition: 'all 0.2s'
           }}>
-          {isSaving ? 'Guardando widget...' : '💾 Guardar Slider de Videos'}
+          {saving ? 'Guardando widget...' : '💾 Guardar Slider de Videos'}
         </button>
       </div>
 
     </div>
   );
-  }
+                     }
