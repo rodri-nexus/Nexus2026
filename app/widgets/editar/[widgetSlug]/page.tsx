@@ -16,6 +16,7 @@ import ResenasDestacadasEditor from '@/components/widgets/editors/ResenasDestaca
 import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocionesEditor';
 import PopupConversionEditor from '@/components/widgets/editors/PopupConversionEditor';
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
+import SliderVideosEditor from '@/components/widgets/editors/SliderVideosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -123,7 +124,12 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
-  // WIDGET: BUNDLE DE CANTIDAD (NUEVO)
+  // WIDGET: SLIDER DE VIDEOS (NUEVO)
+  if (params.widgetSlug === 'slider-videos') {
+    return <SliderVideosEditor {...editorProps} />;
+  }
+
+  // WIDGET: BUNDLE DE CANTIDAD
   if (params.widgetSlug === 'bundle-cantidad') {
     return <BundleCantidadEditor {...editorProps} />;
   }
@@ -211,4 +217,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+  }
