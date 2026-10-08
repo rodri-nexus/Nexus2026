@@ -8,6 +8,63 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function SliderVideosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎬 SLIDER DE VIDEOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          REELS
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "5px", justifyContent: "center", padding: "2px 0" }}>
+        {[1, 2, 3].map((item) => (
+          <div
+            key={item}
+            style={{
+              width: "28px",
+              height: "44px",
+              borderRadius: "6px",
+              background: item === 1 ? "#10B981" : item === 2 ? "#111827" : "#374151",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ fontSize: "10px", color: "#ffffff" }}>▶</div>
+            <div
+              style={{
+                position: "absolute",
+                bottom: "2px",
+                width: "80%",
+                height: "3px",
+                background: "rgba(255,255,255,0.7)",
+                borderRadius: "2px",
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BundleCantidadPreview() {
   return (
     <div
@@ -982,6 +1039,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "slider-videos":
+      return <SliderVideosPreview />;
     case "bundle-cantidad":
       return <BundleCantidadPreview />;
     case "productos-complementarios":
@@ -1041,4 +1100,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-    }
+                      }
