@@ -8,6 +8,8 @@ import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
+export type TabType = 'general' | 'unidades' | 'complementarios' | 'ubicacion' | 'estilos' | 'fechas';
+
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -648,7 +650,7 @@ export default function BundleCantidadEditor({
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState<TabType>('general');
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
@@ -794,348 +796,7 @@ export default function BundleCantidadEditor({
     }
   };
 
-  /* ═══ TABS CONTENT ═══ */
-  const tabGeneral = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div>
-        <FieldLabel>Título del widget (opcional)</FieldLabel>
-        <TextInput value={config.title} onChange={(v) => update('title', v)} placeholder="Ej: Ofertas especiales por cantidad" maxLength={60} />
-        <FieldHelper>Dejá vacío para no mostrar título.</FieldHelper>
-      </div>
-
-      <div>
-        <FieldLabel>Cantidad de unidades / packs</FieldLabel>
-        <SelectField
-          value={String(config.maxUnits)}
-          onChange={(v) => handleMaxUnits(Number(v))}
-          options={[
-            { value: '2', label: 'Hasta 2 unidades' },
-            { value: '3', label: 'Hasta 3 unidades' },
-            { value: '4', label: 'Hasta 4 unidades' },
-            { value: '5', label: 'Hasta 5 unidades' },
-          ]}
-        />
-      </div>
-
-      <div>
-        <FieldLabel>Etiqueta de cada pack</FieldLabel>
-        <SelectField
-          value={config.labelStyle}
-          onChange={(v) => update('labelStyle', v)}
-          options={[
-            { value: 'lleva', label: 'Lleva #  (ej: Lleva 2)' },
-            { value: 'pack', label: 'Pack x#  (ej: Pack x2)' },
-            { value: 'unidades', label: '# unidades' },
-          ]}
-        />
-      </div>
-
-      <div>
-        <FieldLabel>Mostrar precio</FieldLabel>
-        <SelectField
-          value={config.priceMode}
-          onChange={(v) => update('priceMode', v)}
-          options={[
-            { value: 'total', label: 'Precio total (por cantidad)' },
-            { value: 'unit', label: 'Precio individual por unidad' },
-          ]}
-        />
-      </div>
-
-      <div>
-        <FieldLabel>Texto del botón</FieldLabel>
-        <TextInput value={config.buttonText} onChange={(v) => update('buttonText', v)} placeholder="Agregar al carrito" />
-        <FieldHelper>Dejá vacío para usar &quot;Agregar al carrito&quot;.</FieldHelper>
-      </div>
-
-      <CheckboxRow
-        checked={config.createTnPromotion}
-        onChange={(v) => update('createTnPromotion', v)}
-        label="Crear promoción automáticamente en Tiendanube"
-        helper="Si lo desactivás, Nevux solo muestra el widget visual. Deberás crear el descuento manualmente en Tiendanube para que el precio final coincida en el checkout."
-      />
-
-      <CheckboxRow
-        checked={config.redirectToCheckout}
-        onChange={(v) => update('redirectToCheckout', v)}
-        label="Redirigir a /comprar luego de añadir al carrito"
-        helper="Por defecto se intenta abrir el carrito lateral (mini-cart). Si tu tema no lo tiene, activá esta opción."
-      />
-    </div>
-  );
-
-  const tabUnidades = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {config.units.slice(0, config.maxUnits).map((unit, idx) => (
-        <div
-          key={idx}
-          style={{
-            background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 14,
-            padding: 16,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#111827' }}>
-              Unidad {unit.qty} {unit.defaultSelected && <span style={{ fontSize: 11, color: '#10B981', marginLeft: 6 }}>• DEFAULT</span>}
-            </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#6b7280', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={unit.hidden}
-                onChange={(e) => updateUnit(idx, { hidden: e.target.checked })}
-                style={{ accentColor: '#10B981' }}
-              />
-              Ocultar esta unidad
-            </label>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div>
-              <FieldLabel>Subtítulo</FieldLabel>
-              <TextInput
-                value={unit.subtitle}
-                onChange={(v) => updateUnit(idx, { subtitle: v })}
-                placeholder="Ej: Ahorrá 10%"
-              />
-            </div>
-
-            <div>
-              <FieldLabel>¿Tiene descuento? (%)</FieldLabel>
-              <NumberInput
-                value={unit.discountPercent}
-                onChange={(v) => updateUnit(idx, { discountPercent: v })}
-                min={0}
-                max={90}
-              />
-            </div>
-
-            <div>
-              <FieldLabel>Badges</FieldLabel>
-              <CheckboxRow checked={unit.badgeEnvioGratis} onChange={(v) => updateUnit(idx, { badgeEnvioGratis: v })} label="Envío gratis" />
-              <CheckboxRow checked={unit.badgeMasVendido} onChange={(v) => updateUnit(idx, { badgeMasVendido: v })} label="Más vendido" />
-              <CheckboxRow checked={unit.badgePersonalizado} onChange={(v) => updateUnit(idx, { badgePersonalizado: v })} label="Personalizado" />
-              {unit.badgePersonalizado && (
-                <TextInput
-                  value={unit.badgePersonalizadoText}
-                  onChange={(v) => updateUnit(idx, { badgePersonalizadoText: v })}
-                  placeholder="RECOMENDADO"
-                />
-              )}
-            </div>
-
-            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 12 }}>
-              <FieldLabel>Configuración extra</FieldLabel>
-              <CheckboxRow
-                checked={unit.defaultSelected}
-                onChange={(v) => updateUnit(idx, { defaultSelected: v })}
-                label="Marcar por defecto"
-              />
-              <CheckboxRow
-                checked={unit.hideComplementary1}
-                onChange={(v) => updateUnit(idx, { hideComplementary1: v })}
-                label="Ocultar producto complementario 1 en esta unidad"
-              />
-              <CheckboxRow
-                checked={unit.hideComplementary2}
-                onChange={(v) => updateUnit(idx, { hideComplementary2: v })}
-                label="Ocultar producto complementario 2 en esta unidad"
-              />
-              <CheckboxRow
-                checked={unit.giftEnabled}
-                onChange={(v) => updateUnit(idx, { giftEnabled: v })}
-                label="Agregar producto de regalo en esta unidad"
-              />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const tabComplementarios = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div>
-        <FieldLabel>Productos complementarios</FieldLabel>
-        <FieldHelper>Se mostrarán debajo de cada tarjeta con un checkbox (máximo 2). Al tocar &quot;Seleccionar un producto&quot; verás todo tu catálogo con fotos y precio.</FieldHelper>
-      </div>
-
-      {[0, 1].map((i) => (
-        <div key={i} style={{ background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10, color: '#111827' }}>Producto {i + 1}</div>
-          <ProductPicker
-            storeId={storeId}
-            selectedId={config.complementary[i]?.productId || null}
-            selectedName={config.complementary[i]?.productName || ''}
-            selectedImage={config.complementary[i]?.productImage || null}
-            selectedPrice={config.complementary[i]?.productPrice || 0}
-            onSelect={(p) => handleSelectComp(i, p)}
-            onClear={() => handleClearComp(i)}
-          />
-        </div>
-      ))}
-
-      <CheckboxRow
-        checked={config.complementary.some((c) => c.checkedByDefault)}
-        onChange={handleCheckAllByDefault}
-        label="Marcar como chequeado por defecto"
-      />
-
-      <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
-        <CheckboxRow
-          checked={config.showSavingsBadge}
-          onChange={(v) => update('showSavingsBadge', v)}
-          label="Mostrar badge de ahorro"
-          helper="Se mostrará debajo del subtítulo cuando haya ahorro por unidad."
-        />
-        {config.showSavingsBadge && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
-            <div>
-              <FieldLabel>Texto del badge</FieldLabel>
-              <TextInput
-                value={config.savingsBadgeText}
-                onChange={(v) => update('savingsBadgeText', v)}
-                placeholder="AHORRÁS $X"
-              />
-              <FieldHelper>Usá $X para mostrar el valor del ahorro / descuento.</FieldHelper>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div>
-                <FieldLabel>Fondo del badge</FieldLabel>
-                <ColorPickerField value={config.savingsBadgeBg} onChange={(v) => update('savingsBadgeBg', v)} />
-              </div>
-              <div>
-                <FieldLabel>Color del texto</FieldLabel>
-                <ColorPickerField value={config.savingsBadgeTextColor} onChange={(v) => update('savingsBadgeTextColor', v)} />
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const tabUbicacion = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{
-        background: '#f0fdf4', borderLeft: '4px solid #10B981', borderRadius: 12, padding: 16,
-      }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#065f46', marginBottom: 8 }}>📍 Ubicación del Bundle</div>
-        <FieldHelper>
-          Elegí cómo se integra el widget con el botón nativo de compra de Tiendanube.
-        </FieldHelper>
-      </div>
-
-      <CheckboxRow
-        checked={config.replaceCartButton}
-        onChange={(v) => update('replaceCartButton', v)}
-        label="Reemplazar el botón de agregar al carrito de Tiendanube"
-        helper="El bundle toma el lugar del botón original. Ideal para forzar la elección de pack. Si lo desactivás, el bundle se inserta debajo del botón nativo (el formulario original permanece visible)."
-      />
-
-      {!config.replaceCartButton && (
-        <div style={{
-          background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '12px 14px',
-          fontSize: 13, color: '#9a3412', lineHeight: 1.5,
-        }}>
-          ℹ️ El formulario original de Tiendanube permanecerá visible y funcional. El bundle se mostrará como bloque adicional.
-        </div>
-      )}
-    </div>
-  );
-
-  const tabEstilos = (
-    <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-        <div>
-          <FieldLabel>Color de fondo</FieldLabel>
-          <ColorPickerField value={config.bgColor} onChange={(v) => update('bgColor', v)} />
-        </div>
-        <div>
-          <FieldLabel>Color de texto</FieldLabel>
-          <ColorPickerField value={config.textColor} onChange={(v) => update('textColor', v)} />
-        </div>
-        <div>
-          <FieldLabel>Color de borde</FieldLabel>
-          <ColorPickerField value={config.borderColor} onChange={(v) => update('borderColor', v)} />
-        </div>
-        <div>
-          <FieldLabel>Color de acento / precio</FieldLabel>
-          <ColorPickerField value={config.accentColor} onChange={(v) => update('accentColor', v)} />
-        </div>
-        <div>
-          <FieldLabel>Borde del pack seleccionado</FieldLabel>
-          <ColorPickerField value={config.selectedBorderColor} onChange={(v) => update('selectedBorderColor', v)} />
-        </div>
-        <div>
-          <FieldLabel>Fondo del botón</FieldLabel>
-          <ColorPickerField value={config.buttonBg} onChange={(v) => update('buttonBg', v)} />
-        </div>
-        <div>
-          <FieldLabel>Texto del botón</FieldLabel>
-          <ColorPickerField value={config.buttonTextColor} onChange={(v) => update('buttonTextColor', v)} />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 16 }}>
-        <FieldLabel>Radio de bordes: {config.borderRadius}px</FieldLabel>
-        <input
-          type="range"
-          min={0}
-          max={24}
-          value={config.borderRadius}
-          onChange={(e) => update('borderRadius', Number(e.target.value))}
-          style={{ width: '100%', accentColor: '#10B981' }}
-        />
-      </div>
-    </div>
-  );
-
-  const tabFechas = (
-    <div>
-      <div style={{ marginBottom: 20 }}>
-        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
-        <FieldHelper>Al elegir una campaña se aplican colores temáticos de alto impacto al bundle.</FieldHelper>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {CAMPAIGN_PRESETS.map((preset) => {
-          const isSelected = (config.campaignTheme || 'none') === preset.id;
-          return (
-            <div
-              key={preset.id}
-              onClick={() => applyPreset(preset.id)}
-              style={{
-                background: '#fff',
-                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
-                borderRadius: 12, padding: 16, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: 16,
-              }}
-            >
-              <div style={{ fontSize: 24 }}>{preset.emoji}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {preset.label}
-                  {isSelected && (
-                    <span style={{ background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981' }}>
-                      ACTIVO
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: 13, opacity: 0.6, marginTop: 4 }}>{preset.desc}</div>
-              </div>
-              {preset.id !== 'none' && preset.themeColor && (
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  const tabs = [
+  const tabs: Array<{ id: TabType; label: string }> = [
     { id: 'general', label: 'General' },
     { id: 'unidades', label: 'Unidades' },
     { id: 'complementarios', label: 'Extras' },
@@ -1236,12 +897,345 @@ export default function BundleCantidadEditor({
           </div>
 
           <div>
-            {activeTab === 'general' && tabGeneral}
-            {activeTab === 'unidades' && tabUnidades}
-            {activeTab === 'complementarios' && tabComplementarios}
-            {activeTab === 'ubicacion' && tabUbicacion}
-            {activeTab === 'estilos' && tabEstilos}
-            {activeTab === 'fechas' && tabFechas}
+            {activeTab === 'general' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div>
+                  <FieldLabel>Título del widget (opcional)</FieldLabel>
+                  <TextInput value={config.title} onChange={(v) => update('title', v)} placeholder="Ej: Ofertas especiales por cantidad" maxLength={60} />
+                  <FieldHelper>Dejá vacío para no mostrar título.</FieldHelper>
+                </div>
+
+                <div>
+                  <FieldLabel>Cantidad de unidades / packs</FieldLabel>
+                  <SelectField
+                    value={String(config.maxUnits)}
+                    onChange={(v) => handleMaxUnits(Number(v))}
+                    options={[
+                      { value: '2', label: 'Hasta 2 unidades' },
+                      { value: '3', label: 'Hasta 3 unidades' },
+                      { value: '4', label: 'Hasta 4 unidades' },
+                      { value: '5', label: 'Hasta 5 unidades' },
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <FieldLabel>Etiqueta de cada pack</FieldLabel>
+                  <SelectField
+                    value={config.labelStyle}
+                    onChange={(v) => update('labelStyle', v)}
+                    options={[
+                      { value: 'lleva', label: 'Lleva #  (ej: Lleva 2)' },
+                      { value: 'pack', label: 'Pack x#  (ej: Pack x2)' },
+                      { value: 'unidades', label: '# unidades' },
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <FieldLabel>Mostrar precio</FieldLabel>
+                  <SelectField
+                    value={config.priceMode}
+                    onChange={(v) => update('priceMode', v)}
+                    options={[
+                      { value: 'total', label: 'Precio total (por cantidad)' },
+                      { value: 'unit', label: 'Precio individual por unidad' },
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <FieldLabel>Texto del botón</FieldLabel>
+                  <TextInput value={config.buttonText} onChange={(v) => update('buttonText', v)} placeholder="Agregar al carrito" />
+                  <FieldHelper>Dejá vacío para usar &quot;Agregar al carrito&quot;.</FieldHelper>
+                </div>
+
+                <CheckboxRow
+                  checked={config.createTnPromotion}
+                  onChange={(v) => update('createTnPromotion', v)}
+                  label="Crear promoción automáticamente en Tiendanube"
+                  helper="Si lo desactivás, Nevux solo muestra el widget visual. Deberás crear el descuento manualmente en Tiendanube para que el precio final coincida en el checkout."
+                />
+
+                <CheckboxRow
+                  checked={config.redirectToCheckout}
+                  onChange={(v) => update('redirectToCheckout', v)}
+                  label="Redirigir a /comprar luego de añadir al carrito"
+                  helper="Por defecto se intenta abrir el carrito lateral (mini-cart). Si tu tema no lo tiene, activá esta opción."
+                />
+              </div>
+            )}
+
+            {activeTab === 'unidades' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {config.units.slice(0, config.maxUnits).map((unit, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 14,
+                      padding: 16,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#111827' }}>
+                        Unidad {unit.qty} {unit.defaultSelected && <span style={{ fontSize: 11, color: '#10B981', marginLeft: 6 }}>• DEFAULT</span>}
+                      </div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#6b7280', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={unit.hidden}
+                          onChange={(e) => updateUnit(idx, { hidden: e.target.checked })}
+                          style={{ accentColor: '#10B981' }}
+                        />
+                        Ocultar esta unidad
+                      </label>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      <div>
+                        <FieldLabel>Subtítulo</FieldLabel>
+                        <TextInput
+                          value={unit.subtitle}
+                          onChange={(v) => updateUnit(idx, { subtitle: v })}
+                          placeholder="Ej: Ahorrá 10%"
+                        />
+                      </div>
+
+                      <div>
+                        <FieldLabel>¿Tiene descuento? (%)</FieldLabel>
+                        <NumberInput
+                          value={unit.discountPercent}
+                          onChange={(v) => updateUnit(idx, { discountPercent: v })}
+                          min={0}
+                          max={90}
+                        />
+                      </div>
+
+                      <div>
+                        <FieldLabel>Badges</FieldLabel>
+                        <CheckboxRow checked={unit.badgeEnvioGratis} onChange={(v) => updateUnit(idx, { badgeEnvioGratis: v })} label="Envío gratis" />
+                        <CheckboxRow checked={unit.badgeMasVendido} onChange={(v) => updateUnit(idx, { badgeMasVendido: v })} label="Más vendido" />
+                        <CheckboxRow checked={unit.badgePersonalizado} onChange={(v) => updateUnit(idx, { badgePersonalizado: v })} label="Personalizado" />
+                        {unit.badgePersonalizado && (
+                          <TextInput
+                            value={unit.badgePersonalizadoText}
+                            onChange={(v) => updateUnit(idx, { badgePersonalizadoText: v })}
+                            placeholder="RECOMENDADO"
+                          />
+                        )}
+                      </div>
+
+                      <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 12 }}>
+                        <FieldLabel>Configuración extra</FieldLabel>
+                        <CheckboxRow
+                          checked={unit.defaultSelected}
+                          onChange={(v) => updateUnit(idx, { defaultSelected: v })}
+                          label="Marcar por defecto"
+                        />
+                        <CheckboxRow
+                          checked={unit.hideComplementary1}
+                          onChange={(v) => updateUnit(idx, { hideComplementary1: v })}
+                          label="Ocultar producto complementario 1 en esta unidad"
+                        />
+                        <CheckboxRow
+                          checked={unit.hideComplementary2}
+                          onChange={(v) => updateUnit(idx, { hideComplementary2: v })}
+                          label="Ocultar producto complementario 2 en esta unidad"
+                        />
+                        <CheckboxRow
+                          checked={unit.giftEnabled}
+                          onChange={(v) => updateUnit(idx, { giftEnabled: v })}
+                          label="Agregar producto de regalo en esta unidad"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'complementarios' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div>
+                  <FieldLabel>Productos complementarios</FieldLabel>
+                  <FieldHelper>Se mostrarán debajo de cada tarjeta con un checkbox (máximo 2). Al tocar &quot;Seleccionar un producto&quot; verás todo tu catálogo con fotos y precio.</FieldHelper>
+                </div>
+
+                {[0, 1].map((i) => (
+                  <div key={i} style={{ background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10, color: '#111827' }}>Producto {i + 1}</div>
+                    <ProductPicker
+                      storeId={storeId}
+                      selectedId={config.complementary[i]?.productId || null}
+                      selectedName={config.complementary[i]?.productName || ''}
+                      selectedImage={config.complementary[i]?.productImage || null}
+                      selectedPrice={config.complementary[i]?.productPrice || 0}
+                      onSelect={(p) => handleSelectComp(i, p)}
+                      onClear={() => handleClearComp(i)}
+                    />
+                  </div>
+                ))}
+
+                <CheckboxRow
+                  checked={config.complementary.some((c) => c.checkedByDefault)}
+                  onChange={handleCheckAllByDefault}
+                  label="Marcar como chequeado por defecto"
+                />
+
+                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
+                  <CheckboxRow
+                    checked={config.showSavingsBadge}
+                    onChange={(v) => update('showSavingsBadge', v)}
+                    label="Mostrar badge de ahorro"
+                    helper="Se mostrará debajo del subtítulo cuando haya ahorro por unidad."
+                  />
+                  {config.showSavingsBadge && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
+                      <div>
+                        <FieldLabel>Texto del badge</FieldLabel>
+                        <TextInput
+                          value={config.savingsBadgeText}
+                          onChange={(v) => update('savingsBadgeText', v)}
+                          placeholder="AHORRÁS $X"
+                        />
+                        <FieldHelper>Usá $X para mostrar el valor del ahorro / descuento.</FieldHelper>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        <div>
+                          <FieldLabel>Fondo del badge</FieldLabel>
+                          <ColorPickerField value={config.savingsBadgeBg} onChange={(v) => update('savingsBadgeBg', v)} />
+                        </div>
+                        <div>
+                          <FieldLabel>Color del texto</FieldLabel>
+                          <ColorPickerField value={config.savingsBadgeTextColor} onChange={(v) => update('savingsBadgeTextColor', v)} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'ubicacion' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{
+                  background: '#f0fdf4', borderLeft: '4px solid #10B981', borderRadius: 12, padding: 16,
+                }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#065f46', marginBottom: 8 }}>📍 Ubicación del Bundle</div>
+                  <FieldHelper>
+                    Elegí cómo se integra el widget con el botón nativo de compra de Tiendanube.
+                  </FieldHelper>
+                </div>
+
+                <CheckboxRow
+                  checked={config.replaceCartButton}
+                  onChange={(v) => update('replaceCartButton', v)}
+                  label="Reemplazar el botón de agregar al carrito de Tiendanube"
+                  helper="El bundle toma el lugar del botón original. Ideal para forzar la elección de pack. Si lo desactivás, el bundle se inserta debajo del botón nativo (el formulario original permanece visible)."
+                />
+
+                {!config.replaceCartButton && (
+                  <div style={{
+                    background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '12px 14px',
+                    fontSize: 13, color: '#9a3412', lineHeight: 1.5,
+                  }}>
+                    ℹ️ El formulario original de Tiendanube permanecerá visible y funcional. El bundle se mostrará como bloque adicional.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'estilos' && (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
+                  <div>
+                    <FieldLabel>Color de fondo</FieldLabel>
+                    <ColorPickerField value={config.bgColor} onChange={(v) => update('bgColor', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color de texto</FieldLabel>
+                    <ColorPickerField value={config.textColor} onChange={(v) => update('textColor', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color de borde</FieldLabel>
+                    <ColorPickerField value={config.borderColor} onChange={(v) => update('borderColor', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Color de acento / precio</FieldLabel>
+                    <ColorPickerField value={config.accentColor} onChange={(v) => update('accentColor', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Borde del pack seleccionado</FieldLabel>
+                    <ColorPickerField value={config.selectedBorderColor} onChange={(v) => update('selectedBorderColor', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Fondo del botón</FieldLabel>
+                    <ColorPickerField value={config.buttonBg} onChange={(v) => update('buttonBg', v)} />
+                  </div>
+                  <div>
+                    <FieldLabel>Texto del botón</FieldLabel>
+                    <ColorPickerField value={config.buttonTextColor} onChange={(v) => update('buttonTextColor', v)} />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <FieldLabel>Radio de bordes: {config.borderRadius}px</FieldLabel>
+                  <input
+                    type="range"
+                    min={0}
+                    max={24}
+                    value={config.borderRadius}
+                    onChange={(e) => update('borderRadius', Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#10B981' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'fechas' && (
+              <div>
+                <div style={{ marginBottom: 20 }}>
+                  <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+                  <FieldHelper>Al elegir una campaña se aplican colores temáticos de alto impacto al bundle.</FieldHelper>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {CAMPAIGN_PRESETS.map((preset) => {
+                    const isSelected = (config.campaignTheme || 'none') === preset.id;
+                    return (
+                      <div
+                        key={preset.id}
+                        onClick={() => applyPreset(preset.id)}
+                        style={{
+                          background: '#fff',
+                          border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                          borderRadius: 12, padding: 16, cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: 16,
+                        }}
+                      >
+                        <div style={{ fontSize: 24 }}>{preset.emoji}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: '#000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {preset.label}
+                            {isSelected && (
+                              <span style={{ background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981' }}>
+                                ACTIVO
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 13, opacity: 0.6, marginTop: 4 }}>{preset.desc}</div>
+                        </div>
+                        {preset.id !== 'none' && preset.themeColor && (
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                            <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div style={{
@@ -1281,4 +1275,4 @@ export default function BundleCantidadEditor({
       </div>
     </div>
   );
-                }
+   }
