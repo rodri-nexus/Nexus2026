@@ -313,7 +313,7 @@ export default function CrearWidgetModal({
                 </div>
               )}
 
-              {/* BÚSQUEDA DE PRODUCTO */}
+              {/* BÚSQUEDA DE PRODUCTO CON FOTOS REALES */}
               {step === 'select-product' && (
                 <div>
                   <div style={{ position: "relative", marginBottom: "1rem" }}>
@@ -334,7 +334,7 @@ export default function CrearWidgetModal({
                   ) : filteredProducts.length === 0 ? (
                     <p style={{ textAlign: "center", color: "#666", fontSize: "0.9rem", padding: "1.5rem" }}>No se encontraron productos.</p>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: "300px", overflowY: "auto" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: "360px", overflowY: "auto", paddingRight: 4 }}>
                       {filteredProducts.map((prod) => (
                         <button
                           key={prod.id}
@@ -343,13 +343,33 @@ export default function CrearWidgetModal({
                             router.push(`/widgets/nuevo/producto/${prod.id}`);
                           }}
                           style={{
-                            display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
-                            background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 10,
-                            cursor: "pointer", textAlign: "left", width: "100%"
+                            display: "flex", alignItems: "center", gap: 12, padding: "10px 12px",
+                            background: "#ffffff", border: "1.5px solid #f3f4f6", borderRadius: 12,
+                            cursor: "pointer", textAlign: "left", width: "100%", transition: "all 0.2s ease"
                           }}
+                          onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#10B981')}
+                          onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#f3f4f6')}
                         >
-                          {prod.image && <img src={prod.image} alt={prod.name} style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover" }} />}
-                          <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#000" }}>{prod.name}</span>
+                          {/* FOTO DE PRODUCTO REAL CON PLACEHOLDER SI FALTA */}
+                          <div style={{
+                            width: 48, height: 48, borderRadius: 8, background: "#f9fafb",
+                            border: "1px solid #e5e7eb", display: "flex", alignItems: "center",
+                            justifyContent: "center", overflow: "hidden", flexShrink: 0
+                          }}>
+                            {prod.image ? (
+                              <img
+                                src={prod.image}
+                                alt={prod.name}
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              />
+                            ) : (
+                              <Package size={22} color="#9ca3af" />
+                            )}
+                          </div>
+
+                          <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#111827", flex: 1, lineHeight: 1.3 }}>
+                            {prod.name}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -402,4 +422,4 @@ export default function CrearWidgetModal({
       )}
     </AnimatePresence>
   );
-                                           }
+}
