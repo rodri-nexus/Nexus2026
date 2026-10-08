@@ -39,7 +39,7 @@ interface StoreProduct {
   id: number;
   name: string;
   image: string | null;
-  price?: string;
+  price?: string | number | null;
 }
 
 interface UnitConfig {
@@ -61,6 +61,7 @@ interface ComplementaryProduct {
   productId: number | null;
   productName: string;
   productImage: string | null;
+  productPrice?: number;
   checkedByDefault: boolean;
 }
 
@@ -127,8 +128,8 @@ const defaultConfig: BundleCantidadConfig = {
     defaultUnit(3, 'Ahorrá más', 15),
   ],
   complementary: [
-    { productId: null, productName: '', productImage: null, checkedByDefault: false },
-    { productId: null, productName: '', productImage: null, checkedByDefault: false },
+    { productId: null, productName: '', productImage: null, productPrice: 0, checkedByDefault: false },
+    { productId: null, productName: '', productImage: null, productPrice: 0, checkedByDefault: false },
   ],
   bgColor: '#ffffff',
   textColor: '#111827',
@@ -333,6 +334,7 @@ function ProductPicker({
   selectedId,
   selectedName,
   selectedImage,
+  selectedPrice,
   onSelect,
   onClear,
 }: {
@@ -340,6 +342,7 @@ function ProductPicker({
   selectedId: number | null;
   selectedName: string;
   selectedImage: string | null;
+  selectedPrice?: number;
   onSelect: (p: StoreProduct) => void;
   onClear: () => void;
 }) {
@@ -384,6 +387,11 @@ function ProductPicker({
           <div style={{ fontSize: 13, fontWeight: 700, color: '#065f46', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {selectedName || `Producto #${selectedId}`}
           </div>
+          {selectedPrice ? (
+            <div style={{ fontSize: 12, fontWeight: 800, color: '#10B981', marginTop: 2 }}>
+              ${Math.round(selectedPrice).toLocaleString('es-AR')}
+            </div>
+          ) : null}
         </div>
         <button
           type="button"
@@ -439,34 +447,42 @@ function ProductPicker({
             ) : filtered.length === 0 ? (
               <div style={{ padding: 20, textAlign: 'center', color: '#6b7280', fontSize: 13 }}>No se encontraron productos</div>
             ) : (
-              filtered.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => {
-                    onSelect(p);
-                    setOpen(false);
-                    setQ('');
-                  }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-                    padding: '10px 12px', border: 'none', background: 'transparent',
-                    cursor: 'pointer', textAlign: 'left', borderBottom: '1px solid #f9fafb',
-                  }}
-                >
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 6, background: '#f3f4f6',
-                    overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {p.image ? (
-                      <img src={p.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <span style={{ fontSize: 14 }}>📦</span>
-                    )}
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#111827', flex: 1 }}>{p.name}</span>
-                </button>
-              ))
+              filtered.map((p) => {
+                const pPrice = parseFloat(String(p.price || 0).replace(/[^\d.]/g, '')) || 0;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(p);
+                      setOpen(false);
+                      setQ('');
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                      padding: '10px 12px', border: 'none', background: 'transparent',
+                      cursor: 'pointer', textAlign: 'left', borderBottom: '1px solid #f9fafb',
+                    }}
+                  >
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 6, background: '#f3f4f6',
+                      overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {p.image ? (
+                        <img src={p.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span style={{ fontSize: 14 }}>📦</span>
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                      {pPrice > 0 && (
+                        <div style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>${Math.round(pPrice).toLocaleString('es-AR')}</div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })
             )}
           </div>
           <button
@@ -567,15 +583,22 @@ function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
           <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${config.borderColor}` }}>
             <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, opacity: 0.8 }}>También te puede interesar</div>
             {config.complementary.filter((c) => c.productId).map((c, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <div style={{
-                  width: 16, height: 16, borderRadius: 4, border: '1.5px solid #d1d5db',
-                  background: c.checkedByDefault ? config.accentColor : '#fff',
-                }} />
-                {c.productImage && (
-                  <img src={c.productImage} alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
-                )}
-                <span style={{ fontSize: 12, fontWeight: 600 }}>{c.productName}</span>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{
+                    width: 16, height: 16, borderRadius: 4, border: '1.5px solid #d1d5db',
+                    background: c.checkedByDefault ? config.accentColor : '#fff',
+                  }} />
+                  {c.productImage && (
+                    <img src={c.productImage} alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
+                  )}
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>{c.productName}</span>
+                </div>
+                {c.productPrice ? (
+                  <span style={{ fontSize: 12, fontWeight: 800, color: config.accentColor }}>
+                    +${Math.round(c.productPrice).toLocaleString('es-AR')}
+                  </span>
+                ) : null}
               </div>
             ))}
           </div>
@@ -901,7 +924,7 @@ export default function BundleCantidadEditor({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
         <FieldLabel>Productos complementarios</FieldLabel>
-        <FieldHelper>Se mostrarán debajo de cada tarjeta con un checkbox (máximo 2). Al tocar &quot;Seleccionar un producto&quot; verás todo tu catálogo con fotos.</FieldHelper>
+        <FieldHelper>Se mostrarán debajo de cada tarjeta con un checkbox (máximo 2). Al tocar &quot;Seleccionar un producto&quot; verás todo tu catálogo con fotos y precio.</FieldHelper>
       </div>
 
       {[0, 1].map((i) => (
@@ -912,8 +935,20 @@ export default function BundleCantidadEditor({
             selectedId={config.complementary[i]?.productId || null}
             selectedName={config.complementary[i]?.productName || ''}
             selectedImage={config.complementary[i]?.productImage || null}
-            onSelect={(p) => updateComp(i, { productId: p.id, productName: p.name, productImage: p.image })}
-            onClear={() => updateComp(i, { productId: null, productName: '', productImage: null })}
+            selectedPrice={config.complementary[i]?.productPrice || 0}
+            onSelect={(p) => {
+              let price = 0;
+              if (p.price) {
+                price = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+              }
+              updateComp(i, {
+                productId: p.id,
+                productName: p.name,
+                productImage: p.image,
+                productPrice: price,
+              });
+            }}
+            onClear={() => updateComp(i, { productId: null, productName: '', productImage: null, productPrice: 0 })}
           />
         </div>
       ))}
@@ -1125,14 +1160,14 @@ export default function BundleCantidadEditor({
           <div style={{
             background: '#FEF3C7', color: '#D97706', border: '1px solid #FCD34D',
             borderRadius: 999, padding: '8px 14px', display: 'inline-flex', alignItems: 'center', gap: 8,
-            marginBottom: 20, fontSize: 14, fontWeight: 700,
+            marginBottom: 20, fontSize: 14, fontWeight 700,
           }}>
             <span>🏷️ Widget para Categoría</span>
           </div>
         ) : (
           <div style={{
             background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, padding: '8px 14px',
-            display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000',
+            display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, fontSize: 14, fontWeight 700, color: '#000',
           }}>
             <span style={{ fontSize: 18 }}>🛍️</span>
             <span>NEVUX Widget de Producto</span>
@@ -1230,4 +1265,4 @@ export default function BundleCantidadEditor({
       </div>
     </div>
   );
-   }
+}
