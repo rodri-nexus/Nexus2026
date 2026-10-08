@@ -51,9 +51,23 @@ export async function GET(req: NextRequest) {
     }
 
     // Obtener productos desde la API oficial de Tiendanube
-    const products = await getProducts(store.store_id, store.access_token, q);
+    const rawProducts = await getProducts(store.store_id, store.access_token, q);
 
-    return NextResponse.json(products, {
+    // Mapear la primera imagen como `image` principal para el modal
+    const formattedProducts = rawProducts.map((p) => {
+      const firstImg = p.images && p.images.length > 0 ? p.images[0].src : null;
+      return {
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        image: firstImg,
+        images: p.images,
+        variants: p.variants,
+        categories: p.categories,
+      };
+    });
+
+    return NextResponse.json(formattedProducts, {
       headers: {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
       },
@@ -67,4 +81,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-      }
+}
