@@ -6,10 +6,8 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS (Regla #9 y #30)
+   TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-export type TabType = 'general' | 'unidades' | 'complementarios' | 'ubicacion' | 'estilos' | 'fechas';
-
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -165,7 +163,7 @@ const PRESETS_DATA: Record<string, Partial<BundleCantidadConfig>> = {
 };
 
 /* ═══════════════════════════════════════════
-   SUBCOMPONENTES UI
+   SUBCOMPONENTES UI (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
 function IconStore() {
   return (
@@ -328,7 +326,7 @@ function SelectField({ value, onChange, options }: { value: string; onChange: (v
 }
 
 /* ═══════════════════════════════════════════
-   SELECTOR DE PRODUCTOS (lista completa al tocar)
+   SELECTOR DE PRODUCTOS (lista completa)
 ═══════════════════════════════════════════ */
 function ProductPicker({
   storeId,
@@ -627,14 +625,14 @@ export default function BundleCantidadEditor({
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('general');
+  const [activeTab, setActiveTab] = useState('general');
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
   const isCategory = targetType === 'category';
   const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
-  const update = <K extends keyof BundleCantidadConfig>(key: K, value: BundleCantidadConfig[K]) => {
+  function update(key: keyof BundleCantidadConfig, value: any) {
     setConfig((prev) => {
       const next = { ...prev, [key]: value };
       if (['bgColor', 'textColor', 'borderColor', 'accentColor', 'selectedBorderColor', 'buttonBg', 'buttonTextColor', 'savingsBadgeBg', 'savingsBadgeTextColor'].includes(key as string)) {
@@ -642,9 +640,9 @@ export default function BundleCantidadEditor({
       }
       return next;
     });
-  };
+  }
 
-  const updateUnit = (index: number, patch: Partial<UnitConfig>) => {
+  function updateUnit(index: number, patch: Partial<UnitConfig>) {
     setConfig((prev) => {
       const units = prev.units.map((u, i) => (i === index ? { ...u, ...patch } : u));
       if (patch.defaultSelected === true) {
@@ -654,16 +652,16 @@ export default function BundleCantidadEditor({
       }
       return { ...prev, units };
     });
-  };
+  }
 
-  const updateComp = (index: number, patch: Partial<ComplementaryProduct>) => {
+  function updateComp(index: number, patch: Partial<ComplementaryProduct>) {
     setConfig((prev) => {
       const complementary = prev.complementary.map((c, i) => (i === index ? { ...c, ...patch } : c));
       return { ...prev, complementary };
     });
-  };
+  }
 
-  const applyPreset = (slug: string) => {
+  function applyPreset(slug: string) {
     if (slug === 'none') {
       setConfig((prev) => ({
         ...prev,
@@ -685,9 +683,9 @@ export default function BundleCantidadEditor({
         ...PRESETS_DATA[slug],
       }));
     }
-  };
+  }
 
-  const handleMaxUnits = (n: number) => {
+  function handleMaxUnits(n: number) {
     setConfig((prev) => {
       let units = [...prev.units];
       while (units.length < n) {
@@ -698,7 +696,7 @@ export default function BundleCantidadEditor({
       units = units.map((u, i) => ({ ...u, qty: i + 1 }));
       return { ...prev, maxUnits: n, units };
     });
-  };
+  }
 
   const handleSave = async () => {
     setSaving(true);
@@ -741,7 +739,7 @@ export default function BundleCantidadEditor({
     }
   };
 
-  /* ═══ TABS ═══ */
+  /* ═══ TABS CONTENT ═══ */
   const tabGeneral = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
@@ -1134,7 +1132,7 @@ export default function BundleCantidadEditor({
         ) : (
           <div style={{
             background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, padding: '8px 14px',
-            display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, fontSize: 14, fontWeight 700, color: '#000',
+            display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000',
           }}>
             <span style={{ fontSize: 18 }}>🛍️</span>
             <span>NEVUX Widget de Producto</span>
@@ -1172,7 +1170,7 @@ export default function BundleCantidadEditor({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as TabType)}
+                  onClick={() => setActiveTab(tab.id)}
                   style={{
                     flexShrink: 0, padding: '12px 14px', background: 'none', border: 'none',
                     borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
@@ -1232,4 +1230,4 @@ export default function BundleCantidadEditor({
       </div>
     </div>
   );
-}
+   }
