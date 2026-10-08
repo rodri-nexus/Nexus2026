@@ -192,13 +192,15 @@ export default function SliderVideosEditor({
       return;
     }
 
-    // Guardado por defecto mediante la API de Nevux
+    // Guardado por defecto mediante la API de Nevux (con store_id e id de widget)
     setIsSavingInternal(true);
     try {
       const res = await fetch('/api/widgets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          id: existingWidget?.id || undefined,
+          store_id: storeId ? String(storeId) : undefined,
           widget_slug: 'slider-videos',
           config: configData,
           is_active: true,
@@ -704,4 +706,4 @@ export default function SliderVideosEditor({
 
     </div>
   );
-                     }
+    }
