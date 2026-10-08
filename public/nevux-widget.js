@@ -1800,6 +1800,7 @@
             if (w.widget_slug === "barra-envio-gratis") renderBarraEnvioGratis(w);
             if (w.widget_slug === "barra-cuotas") renderBarraCuotas(w);
             if (w.widget_slug === "productos-complementarios") renderProductosComplementarios(w);
+            if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -6997,4 +6998,236 @@ function renderProductosComplementarios(w) {
     nvxTrack(w.id, "impression");
   }
     }
+  /* ═══════════════════════════════════════════
+     RENDER: BUNDLE DE CANTIDAD (v202)
+  ═══════════════════════════════════════════ */
+  function renderBundleCantidad(w) {
+    if (!w || !w.config) return;
+    if (detectPageType() !== "product") return;
+
+    var cfg = w.config || {};
+    var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
+    var containerId = nsPrefix + "-bundle-cantidad-" + w.id;
+
+    if (document.getElementById(containerId)) return;
+
+    // Buscar formulario de Tiendanube
+    var targetEl = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], .js-product-form, #product-form");
+    if (!targetEl) return;
+
+    // Extraer datos del producto actual desde Tiendanube LS
+    var prodObj = (typeof window !== "undefined" && window.LS && window.LS.product) ? window.LS.product : {};
+    var prodId = prodObj.id || (typeof window !== "undefined" && window.LS && window.LS.product_id) || "";
+    var rawPrice = prodObj.price || prodObj.promotional_price || 0;
+    var basePrice = typeof rawPrice === "number" ? rawPrice : parseFloat(String(rawPrice).replace(/[^\d.]/g, "")) || 0;
+
+    var container = document.createElement("div");
+    container.id = containerId;
+    container.className = nsPrefix + "-bundle-cantidad-container";
+
+    var bgColor = cfg.bgColor || "#ffffff";
+    var textColor = cfg.textColor || "#111827";
+    var borderColor = cfg.borderColor || "#e5e7eb";
+    var accentColor = cfg.accentColor || "#10B981";
+    var selectedBorderColor = cfg.selectedBorderColor || "#111827";
+    var borderRadius = (cfg.borderRadius || 12) + "px";
+    var buttonBg = cfg.buttonBg || "#111827";
+    var buttonTextColor = cfg.buttonTextColor || "#ffffff";
+
+    container.style.cssText = "background:" + bgColor + " !important;border:1.5px solid " + borderColor + " !important;border-radius:" + borderRadius + " !important;padding:16px !important;margin:16px 0 !important;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif !important;box-sizing:border-box !important;width:100% !important;display:block !important;";
+
+    var maxUnits = cfg.maxUnits || 3;
+    var rawUnits = (cfg.units && Array.isArray(cfg.units)) ? cfg.units : [];
+    var visibleUnits = [];
+    for (var u = 0; u < rawUnits.length; u++) {
+      if (!rawUnits[u].hidden && u < maxUnits) {
+        visibleUnits.push(rawUnits[u]);
+      }
+    }
+    if (visibleUnits.length === 0) {
+      visibleUnits = [{ qty: 1, subtitle: "", discountPercent: 0, defaultSelected: true }, { qty: 2, subtitle: "Ahorrá 10%", discountPercent: 10, defaultSelected: false }];
+    }
+
+    var selectedQty = 1;
+    for (var s = 0; s < visibleUnits.length; s++) {
+      if (visibleUnits[s].defaultSelected) {
+        selectedQty = visibleUnits[s].qty;
+        break;
+      }
+    }
+
+    var safeEscape = function(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    };
+
+    var formatMoney = function(amount) {
+      return "$ " + Math.round(amount).toLocaleString("es-AR");
+    };
+
+    var html = "";
+    if (cfg.title) {
+      html += '<div style="font-size:15px !important;font-weight:800 !important;margin-bottom:12px !important;color:' + textColor + ' !important;">' + safeEscape(cfg.title) + '</div>';
+    }
+
+    html += '<div style="display:flex !important;flex-direction:column !important;gap:8px !important;">';
+
+    for (var i = 0; i < visibleUnits.length; i++) {
+      var unit = visibleUnits[i];
+      var isSel = unit.qty === selectedQty;
+      var disc = unit.discountPercent || 0;
+      var qtyPrice = basePrice * unit.qty * (1 - disc / 100);
+      var displayPrice = (cfg.priceMode === "unit" && unit.qty > 0) ? (qtyPrice / unit.qty) : qtyPrice;
+
+      var packLabel = "Pack x" + unit.qty;
+      if (cfg.labelStyle === "lleva") packLabel = "Lleva " + unit.qty;
+      if (cfg.labelStyle === "unidades") packLabel = unit.qty + " unidad" + (unit.qty > 1 ? "es" : "");
+
+      var cardBorder = isSel ? selectedBorderColor : borderColor;
+      var cardBg = isSel ? "rgba(16,185,129,0.04)" : "transparent";
+
+      html += '<div class="' + nsPrefix + '-bundle-pack-card" data-qty="' + unit.qty + '" style="border:2px solid ' + cardBorder + ' !important;background:' + cardBg + ' !important;border-radius:10px !important;padding:12px 14px !important;display:flex !important;align-items:center !important;justify-content:space-between !important;cursor:pointer !important;transition:all 0.2s !important;">';
+      html += '<div style="display:flex !important;align-items:center !important;gap:10px !important;">';
+      html += '<div style="width:18px !important;height:18px !important;border-radius:50% !important;border:' + (isSel ? '6px solid ' + accentColor : '2px solid #d1d5db') + ' !important;background:#ffffff !important;flex-shrink:0 !important;"></div>';
+      html += '<div>';
+      html += '<div style="font-size:14px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + safeEscape(packLabel) + '</div>';
+      if (unit.subtitle) {
+        html += '<div style="font-size:11px !important;opacity:0.7 !important;margin-top:2px !important;color:' + textColor + ' !important;">' + safeEscape(unit.subtitle) + '</div>';
+      }
+      html += '<div style="display:flex !important;gap:4px !important;margin-top:4px !important;flex-wrap:wrap !important;">';
+      if (unit.badgeEnvioGratis) html += '<span style="font-size:9px !important;font-weight:800 !important;background:#10B981 !important;color:#fff !important;padding:2px 6px !important;border-radius:4px !important;">ENVÍO GRATIS</span>';
+      if (unit.badgeMasVendido) html += '<span style="font-size:9px !important;font-weight:800 !important;background:#EF4444 !important;color:#fff !important;padding:2px 6px !important;border-radius:4px !important;">MÁS VENDIDO</span>';
+      if (unit.badgePersonalizado && unit.badgePersonalizadoText) html += '<span style="font-size:9px !important;font-weight:800 !important;background:#F59E0B !important;color:#fff !important;padding:2px 6px !important;border-radius:4px !important;">' + safeEscape(unit.badgePersonalizadoText) + '</span>';
+      html += '</div></div></div>';
+
+      html += '<div style="text-align:right !important;">';
+      if (disc > 0 && cfg.showSavingsBadge) {
+        var badgeText = (cfg.savingsBadgeText || "AHORRÁS $X").replace("$X", disc + "%");
+        html += '<div style="font-size:9px !important;font-weight:800 !important;background:' + (cfg.savingsBadgeBg || "#059669") + ' !important;color:' + (cfg.savingsBadgeTextColor || "#ffffff") + ' !important;padding:2px 6px !important;border-radius:4px !important;margin-bottom:4px !important;display:inline-block !important;">' + safeEscape(badgeText) + '</div>';
+      }
+      html += '<div style="font-size:14px !important;font-weight:900 !important;color:' + accentColor + ' !important;">' + formatMoney(displayPrice) + '</div>';
+      html += '</div></div>';
+    }
+
+    html += '</div>';
+
+    // Productos complementarios opcionales
+    var compList = (cfg.complementary && Array.isArray(cfg.complementary)) ? cfg.complementary : [];
+    var validComps = [];
+    for (var c = 0; c < compList.length; c++) {
+      if (compList[c] && compList[c].productId) validComps.push(compList[c]);
+    }
+
+    if (validComps.length > 0) {
+      html += '<div style="margin-top:14px !important;padding-top:12px !important;border-top:1px solid ' + borderColor + ' !important;">';
+      html += '<div style="font-size:12px !important;font-weight:700 !important;margin-bottom:8px !important;color:' + textColor + ' !important;opacity:0.85 !important;">Complementos sugeridos:</div>';
+      for (var v = 0; v < validComps.length; v++) {
+        var compItem = validComps[v];
+        var chkAttr = compItem.checkedByDefault ? "checked" : "";
+        html += '<label style="display:flex !important;align-items:center !important;gap:8px !important;margin-bottom:8px !important;cursor:pointer !important;">';
+        html += '<input type="checkbox" class="' + nsPrefix + '-bundle-comp-chk" data-comp-id="' + compItem.productId + '" ' + chkAttr + ' style="width:16px !important;height:16px !important;accent-color:' + accentColor + ' !important;cursor:pointer !important;" />';
+        if (compItem.productImage) {
+          html += '<img src="' + safeEscape(compItem.productImage) + '" style="width:28px !important;height:28px !important;border-radius:4px !important;object-fit:cover !important;" />';
+        }
+        html += '<span style="font-size:12px !important;font-weight:600 !important;color:' + textColor + ' !important;">' + safeEscape(compItem.productName) + '</span>';
+        html += '</label>';
+      }
+      html += '</div>';
+    }
+
+    // Botón de agregar al carrito
+    var btnText = cfg.buttonText || "Agregar al carrito";
+    html += '<button type="button" id="' + nsPrefix + '-bundle-buy-btn-' + w.id + '" style="width:100% !important;margin-top:14px !important;padding:14px !important;border:none !important;border-radius:999px !important;background:' + buttonBg + ' !important;color:' + buttonTextColor + ' !important;font-size:15px !important;font-weight:800 !important;cursor:pointer !important;box-shadow:0 4px 12px rgba(0,0,0,0.12) !important;transition:all 0.2s !important;">' + safeEscape(btnText) + '</button>';
+
+    container.innerHTML = html;
+
+    // Si replaceCartButton está activo, ocultar botón original e insertar el widget
+    if (cfg.replaceCartButton !== false) {
+      targetEl.parentNode.insertBefore(container, targetEl);
+      targetEl.style.display = "none";
+    } else {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    }
+
+    // Lógica interactiva
+    var packCards = container.querySelectorAll("." + nsPrefix + "-bundle-pack-card");
+    for (var k = 0; k < packCards.length; k++) {
+      packCards[k].onclick = function() {
+        selectedQty = parseInt(this.getAttribute("data-qty"), 10) || 1;
+        for (var j = 0; j < packCards.length; j++) {
+          var isThis = packCards[j] === this;
+          packCards[j].style.setProperty("border-color", isThis ? selectedBorderColor : borderColor, "important");
+          packCards[j].style.setProperty("background", isThis ? "rgba(16,185,129,0.04)" : "transparent", "important");
+          var radio = packCards[j].querySelector("div > div");
+          if (radio) {
+            radio.style.setProperty("border", isThis ? "6px solid " + accentColor : "2px solid #d1d5db", "important");
+          }
+        }
+      };
+    }
+
+    // Clic en botón de compra: NubeSDK + Fallback /comprar/
+    var buyBtn = document.getElementById(nsPrefix + "-bundle-buy-btn-" + w.id);
+    if (buyBtn) {
+      buyBtn.onclick = function() {
+        buyBtn.disabled = true;
+        buyBtn.innerText = "Agregando...";
+
+        // Recolectar complementarios marcados
+        var compChks = container.querySelectorAll("." + nsPrefix + "-bundle-comp-chk");
+        var selectedCompIds = [];
+        for (var cIdx = 0; cIdx < compChks.length; cIdx++) {
+          if (compChks[cIdx].checked) {
+            var cId = compChks[cIdx].getAttribute("data-comp-id");
+            if (cId) selectedCompIds.push(cId);
+          }
+        }
+
+        // Intento por NubeSDK
+        if (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function") {
+          try {
+            window.nube.send("cart:add", {
+              product_id: prodId,
+              quantity: selectedQty
+            });
+
+            for (var sc = 0; sc < selectedCompIds.length; sc++) {
+              window.nube.send("cart:add", {
+                product_id: selectedCompIds[sc],
+                quantity: 1
+              });
+            }
+
+            window.nube.send("cart:open");
+            buyBtn.disabled = false;
+            buyBtn.innerText = btnText;
+            return;
+          } catch (eSdk) {
+            console.error("[BundleCantidad] Fallback desde NubeSDK:", eSdk);
+          }
+        }
+
+        // Fallback POST /comprar/
+        var formData = new FormData();
+        formData.append("add_to_cart", prodId);
+        formData.append("quantity", selectedQty);
+
+        fetch("/comprar/", {
+          method: "POST",
+          body: formData,
+          credentials: "include"
+        })
+        .then(function() {
+          if (cfg.redirectToCheckout) {
+            window.location.href = "/checkout/";
+          } else {
+            window.location.reload();
+          }
+        })
+        .catch(function() {
+          window.location.reload();
+        });
+      };
+    }
+        }
 })(); 
