@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 
-const BUCKET_NAME = 'nevux-videos';
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const BUCKET_NAME = 'widget-videos';
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 const ALLOWED_MIME_TYPES = new Set([
   'video/mp4',
@@ -40,16 +40,12 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return jsonError('No autorizado.', 401);
+      return jsonError('No autorizado. Iniciá sesión para subir videos.', 401);
     }
 
     const formData = await request.formData();
-    const widgetId = formData.get('widget_id');
+    const widgetId = formData.get('widget_id') || 'nuevo';
     const fileEntry = formData.get('file');
-
-    if (!widgetId || typeof widgetId !== 'string') {
-      return jsonError('Falta el widget_id.', 400);
-    }
 
     if (!fileEntry || !(fileEntry instanceof File)) {
       return jsonError('Falta el archivo de video.', 400);
@@ -58,7 +54,7 @@ export async function POST(request: Request) {
     const file = fileEntry;
     const extension = getExtension(file.name);
 
-    if (!ALLOWED_MIME_TYPES.has(file.type) || !ALLOWED_EXTENSIONS.has(extension)) {
+    if (file.type && !ALLOWED_MIME_TYPES.has(file.type) && !ALLOWED_EXTENSIONS.has(extension)) {
       return jsonError(
         'Formato de video no permitido. Usá MP4, MOV, AVI, WMV o WEBM.',
         400
@@ -66,40 +62,50 @@ export async function POST(request: Request) {
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      return jsonError('El video supera el tamaño máximo de 5MB.', 400);
-    }
-
-    const { data: widget, error: widgetError } = await supabase
-      .from('widgets')
-      .select('id, user_id')
-      .eq('id', widgetId)
-      .single();
-
-    if (widgetError || !widget) {
-      return jsonError('Widget no encontrado.', 404);
-    }
-
-    if (widget.user_id !== user.id) {
-      return jsonError('No tenés permisos para subir videos a este widget.', 403);
+      return jsonError('El video supera el tamaño máximo permitido de 10MB.', 400);
     }
 
     const timestamp = Date.now();
-    const randomId = crypto.randomUUID();
-    const storagePath = `${widgetId}/${timestamp}-${randomId}.${extension}`;
+    const randomId = Math.random().toString(36).substring(2, 8);
+    const storagePath = `${user.id}/${widgetId}/${timestamp}-${randomId}.${extension || 'mp4'}`;
 
     const arrayBuffer = await file.arrayBuffer();
     const fileBuffer = Buffer.from(arrayBuffer);
 
+    // Intentar subir al bucket público 'widget-videos'
     const { error: uploadError } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(storagePath, fileBuffer, {
-        contentType: file.type,
+        contentType: file.type || 'video/mp4',
         cacheControl: '3600',
-        upsert: false,
+        upsert: true,
       });
 
     if (uploadError) {
-      return jsonError(`Error al subir el video: ${uploadError.message}`, 500);
+      // Fallback secundario al bucket 'nevux-videos'
+      const { error: fallbackError } = await supabase.storage
+        .from('nevux-videos')
+        .upload(storagePath, fileBuffer, {
+          contentType: file.type || 'video/mp4',
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (fallbackError) {
+        return jsonError(`Error al subir el video: ${uploadError.message}`, 500);
+      }
+
+      const { data: fallbackUrl } = supabase.storage
+        .from('nevux-videos')
+        .getPublicUrl(storagePath);
+
+      return NextResponse.json({
+        success: true,
+        url: fallbackUrl.publicUrl,
+        path: storagePath,
+        nombre: file.name,
+        tamanoBytes: file.size,
+      });
     }
 
     const { data: publicUrlData } = supabase.storage
@@ -125,4 +131,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-                                    }
+      }
