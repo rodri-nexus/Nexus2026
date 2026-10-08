@@ -5,9 +5,6 @@ import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
-/* ═══════════════════════════════════════════
-   TIPOS E INTERFACES (Regla #9 al inicio)
-═══════════════════════════════════════════ */
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -61,7 +58,7 @@ interface ComplementaryProduct {
   productId: number | null;
   productName: string;
   productImage: string | null;
-  productPrice?: number;
+  productPrice: number;
   checkedByDefault: boolean;
 }
 
@@ -69,7 +66,7 @@ export interface BundleCantidadConfig {
   title: string;
   maxUnits: number;
   labelStyle: string;
-  priceMode: string;
+  priceMode: 'total' | 'unit';
   buttonText: string;
   replaceCartButton: boolean;
   createTnPromotion: boolean;
@@ -91,9 +88,6 @@ export interface BundleCantidadConfig {
   campaignTheme?: string;
 }
 
-/* ═══════════════════════════════════════════
-   DEFAULTS Y PRESETS
-═══════════════════════════════════════════ */
 const defaultUnit = (qty: number, subtitle: string, discount: number): UnitConfig => ({
   qty,
   subtitle,
@@ -153,7 +147,7 @@ const CAMPAIGN_PRESETS = [
   { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí + amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
 ];
 
-const PRESETS_DATA: Record<string, any> = {
+const PRESETS_DATA: Record<string, Partial<BundleCantidadConfig>> = {
   'black-friday': { bgColor: '#111827', textColor: '#ffffff', borderColor: '#374151', accentColor: '#F59E0B', selectedBorderColor: '#F59E0B', buttonBg: '#F59E0B', buttonTextColor: '#111827', savingsBadgeBg: '#F59E0B', savingsBadgeTextColor: '#111827' },
   'hot-sale': { bgColor: '#0F172A', textColor: '#ffffff', borderColor: '#1e293b', accentColor: '#EF4444', selectedBorderColor: '#EF4444', buttonBg: '#EF4444', buttonTextColor: '#ffffff', savingsBadgeBg: '#EF4444', savingsBadgeTextColor: '#ffffff' },
   'cyber-monday': { bgColor: '#090D16', textColor: '#ffffff', borderColor: '#1e3a5f', accentColor: '#3B82F6', selectedBorderColor: '#3B82F6', buttonBg: '#3B82F6', buttonTextColor: '#ffffff', savingsBadgeBg: '#3B82F6', savingsBadgeTextColor: '#ffffff' },
@@ -163,9 +157,6 @@ const PRESETS_DATA: Record<string, any> = {
   'liquidacion': { bgColor: '#7F1D1D', textColor: '#ffffff', borderColor: '#991b1b', accentColor: '#FBBF24', selectedBorderColor: '#FBBF24', buttonBg: '#FBBF24', buttonTextColor: '#7F1D1D', savingsBadgeBg: '#FBBF24', savingsBadgeTextColor: '#7F1D1D' },
 };
 
-/* ═══════════════════════════════════════════
-   SUBCOMPONENTES UI (Regla #9 al inicio)
-═══════════════════════════════════════════ */
 function IconStore() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -326,9 +317,6 @@ function SelectField({ value, onChange, options }: { value: string; onChange: (v
   );
 }
 
-/* ═══════════════════════════════════════════
-   SELECTOR DE PRODUCTOS
-═══════════════════════════════════════════ */
 function ProductPicker({
   storeId,
   selectedId,
@@ -387,7 +375,7 @@ function ProductPicker({
           <div style={{ fontSize: 13, fontWeight: 700, color: '#065f46', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {selectedName || `Producto #${selectedId}`}
           </div>
-          {selectedPrice ? (
+          {!!selectedPrice && selectedPrice > 0 ? (
             <div style={{ fontSize: 12, fontWeight: 800, color: '#10B981', marginTop: 2 }}>
               ${Math.round(selectedPrice).toLocaleString('es-AR')}
             </div>
@@ -476,9 +464,9 @@ function ProductPicker({
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
-                      {pPrice > 0 && (
+                      {pPrice > 0 ? (
                         <div style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>${Math.round(pPrice).toLocaleString('es-AR')}</div>
-                      )}
+                      ) : null}
                     </div>
                   </button>
                 );
@@ -501,9 +489,6 @@ function ProductPicker({
   );
 }
 
-/* ═══════════════════════════════════════════
-   PREVIEW EN VIVO
-═══════════════════════════════════════════ */
 function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
   const visibleUnits = config.units.filter((u) => !u.hidden).slice(0, config.maxUnits);
   const selected = visibleUnits.find((u) => u.defaultSelected) || visibleUnits[0];
@@ -521,9 +506,9 @@ function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
         background: config.bgColor, borderRadius: config.borderRadius,
         border: `1.5px solid ${config.borderColor}`, padding: 14, color: config.textColor,
       }}>
-        {config.title && (
+        {config.title ? (
           <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 12, color: config.textColor }}>{config.title}</div>
-        )}
+        ) : null}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {visibleUnits.map((u) => {
@@ -546,29 +531,29 @@ function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
                   }} />
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: config.textColor }}>{label}</div>
-                    {u.subtitle && <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>{u.subtitle}</div>}
+                    {u.subtitle ? <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>{u.subtitle}</div> : null}
                     <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
-                      {u.badgeEnvioGratis && (
+                      {u.badgeEnvioGratis ? (
                         <span style={{ fontSize: 9, fontWeight: 800, background: '#10B981', color: '#fff', padding: '2px 6px', borderRadius: 4 }}>ENVÍO GRATIS</span>
-                      )}
-                      {u.badgeMasVendido && (
+                      ) : null}
+                      {u.badgeMasVendido ? (
                         <span style={{ fontSize: 9, fontWeight: 800, background: '#EF4444', color: '#fff', padding: '2px 6px', borderRadius: 4 }}>MÁS VENDIDO</span>
-                      )}
-                      {u.badgePersonalizado && u.badgePersonalizadoText && (
+                      ) : null}
+                      {u.badgePersonalizado && u.badgePersonalizadoText ? (
                         <span style={{ fontSize: 9, fontWeight: 800, background: '#F59E0B', color: '#fff', padding: '2px 6px', borderRadius: 4 }}>{u.badgePersonalizadoText}</span>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  {u.discountPercent > 0 && config.showSavingsBadge && (
+                  {u.discountPercent > 0 && config.showSavingsBadge ? (
                     <div style={{
                       fontSize: 9, fontWeight: 800, background: config.savingsBadgeBg,
                       color: config.savingsBadgeTextColor, padding: '2px 6px', borderRadius: 4, marginBottom: 4, display: 'inline-block',
                     }}>
                       {config.savingsBadgeText.replace('$X', `${u.discountPercent}%`)}
                     </div>
-                  )}
+                  ) : null}
                   <div style={{ fontSize: 14, fontWeight: 900, color: config.accentColor }}>
                     {u.discountPercent > 0 ? `−${u.discountPercent}%` : 'Precio base'}
                   </div>
@@ -578,8 +563,7 @@ function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
           })}
         </div>
 
-        {/* Complementarios preview */}
-        {config.complementary.some((c) => c.productId) && (
+        {config.complementary.some((c) => c.productId) ? (
           <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${config.borderColor}` }}>
             <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, opacity: 0.8 }}>También te puede interesar</div>
             {config.complementary.filter((c) => c.productId).map((c, i) => (
@@ -589,12 +573,12 @@ function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
                     width: 16, height: 16, borderRadius: 4, border: '1.5px solid #d1d5db',
                     background: c.checkedByDefault ? config.accentColor : '#fff',
                   }} />
-                  {c.productImage && (
+                  {c.productImage ? (
                     <img src={c.productImage} alt="" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
-                  )}
+                  ) : null}
                   <span style={{ fontSize: 12, fontWeight: 600 }}>{c.productName}</span>
                 </div>
-                {c.productPrice ? (
+                {c.productPrice > 0 ? (
                   <span style={{ fontSize: 12, fontWeight: 800, color: config.accentColor }}>
                     +${Math.round(c.productPrice).toLocaleString('es-AR')}
                   </span>
@@ -602,7 +586,7 @@ function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
               </div>
             ))}
           </div>
-        )}
+        ) : null}
 
         <button
           type="button"
@@ -620,9 +604,6 @@ function BundleCantidadPreview({ config }: { config: BundleCantidadConfig }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
-═══════════════════════════════════════════ */
 export default function BundleCantidadEditor({
   widgetDefinition,
   existingWidget,
@@ -640,6 +621,17 @@ export default function BundleCantidadEditor({
     }
     if (!base.complementary || !Array.isArray(base.complementary)) {
       base.complementary = defaultConfig.complementary;
+    } else {
+      base.complementary = base.complementary.map((c: any) => ({
+        productId: c.productId ?? null,
+        productName: c.productName || '',
+        productImage: c.productImage || null,
+        productPrice: typeof c.productPrice === 'number' ? c.productPrice : 0,
+        checkedByDefault: !!c.checkedByDefault,
+      }));
+      while (base.complementary.length < 2) {
+        base.complementary.push({ productId: null, productName: '', productImage: null, productPrice: 0, checkedByDefault: false });
+      }
     }
     return base as BundleCantidadConfig;
   });
@@ -655,17 +647,17 @@ export default function BundleCantidadEditor({
   const isCategory = targetType === 'category';
   const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
-  function update(key: string, value: any) {
-    setConfig((prev: any) => {
-      const next = { ...prev, [key]: value };
-      if (['bgColor', 'textColor', 'borderColor', 'accentColor', 'selectedBorderColor', 'buttonBg', 'buttonTextColor', 'savingsBadgeBg', 'savingsBadgeTextColor'].includes(key)) {
+  function update(key: keyof BundleCantidadConfig, value: any) {
+    setConfig((prev) => {
+      const next: any = { ...prev, [key]: value };
+      if (['bgColor', 'textColor', 'borderColor', 'accentColor', 'selectedBorderColor', 'buttonBg', 'buttonTextColor', 'savingsBadgeBg', 'savingsBadgeTextColor'].indexOf(String(key)) !== -1) {
         next.campaignTheme = 'none';
       }
       return next;
     });
   }
 
-  function updateUnit(index: number, patch: Partial<UnitConfig>) {
+  function updateUnit(index: number, patch: any) {
     setConfig((prev) => {
       const units = prev.units.map((u, i) => (i === index ? { ...u, ...patch } : u));
       if (patch.defaultSelected === true) {
@@ -677,43 +669,11 @@ export default function BundleCantidadEditor({
     });
   }
 
-  function updateComp(index: number, patch: Partial<ComplementaryProduct>) {
+  function updateComp(index: number, patch: any) {
     setConfig((prev) => {
       const complementary = prev.complementary.map((c, i) => (i === index ? { ...c, ...patch } : c));
       return { ...prev, complementary };
     });
-  }
-
-  function handleSelectComp(index: number, p: StoreProduct) {
-    let price = 0;
-    if (p.price) {
-      price = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
-    }
-    updateComp(index, {
-      productId: p.id,
-      productName: p.name,
-      productImage: p.image,
-      productPrice: price,
-    });
-  }
-
-  function handleClearComp(index: number) {
-    updateComp(index, {
-      productId: null,
-      productName: '',
-      productImage: null,
-      productPrice: 0,
-    });
-  }
-
-  function handleCheckAllByDefault(v: boolean) {
-    setConfig((prev) => ({
-      ...prev,
-      complementary: prev.complementary.map((c) => ({
-        ...c,
-        checkedByDefault: v && !!c.productId,
-      })),
-    }));
   }
 
   function applyPreset(slug: string) {
@@ -794,6 +754,359 @@ export default function BundleCantidadEditor({
     }
   };
 
+  const tabGeneral = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div>
+        <FieldLabel>Título del widget (opcional)</FieldLabel>
+        <TextInput value={config.title} onChange={(v) => update('title', v)} placeholder="Ej: Ofertas especiales por cantidad" maxLength={60} />
+        <FieldHelper>Dejá vacío para no mostrar título.</FieldHelper>
+      </div>
+
+      <div>
+        <FieldLabel>Cantidad de unidades / packs</FieldLabel>
+        <SelectField
+          value={String(config.maxUnits)}
+          onChange={(v) => handleMaxUnits(Number(v))}
+          options={[
+            { value: '2', label: 'Hasta 2 unidades' },
+            { value: '3', label: 'Hasta 3 unidades' },
+            { value: '4', label: 'Hasta 4 unidades' },
+            { value: '5', label: 'Hasta 5 unidades' },
+          ]}
+        />
+      </div>
+
+      <div>
+        <FieldLabel>Etiqueta de cada pack</FieldLabel>
+        <SelectField
+          value={config.labelStyle}
+          onChange={(v) => update('labelStyle', v)}
+          options={[
+            { value: 'lleva', label: 'Lleva #  (ej: Lleva 2)' },
+            { value: 'pack', label: 'Pack x#  (ej: Pack x2)' },
+            { value: 'unidades', label: '# unidades' },
+          ]}
+        />
+      </div>
+
+      <div>
+        <FieldLabel>Mostrar precio</FieldLabel>
+        <SelectField
+          value={config.priceMode}
+          onChange={(v) => update('priceMode', v as any)}
+          options={[
+            { value: 'total', label: 'Precio total (por cantidad)' },
+            { value: 'unit', label: 'Precio individual por unidad' },
+          ]}
+        />
+      </div>
+
+      <div>
+        <FieldLabel>Texto del botón</FieldLabel>
+        <TextInput value={config.buttonText} onChange={(v) => update('buttonText', v)} placeholder="Agregar al carrito" />
+        <FieldHelper>Dejá vacío para usar &quot;Agregar al carrito&quot;.</FieldHelper>
+      </div>
+
+      <CheckboxRow
+        checked={config.createTnPromotion}
+        onChange={(v) => update('createTnPromotion', v)}
+        label="Crear promoción automáticamente en Tiendanube"
+        helper="Si lo desactivás, Nevux solo muestra el widget visual. Deberás crear el descuento manualmente en Tiendanube para que el precio final coincida en el checkout."
+      />
+
+      <CheckboxRow
+        checked={config.redirectToCheckout}
+        onChange={(v) => update('redirectToCheckout', v)}
+        label="Redirigir a /comprar luego de añadir al carrito"
+        helper="Por defecto se intenta abrir el carrito lateral (mini-cart). Si tu tema no lo tiene, activá esta opción."
+      />
+    </div>
+  );
+
+  const tabUnidades = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {config.units.slice(0, config.maxUnits).map((unit, idx) => (
+        <div
+          key={idx}
+          style={{
+            background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 14,
+            padding: 16,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#111827' }}>
+              Unidad {unit.qty} {unit.defaultSelected ? <span style={{ fontSize: 11, color: '#10B981', marginLeft: 6 }}>• DEFAULT</span> : null}
+            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#6b7280', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={unit.hidden}
+                onChange={(e) => updateUnit(idx, { hidden: e.target.checked })}
+                style={{ accentColor: '#10B981' }}
+              />
+              Ocultar esta unidad
+            </label>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div>
+              <FieldLabel>Subtítulo</FieldLabel>
+              <TextInput
+                value={unit.subtitle}
+                onChange={(v) => updateUnit(idx, { subtitle: v })}
+                placeholder="Ej: Ahorrá 10%"
+              />
+            </div>
+
+            <div>
+              <FieldLabel>¿Tiene descuento? (%)</FieldLabel>
+              <NumberInput
+                value={unit.discountPercent}
+                onChange={(v) => updateUnit(idx, { discountPercent: v })}
+                min={0}
+                max={90}
+              />
+            </div>
+
+            <div>
+              <FieldLabel>Badges</FieldLabel>
+              <CheckboxRow checked={unit.badgeEnvioGratis} onChange={(v) => updateUnit(idx, { badgeEnvioGratis: v })} label="Envío gratis" />
+              <CheckboxRow checked={unit.badgeMasVendido} onChange={(v) => updateUnit(idx, { badgeMasVendido: v })} label="Más vendido" />
+              <CheckboxRow checked={unit.badgePersonalizado} onChange={(v) => updateUnit(idx, { badgePersonalizado: v })} label="Personalizado" />
+              {unit.badgePersonalizado ? (
+                <TextInput
+                  value={unit.badgePersonalizadoText}
+                  onChange={(v) => updateUnit(idx, { badgePersonalizadoText: v })}
+                  placeholder="RECOMENDADO"
+                />
+              ) : null}
+            </div>
+
+            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 12 }}>
+              <FieldLabel>Configuración extra</FieldLabel>
+              <CheckboxRow
+                checked={unit.defaultSelected}
+                onChange={(v) => updateUnit(idx, { defaultSelected: v })}
+                label="Marcar por defecto"
+              />
+              <CheckboxRow
+                checked={unit.hideComplementary1}
+                onChange={(v) => updateUnit(idx, { hideComplementary1: v })}
+                label="Ocultar producto complementario 1 en esta unidad"
+              />
+              <CheckboxRow
+                checked={unit.hideComplementary2}
+                onChange={(v) => updateUnit(idx, { hideComplementary2: v })}
+                label="Ocultar producto complementario 2 en esta unidad"
+              />
+              <CheckboxRow
+                checked={unit.giftEnabled}
+                onChange={(v) => updateUnit(idx, { giftEnabled: v })}
+                label="Agregar producto de regalo en esta unidad"
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const tabComplementarios = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div>
+        <FieldLabel>Productos complementarios</FieldLabel>
+        <FieldHelper>Se mostrarán debajo de cada tarjeta con un checkbox (máximo 2). Al tocar &quot;Seleccionar un producto&quot; verás todo tu catálogo con fotos y precio.</FieldHelper>
+      </div>
+
+      {[0, 1].map((i) => (
+        <div key={i} style={{ background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10, color: '#111827' }}>Producto {i + 1}</div>
+          <ProductPicker
+            storeId={storeId}
+            selectedId={config.complementary[i]?.productId || null}
+            selectedName={config.complementary[i]?.productName || ''}
+            selectedImage={config.complementary[i]?.productImage || null}
+            selectedPrice={config.complementary[i]?.productPrice || 0}
+            onSelect={(p) => {
+              const price = parseFloat(String(p.price || 0).replace(/[^\d.]/g, '')) || 0;
+              updateComp(i, {
+                productId: p.id,
+                productName: p.name,
+                productImage: p.image,
+                productPrice: price,
+              });
+            }}
+            onClear={() => updateComp(i, { productId: null, productName: '', productImage: null, productPrice: 0 })}
+          />
+        </div>
+      ))}
+
+      <CheckboxRow
+        checked={config.complementary.some((c) => c.checkedByDefault)}
+        onChange={(v) => {
+          setConfig((prev) => ({
+            ...prev,
+            complementary: prev.complementary.map((c) => ({ ...c, checkedByDefault: v && !!c.productId })),
+          }));
+        }}
+        label="Marcar como chequeado por defecto"
+      />
+
+      <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
+        <CheckboxRow
+          checked={config.showSavingsBadge}
+          onChange={(v) => update('showSavingsBadge', v)}
+          label="Mostrar badge de ahorro"
+          helper="Se mostrará debajo del subtítulo cuando haya ahorro por unidad."
+        />
+        {config.showSavingsBadge ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
+            <div>
+              <FieldLabel>Texto del badge</FieldLabel>
+              <TextInput
+                value={config.savingsBadgeText}
+                onChange={(v) => update('savingsBadgeText', v)}
+                placeholder="AHORRÁS $X"
+              />
+              <FieldHelper>Usá $X para mostrar el valor del ahorro / descuento.</FieldHelper>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <FieldLabel>Fondo del badge</FieldLabel>
+                <ColorPickerField value={config.savingsBadgeBg} onChange={(v) => update('savingsBadgeBg', v)} />
+              </div>
+              <div>
+                <FieldLabel>Color del texto</FieldLabel>
+                <ColorPickerField value={config.savingsBadgeTextColor} onChange={(v) => update('savingsBadgeTextColor', v)} />
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+
+  const tabUbicacion = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{
+        background: '#f0fdf4', borderLeft: '4px solid #10B981', borderRadius: 12, padding: 16,
+      }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#065f46', marginBottom: 8 }}>📍 Ubicación del Bundle</div>
+        <FieldHelper>
+          Elegí cómo se integra el widget con el botón nativo de compra de Tiendanube.
+        </FieldHelper>
+      </div>
+
+      <CheckboxRow
+        checked={config.replaceCartButton}
+        onChange={(v) => update('replaceCartButton', v)}
+        label="Reemplazar el botón de agregar al carrito de Tiendanube"
+        helper="El bundle toma el lugar del botón original. Ideal para forzar la elección de pack. Si lo desactivás, el bundle se inserta debajo del botón nativo (el formulario original permanece visible)."
+      />
+
+      {!config.replaceCartButton ? (
+        <div style={{
+          background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '12px 14px',
+          fontSize: 13, color: '#9a3412', lineHeight: 1.5,
+        }}>
+          ℹ️ El formulario original de Tiendanube permanecerá visible y funcional. El bundle se mostrará como bloque adicional.
+        </div>
+      ) : null}
+    </div>
+  );
+
+  const tabEstilos = (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
+        <div>
+          <FieldLabel>Color de fondo</FieldLabel>
+          <ColorPickerField value={config.bgColor} onChange={(v) => update('bgColor', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color de texto</FieldLabel>
+          <ColorPickerField value={config.textColor} onChange={(v) => update('textColor', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color de borde</FieldLabel>
+          <ColorPickerField value={config.borderColor} onChange={(v) => update('borderColor', v)} />
+        </div>
+        <div>
+          <FieldLabel>Color de acento / precio</FieldLabel>
+          <ColorPickerField value={config.accentColor} onChange={(v) => update('accentColor', v)} />
+        </div>
+        <div>
+          <FieldLabel>Borde del pack seleccionado</FieldLabel>
+          <ColorPickerField value={config.selectedBorderColor} onChange={(v) => update('selectedBorderColor', v)} />
+        </div>
+        <div>
+          <FieldLabel>Fondo del botón</FieldLabel>
+          <ColorPickerField value={config.buttonBg} onChange={(v) => update('buttonBg', v)} />
+        </div>
+        <div>
+          <FieldLabel>Texto del botón</FieldLabel>
+          <ColorPickerField value={config.buttonTextColor} onChange={(v) => update('buttonTextColor', v)} />
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <FieldLabel>Radio de bordes: {config.borderRadius}px</FieldLabel>
+        <input
+          type="range"
+          min={0}
+          max={24}
+          value={config.borderRadius}
+          onChange={(e) => update('borderRadius', Number(e.target.value))}
+          style={{ width: '100%', accentColor: '#10B981' }}
+        />
+      </div>
+    </div>
+  );
+
+  const tabFechas = (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+        <FieldHelper>Al elegir una campaña se aplican colores temáticos de alto impacto al bundle.</FieldHelper>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {CAMPAIGN_PRESETS.map((preset) => {
+          const isSelected = (config.campaignTheme || 'none') === preset.id;
+          return (
+            <div
+              key={preset.id}
+              onClick={() => applyPreset(preset.id)}
+              style={{
+                background: '#fff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12, padding: 16, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 16,
+              }}
+            >
+              <div style={{ fontSize: 24 }}>{preset.emoji}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {preset.label}
+                  {isSelected ? (
+                    <span style={{ background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981' }}>
+                      ACTIVO
+                    </span>
+                  ) : null}
+                </div>
+                <div style={{ fontSize: 13, opacity: 0.6, marginTop: 4 }}>{preset.desc}</div>
+              </div>
+              {preset.id !== 'none' && preset.themeColor ? (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   const tabs = [
     { id: 'general', label: 'General' },
     { id: 'unidades', label: 'Unidades' },
@@ -805,7 +1118,6 @@ export default function BundleCantidadEditor({
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
-      {/* HEADER */}
       <div style={{
         background: '#fff', borderBottom: '1px solid #e5e7eb',
         padding: '14px 20px', display: 'flex', alignItems: 'center',
@@ -822,7 +1134,6 @@ export default function BundleCantidadEditor({
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
-        {/* Scope chip */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#fff', borderRadius: 999, padding: '8px 14px',
@@ -835,14 +1146,14 @@ export default function BundleCantidadEditor({
           <div style={{
             background: '#FEF3C7', color: '#D97706', border: '1px solid #FCD34D',
             borderRadius: 999, padding: '8px 14px', display: 'inline-flex', alignItems: 'center', gap: 8,
-            marginBottom: 20, fontSize: 14, fontWeight 700,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
           }}>
             <span>🏷️ Widget para Categoría</span>
           </div>
         ) : (
           <div style={{
             background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, padding: '8px 14px',
-            display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, fontSize: 14, fontWeight 700, color: '#000',
+            display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000',
           }}>
             <span style={{ fontSize: 18 }}>🛍️</span>
             <span>NEVUX Widget de Producto</span>
@@ -872,7 +1183,6 @@ export default function BundleCantidadEditor({
             </span>
           </div>
 
-          {/* Tabs */}
           <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: 24, overflowX: 'auto' }}>
             {tabs.map((tab) => {
               const act = activeTab === tab.id;
@@ -895,345 +1205,12 @@ export default function BundleCantidadEditor({
           </div>
 
           <div>
-            {activeTab === 'general' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                <div>
-                  <FieldLabel>Título del widget (opcional)</FieldLabel>
-                  <TextInput value={config.title} onChange={(v) => update('title', v)} placeholder="Ej: Ofertas especiales por cantidad" maxLength={60} />
-                  <FieldHelper>Dejá vacío para no mostrar título.</FieldHelper>
-                </div>
-
-                <div>
-                  <FieldLabel>Cantidad de unidades / packs</FieldLabel>
-                  <SelectField
-                    value={String(config.maxUnits)}
-                    onChange={(v) => handleMaxUnits(Number(v))}
-                    options={[
-                      { value: '2', label: 'Hasta 2 unidades' },
-                      { value: '3', label: 'Hasta 3 unidades' },
-                      { value: '4', label: 'Hasta 4 unidades' },
-                      { value: '5', label: 'Hasta 5 unidades' },
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel>Etiqueta de cada pack</FieldLabel>
-                  <SelectField
-                    value={config.labelStyle}
-                    onChange={(v) => update('labelStyle', v)}
-                    options={[
-                      { value: 'lleva', label: 'Lleva #  (ej: Lleva 2)' },
-                      { value: 'pack', label: 'Pack x#  (ej: Pack x2)' },
-                      { value: 'unidades', label: '# unidades' },
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel>Mostrar precio</FieldLabel>
-                  <SelectField
-                    value={config.priceMode}
-                    onChange={(v) => update('priceMode', v)}
-                    options={[
-                      { value: 'total', label: 'Precio total (por cantidad)' },
-                      { value: 'unit', label: 'Precio individual por unidad' },
-                    ]}
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel>Texto del botón</FieldLabel>
-                  <TextInput value={config.buttonText} onChange={(v) => update('buttonText', v)} placeholder="Agregar al carrito" />
-                  <FieldHelper>Dejá vacío para usar &quot;Agregar al carrito&quot;.</FieldHelper>
-                </div>
-
-                <CheckboxRow
-                  checked={config.createTnPromotion}
-                  onChange={(v) => update('createTnPromotion', v)}
-                  label="Crear promoción automáticamente en Tiendanube"
-                  helper="Si lo desactivás, Nevux solo muestra el widget visual. Deberás crear el descuento manualmente en Tiendanube para que el precio final coincida en el checkout."
-                />
-
-                <CheckboxRow
-                  checked={config.redirectToCheckout}
-                  onChange={(v) => update('redirectToCheckout', v)}
-                  label="Redirigir a /comprar luego de añadir al carrito"
-                  helper="Por defecto se intenta abrir el carrito lateral (mini-cart). Si tu tema no lo tiene, activá esta opción."
-                />
-              </div>
-            )}
-
-            {activeTab === 'unidades' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {config.units.slice(0, config.maxUnits).map((unit, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 14,
-                      padding: 16,
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#111827' }}>
-                        Unidad {unit.qty} {unit.defaultSelected && <span style={{ fontSize: 11, color: '#10B981', marginLeft: 6 }}>• DEFAULT</span>}
-                      </div>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: '#6b7280', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={unit.hidden}
-                          onChange={(e) => updateUnit(idx, { hidden: e.target.checked })}
-                          style={{ accentColor: '#10B981' }}
-                        />
-                        Ocultar esta unidad
-                      </label>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      <div>
-                        <FieldLabel>Subtítulo</FieldLabel>
-                        <TextInput
-                          value={unit.subtitle}
-                          onChange={(v) => updateUnit(idx, { subtitle: v })}
-                          placeholder="Ej: Ahorrá 10%"
-                        />
-                      </div>
-
-                      <div>
-                        <FieldLabel>¿Tiene descuento? (%)</FieldLabel>
-                        <NumberInput
-                          value={unit.discountPercent}
-                          onChange={(v) => updateUnit(idx, { discountPercent: v })}
-                          min={0}
-                          max={90}
-                        />
-                      </div>
-
-                      <div>
-                        <FieldLabel>Badges</FieldLabel>
-                        <CheckboxRow checked={unit.badgeEnvioGratis} onChange={(v) => updateUnit(idx, { badgeEnvioGratis: v })} label="Envío gratis" />
-                        <CheckboxRow checked={unit.badgeMasVendido} onChange={(v) => updateUnit(idx, { badgeMasVendido: v })} label="Más vendido" />
-                        <CheckboxRow checked={unit.badgePersonalizado} onChange={(v) => updateUnit(idx, { badgePersonalizado: v })} label="Personalizado" />
-                        {unit.badgePersonalizado && (
-                          <TextInput
-                            value={unit.badgePersonalizadoText}
-                            onChange={(v) => updateUnit(idx, { badgePersonalizadoText: v })}
-                            placeholder="RECOMENDADO"
-                          />
-                        )}
-                      </div>
-
-                      <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 12 }}>
-                        <FieldLabel>Configuración extra</FieldLabel>
-                        <CheckboxRow
-                          checked={unit.defaultSelected}
-                          onChange={(v) => updateUnit(idx, { defaultSelected: v })}
-                          label="Marcar por defecto"
-                        />
-                        <CheckboxRow
-                          checked={unit.hideComplementary1}
-                          onChange={(v) => updateUnit(idx, { hideComplementary1: v })}
-                          label="Ocultar producto complementario 1 en esta unidad"
-                        />
-                        <CheckboxRow
-                          checked={unit.hideComplementary2}
-                          onChange={(v) => updateUnit(idx, { hideComplementary2: v })}
-                          label="Ocultar producto complementario 2 en esta unidad"
-                        />
-                        <CheckboxRow
-                          checked={unit.giftEnabled}
-                          onChange={(v) => updateUnit(idx, { giftEnabled: v })}
-                          label="Agregar producto de regalo en esta unidad"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === 'complementarios' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                <div>
-                  <FieldLabel>Productos complementarios</FieldLabel>
-                  <FieldHelper>Se mostrarán debajo de cada tarjeta con un checkbox (máximo 2). Al tocar &quot;Seleccionar un producto&quot; verás todo tu catálogo con fotos y precio.</FieldHelper>
-                </div>
-
-                {[0, 1].map((i) => (
-                  <div key={i} style={{ background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10, color: '#111827' }}>Producto {i + 1}</div>
-                    <ProductPicker
-                      storeId={storeId}
-                      selectedId={config.complementary[i]?.productId || null}
-                      selectedName={config.complementary[i]?.productName || ''}
-                      selectedImage={config.complementary[i]?.productImage || null}
-                      selectedPrice={config.complementary[i]?.productPrice || 0}
-                      onSelect={(p) => handleSelectComp(i, p)}
-                      onClear={() => handleClearComp(i)}
-                    />
-                  </div>
-                ))}
-
-                <CheckboxRow
-                  checked={config.complementary.some((c) => c.checkedByDefault)}
-                  onChange={handleCheckAllByDefault}
-                  label="Marcar como chequeado por defecto"
-                />
-
-                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
-                  <CheckboxRow
-                    checked={config.showSavingsBadge}
-                    onChange={(v) => update('showSavingsBadge', v)}
-                    label="Mostrar badge de ahorro"
-                    helper="Se mostrará debajo del subtítulo cuando haya ahorro por unidad."
-                  />
-                  {config.showSavingsBadge && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
-                      <div>
-                        <FieldLabel>Texto del badge</FieldLabel>
-                        <TextInput
-                          value={config.savingsBadgeText}
-                          onChange={(v) => update('savingsBadgeText', v)}
-                          placeholder="AHORRÁS $X"
-                        />
-                        <FieldHelper>Usá $X para mostrar el valor del ahorro / descuento.</FieldHelper>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                        <div>
-                          <FieldLabel>Fondo del badge</FieldLabel>
-                          <ColorPickerField value={config.savingsBadgeBg} onChange={(v) => update('savingsBadgeBg', v)} />
-                        </div>
-                        <div>
-                          <FieldLabel>Color del texto</FieldLabel>
-                          <ColorPickerField value={config.savingsBadgeTextColor} onChange={(v) => update('savingsBadgeTextColor', v)} />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'ubicacion' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div style={{
-                  background: '#f0fdf4', borderLeft: '4px solid #10B981', borderRadius: 12, padding: 16,
-                }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#065f46', marginBottom: 8 }}>📍 Ubicación del Bundle</div>
-                  <FieldHelper>
-                    Elegí cómo se integra el widget con el botón nativo de compra de Tiendanube.
-                  </FieldHelper>
-                </div>
-
-                <CheckboxRow
-                  checked={config.replaceCartButton}
-                  onChange={(v) => update('replaceCartButton', v)}
-                  label="Reemplazar el botón de agregar al carrito de Tiendanube"
-                  helper="El bundle toma el lugar del botón original. Ideal para forzar la elección de pack. Si lo desactivás, el bundle se inserta debajo del botón nativo (el formulario original permanece visible)."
-                />
-
-                {!config.replaceCartButton && (
-                  <div style={{
-                    background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '12px 14px',
-                    fontSize: 13, color: '#9a3412', lineHeight: 1.5,
-                  }}>
-                    ℹ️ El formulario original de Tiendanube permanecerá visible y funcional. El bundle se mostrará como bloque adicional.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'estilos' && (
-              <div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
-                  <div>
-                    <FieldLabel>Color de fondo</FieldLabel>
-                    <ColorPickerField value={config.bgColor} onChange={(v) => update('bgColor', v)} />
-                  </div>
-                  <div>
-                    <FieldLabel>Color de texto</FieldLabel>
-                    <ColorPickerField value={config.textColor} onChange={(v) => update('textColor', v)} />
-                  </div>
-                  <div>
-                    <FieldLabel>Color de borde</FieldLabel>
-                    <ColorPickerField value={config.borderColor} onChange={(v) => update('borderColor', v)} />
-                  </div>
-                  <div>
-                    <FieldLabel>Color de acento / precio</FieldLabel>
-                    <ColorPickerField value={config.accentColor} onChange={(v) => update('accentColor', v)} />
-                  </div>
-                  <div>
-                    <FieldLabel>Borde del pack seleccionado</FieldLabel>
-                    <ColorPickerField value={config.selectedBorderColor} onChange={(v) => update('selectedBorderColor', v)} />
-                  </div>
-                  <div>
-                    <FieldLabel>Fondo del botón</FieldLabel>
-                    <ColorPickerField value={config.buttonBg} onChange={(v) => update('buttonBg', v)} />
-                  </div>
-                  <div>
-                    <FieldLabel>Texto del botón</FieldLabel>
-                    <ColorPickerField value={config.buttonTextColor} onChange={(v) => update('buttonTextColor', v)} />
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                  <FieldLabel>Radio de bordes: {config.borderRadius}px</FieldLabel>
-                  <input
-                    type="range"
-                    min={0}
-                    max={24}
-                    value={config.borderRadius}
-                    onChange={(e) => update('borderRadius', Number(e.target.value))}
-                    style={{ width: '100%', accentColor: '#10B981' }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'fechas' && (
-              <div>
-                <div style={{ marginBottom: 20 }}>
-                  <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
-                  <FieldHelper>Al elegir una campaña se aplican colores temáticos de alto impacto al bundle.</FieldHelper>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {CAMPAIGN_PRESETS.map((preset) => {
-                    const isSelected = (config.campaignTheme || 'none') === preset.id;
-                    return (
-                      <div
-                        key={preset.id}
-                        onClick={() => applyPreset(preset.id)}
-                        style={{
-                          background: '#fff',
-                          border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
-                          borderRadius: 12, padding: 16, cursor: 'pointer',
-                          display: 'flex', alignItems: 'center', gap: 16,
-                        }}
-                      >
-                        <div style={{ fontSize: 24 }}>{preset.emoji}</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: '#000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            {preset.label}
-                            {isSelected && (
-                              <span style={{ background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981' }}>
-                                ACTIVO
-                              </span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: 13, opacity: 0.6, marginTop: 4 }}>{preset.desc}</div>
-                        </div>
-                        {preset.id !== 'none' && preset.themeColor && (
-                          <div style={{ display: 'flex', gap: 6 }}>
-                            <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
-                            <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {activeTab === 'general' ? tabGeneral : null}
+            {activeTab === 'unidades' ? tabUnidades : null}
+            {activeTab === 'complementarios' ? tabComplementarios : null}
+            {activeTab === 'ubicacion' ? tabUbicacion : null}
+            {activeTab === 'estilos' ? tabEstilos : null}
+            {activeTab === 'fechas' ? tabFechas : null}
           </div>
 
           <div style={{
@@ -1261,7 +1238,7 @@ export default function BundleCantidadEditor({
           <CentroAyuda />
         </div>
 
-        {error && (
+        {error ? (
           <div style={{
             position: 'fixed', bottom: 20, left: 16, right: 16, maxWidth: 600, margin: '0 auto',
             background: '#fee2e2', color: '#991b1b', padding: '12px 16px', borderRadius: 12,
@@ -1269,7 +1246,7 @@ export default function BundleCantidadEditor({
           }}>
             ⚠️ {error}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
