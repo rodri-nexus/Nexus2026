@@ -327,7 +327,7 @@ function SelectField({ value, onChange, options }: { value: string; onChange: (v
 }
 
 /* ═══════════════════════════════════════════
-   SELECTOR DE PRODUCTOS (lista completa)
+   SELECTOR DE PRODUCTOS
 ═══════════════════════════════════════════ */
 function ProductPicker({
   storeId,
@@ -684,6 +684,38 @@ export default function BundleCantidadEditor({
     });
   }
 
+  function handleSelectComp(index: number, p: StoreProduct) {
+    let price = 0;
+    if (p.price) {
+      price = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
+    }
+    updateComp(index, {
+      productId: p.id,
+      productName: p.name,
+      productImage: p.image,
+      productPrice: price,
+    });
+  }
+
+  function handleClearComp(index: number) {
+    updateComp(index, {
+      productId: null,
+      productName: '',
+      productImage: null,
+      productPrice: 0,
+    });
+  }
+
+  function handleCheckAllByDefault(v: boolean) {
+    setConfig((prev) => ({
+      ...prev,
+      complementary: prev.complementary.map((c) => ({
+        ...c,
+        checkedByDefault: v && !!c.productId,
+      })),
+    }));
+  }
+
   function applyPreset(slug: string) {
     if (slug === 'none') {
       setConfig((prev) => ({
@@ -802,7 +834,7 @@ export default function BundleCantidadEditor({
         <FieldLabel>Mostrar precio</FieldLabel>
         <SelectField
           value={config.priceMode}
-          onChange={(v) => update('priceMode', v as 'total' | 'unit')}
+          onChange={(v) => update('priceMode', v)}
           options={[
             { value: 'total', label: 'Precio total (por cantidad)' },
             { value: 'unit', label: 'Precio individual por unidad' },
@@ -936,31 +968,15 @@ export default function BundleCantidadEditor({
             selectedName={config.complementary[i]?.productName || ''}
             selectedImage={config.complementary[i]?.productImage || null}
             selectedPrice={config.complementary[i]?.productPrice || 0}
-            onSelect={(p) => {
-              let price = 0;
-              if (p.price) {
-                price = parseFloat(String(p.price).replace(/[^\d.]/g, '')) || 0;
-              }
-              updateComp(i, {
-                productId: p.id,
-                productName: p.name,
-                productImage: p.image,
-                productPrice: price,
-              });
-            }}
-            onClear={() => updateComp(i, { productId: null, productName: '', productImage: null, productPrice: 0 })}
+            onSelect={(p) => handleSelectComp(i, p)}
+            onClear={() => handleClearComp(i)}
           />
         </div>
       ))}
 
       <CheckboxRow
         checked={config.complementary.some((c) => c.checkedByDefault)}
-        onChange={(v) => {
-          setConfig((prev) => ({
-            ...prev,
-            complementary: prev.complementary.map((c) => ({ ...c, checkedByDefault: v && !!c.productId })),
-          }));
-        }}
+        onChange={handleCheckAllByDefault}
         label="Marcar como chequeado por defecto"
       />
 
@@ -1265,4 +1281,4 @@ export default function BundleCantidadEditor({
       </div>
     </div>
   );
-}
+                }
