@@ -28,7 +28,6 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const storeIdParam = searchParams.get("store_id");
-    const productIdParam = searchParams.get("product_id");
 
     if (!storeIdParam) {
       return corsResponse({ error: "Falta store_id" }, 400);
@@ -39,7 +38,41 @@ export async function GET(req: NextRequest) {
       return corsResponse({ error: "store_id inválido" }, 400);
     }
 
-    // 1. Obtener todos los widgets activos de la tienda (Generales, Categorías y Productos)
+    // 1. Obtener tienda activa para obtener access_token
+    const { data: storeRow } = await supabaseAdmin
+      .from("stores")
+      .select("access_token")
+      .eq("store_id", storeId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    // 2. Obtener categorías de Tiendanube para mapear ID -> Handle / Nombre
+    const categoryMetaMap: Record<string, { handle: string; name: string }> = {};
+    if (storeRow?.access_token) {
+      try {
+        const catRes = await fetch(`https://api.tiendanube.com/v1/${storeId}/categories`, {
+          headers: {
+            Authentication: `bearer ${storeRow.access_token}`,
+            "User-Agent": "Nevux (soportenevux@gmail.com)",
+          },
+        });
+        if (catRes.ok) {
+          const cats = await catRes.json();
+          if (Array.isArray(cats)) {
+            cats.forEach((c: any) => {
+              const cid = String(c.id);
+              const cHandle = typeof c.handle === "object" ? (c.handle.es || c.handle.pt || "") : String(c.handle || "");
+              const cName = typeof c.name === "object" ? (c.name.es || c.name.pt || "") : String(c.name || "");
+              categoryMetaMap[cid] = { handle: cHandle.toLowerCase(), name: cName.toLowerCase() };
+            });
+          }
+        }
+      } catch (eCat) {
+        console.error("[widget-render] Error mapeando categorias:", eCat);
+      }
+    }
+
+    // 3. Obtener todos los widgets activos de la tienda
     const { data: rawWidgets, error: widgetsErr } = await supabaseAdmin
       .from("widgets")
       .select("*")
@@ -51,9 +84,22 @@ export async function GET(req: NextRequest) {
       console.error("[WidgetRender] Error widgets:", widgetsErr);
     }
 
-    const allWidgets = rawWidgets || [];
+    // 4. Inyectar handle y name de categoría a los widgets correspondientes
+    const allWidgets = (rawWidgets || []).map((w) => {
+      if (w.target_type === "category" && w.target_category_id) {
+        const meta = categoryMetaMap[String(w.target_category_id)];
+        if (meta) {
+          return {
+            ...w,
+            category_handle: meta.handle,
+            category_name: meta.name,
+          };
+        }
+      }
+      return w;
+    });
 
-    // 2. Obtener configuración de Notificaciones de Compra (Social Proof) - Regla #29 Activo por defecto
+    // 5. Social Proof
     let socialProofData: Record<string, unknown> | null = null;
     try {
       const { data: spRow } = await supabaseAdmin
@@ -70,15 +116,10 @@ export async function GET(req: NextRequest) {
           recent_buyers: spRow.recent_buyers || [],
         };
       } else {
-        // Por defecto activo para todas las tiendas
         socialProofData = {
           is_active: true,
           user_disabled: false,
-          config: {
-            displayTime: 5,
-            delayBetween: 8,
-            position: "bottom-left",
-          },
+          config: { displayTime: 5, delayBetween: 8, position: "bottom-left" },
           recent_buyers: [],
         };
       }
@@ -86,7 +127,7 @@ export async function GET(req: NextRequest) {
       socialProofData = { is_active: true, user_disabled: false };
     }
 
-    // 3. Obtener configuración de Vendedor Virtual IA
+    // 6. Vendedor Virtual IA
     let virtualSalesmanData: Record<string, unknown> | null = null;
     try {
       const { data: vsRow } = await supabaseAdmin
@@ -97,14 +138,11 @@ export async function GET(req: NextRequest) {
         .maybeSingle();
 
       if (vsRow) {
-        virtualSalesmanData = {
-          is_active: true,
-          config: vsRow.config || {},
-        };
+        virtualSalesmanData = { is_active: true, config: vsRow.config || {} };
       }
     } catch {}
 
-    // 4. Obtener configuración de Búsqueda por Voz
+    // 7. Búsqueda por Voz
     let voiceSearchData: Record<string, unknown> | null = null;
     try {
       const { data: vsRow } = await supabaseAdmin
@@ -115,14 +153,10 @@ export async function GET(req: NextRequest) {
         .maybeSingle();
 
       if (vsRow) {
-        voiceSearchData = {
-          is_active: true,
-          config: vsRow.config || {},
-        };
+        voiceSearchData = { is_active: true, config: vsRow.config || {} };
       }
     } catch {}
 
-    // 5. Retornar payload unificado para la tienda
     return corsResponse({
       widgets: allWidgets,
       socialProof: socialProofData,
@@ -135,4 +169,4 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : "Error en render";
     return corsResponse({ error: message }, 500);
   }
-        }
+      }
