@@ -7008,8 +7008,8 @@ function renderProductosComplementarios(w) {
     nvxTrack(w.id, "impression");
   }
     }
-        /* ═══════════════════════════════════════════
-     RENDER: BUNDLE DE CANTIDAD (v205 — misma inyección que Bundle Promociones)
+          /* ═══════════════════════════════════════════
+     RENDER: BUNDLE DE CANTIDAD (v206 — precios + complementarios al carrito)
   ═══════════════════════════════════════════ */
   function renderBundleCantidad(w) {
     if (!w || !w.config) return;
@@ -7040,8 +7040,8 @@ function renderProductosComplementarios(w) {
     var savingsBadgeBg = cfg.savingsBadgeBg || "#059669";
     var savingsBadgeTextColor = cfg.savingsBadgeTextColor || "#ffffff";
     var maxUnits = cfg.maxUnits || 3;
+    var redirectCheckout = cfg.redirectToCheckout === true;
 
-    // Temas de campaña
     var THEMES = {
       "black-friday": { bg: "#111827", text: "#ffffff", border: "#374151", accent: "#F59E0B", btn: "#F59E0B", btnText: "#111827" },
       "hot-sale": { bg: "#0F172A", text: "#ffffff", border: "#1e293b", accent: "#EF4444", btn: "#EF4444", btnText: "#ffffff" },
@@ -7063,7 +7063,6 @@ function renderProductosComplementarios(w) {
       savingsBadgeBg = th.accent;
     }
 
-    // Precio del producto (reusa helpers del Bundle Promociones si existen)
     var unitPrice = 0;
     if (typeof window.nvxBundleGetProductPrice === "function") {
       unitPrice = window.nvxBundleGetProductPrice();
@@ -7076,7 +7075,6 @@ function renderProductosComplementarios(w) {
       }
     }
 
-    // Unidades visibles
     var rawUnits = (cfg.units && cfg.units.length) ? cfg.units : [
       { qty: 1, subtitle: "", discountPercent: 0, defaultSelected: true, badgeEnvioGratis: false, badgeMasVendido: false, badgePersonalizado: false, badgePersonalizadoText: "", hidden: false },
       { qty: 2, subtitle: "Ahorrá 10%", discountPercent: 10, defaultSelected: false, badgeEnvioGratis: false, badgeMasVendido: true, badgePersonalizado: false, badgePersonalizadoText: "", hidden: false },
@@ -7090,7 +7088,6 @@ function renderProductosComplementarios(w) {
     }
     if (visibleUnits.length === 0) return;
 
-    // Producto ID
     var prodId = "";
     if (window.LS && window.LS.product && window.LS.product.id) {
       prodId = String(window.LS.product.id);
@@ -7100,7 +7097,6 @@ function renderProductosComplementarios(w) {
       prodId = String(w.target_product_id);
     }
 
-    // Helpers
     var safeEsc = function (str) {
       if (!str) return "";
       return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -7121,7 +7117,6 @@ function renderProductosComplementarios(w) {
       return "$" + out;
     };
 
-    // CSS
     var styleId = "style-" + elementId;
     if (!document.getElementById(styleId)) {
       var styleEl = document.createElement("style");
@@ -7177,32 +7172,29 @@ function renderProductosComplementarios(w) {
         "#" + elementId + " .nvx-bc-comp-row {" +
           "display:flex !important;align-items:center !important;gap:8px !important;" +
           "margin-bottom:8px !important;cursor:pointer !important;" +
+        "}" +
+        "#" + elementId + " .nvx-bc-grand-total {" +
+          "font-size:13px !important;font-weight:700 !important;text-align:right !important;" +
+          "color:" + textColor + " !important;" +
+        "}" +
+        "#" + elementId + " .nvx-bc-grand-total strong {" +
+          "color:" + accentColor + " !important;font-weight:900 !important;" +
         "}";
       styleEl.appendChild(document.createTextNode(css));
       document.head.appendChild(styleEl);
     }
 
-    // HTML
+    var hasDefault = false;
+    for (var d = 0; d < visibleUnits.length; d++) {
+      if (visibleUnits[d].defaultSelected) { hasDefault = true; break; }
+    }
+
     var html = "";
     if (title) {
       html += '<div style="font-size:16px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + safeEsc(title) + '</div>';
     }
 
     html += '<div style="display:flex !important;flex-direction:column !important;gap:8px !important;width:100% !important;">';
-
-    for (var i = 0; i < visibleUnits.length; i++) {
-      var unit = visibleUnits[i];
-      var isSel = !!unit.defaultSelected || (i === 0 && !visibleUnits.some(function (x) { return x.defaultSelected; }));
-      // Recalcular isSel limpio
-      isSel = false;
-      if (unit.defaultSelected) isSel = true;
-    }
-
-    // Segunda pasada para defaultSelected
-    var hasDefault = false;
-    for (var d = 0; d < visibleUnits.length; d++) {
-      if (visibleUnits[d].defaultSelected) { hasDefault = true; break; }
-    }
 
     for (var i2 = 0; i2 < visibleUnits.length; i2++) {
       var un = visibleUnits[i2];
@@ -7244,7 +7236,6 @@ function renderProductosComplementarios(w) {
     }
     html += '</div>';
 
-    // Complementarios
     var comps = (cfg.complementary && cfg.complementary.length) ? cfg.complementary : [];
     var validComps = [];
     for (var c = 0; c < comps.length; c++) {
@@ -7256,18 +7247,23 @@ function renderProductosComplementarios(w) {
       for (var v = 0; v < validComps.length; v++) {
         var cp = validComps[v];
         var chk = cp.checkedByDefault ? " checked" : "";
+        var cpPrice = parseFloat(cp.productPrice || cp.price || 0) || 0;
         html += '<label class="nvx-bc-comp-row">';
-        html += '<input type="checkbox" class="nvx-bc-comp-chk" data-comp-id="' + cp.productId + '"' + chk + ' style="width:16px !important;height:16px !important;accent-color:' + accentColor + ' !important;" />';
+        html += '<input type="checkbox" class="nvx-bc-comp-chk" data-comp-id="' + cp.productId + '" data-comp-price="' + cpPrice + '"' + chk + ' style="width:16px !important;height:16px !important;accent-color:' + accentColor + ' !important;" onchange="if(window.nvxUpdateBundleCantidadTotal)window.nvxUpdateBundleCantidadTotal(\'' + elementId + '\');" />';
         if (cp.productImage) {
           html += '<img src="' + safeEsc(cp.productImage) + '" style="width:28px !important;height:28px !important;border-radius:4px !important;object-fit:cover !important;" />';
         }
-        html += '<span style="font-size:12px !important;font-weight:600 !important;color:' + textColor + ' !important;">' + safeEsc(cp.productName || "") + '</span>';
+        html += '<span style="font-size:12px !important;font-weight:600 !important;color:' + textColor + ' !important;flex:1 !important;">' + safeEsc(cp.productName || "") + '</span>';
+        if (cpPrice > 0) {
+          html += '<span style="font-size:12px !important;font-weight:800 !important;color:' + accentColor + ' !important;">' + fmtMoney(cpPrice) + '</span>';
+        }
         html += '</label>';
       }
       html += '</div>';
     }
 
-    html += '<button type="button" class="nvx-bc-btn" onclick="window.nvxSubmitBundleCantidad(this,\'' + elementId + '\',\'' + safeEsc(prodId) + '\',' + (cfg.redirectToCheckout ? "true" : "false") + ');">' + safeEsc(buttonText) + '</button>';
+    html += '<div class="nvx-bc-grand-total">Total: <strong>—</strong></div>';
+    html += '<button type="button" class="nvx-bc-btn" onclick="window.nvxSubmitBundleCantidad(this,\'' + elementId + '\',\'' + safeEsc(String(prodId)) + '\',' + (redirectCheckout ? "true" : "false") + ');">' + safeEsc(buttonText) + '</button>';
 
     var container = document.createElement("div");
     container.id = elementId;
@@ -7275,9 +7271,6 @@ function renderProductosComplementarios(w) {
     container.setAttribute("data-btn-text", buttonText);
     container.innerHTML = html;
 
-    // ═══════════════════════════════════════
-    // INYECCIÓN — MISMA LÓGICA QUE BUNDLE PROMOCIONES (Regla #36)
-    // ═══════════════════════════════════════
     var targetEl = null;
     var buySelectors = [
       "form[action*='/cart/add']",
@@ -7289,7 +7282,6 @@ function renderProductosComplementarios(w) {
       "#product_form",
       "form[action*='/cart']",
       "form[action*='/comprar']",
-      ".js-product-form",
       ".product-form"
     ];
     for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
@@ -7313,7 +7305,6 @@ function renderProductosComplementarios(w) {
       }
     }
 
-    // Sincronizar quantity input nativo
     var initQty = 1;
     for (var iq = 0; iq < visibleUnits.length; iq++) {
       if (visibleUnits[iq].defaultSelected) { initQty = visibleUnits[iq].qty || 1; break; }
@@ -7323,21 +7314,26 @@ function renderProductosComplementarios(w) {
       qtyInputs[qI].value = initQty;
     }
 
+    setTimeout(function () {
+      if (typeof window.nvxUpdateBundleCantidadTotal === "function") {
+        window.nvxUpdateBundleCantidadTotal(elementId);
+      }
+    }, 50);
+
     if (typeof nvxTrack === "function") {
       nvxTrack(w.id, "impression");
     }
   }
 
-  // Helpers globales ES5 (fuera del render, como Bundle Promociones)
   if (typeof window.nvxSelectBundleCantidad !== "function") {
     window.nvxSelectBundleCantidad = function (cardEl, elementId) {
       var root = document.getElementById(elementId);
       if (!root) return;
       var cards = root.getElementsByClassName("nvx-bc-card");
       for (var i = 0; i < cards.length; i++) {
-        cards[i].className = cards[i].className.replace(/\s*selected/g, "");
+        cards[i].className = String(cards[i].className).replace(/\s*selected/g, "");
       }
-      cardEl.className += " selected";
+      cardEl.className = cardEl.className + " selected";
 
       var qty = parseInt(cardEl.getAttribute("data-qty") || "1", 10) || 1;
       var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
@@ -7349,6 +7345,59 @@ function renderProductosComplementarios(w) {
           qtyInputs[j].dispatchEvent(evt);
         } catch (e) {}
       }
+
+      if (typeof window.nvxUpdateBundleCantidadTotal === "function") {
+        window.nvxUpdateBundleCantidadTotal(elementId);
+      }
+    };
+  }
+
+  if (typeof window.nvxUpdateBundleCantidadTotal !== "function") {
+    window.nvxUpdateBundleCantidadTotal = function (elementId) {
+      var root = document.getElementById(elementId);
+      if (!root) return;
+
+      var selected = root.querySelector(".nvx-bc-card.selected");
+      var packPrice = selected ? (parseFloat(selected.getAttribute("data-price") || "0") || 0) : 0;
+
+      var compTotal = 0;
+      var compChks = root.querySelectorAll(".nvx-bc-comp-chk");
+      for (var i = 0; i < compChks.length; i++) {
+        if (compChks[i].checked) {
+          compTotal += parseFloat(compChks[i].getAttribute("data-comp-price") || "0") || 0;
+        }
+      }
+
+      var grand = packPrice + compTotal;
+      var totalEl = root.querySelector(".nvx-bc-grand-total");
+      var btn = root.querySelector(".nvx-bc-btn");
+      var baseBtn = root.getAttribute("data-btn-text") || "Agregar al carrito";
+
+      function fmt(n) {
+        if (typeof window.nvxBundleFormatPrice === "function") return window.nvxBundleFormatPrice(n);
+        var x = Math.round(Number(n) || 0);
+        var s = String(x), out = "", c = 0;
+        for (var i = s.length - 1; i >= 0; i--) {
+          out = s.charAt(i) + out; c++;
+          if (c === 3 && i > 0) { out = "." + out; c = 0; }
+        }
+        return "$" + out;
+      }
+
+      if (totalEl) {
+        if (grand > 0) {
+          totalEl.innerHTML = "Total: <strong>" + fmt(grand) + "</strong>" + (compTotal > 0 ? ' <span style="opacity:0.7;font-size:11px;">(pack + extras)</span>' : "");
+        } else {
+          totalEl.innerHTML = "Total: <strong>—</strong>";
+        }
+      }
+      if (btn) {
+        if (grand > 0) {
+          btn.innerHTML = baseBtn + " · " + fmt(grand);
+        } else {
+          btn.innerHTML = baseBtn;
+        }
+      }
     };
   }
 
@@ -7357,73 +7406,107 @@ function renderProductosComplementarios(w) {
       var root = document.getElementById(elementId);
       if (!root) return;
 
-      var origText = btnEl.innerHTML;
+      var origText = btnEl.getAttribute("data-orig-text") || btnEl.innerHTML;
+      btnEl.setAttribute("data-orig-text", origText);
       btnEl.innerHTML = "Agregando...";
       btnEl.disabled = true;
 
       var selected = root.querySelector(".nvx-bc-card.selected");
       var qty = selected ? (parseInt(selected.getAttribute("data-qty") || "1", 10) || 1) : 1;
 
-      // Sync quantity inputs
       var qtyInputs = document.querySelectorAll('input.js-quantity-input, input[name="quantity"], input.quantity-input, #quantity, .js-prod-quantity');
       for (var j = 0; j < qtyInputs.length; j++) {
         qtyInputs[j].value = qty;
+        try {
+          var evt = document.createEvent("HTMLEvents");
+          evt.initEvent("change", true, true);
+          qtyInputs[j].dispatchEvent(evt);
+        } catch (e) {}
       }
 
-      // Complementarios marcados
       var compChks = root.querySelectorAll(".nvx-bc-comp-chk");
       var compIds = [];
       for (var c = 0; c < compChks.length; c++) {
         if (compChks[c].checked) {
           var cid = compChks[c].getAttribute("data-comp-id");
-          if (cid) compIds.push(cid);
+          if (cid) compIds.push(String(cid));
         }
       }
 
-      // NubeSDK
-      if (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function") {
-        try {
-          window.nube.send("cart:add", { product_id: prodId, quantity: qty });
-          for (var s = 0; s < compIds.length; s++) {
-            window.nube.send("cart:add", { product_id: compIds[s], quantity: 1 });
+      function restoreBtn() {
+        btnEl.innerHTML = origText;
+        btnEl.disabled = false;
+      }
+
+      function addViaNube(productId, quantity) {
+        return new Promise(function (resolve) {
+          try {
+            if (window.nube && typeof window.nube.send === "function") {
+              window.nube.send("cart:add", {
+                product_id: productId,
+                quantity: quantity
+              });
+              setTimeout(function () { resolve(true); }, 300);
+              return;
+            }
+          } catch (e1) {}
+          resolve(false);
+        });
+      }
+
+      function addViaComprar(productId, quantity) {
+        return new Promise(function (resolve) {
+          try {
+            var fd = new FormData();
+            fd.append("add_to_cart", productId);
+            fd.append("quantity", String(quantity));
+            fetch("/comprar/", {
+              method: "POST",
+              body: fd,
+              credentials: "include"
+            }).then(function () { resolve(true); }).catch(function () { resolve(false); });
+          } catch (e2) {
+            resolve(false);
           }
-          window.nube.send("cart:open");
-          btnEl.innerHTML = origText;
-          btnEl.disabled = false;
-          return;
-        } catch (eSdk) {}
+        });
       }
 
-      // Fallback: click botón nativo de Tiendanube (como Bundle Promociones)
-      var targetBtn = document.querySelector('form[action*="/cart/add"] [type="submit"], .js-add-to-cart-btn, .js-prod-submit-form, input.js-addtocart, #product_form [type="submit"], .js-addtocart');
-      if (targetBtn) {
-        // Asegurar quantity antes del click
-        for (var q2 = 0; q2 < qtyInputs.length; q2++) {
-          qtyInputs[q2].value = qty;
-        }
-        targetBtn.click();
-        setTimeout(function () {
-          btnEl.innerHTML = origText;
-          btnEl.disabled = false;
-        }, 1500);
+      var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
+
+      if (hasNube) {
+        addViaNube(prodId, qty).then(function () {
+          var chain = Promise.resolve();
+          for (var s = 0; s < compIds.length; s++) {
+            (function (id) {
+              chain = chain.then(function () { return addViaNube(id, 1); });
+            })(compIds[s]);
+          }
+          return chain;
+        }).then(function () {
+          try { window.nube.send("cart:open"); } catch (e3) {}
+          restoreBtn();
+        });
         return;
       }
 
-      // Fallback final: POST /comprar/
-      var formData = new FormData();
-      formData.append("add_to_cart", prodId);
-      formData.append("quantity", String(qty));
-      fetch("/comprar/", { method: "POST", body: formData, credentials: "include" })
-        .then(function () {
-          if (redirectCheckout) {
-            window.location.href = "/checkout/";
-          } else {
-            window.location.reload();
-          }
-        })
-        .catch(function () {
+      // Sin NubeSDK: POST secuencial del pack + cada complementario, luego reload
+      addViaComprar(prodId, qty).then(function () {
+        var chain = Promise.resolve();
+        for (var s2 = 0; s2 < compIds.length; s2++) {
+          (function (id) {
+            chain = chain.then(function () { return addViaComprar(id, 1); });
+          })(compIds[s2]);
+        }
+        return chain;
+      }).then(function () {
+        if (redirectCheckout) {
+          window.location.href = "/checkout/";
+        } else {
           window.location.reload();
-        });
+        }
+      }).catch(function () {
+        window.location.reload();
+      });
     };
-          }
+  }
 })(); 
