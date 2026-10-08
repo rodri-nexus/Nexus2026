@@ -1758,23 +1758,33 @@
 
         data.widgets.forEach(function (w) {
           try {
-            // 📦 5.1 FILTRO POR PRODUCTO ESPECÍFICO
+          // 📦 5.1 FILTRO POR PRODUCTO ESPECÍFICO (v204 ULTRA-INMUNE)
             if (w.target_type === "product") {
               var curProdId = null;
-              if (window.LS && window.LS.product && window.LS.product.id) {
-                curProdId = String(window.LS.product.id).trim();
+              if (typeof window !== "undefined" && window.LS) {
+                if (window.LS.product && window.LS.product.id) {
+                  curProdId = String(window.LS.product.id).trim();
+                } else if (window.LS.product_id) {
+                  curProdId = String(window.LS.product_id).trim();
+                }
               }
+              if (!curProdId) {
+                var pInput = document.querySelector("input[name='add_to_cart'], [data-product-id], form[action*='/cart'] input[type='hidden']");
+                if (pInput) {
+                  curProdId = String(pInput.getAttribute("data-product-id") || pInput.value || "").trim();
+                }
+              }
+
               var targetProdId = w.target_product_id
                 ? String(w.target_product_id).trim()
                 : w.config && w.config.product_id
                 ? String(w.config.product_id).trim()
                 : null;
 
-              if (!curProdId || !targetProdId || curProdId !== targetProdId) {
+              if (curProdId && targetProdId && curProdId !== targetProdId) {
                 return;
               }
-            }
-
+  }
             // 🏷️ 5.2 FILTRO POR CATEGORÍA
             if (w.target_type === "category") {
               var catId = w.target_category_id || (w.config && (w.config.category_id || w.config.target_category_id));
@@ -6998,15 +7008,11 @@ function renderProductosComplementarios(w) {
     nvxTrack(w.id, "impression");
   }
     }
-    /* ═══════════════════════════════════════════
-     RENDER: BUNDLE DE CANTIDAD (v203 ULTRA-RESILIENTE)
+      /* ═══════════════════════════════════════════
+     RENDER: BUNDLE DE CANTIDAD (v204 ULTRA-INMUNE)
   ═══════════════════════════════════════════ */
   function renderBundleCantidad(w) {
     if (!w || !w.config) return;
-
-    // Verificar si estamos en página de producto (por LS o por detectPageType)
-    var isProdPage = (typeof window !== "undefined" && window.LS && window.LS.product) || detectPageType() === "product";
-    if (!isProdPage) return;
 
     var cfg = w.config || {};
     var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
@@ -7014,31 +7020,52 @@ function renderProductosComplementarios(w) {
 
     if (document.getElementById(containerId)) return;
 
-    // Sistema de reintentos para encontrar el formulario en cualquier tema de Tiendanube
-    var retryCount = 0;
-    var findAndRender = function() {
-      var targetEl = document.querySelector("form[action*='/cart'], form[action*='/comprar'], .js-product-form, #product-form, form.product-form, .js-product-buy-container");
-      
-      if (!targetEl) {
-        var addBtn = document.querySelector("input[name='add_to_cart'], .js-addtocart, button[name='add'], .js-prod-submit");
-        if (addBtn) {
-          targetEl = addBtn.closest ? addBtn.closest("form") : addBtn.parentNode;
+    // Helper para parsear precios en pesos (Regla #33)
+    var parsePriceInPesos = function(raw) {
+      if (!raw) return 0;
+      if (typeof raw === "number") {
+        if (raw > 10000000) return raw / 100;
+        return raw;
+      }
+      var str = String(raw).replace(/[^\d]/g, "");
+      var num = parseInt(str, 10) || 0;
+      if (num > 10000000) return num / 100;
+      return num;
+    };
+
+    // Buscador universal de formulario de compra en Tiendanube
+    var findTargetForm = function() {
+      var el = document.querySelector("form[action*='/cart'], form[action*='/comprar'], .js-product-form, #product-form, form.product-form, .js-product-buy-container, .product-form, .product-buy, [data-store*='product-form']");
+      if (el) return el;
+
+      var btn = document.querySelector("input[name='add_to_cart'], .js-addtocart, button[name='add'], .js-prod-submit, .js-add-to-cart, [data-store*='add-to-cart'], button[type='submit']");
+      if (btn) {
+        if (btn.closest) {
+          var pForm = btn.closest("form");
+          if (pForm) return pForm;
         }
+        if (btn.parentNode) return btn.parentNode;
       }
 
-      if (!targetEl && retryCount < 10) {
+      return document.querySelector(".product-action, .js-product-actions, .product-details, .product-info");
+    };
+
+    var retryCount = 0;
+    var findAndRender = function() {
+      var targetEl = findTargetForm();
+
+      if (!targetEl && retryCount < 15) {
         retryCount++;
-        setTimeout(findAndRender, 300);
+        setTimeout(findAndRender, 200);
         return;
       }
 
       if (!targetEl || document.getElementById(containerId)) return;
 
-      // Extraer datos del producto actual desde Tiendanube LS
       var prodObj = (typeof window !== "undefined" && window.LS && window.LS.product) ? window.LS.product : {};
       var prodId = prodObj.id || (typeof window !== "undefined" && window.LS && window.LS.product_id) || w.target_product_id || "";
       var rawPrice = prodObj.price || prodObj.promotional_price || 0;
-      var basePrice = typeof rawPrice === "number" ? rawPrice : parseFloat(String(rawPrice).replace(/[^\d.]/g, "")) || 0;
+      var basePrice = parsePriceInPesos(rawPrice);
 
       var container = document.createElement("div");
       container.id = containerId;
@@ -7187,7 +7214,7 @@ function renderProductosComplementarios(w) {
         };
       }
 
-      // Lógica de compra
+      // Lógica de compra con NubeSDK + Fallback
       var buyBtn = document.getElementById(nsPrefix + "-bundle-buy-btn-" + w.id);
       if (buyBtn) {
         buyBtn.onclick = function() {
@@ -7250,5 +7277,5 @@ function renderProductosComplementarios(w) {
     };
 
     findAndRender();
-    }
+                          }
 })(); 
