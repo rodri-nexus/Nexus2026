@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS
+   TIPOS E INTERFACES (Regla #9 y #30 al inicio)
 ═══════════════════════════════════════════ */
+export type TabType = 'general' | 'estilos' | 'fechas';
+
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -23,17 +25,19 @@ interface ExistingWidget {
   is_active: boolean;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
 }
 
 interface CalculadoraAhorroEditorProps {
   widgetDefinition: WidgetDefinition;
   existingWidget: ExistingWidget | null;
-  targetType: 'product' | 'all';
+  targetType: 'product' | 'all' | 'category';
   productId: number | null;
+  categoryId?: string | number | null;
   storeId: string;
 }
 
-interface CalculadoraAhorroConfig {
+export interface CalculadoraAhorroConfig {
   badgeText: string;
   prefixText: string;
   exampleAmount: string;
@@ -43,11 +47,11 @@ interface CalculadoraAhorroConfig {
   borderColor: string;
   accentColor: string;
   campaignTheme?: string;
-  position?: string; // NUEVO v12
+  position?: string;
 }
 
 /* ═══════════════════════════════════════════
-   CONFIG POR DEFECTO (v12 con default below_price)
+   CONFIG POR DEFECTO Y PRESETS
 ═══════════════════════════════════════════ */
 const defaultConfig: CalculadoraAhorroConfig = {
   badgeText: 'AHORRO EXCLUSIVO',
@@ -59,30 +63,52 @@ const defaultConfig: CalculadoraAhorroConfig = {
   borderColor: '#10B981',
   accentColor: '#059669',
   campaignTheme: 'none',
-  position: 'below_price', // NUEVO v12
+  position: 'below_price',
+};
+
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro mate con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
+
+const PRESETS_DATA: Record<string, { bg: string; tx: string; bd: string; ac: string }> = {
+  'black-friday': { bg: '#111827', tx: '#ffffff', bd: '#F59E0B', ac: '#F59E0B' },
+  'hot-sale': { bg: '#0F172A', tx: '#ffffff', bd: '#EF4444', ac: '#EF4444' },
+  'cyber-monday': { bg: '#090D16', tx: '#ffffff', bd: '#3B82F6', ac: '#3B82F6' },
+  'navidad': { bg: '#064E3B', tx: '#ffffff', bd: '#EF4444', ac: '#EF4444' },
+  'san-valentin': { bg: '#831843', tx: '#ffffff', bd: '#F43F5E', ac: '#F43F5E' },
+  'dia-padre-madre': { bg: '#312E81', tx: '#ffffff', bd: '#10B981', ac: '#10B981' },
+  'liquidacion': { bg: '#7F1D1D', tx: '#ffffff', bd: '#FBBF24', ac: '#FBBF24' },
 };
 
 /* ═══════════════════════════════════════════
-   ICONOS
+   SUBCOMPONENTES Y CONTROLES VISUALES
 ═══════════════════════════════════════════ */
-const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
-    <line x1="2" y1="7" x2="22" y2="7"/>
-    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
-    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
-  </svg>
-);
+function IconStore() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+      <line x1="2" y1="7" x2="22" y2="7"/>
+      <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
+      <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
+    </svg>
+  );
+}
 
-const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-  </svg>
-);
+function IconInfo() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+  );
+}
 
-/* ═══════════════════════════════════════════
-   COMPONENTES REUTILIZABLES (Regla #9 + CamelCase #13)
-═══════════════════════════════════════════ */
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
@@ -139,12 +165,7 @@ function ColorPickerField({
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      width: '100%',
-    }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
       <div
         onClick={handleClick}
         style={{
@@ -178,9 +199,7 @@ function ToggleField({
   checked: boolean; onChange: (v: boolean) => void; label: string;
 }) {
   return (
-    <label style={{
-      display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-    }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
       <div
         onClick={() => onChange(!checked)}
         style={{
@@ -205,13 +224,98 @@ function ToggleField({
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
+   PREVIEW EN VIVO INTEGRADO (Regla #13 camelCase)
+═══════════════════════════════════════════ */
+function CalculadoraAhorroPreview({ config }: { config: CalculadoraAhorroConfig }) {
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1.5px solid #e5e7eb',
+        borderRadius: 14,
+        padding: 16,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+      }}
+    >
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+        VISTA PREVIA EN PRODUCTO
+      </div>
+
+      <div
+        style={{
+          background: config.bgColor,
+          borderRadius: 12,
+          border: `1.5px solid ${config.borderColor}`,
+          padding: '16px 18px',
+          color: config.textColor,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {config.badgeText && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 900,
+                letterSpacing: '0.05em',
+                color: config.accentColor,
+                textTransform: 'uppercase',
+              }}
+            >
+              {config.badgeText}
+            </span>
+          )}
+          <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>
+            {config.prefixText}{' '}
+            <span
+              style={{
+                fontSize: 16,
+                fontWeight: 900,
+                color: config.accentColor,
+                textDecoration: 'underline',
+              }}
+            >
+              {config.exampleAmount}
+            </span>{' '}
+            {config.suffixText}
+          </div>
+        </div>
+
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: '50%',
+            background: config.accentColor,
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 16,
+            fontWeight: 900,
+            flexShrink: 0,
+          }}
+        >
+          %
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL (Estándar v13/v22)
 ═══════════════════════════════════════════ */
 export default function CalculadoraAhorroEditor({
   widgetDefinition,
   existingWidget,
   targetType,
   productId,
+  categoryId = null,
   storeId,
 }: CalculadoraAhorroEditorProps) {
   const router = useRouter();
@@ -224,32 +328,33 @@ export default function CalculadoraAhorroEditor({
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'general' | 'estilos' | 'fechas'>('general');
+  const [activeTab, setActiveTab] = useState<TabType>('general');
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
+  const isCategory = targetType === 'category';
+  const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
   const update = <K extends keyof CalculadoraAhorroConfig>(key: K, value: CalculadoraAhorroConfig[K]) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    setConfig((prev) => {
+      const next = { ...prev, [key]: value };
+      // Regla #8: Si se cambia cualquier color, desactivar la campaña activa
+      if (['bgColor', 'textColor', 'borderColor', 'accentColor'].includes(key as string)) {
+        next.campaignTheme = 'none';
+      }
+      return next;
+    });
   };
 
   const applyPreset = (slug: string) => {
-    const PRESETS_DATA: Record<string, { bg: string; tx: string; bd: string; ac: string }> = {
-      'black-friday': { bg: '#111827', tx: '#ffffff', bd: '#F59E0B', ac: '#F59E0B' },
-      'hot-sale': { bg: '#0F172A', tx: '#ffffff', bd: '#EF4444', ac: '#EF4444' },
-      'cyber-monday': { bg: '#090D16', tx: '#ffffff', bd: '#3B82F6', ac: '#3B82F6' },
-      'navidad': { bg: '#064E3B', tx: '#ffffff', bd: '#EF4444', ac: '#EF4444' },
-      'san-valentin': { bg: '#831843', tx: '#ffffff', bd: '#F43F5E', ac: '#F43F5E' },
-      'dia-padre-madre': { bg: '#312E81', tx: '#ffffff', bd: '#10B981', ac: '#10B981' },
-      'liquidacion': { bg: '#7F1D1D', tx: '#ffffff', bd: '#FBBF24', ac: '#FBBF24' },
-    };
-
     if (slug === 'none') {
       setConfig((prev) => ({
         ...prev,
-        campaignTheme: slug,
-        ...defaultConfig,
+        campaignTheme: 'none',
+        bgColor: defaultConfig.bgColor,
+        textColor: defaultConfig.textColor,
+        borderColor: defaultConfig.borderColor,
+        accentColor: defaultConfig.accentColor,
       }));
     } else if (PRESETS_DATA[slug]) {
       const p = PRESETS_DATA[slug];
@@ -277,8 +382,12 @@ export default function CalculadoraAhorroEditor({
           widget_slug: widgetDefinition.slug,
           store_id: storeId,
           target_type: targetType,
-          target_product_id: productId,
-          config,
+          target_product_id: targetType === 'product' ? productId : null,
+          target_category_id: targetType === 'category' ? (categoryId ? String(categoryId) : null) : null,
+          config: {
+            ...config,
+            ...(targetType === 'category' && categoryId ? { category_id: String(categoryId) } : {})
+          },
           is_active: isActive,
         }),
       });
@@ -291,6 +400,9 @@ export default function CalculadoraAhorroEditor({
         params.set('created', widgetDefinition.slug);
         if (targetType === 'product' && productId) {
           params.set('product', String(productId));
+        }
+        if (targetType === 'category' && categoryId) {
+          params.set('category', String(categoryId));
         }
         router.push(`/widgets?${params.toString()}`);
       } else {
@@ -305,7 +417,7 @@ export default function CalculadoraAhorroEditor({
   /* ═══ TAB GENERAL ═══ */
   const tabGeneral = (
     <div>
-      {/* NUEVA v12: SELECTOR DE UBICACIÓN DINÁMICA ESPECTACULAR */}
+      {/* Ubicación del Widget */}
       <div style={{
         background: '#f0fdf4',
         borderLeft: '4px solid #10B981',
@@ -325,7 +437,7 @@ export default function CalculadoraAhorroEditor({
               borderRadius: 999,
               letterSpacing: '0.05em'
             }}>
-              ¡NUEVO!
+              DINÁMICA
             </span>
           </span>
         </div>
@@ -406,7 +518,7 @@ export default function CalculadoraAhorroEditor({
     </div>
   );
 
-  /* ═══ TAB ESTILOS (GRID AUTOADAPTABLE PREMIUM v12) ═══ */
+  /* ═══ TAB ESTILOS ═══ */
   const tabEstilos = (
     <div>
       <div style={{ 
@@ -436,17 +548,6 @@ export default function CalculadoraAhorroEditor({
   );
 
   /* ═══ TAB FECHAS ESPECIALES ═══ */
-  const CAMPAIGN_PRESETS = [
-    { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores configurados en la pestaña Estilos.' },
-    { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Colores oscuros con acentos dorados.', themeColor: '#111827', accentColor: '#F59E0B' },
-    { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Diseño deportivo con rojo de alta conversión.', themeColor: '#0F172A', accentColor: '#EF4444' },
-    { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético nocturno y azul neón.', themeColor: '#090D16', accentColor: '#3B82F6' },
-    { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino tradicional con acento rojo fiesta.', themeColor: '#064E3B', accentColor: '#EF4444' },
-    { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa intenso con rojo pasión romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-    { id: 'dia-padre-madre', label: 'Día de la Madre / Padre', emoji: '🎁', desc: 'Azul índigo con acento verde esmeralda alegre.', themeColor: '#312E81', accentColor: '#10B981' },
-    { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí de urgencia extrema con amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
-  ];
-
   const tabFechasEspeciales = (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -511,11 +612,9 @@ export default function CalculadoraAhorroEditor({
     { id: 'fechas', label: '🔥 Fechas Especiales' },
   ];
 
-  /* ═══ RENDER ═══ */
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
-
-      {/* HEADER CON LOGO OFICIAL */}
+      {/* HEADER OFICIAL */}
       <div style={{
         background: '#ffffff', borderBottom: '1px solid #e5e7eb',
         padding: '14px 20px', display: 'flex', alignItems: 'center',
@@ -534,10 +633,9 @@ export default function CalculadoraAhorroEditor({
         </div>
       </div>
 
-      {/* MAIN */}
+      {/* MAIN CONTAINER */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
-
-        {/* Scope chip */}
+        {/* Scope chip (Regla #40) */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#ffffff',
@@ -548,6 +646,15 @@ export default function CalculadoraAhorroEditor({
             <IconStore />
             <span>Todos los productos</span>
           </div>
+        ) : isCategory ? (
+          <div style={{
+            background: '#FEF3C7', color: '#D97706', border: '1px solid #FCD34D',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
+          }}>
+            <span>🏷️ Widget para Categoría</span>
+          </div>
         ) : (
           <div style={{
             background: '#ffffff', border: '1px solid #e5e7eb',
@@ -555,8 +662,8 @@ export default function CalculadoraAhorroEditor({
             display: 'inline-flex', alignItems: 'center', gap: 10,
             marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000000',
           }}>
-            <span style={{ fontSize: 18 }}>🛍</span>
-            <span>NEVUX Widget</span>
+            <span style={{ fontSize: 18 }}>🛍️</span>
+            <span>NEVUX Widget de Producto</span>
           </div>
         )}
 
@@ -569,77 +676,15 @@ export default function CalculadoraAhorroEditor({
           {widgetDefinition.name} ({scopeLabel})
         </h1>
 
-        {/* Contenedor principal */}
+        {/* Contenedor del Editor */}
         <div style={{
           background: '#ffffff', border: '1px solid #e5e7eb',
           borderRadius: 16, padding: 20, marginBottom: 20,
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
-          
-          {/* Live Preview del Widget de Calculadora de Ahorro */}
-          <div style={{ marginBottom: 24 }}>
-            <div
-              style={{
-                background: config.bgColor,
-                borderRadius: 12,
-                border: `1.5px solid ${config.borderColor}`,
-                padding: '16px 18px',
-                color: config.textColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {config.badgeText && (
-                  <span
-                    style={{
-                      fontSize: 9,
-                      fontWeight: 900,
-                      letterSpacing: '0.05em',
-                      color: config.accentColor,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {config.badgeText}
-                  </span>
-                )}
-                <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>
-                  {config.prefixText}{' '}
-                  <span
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 900,
-                      color: config.accentColor,
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    {config.exampleAmount}
-                  </span>{' '}
-                  {config.suffixText}
-                </div>
-              </div>
-
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: config.accentColor,
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 16,
-                  fontWeight: 900,
-                  flexShrink: 0,
-                }}
-              >
-                %
-              </div>
-            </div>
+          {/* Live Preview Integrado */}
+          <div style={{ marginBottom: 20 }}>
+            <CalculadoraAhorroPreview config={config} />
           </div>
 
           {/* Info box */}
@@ -651,7 +696,7 @@ export default function CalculadoraAhorroEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000000', lineHeight: 1.5 }}>
-              Este widget busca y resalta el ahorro real del cliente entre el precio de oferta y el tachado.
+              Este widget busca y resalta el ahorro real del cliente comparando el precio de oferta con el precio tachado.
             </span>
           </div>
 
@@ -666,7 +711,7 @@ export default function CalculadoraAhorroEditor({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as TabType)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
                     border: 'none',
@@ -684,7 +729,7 @@ export default function CalculadoraAhorroEditor({
             })}
           </div>
 
-          {/* Contenido del tab */}
+          {/* Contenido del Tab */}
           <div>
             {activeTab === 'general' && tabGeneral}
             {activeTab === 'estilos' && tabEstilos}
@@ -725,7 +770,7 @@ export default function CalculadoraAhorroEditor({
           </div>
         </div>
 
-        {/* CENTRO DE AYUDA OFICIAL UNIFICADO */}
+        {/* CENTRO DE AYUDA OFICIAL */}
         <div style={{ marginTop: 40, width: '100%' }}>
           <CentroAyuda />
         </div>
@@ -747,4 +792,4 @@ export default function CalculadoraAhorroEditor({
       </div>
     </div>
   );
-       }
+}
