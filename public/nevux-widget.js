@@ -4136,7 +4136,7 @@ function renderCuentaRegresiva(w) {
   }
 }
 /* ═══════════════════════════════════════════
-   WIDGET: INFORMACIÓN DE DESPACHO
+   WIDGET: INFORMACIÓN DE DESPACHO (v193 - COMPLETA Y SEGURA)
    ═══════════════════════════════════════════ */
 function renderInfoDespacho(w) {
   var elementId = "nvx-despacho-" + w.id;
@@ -4244,51 +4244,70 @@ function renderInfoDespacho(w) {
     }
   }
 
-  if (location === "cart") {
-    var cartSelectors = [
-      "[data-store='cart-form']",
-      ".js-cart-form",
-      "#cart-form",
-      ".cart-table",
-      ".cart-summary",
-      ".js-cart-container",
-      ".js-ajax-cart-container",
-      ".js-checkout-button",
-      "[data-store='cart-checkout-button']",
-      "form[action*='/cart']"
-    ];
+  // DETECCION DE ENTORNO SEGURO PARA LA INYECCIÓN
+  var isProductPage = typeof window !== "undefined" && window.LS && window.LS.product;
 
-    var cartTarget = null;
-    for (var c = 0; c < cartSelectors.length; c++) {
-      var found = document.querySelector(cartSelectors[c]);
-      if (found) {
-        cartTarget = found;
-        break;
+  if (!isProductPage && (w.target_type === 'category' || (window.LS && window.LS.category))) {
+    // 🎯 INYECCIÓN ULTRA-SEGURA ARRIBA DEL LISTADO DE CATEGORÍAS (Evita quedar oculto en el body)
+    var catTarget = document.querySelector('.js-product-grid, #product-grid, .product-grid, .product-list, h1.category-title, h1.header-title, .category-header, #products');
+    if (catTarget && catTarget.parentNode) {
+      catTarget.parentNode.insertBefore(container, catTarget);
+    } else {
+      var fallbackMain = document.querySelector("main, #content, .main-content, .js-main-content");
+      if (fallbackMain && fallbackMain.firstChild) {
+        fallbackMain.insertBefore(container, fallbackMain.firstChild);
+      } else if (document.body) {
+        document.body.insertBefore(container, document.body.firstChild);
       }
     }
-
-    if (cartTarget && cartTarget.parentNode) {
-      cartTarget.parentNode.insertBefore(container, cartTarget);
-    } else if (buyFormTarget && buyFormTarget.parentNode) {
-      buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
-    } else {
-      var mainCart = document.querySelector("main, #content, .main-content");
-      if (mainCart) mainCart.insertBefore(container, mainCart.firstChild);
-    }
-  } else if (location === "product_after") {
-    if (buyFormTarget && buyFormTarget.parentNode) {
-      buyFormTarget.parentNode.insertBefore(container, buyFormTarget.nextSibling);
-    } else {
-      var mainProdA = document.querySelector("main, #content, .main-content");
-      if (mainProdA) mainProdA.appendChild(container);
-    }
   } else {
-    // product_before (Default: justo arriba del botón/formulario de compra)
-    if (buyFormTarget && buyFormTarget.parentNode) {
-      buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
+    // 🎯 INYECCIÓN TRADICIONAL EN FICHA DE PRODUCTO O CARRITO
+    if (location === "cart") {
+      var cartSelectors = [
+        "[data-store='cart-form']",
+        ".js-cart-form",
+        "#cart-form",
+        ".cart-table",
+        ".cart-summary",
+        ".js-cart-container",
+        ".js-ajax-cart-container",
+        ".js-checkout-button",
+        "[data-store='cart-checkout-button']",
+        "form[action*='/cart']"
+      ];
+
+      var cartTarget = null;
+      for (var c = 0; c < cartSelectors.length; c++) {
+        var found = document.querySelector(cartSelectors[c]);
+        if (found) {
+          cartTarget = found;
+          break;
+        }
+      }
+
+      if (cartTarget && cartTarget.parentNode) {
+        cartTarget.parentNode.insertBefore(container, cartTarget);
+      } else if (buyFormTarget && buyFormTarget.parentNode) {
+        buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
+      } else {
+        var mainCart = document.querySelector("main, #content, .main-content");
+        if (mainCart) mainCart.insertBefore(container, mainCart.firstChild);
+      }
+    } else if (location === "product_after") {
+      if (buyFormTarget && buyFormTarget.parentNode) {
+        buyFormTarget.parentNode.insertBefore(container, buyFormTarget.nextSibling);
+      } else {
+        var mainProdA = document.querySelector("main, #content, .main-content");
+        if (mainProdA) mainProdA.appendChild(container);
+      }
     } else {
-      var mainProdB = document.querySelector("main, #content, .main-content");
-      if (mainProdB) mainProdB.insertBefore(container, mainProdB.firstChild);
+      // product_before (Default: justo arriba del botón/formulario de compra)
+      if (buyFormTarget && buyFormTarget.parentNode) {
+        buyFormTarget.parentNode.insertBefore(container, buyFormTarget);
+      } else {
+        var mainProdB = document.querySelector("main, #content, .main-content");
+        if (mainProdB) mainProdB.insertBefore(container, mainProdB.firstChild);
+      }
     }
   }
 
@@ -4332,7 +4351,7 @@ function renderInfoDespacho(w) {
   if (typeof nvxTrack === "function") {
     nvxTrack(w.id, "impression");
   }
-      }
+    }
 /* ═══════════════════════════════════════════
    WIDGET: URGENCIA DE STOCK
    ═══════════════════════════════════════════ */
