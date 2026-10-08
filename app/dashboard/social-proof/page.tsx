@@ -1,4 +1,3 @@
-// app/dashboard/social-proof/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -307,7 +306,7 @@ export default function SocialProofPage() {
         const data = await res.json();
         if (data.settings) {
           setConfig({
-            is_active: data.settings.is_active ?? false,
+            is_active: Boolean(data.settings.is_active),
             position: data.settings.position || "bottom-left",
             display_duration: Number(data.settings.display_duration) || 5,
             delay_between: Number(data.settings.delay_between) || 8,
@@ -809,4 +808,4 @@ export default function SocialProofPage() {
       </main>
     </div>
   );
-  }
+}
