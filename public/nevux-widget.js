@@ -1811,6 +1811,7 @@
             if (w.widget_slug === "barra-cuotas") renderBarraCuotas(w);
             if (w.widget_slug === "productos-complementarios") renderProductosComplementarios(w);
             if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
+            if (w.widget_slug === "slider-videos") renderSliderVideos(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -7511,6 +7512,233 @@ function renderProductosComplementarios(w) {
       }).catch(function () {
         window.location.reload();
       });
+    };
+        }
+  /* ═══════════════════════════════════════════
+     RENDER: SLIDER DE VIDEOS (v208)
+  ═══════════════════════════════════════════ */
+  function renderSliderVideos(w) {
+    if (!w || !w.config) return;
+
+    var elementId = "nvx-slider-videos-" + w.id;
+    if (document.getElementById(elementId)) return;
+
+    var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+    if (currentPage !== "product") return;
+
+    var cfg = w.config || {};
+    var videos = cfg.videos || [];
+    if (!videos || videos.length === 0) return;
+
+    var title = cfg.title || "";
+    var subtitle = cfg.subtitle || "";
+    var displayFormat = cfg.displayFormat || "slider";
+    var position = cfg.position || "before-cart";
+    var autoplay = cfg.autoplay || "muted";
+    var bgColor = cfg.bgColor || "#ffffff";
+    var textColor = cfg.textColor || "#111827";
+    var accentColor = cfg.accentColor || "#10B981";
+    var titleAlign = cfg.titleAlign || "center";
+    var ctaText = cfg.ctaText || "Comprar ahora";
+    var ctaBgColor = cfg.ctaBgColor || "#111827";
+    var ctaTextColor = cfg.ctaTextColor || "#ffffff";
+    var borderRadius = (cfg.borderRadius || 16) + "px";
+
+    var safeEsc = function (str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    };
+
+    var styleId = "style-" + elementId;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.type = "text/css";
+      var css =
+        "#" + elementId + " {" +
+          "background:" + bgColor + " !important;" +
+          "border-radius:" + borderRadius + " !important;" +
+          "padding:16px !important;" +
+          "color:" + textColor + " !important;" +
+          "box-sizing:border-box !important;" +
+          "margin:16px 0 !important;" +
+          "width:100% !important;" +
+          "font-family:system-ui,-apple-system,sans-serif !important;" +
+        "}" +
+        "#" + elementId + " .nvx-sv-scroll {" +
+          "display:flex !important;" +
+          "gap:12px !important;" +
+          "overflow-x:auto !important;" +
+          "padding-bottom:8px !important;" +
+          "-webkit-overflow-scrolling:touch !important;" +
+          "scrollbar-width:none !important;" +
+        "}" +
+        "#" + elementId + " .nvx-sv-scroll::-webkit-scrollbar { display:none !important; }" +
+        "#" + elementId + " .nvx-sv-card {" +
+          "position:relative !important;" +
+          "width:140px !important;" +
+          "height:230px !important;" +
+          "border-radius:12px !important;" +
+          "overflow:hidden !important;" +
+          "flex-shrink:0 !important;" +
+          "background:#000000 !important;" +
+          "cursor:pointer !important;" +
+          "box-shadow:0 4px 10px rgba(0,0,0,0.1) !important;" +
+        "}" +
+        "#" + elementId + " .nvx-sv-circle-card {" +
+          "display:flex !important;" +
+          "flex-direction:column !important;" +
+          "align-items:center !important;" +
+          "gap:6px !important;" +
+          "flex-shrink:0 !important;" +
+          "cursor:pointer !important;" +
+        "}" +
+        "#" + elementId + " .nvx-sv-circle-ring {" +
+          "width:68px !important;" +
+          "height:68px !important;" +
+          "border-radius:50% !important;" +
+          "padding:3px !important;" +
+          "background:linear-gradient(45deg, " + accentColor + ", #F59E0B) !important;" +
+          "display:flex !important;" +
+          "align-items:center !important;" +
+          "justify-content:center !important;" +
+          "box-sizing:border-box !important;" +
+        "}" +
+        "#" + elementId + " .nvx-sv-circle-img {" +
+          "width:100% !important;" +
+          "height:100% !important;" +
+          "border-radius:50% !important;" +
+          "object-fit:cover !important;" +
+        "}";
+      styleEl.appendChild(document.createTextNode(css));
+      document.head.appendChild(styleEl);
+    }
+
+    var html = "";
+    if (title) {
+      html += '<div style="font-size:16px !important;font-weight:800 !important;text-align:' + titleAlign + ' !important;margin-bottom:4px !important;color:' + textColor + ' !important;">' + safeEsc(title) + '</div>';
+    }
+    if (subtitle) {
+      html += '<div style="font-size:12px !important;opacity:0.8 !important;text-align:' + titleAlign + ' !important;margin-bottom:14px !important;color:' + textColor + ' !important;">' + safeEsc(subtitle) + '</div>';
+    }
+
+    html += '<div class="nvx-sv-scroll">';
+
+    for (var i = 0; i < videos.length; i++) {
+      var v = videos[i];
+      var vUrl = safeEsc(v.url || "");
+      var vTitle = safeEsc(v.title || "Video");
+
+      if (displayFormat === "circles") {
+        html += '<div class="nvx-sv-circle-card" onclick="window.nvxOpenVideoModal(\'' + vUrl + '\',\'' + vTitle + '\',\'' + safeEsc(ctaText) + '\',\'' + safeEsc(ctaBgColor) + '\',\'' + safeEsc(ctaTextColor) + '\');">';
+        html += '<div class="nvx-sv-circle-ring">';
+        html += '<video src="' + vUrl + '" class="nvx-sv-circle-img" muted playsinline></video>';
+        html += '</div>';
+        html += '<span style="font-size:11px !important;font-weight:700 !important;color:' + textColor + ' !important;max-width:68px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + vTitle + '</span>';
+        html += '</div>';
+      } else {
+        var autoMuted = autoplay === "muted" || autoplay === "sound" ? " autoplay muted" : "";
+        html += '<div class="nvx-sv-card" onclick="window.nvxOpenVideoModal(\'' + vUrl + '\',\'' + vTitle + '\',\'' + safeEsc(ctaText) + '\',\'' + safeEsc(ctaBgColor) + '\',\'' + safeEsc(ctaTextColor) + '\');">';
+        html += '<video src="' + vUrl + '" style="width:100% !important;height:100% !important;object-fit:cover !important;"' + autoMuted + ' loop playsinline></video>';
+        html += '<div style="position:absolute !important;bottom:0 !important;left:0 !important;right:0 !important;padding:10px !important;background:linear-gradient(transparent, rgba(0,0,0,0.85)) !important;display:flex !important;flex-direction:column !important;gap:6px !important;">';
+        html += '<span style="font-size:11px !important;color:#ffffff !important;font-weight:700 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + vTitle + '</span>';
+        if (ctaText) {
+          html += '<div style="background:' + ctaBgColor + ' !important;color:' + ctaTextColor + ' !important;border-radius:6px !important;padding:6px !important;font-size:10px !important;font-weight:800 !important;text-align:center !important;">' + safeEsc(ctaText) + '</div>';
+        }
+        html += '</div>';
+        html += '</div>';
+      }
+    }
+
+    html += '</div>';
+
+    var container = document.createElement("div");
+    container.id = elementId;
+    container.className = "nvx-widget nvx-slider-videos-wrapper";
+    container.innerHTML = html;
+
+    var targetEl = null;
+    if (position === "after-description") {
+      var descSelectors = [".js-product-description", ".product-description", "#description", ".description", ".product-details"];
+      for (var dIdx = 0; dIdx < descSelectors.length; dIdx++) {
+        var dEl = document.querySelector(descSelectors[dIdx]);
+        if (dEl) { targetEl = dEl; break; }
+      }
+    }
+
+    if (!targetEl) {
+      var buySelectors = [
+        "form[action*='/cart/add']",
+        "form.js-product-form",
+        ".js-product-buy-container",
+        ".product-buy-container",
+        "form.js-product-buyform",
+        ".js-add-to-cart-btn",
+        "#product_form",
+        "form[action*='/cart']",
+        "form[action*='/comprar']",
+        ".product-form"
+      ];
+      for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
+        var bEl = document.querySelector(buySelectors[sIdx]);
+        if (bEl) { targetEl = bEl; break; }
+      }
+    }
+
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    } else {
+      var main = document.querySelector("main, #content, .main-content, .js-product-container, .product-container, #single-product, .product");
+      if (main) {
+        main.appendChild(container);
+      } else if (document.body) {
+        document.body.appendChild(container);
+      }
+    }
+
+    if (typeof nvxTrack === "function") {
+      nvxTrack(w.id, "impression");
+    }
+  }
+
+  if (typeof window.nvxOpenVideoModal !== "function") {
+    window.nvxOpenVideoModal = function (url, title, ctaText, ctaBg, ctaColor) {
+      var modalId = "nvx-video-modal-overlay";
+      var existing = document.getElementById(modalId);
+      if (existing) existing.remove();
+
+      var overlay = document.createElement("div");
+      overlay.id = modalId;
+      overlay.style.cssText = "position:fixed !important;top:0 !important;left:0 !important;width:100vw !important;height:100vh !important;background:rgba(0,0,0,0.85) !important;z-index:999999 !important;display:flex !important;align-items:center !important;justify-content:center !important;padding:16px !important;box-sizing:border-box !important;";
+
+      var content = "";
+      content += '<div style="position:relative !important;width:100% !important;max-width:380px !important;height:80vh !important;max-height:680px !important;background:#000000 !important;border-radius:16px !important;overflow:hidden !important;display:flex !important;flex-direction:column !important;box-shadow:0 10px 30px rgba(0,0,0,0.5) !important;">';
+      content += '<button type="button" onclick="document.getElementById(\'' + modalId + '\').remove();" style="position:absolute !important;top:12px !important;right:12px !important;z-index:10 !important;background:rgba(0,0,0,0.6) !important;color:#fff !important;border:none !important;width:32px !important;height:32px !important;border-radius:50% !important;font-size:16px !important;font-weight:800 !important;cursor:pointer !important;display:flex !important;align-items:center !important;justify-content:center !important;">✕</button>';
+      content += '<video src="' + url + '" style="width:100% !important;height:100% !important;object-fit:cover !important;" autoplay controls playsinline></video>';
+      if (ctaText) {
+        content += '<div style="position:absolute !important;bottom:16px !important;left:16px !important;right:16px !important;z-index:10 !important;">';
+        content += '<button type="button" onclick="window.nvxSubmitVideoCta();" style="width:100% !important;background:' + (ctaBg || "#111827") + ' !important;color:' + (ctaColor || "#ffffff") + ' !important;border:none !important;border-radius:999px !important;padding:14px !important;font-size:15px !important;font-weight:800 !important;cursor:pointer !important;box-shadow:0 4px 12px rgba(0,0,0,0.3) !important;">' + ctaText + '</button>';
+        content += '</div>';
+      }
+      content += '</div>';
+
+      overlay.innerHTML = content;
+      document.body.appendChild(overlay);
+    };
+  }
+
+  if (typeof window.nvxSubmitVideoCta !== "function") {
+    window.nvxSubmitVideoCta = function () {
+      var modal = document.getElementById("nvx-video-modal-overlay");
+      if (modal) modal.remove();
+
+      var buyBtn = document.querySelector("button.js-add-to-cart-btn, form[action*='/cart/add'] button[type='submit'], .js-product-buy-container button, .product-buy-container button, #add-to-cart-button");
+      if (buyBtn) {
+        buyBtn.click();
+      } else {
+        var form = document.querySelector("form[action*='/cart/add'], form.js-product-form");
+        if (form) form.submit();
+      }
     };
         }
 })(); 
