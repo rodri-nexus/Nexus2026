@@ -8,8 +8,6 @@ import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 /* ═══════════════════════════════════════════
    TIPOS E INTERFACES (Regla #9 al inicio)
 ═══════════════════════════════════════════ */
-export type TabType = 'general' | 'unidades' | 'complementarios' | 'ubicacion' | 'estilos' | 'fechas';
-
 interface WidgetDefinition {
   id: string;
   slug: string;
@@ -71,7 +69,7 @@ export interface BundleCantidadConfig {
   title: string;
   maxUnits: number;
   labelStyle: string;
-  priceMode: 'total' | 'unit';
+  priceMode: string;
   buttonText: string;
   replaceCartButton: boolean;
   createTnPromotion: boolean;
@@ -155,7 +153,7 @@ const CAMPAIGN_PRESETS = [
   { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí + amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
 ];
 
-const PRESETS_DATA: Record<string, Partial<BundleCantidadConfig>> = {
+const PRESETS_DATA: Record<string, any> = {
   'black-friday': { bgColor: '#111827', textColor: '#ffffff', borderColor: '#374151', accentColor: '#F59E0B', selectedBorderColor: '#F59E0B', buttonBg: '#F59E0B', buttonTextColor: '#111827', savingsBadgeBg: '#F59E0B', savingsBadgeTextColor: '#111827' },
   'hot-sale': { bgColor: '#0F172A', textColor: '#ffffff', borderColor: '#1e293b', accentColor: '#EF4444', selectedBorderColor: '#EF4444', buttonBg: '#EF4444', buttonTextColor: '#ffffff', savingsBadgeBg: '#EF4444', savingsBadgeTextColor: '#ffffff' },
   'cyber-monday': { bgColor: '#090D16', textColor: '#ffffff', borderColor: '#1e3a5f', accentColor: '#3B82F6', selectedBorderColor: '#3B82F6', buttonBg: '#3B82F6', buttonTextColor: '#ffffff', savingsBadgeBg: '#3B82F6', savingsBadgeTextColor: '#ffffff' },
@@ -650,17 +648,17 @@ export default function BundleCantidadEditor({
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('general');
+  const [activeTab, setActiveTab] = useState('general');
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
   const isCategory = targetType === 'category';
   const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
-  function update(key: keyof BundleCantidadConfig, value: any) {
-    setConfig((prev) => {
+  function update(key: string, value: any) {
+    setConfig((prev: any) => {
       const next = { ...prev, [key]: value };
-      if (['bgColor', 'textColor', 'borderColor', 'accentColor', 'selectedBorderColor', 'buttonBg', 'buttonTextColor', 'savingsBadgeBg', 'savingsBadgeTextColor'].includes(key as string)) {
+      if (['bgColor', 'textColor', 'borderColor', 'accentColor', 'selectedBorderColor', 'buttonBg', 'buttonTextColor', 'savingsBadgeBg', 'savingsBadgeTextColor'].includes(key)) {
         next.campaignTheme = 'none';
       }
       return next;
@@ -796,7 +794,7 @@ export default function BundleCantidadEditor({
     }
   };
 
-  const tabs: Array<{ id: TabType; label: string }> = [
+  const tabs = [
     { id: 'general', label: 'General' },
     { id: 'unidades', label: 'Unidades' },
     { id: 'complementarios', label: 'Extras' },
