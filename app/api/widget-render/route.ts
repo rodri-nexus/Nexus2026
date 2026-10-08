@@ -99,32 +99,37 @@ export async function GET(req: NextRequest) {
       return w;
     });
 
-    // 5. Social Proof
+    // 5. Social Proof (VERIFICACIÓN DOBLE BLINDADA)
     let socialProofData: Record<string, unknown> | null = null;
     try {
+      const spWidget = (rawWidgets || []).find((w) => w.widget_slug === "social-proof");
+      
       const { data: spRow } = await supabaseAdmin
         .from("social_proof_config")
         .select("*")
         .eq("store_id", storeId)
         .maybeSingle();
 
-      if (spRow) {
-        socialProofData = {
-          is_active: spRow.is_active !== false && !spRow.user_disabled,
-          user_disabled: !!spRow.user_disabled,
-          config: spRow.config || {},
-          recent_buyers: spRow.recent_buyers || [],
-        };
-      } else {
-        socialProofData = {
-          is_active: true,
-          user_disabled: false,
-          config: { displayTime: 5, delayBetween: 8, position: "bottom-left" },
-          recent_buyers: [],
-        };
-      }
-    } catch {
-      socialProofData = { is_active: true, user_disabled: false };
+      // Evaluar si fue desactivado manualmente en CUALQUIERA de las dos fuentes
+      const isDisabledInWidget = spWidget ? spWidget.is_active === false : false;
+      const isDisabledInConfig = spRow ? (spRow.is_active === false || spRow.user_disabled === true) : false;
+
+      const isSocialProofActive = !isDisabledInWidget && !isDisabledInConfig;
+
+      const mergedConfig = {
+        ...(spRow?.config || {}),
+        ...(spWidget?.config || {}),
+      };
+
+      socialProofData = {
+        is_active: isSocialProofActive,
+        user_disabled: !isSocialProofActive,
+        config: mergedConfig,
+        recent_buyers: spRow?.recent_buyers || [],
+      };
+    } catch (eSp) {
+      console.error("[widget-render] Error obteniendo social proof:", eSp);
+      socialProofData = { is_active: false, user_disabled: true };
     }
 
     // 6. Vendedor Virtual IA
@@ -169,4 +174,4 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : "Error en render";
     return corsResponse({ error: message }, 500);
   }
-      }
+                                     }
