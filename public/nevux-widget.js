@@ -1613,7 +1613,7 @@
     "&_t=" + Date.now();
 
         /* ═══════════════════════════════════════════
-     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (v194 - ES5 STRICT)
+     HELPER: COINCIDENCIA DE CATEGORÍA ULTRA-INMUNE (v195 - ES5 STRICT)
   ═══════════════════════════════════════════ */
   var checkCategoryMatch = function (targetCatId, targetHandle, targetName) {
     if (!targetCatId) return false;
@@ -1648,7 +1648,8 @@
             if (!c) continue;
             if (typeof c === "object") {
               if (c.id != null && String(c.id).trim().toLowerCase() === targetStr) return true;
-              if (c.name && String(c.name).trim().toLowerCase() === targetStr) return true;
+              if (c.handle && String(c.handle).trim().toLowerCase() === handleStr) return true;
+              if (c.name && String(c.name).trim().toLowerCase() === nameStr) return true;
             } else if (String(c).trim().toLowerCase() === targetStr) {
               return true;
             }
@@ -1657,8 +1658,15 @@
           for (var k in prod.categories) {
             var item = prod.categories[k];
             if (item) {
-              if (typeof item === "object" && item.id != null && String(item.id).trim().toLowerCase() === targetStr) return true;
-              if (String(item).trim().toLowerCase() === targetStr) return true;
+              if (typeof item === "object") {
+                if (item.id != null && String(item.id).trim().toLowerCase() === targetStr) return true;
+                if (item.handle && String(item.handle).trim().toLowerCase() === handleStr) return true;
+                if (item.name && String(item.name).trim().toLowerCase() === nameStr) return true;
+              } else {
+                var itemVal = String(item).trim().toLowerCase();
+                if (itemVal === targetStr) return true;
+                if (handleStr && itemVal === handleStr) return true;
+              }
             }
           }
         }
@@ -1680,7 +1688,7 @@
     if (typeof window !== "undefined" && window.LS && window.LS.category) {
       var cat = window.LS.category;
       
-      // Si LS.category es directamente el ID como número o string (Común en temas legacy)
+      // Si LS.category es directamente el ID como número o string
       if (typeof cat === "number" || typeof cat === "string") {
         if (String(cat).trim().toLowerCase() === targetStr) return true;
         if (handleStr && String(cat).trim().toLowerCase() === handleStr) return true;
@@ -1696,14 +1704,17 @@
 
     // 5. Inspección profunda del DOM (breadcrumbs, links de categorías y data-attributes)
     try {
-      var catLinks = document.querySelectorAll("a[href*='category'], a[href*='categoria'], .breadcrumb a, [data-category-id]");
+      var catLinks = document.querySelectorAll("a[href*='category'], a[href*='categoria'], .breadcrumb a, .breadcrumbs a, [data-category-id]");
       for (var l = 0; l < catLinks.length; l++) {
         var el = catLinks[l];
         var href = el.getAttribute("href") || "";
         var dataCat = el.getAttribute("data-category-id") || "";
+        var text = (el.textContent || el.innerText || "").trim().toLowerCase();
+
         if (dataCat && String(dataCat).trim().toLowerCase() === targetStr) return true;
         if (href.indexOf(targetStr) !== -1) return true;
         if (handleStr && href.indexOf(handleStr) !== -1) return true;
+        if (nameStr && text === nameStr) return true;
       }
     } catch (eDOM) {}
 
