@@ -3488,23 +3488,24 @@ function renderContadorVendidos(w) {
     nvxTrack(w.id, 'impression');
   }
 }
-            /* ═══════════════════════════════════════════
-     SOCIAL PROOF IA — 3 TIPOS + PRODUCTOS REALES ROTATIVOS (v191)
+              /* ═══════════════════════════════════════════
+     SOCIAL PROOF IA — 3 TIPOS + PRODUCTOS REALES ROTATIVOS (v201 BLINDADO)
   ═══════════════════════════════════════════ */
   function renderSocialProof(spData) {
-    // Filtro ultra-estricto de desactivación (fix bug de apagado)
-    if (!spData) return;
-    if (spData.is_active === false || spData.is_active === "false") return;
-    if (spData.user_disabled === true || spData.user_disabled === "true") return;
-    if (spData.config && (spData.config.user_disabled === true || spData.config.user_disabled === "true")) return;
-
     var nsPrefix = typeof NS !== "undefined" ? NS : "nvx";
     var rootId = nsPrefix + "-social-proof-root";
 
+    // 1. Eliminar de inmediato cualquier contenedor existente si la función viene desactivada
     var existingContainer = document.getElementById(rootId);
     if (existingContainer && existingContainer.parentNode) {
       existingContainer.parentNode.removeChild(existingContainer);
     }
+
+    // 2. Filtro ultra-estricto de desactivación (Blindaje total)
+    if (!spData) return;
+    if (spData.is_active === false || spData.is_active === "false" || !spData.is_active) return;
+    if (spData.user_disabled === true || spData.user_disabled === "true") return;
+    if (spData.config && (spData.config.user_disabled === true || spData.config.user_disabled === "true" || spData.config.is_active === false || spData.config.is_active === "false")) return;
 
     var container = document.createElement("div");
     container.id = rootId;
@@ -3575,7 +3576,6 @@ function renderContadorVendidos(w) {
     var getRandomProduct = function() {
       if (scrapedProducts.length === 0) return null;
       var rIdx = Math.floor(Math.random() * scrapedProducts.length);
-      // Evitar repetir el mismo producto dos veces seguidas
       if (scrapedProducts.length > 1 && rIdx === lastRndIdx) {
         rIdx = (rIdx + 1) % scrapedProducts.length;
       }
@@ -3659,7 +3659,6 @@ function renderContadorVendidos(w) {
     var showNextEvent = function() {
       if (!events || events.length === 0) return;
 
-      // Reconstruir eventos cada ciclo para rotar productos
       if (currentIdx === 0) {
         events = buildEvents();
       }
@@ -3684,10 +3683,8 @@ function renderContadorVendidos(w) {
 
       var visualMediaHtml = "";
       if (ev.type === "sale" && isValidImg(ev.image)) {
-        // Compras: mostrar foto real del producto
         visualMediaHtml = '<img src="' + safeEscape(ev.image) + '" style="width:40px !important;height:40px !important;object-fit:cover !important;border-radius:9px !important;border:' + borderStyle + ' !important;flex-shrink:0 !important;display:block !important;background:#fff !important;" />';
       } else {
-        // Visitantes y Stock: mostrar sticker/emoji grande
         visualMediaHtml = '<div style="width:40px !important;height:40px !important;border-radius:9px !important;background:' + (theme === "dark" ? "#1f2937" : "#f3f4f6") + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:22px !important;flex-shrink:0 !important;">' + ev.icon + '</div>';
       }
 
@@ -3751,7 +3748,7 @@ function renderContadorVendidos(w) {
     };
 
     setTimeout(showNextEvent, 1200);
-  }
+}
 /* ═══════════════════════════════════════════
    WIDGET: CUENTA REGRESIVA (v16 - 11 Plantillas)
    ═══════════════════════════════════════════ */
