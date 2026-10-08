@@ -1,4 +1,3 @@
-// components/widgets/editors/EdicionLimitadaEditor.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -7,8 +6,10 @@ import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 /* ═══════════════════════════════════════════
-   TIPOS E INTERFACES (Regla #9 al inicio)
+   TIPOS E INTERFACES (Regla #9 y #30 al inicio)
 ═══════════════════════════════════════════ */
+export type TabType = 'general' | 'ubicacion' | 'estilos' | 'fechas';
+
 export interface EdicionLimitadaConfig {
   textoPrincipal: string;
   subtexto: string;
@@ -41,18 +42,20 @@ interface ExistingWidget {
   is_active: boolean;
   target_type: string;
   target_product_id: number | null;
+  target_category_id?: string | number | null;
 }
 
 interface EdicionLimitadaEditorProps {
   widgetDefinition: WidgetDefinition;
   existingWidget: ExistingWidget | null;
-  targetType: 'product' | 'all';
+  targetType: 'product' | 'all' | 'category';
   productId: number | null;
+  categoryId?: string | number | null;
   storeId: string;
 }
 
 /* ═══════════════════════════════════════════
-   CONSTANTES Y PRESETS (Regla #9 al inicio)
+   CONSTANTES Y PRESETS
 ═══════════════════════════════════════════ */
 const defaultConfig: EdicionLimitadaConfig = {
   textoPrincipal: 'EDICIÓN LIMITADA',
@@ -93,250 +96,27 @@ const CAMPAIGN_PRESETS = [
 ];
 
 /* ═══════════════════════════════════════════
-   ICONOS SVG (Regla #9 al inicio)
+   SUBCOMPONENTES Y CONTROLES VISUALES
 ═══════════════════════════════════════════ */
-const IconStore = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
-    <line x1="2" y1="7" x2="22" y2="7"/>
-    <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
-    <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
-  </svg>
-);
-
-const IconInfo = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-  </svg>
-);
-
-/* ═══════════════════════════════════════════
-   PREVIEW INTEGRADO (antes EdicionLimitadaPreview.tsx)
-═══════════════════════════════════════════ */
-function EdicionLimitadaPreview({ config }: { config: EdicionLimitadaConfig }) {
-  const theme = config.campaignTheme && config.campaignTheme !== 'none'
-    ? CAMPAIGN_COLORS[config.campaignTheme]
-    : null;
-
-  const bg = theme ? theme.bg : config.colorFondo;
-  const color = theme ? theme.text : config.colorTexto;
-  const borderColor = theme ? theme.border : config.colorBorde;
-
-  const scaleMultiplier = config.tamano === 'chico' ? 0.85 : config.tamano === 'grande' ? 1.15 : 1;
-
-  const renderSticker = () => {
-    const rotationStyle = {
-      transform: `rotate(${config.rotacion}deg) scale(${scaleMultiplier})`,
-      transformOrigin: 'center center',
-      transition: 'all 0.2s ease',
-    };
-
-    if (config.forma === 'circular') {
-      return (
-        <div
-          style={{
-            ...rotationStyle,
-            width: 82,
-            height: 82,
-            borderRadius: '50%',
-            background: bg,
-            color: color,
-            border: config.mostrarBorde ? `2px dashed ${borderColor}` : 'none',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            padding: 6,
-            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
-            boxSizing: 'border-box',
-          }}
-        >
-          <span style={{ fontSize: 13, lineHeight: 1 }}>✨</span>
-          <span style={{ fontSize: 9.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.1 }}>
-            {config.textoPrincipal || 'EDICIÓN LIMITADA'}
-          </span>
-          {config.subtexto && (
-            <span style={{ fontSize: 7.5, opacity: 0.9, marginTop: 2, fontWeight: 700, lineHeight: 1 }}>
-              {config.subtexto}
-            </span>
-          )}
-        </div>
-      );
-    }
-
-    if (config.forma === 'cinta-diagonal') {
-      return (
-        <div
-          style={{
-            ...rotationStyle,
-            background: bg,
-            color: color,
-            borderTop: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
-            borderBottom: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
-            padding: '4px 18px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
-          <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
-            ✦ {config.textoPrincipal || 'EDICIÓN LIMITADA'} ✦
-          </span>
-          {config.subtexto && (
-            <span style={{ fontSize: 7.5, opacity: 0.9, fontWeight: 700 }}>
-              {config.subtexto}
-            </span>
-          )}
-        </div>
-      );
-    }
-
-    if (config.forma === 'sello-borde') {
-      return (
-        <div
-          style={{
-            ...rotationStyle,
-            background: bg,
-            color: color,
-            border: `2px solid ${borderColor}`,
-            borderRadius: 6,
-            padding: '6px 12px',
-            boxShadow: '0 3px 10px rgba(0,0,0,0.12)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            outline: config.mostrarBorde ? `1.5px dashed ${borderColor}` : 'none',
-            outlineOffset: 3,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: 10 }}>🏷️</span>
-            <span style={{ fontSize: 10.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1.1 }}>
-              {config.textoPrincipal || 'EDICIÓN LIMITADA'}
-            </span>
-          </div>
-          {config.subtexto && (
-            <span style={{ fontSize: 8, opacity: 0.9, marginTop: 3, fontWeight: 700 }}>
-              {config.subtexto}
-            </span>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <div
-        style={{
-          ...rotationStyle,
-          background: bg,
-          color: color,
-          border: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
-          borderRadius: 999,
-          padding: '6px 14px',
-          boxShadow: '0 3px 10px rgba(0,0,0,0.12)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          textAlign: 'center',
-        }}
-      >
-        <span style={{ fontSize: 11 }}>🔥</span>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: 10.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.1 }}>
-            {config.textoPrincipal || 'EDICIÓN LIMITADA'}
-          </span>
-          {config.subtexto && (
-            <span style={{ fontSize: 8, opacity: 0.9, fontWeight: 700, lineHeight: 1 }}>
-              {config.subtexto}
-            </span>
-          )}
-        </div>
-      </div>
-    );
-  };
-
+function IconStore() {
   return (
-    <div
-      style={{
-        background: '#ffffff',
-        border: '1.5px solid #e5e7eb',
-        borderRadius: 14,
-        padding: 16,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-      }}
-    >
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-        VISTA PREVIA EN PRODUCTO
-      </div>
-
-      <div
-        style={{
-          background: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: 12,
-          padding: 14,
-          position: 'relative',
-          overflow: 'hidden',
-          minHeight: 180,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: 110,
-            background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-            borderRadius: 8,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 28,
-          }}
-        >
-          👟
-          {config.posicion !== 'inline-precio' && (
-            <div
-              style={{
-                position: 'absolute',
-                top: 8,
-                ...(config.posicion === 'esquina-superior-izquierda' ? { left: 8 } : { right: 8 }),
-                zIndex: 2,
-              }}
-            >
-              {renderSticker()}
-            </div>
-          )}
-        </div>
-
-        <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>
-            Zapatillas Air Edition Pro
-          </div>
-          <div style={{ fontSize: 14, fontWeight: 900, color: '#10B981', marginTop: 2 }}>
-            $ 89.990
-          </div>
-
-          {config.posicion === 'inline-precio' && (
-            <div style={{ marginTop: 10, display: 'inline-flex' }}>
-              {renderSticker()}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+      <line x1="2" y1="7" x2="22" y2="7"/>
+      <path d="M22 7v3a2 2 0 0 1-4 0V7"/><path d="M18 10v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9"/>
+      <path d="M14 22v-5a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v5"/>
+    </svg>
   );
 }
 
-/* ═══════════════════════════════════════════
-   COMPONENTES DE FORMULARIO (Regla #9 al inicio)
-═══════════════════════════════════════════ */
+function IconInfo() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+  );
+}
+
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
@@ -590,13 +370,238 @@ function RangeSlider({
 }
 
 /* ═══════════════════════════════════════════
-   COMPONENTE PRINCIPAL
+   PREVIEW EN VIVO (Regla #13 camelCase)
+═══════════════════════════════════════════ */
+function EdicionLimitadaPreview({ config }: { config: EdicionLimitadaConfig }) {
+  const theme = config.campaignTheme && config.campaignTheme !== 'none'
+    ? CAMPAIGN_COLORS[config.campaignTheme]
+    : null;
+
+  const bg = theme ? theme.bg : config.colorFondo;
+  const color = theme ? theme.text : config.colorTexto;
+  const borderColor = theme ? theme.border : config.colorBorde;
+
+  const scaleMultiplier = config.tamano === 'chico' ? 0.85 : config.tamano === 'grande' ? 1.15 : 1;
+
+  const renderSticker = () => {
+    const rotationStyle: React.CSSProperties = {
+      transform: `rotate(${config.rotacion}deg) scale(${scaleMultiplier})`,
+      transformOrigin: 'center center',
+      transition: 'all 0.2s ease',
+    };
+
+    if (config.forma === 'circular') {
+      return (
+        <div
+          style={{
+            ...rotationStyle,
+            width: 82,
+            height: 82,
+            borderRadius: '50%',
+            background: bg,
+            color: color,
+            border: config.mostrarBorde ? `2px dashed ${borderColor}` : 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            padding: 6,
+            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+            boxSizing: 'border-box',
+          }}
+        >
+          <span style={{ fontSize: 13, lineHeight: 1 }}>✨</span>
+          <span style={{ fontSize: 9.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.1 }}>
+            {config.textoPrincipal || 'EDICIÓN LIMITADA'}
+          </span>
+          {config.subtexto && (
+            <span style={{ fontSize: 7.5, opacity: 0.9, marginTop: 2, fontWeight: 700, lineHeight: 1 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    if (config.forma === 'cinta-diagonal') {
+      return (
+        <div
+          style={{
+            ...rotationStyle,
+            background: bg,
+            color: color,
+            borderTop: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
+            borderBottom: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
+            padding: '4px 18px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
+            ✦ {config.textoPrincipal || 'EDICIÓN LIMITADA'} ✦
+          </span>
+          {config.subtexto && (
+            <span style={{ fontSize: 7.5, opacity: 0.9, fontWeight: 700 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    if (config.forma === 'sello-borde') {
+      return (
+        <div
+          style={{
+            ...rotationStyle,
+            background: bg,
+            color: color,
+            border: `2px solid ${borderColor}`,
+            borderRadius: 6,
+            padding: '6px 12px',
+            boxShadow: '0 3px 10px rgba(0,0,0,0.12)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            outline: config.mostrarBorde ? `1.5px dashed ${borderColor}` : 'none',
+            outlineOffset: 3,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 10 }}>🏷️</span>
+            <span style={{ fontSize: 10.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1.1 }}>
+              {config.textoPrincipal || 'EDICIÓN LIMITADA'}
+            </span>
+          </div>
+          {config.subtexto && (
+            <span style={{ fontSize: 8, opacity: 0.9, marginTop: 3, fontWeight: 700 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        style={{
+          ...rotationStyle,
+          background: bg,
+          color: color,
+          border: config.mostrarBorde ? `1.5px solid ${borderColor}` : 'none',
+          borderRadius: 999,
+          padding: '6px 14px',
+          boxShadow: '0 3px 10px rgba(0,0,0,0.12)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          textAlign: 'center',
+        }}
+      >
+        <span style={{ fontSize: 11 }}>🔥</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 10.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.1 }}>
+            {config.textoPrincipal || 'EDICIÓN LIMITADA'}
+          </span>
+          {config.subtexto && (
+            <span style={{ fontSize: 8, opacity: 0.9, fontWeight: 700, lineHeight: 1 }}>
+              {config.subtexto}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1.5px solid #e5e7eb',
+        borderRadius: 14,
+        padding: 16,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+      }}
+    >
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+        VISTA PREVIA EN PRODUCTO
+      </div>
+
+      <div
+        style={{
+          background: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          borderRadius: 12,
+          padding: 14,
+          position: 'relative',
+          overflow: 'hidden',
+          minHeight: 180,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: 110,
+            background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 28,
+          }}
+        >
+          👟
+          {config.posicion !== 'inline-precio' && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 8,
+                ...(config.posicion === 'esquina-superior-izquierda' ? { left: 8 } : { right: 8 }),
+                zIndex: 2,
+              }}
+            >
+              {renderSticker()}
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>
+            Zapatillas Air Edition Pro
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: '#10B981', marginTop: 2 }}>
+            $ 89.990
+          </div>
+
+          {config.posicion === 'inline-precio' && (
+            <div style={{ marginTop: 10, display: 'inline-flex' }}>
+              {renderSticker()}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL (Estándar v13/v22)
 ═══════════════════════════════════════════ */
 export default function EdicionLimitadaEditor({
   widgetDefinition,
   existingWidget,
   targetType,
   productId,
+  categoryId = null,
   storeId,
 }: EdicionLimitadaEditorProps) {
   const router = useRouter();
@@ -609,14 +614,22 @@ export default function EdicionLimitadaEditor({
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'general' | 'ubicacion' | 'estilos' | 'fechas'>('general');
+  const [activeTab, setActiveTab] = useState<TabType>('general');
 
   const isEditing = !!existingWidget;
   const isForAll = targetType === 'all';
-  const scopeLabel = isForAll ? 'General' : 'Producto';
+  const isCategory = targetType === 'category';
+  const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
   const update = <K extends keyof EdicionLimitadaConfig>(key: K, value: EdicionLimitadaConfig[K]) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    setConfig((prev) => {
+      const next = { ...prev, [key]: value };
+      // Regla #8: Si se modifica cualquier color, desactivar la campaña activa
+      if (['colorFondo', 'colorTexto', 'colorBorde'].includes(key as string)) {
+        next.campaignTheme = 'none';
+      }
+      return next;
+    });
   };
 
   const handleSave = async () => {
@@ -632,8 +645,12 @@ export default function EdicionLimitadaEditor({
           widget_slug: widgetDefinition.slug,
           store_id: storeId,
           target_type: targetType,
-          target_product_id: productId,
-          config,
+          target_product_id: targetType === 'product' ? productId : null,
+          target_category_id: targetType === 'category' ? (categoryId ? String(categoryId) : null) : null,
+          config: {
+            ...config,
+            ...(targetType === 'category' && categoryId ? { category_id: String(categoryId) } : {})
+          },
           is_active: isActive,
         }),
       });
@@ -646,6 +663,9 @@ export default function EdicionLimitadaEditor({
         params.set('created', widgetDefinition.slug);
         if (targetType === 'product' && productId) {
           params.set('product', String(productId));
+        }
+        if (targetType === 'category' && categoryId) {
+          params.set('category', String(categoryId));
         }
         router.push(`/widgets?${params.toString()}`);
       } else {
@@ -923,7 +943,7 @@ export default function EdicionLimitadaEditor({
       {/* MAIN CONTAINER */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* Scope chip */}
+        {/* Scope chip (Regla #40) */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#ffffff',
@@ -934,6 +954,15 @@ export default function EdicionLimitadaEditor({
             <IconStore />
             <span>Todos los productos</span>
           </div>
+        ) : isCategory ? (
+          <div style={{
+            background: '#FEF3C7', color: '#D97706', border: '1px solid #FCD34D',
+            borderRadius: 999, padding: '8px 14px',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 20, fontSize: 14, fontWeight: 700,
+          }}>
+            <span>🏷️ Widget para Categoría</span>
+          </div>
         ) : (
           <div style={{
             background: '#ffffff', border: '1px solid #e5e7eb',
@@ -941,8 +970,8 @@ export default function EdicionLimitadaEditor({
             display: 'inline-flex', alignItems: 'center', gap: 10,
             marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000000',
           }}>
-            <span style={{ fontSize: 18 }}>🛍</span>
-            <span>NEVUX Widget</span>
+            <span style={{ fontSize: 18 }}>🛍️</span>
+            <span>NEVUX Widget de Producto</span>
           </div>
         )}
 
@@ -990,7 +1019,7 @@ export default function EdicionLimitadaEditor({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as TabType)}
                   style={{
                     flex: 1, padding: '14px 12px', background: 'none',
                     border: 'none', borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
@@ -1071,4 +1100,4 @@ export default function EdicionLimitadaEditor({
       </div>
     </div>
   );
-              }
+}
