@@ -8,6 +8,83 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function BundleCantidadPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📦 BUNDLE DE CANTIDAD</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          -15% MAX
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#ffffff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "6px",
+          padding: "3px 6px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "7px", height: "7px", borderRadius: "50%", border: "1.5px solid #d1d5db" }} />
+          <span style={{ fontSize: "7px", fontWeight: 700, color: "#111827" }}>Lleva 1</span>
+        </div>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#6b7280" }}>$ 35.600</span>
+      </div>
+
+      <div
+        style={{
+          background: "#ecfdf5",
+          border: "1.5px solid #10B981",
+          borderRadius: "6px",
+          padding: "3px 6px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "7px", height: "7px", borderRadius: "50%", border: "2px solid #10B981", background: "#10B981" }} />
+          <span style={{ fontSize: "7px", fontWeight: 900, color: "#111827" }}>Lleva 2</span>
+          <span style={{ background: "#ef4444", color: "#ffffff", fontSize: "5px", fontWeight: 800, padding: "1px 3px", borderRadius: "3px" }}>MÁS VENDIDO</span>
+        </div>
+        <span style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>$ 65.504</span>
+      </div>
+
+      <div
+        style={{
+          background: "#111827",
+          color: "#ffffff",
+          borderRadius: "6px",
+          padding: "4px",
+          fontSize: "7px",
+          fontWeight: 800,
+          textAlign: "center",
+          marginTop: "2px",
+        }}
+      >
+        Agregar al carrito
+      </div>
+    </div>
+  );
+}
+
 function ProductosComplementariosPreview() {
   return (
     <div
@@ -905,6 +982,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "bundle-cantidad":
+      return <BundleCantidadPreview />;
     case "productos-complementarios":
       return <ProductosComplementariosPreview />;
     case "barra-cuotas":
@@ -962,4 +1041,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-              }
+    }
