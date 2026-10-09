@@ -7999,7 +7999,7 @@ var renderMensajeGarantia = function(w) {
   }
 };
         /* ═══════════════════════════════════════════
-   WIDGET: BADGE DE EFECTIVO (v213)
+   WIDGET: BADGE DE EFECTIVO (v214)
    ═══════════════════════════════════════════ */
 var renderBadgeEfectivo = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -8012,21 +8012,37 @@ var renderBadgeEfectivo = function(w) {
   var isProductPage = pType === "product" || pType === "item";
   var isHomeOrCategory = pType === "home" || pType === "category" || pType === "list" || pType === "search";
 
-  // Helper: normalizar precio a pesos (soporta centavos Tiendanube)
-  var nvxNormalizePrice = function(val) {
+  // Helper: parseador exacto de precios formato AR/LATAM ($ 35.000,00 o $ 35.000)
+  var parseExactPrice = function(val) {
     if (val === null || val === undefined || val === "") return 0;
-    var n = typeof val === "number" ? val : parseFloat(String(val).replace(/[^\d.,]/g, "").replace(",", "."));
-    if (isNaN(n) || n <= 0) return 0;
-    if (typeof normalizeToPesos === "function") {
-      n = normalizeToPesos(n);
+    if (typeof val === "number") {
+      if (val > 10000000) return val / 100; // Céntimos API Tiendanube
+      return val;
     }
-    // Si sigue pareciendo centavos (ej: 3500000 para $35.000), dividir
-    if (n >= 100000) n = n / 100;
-    return n;
+    var str = String(val).trim();
+    if (!str) return 0;
+
+    // Si tiene coma, el decimal está después de la coma (ej: "35.000,00" o "3.500,50")
+    if (str.indexOf(",") !== -1) {
+      var parts = str.split(",");
+      var intPart = parts[0].replace(/[^\d]/g, "");
+      var decPart = parts[1] ? parts[1].replace(/[^\d]/g, "") : "0";
+      if (decPart.length === 1) decPart += "0";
+      var res = parseFloat(intPart + "." + decPart.substring(0, 2));
+      return isNaN(res) ? 0 : res;
+    } else {
+      // Sin coma (ej: "$ 35.000" o "$ 35000")
+      var digits = str.replace(/[^\d]/g, "");
+      if (!digits) return 0;
+      var num = parseFloat(digits);
+      return isNaN(num) ? 0 : num;
+    }
   };
 
   // Helper: construir HTML del badge
   var nvxBuildBadgeHtml = function(rawPrice, cfgLocal) {
+    if (!rawPrice || rawPrice <= 0) return null;
+
     var discPercent = parseFloat(cfgLocal.discountPercent) || 10;
     var discPrice = rawPrice * (1 - discPercent / 100);
     var formattedDiscPrice = "$" + Math.round(discPrice).toLocaleString("es-AR");
@@ -8036,12 +8052,10 @@ var renderBadgeEfectivo = function(w) {
       ? (cfgLocal.customTextPercent || "{descuento}% de descuento pagando en efectivo")
       : (cfgLocal.customTextPrice || "{precio} pagando en efectivo");
 
-    // Limpiar placeholders sin duplicar $
     rawMsg = String(rawMsg);
     rawMsg = rawMsg.replace(/\$\{precio\}/g, formattedDiscPrice);
     rawMsg = rawMsg.replace(/\{precio\}/g, formattedDiscPrice);
     rawMsg = rawMsg.replace(/\{descuento\}/g, String(discPercent));
-    // Si quedó $$ por configs viejas, limpiar
     rawMsg = rawMsg.replace(/\$\$/g, "$");
 
     var bgColor = cfgLocal.bgColor || "#f3f4f6";
@@ -8063,7 +8077,7 @@ var renderBadgeEfectivo = function(w) {
     var badgeTextCol = cfgLocal.badgeTextColor || "#ffffff";
     var animation = cfgLocal.animation || "none";
 
-    var cssText = "position: relative !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; background: " + containerBg + " !important; color: " + textColor + " !important; font-size: " + fontSize + " !important; font-weight: 600 !important; padding: " + padding + " !important; border-radius: " + borderRadius + " !important; margin-top: " + marginTop + " !important; margin-bottom: " + marginBottom + " !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; width: auto !important; max-width: 100% !important; clear: both !important; line-height: 1.3 !important;";
+    var cssText = "position: relative !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; background: " + containerBg + " !important; color: " + textColor + " !important; font-size: " + fontSize + " !important; font-weight: 600 !important; padding: " + padding + " !important; border-radius: " + borderRadius + " !important; margin-top: " + marginTop + " !important; margin-bottom: " + marginBottom + " !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; width: auto !important; max-width: 100% !important; clear: both !important; line-height: 1.3 !important;";
 
     if (showBorder) cssText += " border: 1px solid " + borderColor + " !important;";
     if (animation === "aureola") cssText += " box-shadow: 0 0 12px " + badgeBg + " !important;";
@@ -8083,7 +8097,7 @@ var renderBadgeEfectivo = function(w) {
     return { cssText: cssText, html: html };
   };
 
-  // --- STICKY GLOBAL ---
+  // --- 1. STICKY GLOBAL ---
   if (showSticky && !document.getElementById("nvx-badge-efectivo-sticky")) {
     var discSticky = parseFloat(cfg.discountPercent) || 10;
     var stickyBg = cfg.bgColor || "#111827";
@@ -8095,123 +8109,156 @@ var renderBadgeEfectivo = function(w) {
     document.body.appendChild(stickyEl);
   }
 
-  // --- FICHA DE PRODUCTO ---
+  // --- 2. FICHA DE PRODUCTO ---
   if (isProductPage && showProduct && !document.getElementById("nvx-badge-efectivo-product")) {
-    var prod = window.LS && window.LS.product ? window.LS.product : null;
     var rawPrice = 0;
 
-    if (prod) {
-      var pVal = prod.promotional_price || prod.price || 0;
-      if (prod.variants && prod.variants[0]) {
-        pVal = prod.variants[0].promotional_price || prod.variants[0].price || pVal;
-      }
-      rawPrice = nvxNormalizePrice(pVal);
-    }
+    // A) Probar desde DOM directo (elementos de precio de venta activo, ignorando tachados)
+    var selSelectors = [
+      "#price_display",
+      ".js-price-display:not(.js-compare-price-display)",
+      ".js-product-price:not(.js-compare-price)",
+      "#product-price",
+      "[data-store='product-price']"
+    ];
 
-    if (!rawPrice || rawPrice <= 0) {
-      var priceNodes = document.querySelectorAll(".js-price-display, #price_display, .js-product-price, .product-price, .price");
-      if (priceNodes && priceNodes.length > 0) {
-        var lastNode = priceNodes[priceNodes.length - 1];
-        var t = (lastNode.innerText || lastNode.textContent || "").replace(/[^\d]/g, "");
-        if (t) rawPrice = nvxNormalizePrice(t);
-      }
-    }
-    if (!rawPrice || rawPrice <= 0) rawPrice = 35000;
-
-    var built = nvxBuildBadgeHtml(rawPrice, cfg);
-    var container = document.createElement("div");
-    container.id = "nvx-badge-efectivo-product";
-    container.style.cssText = built.cssText;
-    container.innerHTML = built.html;
-
-    // Insertar DEBAJO del bloque completo de precios (no entre tachado y oferta)
-    var inserted = false;
-    var priceBlock = document.querySelector(
-      ".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, .item-price-container, .product-price, [data-store='product-price']"
-    );
-    if (priceBlock && priceBlock.parentNode) {
-      // Subir al padre si el priceBlock es el span interno
-      var parentBlock = priceBlock.closest
-        ? (priceBlock.closest(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, .product-form, form") || priceBlock.parentNode)
-        : priceBlock.parentNode;
-      if (parentBlock && parentBlock.parentNode && parentBlock !== document.body) {
-        parentBlock.parentNode.insertBefore(container, parentBlock.nextSibling);
-        inserted = true;
-      } else if (priceBlock.parentNode) {
-        priceBlock.parentNode.insertBefore(container, priceBlock.nextSibling);
-        inserted = true;
-      }
-    }
-
-    if (!inserted) {
-      var allPrices = document.querySelectorAll(".js-price-display, #price_display, .js-product-price");
-      if (allPrices && allPrices.length > 0) {
-        var lastP = allPrices[allPrices.length - 1];
-        var wrap = lastP.parentNode;
-        // Intentar subir un nivel más para quedar fuera del grupo precio tachado + oferta
-        if (wrap && wrap.parentNode && wrap.parentNode !== document.body) {
-          wrap.parentNode.insertBefore(container, wrap.nextSibling);
-        } else if (wrap) {
-          wrap.insertBefore(container, lastP.nextSibling);
+    for (var s = 0; s < selSelectors.length; s++) {
+      var pEl = document.querySelector(selSelectors[s]);
+      if (pEl) {
+        var txtP = pEl.innerText || pEl.textContent || "";
+        var parsedP = parseExactPrice(txtP);
+        if (parsedP > 0) {
+          rawPrice = parsedP;
+          break;
         }
-        inserted = true;
       }
     }
 
-    if (!inserted) {
-      var formEl = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
-      if (formEl && formEl.parentNode) {
-        formEl.parentNode.insertBefore(container, formEl);
-      } else {
-        document.body.appendChild(container);
+    // B) Si no hay precio en DOM directo, probar window.LS.product
+    if (!rawPrice && window.LS && window.LS.product) {
+      var prod = window.LS.product;
+      var pVal = prod.price_number || prod.price || 0;
+      if (prod.variants && prod.variants[0]) {
+        pVal = prod.variants[0].price_number || prod.variants[0].price || pVal;
+      }
+      rawPrice = parseExactPrice(pVal);
+    }
+
+    // C) Fallback genérico DOM
+    if (!rawPrice) {
+      var priceNodes = document.querySelectorAll(".js-price-display, .product-price, .price");
+      if (priceNodes && priceNodes.length > 0) {
+        for (var n = priceNodes.length - 1; n >= 0; n--) {
+          var node = priceNodes[n];
+          if (node.classList && node.classList.contains("js-compare-price-display")) continue;
+          var pTxt = node.innerText || node.textContent || "";
+          var pParsed = parseExactPrice(pTxt);
+          if (pParsed > 0) {
+            rawPrice = pParsed;
+            break;
+          }
+        }
+      }
+    }
+
+    if (rawPrice > 0) {
+      var built = nvxBuildBadgeHtml(rawPrice, cfg);
+      if (built) {
+        var container = document.createElement("div");
+        container.id = "nvx-badge-efectivo-product";
+        container.style.cssText = built.cssText;
+        container.innerHTML = built.html;
+
+        var inserted = false;
+        var priceBlock = document.querySelector(
+          ".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']"
+        );
+        if (priceBlock && priceBlock.parentNode) {
+          var parentBlock = priceBlock.closest
+            ? (priceBlock.closest(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .product-form, form") || priceBlock.parentNode)
+            : priceBlock.parentNode;
+          if (parentBlock && parentBlock.parentNode && parentBlock !== document.body) {
+            parentBlock.parentNode.insertBefore(container, parentBlock.nextSibling);
+            inserted = true;
+          } else if (priceBlock.parentNode) {
+            priceBlock.parentNode.insertBefore(container, priceBlock.nextSibling);
+            inserted = true;
+          }
+        }
+
+        if (!inserted) {
+          var allPrices = document.querySelectorAll(".js-price-display, #price_display, .js-product-price");
+          if (allPrices && allPrices.length > 0) {
+            var lastP = allPrices[allPrices.length - 1];
+            var wrap = lastP.parentNode;
+            if (wrap && wrap.parentNode && wrap.parentNode !== document.body) {
+              wrap.parentNode.insertBefore(container, wrap.nextSibling);
+            } else if (wrap) {
+              wrap.insertBefore(container, lastP.nextSibling);
+            }
+            inserted = true;
+          }
+        }
+
+        if (!inserted) {
+          var formEl = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
+          if (formEl && formEl.parentNode) {
+            formEl.parentNode.insertBefore(container, formEl);
+          } else {
+            document.body.appendChild(container);
+          }
+        }
       }
     }
   }
 
-  // --- GRILLA / HOME / CATEGORÍA / LISTADOS ---
+  // --- 3. GRILLA / HOME / CATEGORÍA / LISTADOS ---
   if (isHomeOrCategory && showGrid) {
     var cards = document.querySelectorAll(
-      ".js-item-product, .item-product, .product-item, .js-product-container, [data-product-id], .product-card, .card-product"
+      ".js-item-product, .item-product, .product-item, .js-product-container, [data-product-id], .product-card, .card-product, .item, article[data-product]"
     );
-    if (!cards || cards.length === 0) {
-      cards = document.querySelectorAll(".item, .product, article[data-product]");
-    }
 
     for (var i = 0; i < cards.length; i++) {
       var card = cards[i];
       if (!card || card.querySelector(".nvx-badge-efectivo-grid")) continue;
 
       var cardPrice = 0;
-      // Intentar data attributes
-      var dataPrice = card.getAttribute("data-product-price") || card.getAttribute("data-price");
-      if (dataPrice) cardPrice = nvxNormalizePrice(dataPrice);
 
-      if (!cardPrice || cardPrice <= 0) {
-        var cardPriceEl = card.querySelector(".js-price-display, .item-price, .product-price, .price, .js-product-price, [data-price]");
+      // A) Data attributes de la card
+      var dataP = card.getAttribute("data-product-price") || card.getAttribute("data-price");
+      if (dataP) cardPrice = parseExactPrice(dataP);
+
+      // B) Elemento de precio en la card
+      if (!cardPrice) {
+        var cardPriceEl = card.querySelector(
+          ".js-price-display:not(.js-compare-price-display), .item-price:not(.item-price-compare), .js-product-price, .product-price, .price"
+        );
         if (cardPriceEl) {
-          var ct = (cardPriceEl.innerText || cardPriceEl.textContent || cardPriceEl.getAttribute("data-price") || "").replace(/[^\d]/g, "");
-          if (ct) cardPrice = nvxNormalizePrice(ct);
+          var ct = cardPriceEl.innerText || cardPriceEl.textContent || cardPriceEl.getAttribute("data-price") || "";
+          cardPrice = parseExactPrice(ct);
         }
       }
-      if (!cardPrice || cardPrice <= 0) cardPrice = 35000;
 
-      var builtG = nvxBuildBadgeHtml(cardPrice, cfg);
-      var gEl = document.createElement("div");
-      gEl.className = "nvx-badge-efectivo-grid";
-      gEl.style.cssText = builtG.cssText + " margin-left: 0 !important; margin-right: 0 !important;";
-      gEl.innerHTML = builtG.html;
+      if (cardPrice > 0) {
+        var builtG = nvxBuildBadgeHtml(cardPrice, cfg);
+        if (builtG) {
+          var gEl = document.createElement("div");
+          gEl.className = "nvx-badge-efectivo-grid";
+          gEl.style.cssText = builtG.cssText + " margin-left: 0 !important; margin-right: 0 !important;";
+          gEl.innerHTML = builtG.html;
 
-      var priceInCard = card.querySelector(".js-price-display, .item-price, .product-price, .price, .js-item-price, .js-product-price");
-      if (priceInCard && priceInCard.parentNode) {
-        // Insertar después del bloque de precio de la card
-        var priceParent = priceInCard.parentNode;
-        if (priceParent.parentNode && priceParent !== card) {
-          priceParent.parentNode.insertBefore(gEl, priceParent.nextSibling);
-        } else {
-          priceInCard.parentNode.insertBefore(gEl, priceInCard.nextSibling);
+          var priceInCard = card.querySelector(".js-price-display, .item-price, .product-price, .price, .js-product-price");
+          if (priceInCard && priceInCard.parentNode) {
+            var priceParent = priceInCard.parentNode;
+            if (priceParent.parentNode && priceParent !== card) {
+              priceParent.parentNode.insertBefore(gEl, priceParent.nextSibling);
+            } else {
+              priceInCard.parentNode.insertBefore(gEl, priceInCard.nextSibling);
+            }
+          } else {
+            card.appendChild(gEl);
+          }
         }
-      } else {
-        card.appendChild(gEl);
       }
     }
   }
