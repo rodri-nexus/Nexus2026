@@ -8515,14 +8515,22 @@ var renderBadgeEfectivo = function(w) {
       console.warn("Nevux Banner Superior Error:", e);
     }
   };
-  /* ═══════════════════════════════════════════
-     WIDGET #22: PACK COMPLEMENTARIOS
+    /* ═══════════════════════════════════════════
+     WIDGET #22: PACK COMPLEMENTARIOS (CORREGIDO)
      ═══════════════════════════════════════════ */
   var renderPackComplementarios = function(w) {
     try {
       if (!w || !w.is_active) return;
-      var pType = detectPageType();
-      if (pType !== "product" && (!window.LS || !window.LS.product)) return;
+
+      var pType = typeof detectPageType === "function" ? detectPageType() : "";
+      var isProductPage = (pType === "product") || 
+                          (window.LS && window.LS.product) || 
+                          (window.location.pathname.indexOf("/productos/") !== -1) || 
+                          (window.location.pathname.indexOf("/p/") !== -1) || 
+                          !!document.querySelector("form[action*='/comprar']") || 
+                          !!document.querySelector("form[action*='/cart']");
+
+      if (!isProductPage) return;
 
       var containerId = "nvx-pack-comp-" + (w.id || "default");
       if (document.getElementById(containerId)) return;
@@ -8545,30 +8553,69 @@ var renderBadgeEfectivo = function(w) {
       var textColor = cfg.textColor || "#111827";
       var borderColor = cfg.borderColor || "#e5e7eb";
 
-      // Información del producto principal desde LS
+      // Helper numérico local seguro para parsear precios sin depender de funciones externas
+      var safePrice = function(val) {
+        if (typeof val === "number") return val;
+        if (!val) return 0;
+        var str = String(val).replace(/[^0-9.,]/g, "");
+        if (str.indexOf(",") !== -1 && str.indexOf(".") !== -1) {
+          str = str.replace(/\./g, "").replace(",", ".");
+        } else if (str.indexOf(",") !== -1) {
+          str = str.replace(",", ".");
+        }
+        var num = parseFloat(str);
+        return isNaN(num) ? 0 : num;
+      };
+
+      // Información del producto principal desde LS o DOM
       var lsProd = window.LS && window.LS.product ? window.LS.product : {};
       var mainProdId = lsProd.id || null;
       var mainVariantId = (lsProd.variants && lsProd.variants[0]) ? lsProd.variants[0].id : mainProdId;
-      var mainProdTitle = lsProd.name || "Producto Principal";
+      
+      var mainProdTitle = lsProd.name || "";
+      if (!mainProdTitle) {
+        var h1El = document.querySelector("h1.js-product-name") || document.querySelector("h1");
+        if (h1El) mainProdTitle = h1El.innerText.trim();
+        else mainProdTitle = "Producto Principal";
+      }
+
       var mainProdPrice = 0;
       if (lsProd.promotional_price) {
-        mainProdPrice = parseExactPrice(lsProd.promotional_price);
+        mainProdPrice = safePrice(lsProd.promotional_price);
       } else if (lsProd.price) {
-        mainProdPrice = parseExactPrice(lsProd.price);
+        mainProdPrice = safePrice(lsProd.price);
+      } else {
+        var priceEl = document.querySelector(".js-price-display") || document.querySelector("#price_display") || document.querySelector(".price");
+        if (priceEl) mainProdPrice = safePrice(priceEl.innerText);
+      }
+
+      var targetEl = document.querySelector("form[action*='/cart']") ||
+                     document.querySelector("form[action*='/comprar']") ||
+                     document.querySelector(".js-addtocart-form") ||
+                     document.querySelector(".product-buy-form") ||
+                     document.querySelector(".js-product-form") ||
+                     document.querySelector(".product-form") ||
+                     document.querySelector("#product_form") ||
+                     document.querySelector(".js-prod-form");
+
+      if (!targetEl) return;
+
+      if (replaceNativeButton) {
+        try {
+          var nativeBtn = targetEl.querySelector("input[type='submit']") || 
+                          targetEl.querySelector("button[type='submit']") || 
+                          targetEl.querySelector(".js-addtocart") || 
+                          targetEl.querySelector(".js-prod-submit");
+          if (nativeBtn) {
+            nativeBtn.style.setProperty("display", "none", "important");
+          }
+        } catch(e){}
       }
 
       var container = document.createElement("div");
       container.id = containerId;
       container.className = "nvx-pack-complementarios-container";
       container.style.cssText = "margin-top: 16px !important; margin-bottom: 20px !important; background: #ffffff !important; border: 1px solid " + borderColor + " !important; border-radius: 12px !important; padding: 16px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important; color: " + textColor + " !important; font-family: inherit !important;";
-
-      var targetEl = document.querySelector("form[action*='/cart/add']");
-      if (!targetEl) targetEl = document.querySelector(".js-addtocart-form") || document.querySelector(".product-buy-form");
-      if (!targetEl) return;
-
-      if (replaceNativeButton) {
-        try { targetEl.style.display = "none !important"; } catch(e){}
-      }
 
       var html = '<div style="display: flex !important; justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 12px !important;">';
       html += '<div>';
@@ -8584,14 +8631,14 @@ var renderBadgeEfectivo = function(w) {
 
       // Item producto principal
       html += '<div style="background: ' + itemBgColor + ' !important; border-radius: 8px !important; padding: 10px !important; display: flex !important; align-items: center !important; gap: 10px !important; margin-bottom: 8px !important;">';
-      html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="main" data-id="' + mainProdId + '" data-variant="' + mainVariantId + '" data-price="' + mainProdPrice + '" checked ' + (!isMainOptional ? 'disabled' : '') + ' style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
+      html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="main" data-id="' + (mainProdId || '') + '" data-variant="' + (mainVariantId || '') + '" data-price="' + mainProdPrice + '" checked ' + (!isMainOptional ? 'disabled' : '') + ' style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
       html += '<div style="flex: 1 !important; min-width: 0 !important;">';
       html += '<div style="font-size: 12px !important; font-weight: 700 !important; color: ' + textColor + ' !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + mainProdTitle + '</div>';
       if (mainProdPrice > 0) {
         html += '<div style="font-size: 12px !important; color: ' + promoPriceColor + ' !important; font-weight: 800 !important;">$' + Math.round(mainProdPrice).toLocaleString('es-AR') + '</div>';
       }
       html += '</div>';
-      html += '<span style="background: ' + badgeColor + ' !important; color: #ffffff !important; font-size: 10px !important; font-weight: 800 !important; padding: 2px 6px !important; border-radius: 4px !important;">INCLUIDO</span>';
+      html += '<span style="background: ' + badgeColor + ' !important; color: #ffffff !important; font-size: 10px !important; font-weight: 800 !important; padding: 2px 6px !important; border-radius: 4px !important;">ESTE PRODUCTO</span>';
       html += '</div>';
 
       // Items productos complementarios
@@ -8617,7 +8664,12 @@ var renderBadgeEfectivo = function(w) {
       html += '</button>';
 
       container.innerHTML = html;
-      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+
+      if (targetEl.parentNode) {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        targetEl.appendChild(container);
+      }
 
       // Recálculo dinámico de precio y contador
       var updatePackTotal = function() {
@@ -8654,7 +8706,12 @@ var renderBadgeEfectivo = function(w) {
           var cbs = container.querySelectorAll(".nvx-pack-item-cb:checked");
           var itemsToAdd = [];
           for (var m = 0; m < cbs.length; m++) {
+            var isMain = cbs[m].getAttribute("data-type") === "main";
             var pVar = cbs[m].getAttribute("data-variant") || cbs[m].getAttribute("data-id");
+            if (isMain && !pVar) {
+              var formVarInput = targetEl.querySelector("input[name='variation_id']") || targetEl.querySelector("select[name='variation_id']") || targetEl.querySelector("input[name='variant_id']");
+              if (formVarInput) pVar = formVarInput.value;
+            }
             if (pVar) itemsToAdd.push(pVar);
           }
 
