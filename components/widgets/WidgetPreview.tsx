@@ -8,6 +8,69 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function PreguntasFrecuentesPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>❓ PREGUNTAS FRECUENTES</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          FAQ
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "4px 6px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "2px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight: 800, color: "#111827" }}>
+          <span>🚚 ¿Cuánto demora el envío?</span>
+          <span style={{ fontSize: "7px", opacity: 0.6 }}>▲</span>
+        </div>
+        <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.1 }}>
+          Despachamos dentro de las 24 a 48 hs...
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "4px 6px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontSize: "6.5px",
+          fontWeight: 700,
+          color: "#374151",
+        }}
+      >
+        <span>💳 ¿Qué medios de pago aceptan?</span>
+        <span style={{ fontSize: "7px", opacity: 0.6 }}>▼</span>
+      </div>
+    </div>
+  );
+}
+
 function BadgeEfectivoPreview() {
   return (
     <div
@@ -1196,6 +1259,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "preguntas-frecuentes":
+      return <PreguntasFrecuentesPreview />;
     case "badge-efectivo":
       return <BadgeEfectivoPreview />;
     case "mensaje-garantia":
@@ -1263,4 +1328,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-    }
+        }
