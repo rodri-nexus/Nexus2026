@@ -8682,8 +8682,10 @@ window.nvxSubmitPackComp = function(widgetId, redirectToCart) {
   processQueue(0);
 };
 
-function renderPackComplementarios(w) {
+function renderPackComplementarios(w, retryCount) {
   if (!w) return;
+  retryCount = retryCount || 0;
+
   var cfg = w.config || {};
 
   // Filtro target_product_id
@@ -8708,7 +8710,9 @@ function renderPackComplementarios(w) {
     '.js-product-form',
     'form[action*="/cart/add"]',
     '.product-buy-container',
-    '.js-buy-form'
+    '.js-buy-form',
+    '#product_form',
+    '.js-product-container'
   ];
   var targetEl = null;
   for (var i = 0; i < buySelectors.length; i++) {
@@ -8716,7 +8720,15 @@ function renderPackComplementarios(w) {
     if (el) { targetEl = el; break; }
   }
 
-  if (!targetEl) return;
+  // Si no se encuentra el elemento aún, reintentar (hasta 10 veces cada 300ms)
+  if (!targetEl) {
+    if (retryCount < 10) {
+      setTimeout(function() {
+        renderPackComplementarios(w, retryCount + 1);
+      }, 300);
+    }
+    return;
+  }
 
   var containerId = 'nvx-pack-comp-' + w.id;
   var existing = document.getElementById(containerId);
@@ -8830,12 +8842,12 @@ function renderPackComplementarios(w) {
   html += 'Agregar al carrito';
   html += '</button>';
 
-  html += '0</div>';
+  html += '</div>';
 
   var wrapper = document.createElement('div');
   wrapper.innerHTML = html;
   targetEl.parentNode.insertBefore(wrapper.firstChild, targetEl);
 
   window.nvxUpdatePackTotal(w.id);
-  }
+        }
 })(); 
