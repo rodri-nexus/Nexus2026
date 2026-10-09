@@ -8515,371 +8515,327 @@ var renderBadgeEfectivo = function(w) {
       console.warn("Nevux Banner Superior Error:", e);
     }
   };
-          /* ═══════════════════════════════════════════
-     RENDER: PACK COMPLEMENTARIOS (Basado exactamente en Bundle de Cantidad)
-  ═══════════════════════════════════════════ */
-  function renderPackComplementarios(w) {
-    if (!w || !w.config) return;
+          /* ═══════════════════════════════════════════════════════════════════
+   WIDGET 22 / 9: PACK COMPLEMENTARIOS
+   ═══════════════════════════════════════════════════════════════════ */
 
-    var elementId = "nvx-pack-comp-" + w.id;
-    if (document.getElementById(elementId)) return;
+window.nvxUpdatePackTotal = function(widgetId) {
+  var container = document.getElementById('nvx-pack-comp-' + widgetId);
+  if (!container) return;
 
-    var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
-    if (currentPage !== "product") return;
+  var checkedCbs = container.querySelectorAll('.nvx-pack-item-cb:checked');
+  var count = checkedCbs.length;
+  var sumOriginal = 0;
 
-    var cfg = w.config || {};
-
-    var title = cfg.title || "Armá tu pack";
-    var subtitle = cfg.subtitle || "";
-    var isMainOptional = cfg.isMainOptional === true;
-    var replaceCart = cfg.replaceNativeButton !== false;
-    var redirectCheckout = cfg.redirectToCart === true;
-
-    var bgColor = cfg.bgColor || cfg.itemBgColor || "#ffffff";
-    var textColor = (cfg.textColor && cfg.textColor.toLowerCase() !== "#ffffff") ? cfg.textColor : "#111827";
-    var borderColor = cfg.borderColor || "#e5e7eb";
-    var promoPriceColor = cfg.promoPriceColor || cfg.accentColor || "#16a34a";
-    var buttonBg = cfg.buttonBg || "#111827";
-    var buttonTextColor = cfg.buttonText || cfg.buttonTextColor || "#ffffff";
-    var badgeColor = cfg.badgeColor || "#10B981";
-
-    var THEMES = {
-      "black-friday": { bg: "#111827", text: "#ffffff", border: "#374151", accent: "#F59E0B", btn: "#F59E0B", btnText: "#111827" },
-      "hot-sale": { bg: "#0F172A", text: "#ffffff", border: "#1e293b", accent: "#EF4444", btn: "#EF4444", btnText: "#ffffff" },
-      "cyber-monday": { bg: "#090D16", text: "#ffffff", border: "#1e3a5f", accent: "#3B82F6", btn: "#3B82F6", btnText: "#ffffff" },
-      "navidad": { bg: "#064E3B", text: "#ffffff", border: "#047857", accent: "#EF4444", btn: "#EF4444", btnText: "#ffffff" },
-      "san-valentin": { bg: "#831843", text: "#ffffff", border: "#9d174d", accent: "#F43F5E", btn: "#F43F5E", btnText: "#ffffff" },
-      "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#4338ca", accent: "#10B981", btn: "#10B981", btnText: "#ffffff" },
-      "liquidacion": { bg: "#7F1D1D", text: "#ffffff", border: "#991b1b", accent: "#FBBF24", btn: "#FBBF24", btnText: "#7F1D1D" }
-    };
-    if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
-      var th = THEMES[cfg.campaignTheme];
-      bgColor = th.bg;
-      textColor = th.text;
-      borderColor = th.border;
-      promoPriceColor = th.accent;
-      buttonBg = th.btn;
-      buttonTextColor = th.btnText;
+  for (var i = 0; i < checkedCbs.length; i++) {
+    var price = parseFloat(checkedCbs[i].getAttribute('data-price') || '0');
+    if (!isNaN(price)) {
+      sumOriginal += price;
     }
+  }
 
-    var selectedProducts = cfg.selectedProducts || [];
-    if (!selectedProducts || selectedProducts.length === 0) return;
+  var enableDiscount = container.getAttribute('data-enable-discount') === 'true';
+  var promoColor = container.getAttribute('data-promo-color') || '#16a34a';
 
-    var prodId = "";
-    if (window.LS && window.LS.product && window.LS.product.id) {
-      prodId = String(window.LS.product.id);
-    } else if (window.LS && window.LS.product_id) {
-      prodId = String(window.LS.product_id);
-    } else if (w.target_product_id) {
-      prodId = String(w.target_product_id);
-    }
+  var factor = 1.0;
+  if (enableDiscount) {
+    if (count === 2) factor = 0.90;      // 10% OFF
+    else if (count === 3) factor = 0.85; // 15% OFF
+    else if (count >= 4) factor = 0.80; // 20% OFF
+  }
 
-    // Filtrado por Producto Específico
-    if (w.target_type === "product" && w.target_product_id) {
-      if (prodId && String(prodId) !== String(w.target_product_id)) {
-        return;
-      }
-    }
+  var finalTotal = sumOriginal * factor;
+  var discountPercent = Math.round((1 - factor) * 100);
 
-    var safeEsc = function (str) {
-      if (!str) return "";
-      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    };
+  function fmtMoney(num) {
+    var n = Math.round(num);
+    return '$' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
 
-    var fmtMoney = function (num) {
-      var n = Math.round(Number(num) || 0);
-      var s = String(n);
-      var out = "";
-      var c = 0;
-      for (var i = s.length - 1; i >= 0; i--) {
-        out = s.charAt(i) + out;
-        c++;
-        if (c === 3 && i > 0) { out = "." + out; c = 0; }
-      }
-      return "$" + out;
-    };
-
-    var safePrice = function(val) {
-      if (typeof val === "number") return val;
-      if (!val) return 0;
-      var str = String(val).replace(/[^0-9.,]/g, "");
-      if (str.indexOf(",") !== -1 && str.indexOf(".") !== -1) {
-        str = str.replace(/\./g, "").replace(",", ".");
-      } else if (str.indexOf(",") !== -1) {
-        str = str.replace(",", ".");
-      }
-      var num = parseFloat(str);
-      return isNaN(num) ? 0 : num;
-    };
-
-    // Producto principal
-    var lsProd = window.LS && window.LS.product ? window.LS.product : {};
-    var mainProdId = prodId || lsProd.id || null;
-    var mainVariantId = (lsProd.variants && lsProd.variants[0]) ? lsProd.variants[0].id : mainProdId;
-    var mainProdTitle = lsProd.name || "";
-    if (!mainProdTitle) {
-      var h1El = document.querySelector("h1.js-product-name, h1");
-      if (h1El) mainProdTitle = h1El.innerText.trim();
-      else mainProdTitle = "Este Producto";
-    }
-
-    var mainProdPrice = 0;
-    if (lsProd.promotional_price) {
-      mainProdPrice = safePrice(lsProd.promotional_price);
-    } else if (lsProd.price) {
-      mainProdPrice = safePrice(lsProd.price);
+  var priceDisplay = container.querySelector('.nvx-pack-price-display');
+  if (priceDisplay) {
+    if (discountPercent > 0) {
+      priceDisplay.innerHTML = 
+        '<span style="text-decoration:line-through;color:#9ca3af;font-size:14px;margin-right:6px;">' + fmtMoney(sumOriginal) + '</span>' +
+        '<span style="color:' + promoColor + ';font-size:20px;font-weight:800;">' + fmtMoney(finalTotal) + '</span>' +
+        '<span style="background:#ef4444;color:#ffffff;font-size:11px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:8px;">-' + discountPercent + '% OFF</span>';
     } else {
-      var priceEl = document.querySelector(".js-price-display, #price_display, .js-product-price, .product-price, .price-display");
-      if (priceEl) mainProdPrice = safePrice(priceEl.innerText || priceEl.textContent || "");
+      priceDisplay.innerHTML = '<span style="color:' + promoColor + ';font-size:20px;font-weight:800;">' + fmtMoney(sumOriginal) + '</span>';
     }
+  }
 
-    var styleId = "style-" + elementId;
-    if (!document.getElementById(styleId)) {
-      var styleEl = document.createElement("style");
-      styleEl.id = styleId;
-      styleEl.type = "text/css";
-      var css =
-        "#" + elementId + " {" +
-          "background:" + bgColor + " !important;" +
-          "border:1.5px solid " + borderColor + " !important;" +
-          "border-radius:12px !important;" +
-          "padding:16px !important;" +
-          "color:" + textColor + " !important;" +
-          "box-sizing:border-box !important;" +
-          "box-shadow:0 4px 14px rgba(0,0,0,0.05) !important;" +
-          "display:flex !important;" +
-          "flex-direction:column !important;" +
-          "gap:10px !important;" +
-          "margin:14px 0 !important;" +
-          "width:100% !important;" +
-          "font-family:system-ui,-apple-system,sans-serif !important;" +
-        "}" +
-        "#" + elementId + " .nvx-pc-item {" +
-          "background:#f9fafb !important;" +
-          "border:1px solid " + borderColor + " !important;" +
-          "border-radius:8px !important;" +
-          "padding:10px !important;" +
-          "display:flex !important;" +
-          "align-items:center !important;" +
-          "gap:10px !important;" +
-        "}" +
-        "#" + elementId + " .nvx-pc-btn {" +
-          "width:100% !important;background:" + buttonBg + " !important;color:" + buttonTextColor + " !important;" +
-          "border:none !important;border-radius:999px !important;padding:14px !important;" +
-          "font-size:15px !important;font-weight:800 !important;cursor:pointer !important;" +
-          "margin-top:6px !important;box-shadow:0 2px 8px rgba(0,0,0,0.1) !important;" +
-        "}" +
-        "#" + elementId + " .nvx-pc-btn:active { transform:scale(0.98) !important; }";
-      styleEl.appendChild(document.createTextNode(css));
-      document.head.appendChild(styleEl);
+  var btn = container.querySelector('.nvx-pack-submit-btn');
+  if (btn) {
+    if (count === 0) {
+      btn.innerHTML = 'Seleccioná al menos 1 producto';
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    } else {
+      btn.innerHTML = 'Agregar al carrito (' + count + ')';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
     }
+  }
+};
 
-    var html = '<div style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;margin-bottom:4px !important;">';
-    html += '<div>';
-    html += '<div style="font-size:15px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + safeEsc(title) + '</div>';
-    if (subtitle) {
-      html += '<div style="font-size:12px !important;opacity:0.7 !important;margin-top:2px !important;color:' + textColor + ' !important;">' + safeEsc(subtitle) + '</div>';
-    }
-    html += '</div>';
-    html += '<div style="text-align:right !important;">';
-    html += '<div class="nvx-pc-total" style="font-size:18px !important;font-weight:900 !important;color:' + promoPriceColor + ' !important;">$0</div>';
-    html += '</div>';
-    html += '</div>';
+window.nvxSubmitPackComp = function(widgetId, redirectToCart) {
+  var container = document.getElementById('nvx-pack-comp-' + widgetId);
+  if (!container) return;
 
-    // Item producto principal
-    html += '<div class="nvx-pc-item">';
-    html += '<input type="checkbox" class="nvx-pc-item-cb" data-type="main" data-id="' + safeEsc(String(mainProdId || '')) + '" data-variant="' + safeEsc(String(mainVariantId || '')) + '" data-price="' + mainProdPrice + '" checked ' + (!isMainOptional ? 'disabled' : '') + ' style="width:18px !important;height:18px !important;accent-color:' + promoPriceColor + ' !important;cursor:pointer !important;" onchange="if(window.nvxUpdatePackTotal)window.nvxUpdatePackTotal(\'' + elementId + '\');" />';
-    html += '<div style="flex:1 !important;min-width:0 !important;">';
-    html += '<div style="font-size:13px !important;font-weight:700 !important;color:' + textColor + ' !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + safeEsc(mainProdTitle) + '</div>';
-    if (mainProdPrice > 0) {
-      html += '<div style="font-size:12px !important;color:' + promoPriceColor + ' !important;font-weight:800 !important;">' + fmtMoney(mainProdPrice) + '</div>';
-    }
-    html += '</div>';
-    html += '<span style="background:' + badgeColor + ' !important;color:#ffffff !important;font-size:10px !important;font-weight:800 !important;padding:3px 8px !important;border-radius:4px !important;">ESTE PRODUCTO</span>';
-    html += '</div>';
+  var btn = container.querySelector('.nvx-pack-submit-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = 'Agregando al carrito...';
+  }
 
-    // Items complementarios
-    for (var i = 0; i < selectedProducts.length; i++) {
-      var item = selectedProducts[i];
-      var itemPrice = item.price || 0;
-      var itemVariant = item.variantId || item.id;
-      html += '<div class="nvx-pc-item">';
-      html += '<input type="checkbox" class="nvx-pc-item-cb" data-type="comp" data-id="' + safeEsc(String(item.id)) + '" data-variant="' + safeEsc(String(itemVariant)) + '" data-price="' + itemPrice + '" checked style="width:18px !important;height:18px !important;accent-color:' + promoPriceColor + ' !important;cursor:pointer !important;" onchange="if(window.nvxUpdatePackTotal)window.nvxUpdatePackTotal(\'' + elementId + '\');" />';
-      if (item.image) {
-        html += '<img src="' + safeEsc(item.image) + '" alt="" style="width:36px !important;height:36px !important;border-radius:6px !important;object-fit:cover !important;" />';
+  var checkedCbs = container.querySelectorAll('.nvx-pack-item-cb:checked');
+  var itemsToAdd = [];
+
+  for (var i = 0; i < checkedCbs.length; i++) {
+    var cb = checkedCbs[i];
+    var type = cb.getAttribute('data-type');
+    var variantId = cb.getAttribute('data-variant-id');
+
+    if (type === 'main') {
+      var nativeForm = document.querySelector('form[action*="/comprar/"]') || document.querySelector('.js-product-form');
+      var nativeInput = nativeForm ? nativeForm.querySelector('[name="add_to_cart"]') : null;
+      if (nativeInput && nativeInput.value) {
+        variantId = nativeInput.value;
+      } else if (window.LS && window.LS.variant && window.LS.variant.id) {
+        variantId = String(window.LS.variant.id);
       }
-      html += '<div style="flex:1 !important;min-width:0 !important;">';
-      html += '<div style="font-size:13px !important;font-weight:700 !important;color:' + textColor + ' !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + safeEsc(item.title) + '</div>';
-      html += '<div style="font-size:12px !important;color:' + promoPriceColor + ' !important;font-weight:800 !important;">' + fmtMoney(itemPrice) + '</div>';
-      html += '</div>';
-      html += '</div>';
     }
 
-    html += '<button type="button" class="nvx-pc-btn" onclick="window.nvxSubmitPackComp(this,\'' + elementId + '\',' + (redirectCheckout ? "true" : "false") + ');">Agregar al carrito</button>';
-
-    var container = document.createElement("div");
-    container.id = elementId;
-    container.className = "nvx-widget nvx-pack-complementarios-wrapper";
-    container.innerHTML = html;
-
-    // ESTRATEGIA DE UBICACIÓN Y REEMPLAZO IDÉNTICA A BUNDLE DE CANTIDAD
-    var targetEl = null;
-    var buySelectors = [
-      "form[action*='/cart/add']",
-      "form.js-product-form",
-      ".js-product-buy-container",
-      ".product-buy-container",
-      "form.js-product-buyform",
-      ".js-add-to-cart-btn",
-      "#product_form",
-      "form[action*='/cart']",
-      "form[action*='/comprar']",
-      ".product-form"
-    ];
-    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
-      var bEl = document.querySelector(buySelectors[sIdx]);
-      if (bEl) { targetEl = bEl; break; }
+    if (variantId && variantId !== 'undefined' && variantId !== 'null') {
+      itemsToAdd.push(variantId);
     }
+  }
 
-    if (targetEl && targetEl.parentNode) {
-      if (replaceCart) {
-        targetEl.parentNode.insertBefore(container, targetEl);
-        try { targetEl.style.display = "none"; } catch (eHide) {}
+  if (itemsToAdd.length === 0) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Agregar al carrito';
+    }
+    return;
+  }
+
+  function addSingleVariant(vId) {
+    return new Promise(function(resolve) {
+      if (window.LS && window.LS.cart && typeof window.LS.cart.add === 'function') {
+        try {
+          var sdkRes = window.LS.cart.add({ variant_id: Number(vId), quantity: 1 });
+          if (sdkRes && typeof sdkRes.then === 'function') {
+            sdkRes.then(function() { resolve(true); }).catch(function() { doFetch(); });
+            return;
+          }
+        } catch(e) {}
+      }
+      doFetch();
+
+      function doFetch() {
+        var formData = new FormData();
+        formData.append('add_to_cart', String(vId));
+        formData.append('quantity', '1');
+
+        fetch('/comprar/', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(function() { resolve(true); })
+        .catch(function() { resolve(false); });
+      }
+    });
+  }
+
+  function processQueue(index) {
+    if (index >= itemsToAdd.length) {
+      if (redirectToCart) {
+        window.location.href = '/comprar/';
       } else {
-        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+        if (window.LS && window.LS.cart && typeof window.LS.cart.update === 'function') {
+          try { window.LS.cart.update(); } catch(e) {}
+        }
+        try {
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+          window.dispatchEvent(new CustomEvent('cart:updated'));
+        } catch(e) {}
+        if (btn) {
+          btn.innerHTML = '¡Agregado al carrito!';
+          setTimeout(function() {
+            window.nvxUpdatePackTotal(widgetId);
+          }, 2000);
+        }
       }
-    } else {
-      var main = document.querySelector("main, #content, .main-content, .js-product-container, .product-container, #single-product, .product");
-      if (main) {
-        main.appendChild(container);
-      } else if (document.body) {
-        document.body.appendChild(container);
-      }
+      return;
     }
 
-    setTimeout(function () {
-      if (typeof window.nvxUpdatePackTotal === "function") {
-        window.nvxUpdatePackTotal(elementId);
-      }
-    }, 50);
+    addSingleVariant(itemsToAdd[index]).then(function() {
+      processQueue(index + 1);
+    });
   }
 
-  if (typeof window.nvxUpdatePackTotal !== "function") {
-    window.nvxUpdatePackTotal = function(elementId) {
-      var root = document.getElementById(elementId);
-      if (!root) return;
-      var cbs = root.querySelectorAll(".nvx-pc-item-cb");
-      var total = 0;
-      var count = 0;
-      for (var k = 0; k < cbs.length; k++) {
-        if (cbs[k].checked) {
-          total += parseFloat(cbs[k].getAttribute("data-price") || "0") || 0;
-          count++;
-        }
-      }
-      var totalEl = root.querySelector(".nvx-pc-total");
-      if (totalEl) {
-        var fmt = function(n) {
-          var x = Math.round(Number(n) || 0);
-          var s = String(x), out = "", c = 0;
-          for (var i = s.length - 1; i >= 0; i--) {
-            out = s.charAt(i) + out; c++;
-            if (c === 3 && i > 0) { out = "." + out; c = 0; }
-          }
-          return "$" + out;
-        };
-        totalEl.innerText = fmt(total);
-      }
-      var btn = root.querySelector(".nvx-pc-btn");
-      if (btn) {
-        btn.innerText = "Agregar al carrito (" + count + ")";
-      }
-    };
+  processQueue(0);
+};
+
+function renderPackComplementarios(w) {
+  if (!w) return;
+  var cfg = w.config || {};
+
+  // Filtro target_product_id
+  if (w.target_type === 'product' && w.target_product_id) {
+    var currentProdId = null;
+    if (window.LS && window.LS.product && window.LS.product.id) {
+      currentProdId = String(window.LS.product.id);
+    }
+    if (!currentProdId) {
+      var match = window.location.pathname.match(/\/productos\/[^\/]+-([0-9]+)/) || window.location.pathname.match(/-([0-9]+)\/?$/);
+      if (match) currentProdId = match[1];
+    }
+    if (currentProdId && String(w.target_product_id) !== String(currentProdId)) {
+      return;
+    }
   }
 
-  if (typeof window.nvxSubmitPackComp !== "function") {
-    window.nvxSubmitPackComp = function(btnEl, elementId, redirectCheckout) {
-      var root = document.getElementById(elementId);
-      if (!root) return;
+  // Buscar elemento destino
+  var buySelectors = [
+    'form[action*="/comprar/"]',
+    'form.js-product-form',
+    '.js-product-form',
+    'form[action*="/cart/add"]',
+    '.product-buy-container',
+    '.js-buy-form'
+  ];
+  var targetEl = null;
+  for (var i = 0; i < buySelectors.length; i++) {
+    var el = document.querySelector(buySelectors[i]);
+    if (el) { targetEl = el; break; }
+  }
 
-      btnEl.innerText = "Agregando...";
-      btnEl.disabled = true;
+  if (!targetEl) return;
 
-      var cbs = root.querySelectorAll(".nvx-pc-item-cb:checked");
-      var itemsToAdd = [];
-      for (var m = 0; m < cbs.length; m++) {
-        var pVar = cbs[m].getAttribute("data-variant") || cbs[m].getAttribute("data-id");
-        if (pVar) itemsToAdd.push(pVar);
+  var containerId = 'nvx-pack-comp-' + w.id;
+  var existing = document.getElementById(containerId);
+  if (existing) existing.remove();
+
+  // Reemplazar o mantener botón nativo
+  if (cfg.replaceNativeButton !== false) {
+    targetEl.style.setProperty('display', 'none', 'important');
+  }
+
+  // Obtener producto principal
+  var mainTitle = (window.LS && window.LS.product && window.LS.product.name) || document.title || 'Producto Principal';
+  var mainPrice = 0;
+  if (window.LS && window.LS.variant && window.LS.variant.price) {
+    mainPrice = parseFloat(window.LS.variant.price);
+  } else if (window.LS && window.LS.product && window.LS.product.price) {
+    mainPrice = parseFloat(window.LS.product.price);
+  } else {
+    var priceDom = document.querySelector('.js-price-display, #price_display, [data-product-price], .product-price');
+    if (priceDom) {
+      var pStr = priceDom.textContent.replace(/[^0-9,\.]/g, '');
+      if (pStr.indexOf(',') > -1 && pStr.indexOf('.') > -1) {
+        pStr = pStr.replace(/\./g, '').replace(',', '.');
+      } else if (pStr.indexOf(',') > -1) {
+        pStr = pStr.replace(',', '.');
       }
+      mainPrice = parseFloat(pStr) || 0;
+    }
+  }
 
-      if (itemsToAdd.length === 0) {
-        alert("Por favor seleccioná al menos un producto.");
-        btnEl.innerText = "Agregar al carrito";
-        btnEl.disabled = false;
-        return;
-      }
+  var mainVariantId = '';
+  if (window.LS && window.LS.variant && window.LS.variant.id) {
+    mainVariantId = String(window.LS.variant.id);
+  } else {
+    var nativeInput = targetEl.querySelector('[name="add_to_cart"]');
+    if (nativeInput && nativeInput.value) {
+      mainVariantId = String(nativeInput.value);
+    } else if (window.LS && window.LS.product && window.LS.product.variants && window.LS.product.variants[0]) {
+      mainVariantId = String(window.LS.product.variants[0].id);
+    }
+  }
 
-      function addViaNube(variantId, quantity) {
-        return new Promise(function (resolve) {
-          try {
-            if (window.nube && typeof window.nube.send === "function") {
-              window.nube.send("cart:add", {
-                variant_id: parseInt(variantId, 10),
-                quantity: quantity
-              });
-              setTimeout(function () { resolve(true); }, 300);
-              return;
-            }
-          } catch (e1) {}
-          resolve(false);
-        });
-      }
+  var title = cfg.title || 'Armá tu pack';
+  var subtitle = cfg.subtitle || 'Seleccioná los complementos';
+  var selectedProducts = Array.isArray(cfg.selectedProducts) ? cfg.selectedProducts : [];
+  var isMainOptional = !!cfg.isMainOptional;
+  var enableDiscount = !!cfg.enableQuantityDiscount;
+  var redirectToCart = !!cfg.redirectToCart;
 
-      function addViaComprar(variantId, quantity) {
-        return new Promise(function (resolve) {
-          try {
-            var fd = new FormData();
-            fd.append("add_to_cart", variantId);
-            fd.append("variant_id", variantId);
-            fd.append("quantity", String(quantity));
-            fetch("/comprar/", {
-              method: "POST",
-              body: fd,
-              credentials: "include"
-            }).then(function () { resolve(true); }).catch(function () { resolve(false); });
-          } catch (e2) {
-            resolve(false);
-          }
-        });
-      }
+  var btnBg = cfg.buttonBg || '#111827';
+  var btnText = cfg.buttonText || '#ffffff';
+  var textColor = (cfg.textColor && cfg.textColor.toLowerCase() !== '#ffffff') ? cfg.textColor : '#111827';
+  var promoColor = cfg.promoPriceColor || '#16a34a';
+  var badgeColor = cfg.badgeColor || '#10B981';
+  var itemBg = cfg.itemBgColor || '#f7f7f7';
+  var borderColor = cfg.borderColor || '#e5e7eb';
 
-      var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
+  function fmtMoney(num) {
+    var n = Math.round(num);
+    return '$' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
 
-      var chain = Promise.resolve();
-      for (var i = 0; i < itemsToAdd.length; i++) {
-        (function(vId) {
-          chain = chain.then(function() {
-            return hasNube ? addViaNube(vId, 1) : addViaComprar(vId, 1);
-          });
-        })(itemsToAdd[i]);
-      }
+  var html = '<div id="' + containerId + '" data-enable-discount="' + enableDiscount + '" data-promo-color="' + promoColor + '" style="background:#ffffff;border:1px solid ' + borderColor + ';border-radius:16px;padding:18px;margin:20px 0;box-shadow:0 2px 8px rgba(0,0,0,0.06);font-family:inherit;color:' + textColor + ';">';
+  
+  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;">';
+  html += '<div>';
+  html += '<div style="font-size:16px;font-weight:800;color:' + textColor + ';">' + title + '</div>';
+  if (subtitle) {
+    html += '<div style="font-size:12px;color:#6b7280;margin-top:2px;">' + subtitle + '</div>';
+  }
+  html += '</div>';
+  html += '<div class="nvx-pack-price-display" style="text-align:right;"></div>';
+  html += '</div>';
 
-      chain.then(function() {
-        if (redirectCheckout) {
-          window.location.href = "/comprar/";
-        } else if (hasNube) {
-          try { window.nube.send("cart:open"); } catch(e){}
-          btnEl.innerText = "¡Agregado!";
-          setTimeout(function() {
-            if (window.nvxUpdatePackTotal) window.nvxUpdatePackTotal(elementId);
-            btnEl.disabled = false;
-          }, 2000);
-        } else {
-          window.location.reload();
-        }
-      }).catch(function() {
-        window.location.reload();
-      });
-    };
-        }
+  html += '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">';
+
+  // Producto Principal
+  html += '<div style="background:' + itemBg + ';border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;">';
+  html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="main" data-price="' + mainPrice + '" data-variant-id="' + mainVariantId + '" ' + (isMainOptional ? 'checked' : 'checked disabled') + ' onchange="window.nvxUpdatePackTotal(\'' + w.id + '\')" style="width:18px;height:18px;cursor:pointer;" />';
+  html += '<div style="flex:1;min-width:0;">';
+  html += '<div style="font-size:13px;font-weight:700;color:' + textColor + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + mainTitle + '</div>';
+  html += '<div style="font-size:12px;color:' + promoColor + ';font-weight:800;">' + fmtMoney(mainPrice) + '</div>';
+  html += '</div>';
+  html += '<span style="background:' + badgeColor + ';color:#ffffff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;flex-shrink:0;">PRINCIPAL</span>';
+  html += '</div>';
+
+  // Productos Complementarios
+  for (var j = 0; j < selectedProducts.length; j++) {
+    var p = selectedProducts[j];
+    var pVariant = String(p.variantId || p.id);
+    var pPrice = parseFloat(p.price) || 0;
+    var pTitle = p.title || 'Complemento';
+    var pImg = p.image || '';
+
+    html += '<div style="background:' + itemBg + ';border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;">';
+    html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="comp" data-price="' + pPrice + '" data-variant-id="' + pVariant + '" data-id="' + p.id + '" checked onchange="window.nvxUpdatePackTotal(\'' + w.id + '\')" style="width:18px;height:18px;cursor:pointer;" />';
+    if (pImg) {
+      html += '<img src="' + pImg + '" alt="' + pTitle + '" style="width:38px;height:38px;border-radius:6px;object-fit:cover;flex-shrink:0;" />';
+    }
+    html += '<div style="flex:1;min-width:0;">';
+    html += '<div style="font-size:13px;font-weight:700;color:' + textColor + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + pTitle + '</div>';
+    html += '<div style="font-size:12px;color:' + promoColor + ';font-weight:800;">' + fmtMoney(pPrice) + '</div>';
+    html += '</div>';
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  // Botón Agregar al Carrito
+  html += '<button type="button" class="nvx-pack-submit-btn" onclick="window.nvxSubmitPackComp(\'' + w.id + '\', ' + redirectToCart + ')" style="width:100%;background:' + btnBg + ';color:' + btnText + ';border:none;border-radius:999px;padding:12px 16px;font-weight:800;font-size:14px;cursor:pointer;transition:all 0.2s;">';
+  html += 'Agregar al carrito';
+  html += '</button>';
+
+  html += '0</div>';
+
+  var wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  targetEl.parentNode.insertBefore(wrapper.firstChild, targetEl);
+
+  window.nvxUpdatePackTotal(w.id);
+  }
 })(); 
