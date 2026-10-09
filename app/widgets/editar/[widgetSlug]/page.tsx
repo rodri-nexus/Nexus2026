@@ -1,6 +1,7 @@
 // app/widgets/editar/[widgetSlug]/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import PreguntasFrecuentesEditor from '@/components/widgets/editors/PreguntasFrecuentesEditor';
 import ProductosComplementariosEditor from '@/components/widgets/editors/ProductosComplementariosEditor';
 import BarraCuotasEditor from '@/components/widgets/editors/BarraCuotasEditor';
 import BarraEnvioGratisEditor from '@/components/widgets/editors/BarraEnvioGratisEditor';
@@ -127,7 +128,12 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
-  // WIDGET: BADGE DE EFECTIVO (NUEVO)
+  // WIDGET: PREGUNTAS FRECUENTES (NUEVO)
+  if (params.widgetSlug === 'preguntas-frecuentes') {
+    return <PreguntasFrecuentesEditor {...editorProps} />;
+  }
+
+  // WIDGET: BADGE DE EFECTIVO
   if (params.widgetSlug === 'badge-efectivo') {
     return <BadgeEfectivoEditor {...editorProps} />;
   }
@@ -235,4 +241,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+}
