@@ -8425,8 +8425,8 @@ var renderBadgeEfectivo = function(w) {
       console.warn("Nevux FAQ Error:", e);
     }
   };
-      /* ═══════════════════════════════════════════
-     WIDGET #21: BANNER SUPERIOR (ULTRA-BULLETPROOF)
+        /* ═══════════════════════════════════════════
+     WIDGET #21: BANNER SUPERIOR / BARRA STICKY INFERIOR
      ═══════════════════════════════════════════ */
   var renderBannerSuperior = function(w) {
     try {
@@ -8443,7 +8443,6 @@ var renderBadgeEfectivo = function(w) {
       var buttonUrl = cfg.buttonUrl || "";
       var openInNewTab = cfg.openInNewTab === true;
       var showCloseButton = cfg.showCloseButton !== false;
-      var position = cfg.position === "bottom" ? "bottom" : "top";
 
       var bgColor = cfg.bgColor || "#1e1e1e";
       var bgGradient = cfg.bgGradient === true;
@@ -8465,11 +8464,8 @@ var renderBadgeEfectivo = function(w) {
         ? "linear-gradient(135deg, " + bgColor + ", #000000)"
         : bgColor;
 
-      var posCSS = position === "bottom"
-        ? "position: fixed !important; bottom: 0 !important; top: auto !important; left: 0 !important; right: 0 !important;"
-        : "position: fixed !important; top: 0 !important; bottom: auto !important; left: 0 !important; right: 0 !important;";
-
-      container.style.cssText = posCSS + " width: 100% !important; max-width: 100vw !important; z-index: 2147483647 !important; background: " + backgroundCSS + " !important; color: " + textColor + " !important; padding: " + padding + " !important; box-sizing: border-box !important; font-family: inherit !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; display: flex !important; visibility: visible !important; opacity: 1 !important; margin: 0 !important;";
+      // Estilo exacto probado de la barra sticky inferior
+      container.style.cssText = "position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; top: auto !important; width: 100% !important; max-width: 100vw !important; z-index: 999998 !important; background: " + backgroundCSS + " !important; color: " + textColor + " !important; padding: " + padding + " !important; box-sizing: border-box !important; font-family: inherit !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.25) !important; display: flex !important; align-items: center !important; justify-content: center !important;";
 
       var btnBgCSS = btnGradient
         ? "linear-gradient(135deg, " + buttonColor + ", #e5e7eb)"
@@ -8503,19 +8499,16 @@ var renderBadgeEfectivo = function(w) {
         }
       }
 
-      // Inyección robusta asegurada en DOM
-      var doInject = function() {
-        if (!document.body) return false;
-        if (position === "top") {
-          document.body.insertBefore(container, document.body.firstChild);
-        } else {
+      var mount = function() {
+        if (document.body) {
           document.body.appendChild(container);
         }
-        return true;
       };
 
-      if (!doInject()) {
-        window.addEventListener("DOMContentLoaded", doInject);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", mount);
+      } else {
+        mount();
       }
     } catch (e) {
       console.warn("Nevux Banner Superior Error:", e);
