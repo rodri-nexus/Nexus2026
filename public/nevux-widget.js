@@ -1816,7 +1816,7 @@
             if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
             if (w.widget_slug === "badge-efectivo") renderBadgeEfectivo(w);
             if (w.widget_slug === "preguntas-frecuentes") renderPreguntasFrecuentes(w);
-            if (w.widget_slug === "preguntas-frecuentes") renderPreguntasFrecuentes(w);
+            if (w.widget_slug === "banner-superior") renderBannerSuperior(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
