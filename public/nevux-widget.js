@@ -7999,7 +7999,7 @@ var renderMensajeGarantia = function(w) {
   }
 };
         /* ═══════════════════════════════════════════
-   WIDGET: BADGE DE EFECTIVO (v211)
+   WIDGET: BADGE DE EFECTIVO (v212)
    ═══════════════════════════════════════════ */
 var renderBadgeEfectivo = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -8007,16 +8007,25 @@ var renderBadgeEfectivo = function(w) {
 
   var showProduct = cfg.showOnProductPage !== false;
   var showGrid = !!cfg.showOnGrid;
+  var showSticky = !!cfg.stickyGlobal;
 
   var isProductPage = pType === "product" || pType === "item";
   var isHomeOrCategory = pType === "home" || pType === "category" || pType === "list";
 
-  if (isProductPage && !showProduct) return;
-  if (isHomeOrCategory && !showGrid) return;
-  if (!isProductPage && !isHomeOrCategory) return;
+  // --- 1. BARRA FIJA STICKY (Si está activa) ---
+  if (showSticky && !document.getElementById("nvx-badge-efectivo-sticky")) {
+    var discPercentSticky = parseFloat(cfg.discountPercent) || 10;
+    var stickyBg = cfg.bgColor || "#111827";
+    var stickyTextCol = cfg.textColor || "#ffffff";
+    var stickyContainer = document.createElement("div");
+    stickyContainer.id = "nvx-badge-efectivo-sticky";
+    stickyContainer.style.cssText = "position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important; z-index: 999997 !important; background: " + stickyBg + " !important; color: " + stickyTextCol + " !important; padding: 10px 16px !important; text-align: center !important; font-size: 13px !important; font-weight: 700 !important; box-shadow: 0 -4px 15px rgba(0,0,0,0.15) !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important;";
+    stickyContainer.innerHTML = '<span>💵</span> <span>¡Aprovechá hasta <strong>' + discPercentSticky + '% OFF</strong> pagando en efectivo o transferencia!</span>';
+    document.body.appendChild(stickyContainer);
+  }
 
-  // Render en ficha de producto
-  if (isProductPage) {
+  // --- 2. FICHA DE PRODUCTO (Debajo de los precios) ---
+  if (isProductPage && showProduct) {
     if (document.getElementById("nvx-badge-efectivo-product")) return;
 
     var prod = window.LS && window.LS.product ? window.LS.product : null;
@@ -8024,14 +8033,18 @@ var renderBadgeEfectivo = function(w) {
 
     if (prod && prod.price) {
       rawPrice = typeof normalizeToPesos === "function" ? normalizeToPesos(prod.price) : prod.price;
+      if (rawPrice > 1000000) rawPrice = rawPrice / 100;
     } else {
-      var priceEl = document.querySelector(".js-price-display, .product-price, #price_display, .js-product-price");
+      var priceEl = document.querySelector(".js-price-display, #price_display, .js-product-price, .product-price");
       if (priceEl) {
         var txt = priceEl.innerText.replace(/[^\d]/g, "");
-        if (txt) rawPrice = parseFloat(txt);
+        if (txt) {
+          rawPrice = parseFloat(txt);
+          if (typeof normalizeToPesos === "function") rawPrice = normalizeToPesos(rawPrice);
+        }
       }
     }
-    if (!rawPrice || rawPrice <= 0) rawPrice = 10000;
+    if (!rawPrice || rawPrice <= 0) rawPrice = 35000;
 
     var discPercent = parseFloat(cfg.discountPercent) || 10;
     var discPrice = rawPrice * (1 - discPercent / 100);
@@ -8040,9 +8053,12 @@ var renderBadgeEfectivo = function(w) {
     var msgType = cfg.messageType || "percent";
     var rawMsg = msgType === "percent"
       ? (cfg.customTextPercent || "{descuento}% de descuento pagando en efectivo")
-      : (cfg.customTextPrice || "${precio} pagando en efectivo");
+      : (cfg.customTextPrice || "{precio} pagando en efectivo");
 
-    rawMsg = rawMsg.replace("{descuento}", discPercent).replace("{precio}", formattedDiscPrice);
+    // Limpieza de duplicación de "$"
+    rawMsg = rawMsg.replace("{descuento}", discPercent);
+    rawMsg = rawMsg.replace("${precio}", formattedDiscPrice);
+    rawMsg = rawMsg.replace("{precio}", formattedDiscPrice);
 
     var bgColor = cfg.bgColor || "#f3f4f6";
     var textColor = cfg.textColor || "#111827";
@@ -8066,7 +8082,7 @@ var renderBadgeEfectivo = function(w) {
     var container = document.createElement("div");
     container.id = "nvx-badge-efectivo-product";
 
-    var cssText = "position: relative !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; background: " + containerBg + " !important; color: " + textColor + " !important; font-size: " + fontSize + " !important; font-weight: 600 !important; padding: " + padding + " !important; border-radius: " + borderRadius + " !important; margin-top: " + marginTop + " !important; margin-bottom: " + marginBottom + " !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;";
+    var cssText = "position: relative !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; background: " + containerBg + " !important; color: " + textColor + " !important; font-size: " + fontSize + " !important; font-weight: 600 !important; padding: " + padding + " !important; border-radius: " + borderRadius + " !important; margin-top: " + marginTop + " !important; margin-bottom: " + marginBottom + " !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; width: auto !important; clear: both !important;";
 
     if (showBorder) {
       cssText += " border: 1px solid " + borderColor + " !important;";
@@ -8094,15 +8110,24 @@ var renderBadgeEfectivo = function(w) {
 
     container.innerHTML = html;
 
-    var targetEl = document.querySelector(".js-price-display, .product-price, #price_display, .js-product-price");
-    if (targetEl && targetEl.parentNode) {
-      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    // BUSCAR EL CONTENEDOR CONTENEDOR DE AMBOS PRECIOS O EL ÚLTIMO PRECIO DISPLAY
+    var priceContainer = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container");
+    if (priceContainer && priceContainer.parentNode) {
+      priceContainer.parentNode.insertBefore(container, priceContainer.nextSibling);
     } else {
-      var form = document.querySelector("form[action*='/cart/add']");
-      if (form && form.parentNode) {
-        form.parentNode.insertBefore(container, form);
+      var priceDisplays = document.querySelectorAll(".js-price-display, #price_display, .js-product-price, .product-price");
+      if (priceDisplays && priceDisplays.length > 0) {
+        var lastPriceEl = priceDisplays[priceDisplays.length - 1];
+        if (lastPriceEl && lastPriceEl.parentNode) {
+          lastPriceEl.parentNode.insertBefore(container, lastPriceEl.nextSibling);
+        }
       } else {
-        document.body.appendChild(container);
+        var form = document.querySelector("form[action*='/cart/add']");
+        if (form && form.parentNode) {
+          form.parentNode.insertBefore(container, form);
+        } else {
+          document.body.appendChild(container);
+        }
       }
     }
   }
