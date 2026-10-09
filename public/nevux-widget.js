@@ -1818,6 +1818,7 @@
             if (w.widget_slug === "preguntas-frecuentes") renderPreguntasFrecuentes(w);
             if (w.widget_slug === "banner-superior") renderBannerSuperior(w);
             if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
+            if (w.widget_slug === "comparador-antes-despues") renderComparadorAntesDespues(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -8996,5 +8997,138 @@ var renderBadgeEfectivo = function(w) {
         window.location.reload();
       });
     };
-    }        
+    }  
+      /* ═══════════════════════════════════════════
+   WIDGET: COMPARADOR ANTES Y DESPUÉS
+   ═══════════════════════════════════════════ */
+var renderComparadorAntesDespues = function(w) {
+  if (!w || !w.config) return;
+  var cfg = w.config || {};
+
+  var containerId = "nvx-comparador-" + (w.id || Math.floor(Math.random() * 100000));
+  if (document.getElementById(containerId)) return;
+
+  var titulo = cfg.titulo || "";
+  var subtitulo = cfg.subtitulo || "";
+  var imgAntes = cfg.imagen_antes || "https://images.unsplash.com/photo-1512290900676-26c2a48f341d?auto=format&fit=crop&w=800&q=80";
+  var imgDespues = cfg.imagen_despues || "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80";
+  var lblAntes = cfg.etiqueta_antes || "ANTES";
+  var lblDespues = cfg.etiqueta_despues || "DESPUÉS";
+  var showLbl = cfg.mostrar_etiquetas !== false;
+  var posIni = cfg.posicion_inicial !== undefined ? cfg.posicion_inicial : 50;
+  var ratio = cfg.aspect_ratio || "4/3";
+  var bRadius = cfg.borde_redondeado !== undefined ? cfg.borde_redondeado : 12;
+  var pTop = cfg.padding_top !== undefined ? cfg.padding_top : 16;
+  var pBot = cfg.padding_bottom !== undefined ? cfg.padding_bottom : 16;
+  var cSlider = cfg.color_deslizador || "#ffffff";
+  var cBgLbl = cfg.color_etiqueta_fondo || "rgba(0,0,0,0.6)";
+  var cTxtLbl = cfg.color_etiqueta_texto || "#ffffff";
+  var ubicacion = cfg.ubicacion || "debajo_descripcion";
+
+  var paddingAspect = "75%";
+  if (ratio === "1/1") paddingAspect = "100%";
+  if (ratio === "16/9") paddingAspect = "56.25%";
+
+  var wrapper = document.createElement("div");
+  wrapper.id = containerId;
+  wrapper.style.cssText = "box-sizing: border-box !important; width: 100% !important; padding-top: " + pTop + "px !important; padding-bottom: " + pBot + "px !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; clear: both !important;";
+
+  var html = "";
+  if (titulo) {
+    html += '<h3 style="margin: 0 0 4px 0 !important; font-size: 18px !important; font-weight: 800 !important; color: #111827 !important; text-align: center !important;">' + titulo + '</h3>';
+  }
+  if (subtitulo) {
+    html += '<p style="margin: 0 0 16px 0 !important; font-size: 13px !important; color: #6b7280 !important; text-align: center !important;">' + subtitulo + '</p>';
+  }
+
+  html += '<div class="nvx-before-after-box" style="position: relative !important; width: 100% !important; padding-top: ' + paddingAspect + ' !important; border-radius: ' + bRadius + 'px !important; overflow: hidden !important; user-select: none !important; -webkit-user-select: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; touch-action: none !important;">';
+
+  // Imagen Después (Fondo)
+  html += '<img src="' + imgDespues + '" alt="Después" style="position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; object-fit: cover !important; pointer-events: none !important;" />';
+
+  // Etiqueta Después
+  if (showLbl && lblDespues) {
+    html += '<span style="position: absolute !important; top: 12px !important; right: 12px !important; background: ' + cBgLbl + ' !important; color: ' + cTxtLbl + ' !important; font-size: 11px !important; font-weight: 800 !important; padding: 4px 10px !important; border-radius: 6px !important; letter-spacing: 0.05em !important; z-index: 2 !important; pointer-events: none !important;">' + lblDespues + '</span>';
+  }
+
+  // Capa Antes (Recortada)
+  html += '<div class="nvx-before-layer" style="position: absolute !important; top: 0 !important; left: 0 !important; bottom: 0 !important; width: ' + posIni + '% !important; overflow: hidden !important; z-index: 3 !important;">';
+  html += '<img src="' + imgAntes + '" alt="Antes" style="position: absolute !important; top: 0 !important; left: 0 !important; height: 100% !important; width: 100% !important; max-width: none !important; object-fit: cover !important; pointer-events: none !important;" />';
+  if (showLbl && lblAntes) {
+    html += '<span style="position: absolute !important; top: 12px !important; left: 12px !important; background: ' + cBgLbl + ' !important; color: ' + cTxtLbl + ' !important; font-size: 11px !important; font-weight: 800 !important; padding: 4px 10px !important; border-radius: 6px !important; letter-spacing: 0.05em !important; pointer-events: none !important; white-space: nowrap !important;">' + lblAntes + '</span>';
+  }
+  html += '</div>';
+
+  // Barra / Mango
+  html += '<div class="nvx-divider-handle" style="position: absolute !important; top: 0 !important; bottom: 0 !important; left: ' + posIni + '% !important; width: 2px !important; background: ' + cSlider + ' !important; transform: translateX(-50%) !important; z-index: 4 !important; pointer-events: none !important; box-shadow: 0 0 8px rgba(0,0,0,0.4) !important;">';
+  html += '<div style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; background: ' + cSlider + ' !important; box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #333 !important; font-size: 14px !important; font-weight: bold !important;">↔</div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  wrapper.innerHTML = html;
+
+  // Inserción en el DOM
+  var targetEl = null;
+  if (ubicacion === "debajo_boton_comprar") {
+    targetEl = document.querySelector("form[action*='/cart/add'], .js-addtocart, .btn-add-to-cart, .js-product-form");
+  } else if (ubicacion === "encima_comentarios") {
+    targetEl = document.querySelector("#reviews, .js-reviews-container, .comments, #comments");
+  }
+
+  if (!targetEl) {
+    targetEl = document.querySelector(".js-product-description, .product-description, .description, #description");
+  }
+
+  if (targetEl && targetEl.parentNode) {
+    targetEl.parentNode.insertBefore(wrapper, targetEl.nextSibling);
+  } else {
+    var mainProduct = document.querySelector(".js-product-container, .product-detail, form[action*='/cart/add']") || document.body;
+    mainProduct.appendChild(wrapper);
+  }
+
+  // Lógica del deslizador
+  var box = wrapper.querySelector(".nvx-before-after-box");
+  var beforeLayer = wrapper.querySelector(".nvx-before-layer");
+  var dividerHandle = wrapper.querySelector(".nvx-divider-handle");
+
+  if (box && beforeLayer && dividerHandle) {
+    var isDragging = false;
+
+    var updatePos = function(clientX) {
+      var rect = box.getBoundingClientRect();
+      var x = clientX - rect.left;
+      var pct = (x / rect.width) * 100;
+      if (pct < 0) pct = 0;
+      if (pct > 100) pct = 100;
+
+      beforeLayer.style.width = pct + "%";
+      dividerHandle.style.left = pct + "%";
+    };
+
+    var onStart = function(e) {
+      isDragging = true;
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      updatePos(clientX);
+    };
+
+    var onMove = function(e) {
+      if (!isDragging) return;
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      updatePos(clientX);
+    };
+
+    var onEnd = function() {
+      isDragging = false;
+    };
+
+    box.addEventListener("mousedown", onStart);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+
+    box.addEventListener("touchstart", onStart);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", onEnd);
+  }
+};
 })(); 
