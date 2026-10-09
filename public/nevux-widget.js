@@ -8264,7 +8264,7 @@ var renderBadgeEfectivo = function(w) {
     }
   }
 };
-      /* ═══════════════════════════════════════════
+        /* ═══════════════════════════════════════════
      WIDGET #20: PREGUNTAS FRECUENTES (FAQ)
      ═══════════════════════════════════════════ */
   var renderPreguntasFrecuentes = function(w) {
@@ -8298,25 +8298,48 @@ var renderBadgeEfectivo = function(w) {
       var questionSpacing = cfg.questionSpacing || "with_space";
       var toggleIconType = cfg.toggleIconType || "arrow";
 
-      // Ubicación del target element con Multi-Selector Universal Tiendanube
+      // Ubicación del target element con Multi-Detector Robusto
       var targetEl = null;
+      var insertMode = "after";
+
       if (position === "after_desc") {
         targetEl = document.querySelector(".js-product-description, .product-description, #description, .description-container, .user-content, [data-store='product-description']");
+        insertMode = "after";
       } else {
-        // "before_desc": Debajo del botón / formulario de compra
-        targetEl = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form.js-product-form, .js-product-form, form.js-prod-form, .js-addtocart-form, .js-product-container form");
+        // "before_desc": 1. Buscar primero el botón nativo de comprar
+        var buyBtn = document.querySelector(".js-addtocart, .js-add-to-cart, [data-store='product-buy-button'], input[name='add_to_cart'], button.js-addtocart, .js-prod-submit-container");
+        if (buyBtn) {
+          targetEl = buyBtn.closest("form") || buyBtn.closest(".js-product-form") || buyBtn.parentElement;
+          insertMode = "after";
+        }
+
+        // 2. Buscar formulario de compra
+        if (!targetEl) {
+          targetEl = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart'], form[action*='comprar'], form.js-product-form, .js-product-form, .js-addtocart-form");
+          insertMode = "after";
+        }
+
+        // 3. Buscar contenedor de cálculo de envío o pagos (justo abajo del botón)
+        if (!targetEl) {
+          var shippingCalc = document.querySelector(".js-shipping-calculator-container, #shipping-calculator, .shipping-calculator-container, [data-store='shipping-calculator'], .js-product-payments-container");
+          if (shippingCalc) {
+            targetEl = shippingCalc;
+            insertMode = "before";
+          }
+        }
       }
 
-      // Fallback si no se encontró en la opción seleccionada
+      // Fallback universal
       if (!targetEl) {
-        targetEl = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], .js-product-description, #description");
+        targetEl = document.querySelector(".js-product-description, .product-description, #description, body");
+        insertMode = "after";
       }
 
-      if (!targetEl) return;
+      if (!targetEl || !targetEl.parentNode) return;
 
       var container = document.createElement("div");
       container.id = containerId;
-      container.style.cssText = "width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 16px 0 !important; padding: 16px !important; background-color: " + bgColor + " !important; border-radius: " + borderRadius + " !important; border: 1.5px solid " + borderColor + " !important; font-family: inherit !important;";
+      container.style.cssText = "width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 16px 0 !important; padding: 16px !important; background-color: " + bgColor + " !important; border-radius: " + borderRadius + " !important; border: 1.5px solid " + borderColor + " !important; font-family: inherit !important; clear: both !important; flex-basis: 100% !important; display: block !important;";
 
       var html = "";
       if (title && title.length > 0) {
@@ -8392,7 +8415,11 @@ var renderBadgeEfectivo = function(w) {
         });
       }
 
-      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      if (insertMode === "before") {
+        targetEl.parentNode.insertBefore(container, targetEl);
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      }
     } catch (e) {
       console.warn("Nevux FAQ Error:", e);
     }
