@@ -1817,6 +1817,7 @@
             if (w.widget_slug === "badge-efectivo") renderBadgeEfectivo(w);
             if (w.widget_slug === "preguntas-frecuentes") renderPreguntasFrecuentes(w);
             if (w.widget_slug === "banner-superior") renderBannerSuperior(w);
+            if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -8514,5 +8515,486 @@ var renderBadgeEfectivo = function(w) {
       console.warn("Nevux Banner Superior Error:", e);
     }
   };
-          
+    /* ═══════════════════════════════════════════
+     RENDER: PACK COMPLEMENTARIOS (v1 — ES5 estricto)
+  ═══════════════════════════════════════════ */
+  function renderPackComplementarios(w) {
+    if (!w || !w.config) return;
+
+    var elementId = "nvx-pack-complementarios-" + w.id;
+    if (document.getElementById(elementId)) return;
+
+    var currentPage = typeof detectPageType === "function" ? detectPageType() : "";
+    if (currentPage !== "product") return;
+
+    var cfg = w.config || {};
+
+    var title = cfg.title || "Armá tu Pack y Ahorrá";
+    var mainProductTitle = cfg.mainProductTitle || "Este producto";
+    var isMainOptional = cfg.isMainOptional === true;
+    var buttonText = cfg.buttonText || "Agregar pack al carrito";
+    var replaceCart = cfg.replaceCartButton !== false;
+    var redirectCheckout = cfg.redirectToCheckout === true;
+    var enableDiscount = cfg.enableQuantityDiscount !== false;
+    var disc2 = Number(cfg.discount2Items) || 10;
+    var disc3 = Number(cfg.discount3Items) || 15;
+    var disc4 = Number(cfg.discount4Items) || 20;
+    var showSavings = cfg.showSavingsBadge !== false;
+    var savingsBadgeText = cfg.savingsBadgeText || "AHORRÁS $X";
+    var savingsBadgeBg = cfg.savingsBadgeBg || "#059669";
+    var savingsBadgeTextColor = cfg.savingsBadgeTextColor || "#ffffff";
+    var borderRadius = (cfg.borderRadius || 14) + "px";
+
+    var bgColor = cfg.bgColor || "#ffffff";
+    var textColor = cfg.textColor || "#111827";
+    var borderColor = cfg.borderColor || "#e5e7eb";
+    var accentColor = cfg.accentColor || "#10B981";
+    var selectedBorderColor = cfg.selectedBorderColor || "#10B981";
+    var buttonBg = cfg.buttonBg || "#111827";
+    var buttonTextColor = cfg.buttonTextColor || "#ffffff";
+
+    var THEMES = {
+      "black-friday": { bg: "#111827", text: "#ffffff", border: "#374151", accent: "#F59E0B", selBorder: "#F59E0B", btn: "#F59E0B", btnText: "#111827", badgeBg: "#F59E0B", badgeText: "#111827" },
+      "hot-sale": { bg: "#0F172A", text: "#ffffff", border: "#1e293b", accent: "#EF4444", selBorder: "#EF4444", btn: "#EF4444", btnText: "#ffffff", badgeBg: "#EF4444", badgeText: "#ffffff" },
+      "cyber-monday": { bg: "#090D16", text: "#ffffff", border: "#1e3a5f", accent: "#3B82F6", selBorder: "#3B82F6", btn: "#3B82F6", btnText: "#ffffff", badgeBg: "#3B82F6", badgeText: "#ffffff" },
+      "navidad": { bg: "#064E3B", text: "#ffffff", border: "#047857", accent: "#EF4444", selBorder: "#EF4444", btn: "#EF4444", btnText: "#ffffff", badgeBg: "#EF4444", badgeText: "#ffffff" },
+      "san-valentin": { bg: "#831843", text: "#ffffff", border: "#9d174d", accent: "#F43F5E", selBorder: "#F43F5E", btn: "#F43F5E", btnText: "#ffffff", badgeBg: "#F43F5E", badgeText: "#ffffff" },
+      "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#4338ca", accent: "#10B981", selBorder: "#10B981", btn: "#10B981", btnText: "#ffffff", badgeBg: "#10B981", badgeText: "#ffffff" },
+      "liquidacion": { bg: "#7F1D1D", text: "#ffffff", border: "#991b1b", accent: "#FBBF24", selBorder: "#FBBF24", btn: "#FBBF24", btnText: "#7F1D1D", badgeBg: "#FBBF24", badgeText: "#7F1D1D" }
+    };
+    if (cfg.campaignTheme && cfg.campaignTheme !== "none" && THEMES[cfg.campaignTheme]) {
+      var th = THEMES[cfg.campaignTheme];
+      bgColor = th.bg;
+      textColor = th.text;
+      borderColor = th.border;
+      accentColor = th.accent;
+      selectedBorderColor = th.selBorder;
+      buttonBg = th.btn;
+      buttonTextColor = th.btnText;
+      savingsBadgeBg = th.badgeBg;
+      savingsBadgeTextColor = th.badgeText;
+    }
+
+    var unitPrice = 0;
+    if (typeof window.nvxBundleGetProductPrice === "function") {
+      unitPrice = window.nvxBundleGetProductPrice();
+    } else {
+      var priceEl = document.querySelector(".js-price-display, #price_display, .js-product-price, .product-price, .price-display");
+      if (priceEl) {
+        var rawTxt = priceEl.innerText || priceEl.textContent || "";
+        var cleaned = String(rawTxt).replace(/[^0-9.,]/g, "").replace(/\./g, "").replace(",", ".");
+        unitPrice = parseFloat(cleaned) || 0;
+      }
+    }
+
+    var prodId = "";
+    if (window.LS && window.LS.product && window.LS.product.id) {
+      prodId = String(window.LS.product.id);
+    } else if (window.LS && window.LS.product_id) {
+      prodId = String(window.LS.product_id);
+    } else if (w.target_product_id) {
+      prodId = String(w.target_product_id);
+    }
+
+    var safeEsc = function (str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    };
+
+    var fmtMoney = function (num) {
+      if (typeof window.nvxBundleFormatPrice === "function") {
+        return window.nvxBundleFormatPrice(num);
+      }
+      var n = Math.round(Number(num) || 0);
+      var s = String(n);
+      var out = "";
+      var c = 0;
+      for (var i = s.length - 1; i >= 0; i--) {
+        out = s.charAt(i) + out;
+        c++;
+        if (c === 3 && i > 0) { out = "." + out; c = 0; }
+      }
+      return "$" + out;
+    };
+
+    var styleId = "style-" + elementId;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.type = "text/css";
+      var css =
+        "#" + elementId + " {" +
+          "background:" + bgColor + " !important;" +
+          "border:1.5px solid " + borderColor + " !important;" +
+          "border-radius:" + borderRadius + " !important;" +
+          "padding:16px !important;" +
+          "color:" + textColor + " !important;" +
+          "box-sizing:border-box !important;" +
+          "box-shadow:0 4px 14px rgba(0,0,0,0.05) !important;" +
+          "display:flex !important;" +
+          "flex-direction:column !important;" +
+          "gap:10px !important;" +
+          "margin:14px 0 !important;" +
+          "width:100% !important;" +
+          "font-family:system-ui,-apple-system,sans-serif !important;" +
+        "}" +
+        "#" + elementId + " .nvx-pc-item {" +
+          "border-radius:10px !important;" +
+          "padding:10px 12px !important;" +
+          "border:1.5px solid " + borderColor + " !important;" +
+          "display:flex !important;" +
+          "align-items:center !important;" +
+          "justify-content:space-between !important;" +
+          "cursor:pointer !important;" +
+          "transition:all 0.2s !important;" +
+          "background:transparent !important;" +
+          "user-select:none !important;" +
+          "gap:10px !important;" +
+        "}" +
+        "#" + elementId + " .nvx-pc-item.selected {" +
+          "border-color:" + selectedBorderColor + " !important;" +
+          "background:rgba(16,185,129,0.04) !important;" +
+        "}" +
+        "#" + elementId + " .nvx-pc-chk {" +
+          "width:18px !important;height:18px !important;accent-color:" + accentColor + " !important;" +
+          "flex-shrink:0 !important;cursor:pointer !important;" +
+        "}" +
+        "#" + elementId + " .nvx-pc-thumb {" +
+          "width:38px !important;height:38px !important;border-radius:8px !important;" +
+          "object-fit:cover !important;flex-shrink:0 !important;background:#f3f4f6 !important;" +
+        "}" +
+        "#" + elementId + " .nvx-pc-btn {" +
+          "width:100% !important;background:" + buttonBg + " !important;color:" + buttonTextColor + " !important;" +
+          "border:none !important;border-radius:999px !important;padding:14px !important;" +
+          "font-size:15px !important;font-weight:800 !important;cursor:pointer !important;" +
+          "margin-top:6px !important;box-shadow:0 2px 8px rgba(0,0,0,0.1) !important;" +
+          "transition:transform 0.1s !important;" +
+        "}" +
+        "#" + elementId + " .nvx-pc-btn:active { transform:scale(0.98) !important; }" +
+        "#" + elementId + " .nvx-pc-btn:disabled { opacity:0.6 !important; cursor:not-allowed !important; }" +
+        "#" + elementId + " .nvx-pc-badge {" +
+          "font-size:10px !important;font-weight:800 !important;background:" + savingsBadgeBg + " !important;" +
+          "color:" + savingsBadgeTextColor + " !important;padding:3px 8px !important;border-radius:6px !important;" +
+        "}";
+      styleEl.appendChild(document.createTextNode(css));
+      document.head.appendChild(styleEl);
+    }
+
+    var html = "";
+
+    // Header
+    html += '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;margin-bottom:4px !important;">';
+    html += '<div style="font-size:15px !important;font-weight:800 !important;color:' + textColor + ' !important;">' + safeEsc(title) + '</div>';
+    html += '<div class="nvx-pc-badge" style="display:none !important;">' + safeEsc(savingsBadgeText) + '</div>';
+    html += '</div>';
+
+    // Lista de ítems (Principal + Complementarios)
+    html += '<div style="display:flex !important;flex-direction:column !important;gap:8px !important;width:100% !important;">';
+
+    // 1. Producto Principal
+    html += '<label class="nvx-pc-item selected" id="' + elementId + '-main-row">';
+    html += '<div style="display:flex !important;align-items:center !important;gap:10px !important;flex:1 !important;min-width:0 !important;">';
+    html += '<input type="checkbox" class="nvx-pc-chk nvx-pc-main-chk" data-main-id="' + safeEsc(String(prodId)) + '" data-price="' + unitPrice + '" checked' + (isMainOptional ? "" : " disabled") + ' onchange="window.nvxPackUpdateTotal(\'' + elementId + '\');" />';
+    html += '<div style="width:38px !important;height:38px !important;border-radius:8px !important;background:#e5e7eb !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:18px !important;flex-shrink:0 !important;">⭐</div>';
+    html += '<div style="flex:1 !important;min-width:0 !important;">';
+    html += '<div style="font-size:13px !important;font-weight:800 !important;color:' + textColor + ' !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEsc(mainProductTitle) + '</div>';
+    html += '<div style="font-size:11px !important;opacity:0.65 !important;color:' + textColor + ' !important;">Producto actual</div>';
+    html += '</div></div>';
+    html += '<div style="font-size:13px !important;font-weight:800 !important;color:' + accentColor + ' !important;flex-shrink:0 !important;">' + fmtMoney(unitPrice) + '</div>';
+    html += '</label>';
+
+    // 2. Complementarios
+    var comps = (cfg.complementary && cfg.complementary.length) ? cfg.complementary : [];
+    for (var c = 0; c < comps.length; c++) {
+      var cp = comps[c];
+      if (cp && cp.productId) {
+        var cpPrice = parseFloat(cp.productPrice || cp.price || 0) || 0;
+        var isChk = cp.checkedByDefault !== false;
+        html += '<label class="nvx-pc-item' + (isChk ? " selected" : "") + '">';
+        html += '<div style="display:flex !important;align-items:center !important;gap:10px !important;flex:1 !important;min-width:0 !important;">';
+        html += '<input type="checkbox" class="nvx-pc-chk nvx-pc-comp-chk" data-comp-id="' + cp.productId + '" data-price="' + cpPrice + '"' + (isChk ? " checked" : "") + ' onchange="window.nvxPackUpdateTotal(\'' + elementId + '\');" />';
+        if (cp.productImage) {
+          html += '<img src="' + safeEsc(cp.productImage) + '" class="nvx-pc-thumb" />';
+        } else {
+          html += '<div class="nvx-pc-thumb" style="display:flex !important;align-items:center !important;justify-content:center !important;font-size:16px !important;">📦</div>';
+        }
+        html += '<div style="flex:1 !important;min-width:0 !important;">';
+        html += '<div style="font-size:13px !important;font-weight:700 !important;color:' + textColor + ' !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;">' + safeEsc(cp.productName || "Complemento") + '</div>';
+        if (cp.subtitle) {
+          html += '<div style="font-size:11px !important;opacity:0.65 !important;color:' + textColor + ' !important;">' + safeEsc(cp.subtitle) + '</div>';
+        }
+        html += '</div></div>';
+        html += '<div style="font-size:13px !important;font-weight:800 !important;color:' + accentColor + ' !important;flex-shrink:0 !important;">+' + fmtMoney(cpPrice) + '</div>';
+        html += '</label>';
+      }
+    }
+
+    html += '</div>';
+
+    // Resumen Total
+    html += '<div style="margin-top:8px !important;padding-top:10px !important;border-top:1px solid ' + borderColor + ' !important;display:flex !important;align-items:center !important;justify-content:space-between !important;">';
+    html += '<span class="nvx-pc-items-count" style="font-size:12px !important;font-weight:700 !important;opacity:0.8 !important;color:' + textColor + ' !important;">Total:</span>';
+    html += '<div style="text-align:right !important;">';
+    html += '<span class="nvx-pc-subtotal" style="font-size:11px !important;text-decoration:line-through !important;opacity:0.5 !important;margin-right:6px !important;display:none !important;color:' + textColor + ' !important;"></span>';
+    html += '<span class="nvx-pc-grand-total" style="font-size:16px !important;font-weight:900 !important;color:' + accentColor + ' !important;">$0</span>';
+    html += '</div></div>';
+
+    // Botón de compra
+    html += '<button type="button" class="nvx-pc-btn" onclick="window.nvxPackAddToCart(this,\'' + elementId + '\',\'' + safeEsc(String(prodId)) + '\',' + (redirectCheckout ? "true" : "false") + ');">' + safeEsc(buttonText) + '</button>';
+
+    var container = document.createElement("div");
+    container.id = elementId;
+    container.className = "nvx-widget nvx-pack-complementarios-wrapper";
+    container.setAttribute("data-btn-text", buttonText);
+    container.setAttribute("data-enable-disc", enableDiscount ? "true" : "false");
+    container.setAttribute("data-disc2", String(disc2));
+    container.setAttribute("data-disc3", String(disc3));
+    container.setAttribute("data-disc4", String(disc4));
+    container.setAttribute("data-savings-text", savingsBadgeText);
+    container.innerHTML = html;
+
+    var targetEl = null;
+    var buySelectors = [
+      "form[action*='/cart/add']",
+      "form.js-product-form",
+      ".js-product-buy-container",
+      ".product-buy-container",
+      "form.js-product-buyform",
+      ".js-add-to-cart-btn",
+      "#product_form",
+      "form[action*='/cart']",
+      "form[action*='/comprar']",
+      ".product-form"
+    ];
+    for (var sIdx = 0; sIdx < buySelectors.length; sIdx++) {
+      var bEl = document.querySelector(buySelectors[sIdx]);
+      if (bEl) { targetEl = bEl; break; }
+    }
+
+    if (targetEl && targetEl.parentNode) {
+      if (replaceCart) {
+        targetEl.parentNode.insertBefore(container, targetEl);
+        try { targetEl.style.display = "none"; } catch (eHide) {}
+      } else {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      }
+    } else {
+      var main = document.querySelector("main, #content, .main-content, .js-product-container, .product-container, #single-product, .product");
+      if (main) {
+        main.appendChild(container);
+      } else if (document.body) {
+        document.body.appendChild(container);
+      }
+    }
+
+    setTimeout(function () {
+      if (typeof window.nvxPackUpdateTotal === "function") {
+        window.nvxPackUpdateTotal(elementId);
+      }
+    }, 50);
+
+    if (typeof nvxTrack === "function") {
+      nvxTrack(w.id, "impression");
+    }
+  }
+
+  if (typeof window.nvxPackUpdateTotal !== "function") {
+    window.nvxPackUpdateTotal = function (elementId) {
+      var root = document.getElementById(elementId);
+      if (!root) return;
+
+      var chks = root.querySelectorAll(".nvx-pc-chk");
+      var count = 0;
+      var subtotal = 0;
+
+      for (var i = 0; i < chks.length; i++) {
+        var chk = chks[i];
+        var parentRow = chk.closest(".nvx-pc-item");
+        if (chk.checked) {
+          count++;
+          subtotal += (parseFloat(chk.getAttribute("data-price") || "0") || 0);
+          if (parentRow) {
+            if (parentRow.className.indexOf("selected") === -1) parentRow.className += " selected";
+          }
+        } else {
+          if (parentRow) {
+            parentRow.className = String(parentRow.className).replace(/\s*selected/g, "");
+          }
+        }
+      }
+
+      var enableDisc = root.getAttribute("data-enable-disc") === "true";
+      var disc2 = parseFloat(root.getAttribute("data-disc2") || "10") || 0;
+      var disc3 = parseFloat(root.getAttribute("data-disc3") || "15") || 0;
+      var disc4 = parseFloat(root.getAttribute("data-disc4") || "20") || 0;
+
+      var discountPercent = 0;
+      if (enableDisc) {
+        if (count >= 4) discountPercent = disc4;
+        else if (count === 3) discountPercent = disc3;
+        else if (count === 2) discountPercent = disc2;
+      }
+
+      var finalTotal = discountPercent > 0 ? subtotal * (1 - discountPercent / 100) : subtotal;
+
+      function fmt(n) {
+        if (typeof window.nvxBundleFormatPrice === "function") return window.nvxBundleFormatPrice(n);
+        var x = Math.round(Number(n) || 0);
+        var s = String(x), out = "", c = 0;
+        for (var k = s.length - 1; k >= 0; k--) {
+          out = s.charAt(k) + out; c++;
+          if (c === 3 && k > 0) { out = "." + out; c = 0; }
+        }
+        return "$" + out;
+      }
+
+      var countEl = root.querySelector(".nvx-pc-items-count");
+      if (countEl) {
+        countEl.innerHTML = "Total (" + count + (count === 1 ? " producto" : " productos") + "):";
+      }
+
+      var subtotalEl = root.querySelector(".nvx-pc-subtotal");
+      var grandEl = root.querySelector(".nvx-pc-grand-total");
+      if (subtotalEl && grandEl) {
+        if (discountPercent > 0) {
+          subtotalEl.style.display = "inline";
+          subtotalEl.innerHTML = fmt(subtotal);
+        } else {
+          subtotalEl.style.display = "none";
+        }
+        grandEl.innerHTML = fmt(finalTotal);
+      }
+
+      var badgeEl = root.querySelector(".nvx-pc-badge");
+      var rawBadgeTxt = root.getAttribute("data-savings-text") || "AHORRÁS $X";
+      if (badgeEl) {
+        if (discountPercent > 0) {
+          badgeEl.style.display = "inline-block";
+          badgeEl.innerHTML = rawBadgeTxt.replace("$X", discountPercent + "% OFF");
+        } else {
+          badgeEl.style.display = "none";
+        }
+      }
+
+      var btn = root.querySelector(".nvx-pc-btn");
+      var baseBtn = root.getAttribute("data-btn-text") || "Agregar pack al carrito";
+      if (btn) {
+        if (count === 0) {
+          btn.disabled = true;
+          btn.innerHTML = "Seleccioná al menos un producto";
+        } else {
+          btn.disabled = false;
+          btn.innerHTML = baseBtn + " · " + fmt(finalTotal);
+        }
+      }
+    };
+  }
+
+  if (typeof window.nvxPackAddToCart !== "function") {
+    window.nvxPackAddToCart = function (btnEl, elementId, mainProdId, redirectCheckout) {
+      var root = document.getElementById(elementId);
+      if (!root) return;
+
+      var origText = btnEl.getAttribute("data-orig-text") || btnEl.innerHTML;
+      btnEl.setAttribute("data-orig-text", origText);
+      btnEl.innerHTML = "Agregando pack...";
+      btnEl.disabled = true;
+
+      var toAdd = [];
+      var mainChk = root.querySelector(".nvx-pc-main-chk");
+      if (mainChk && mainChk.checked) {
+        var mId = mainChk.getAttribute("data-main-id") || mainProdId;
+        if (mId) toAdd.push(String(mId));
+      }
+
+      var compChks = root.querySelectorAll(".nvx-pc-comp-chk");
+      for (var i = 0; i < compChks.length; i++) {
+        if (compChks[i].checked) {
+          var cId = compChks[i].getAttribute("data-comp-id");
+          if (cId) toAdd.push(String(cId));
+        }
+      }
+
+      if (toAdd.length === 0) {
+        btnEl.innerHTML = origText;
+        btnEl.disabled = false;
+        return;
+      }
+
+      function restoreBtn() {
+        btnEl.innerHTML = origText;
+        btnEl.disabled = false;
+      }
+
+      function addViaNube(productId, quantity) {
+        return new Promise(function (resolve) {
+          try {
+            if (window.nube && typeof window.nube.send === "function") {
+              window.nube.send("cart:add", {
+                product_id: productId,
+                quantity: quantity
+              });
+              setTimeout(function () { resolve(true); }, 300);
+              return;
+            }
+          } catch (e1) {}
+          resolve(false);
+        });
+      }
+
+      function addViaComprar(productId, quantity) {
+        return new Promise(function (resolve) {
+          try {
+            var fd = new FormData();
+            fd.append("add_to_cart", productId);
+            fd.append("quantity", String(quantity));
+            fetch("/comprar/", {
+              method: "POST",
+              body: fd,
+              credentials: "include"
+            }).then(function () { resolve(true); }).catch(function () { resolve(false); });
+          } catch (e2) {
+            resolve(false);
+          }
+        });
+      }
+
+      var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
+
+      if (hasNube) {
+        var chain = Promise.resolve();
+        for (var k = 0; k < toAdd.length; k++) {
+          (function (id) {
+            chain = chain.then(function () { return addViaNube(id, 1); });
+          })(toAdd[k]);
+        }
+        chain.then(function () {
+          if (redirectCheckout) {
+            window.location.href = "/comprar/";
+          } else {
+            try { window.nube.send("cart:open"); } catch (e3) {}
+            restoreBtn();
+          }
+        });
+        return;
+      }
+
+      // Fallback sin NubeSDK: POST secuencial a /comprar/
+      var fallbackChain = Promise.resolve();
+      for (var j = 0; j < toAdd.length; j++) {
+        (function (id2) {
+          fallbackChain = fallbackChain.then(function () { return addViaComprar(id2, 1); });
+        })(toAdd[j]);
+      }
+      fallbackChain.then(function () {
+        if (redirectCheckout) {
+          window.location.href = "/comprar/";
+        } else {
+          window.location.reload();
+        }
+      }).catch(function () {
+        window.location.reload();
+      });
+    };
+    }        
 })(); 
