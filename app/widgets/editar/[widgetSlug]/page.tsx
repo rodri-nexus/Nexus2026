@@ -23,6 +23,7 @@ import BarraAccionEditor from '@/components/widgets/editors/BarraAccionEditor';
 import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
 import BadgeEfectivoEditor from '@/components/widgets/editors/BadgeEfectivoEditor';
 import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
+import ComparadorAntesDespuesEditor from '@/components/widgets/editors/ComparadorAntesDespuesEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -130,7 +131,12 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
-  // WIDGET: BANNER SUPERIOR (NUEVO)
+  // WIDGET: COMPARADOR ANTES Y DESPUÉS
+  if (params.widgetSlug === 'comparador-antes-despues') {
+    return <ComparadorAntesDespuesEditor {...editorProps} />;
+  }
+
+  // WIDGET: BANNER SUPERIOR
   if (params.widgetSlug === 'banner-superior') {
     return <BannerSuperiorEditor {...editorProps} />;
   }
@@ -165,7 +171,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     return <BundleCantidadEditor {...editorProps} />;
   }
 
-  // WIDGET: PACK COMPLEMENTARIOS (NUEVO)
+  // WIDGET: PACK COMPLEMENTARIOS
   if (params.widgetSlug === 'pack-complementarios') {
     return <PackComplementariosEditor {...editorProps} />;
   }
@@ -253,4 +259,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-           }
+}
