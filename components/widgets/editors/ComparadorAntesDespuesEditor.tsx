@@ -222,13 +222,133 @@ function SelectField({ value, onChange, options }: { value: string; onChange: (v
   );
 }
 
+/* Subcomponente para subir imágenes desde la galería */
+function ImagePickerField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (dataUrl: string) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 900;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+          onChange(compressedBase64);
+        }
+        setLoading(false);
+      };
+      if (event.target?.result) {
+        img.src = event.target.result as string;
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <FieldLabel>{label}</FieldLabel>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Vista previa miniatura si existe */}
+        {value ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 8, overflow: 'hidden',
+              border: '1.5px solid #e5e7eb', flexShrink: 0, background: '#f3f4f6',
+            }}>
+              <img src={value} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#10B981', marginBottom: 4 }}>✓ Imagen cargada</div>
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: '#ffffff', border: '1.5px solid #10B981', color: '#10B981',
+                padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                cursor: 'pointer',
+              }}>
+                🔄 Cambiar foto
+                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+              </label>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Botón principal de subida de galería */}
+        {!value ? (
+          <label style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 6, padding: '18px 14px', borderRadius: 12,
+            border: '2px dashed #10B981', background: '#ecfdf5',
+            cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s',
+          }}>
+            <span style={{ fontSize: 24 }}>📷</span>
+            <span style={{ fontSize: 13, fontWeight: 800, color: '#065f46' }}>
+              {loading ? 'Procesando imagen...' : 'Seleccionar foto de tu Galería / Cámara'}
+            </span>
+            <span style={{ fontSize: 11, color: '#047857' }}>Soporta JPG, PNG y WebP</span>
+            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} disabled={loading} />
+          </label>
+        ) : null}
+
+        {/* Opción opcional para pegar URL directa */}
+        <div style={{ marginTop: 2 }}>
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            style={{
+              background: 'none', border: 'none', padding: 0,
+              fontSize: 11, color: '#6b7280', textDecoration: 'underline',
+              cursor: 'pointer',
+            }}
+          >
+            {showUrlInput ? 'Ocultar ingreso por URL' : 'O bien ingresar por URL externa'}
+          </button>
+          {showUrlInput ? (
+            <div style={{ marginTop: 6 }}>
+              <TextInput value={value} onChange={onChange} placeholder="https://ejemplo.com/imagen.jpg" />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════
    PREVIEW EN TIEMPO REAL
 ═══════════════════════════════════════════ */
 function ComparadorAntesDespuesPreview({ config }: { config: ComparadorAntesDespuesConfig }) {
   const [sliderPos, setSliderPos] = useState(config.posicion_inicial || 50);
 
-  // Sync state when config changes
   React.useEffect(() => {
     setSliderPos(config.posicion_inicial || 50);
   }, [config.posicion_inicial]);
@@ -279,7 +399,7 @@ function ComparadorAntesDespuesPreview({ config }: { config: ComparadorAntesDesp
             }}
           />
 
-          {/* Label DESPUÉS */}
+          {/* Etiqueta DESPUÉS */}
           {config.mostrar_etiquetas && config.etiqueta_despues && (
             <span style={{
               position: 'absolute', top: 12, right: 12,
@@ -302,7 +422,6 @@ function ComparadorAntesDespuesPreview({ config }: { config: ComparadorAntesDesp
               style={{
                 position: 'absolute', top: 0, left: 0, height: '100%',
                 width: '100%', maxWidth: 'none', objectFit: 'cover',
-                // Mantener el tamaño de la imagen idéntico al contenedor padre
               }}
             />
             {config.mostrar_etiquetas && config.etiqueta_antes && (
@@ -444,31 +563,29 @@ export default function ComparadorAntesDespuesEditor({
 
       {/* Imagen ANTES */}
       <div style={{ background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 10 }}>📷 Imagen ANTES</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div>
-            <FieldLabel>URL de la imagen</FieldLabel>
-            <TextInput value={config.imagen_antes} onChange={(v) => update('imagen_antes', v)} placeholder="https://..." />
-          </div>
-          <div>
-            <FieldLabel>Etiqueta "Antes"</FieldLabel>
-            <TextInput value={config.etiqueta_antes} onChange={(v) => update('etiqueta_antes', v)} placeholder="ANTES" maxLength={15} />
-          </div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 12 }}>📷 Imagen ANTES</div>
+        <ImagePickerField
+          label="Foto de estado 'Antes'"
+          value={config.imagen_antes}
+          onChange={(v) => update('imagen_antes', v)}
+        />
+        <div style={{ marginTop: 10 }}>
+          <FieldLabel>Etiqueta "Antes"</FieldLabel>
+          <TextInput value={config.etiqueta_antes} onChange={(v) => update('etiqueta_antes', v)} placeholder="ANTES" maxLength={15} />
         </div>
       </div>
 
       {/* Imagen DESPUÉS */}
       <div style={{ background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 10 }}>✨ Imagen DESPUÉS</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div>
-            <FieldLabel>URL de la imagen</FieldLabel>
-            <TextInput value={config.imagen_despues} onChange={(v) => update('imagen_despues', v)} placeholder="https://..." />
-          </div>
-          <div>
-            <FieldLabel>Etiqueta "Después"</FieldLabel>
-            <TextInput value={config.etiqueta_despues} onChange={(v) => update('etiqueta_despues', v)} placeholder="DESPUÉS" maxLength={15} />
-          </div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 12 }}>✨ Imagen DESPUÉS</div>
+        <ImagePickerField
+          label="Foto de estado 'Después'"
+          value={config.imagen_despues}
+          onChange={(v) => update('imagen_despues', v)}
+        />
+        <div style={{ marginTop: 10 }}>
+          <FieldLabel>Etiqueta "Después"</FieldLabel>
+          <TextInput value={config.etiqueta_despues} onChange={(v) => update('etiqueta_despues', v)} placeholder="DESPUÉS" maxLength={15} />
         </div>
       </div>
 
@@ -722,4 +839,4 @@ export default function ComparadorAntesDespuesEditor({
       </div>
     </div>
   );
-    }
+           }
