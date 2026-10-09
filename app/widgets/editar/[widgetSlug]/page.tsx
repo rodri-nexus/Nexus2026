@@ -22,6 +22,7 @@ import SliderVideosEditor from '@/components/widgets/editors/SliderVideosEditor'
 import BarraAccionEditor from '@/components/widgets/editors/BarraAccionEditor';
 import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
 import BadgeEfectivoEditor from '@/components/widgets/editors/BadgeEfectivoEditor';
+import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -164,6 +165,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     return <BundleCantidadEditor {...editorProps} />;
   }
 
+  // WIDGET: PACK COMPLEMENTARIOS (NUEVO)
+  if (params.widgetSlug === 'pack-complementarios') {
+    return <PackComplementariosEditor {...editorProps} />;
+  }
+
   // WIDGET: PRODUCTOS COMPLEMENTARIOS
   if (params.widgetSlug === 'productos-complementarios') {
     return <ProductosComplementariosEditor {...editorProps} />;
@@ -247,4 +253,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-          }
+           }
