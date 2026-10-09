@@ -8519,6 +8519,18 @@ var renderBadgeEfectivo = function(w) {
    WIDGET 22 / 9: PACK COMPLEMENTARIOS
    ═══════════════════════════════════════════════════════════════════ */
 
+function isInsideCartOrModal(el) {
+  var cur = el;
+  while (cur && cur !== document.body && cur.nodeType === 1) {
+    var id = (cur.id || '').toLowerCase();
+    var cls = (typeof cur.className === 'string' ? cur.className : '').toLowerCase();
+    if (id.indexOf('cart') > -1 && id.indexOf('product') === -1 && id.indexOf('buy') === -1) return true;
+    if (cls.indexOf('cart-drawer') > -1 || cls.indexOf('ajax-cart') > -1 || cls.indexOf('js-ajax-cart') > -1 || cls.indexOf('cart-panel') > -1 || cls.indexOf('mini-cart') > -1 || cls.indexOf('cart-summary') > -1 || cls.indexOf('modal') > -1) return true;
+    cur = cur.parentNode;
+  }
+  return false;
+}
+
 window.nvxUpdatePackTotal = function(widgetId) {
   var container = document.getElementById('nvx-pack-comp-' + widgetId);
   if (!container) return;
@@ -8599,8 +8611,14 @@ window.nvxSubmitPackComp = function(widgetId, redirectToCart) {
     var variantId = cb.getAttribute('data-variant-id');
 
     if (type === 'main') {
-      var nativeForm = document.querySelector('form[action*="/comprar/"]') || document.querySelector('.js-product-form');
-      var nativeInput = nativeForm ? nativeForm.querySelector('[name="add_to_cart"]') : null;
+      var nativeForms = document.querySelectorAll('form[action*="/comprar/"], form.js-product-form, .js-product-form');
+      var nativeInput = null;
+      for (var nf = 0; nf < nativeForms.length; nf++) {
+        if (!isInsideCartOrModal(nativeForms[nf])) {
+          nativeInput = nativeForms[nf].querySelector('[name="add_to_cart"]');
+          if (nativeInput) break;
+        }
+      }
       if (nativeInput && nativeInput.value) {
         variantId = nativeInput.value;
       } else if (window.LS && window.LS.variant && window.LS.variant.id) {
@@ -8686,6 +8704,12 @@ function renderPackComplementarios(w, retryCount) {
   if (!w) return;
   retryCount = retryCount || 0;
 
+  // Filtrar para ejecutar SOLO en página de producto
+  var pType = typeof detectPageType === 'function' ? detectPageType() : '';
+  if (pType !== 'product' && (!window.LS || !window.LS.product)) {
+    if (!/\/productos\/[^\/]+/.test(window.location.pathname)) return;
+  }
+
   var cfg = w.config || {};
 
   // Filtro target_product_id
@@ -8703,21 +8727,27 @@ function renderPackComplementarios(w, retryCount) {
     }
   }
 
-  // Buscar elemento destino
+  // Buscar elemento destino (excluyendo estrictamente el carrito / modals)
   var buySelectors = [
     'form[action*="/comprar/"]',
     'form.js-product-form',
-    '.js-product-form',
-    'form[action*="/cart/add"]',
+    '.js-product-buy-container',
     '.product-buy-container',
+    'form.js-product-buyform',
+    'form[action*="/cart/add"]',
     '.js-buy-form',
-    '#product_form',
-    '.js-product-container'
+    '#product_form'
   ];
   var targetEl = null;
   for (var i = 0; i < buySelectors.length; i++) {
-    var el = document.querySelector(buySelectors[i]);
-    if (el) { targetEl = el; break; }
+    var els = document.querySelectorAll(buySelectors[i]);
+    for (var k = 0; k < els.length; k++) {
+      if (!isInsideCartOrModal(els[k])) {
+        targetEl = els[k];
+        break;
+      }
+    }
+    if (targetEl) break;
   }
 
   // Si no se encuentra el elemento aún, reintentar (hasta 10 veces cada 300ms)
