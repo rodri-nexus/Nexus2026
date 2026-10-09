@@ -1,6 +1,7 @@
 // app/widgets/editar/[widgetSlug]/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import BannerSuperiorEditor from '@/components/widgets/editors/BannerSuperiorEditor';
 import PreguntasFrecuentesEditor from '@/components/widgets/editors/PreguntasFrecuentesEditor';
 import ProductosComplementariosEditor from '@/components/widgets/editors/ProductosComplementariosEditor';
 import BarraCuotasEditor from '@/components/widgets/editors/BarraCuotasEditor';
@@ -128,7 +129,12 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
-  // WIDGET: PREGUNTAS FRECUENTES (NUEVO)
+  // WIDGET: BANNER SUPERIOR (NUEVO)
+  if (params.widgetSlug === 'banner-superior') {
+    return <BannerSuperiorEditor {...editorProps} />;
+  }
+
+  // WIDGET: PREGUNTAS FRECUENTES
   if (params.widgetSlug === 'preguntas-frecuentes') {
     return <PreguntasFrecuentesEditor {...editorProps} />;
   }
@@ -241,4 +247,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+  }
