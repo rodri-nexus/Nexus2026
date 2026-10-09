@@ -8515,8 +8515,8 @@ var renderBadgeEfectivo = function(w) {
       console.warn("Nevux Banner Superior Error:", e);
     }
   };
-        /* ═══════════════════════════════════════════
-     WIDGET #22: PACK COMPLEMENTARIOS (UNIVERSAL FALLBACK 100% VISIBLE)
+          /* ═══════════════════════════════════════════
+     WIDGET #22: PACK COMPLEMENTARIOS (FIX CONTRASTE + INYECCIÓN GARANTIZADA)
      ═══════════════════════════════════════════ */
   var renderPackComplementarios = function(w) {
     try {
@@ -8529,7 +8529,6 @@ var renderBadgeEfectivo = function(w) {
       var selectedProducts = cfg.selectedProducts || [];
       if (!selectedProducts || selectedProducts.length === 0) return;
 
-      // Helper numérico local seguro para parsear precios
       var safePrice = function(val) {
         if (typeof val === "number") return val;
         if (!val) return 0;
@@ -8554,7 +8553,9 @@ var renderBadgeEfectivo = function(w) {
       var itemBgColor = cfg.itemBgColor || "#f7f7f7";
       var buttonBg = cfg.buttonBg || "#111827";
       var buttonText = cfg.buttonText || "#ffffff";
-      var textColor = cfg.textColor || "#111827";
+      
+      // Corrección de contraste para evitar texto blanco sobre fondo blanco
+      var textColor = cfg.textColor && cfg.textColor.toLowerCase() !== "#ffffff" ? cfg.textColor : "#111827";
       var borderColor = cfg.borderColor || "#e5e7eb";
 
       // Información del producto principal desde LS o DOM
@@ -8582,13 +8583,13 @@ var renderBadgeEfectivo = function(w) {
       var container = document.createElement("div");
       container.id = containerId;
       container.className = "nvx-pack-complementarios-container";
-      container.style.cssText = "margin-top: 16px !important; margin-bottom: 20px !important; background: #ffffff !important; border: 1px solid " + borderColor + " !important; border-radius: 12px !important; padding: 16px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important; color: " + textColor + " !important; font-family: inherit !important; max-width: 600px !important;";
+      container.style.cssText = "margin-top: 16px !important; margin-bottom: 20px !important; background: #ffffff !important; border: 1.5px solid " + borderColor + " !important; border-radius: 12px !important; padding: 16px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important; color: " + textColor + " !important; font-family: inherit !important; width: 100% !important; box-sizing: border-box !important;";
 
       var html = '<div style="display: flex !important; justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 12px !important;">';
       html += '<div>';
       html += '<div style="font-size: 15px !important; font-weight: 800 !important; color: ' + textColor + ' !important;">' + title + '</div>';
       if (subtitle) {
-        html += '<div style="font-size: 12px !important; color: #6b7280 !important; margin-top: 2px !important;">' + subtitle + '</div>';
+        html += '<div style="font-size: 12px !important; color: #4b5563 !important; margin-top: 2px !important;">' + subtitle + '</div>';
       }
       html += '</div>';
       html += '<div style="text-align: right !important;">';
@@ -8598,14 +8599,14 @@ var renderBadgeEfectivo = function(w) {
 
       // Item producto principal
       html += '<div style="background: ' + itemBgColor + ' !important; border-radius: 8px !important; padding: 10px !important; display: flex !important; align-items: center !important; gap: 10px !important; margin-bottom: 8px !important;">';
-      html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="main" data-id="' + (mainProdId || '') + '" data-variant="' + (mainVariantId || '') + '" data-price="' + mainProdPrice + '" checked ' + (!isMainOptional ? 'disabled' : '') + ' style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
+      html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="main" data-id="' + (mainProdId || '') + '" data-variant="' + (mainVariantId || '') + '" data-price="' + mainProdPrice + '" checked ' + (!isMainOptional ? 'disabled' : '') + ' style="width: 18px !important; height: 18px !important; cursor: pointer !important;" />';
       html += '<div style="flex: 1 !important; min-width: 0 !important;">';
-      html += '<div style="font-size: 12px !important; font-weight: 700 !important; color: ' + textColor + ' !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + mainProdTitle + '</div>';
+      html += '<div style="font-size: 13px !important; font-weight: 700 !important; color: #ffffff !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + mainProdTitle + '</div>';
       if (mainProdPrice > 0) {
         html += '<div style="font-size: 12px !important; color: ' + promoPriceColor + ' !important; font-weight: 800 !important;">$' + Math.round(mainProdPrice).toLocaleString('es-AR') + '</div>';
       }
       html += '</div>';
-      html += '<span style="background: ' + badgeColor + ' !important; color: #ffffff !important; font-size: 10px !important; font-weight: 800 !important; padding: 2px 6px !important; border-radius: 4px !important;">ESTE PRODUCTO</span>';
+      html += '<span style="background: ' + badgeColor + ' !important; color: #ffffff !important; font-size: 10px !important; font-weight: 800 !important; padding: 3px 8px !important; border-radius: 4px !important;">ESTE PRODUCTO</span>';
       html += '</div>';
 
       // Items productos complementarios
@@ -8614,12 +8615,12 @@ var renderBadgeEfectivo = function(w) {
         var itemPrice = item.price || 0;
         var itemVariant = item.variantId || item.id;
         html += '<div style="background: ' + itemBgColor + ' !important; border-radius: 8px !important; padding: 10px !important; display: flex !important; align-items: center !important; gap: 10px !important; margin-bottom: 8px !important;">';
-        html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="comp" data-id="' + item.id + '" data-variant="' + itemVariant + '" data-price="' + itemPrice + '" checked style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
+        html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="comp" data-id="' + item.id + '" data-variant="' + itemVariant + '" data-price="' + itemPrice + '" checked style="width: 18px !important; height: 18px !important; cursor: pointer !important;" />';
         if (item.image) {
-          html += '<img src="' + item.image + '" alt="' + item.title + '" style="width: 36px !important; height: 36px !important; border-radius: 6px !important; object-fit: cover !important;" />';
+          html += '<img src="' + item.image + '" alt="' + item.title + '" style="width: 40px !important; height: 40px !important; border-radius: 6px !important; object-fit: cover !important;" />';
         }
         html += '<div style="flex: 1 !important; min-width: 0 !important;">';
-        html += '<div style="font-size: 12px !important; font-weight: 700 !important; color: ' + textColor + ' !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + item.title + '</div>';
+        html += '<div style="font-size: 13px !important; font-weight: 700 !important; color: #ffffff !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + item.title + '</div>';
         html += '<div style="font-size: 12px !important; color: ' + promoPriceColor + ' !important; font-weight: 800 !important;">$' + Math.round(itemPrice).toLocaleString('es-AR') + '</div>';
         html += '</div>';
         html += '</div>';
@@ -8632,7 +8633,7 @@ var renderBadgeEfectivo = function(w) {
 
       container.innerHTML = html;
 
-      // BUSCADOR UNIVERSAL DE CONTENEDOR DE DESTINO
+      // Ubicación segura en la página
       var targetEl = document.querySelector("form[action*='/cart']") ||
                      document.querySelector("form[action*='/comprar']") ||
                      document.querySelector(".js-addtocart-form") ||
@@ -8640,28 +8641,18 @@ var renderBadgeEfectivo = function(w) {
                      document.querySelector(".js-product-form") ||
                      document.querySelector(".product-form") ||
                      document.querySelector("#product_form") ||
-                     document.querySelector(".js-prod-form") ||
                      document.querySelector(".js-product-container") ||
-                     document.querySelector(".product-detail") ||
-                     document.querySelector("h1") ||
-                     document.querySelector("main") ||
-                     document.body;
+                     document.querySelector(".product-detail");
 
-      if (replaceNativeButton && targetEl && targetEl.tagName === "FORM") {
-        try {
-          var nativeBtns = targetEl.querySelectorAll("input[type='submit'], button[type='submit'], .js-addtocart, .js-prod-submit, .js-buy-btn, .btn-add-to-cart, button[name='add']");
-          for (var nb = 0; nb < nativeBtns.length; nb++) {
-            nativeBtns[nb].style.setProperty("display", "none", "important");
-          }
-        } catch(e){}
-      }
-
-      if (targetEl.tagName === "H1" && targetEl.parentNode) {
-        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
-      } else if (targetEl.parentNode && targetEl !== document.body) {
+      if (targetEl && targetEl.parentNode) {
         targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
       } else {
-        document.body.appendChild(container);
+        var h1 = document.querySelector("h1");
+        if (h1 && h1.parentNode) {
+          h1.parentNode.insertBefore(container, h1.nextSibling);
+        } else if (document.body) {
+          document.body.appendChild(container);
+        }
       }
 
       // Recálculo dinámico de precio y contador
@@ -8715,6 +8706,32 @@ var renderBadgeEfectivo = function(w) {
             return;
           }
 
+          var addNextItemFallback = function(index) {
+            if (index >= itemsToAdd.length) {
+              if (redirectToCart) {
+                window.location.href = "/comprar/";
+              } else {
+                window.location.reload();
+              }
+              return;
+            }
+            var vId = itemsToAdd[index];
+            var formData = new FormData();
+            formData.append("add_to_cart", vId);
+            formData.append("variant_id", vId);
+            formData.append("quantity", "1");
+
+            fetch("/comprar/", {
+              method: "POST",
+              body: formData,
+              credentials: "include"
+            }).then(function() {
+              addNextItemFallback(index + 1);
+            }).catch(function() {
+              addNextItemFallback(index + 1);
+            });
+          };
+
           var addNextItem = function(index) {
             if (index >= itemsToAdd.length) {
               if (redirectToCart) {
@@ -8740,32 +8757,6 @@ var renderBadgeEfectivo = function(w) {
             } else {
               addNextItemFallback(index);
             }
-          };
-
-          var addNextItemFallback = function(index) {
-            if (index >= itemsToAdd.length) {
-              if (redirectToCart) {
-                window.location.href = "/comprar/";
-              } else {
-                window.location.reload();
-              }
-              return;
-            }
-            var vId = itemsToAdd[index];
-            var formData = new FormData();
-            formData.append("add_to_cart", vId);
-            formData.append("variant_id", vId);
-            formData.append("quantity", "1");
-
-            fetch("/comprar/", {
-              method: "POST",
-              body: formData,
-              credentials: "include"
-            }).then(function() {
-              addNextItemFallback(index + 1);
-            }).catch(function() {
-              addNextItemFallback(index + 1);
-            });
           };
 
           addNextItem(0);
