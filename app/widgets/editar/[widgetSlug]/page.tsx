@@ -18,6 +18,7 @@ import PopupConversionEditor from '@/components/widgets/editors/PopupConversionE
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
 import SliderVideosEditor from '@/components/widgets/editors/SliderVideosEditor';
 import BarraAccionEditor from '@/components/widgets/editors/BarraAccionEditor';
+import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -125,7 +126,12 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
-  // WIDGET: BARRA DE ACCIÓN (NUEVO)
+  // WIDGET: MENSAJE DE GARANTÍA (NUEVO)
+  if (params.widgetSlug === 'mensaje-garantia') {
+    return <MensajeGarantiaEditor {...editorProps} />;
+  }
+
+  // WIDGET: BARRA DE ACCIÓN
   if (params.widgetSlug === 'barra-accion') {
     return <BarraAccionEditor {...editorProps} />;
   }
@@ -223,4 +229,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+}
