@@ -17,6 +17,7 @@ import BundlePromocionesEditor from '@/components/widgets/editors/BundlePromocio
 import PopupConversionEditor from '@/components/widgets/editors/PopupConversionEditor';
 import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEditor';
 import SliderVideosEditor from '@/components/widgets/editors/SliderVideosEditor';
+import BarraAccionEditor from '@/components/widgets/editors/BarraAccionEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -124,7 +125,12 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
-  // WIDGET: SLIDER DE VIDEOS (NUEVO)
+  // WIDGET: BARRA DE ACCIÓN (NUEVO)
+  if (params.widgetSlug === 'barra-accion') {
+    return <BarraAccionEditor {...editorProps} />;
+  }
+
+  // WIDGET: SLIDER DE VIDEOS
   if (params.widgetSlug === 'slider-videos') {
     return <SliderVideosEditor {...editorProps} />;
   }
