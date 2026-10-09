@@ -1814,6 +1814,7 @@
             if (w.widget_slug === "slider-videos") renderSliderVideos(w);
             if (w.widget_slug === "barra-accion") renderBarraAccion(w);
             if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
+            if (w.widget_slug === "badge-efectivo") renderBadgeEfectivo(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -7994,6 +7995,115 @@ var renderMensajeGarantia = function(w) {
       cartSummary.parentNode.insertBefore(container, cartSummary.nextSibling);
     } else {
       document.body.appendChild(container);
+    }
+  }
+};
+        /* ═══════════════════════════════════════════
+   WIDGET: BADGE DE EFECTIVO (v211)
+   ═══════════════════════════════════════════ */
+var renderBadgeEfectivo = function(w) {
+  var pType = typeof detectPageType === "function" ? detectPageType() : "";
+  var cfg = w.config || {};
+
+  var showProduct = cfg.showOnProductPage !== false;
+  var showGrid = !!cfg.showOnGrid;
+
+  var isProductPage = pType === "product" || pType === "item";
+  var isHomeOrCategory = pType === "home" || pType === "category" || pType === "list";
+
+  if (isProductPage && !showProduct) return;
+  if (isHomeOrCategory && !showGrid) return;
+  if (!isProductPage && !isHomeOrCategory) return;
+
+  // Render en ficha de producto
+  if (isProductPage) {
+    if (document.getElementById("nvx-badge-efectivo-product")) return;
+
+    var prod = window.LS && window.LS.product ? window.LS.product : null;
+    var rawPrice = 0;
+
+    if (prod && prod.price) {
+      rawPrice = typeof normalizeToPesos === "function" ? normalizeToPesos(prod.price) : prod.price;
+    } else {
+      var priceEl = document.querySelector(".js-price-display, .product-price, #price_display, .js-product-price");
+      if (priceEl) {
+        var txt = priceEl.innerText.replace(/[^\d]/g, "");
+        if (txt) rawPrice = parseFloat(txt);
+      }
+    }
+    if (!rawPrice || rawPrice <= 0) rawPrice = 10000;
+
+    var discPercent = parseFloat(cfg.discountPercent) || 10;
+    var discPrice = rawPrice * (1 - discPercent / 100);
+    var formattedDiscPrice = "$" + Math.round(discPrice).toLocaleString("es-AR");
+
+    var msgType = cfg.messageType || "percent";
+    var rawMsg = msgType === "percent"
+      ? (cfg.customTextPercent || "{descuento}% de descuento pagando en efectivo")
+      : (cfg.customTextPrice || "${precio} pagando en efectivo");
+
+    rawMsg = rawMsg.replace("{descuento}", discPercent).replace("{precio}", formattedDiscPrice);
+
+    var bgColor = cfg.bgColor || "#f3f4f6";
+    var textColor = cfg.textColor || "#111827";
+    var isGradient = !!cfg.gradientBg;
+    var containerBg = isGradient ? "linear-gradient(135deg, " + bgColor + ", #e5e7eb)" : bgColor;
+
+    var fontSize = (cfg.fontSize || 13) + "px";
+    var padding = (cfg.padding !== undefined ? cfg.padding : 10) + "px";
+    var borderRadius = (cfg.borderRadius !== undefined ? cfg.borderRadius : 20) + "px";
+    var marginTop = (cfg.marginTop !== undefined ? cfg.marginTop : 10) + "px";
+    var marginBottom = (cfg.marginBottom !== undefined ? cfg.marginBottom : 10) + "px";
+    var showBorder = !!cfg.showBorder;
+    var borderColor = cfg.borderColor || "#e5e7eb";
+
+    var badgeText = cfg.badgeText || "";
+    var badgePos = cfg.badgePosition || "top-right";
+    var badgeBg = cfg.badgeBgColor || "#ef4444";
+    var badgeTextCol = cfg.badgeTextColor || "#ffffff";
+    var animation = cfg.animation || "none";
+
+    var container = document.createElement("div");
+    container.id = "nvx-badge-efectivo-product";
+
+    var cssText = "position: relative !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; background: " + containerBg + " !important; color: " + textColor + " !important; font-size: " + fontSize + " !important; font-weight: 600 !important; padding: " + padding + " !important; border-radius: " + borderRadius + " !important; margin-top: " + marginTop + " !important; margin-bottom: " + marginBottom + " !important; box-sizing: border-box !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;";
+
+    if (showBorder) {
+      cssText += " border: 1px solid " + borderColor + " !important;";
+    }
+    if (animation === "aureola") {
+      cssText += " box-shadow: 0 0 12px " + badgeBg + " !important;";
+    }
+
+    container.style.cssText = cssText;
+
+    var html = "";
+    if (badgeText && badgePos === "top-right") {
+      html += '<span style="position: absolute !important; top: -8px !important; right: 10px !important; background: ' + badgeBg + ' !important; color: ' + badgeTextCol + ' !important; font-size: 9px !important; font-weight: 900 !important; padding: 2px 6px !important; border-radius: 4px !important; text-transform: uppercase !important; letter-spacing: 0.03em !important; box-shadow: 0 2px 4px rgba(0,0,0,0.12) !important;">' + badgeText + '</span>';
+    }
+
+    if (cfg.showCoinIcon !== false) {
+      html += '<span style="font-size: ' + (parseInt(fontSize) + 2) + 'px !important;">💵</span>';
+    }
+
+    html += '<span>' + rawMsg + '</span>';
+
+    if (badgeText && badgePos === "end-text") {
+      html += '<span style="background: ' + badgeBg + ' !important; color: ' + badgeTextCol + ' !important; font-size: 9px !important; font-weight: 900 !important; padding: 2px 6px !important; border-radius: 4px !important; text-transform: uppercase !important; letter-spacing: 0.03em !important; margin-left: 4px !important;">' + badgeText + '</span>';
+    }
+
+    container.innerHTML = html;
+
+    var targetEl = document.querySelector(".js-price-display, .product-price, #price_display, .js-product-price");
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    } else {
+      var form = document.querySelector("form[action*='/cart/add']");
+      if (form && form.parentNode) {
+        form.parentNode.insertBefore(container, form);
+      } else {
+        document.body.appendChild(container);
+      }
     }
   }
 };
