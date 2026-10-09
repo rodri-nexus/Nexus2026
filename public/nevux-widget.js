@@ -1815,6 +1815,7 @@
             if (w.widget_slug === "barra-accion") renderBarraAccion(w);
             if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
             if (w.widget_slug === "badge-efectivo") renderBadgeEfectivo(w);
+            if (w.widget_slug === "preguntas-frecuentes") renderPreguntasFrecuentes(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -8263,4 +8264,131 @@ var renderBadgeEfectivo = function(w) {
     }
   }
 };
+    /* ═══════════════════════════════════════════
+     WIDGET #20: PREGUNTAS FRECUENTES (FAQ)
+     ═══════════════════════════════════════════ */
+  var renderPreguntasFrecuentes = function(w) {
+    try {
+      if (!w || !w.is_active) return;
+      if (detectPageType() !== "product") return;
+
+      var containerId = "nvx-faq-" + (w.id || "default");
+      if (document.getElementById(containerId)) return;
+
+      var cfg = w.config || {};
+      var items = cfg.items || [];
+      if (!items || items.length === 0) return;
+
+      var title = cfg.title || "";
+      var showFirstOpen = cfg.showFirstOpen !== false;
+      var position = cfg.position || "before_desc";
+
+      var bgColor = cfg.bgColor || "#ffffff";
+      var cardBgColor = cfg.cardBgColor || "#f7f7f7";
+      var titleColor = cfg.titleColor || "#000000";
+      var textColor = cfg.textColor || "#333333";
+      var borderColor = cfg.borderColor || "#e5e7eb";
+
+      var titleFontSize = (cfg.titleFontSize || 18) + "px";
+      var questionFontSize = (cfg.questionFontSize || 15) + "px";
+      var answerFontSize = (cfg.answerFontSize || 14) + "px";
+      var questionFontWeight = cfg.questionFontWeight === "normal" ? "400" : "700";
+      var borderRadius = (cfg.borderRadius !== undefined ? cfg.borderRadius : 8) + "px";
+      var enableBorder = cfg.enableBorder === true;
+      var questionSpacing = cfg.questionSpacing || "with_space";
+      var toggleIconType = cfg.toggleIconType || "arrow";
+
+      // Ubicación del target element
+      var targetEl = null;
+      if (position === "after_desc") {
+        targetEl = document.querySelector(".js-product-description, .product-description, #description, .description-container, .user-content");
+      }
+      if (!targetEl) {
+        targetEl = document.querySelector("form[action*='/cart/add']");
+      }
+      if (!targetEl) return;
+
+      var container = document.createElement("div");
+      container.id = containerId;
+      container.style.cssText = "width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 16px 0 !important; padding: 16px !important; background-color: " + bgColor + " !important; border-radius: " + borderRadius + " !important; border: 1.5px solid " + borderColor + " !important; font-family: inherit !important;";
+
+      var html = "";
+      if (title && title.length > 0) {
+        html += '<div style="font-size: ' + titleFontSize + ' !important; font-weight: 800 !important; color: ' + titleColor + ' !important; margin-bottom: 14px !important; line-height: 1.3 !important;">' + title + '</div>';
+      }
+
+      var gapStyle = questionSpacing === "with_space" ? "margin-bottom: 8px !important;" : "margin-bottom: 0px !important;";
+
+      html += '<div class="nvx-faq-list" style="display: flex !important; flex-direction: column !important;">';
+
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var isOpen = (i === 0 && showFirstOpen);
+        var isFirst = i === 0;
+        var isLast = i === items.length - 1;
+
+        var borderStyle = enableBorder ? "border: 1.5px solid " + borderColor + " !important;" : "border: none !important;";
+        if (questionSpacing === "no_space" && !isLast && !enableBorder) {
+          borderStyle = "border-bottom: 1px solid " + borderColor + " !important;";
+        }
+
+        var itemRadius = borderRadius;
+        if (questionSpacing === "no_space") {
+          if (isFirst) itemRadius = borderRadius + " " + borderRadius + " 0 0";
+          else if (isLast) itemRadius = "0 0 " + borderRadius + " " + borderRadius;
+          else itemRadius = "0";
+        }
+
+        var arrowChar = toggleIconType === "arrow" ? (isOpen ? "▲" : "▼") : (isOpen ? "−" : "+");
+        var displayAnswer = isOpen ? "block" : "none";
+
+        html += '<div class="nvx-faq-item" style="background-color: ' + cardBgColor + ' !important; border-radius: ' + itemRadius + ' !important; ' + borderStyle + ' ' + (isLast ? '' : gapStyle) + ' overflow: hidden !important; transition: all 0.2s !important;">';
+        
+        html += '<button type="button" class="nvx-faq-trigger" style="width: 100% !important; padding: 12px 14px !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; background: transparent !important; border: none !important; color: ' + textColor + ' !important; cursor: pointer !important; text-align: left !important; font-family: inherit !important;">';
+        
+        html += '<div style="display: flex !important; align-items: center !important; gap: 8px !important;">';
+        if (item.icon) {
+          html += '<span style="font-size: 16px !important;">' + item.icon + '</span>';
+        }
+        html += '<span style="font-size: ' + questionFontSize + ' !important; font-weight: ' + questionFontWeight + ' !important; color: ' + textColor + ' !important;">' + (item.question || '') + '</span>';
+        html += '</div>';
+
+        html += '<span class="nvx-faq-icon" style="font-size: 14px !important; opacity: 0.7 !important; font-weight: 700 !important; color: ' + textColor + ' !important;">' + arrowChar + '</span>';
+        html += '</button>';
+
+        html += '<div class="nvx-faq-answer" style="display: ' + displayAnswer + ' !important; padding: 0 14px 12px !important; font-size: ' + answerFontSize + ' !important; color: ' + textColor + ' !important; opacity: 0.9 !important; line-height: 1.5 !important; border-top: 1px solid rgba(0,0,0,0.05) !important; padding-top: 8px !important;">' + (item.answer || '') + '</div>';
+
+        html += '</div>';
+      }
+
+      html += '</div>';
+
+      container.innerHTML = html;
+
+      // Event listener para acordeón
+      var triggers = container.querySelectorAll(".nvx-faq-trigger");
+      for (var j = 0; j < triggers.length; j++) {
+        triggers[j].addEventListener("click", function(e) {
+          e.preventDefault();
+          var btn = this;
+          var parent = btn.parentElement;
+          var answer = parent.querySelector(".nvx-faq-answer");
+          var icon = btn.querySelector(".nvx-faq-icon");
+          var isCurrentlyOpen = answer.style.display !== "none";
+
+          if (isCurrentlyOpen) {
+            answer.style.display = "none";
+            if (icon) icon.innerText = toggleIconType === "arrow" ? "▼" : "+";
+          } else {
+            answer.style.display = "block";
+            if (icon) icon.innerText = toggleIconType === "arrow" ? "▲" : "−";
+          }
+        });
+      }
+
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    } catch (e) {
+      console.warn("Nevux FAQ Error:", e);
+    }
+  };
 })(); 
