@@ -8425,25 +8425,23 @@ var renderBadgeEfectivo = function(w) {
       console.warn("Nevux FAQ Error:", e);
     }
   };
-  /* ═══════════════════════════════════════════
-     WIDGET #21: BANNER SUPERIOR
+    /* ═══════════════════════════════════════════
+     WIDGET #21: BANNER SUPERIOR (ULTRA-ROBUSTO)
      ═══════════════════════════════════════════ */
   var renderBannerSuperior = function(w) {
     try {
       if (!w || !w.is_active) return;
 
       var containerId = "nvx-banner-superior-" + (w.id || "default");
-      if (document.getElementById(containerId)) return;
-
-      // Verificar si fue cerrado por el visitante en la sesión actual
-      if (sessionStorage.getItem("nvx_banner_closed_" + containerId) === "true") return;
+      var existing = document.getElementById(containerId);
+      if (existing) return;
 
       var cfg = w.config || {};
       var text = cfg.text || "";
       if (!text) return;
 
       var buttonText = cfg.buttonText || "";
-      var buttonUrl = cfg.buttonUrl || "#";
+      var buttonUrl = cfg.buttonUrl || "";
       var openInNewTab = cfg.openInNewTab === true;
       var showCloseButton = cfg.showCloseButton !== false;
       var position = cfg.position === "bottom" ? "bottom" : "top";
@@ -8472,40 +8470,45 @@ var renderBadgeEfectivo = function(w) {
         ? "position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; top: auto !important;"
         : "position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: auto !important;";
 
-      container.style.cssText = posCSS + " width: 100% !important; z-index: 999999 !important; background: " + backgroundCSS + " !important; color: " + textColor + " !important; padding: " + padding + " !important; box-sizing: border-box !important; font-family: inherit !important; box-shadow: 0 2px 10px rgba(0,0,0,0.15) !important;";
+      container.style.cssText = posCSS + " width: 100% !important; z-index: 9999999 !important; background: " + backgroundCSS + " !important; color: " + textColor + " !important; padding: " + padding + " !important; box-sizing: border-box !important; font-family: inherit !important; box-shadow: 0 2px 12px rgba(0,0,0,0.2) !important; display: block !important;";
 
       var btnBgCSS = btnGradient
         ? "linear-gradient(135deg, " + buttonColor + ", #e5e7eb)"
         : buttonColor;
 
-      var html = '<div style="max-width: 1200px !important; margin: 0 auto !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 12px !important; flex-wrap: wrap !important; text-align: center !important; position: relative !important; padding-right: ' + (showCloseButton ? '28px' : '0px') + ' !important;">';
+      var html = '<div style="max-width: 1200px !important; margin: 0 auto !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 12px !important; flex-wrap: wrap !important; text-align: center !important; position: relative !important; padding-right: ' + (showCloseButton ? '32px' : '0px') + ' !important;">';
 
       html += '<div style="font-size: ' + textFontSize + ' !important; color: ' + textColor + ' !important; font-weight: 600 !important; line-height: 1.3 !important;">' + text + '</div>';
 
       if (buttonText && buttonText.length > 0) {
         var targetAttr = openInNewTab ? ' target="_blank" rel="noopener noreferrer"' : '';
-        html += '<a href="' + buttonUrl + '"' + targetAttr + ' style="background: ' + btnBgCSS + ' !important; color: ' + buttonTextColor + ' !important; font-size: ' + buttonFontSize + ' !important; font-weight: ' + buttonFontWeight + ' !important; border-radius: ' + buttonBorderRadius + ' !important; padding: 6px 14px !important; text-decoration: none !important; display: inline-block !important; white-space: nowrap !important; box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;">' + buttonText + '</a>';
+        var finalUrl = buttonUrl && buttonUrl.length > 0 ? buttonUrl : 'javascript:void(0);';
+        html += '<a href="' + finalUrl + '"' + targetAttr + ' style="background: ' + btnBgCSS + ' !important; color: ' + buttonTextColor + ' !important; font-size: ' + buttonFontSize + ' !important; font-weight: ' + buttonFontWeight + ' !important; border-radius: ' + buttonBorderRadius + ' !important; padding: 6px 14px !important; text-decoration: none !important; display: inline-block !important; white-space: nowrap !important; box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important; cursor: pointer !important;">' + buttonText + '</a>';
       }
 
       if (showCloseButton) {
-        html += '<button type="button" class="nvx-banner-close" style="position: absolute !important; right: 0 !important; top: 50% !important; transform: translateY(-50%) !important; background: transparent !important; border: none !important; color: ' + textColor + ' !important; font-size: 16px !important; font-weight: bold !important; cursor: pointer !important; opacity: 0.8 !important; padding: 4px 8px !important; line-height: 1 !important;">✕</button>';
+        html += '<button type="button" class="nvx-banner-close" style="position: absolute !important; right: 0 !important; top: 50% !important; transform: translateY(-50%) !important; background: transparent !important; border: none !important; color: ' + textColor + ' !important; font-size: 18px !important; font-weight: bold !important; cursor: pointer !important; opacity: 0.8 !important; padding: 4px 8px !important; line-height: 1 !important;">✕</button>';
       }
 
       html += '</div>';
       container.innerHTML = html;
 
+      // Event listener para cerrar solo visualmente la vista actual
       if (showCloseButton) {
         var closeBtn = container.querySelector(".nvx-banner-close");
         if (closeBtn) {
           closeBtn.addEventListener("click", function(e) {
             e.preventDefault();
+            e.stopPropagation();
             container.style.display = "none";
-            sessionStorage.setItem("nvx_banner_closed_" + containerId, "true");
           });
         }
       }
 
-      document.body.appendChild(container);
+      var targetNode = document.body || document.documentElement;
+      if (targetNode) {
+        targetNode.appendChild(container);
+      }
     } catch (e) {
       console.warn("Nevux Banner Superior Error:", e);
     }
