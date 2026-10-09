@@ -8,6 +8,48 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function BadgeEfectivoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>💵 BADGE DE EFECTIVO</span>
+        <span style={{ background: "#ef4444", color: "#ffffff", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px" }}>
+          OFERTA
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#f3f4f6",
+          borderRadius: "6px",
+          padding: "4px 8px",
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          fontSize: "7px",
+          fontWeight: 700,
+          color: "#111827",
+        }}
+      >
+        <span style={{ fontSize: "9px" }}>💵</span>
+        <span>10% de descuento pagando en efectivo</span>
+      </div>
+    </div>
+  );
+}
+
 function MensajeGarantiaPreview() {
   return (
     <div
@@ -1154,6 +1196,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "badge-efectivo":
+      return <BadgeEfectivoPreview />;
     case "mensaje-garantia":
       return <MensajeGarantiaPreview />;
     case "barra-accion":
@@ -1219,4 +1263,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-        }
+    }
