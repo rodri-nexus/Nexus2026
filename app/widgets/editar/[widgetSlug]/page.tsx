@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import BannerSuperiorEditor from '@/components/widgets/editors/BannerSuperiorEditor';
 import PreguntasFrecuentesEditor from '@/components/widgets/editors/PreguntasFrecuentesEditor';
-import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
 import ProductosComplementariosEditor from '@/components/widgets/editors/ProductosComplementariosEditor';
 import BarraCuotasEditor from '@/components/widgets/editors/BarraCuotasEditor';
 import BarraEnvioGratisEditor from '@/components/widgets/editors/BarraEnvioGratisEditor';
@@ -140,11 +139,6 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     return <PreguntasFrecuentesEditor {...editorProps} />;
   }
 
-  // WIDGET: PACK COMPLEMENTARIOS
-  if (params.widgetSlug === 'pack-complementarios') {
-    return <PackComplementariosEditor {...editorProps} />;
-  }
-
   // WIDGET: BADGE DE EFECTIVO
   if (params.widgetSlug === 'badge-efectivo') {
     return <BadgeEfectivoEditor {...editorProps} />;
@@ -253,4 +247,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-              }
+          }
