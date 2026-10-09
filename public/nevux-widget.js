@@ -1813,6 +1813,7 @@
             if (w.widget_slug === "bundle-cantidad") renderBundleCantidad(w);
             if (w.widget_slug === "slider-videos") renderSliderVideos(w);
             if (w.widget_slug === "barra-accion") renderBarraAccion(w);
+            if (w.widget_slug === "mensaje-garantia") renderMensajeGarantia(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -7912,5 +7913,88 @@ window.nvxSubmitBarraAccion = function(redirectCheckout) {
       if (submitBtn) submitBtn.click();
     }
   });
+};
+  /* ═══════════════════════════════════════════
+   WIDGET: MENSAJE DE GARANTÍA (v210)
+   ═══════════════════════════════════════════ */
+var renderMensajeGarantia = function(w) {
+  var pType = typeof detectPageType === "function" ? detectPageType() : "";
+  var cfg = w.config || {};
+
+  var showProduct = cfg.showOnProductPage !== false;
+  var showCart = !!cfg.showOnCart;
+
+  var isProductPage = pType === "product" || pType === "item";
+  var isCartPage = pType === "cart" || window.location.pathname.indexOf("/cart") !== -1;
+
+  if (isProductPage && !showProduct) return;
+  if (isCartPage && !showCart) return;
+  if (!isProductPage && !isCartPage) return;
+
+  // Evitar duplicados
+  if (document.getElementById("nvx-mensaje-garantia")) return;
+
+  var title = cfg.title || "";
+  var text = cfg.text || "";
+  var iconType = cfg.iconType || "preset";
+  var presetIcon = cfg.presetIcon || "🛡️";
+  var imageUrl = cfg.imageUrl || "";
+
+  var bgColor = cfg.bgColor || "#fff9f3";
+  var titleColor = cfg.titleColor || "#000000";
+  var textColor = cfg.textColor || "#333333";
+  var borderColor = cfg.borderColor || "#e7dec8";
+
+  var titleFontSize = (cfg.titleFontSize || 16) + "px";
+  var textFontSize = (cfg.textFontSize || 14) + "px";
+  var borderRadius = (cfg.borderRadius !== undefined ? cfg.borderRadius : 12) + "px";
+  var padding = (cfg.padding !== undefined ? cfg.padding : 16) + "px";
+  var marginTop = (cfg.marginTop !== undefined ? cfg.marginTop : 16) + "px";
+  var marginBottom = (cfg.marginBottom !== undefined ? cfg.marginBottom : 16) + "px";
+
+  var container = document.createElement("div");
+  container.id = "nvx-mensaje-garantia";
+
+  container.style.cssText = "background: " + bgColor + " !important; border: 1.5px solid " + borderColor + " !important; border-radius: " + borderRadius + " !important; padding: " + padding + " !important; margin-top: " + marginTop + " !important; margin-bottom: " + marginBottom + " !important; display: flex !important; align-items: flex-start !important; gap: 12px !important; box-sizing: border-box !important; width: 100% !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;";
+
+  var iconHtml = "";
+  if (iconType === "image" && imageUrl) {
+    iconHtml = '<img src="' + imageUrl + '" style="width: 38px !important; height: 38px !important; border-radius: 8px !important; object-fit: cover !important; flex-shrink: 0 !important;" />';
+  } else {
+    iconHtml = '<div style="width: 38px !important; height: 38px !important; border-radius: 8px !important; background: rgba(0,0,0,0.04) !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 22px !important; flex-shrink: 0 !important;">' + presetIcon + '</div>';
+  }
+
+  var contentHtml = '<div style="flex: 1 !important; min-width: 0 !important;">';
+  if (title) {
+    contentHtml += '<div style="font-size: ' + titleFontSize + ' !important; font-weight: 800 !important; color: ' + titleColor + ' !important; margin-bottom: 4px !important; line-height: 1.3 !important;">' + title + '</div>';
+  }
+  if (text) {
+    contentHtml += '<div style="font-size: ' + textFontSize + ' !important; color: ' + textColor + ' !important; line-height: 1.5 !important; opacity: 0.9 !important;">' + text + '</div>';
+  }
+  contentHtml += '</div>';
+
+  container.innerHTML = iconHtml + contentHtml;
+
+  // Inyección DOM según ubicación (Regla #44)
+  if (isProductPage) {
+    var targetEl = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, #product-form");
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+    } else {
+      var btn = document.querySelector("input[type='submit'], button[type='submit'], .js-addtocart");
+      if (btn && btn.parentNode) {
+        btn.parentNode.insertBefore(container, btn.nextSibling);
+      } else {
+        document.body.appendChild(container);
+      }
+    }
+  } else {
+    var cartSummary = document.querySelector(".cart-summary, .js-cart-total, #cart-total");
+    if (cartSummary && cartSummary.parentNode) {
+      cartSummary.parentNode.insertBefore(container, cartSummary.nextSibling);
+    } else {
+      document.body.appendChild(container);
+    }
+  }
 };
 })(); 
