@@ -8264,7 +8264,7 @@ var renderBadgeEfectivo = function(w) {
     }
   }
 };
-    /* ═══════════════════════════════════════════
+      /* ═══════════════════════════════════════════
      WIDGET #20: PREGUNTAS FRECUENTES (FAQ)
      ═══════════════════════════════════════════ */
   var renderPreguntasFrecuentes = function(w) {
@@ -8298,14 +8298,20 @@ var renderBadgeEfectivo = function(w) {
       var questionSpacing = cfg.questionSpacing || "with_space";
       var toggleIconType = cfg.toggleIconType || "arrow";
 
-      // Ubicación del target element
+      // Ubicación del target element con Multi-Selector Universal Tiendanube
       var targetEl = null;
       if (position === "after_desc") {
-        targetEl = document.querySelector(".js-product-description, .product-description, #description, .description-container, .user-content");
+        targetEl = document.querySelector(".js-product-description, .product-description, #description, .description-container, .user-content, [data-store='product-description']");
+      } else {
+        // "before_desc": Debajo del botón / formulario de compra
+        targetEl = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form.js-product-form, .js-product-form, form.js-prod-form, .js-addtocart-form, .js-product-container form");
       }
+
+      // Fallback si no se encontró en la opción seleccionada
       if (!targetEl) {
-        targetEl = document.querySelector("form[action*='/cart/add']");
+        targetEl = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], .js-product-description, #description");
       }
+
       if (!targetEl) return;
 
       var container = document.createElement("div");
