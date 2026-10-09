@@ -8515,8 +8515,8 @@ var renderBadgeEfectivo = function(w) {
       console.warn("Nevux Banner Superior Error:", e);
     }
   };
-      /* ═══════════════════════════════════════════
-     WIDGET #22: PACK COMPLEMENTARIOS (RETRY + SELECTORES UNIVERSALES)
+        /* ═══════════════════════════════════════════
+     WIDGET #22: PACK COMPLEMENTARIOS (UNIVERSAL FALLBACK 100% VISIBLE)
      ═══════════════════════════════════════════ */
   var renderPackComplementarios = function(w) {
     try {
@@ -8543,251 +8543,234 @@ var renderBadgeEfectivo = function(w) {
         return isNaN(num) ? 0 : num;
       };
 
-      var attemptRender = function(retriesLeft) {
-        if (document.getElementById(containerId)) return;
+      var title = cfg.title || "Armá tu pack";
+      var subtitle = cfg.subtitle || "";
+      var isMainOptional = cfg.isMainOptional === true;
+      var redirectToCart = cfg.redirectToCart === true;
+      var replaceNativeButton = cfg.replaceNativeButton === true;
 
-        var path = window.location.pathname.toLowerCase();
-        var targetEl = document.querySelector("form[action*='/cart']") ||
-                       document.querySelector("form[action*='/comprar']") ||
-                       document.querySelector(".js-addtocart-form") ||
-                       document.querySelector(".product-buy-form") ||
-                       document.querySelector(".js-product-form") ||
-                       document.querySelector(".product-form") ||
-                       document.querySelector("#product_form") ||
-                       document.querySelector(".js-prod-form") ||
-                       document.querySelector(".js-product-container") ||
-                       document.querySelector(".product-detail") ||
-                       document.querySelector(".js-product-detail") ||
-                       document.querySelector(".product-page") ||
-                       document.querySelector("form");
+      var badgeColor = cfg.badgeColor || "#10B981";
+      var promoPriceColor = cfg.promoPriceColor || "#16a34a";
+      var itemBgColor = cfg.itemBgColor || "#f7f7f7";
+      var buttonBg = cfg.buttonBg || "#111827";
+      var buttonText = cfg.buttonText || "#ffffff";
+      var textColor = cfg.textColor || "#111827";
+      var borderColor = cfg.borderColor || "#e5e7eb";
 
-        var isProductPage = (window.LS && window.LS.product) || 
-                            path.indexOf("/productos/") !== -1 || 
-                            path.indexOf("/p/") !== -1 || 
-                            !!document.querySelector("h1.js-product-name") ||
-                            !!targetEl;
+      // Información del producto principal desde LS o DOM
+      var lsProd = window.LS && window.LS.product ? window.LS.product : {};
+      var mainProdId = lsProd.id || null;
+      var mainVariantId = (lsProd.variants && lsProd.variants[0]) ? lsProd.variants[0].id : mainProdId;
+      
+      var mainProdTitle = lsProd.name || "";
+      if (!mainProdTitle) {
+        var h1El = document.querySelector("h1.js-product-name") || document.querySelector("h1");
+        if (h1El) mainProdTitle = h1El.innerText.trim();
+        else mainProdTitle = "Producto Principal";
+      }
 
-        if (!isProductPage || !targetEl) {
-          if (retriesLeft > 0) {
-            setTimeout(function() { attemptRender(retriesLeft - 1); }, 400);
-          }
-          return;
-        }
+      var mainProdPrice = 0;
+      if (lsProd.promotional_price) {
+        mainProdPrice = safePrice(lsProd.promotional_price);
+      } else if (lsProd.price) {
+        mainProdPrice = safePrice(lsProd.price);
+      } else {
+        var priceEl = document.querySelector(".js-price-display") || document.querySelector("#price_display") || document.querySelector(".price");
+        if (priceEl) mainProdPrice = safePrice(priceEl.innerText);
+      }
 
-        var title = cfg.title || "Armá tu pack";
-        var subtitle = cfg.subtitle || "";
-        var isMainOptional = cfg.isMainOptional === true;
-        var redirectToCart = cfg.redirectToCart === true;
-        var replaceNativeButton = cfg.replaceNativeButton === true;
+      var container = document.createElement("div");
+      container.id = containerId;
+      container.className = "nvx-pack-complementarios-container";
+      container.style.cssText = "margin-top: 16px !important; margin-bottom: 20px !important; background: #ffffff !important; border: 1px solid " + borderColor + " !important; border-radius: 12px !important; padding: 16px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important; color: " + textColor + " !important; font-family: inherit !important; max-width: 600px !important;";
 
-        var badgeColor = cfg.badgeColor || "#10B981";
-        var promoPriceColor = cfg.promoPriceColor || "#16a34a";
-        var itemBgColor = cfg.itemBgColor || "#f7f7f7";
-        var buttonBg = cfg.buttonBg || "#111827";
-        var buttonText = cfg.buttonText || "#ffffff";
-        var textColor = cfg.textColor || "#111827";
-        var borderColor = cfg.borderColor || "#e5e7eb";
+      var html = '<div style="display: flex !important; justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 12px !important;">';
+      html += '<div>';
+      html += '<div style="font-size: 15px !important; font-weight: 800 !important; color: ' + textColor + ' !important;">' + title + '</div>';
+      if (subtitle) {
+        html += '<div style="font-size: 12px !important; color: #6b7280 !important; margin-top: 2px !important;">' + subtitle + '</div>';
+      }
+      html += '</div>';
+      html += '<div style="text-align: right !important;">';
+      html += '<div id="' + containerId + '-total" style="font-size: 18px !important; font-weight: 800 !important; color: ' + promoPriceColor + ' !important;">$0</div>';
+      html += '</div>';
+      html += '</div>';
 
-        // Información del producto principal desde LS o DOM
-        var lsProd = window.LS && window.LS.product ? window.LS.product : {};
-        var mainProdId = lsProd.id || null;
-        var mainVariantId = (lsProd.variants && lsProd.variants[0]) ? lsProd.variants[0].id : mainProdId;
-        
-        var mainProdTitle = lsProd.name || "";
-        if (!mainProdTitle) {
-          var h1El = document.querySelector("h1.js-product-name") || document.querySelector("h1");
-          if (h1El) mainProdTitle = h1El.innerText.trim();
-          else mainProdTitle = "Producto Principal";
-        }
+      // Item producto principal
+      html += '<div style="background: ' + itemBgColor + ' !important; border-radius: 8px !important; padding: 10px !important; display: flex !important; align-items: center !important; gap: 10px !important; margin-bottom: 8px !important;">';
+      html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="main" data-id="' + (mainProdId || '') + '" data-variant="' + (mainVariantId || '') + '" data-price="' + mainProdPrice + '" checked ' + (!isMainOptional ? 'disabled' : '') + ' style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
+      html += '<div style="flex: 1 !important; min-width: 0 !important;">';
+      html += '<div style="font-size: 12px !important; font-weight: 700 !important; color: ' + textColor + ' !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + mainProdTitle + '</div>';
+      if (mainProdPrice > 0) {
+        html += '<div style="font-size: 12px !important; color: ' + promoPriceColor + ' !important; font-weight: 800 !important;">$' + Math.round(mainProdPrice).toLocaleString('es-AR') + '</div>';
+      }
+      html += '</div>';
+      html += '<span style="background: ' + badgeColor + ' !important; color: #ffffff !important; font-size: 10px !important; font-weight: 800 !important; padding: 2px 6px !important; border-radius: 4px !important;">ESTE PRODUCTO</span>';
+      html += '</div>';
 
-        var mainProdPrice = 0;
-        if (lsProd.promotional_price) {
-          mainProdPrice = safePrice(lsProd.promotional_price);
-        } else if (lsProd.price) {
-          mainProdPrice = safePrice(lsProd.price);
-        } else {
-          var priceEl = document.querySelector(".js-price-display") || document.querySelector("#price_display") || document.querySelector(".price");
-          if (priceEl) mainProdPrice = safePrice(priceEl.innerText);
-        }
-
-        if (replaceNativeButton && targetEl) {
-          try {
-            var nativeBtns = targetEl.querySelectorAll("input[type='submit'], button[type='submit'], .js-addtocart, .js-prod-submit, .js-buy-btn, .btn-add-to-cart, button[name='add']");
-            for (var nb = 0; nb < nativeBtns.length; nb++) {
-              nativeBtns[nb].style.setProperty("display", "none", "important");
-            }
-          } catch(e){}
-        }
-
-        var container = document.createElement("div");
-        container.id = containerId;
-        container.className = "nvx-pack-complementarios-container";
-        container.style.cssText = "margin-top: 16px !important; margin-bottom: 20px !important; background: #ffffff !important; border: 1px solid " + borderColor + " !important; border-radius: 12px !important; padding: 16px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important; color: " + textColor + " !important; font-family: inherit !important;";
-
-        var html = '<div style="display: flex !important; justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 12px !important;">';
-        html += '<div>';
-        html += '<div style="font-size: 15px !important; font-weight: 800 !important; color: ' + textColor + ' !important;">' + title + '</div>';
-        if (subtitle) {
-          html += '<div style="font-size: 12px !important; color: #6b7280 !important; margin-top: 2px !important;">' + subtitle + '</div>';
-        }
-        html += '</div>';
-        html += '<div style="text-align: right !important;">';
-        html += '<div id="' + containerId + '-total" style="font-size: 18px !important; font-weight: 800 !important; color: ' + promoPriceColor + ' !important;">$0</div>';
-        html += '</div>';
-        html += '</div>';
-
-        // Item producto principal
+      // Items productos complementarios
+      for (var i = 0; i < selectedProducts.length; i++) {
+        var item = selectedProducts[i];
+        var itemPrice = item.price || 0;
+        var itemVariant = item.variantId || item.id;
         html += '<div style="background: ' + itemBgColor + ' !important; border-radius: 8px !important; padding: 10px !important; display: flex !important; align-items: center !important; gap: 10px !important; margin-bottom: 8px !important;">';
-        html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="main" data-id="' + (mainProdId || '') + '" data-variant="' + (mainVariantId || '') + '" data-price="' + mainProdPrice + '" checked ' + (!isMainOptional ? 'disabled' : '') + ' style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
+        html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="comp" data-id="' + item.id + '" data-variant="' + itemVariant + '" data-price="' + itemPrice + '" checked style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
+        if (item.image) {
+          html += '<img src="' + item.image + '" alt="' + item.title + '" style="width: 36px !important; height: 36px !important; border-radius: 6px !important; object-fit: cover !important;" />';
+        }
         html += '<div style="flex: 1 !important; min-width: 0 !important;">';
-        html += '<div style="font-size: 12px !important; font-weight: 700 !important; color: ' + textColor + ' !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + mainProdTitle + '</div>';
-        if (mainProdPrice > 0) {
-          html += '<div style="font-size: 12px !important; color: ' + promoPriceColor + ' !important; font-weight: 800 !important;">$' + Math.round(mainProdPrice).toLocaleString('es-AR') + '</div>';
-        }
+        html += '<div style="font-size: 12px !important; font-weight: 700 !important; color: ' + textColor + ' !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + item.title + '</div>';
+        html += '<div style="font-size: 12px !important; color: ' + promoPriceColor + ' !important; font-weight: 800 !important;">$' + Math.round(itemPrice).toLocaleString('es-AR') + '</div>';
         html += '</div>';
-        html += '<span style="background: ' + badgeColor + ' !important; color: #ffffff !important; font-size: 10px !important; font-weight: 800 !important; padding: 2px 6px !important; border-radius: 4px !important;">ESTE PRODUCTO</span>';
         html += '</div>';
+      }
 
-        // Items productos complementarios
-        for (var i = 0; i < selectedProducts.length; i++) {
-          var item = selectedProducts[i];
-          var itemPrice = item.price || 0;
-          var itemVariant = item.variantId || item.id;
-          html += '<div style="background: ' + itemBgColor + ' !important; border-radius: 8px !important; padding: 10px !important; display: flex !important; align-items: center !important; gap: 10px !important; margin-bottom: 8px !important;">';
-          html += '<input type="checkbox" class="nvx-pack-item-cb" data-type="comp" data-id="' + item.id + '" data-variant="' + itemVariant + '" data-price="' + itemPrice + '" checked style="width: 16px !important; height: 16px !important; cursor: pointer !important;" />';
-          if (item.image) {
-            html += '<img src="' + item.image + '" alt="' + item.title + '" style="width: 36px !important; height: 36px !important; border-radius: 6px !important; object-fit: cover !important;" />';
+      // Botón "Agregar al carrito"
+      html += '<button id="' + containerId + '-btn" type="button" style="width: 100% !important; background: ' + buttonBg + ' !important; color: ' + buttonText + ' !important; border: none !important; border-radius: 25px !important; padding: 12px !important; font-size: 14px !important; font-weight: 800 !important; cursor: pointer !important; margin-top: 8px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;">';
+      html += 'Agregar al carrito';
+      html += '</button>';
+
+      container.innerHTML = html;
+
+      // BUSCADOR UNIVERSAL DE CONTENEDOR DE DESTINO
+      var targetEl = document.querySelector("form[action*='/cart']") ||
+                     document.querySelector("form[action*='/comprar']") ||
+                     document.querySelector(".js-addtocart-form") ||
+                     document.querySelector(".product-buy-form") ||
+                     document.querySelector(".js-product-form") ||
+                     document.querySelector(".product-form") ||
+                     document.querySelector("#product_form") ||
+                     document.querySelector(".js-prod-form") ||
+                     document.querySelector(".js-product-container") ||
+                     document.querySelector(".product-detail") ||
+                     document.querySelector("h1") ||
+                     document.querySelector("main") ||
+                     document.body;
+
+      if (replaceNativeButton && targetEl && targetEl.tagName === "FORM") {
+        try {
+          var nativeBtns = targetEl.querySelectorAll("input[type='submit'], button[type='submit'], .js-addtocart, .js-prod-submit, .js-buy-btn, .btn-add-to-cart, button[name='add']");
+          for (var nb = 0; nb < nativeBtns.length; nb++) {
+            nativeBtns[nb].style.setProperty("display", "none", "important");
           }
-          html += '<div style="flex: 1 !important; min-width: 0 !important;">';
-          html += '<div style="font-size: 12px !important; font-weight: 700 !important; color: ' + textColor + ' !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">' + item.title + '</div>';
-          html += '<div style="font-size: 12px !important; color: ' + promoPriceColor + ' !important; font-weight: 800 !important;">$' + Math.round(itemPrice).toLocaleString('es-AR') + '</div>';
-          html += '</div>';
-          html += '</div>';
+        } catch(e){}
+      }
+
+      if (targetEl.tagName === "H1" && targetEl.parentNode) {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else if (targetEl.parentNode && targetEl !== document.body) {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        document.body.appendChild(container);
+      }
+
+      // Recálculo dinámico de precio y contador
+      var updatePackTotal = function() {
+        var cbs = container.querySelectorAll(".nvx-pack-item-cb");
+        var total = 0;
+        var count = 0;
+        for (var k = 0; k < cbs.length; k++) {
+          if (cbs[k].checked) {
+            total += parseFloat(cbs[k].getAttribute("data-price") || "0");
+            count++;
+          }
         }
+        var totalEl = document.getElementById(containerId + "-total");
+        if (totalEl) totalEl.innerText = "$" + Math.round(total).toLocaleString("es-AR");
 
-        // Botón "Agregar al carrito"
-        html += '<button id="' + containerId + '-btn" type="button" style="width: 100% !important; background: ' + buttonBg + ' !important; color: ' + buttonText + ' !important; border: none !important; border-radius: 25px !important; padding: 12px !important; font-size: 14px !important; font-weight: 800 !important; cursor: pointer !important; margin-top: 8px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;">';
-        html += 'Agregar al carrito';
-        html += '</button>';
+        var btnEl = document.getElementById(containerId + "-btn");
+        if (btnEl) btnEl.innerText = "Agregar al carrito (" + count + ")";
+      };
 
-        container.innerHTML = html;
+      var checkboxes = container.querySelectorAll(".nvx-pack-item-cb");
+      for (var j = 0; j < checkboxes.length; j++) {
+        checkboxes[j].addEventListener("change", updatePackTotal);
+      }
+      updatePackTotal();
 
-        if (targetEl.parentNode) {
-          targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
-        } else {
-          targetEl.appendChild(container);
-        }
+      // Acción de agregar al carrito
+      var btnAdd = document.getElementById(containerId + "-btn");
+      if (btnAdd) {
+        btnAdd.addEventListener("click", function(e) {
+          e.preventDefault();
+          btnAdd.innerText = "Agregando...";
+          btnAdd.disabled = true;
 
-        // Recálculo dinámico de precio y contador
-        var updatePackTotal = function() {
-          var cbs = container.querySelectorAll(".nvx-pack-item-cb");
-          var total = 0;
-          var count = 0;
-          for (var k = 0; k < cbs.length; k++) {
-            if (cbs[k].checked) {
-              total += parseFloat(cbs[k].getAttribute("data-price") || "0");
-              count++;
+          var cbs = container.querySelectorAll(".nvx-pack-item-cb:checked");
+          var itemsToAdd = [];
+          for (var m = 0; m < cbs.length; m++) {
+            var isMain = cbs[m].getAttribute("data-type") === "main";
+            var pVar = cbs[m].getAttribute("data-variant") || cbs[m].getAttribute("data-id");
+            if (isMain && !pVar && targetEl) {
+              var formVarInput = targetEl.querySelector("input[name='variation_id']") || targetEl.querySelector("select[name='variation_id']") || targetEl.querySelector("input[name='variant_id']");
+              if (formVarInput) pVar = formVarInput.value;
             }
+            if (pVar) itemsToAdd.push(pVar);
           }
-          var totalEl = document.getElementById(containerId + "-total");
-          if (totalEl) totalEl.innerText = "$" + Math.round(total).toLocaleString("es-AR");
 
-          var btnEl = document.getElementById(containerId + "-btn");
-          if (btnEl) btnEl.innerText = "Agregar al carrito (" + count + ")";
-        };
+          if (itemsToAdd.length === 0) {
+            alert("Por favor seleccioná al menos un producto.");
+            btnAdd.innerText = "Agregar al carrito";
+            btnAdd.disabled = false;
+            return;
+          }
 
-        var checkboxes = container.querySelectorAll(".nvx-pack-item-cb");
-        for (var j = 0; j < checkboxes.length; j++) {
-          checkboxes[j].addEventListener("change", updatePackTotal);
-        }
-        updatePackTotal();
-
-        // Acción de agregar al carrito
-        var btnAdd = document.getElementById(containerId + "-btn");
-        if (btnAdd) {
-          btnAdd.addEventListener("click", function(e) {
-            e.preventDefault();
-            btnAdd.innerText = "Agregando...";
-            btnAdd.disabled = true;
-
-            var cbs = container.querySelectorAll(".nvx-pack-item-cb:checked");
-            var itemsToAdd = [];
-            for (var m = 0; m < cbs.length; m++) {
-              var isMain = cbs[m].getAttribute("data-type") === "main";
-              var pVar = cbs[m].getAttribute("data-variant") || cbs[m].getAttribute("data-id");
-              if (isMain && !pVar) {
-                var formVarInput = targetEl.querySelector("input[name='variation_id']") || targetEl.querySelector("select[name='variation_id']") || targetEl.querySelector("input[name='variant_id']");
-                if (formVarInput) pVar = formVarInput.value;
+          var addNextItem = function(index) {
+            if (index >= itemsToAdd.length) {
+              if (redirectToCart) {
+                window.location.href = "/comprar/";
+              } else if (window.nube && typeof window.nube.send === "function") {
+                window.nube.send("cart:open");
+                btnAdd.innerText = "¡Agregado!";
+                setTimeout(function() { updatePackTotal(); btnAdd.disabled = false; }, 2000);
+              } else {
+                window.location.reload();
               }
-              if (pVar) itemsToAdd.push(pVar);
-            }
-
-            if (itemsToAdd.length === 0) {
-              alert("Por favor seleccioná al menos un producto.");
-              btnAdd.innerText = "Agregar al carrito";
-              btnAdd.disabled = false;
               return;
             }
 
-            var addNextItem = function(index) {
-              if (index >= itemsToAdd.length) {
-                if (redirectToCart) {
-                  window.location.href = "/comprar/";
-                } else if (window.nube && typeof window.nube.send === "function") {
-                  window.nube.send("cart:open");
-                  btnAdd.innerText = "¡Agregado!";
-                  setTimeout(function() { updatePackTotal(); btnAdd.disabled = false; }, 2000);
-                } else {
-                  window.location.reload();
-                }
-                return;
-              }
-
-              var vId = itemsToAdd[index];
-              if (window.nube && typeof window.nube.send === "function") {
-                try {
-                  window.nube.send("cart:add", { variant_id: parseInt(vId, 10), quantity: 1 });
-                  setTimeout(function() { addNextItem(index + 1); }, 300);
-                } catch(err) {
-                  addNextItemFallback(index);
-                }
-              } else {
+            var vId = itemsToAdd[index];
+            if (window.nube && typeof window.nube.send === "function") {
+              try {
+                window.nube.send("cart:add", { variant_id: parseInt(vId, 10), quantity: 1 });
+                setTimeout(function() { addNextItem(index + 1); }, 300);
+              } catch(err) {
                 addNextItemFallback(index);
               }
-            };
+            } else {
+              addNextItemFallback(index);
+            }
+          };
 
-            var addNextItemFallback = function(index) {
-              if (index >= itemsToAdd.length) {
-                if (redirectToCart) {
-                  window.location.href = "/comprar/";
-                } else {
-                  window.location.reload();
-                }
-                return;
+          var addNextItemFallback = function(index) {
+            if (index >= itemsToAdd.length) {
+              if (redirectToCart) {
+                window.location.href = "/comprar/";
+              } else {
+                window.location.reload();
               }
-              var vId = itemsToAdd[index];
-              var formData = new FormData();
-              formData.append("add_to_cart", vId);
-              formData.append("variant_id", vId);
-              formData.append("quantity", "1");
+              return;
+            }
+            var vId = itemsToAdd[index];
+            var formData = new FormData();
+            formData.append("add_to_cart", vId);
+            formData.append("variant_id", vId);
+            formData.append("quantity", "1");
 
-              fetch("/comprar/", {
-                method: "POST",
-                body: formData,
-                credentials: "include"
-              }).then(function() {
-                addNextItemFallback(index + 1);
-              }).catch(function() {
-                addNextItemFallback(index + 1);
-              });
-            };
+            fetch("/comprar/", {
+              method: "POST",
+              body: formData,
+              credentials: "include"
+            }).then(function() {
+              addNextItemFallback(index + 1);
+            }).catch(function() {
+              addNextItemFallback(index + 1);
+            });
+          };
 
-            addNextItem(0);
-          });
-        }
-      };
-
-      attemptRender(5);
+          addNextItem(0);
+        });
+      }
 
     } catch (e) {
       console.warn("Nevux Pack Complementarios Error:", e);
