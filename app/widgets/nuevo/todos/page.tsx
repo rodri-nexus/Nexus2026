@@ -19,11 +19,11 @@ export default async function WidgetsNuevoTodosPage() {
     .from("widget_definitions")
     .select("*")
     .eq("is_active", true)
-    .not("slug", "in", '("pack-complementarios","extras-interruptor","switch-extras")')
+    .not("slug", "in", '("extras-interruptor","switch-extras")')
     .order("name");
 
   // Filtro de seguridad en memoria
-  const excludedSlugs = ["pack-complementarios", "extras-interruptor", "switch-extras"];
+  const excludedSlugs = ["extras-interruptor", "switch-extras"];
   const definitions = (rawDefinitions || []).filter(
     (w) => !excludedSlugs.includes(w.slug)
   );
