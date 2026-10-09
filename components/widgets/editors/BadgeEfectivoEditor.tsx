@@ -5,8 +5,11 @@ import { useRouter } from 'next/navigation';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
-interface WidgetDefinition {
-  id: string;
+/* ═══════════════════════════════════════════
+   TIPOS E INTERFACES
+═══════════════════════════════════════════ */
+interface WidgetDef {
+  id: string | number;
   slug: string;
   name: string;
   description: string;
@@ -14,8 +17,8 @@ interface WidgetDefinition {
   icon: string;
 }
 
-interface ExistingWidget {
-  id: string;
+interface ExWidget {
+  id: string | number;
   config: any;
   is_active: boolean;
   target_type: string;
@@ -24,8 +27,8 @@ interface ExistingWidget {
 }
 
 interface BadgeEfectivoEditorProps {
-  widgetDefinition: WidgetDefinition;
-  existingWidget: ExistingWidget | null;
+  widgetDefinition: WidgetDef;
+  existingWidget: ExWidget | null;
   targetType: 'product' | 'all' | 'category';
   productId: number | null;
   categoryId?: string | number | null;
@@ -39,10 +42,10 @@ export interface BadgeEfectivoConfig {
   customTextPrice: string;
   showCoinIcon: boolean;
   badgeText: string;
-  bounceEffect: boolean;
   badgePosition: 'top-right' | 'end-text';
   showOnProductPage: boolean;
   showOnGrid: boolean;
+  stickyGlobal: boolean;
   bgColor: string;
   textColor: string;
   gradientBg: boolean;
@@ -63,13 +66,13 @@ const defaultConfig: BadgeEfectivoConfig = {
   discountPercent: 10,
   messageType: 'percent',
   customTextPercent: '{descuento}% de descuento pagando en efectivo',
-  customTextPrice: '${precio} pagando en efectivo',
+  customTextPrice: '{precio} pagando en efectivo',
   showCoinIcon: true,
   badgeText: 'OFERTA',
-  bounceEffect: false,
   badgePosition: 'top-right',
   showOnProductPage: true,
   showOnGrid: false,
+  stickyGlobal: false,
   bgColor: '#f3f4f6',
   textColor: '#111827',
   gradientBg: false,
@@ -87,14 +90,14 @@ const defaultConfig: BadgeEfectivoConfig = {
 };
 
 const CAMPAIGN_PRESETS = [
-  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores de Estilos.' },
-  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro + badge dorado.', themeColor: '#111827', accentColor: '#F59E0B' },
-  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Fondo azul oscuro + badge rojo.', themeColor: '#0F172A', accentColor: '#EF4444' },
-  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Estilo neón cibernético.', themeColor: '#090D16', accentColor: '#3B82F6' },
-  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde festivo + badge rojo.', themeColor: '#064E3B', accentColor: '#EF4444' },
-  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa romántico.', themeColor: '#831843', accentColor: '#F43F5E' },
-  { id: 'dia-padre-madre', label: 'Día Madre / Padre', emoji: '🎁', desc: 'Índigo premium con esmeralda.', themeColor: '#312E81', accentColor: '#10B981' },
-  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí + amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+  { id: 'none', label: 'Diseño Normal / Personalizado', emoji: '🎨', desc: 'Mantiene tus colores de Estilos.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro + badge dorado.' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Fondo azul oscuro + badge rojo.' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Estilo neón cibernético.' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde festivo + badge rojo.' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Rosa romántico.' },
+  { id: 'dia-padre-madre', label: 'Día Madre / Padre', emoji: '🎁', desc: 'Índigo premium con esmeralda.' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo carmesí + amarillo.' },
 ];
 
 const PRESETS_DATA: Record<string, Partial<BadgeEfectivoConfig>> = {
@@ -107,6 +110,9 @@ const PRESETS_DATA: Record<string, Partial<BadgeEfectivoConfig>> = {
   'liquidacion': { bgColor: '#7F1D1D', textColor: '#ffffff', badgeBgColor: '#FBBF24', badgeTextColor: '#7F1D1D' },
 };
 
+/* ═══════════════════════════════════════════
+   SUBCOMPONENTES AUXILIARES
+═══════════════════════════════════════════ */
 function IconStore() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -128,7 +134,7 @@ function IconInfo() {
 
 function FieldLabel({ children, required = false }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
+    <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#000000', marginBottom: 8 }}>
       {children}
       {required && <span style={{ color: '#10B981', marginLeft: 4 }}>*</span>}
     </label>
@@ -137,7 +143,7 @@ function FieldLabel({ children, required = false }: { children: React.ReactNode;
 
 function FieldHelper({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: 13, color: '#000000', opacity: 0.6, marginTop: 6, marginBottom: 0, lineHeight: 1.5 }}>
+    <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6, marginBottom: 0, lineHeight: 1.4 }}>
       {children}
     </p>
   );
@@ -152,7 +158,7 @@ function TextInput({ value, onChange, placeholder, maxLength }: { value: string;
       placeholder={placeholder}
       maxLength={maxLength}
       style={{
-        width: '100%', padding: '12px 14px', fontSize: 15,
+        width: '100%', padding: '12px 14px', fontSize: 14,
         border: '1.5px solid #e5e7eb', borderRadius: 10,
         background: '#ffffff', color: '#000000', outline: 'none',
         boxSizing: 'border-box', fontFamily: 'inherit',
@@ -172,7 +178,7 @@ function NumberInput({ value, onChange, min = 0, max = 100 }: { value: number; o
       max={max}
       onChange={(e) => onChange(Number(e.target.value))}
       style={{
-        width: '100%', padding: '12px 14px', fontSize: 15,
+        width: '100%', padding: '12px 14px', fontSize: 14,
         border: '1.5px solid #e5e7eb', borderRadius: 10,
         background: '#ffffff', color: '#000000', outline: 'none',
         boxSizing: 'border-box', fontFamily: 'inherit',
@@ -181,25 +187,29 @@ function NumberInput({ value, onChange, min = 0, max = 100 }: { value: number; o
   );
 }
 
-function ToggleField({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      style={{
+        width: 48, height: 26, borderRadius: 999,
+        background: checked ? '#10B981' : '#e5e7eb',
+        border: 'none', cursor: 'pointer', padding: 3,
+        display: 'flex', alignItems: 'center',
+        transition: 'background-color 0.2s', flexShrink: 0,
+      }}
+    >
       <div
-        onClick={() => onChange(!checked)}
         style={{
-          width: 44, height: 26, borderRadius: 13,
-          background: checked ? '#10B981' : '#d1d5db',
-          position: 'relative', transition: 'background 0.25s', flexShrink: 0,
+          width: 20, height: 20, borderRadius: '50%',
+          background: '#ffffff',
+          transform: checked ? 'translateX(22px)' : 'translateX(0px)',
+          transition: 'transform 0.2s',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
         }}
-      >
-        <div style={{
-          position: 'absolute', top: 3, left: checked ? 21 : 3,
-          width: 20, height: 20, borderRadius: '50%', background: '#fff',
-          transition: 'left 0.25s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-        }} />
-      </div>
-      <span style={{ fontSize: 15, color: '#000000', fontWeight: 600 }}>{label}</span>
-    </label>
+      />
+    </button>
   );
 }
 
@@ -230,7 +240,7 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
   };
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
-      <div onClick={handleClick} style={{ width: 40, height: 40, borderRadius: 8, background: value, border: '1.5px solid #e5e7eb', cursor: 'pointer', flexShrink: 0 }} />
+      <div onClick={handleClick} style={{ width: 38, height: 38, borderRadius: 8, background: value, border: '1.5px solid #e5e7eb', cursor: 'pointer', flexShrink: 0 }} />
       <input
         type="text"
         value={value}
@@ -238,7 +248,7 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
           const v = e.target.value;
           onChange(v.startsWith('#') ? v : '#' + v);
         }}
-        style={{ flex: 1, minWidth: 0, padding: '10px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#fff', color: '#000', outline: 'none', fontFamily: 'monospace', boxSizing: 'border-box' }}
+        style={{ flex: 1, minWidth: 0, padding: '9px 10px', fontSize: 13, border: '1.5px solid #e5e7eb', borderRadius: 8, background: '#fff', color: '#000', outline: 'none', fontFamily: 'monospace', boxSizing: 'border-box' }}
       />
     </div>
   );
@@ -251,7 +261,7 @@ function SelectField({ value, onChange, options }: { value: string; onChange: (v
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{
-          width: '100%', padding: '12px 36px 12px 14px', fontSize: 15,
+          width: '100%', padding: '12px 36px 12px 14px', fontSize: 14,
           border: '1.5px solid #e5e7eb', borderRadius: 10, background: '#fff', color: '#000',
           outline: 'none', appearance: 'none', cursor: 'pointer', boxSizing: 'border-box', fontFamily: 'inherit',
         }}
@@ -268,13 +278,13 @@ function SelectField({ value, onChange, options }: { value: string; onChange: (v
 }
 
 function BadgeEfectivoPreview({ config }: { config: BadgeEfectivoConfig }) {
-  const basePrice = 10000;
+  const basePrice = 35000;
   const discountedPrice = basePrice * (1 - (config.discountPercent || 0) / 100);
   const formattedDiscounted = '$' + Math.round(discountedPrice).toLocaleString('es-AR');
 
   let rawText = config.messageType === 'percent'
     ? config.customTextPercent || '{descuento}% de descuento pagando en efectivo'
-    : config.customTextPrice || '${precio} pagando en efectivo';
+    : config.customTextPrice || '{precio} pagando en efectivo';
 
   rawText = rawText.replace('{descuento}', String(config.discountPercent || 10));
   rawText = rawText.replace('{precio}', formattedDiscounted);
@@ -289,12 +299,12 @@ function BadgeEfectivoPreview({ config }: { config: BadgeEfectivoConfig }) {
       padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
     }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-        VISTA PREVIA DEBAJO DEL PRECIO
+        VISTA PREVIA DEBAJO DEL PRECIO DE VENTA
       </div>
 
       <div style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6', marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: '#6b7280' }}>Precio habitual</div>
-        <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>$10.000,00</div>
+        <div style={{ fontSize: 12, color: '#9ca3af', textDecoration: 'line-through' }}>$38.888,00</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: '#111827' }}>$35.000,00</div>
       </div>
 
       <div style={{
@@ -343,28 +353,31 @@ function BadgeEfectivoPreview({ config }: { config: BadgeEfectivoConfig }) {
   );
 }
 
+/* ═══════════════════════════════════════════
+   COMPONENTE PRINCIPAL DE EDITOR
+═══════════════════════════════════════════ */
 export default function BadgeEfectivoEditor({
-  widgetDefinition,
-  existingWidget,
+  widgetDefinition: wd,
+  existingWidget: ew,
   targetType,
   productId,
-  categoryId = null,
+  categoryId,
   storeId,
 }: BadgeEfectivoEditorProps) {
   const router = useRouter();
 
   const [config, setConfig] = useState<BadgeEfectivoConfig>(() => ({
     ...defaultConfig,
-    ...(existingWidget?.config || {}),
+    ...(ew?.config || {}),
   }));
 
-  const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
+  const [isActive, setIsActive] = useState(ew?.is_active ?? true);
   const [saving, setSaving] = useState(false);
   const [savedOK, setSavedOK] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('general');
 
-  const isEditing = !!existingWidget;
+  const isEditing = !!ew;
   const isForAll = targetType === 'all';
   const isCategory = targetType === 'category';
   const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
@@ -407,8 +420,8 @@ export default function BadgeEfectivoEditor({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: existingWidget?.id ?? null,
-          widget_slug: widgetDefinition.slug,
+          id: ew?.id ?? null,
+          widget_slug: wd.slug,
           store_id: storeId,
           target_type: targetType,
           target_product_id: targetType === 'product' ? productId : null,
@@ -426,7 +439,7 @@ export default function BadgeEfectivoEditor({
 
       if (data.action === 'created') {
         const params = new URLSearchParams();
-        params.set('created', widgetDefinition.slug);
+        params.set('created', wd.slug);
         if (targetType === 'product' && productId) params.set('product', String(productId));
         if (targetType === 'category' && categoryId) params.set('category', String(categoryId));
         router.push(`/widgets?${params.toString()}`);
@@ -471,7 +484,7 @@ export default function BadgeEfectivoEditor({
             }}
           >
             <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Precio con efectivo ($X)</div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>Muestra el monto final calculado en pesos (ej: $9.000 pagando en efectivo).</div>
+            <div style={{ fontSize: 12, color: '#6b7280' }}>Muestra el monto final calculado en pesos (ej: $31.500 pagando en efectivo).</div>
           </div>
         </div>
       </div>
@@ -485,8 +498,8 @@ export default function BadgeEfectivoEditor({
           </div>
         ) : (
           <div>
-            <TextInput value={config.customTextPrice} onChange={(v) => update('customTextPrice', v)} placeholder="${precio} pagando en efectivo" />
-            <FieldHelper>Usá <strong>{'{precio}'}</strong> para insertar el precio ya descontado automáticamente.</FieldHelper>
+            <TextInput value={config.customTextPrice} onChange={(v) => update('customTextPrice', v)} placeholder="{precio} pagando en efectivo" />
+            <FieldHelper>Usá <strong>{'{precio}'}</strong> para insertar el precio ya descontado (ej: $31.500).</FieldHelper>
           </div>
         )}
       </div>
@@ -536,23 +549,29 @@ export default function BadgeEfectivoEditor({
   );
 
   const tabUbicacion = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 14 }}>
-        <CheckboxRow
-          checked={config.showOnProductPage}
-          onChange={(v) => update('showOnProductPage', v)}
-          label="Mostrar en ficha de producto"
-          helper="El badge se ubica justo debajo del precio del producto en la página individual."
-        />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>🏷️ Mostrar en la ficha de producto</div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>El badge se ubica justo debajo de ambos precios (precio tachado + precio de venta).</div>
+        </div>
+        <ToggleSwitch checked={config.showOnProductPage} onChange={(v) => update('showOnProductPage', v)} />
       </div>
 
-      <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 12, padding: 14 }}>
-        <CheckboxRow
-          checked={config.showOnGrid}
-          onChange={(v) => update('showOnGrid', v)}
-          label="Mostrar en grilla de productos (Home / Listados)"
-          helper="Aparece debajo del precio en las tarjetas de productos de la tienda."
-        />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>🏪 Mostrar en grilla de productos (Home / Listados)</div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Aparece debajo del precio en las tarjetas de productos de tu tienda.</div>
+        </div>
+        <ToggleSwitch checked={config.showOnGrid} onChange={(v) => update('showOnGrid', v)} />
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ffffff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: 14 }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#000000' }}>💳 Barra fija sticky en toda la tienda</div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Muestra una barra sutil en el borde inferior recordando el beneficio en efectivo.</div>
+        </div>
+        <ToggleSwitch checked={config.stickyGlobal} onChange={(v) => update('stickyGlobal', v)} />
       </div>
     </div>
   );
@@ -690,12 +709,6 @@ export default function BadgeEfectivoEditor({
                 </div>
                 <div style={{ fontSize: 13, opacity: 0.6, marginTop: 4 }}>{preset.desc}</div>
               </div>
-              {preset.id !== 'none' && preset.themeColor ? (
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
-                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
-                </div>
-              ) : null}
             </div>
           );
         })}
@@ -712,6 +725,7 @@ export default function BadgeEfectivoEditor({
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
+      {/* HEADER STICKY */}
       <div style={{
         background: '#fff', borderBottom: '1px solid #e5e7eb',
         padding: '14px 20px', display: 'flex', alignItems: 'center',
@@ -728,6 +742,7 @@ export default function BadgeEfectivoEditor({
       </div>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 40px' }}>
+        {/* SCOPE CHIP */}
         {isForAll ? (
           <div style={{
             background: '#10B981', color: '#fff', borderRadius: 999, padding: '8px 14px',
@@ -750,13 +765,13 @@ export default function BadgeEfectivoEditor({
             display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20, fontSize: 14, fontWeight: 700, color: '#000',
           }}>
             <span style={{ fontSize: 18 }}>🛍️</span>
-            <span>NEVUX Widget de Producto</span>
+            <span>NEVUX Widget</span>
           </div>
         )}
 
         <h1 style={{ fontSize: 26, fontWeight: 800, color: '#000', margin: '0 0 20px', lineHeight: 1.2 }}>
           {isEditing ? 'Editar widget: ' : 'Nuevo widget: '}
-          {widgetDefinition.name} ({scopeLabel})
+          {wd.name} ({scopeLabel})
         </h1>
 
         <div style={{
@@ -773,7 +788,7 @@ export default function BadgeEfectivoEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000', lineHeight: 1.5 }}>
-              El Badge de Efectivo muestra el descuento o precio final con pago en efectivo debajo del precio nativo del producto para impulsar la venta inmediata.
+              El Badge de Efectivo muestra el descuento o precio final con pago en efectivo debajo del precio de venta para impulsar la venta inmediata.
             </span>
           </div>
 
@@ -809,7 +824,7 @@ export default function BadgeEfectivoEditor({
             marginTop: 32, paddingTop: 20, borderTop: '1px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
           }}>
-            <ToggleField checked={isActive} onChange={setIsActive} label="Widget activo" />
+            <ToggleSwitch checked={isActive} onChange={setIsActive} />
             <button
               type="button"
               onClick={handleSave}
@@ -842,4 +857,4 @@ export default function BadgeEfectivoEditor({
       </div>
     </div>
   );
-}
+                   }
