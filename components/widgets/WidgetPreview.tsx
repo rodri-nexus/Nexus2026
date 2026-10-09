@@ -8,6 +8,51 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function BannerSuperiorPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📢 BANNER SUPERIOR</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          ANUNCIO
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#1e1e1e",
+          color: "#ffffff",
+          borderRadius: "6px",
+          padding: "4px 8px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "4px",
+        }}
+      >
+        <span style={{ fontSize: "6px", fontWeight: 600, flex: 1, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+          ¡Oferta especial hoy! 🎉
+        </span>
+        <span style={{ background: "#ffffff", color: "#000000", fontSize: "5.5px", fontWeight: 800, padding: "2px 5px", borderRadius: "3px" }}>
+          Ver ofertas
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function PreguntasFrecuentesPreview() {
   return (
     <div
@@ -1259,6 +1304,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "banner-superior":
+      return <BannerSuperiorPreview />;
     case "preguntas-frecuentes":
       return <PreguntasFrecuentesPreview />;
     case "badge-efectivo":
@@ -1328,4 +1375,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-        }
+            }
