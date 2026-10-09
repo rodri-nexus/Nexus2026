@@ -8,6 +8,57 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function MensajeGarantiaPreview() {
+  return (
+    <div
+      style={{
+        background: "#fff9f3",
+        border: "1.5px solid #e7dec8",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      <div
+        style={{
+          width: "26px",
+          height: "26px",
+          borderRadius: "6px",
+          background: "rgba(0,0,0,0.05)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "14px",
+          flexShrink: 0,
+        }}
+      >
+        🛡️
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0, flex: 1 }}>
+        <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>
+          Garantía de 60 días
+        </div>
+        <div
+          style={{
+            fontSize: "6px",
+            color: "#4b5563",
+            lineHeight: 1.2,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          Devolución 100% garantizada
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BarraAccionPreview() {
   return (
     <div
@@ -242,7 +293,6 @@ function ProductosComplementariosPreview() {
         </span>
       </div>
 
-      {/* Item 1 */}
       <div
         style={{
           background: "#f9fafb",
@@ -294,7 +344,6 @@ function ProductosComplementariosPreview() {
         </div>
       </div>
 
-      {/* Item 2 */}
       <div
         style={{
           background: "#f9fafb",
@@ -1105,6 +1154,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "mensaje-garantia":
+      return <MensajeGarantiaPreview />;
     case "barra-accion":
       return <BarraAccionPreview />;
     case "slider-videos":
