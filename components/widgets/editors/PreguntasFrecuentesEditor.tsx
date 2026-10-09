@@ -439,7 +439,6 @@ export default function PreguntasFrecuentesEditor({
     }
   }
 
-  // Operaciones de Items FAQ
   const handleAddItem = () => {
     const newItem: FaqItem = {
       id: Date.now().toString(),
@@ -536,7 +535,7 @@ export default function PreguntasFrecuentesEditor({
       </div>
 
       <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifySpaceBetween: 'space-between', marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <FieldLabel>Preguntas y Respuestas ({config.items.length}):</FieldLabel>
         </div>
 
@@ -554,7 +553,7 @@ export default function PreguntasFrecuentesEditor({
                 gap: 12,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', pb: 10, paddingBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#10B981' }}>Pregunta #{index + 1}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <button
@@ -1024,4 +1023,4 @@ export default function PreguntasFrecuentesEditor({
       </div>
     </div>
   );
-  }
+}
