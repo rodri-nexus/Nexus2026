@@ -19,6 +19,7 @@ import BundleCantidadEditor from '@/components/widgets/editors/BundleCantidadEdi
 import SliderVideosEditor from '@/components/widgets/editors/SliderVideosEditor';
 import BarraAccionEditor from '@/components/widgets/editors/BarraAccionEditor';
 import MensajeGarantiaEditor from '@/components/widgets/editors/MensajeGarantiaEditor';
+import BadgeEfectivoEditor from '@/components/widgets/editors/BadgeEfectivoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -126,7 +127,12 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     storeId: store.store_id,
   };
 
-  // WIDGET: MENSAJE DE GARANTÍA (NUEVO)
+  // WIDGET: BADGE DE EFECTIVO (NUEVO)
+  if (params.widgetSlug === 'badge-efectivo') {
+    return <BadgeEfectivoEditor {...editorProps} />;
+  }
+
+  // WIDGET: MENSAJE DE GARANTÍA
   if (params.widgetSlug === 'mensaje-garantia') {
     return <MensajeGarantiaEditor {...editorProps} />;
   }
@@ -229,4 +235,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+  }
