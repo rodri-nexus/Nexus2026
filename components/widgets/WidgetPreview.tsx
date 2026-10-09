@@ -116,6 +116,78 @@ function PreguntasFrecuentesPreview() {
   );
 }
 
+function PackComplementariosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📦 PACK COMPLEMENTARIOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          COMBO
+        </span>
+      </div>
+
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "4px 6px",
+          display: "flex",
+          alignItems: "center",
+          gap: "5px",
+        }}
+      >
+        <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "6px", fontWeight: "900" }}>✓</div>
+        <div style={{ fontSize: "6.5px", fontWeight: 700, color: "#111827", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Adaptador Universal (Principal)</div>
+        <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#10B981" }}>$ 10.549</span>
+      </div>
+
+      <div
+        style={{
+          background: "#f9fafb",
+          border: "1px solid #f3f4f6",
+          borderRadius: "6px",
+          padding: "4px 6px",
+          display: "flex",
+          alignItems: "center",
+          gap: "5px",
+        }}
+      >
+        <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "6px", fontWeight: "900" }}>✓</div>
+        <div style={{ fontSize: "6.5px", fontWeight: 700, color: "#111827", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Funda de regalo</div>
+        <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#10B981" }}>$ 3.500</span>
+      </div>
+
+      <div
+        style={{
+          background: "#111827",
+          color: "#ffffff",
+          borderRadius: "6px",
+          padding: "4px",
+          fontSize: "6.5px",
+          fontWeight: 800,
+          textAlign: "center",
+          marginTop: "1px",
+        }}
+      >
+        Agregar pack ($ 14.049)
+      </div>
+    </div>
+  );
+}
+
 function BadgeEfectivoPreview() {
   return (
     <div
@@ -426,7 +498,7 @@ function ProductosComplementariosPreview() {
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ fontSize: "7.5px", fontWeight: 900, color: "#111827", display: "flex", alignItems: "center", gap: "3px" }}>
-          <span>🎁</span> PACK COMPLEMENTARIO
+          <span>🎁</span> PRODUCTOS COMPLEMENTARIOS
         </div>
         <span
           style={{
@@ -1308,6 +1380,8 @@ function renderPreview(slug: string) {
       return <BannerSuperiorPreview />;
     case "preguntas-frecuentes":
       return <PreguntasFrecuentesPreview />;
+    case "pack-complementarios":
+      return <PackComplementariosPreview />;
     case "badge-efectivo":
       return <BadgeEfectivoPreview />;
     case "mensaje-garantia":
@@ -1375,4 +1449,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-            }
+        }
