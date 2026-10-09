@@ -38,7 +38,7 @@ export interface BannerSuperiorConfig {
   buttonUrl: string;
   openInNewTab: boolean;
   showCloseButton: boolean;
-  position: 'top' | 'bottom';
+  position: 'sticky_bottom';
   bgColor: string;
   bgGradient: boolean;
   buttonColor: string;
@@ -59,7 +59,7 @@ const defaultConfig: BannerSuperiorConfig = {
   buttonUrl: '/ofertas',
   openInNewTab: false,
   showCloseButton: true,
-  position: 'top',
+  position: 'sticky_bottom',
   bgColor: '#1e1e1e',
   bgGradient: false,
   buttonColor: '#ffffff',
@@ -270,8 +270,9 @@ function BannerSuperiorPreview({ config }: { config: BannerSuperiorConfig }) {
       background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 16,
       padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
     }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
-        VISTA PREVIA DEL BANNER
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>VISTA PREVIA DE LA BARRA</span>
+        <span style={{ color: '#10B981', fontWeight: 800 }}>📌 Fixed Bottom</span>
       </div>
 
       <div style={{
@@ -284,7 +285,7 @@ function BannerSuperiorPreview({ config }: { config: BannerSuperiorConfig }) {
         justifyContent: 'center',
         gap: 12,
         position: 'relative',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
         flexWrap: 'wrap',
         textAlign: 'center',
       }}>
@@ -347,6 +348,7 @@ export default function BannerSuperiorEditor({
   const [config, setConfig] = useState<BannerSuperiorConfig>(() => ({
     ...defaultConfig,
     ...(existingWidget?.config || {}),
+    position: 'sticky_bottom',
   }));
 
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
@@ -406,6 +408,7 @@ export default function BannerSuperiorEditor({
           target_category_id: targetType === 'category' ? (categoryId ? String(categoryId) : null) : null,
           config: {
             ...config,
+            position: 'sticky_bottom',
             ...(targetType === 'category' && categoryId ? { category_id: String(categoryId) } : {}),
           },
           is_active: isActive,
@@ -485,36 +488,19 @@ export default function BannerSuperiorEditor({
       <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 4 }}>Posición del banner</div>
 
       <div
-        onClick={() => update('position', 'top')}
         style={{
-          background: config.position === 'top' ? '#ecfdf5' : '#fff',
-          border: config.position === 'top' ? '2px solid #10B981' : '1.5px solid #e5e7eb',
-          borderRadius: 12, padding: 16, cursor: 'pointer',
+          background: '#ecfdf5',
+          border: '2px solid #10B981',
+          borderRadius: 12,
+          padding: 16,
         }}
       >
         <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input type="radio" checked={config.position === 'top'} onChange={() => {}} className="accent-emerald-500" />
-          <span>Parte superior de la pantalla</span>
+          <span style={{ fontSize: 18 }}>📌</span>
+          <span>Barra fija sticky en toda la tienda</span>
         </div>
-        <div style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.4, paddingLeft: 24 }}>
-          El banner queda fijo en la parte superior de la pantalla, siempre visible mientras el visitante navega.
-        </div>
-      </div>
-
-      <div
-        onClick={() => update('position', 'bottom')}
-        style={{
-          background: config.position === 'bottom' ? '#ecfdf5' : '#fff',
-          border: config.position === 'bottom' ? '2px solid #10B981' : '1.5px solid #e5e7eb',
-          borderRadius: 12, padding: 16, cursor: 'pointer',
-        }}
-      >
-        <div style={{ fontSize: 15, fontWeight: 800, color: '#111827', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <input type="radio" checked={config.position === 'bottom'} onChange={() => {}} className="accent-emerald-500" />
-          <span>Parte inferior de la pantalla</span>
-        </div>
-        <div style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.4, paddingLeft: 24 }}>
-          El banner queda fijo en la parte inferior de la pantalla, siempre visible mientras el visitante navega.
+        <div style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.4, paddingLeft: 26 }}>
+          Muestra una barra sutil en el borde inferior de la pantalla, siempre visible mientras el visitante navega.
         </div>
       </div>
     </div>
@@ -763,7 +749,7 @@ export default function BannerSuperiorEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000', lineHeight: 1.5 }}>
-              Muestra un banner fijo en la parte superior o inferior de la pantalla con texto enriquecido y botón opcional de llamado a la acción.
+              Muestra una barra sticky fija en la parte inferior de la pantalla con mensaje personalizado y botón de llamado a la acción.
             </span>
           </div>
 
@@ -832,4 +818,4 @@ export default function BannerSuperiorEditor({
       </div>
     </div>
   );
-  }
+}
