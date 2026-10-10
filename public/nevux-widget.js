@@ -9318,8 +9318,8 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v136)
-   Talles + Agregar al carrito DENTRO del modal
+   WIDGET: TABLA DE TALLES (v137)
+   Solución 404 + Integración nativa de carrito
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9444,6 +9444,72 @@ var renderTablaTalles = function(w) {
     return null;
   };
 
+  var applyVariantToNativeForm = function(sizeText, variantId) {
+    var norm = normalizeSize(sizeText);
+
+    // 1. Simular clic en elementos nativos de la plantilla
+    var nativeEls = document.querySelectorAll(
+      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
+      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
+      ".js-product-variant, .product-variant, [data-value], [data-option-value]"
+    );
+    for (var k = 0; k < nativeEls.length; k++) {
+      var el = nativeEls[k];
+      var txt = normalizeSize(el.textContent || el.innerText || "");
+      var dv = normalizeSize(el.getAttribute("data-value") || el.getAttribute("data-option-value") || "");
+      if (txt === norm || dv === norm) {
+        try { el.click(); } catch (e) {}
+      }
+    }
+
+    // 2. Sincronizar selects nativos
+    var selects = document.querySelectorAll("select");
+    for (var s = 0; s < selects.length; s++) {
+      var sel = selects[s];
+      for (var j = 0; j < sel.options.length; j++) {
+        var opt = sel.options[j];
+        var ot = normalizeSize(opt.text);
+        var ov = normalizeSize(opt.value);
+        if (ot === norm || ov === norm || (variantId && String(opt.value) === String(variantId))) {
+          sel.selectedIndex = j;
+          sel.value = opt.value;
+          try {
+            var evt = typeof Event === "function" ? new Event("change", { bubbles: true }) : document.createEvent("HTMLEvents");
+            if (typeof Event !== "function") evt.initEvent("change", true, true);
+            sel.dispatchEvent(evt);
+          } catch (eEvt) {}
+          break;
+        }
+      }
+    }
+
+    // 3. Forzar variant_id en inputs ocultos del form
+    if (variantId) {
+      var forms = document.querySelectorAll("form[action*='/cart/add'], form[action*='/comprar'], form.js-product-form, form.product-form, #product_form");
+      for (var f = 0; f < forms.length; f++) {
+        var form = forms[f];
+
+        var vInput = form.querySelector('input[name="variant_id"]');
+        if (!vInput) {
+          vInput = document.createElement("input");
+          vInput.type = "hidden";
+          vInput.name = "variant_id";
+          form.appendChild(vInput);
+        }
+        vInput.value = String(variantId);
+
+        var aInput = form.querySelector('input[name="add_to_cart"]');
+        if (!aInput) {
+          aInput = document.createElement("input");
+          aInput.type = "hidden";
+          aInput.name = "add_to_cart";
+          form.appendChild(aInput);
+        }
+        aInput.value = String(variantId);
+      }
+    }
+  };
+
   var detectProductSizes = function() {
     var suspects = [];
     var sizes = [];
@@ -9524,108 +9590,77 @@ var renderTablaTalles = function(w) {
     return sizes;
   };
 
-  /* Agregar al carrito — patrón Pack Complementarios */
+  /* Ejecutar compra usando el motor nativo de la tienda */
   var addToCartWithSize = function(sizeText, btnEl) {
     var variantId = findVariantIdBySize(sizeText);
     var productId = getProductId();
     var idToAdd = variantId || productId;
-
-    if (!idToAdd) {
-      if (btnEl) {
-        btnEl.innerHTML = "No se pudo detectar el producto";
-        setTimeout(function() {
-          btnEl.innerHTML = "Agregar al carrito" + (sizeText ? " (" + sizeText + ")" : "");
-          btnEl.disabled = false;
-        }, 1800);
-      }
-      return;
-    }
 
     if (btnEl) {
       btnEl.disabled = true;
       btnEl.innerHTML = "Agregando...";
     }
 
-    function restoreBtn() {
-      if (!btnEl) return;
-      btnEl.disabled = false;
-      btnEl.innerHTML = "Agregar al carrito" + (activeSelectedSize ? " (" + activeSelectedSize + ")" : "");
+    // A. Aplicar variante al formulario de la página
+    applyVariantToNativeForm(sizeText, variantId);
+
+    // B. Buscar el botón nativo de Agregar al Carrito de la página
+    var nativeBuyBtn = document.querySelector(
+      "form[action*='/cart/add'] input[type='submit'], " +
+      "form[action*='/cart/add'] button[type='submit'], " +
+      "form[action*='/comprar'] input[type='submit'], " +
+      "form[action*='/comprar'] button[type='submit'], " +
+      ".js-addtocart, .js-prod-submit-form, .btn-add-to-cart, .product-form-submit"
+    );
+
+    // C. Cierre de modal
+    var modalOverlay = document.getElementById("nvx-tabla-talles-modal");
+
+    if (nativeBuyBtn) {
+      if (modalOverlay) modalOverlay.style.display = "none";
+      try {
+        nativeBuyBtn.click();
+        return;
+      } catch (eClick) {}
     }
 
-    function addViaNube(id, qty) {
-      return new Promise(function(resolve) {
-        try {
-          if (window.nube && typeof window.nube.send === "function") {
-            window.nube.send("cart:add", {
-              product_id: id,
-              quantity: qty
-            });
-            try {
-              window.nube.send("cart:add", { id: id, quantity: qty });
-            } catch (eAlt) {}
-            setTimeout(function() { resolve(true); }, 350);
-            return;
-          }
-        } catch (e1) {}
-        resolve(false);
+    // D. Fallback con NubeSDK
+    if (window.nube && typeof window.nube.send === "function" && idToAdd) {
+      try {
+        window.nube.send("cart:add", {
+          product_id: idToAdd,
+          quantity: 1
+        });
+        setTimeout(function() {
+          try { window.nube.send("cart:open"); } catch (eOpen) {}
+          if (modalOverlay) modalOverlay.style.display = "none";
+        }, 400);
+        return;
+      } catch (eNube) {}
+    }
+
+    // E. Fallback POST /comprar/ -> redirección limpia a /carrito/
+    try {
+      var fd = new FormData();
+      fd.append("add_to_cart", String(idToAdd));
+      fd.append("quantity", "1");
+      if (variantId) fd.append("variant_id", String(variantId));
+
+      fetch("/comprar/", {
+        method: "POST",
+        body: fd,
+        credentials: "include"
+      }).then(function() {
+        window.location.href = "/carrito/";
+      }).catch(function() {
+        window.location.href = "/carrito/";
       });
+    } catch (eFetch) {
+      window.location.href = "/carrito/";
     }
-
-    function addViaComprar(id, qty, sizeLabel) {
-      return new Promise(function(resolve) {
-        try {
-          var fd = new FormData();
-          fd.append("add_to_cart", String(id));
-          fd.append("quantity", String(qty));
-          if (variantId) {
-            fd.append("variant_id", String(variantId));
-          }
-          if (sizeLabel) {
-            fd.append("properties[Talle]", String(sizeLabel));
-          }
-          fetch("/comprar/", {
-            method: "POST",
-            body: fd,
-            credentials: "include"
-          }).then(function() {
-            resolve(true);
-          }).catch(function() {
-            resolve(false);
-          });
-        } catch (e2) {
-          resolve(false);
-        }
-      });
-    }
-
-    var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
-    var chain;
-
-    if (hasNube) {
-      chain = addViaNube(idToAdd, 1);
-    } else {
-      chain = addViaComprar(idToAdd, 1, sizeText);
-    }
-
-    chain.then(function(ok) {
-      if (btnEl) {
-        btnEl.innerHTML = ok ? "✓ Agregado" : "Error, reintentá";
-      }
-
-      setTimeout(function() {
-        if (hasNube) {
-          try { window.nube.send("cart:open"); } catch (e3) {}
-          restoreBtn();
-        } else {
-          window.location.href = "/cart/";
-        }
-      }, 500);
-    }).catch(function() {
-      restoreBtn();
-    });
   };
 
-  /* ─── 1. Botón que abre el modal ─── */
+  /* ─── 1. Botón principal ─── */
   var btn = document.createElement("button");
   btn.id = "nvx-tabla-talles-btn";
   btn.type = "button";
@@ -9762,12 +9797,12 @@ var renderTablaTalles = function(w) {
     header.innerHTML = '<div style="font-size:16px !important;font-weight:800 !important;color:' + colorTextoHeader + ' !important;">' + tituloHeader + '</div>' +
                        '<button type="button" id="nvx-close-talles-modal" style="background:none !important;border:none !important;font-size:20px !important;color:#6b7280 !important;cursor:pointer !important;padding:0 4px !important;line-height:1 !important;">✕</button>';
 
-    /* Body scrollable */
+    /* Body */
     var body = document.createElement("div");
     body.style.cssText = "padding:20px !important;overflow-y:auto !important;box-sizing:border-box !important;flex:1 !important;";
     body.innerHTML = buildModalBodyHtml();
 
-    /* Bloque selector de talles + CTA (DENTRO del modal) */
+    /* Bloque selector de talles + CTA */
     if (mostrarSelectorTalles) {
       var sizesToRender = detectProductSizes();
       if (sizesToRender.length === 0) {
@@ -9855,6 +9890,7 @@ var renderTablaTalles = function(w) {
             if (ev && ev.preventDefault) ev.preventDefault();
             activeSelectedSize = sz;
             activeVariantId = findVariantIdBySize(sz);
+            applyVariantToNativeForm(sz, activeVariantId);
             paintPills();
             return false;
           };
