@@ -1820,6 +1820,7 @@
             if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
             if (w.widget_slug === "comparador-antes-despues") renderComparadorAntesDespues(w);
             if (w.widget_slug === "beneficios") renderBeneficios(w);
+            if (w.widget_slug === "tabla-talles") renderTablaTalles(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -9315,5 +9316,218 @@ var renderBeneficios = function(w) {
       }
     }
   }
+};
+  /* ═══════════════════════════════════════════
+   WIDGET: TABLA DE TALLES (v129)
+   ═══════════════════════════════════════════ */
+var renderTablaTalles = function(w) {
+  var pType = typeof detectPageType === "function" ? detectPageType() : "";
+  var isProductPage = pType === "product" || pType === "item";
+
+  if (!isProductPage) return;
+  if (document.getElementById("nvx-tabla-talles-btn")) return;
+
+  var cfg = w.config || {};
+
+  var textoBoton = cfg.texto_boton || "Tabla de talles";
+  var tituloHeader = cfg.titulo_header || "Guía de talles";
+  var mostrarIcono = !!cfg.mostrar_icono_regla;
+  var mostrarImagen = !!cfg.mostrar_imagen;
+  var mostrarTabla = cfg.mostrar_tabla !== false;
+  var mostrarTexto = !!cfg.mostrar_texto;
+  var orden = cfg.orden_contenido || "imagen_tabla_texto";
+  var imagenUrl = cfg.imagen_url || "";
+  var textoInfo = cfg.texto_info || "";
+  var celdas = cfg.celdas || [];
+  var ubicacion = cfg.ubicacion || "despues_precio";
+
+  var tipoFondo = cfg.tipo_fondo || "solido";
+  var colorFondo1 = cfg.color_fondo || "#111827";
+  var colorFondo2 = cfg.color_fondo_2 || "#374151";
+  var colorTextoBoton = cfg.color_texto_boton || "#ffffff";
+  var colorTextoHeader = cfg.color_texto_header || "#111827";
+
+  var tamanoTexto = (cfg.tamano_texto || 14) + "px";
+  var bordeBoton = (cfg.borde_boton !== undefined ? cfg.borde_boton : 25) + "px";
+  var paddingBoton = (cfg.padding_boton !== undefined ? cfg.padding_boton : 12) + "px " + ((cfg.padding_boton || 12) + 12) + "px";
+  var marginTop = (cfg.margin_top !== undefined ? cfg.margin_top : 10) + "px";
+  var marginBottom = (cfg.margin_bottom !== undefined ? cfg.margin_bottom : 15) + "px";
+
+  var bgStyle = tipoFondo === "degrade"
+    ? "linear-gradient(135deg, " + colorFondo1 + ", " + colorFondo2 + ")"
+    : colorFondo1;
+
+  // 1. Crear el botón principal
+  var btn = document.createElement("button");
+  btn.id = "nvx-tabla-talles-btn";
+  btn.type = "button";
+  btn.style.cssText = "box-sizing: border-box !important; " +
+                     "display: inline-flex !important; " +
+                     "align-items: center !important; " +
+                     "justify-content: center !important; " +
+                     "gap: 8px !important; " +
+                     "background: " + bgStyle + " !important; " +
+                     "color: " + colorTextoBoton + " !important; " +
+                     "border: none !important; " +
+                     "border-radius: " + bordeBoton + " !important; " +
+                     "padding: " + paddingBoton + " !important; " +
+                     "font-size: " + tamanoTexto + " !important; " +
+                     "font-weight: 700 !important; " +
+                     "cursor: pointer !important; " +
+                     "margin-top: " + marginTop + " !important; " +
+                     "margin-bottom: " + marginBottom + " !important; " +
+                     "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; " +
+                     "box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; " +
+                     "transition: opacity 0.2s !important; ";
+
+  var btnHtml = "";
+  if (mostrarIcono) {
+    btnHtml += '<span style="font-size: ' + (parseInt(tamanoTexto, 10) + 2) + 'px !important; line-height: 1 !important;">📏</span>';
+  }
+  btnHtml += '<span>' + textoBoton + '</span>';
+  btn.innerHTML = btnHtml;
+
+  // Hover
+  btn.onmouseover = function() { btn.style.opacity = "0.9"; };
+  btn.onmouseout = function() { btn.style.opacity = "1"; };
+
+  // 2. Inserción del botón según ubicación
+  var inserted = false;
+
+  if (ubicacion === "despues_info_pago") {
+    var payBlock = document.querySelector(
+      ".js-max-installments-container, .installments-container, .js-installments-container, [data-store='installments'], .payment-details"
+    );
+    if (payBlock && payBlock.parentNode) {
+      payBlock.parentNode.insertBefore(btn, payBlock.nextSibling);
+      inserted = true;
+    }
+  }
+
+  if (!inserted) {
+    var priceBlock = document.querySelector(
+      ".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']"
+    );
+    if (priceBlock && priceBlock.parentNode) {
+      var parentBlock = priceBlock.closest
+        ? (priceBlock.closest(".js-price-container, .js-product-price-container, .product-price-container, .price-container") || priceBlock.parentNode)
+        : priceBlock.parentNode;
+
+      if (parentBlock && parentBlock.parentNode && parentBlock !== document.body) {
+        parentBlock.parentNode.insertBefore(btn, parentBlock.nextSibling);
+        inserted = true;
+      } else if (priceBlock.parentNode) {
+        priceBlock.parentNode.insertBefore(btn, priceBlock.nextSibling);
+        inserted = true;
+      }
+    }
+  }
+
+  if (!inserted) {
+    var formEl = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
+    if (formEl && formEl.parentNode) {
+      formEl.parentNode.insertBefore(btn, formEl);
+      inserted = true;
+    } else {
+      document.body.appendChild(btn);
+    }
+  }
+
+  // 3. Lógica del Modal
+  var buildModalContent = function() {
+    var imgHtml = "";
+    if (mostrarImagen && imagenUrl) {
+      imgHtml = '<div style="margin-bottom: 14px !important; text-align: center !important;">' +
+                  '<img src="' + imagenUrl + '" alt="Guía de talles" style="max-width: 100% !important; height: auto !important; border-radius: 8px !important; border: 1px solid #e5e7eb !important;" />' +
+                '</div>';
+    }
+
+    var tableHtml = "";
+    if (mostrarTabla && celdas && celdas.length > 0) {
+      tableHtml = '<div style="overflow-x: auto !important; margin-bottom: 14px !important; border: 1px solid #e5e7eb !important; border-radius: 8px !important; background: #ffffff !important;">' +
+                    '<table style="width: 100% !important; border-collapse: collapse !important; font-size: 13px !important; text-align: center !important;">' +
+                      '<tbody>';
+
+      for (var r = 0; r < celdas.length; r++) {
+        var row = celdas[r];
+        tableHtml += '<tr style="' + (r === 0 ? "background: #f3f4f6 !important; font-weight: 700 !important; color: #111827 !important;" : "border-top: 1px solid #e5e7eb !important;") + '">';
+        for (var c = 0; c < row.length; c++) {
+          var cellVal = row[c] !== undefined ? row[c] : "";
+          tableHtml += '<td style="padding: 8px 10px !important; ' + (c === 0 && r !== 0 ? "background: #f9fafb !important; font-weight: 700 !important;" : "") + '">' +
+                          cellVal +
+                       '</td>';
+        }
+        tableHtml += '</tr>';
+      }
+
+      tableHtml += '</tbody></table></div>';
+    }
+
+    var textHtml = "";
+    if (mostrarTexto && textoInfo) {
+      textHtml = '<div style="font-size: 13px !important; color: #4b5563 !important; line-height: 1.5 !important; margin-bottom: 14px !important; background: #f9fafb !important; padding: 10px 12px !important; border-radius: 8px !important; border: 1px solid #f3f4f6 !important;">' +
+                   textoInfo.replace(/\n/g, "<br/>") +
+                 '</div>';
+    }
+
+    var orderMap = {
+      "imagen_tabla_texto": [imgHtml, tableHtml, textHtml],
+      "tabla_imagen_texto": [tableHtml, imgHtml, textHtml],
+      "texto_tabla_imagen": [textHtml, tableHtml, imgHtml],
+      "imagen_texto_tabla": [imgHtml, textHtml, tableHtml],
+      "tabla_texto_imagen": [tableHtml, textHtml, imgHtml],
+      "texto_imagen_tabla": [textHtml, imgHtml, tableHtml]
+    };
+
+    var parts = orderMap[orden] || [imgHtml, tableHtml, textHtml];
+    return parts.join("");
+  };
+
+  btn.onclick = function() {
+    var existingModal = document.getElementById("nvx-tabla-talles-modal");
+    if (existingModal) {
+      existingModal.style.display = "flex";
+      return;
+    }
+
+    var overlay = document.createElement("div");
+    overlay.id = "nvx-tabla-talles-modal";
+    overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.6) !important; z-index: 999999 !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 16px !important; box-sizing: border-box !important; backdrop-filter: blur(2px) !important;";
+
+    var modal = document.createElement("div");
+    modal.style.cssText = "background: #ffffff !important; border-radius: 16px !important; width: 100% !important; max-width: 500px !important; max-height: 85vh !important; display: flex !important; flex-direction: column !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important; overflow: hidden !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;";
+
+    // Header del Modal
+    var header = document.createElement("div");
+    header.style.cssText = "display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 16px 20px !important; border-bottom: 1px solid #e5e7eb !important;";
+    header.innerHTML = '<div style="font-size: 16px !important; font-weight: 800 !important; color: ' + colorTextoHeader + ' !important;">' + tituloHeader + '</div>' +
+                       '<button type="button" id="nvx-close-talles-modal" style="background: none !important; border: none !important; font-size: 20px !important; color: #6b7280 !important; cursor: pointer !important; padding: 0 4px !important; line-height: 1 !important;">✕</button>';
+
+    // Body del Modal
+    var body = document.createElement("div");
+    body.style.cssText = "padding: 20px !important; overflow-y: auto !important; box-sizing: border-box !important;";
+    body.innerHTML = buildModalContent();
+
+    modal.appendChild(header);
+    modal.appendChild(body);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Eventos de cierre
+    var closeModal = function() {
+      overlay.style.display = "none";
+    };
+
+    var closeBtn = document.getElementById("nvx-close-talles-modal");
+    if (closeBtn) closeBtn.onclick = closeModal;
+
+    overlay.onclick = function(e) {
+      if (e.target === overlay) closeModal();
+    };
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") closeModal();
+    });
+  };
 };
 })(); 
