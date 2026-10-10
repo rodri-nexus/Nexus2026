@@ -9318,8 +9318,9 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v140)
-   Según especificación oficial Tiendanube Partners
+   WIDGET: TABLA DE TALLES (v141 - ES5 Estricto)
+   - Pills SOLO dentro del modal
+   - Integración oficial Tiendanube NubeSDK + FormData nativa
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9383,23 +9384,16 @@ var renderTablaTalles = function(w) {
     if (window.LS && window.LS.product_id) {
       return String(window.LS.product_id);
     }
-    var form = document.querySelector("form.js-product-form, form[action*='/comprar'], form[action*='/cart']");
-    if (form) {
-      var addInp = form.querySelector('input[name="add_to_cart"]');
-      if (addInp && addInp.value) return String(addInp.value);
-    }
+    var nativeInp = document.querySelector('form input[name="add_to_cart"]');
+    if (nativeInp && nativeInp.value) return String(nativeInp.value);
     if (w && w.target_product_id) return String(w.target_product_id);
     return "";
   };
 
-  /* Busca variant_id real + índice de opción de talle */
-  var resolveVariantData = function(sizeText) {
+  var findVariantIdBySize = function(sizeText) {
     var norm = normalizeSize(sizeText);
-    var result = { variantId: null, variationIndex: 0, variationValue: sizeText };
-
-    if (!window.LS || !window.LS.product || !window.LS.product.variants) {
-      return result;
-    }
+    if (!norm) return null;
+    if (!window.LS || !window.LS.product || !window.LS.product.variants) return null;
 
     var variants = window.LS.product.variants;
     for (var i = 0; i < variants.length; i++) {
@@ -9410,44 +9404,75 @@ var renderTablaTalles = function(w) {
       if (v.option_values) {
         for (var j = 0; j < v.option_values.length; j++) {
           var ov = v.option_values[j];
-          if (ov) candidates.push({ val: ov.value || ov.name || ov, idx: j });
+          if (ov) candidates.push(ov.value || ov.name || ov);
         }
       }
       if (v.values) {
         if (Object.prototype.toString.call(v.values) === "[object Array]") {
-          for (var a = 0; a < v.values.length; a++) {
-            candidates.push({ val: v.values[a], idx: a });
-          }
+          for (var a = 0; a < v.values.length; a++) candidates.push(v.values[a]);
         } else if (typeof v.values === "object") {
-          var idxLang = 0;
           for (var lang in v.values) {
-            if (!v.values.hasOwnProperty(lang)) continue;
-            var vl = v.values[lang];
-            if (Object.prototype.toString.call(vl) === "[object Array]") {
-              for (var b = 0; b < vl.length; b++) {
-                candidates.push({ val: vl[b], idx: b });
-              }
-            } else {
-              candidates.push({ val: vl, idx: idxLang });
-            }
-            idxLang++;
+            if (v.values.hasOwnProperty(lang)) candidates.push(v.values[lang]);
           }
         }
       }
-      if (v.option0) candidates.push({ val: v.option0, idx: 0 });
-      if (v.option1) candidates.push({ val: v.option1, idx: 0 });
-      if (v.option2) candidates.push({ val: v.option2, idx: 1 });
+      if (v.option0) candidates.push(v.option0);
+      if (v.option1) candidates.push(v.option1);
+      if (v.option2) candidates.push(v.option2);
 
       for (var c = 0; c < candidates.length; c++) {
-        if (normalizeSize(candidates[c].val) === norm) {
-          result.variantId = String(v.id);
-          result.variationIndex = candidates[c].idx || 0;
-          result.variationValue = String(candidates[c].val);
-          return result;
+        if (normalizeSize(candidates[c]) === norm) return String(v.id);
+      }
+    }
+    return null;
+  };
+
+  var selectSizeInNativeForm = function(sizeText) {
+    var norm = normalizeSize(sizeText);
+    if (!norm) return;
+
+    var selects = document.querySelectorAll("select");
+    for (var s = 0; s < selects.length; s++) {
+      var sel = selects[s];
+      for (var o = 0; o < sel.options.length; o++) {
+        var opt = sel.options[o];
+        var optText = normalizeSize(opt.text);
+        var optVal = normalizeSize(opt.value);
+        if (optText === norm || optVal === norm || optText.indexOf(norm) === 0) {
+          sel.selectedIndex = o;
+          sel.value = opt.value;
+          try {
+            var evt = typeof Event === "function" ? new Event("change", { bubbles: true }) : document.createEvent("HTMLEvents");
+            if (typeof Event !== "function") evt.initEvent("change", true, true);
+            sel.dispatchEvent(evt);
+          } catch (e) {}
+          break;
         }
       }
     }
-    return result;
+
+    var nativeBtns = document.querySelectorAll(
+      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
+      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
+      ".js-product-variant, .product-variant, [data-value], [data-option-value]"
+    );
+    for (var b = 0; b < nativeBtns.length; b++) {
+      var btn = nativeBtns[b];
+      var txt = normalizeSize(btn.textContent || btn.innerText || "");
+      var dv = normalizeSize(btn.getAttribute("data-value") || btn.getAttribute("data-option-value") || "");
+      if (txt === norm || dv === norm) {
+        try { btn.click(); } catch (e) {}
+      }
+    }
+
+    var radios = document.querySelectorAll("input[type='radio']");
+    for (var r = 0; r < radios.length; r++) {
+      var rad = radios[r];
+      if (normalizeSize(rad.value) === norm) {
+        rad.checked = true;
+        try { rad.click(); } catch (e) {}
+      }
+    }
   };
 
   var detectProductSizes = function() {
@@ -9479,13 +9504,7 @@ var renderTablaTalles = function(w) {
             for (var a = 0; a < v.values.length; a++) pushUnique(v.values[a]);
           } else if (typeof v.values === "object") {
             for (var lang in v.values) {
-              if (!v.values.hasOwnProperty(lang)) continue;
-              var valLang = v.values[lang];
-              if (Object.prototype.toString.call(valLang) === "[object Array]") {
-                for (var b = 0; b < valLang.length; b++) pushUnique(valLang[b]);
-              } else {
-                pushUnique(valLang);
-              }
+              if (v.values.hasOwnProperty(lang)) pushUnique(v.values[lang]);
             }
           }
         }
@@ -9499,23 +9518,19 @@ var renderTablaTalles = function(w) {
         if (celdas[r] && celdas[r][0]) pushUnique(celdas[r][0]);
       }
     }
+
     if (sizes.length === 0) {
       sizes = ["XS", "S", "M", "L", "XL"];
     }
     return sizes;
   };
 
-  /* ─── Add to cart: especificación oficial Tiendanube ─── */
   var addToCartWithSize = function(sizeText, btnEl) {
     var productId = getProductId();
-    var variantData = resolveVariantData(sizeText);
-    var variantId = variantData.variantId;
+    var variantId = findVariantIdBySize(sizeText);
 
     if (!productId) {
-      if (btnEl) {
-        btnEl.innerHTML = "No se detectó el producto";
-        btnEl.disabled = false;
-      }
+      if (btnEl) btnEl.innerHTML = "No se detectó el producto";
       return;
     }
 
@@ -9529,122 +9544,50 @@ var renderTablaTalles = function(w) {
       if (overlay) overlay.style.display = "none";
     };
 
-    var restoreBtn = function(msg) {
-      if (!btnEl) return;
-      btnEl.disabled = false;
-      btnEl.innerHTML = msg || ("Agregar al carrito (" + sizeText + ")");
-    };
+    // Aplicar talle en controles nativos del DOM
+    selectSizeInNativeForm(sizeText);
 
-    var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
-
-    /* ═══ CAMINO 1: NubeSDK (recomendado por Tiendanube) ═══ */
-    if (hasNube) {
+    // ═══ CAMINO 1: NubeSDK (especificación oficial) ═══
+    if (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function") {
       try {
-        var item = {
+        var itemObj = {
           product_id: Number(productId) || productId,
           quantity: 1
         };
         if (variantId) {
-          item.variant_id = Number(variantId) || variantId;
+          itemObj.variant_id = Number(variantId) || variantId;
         }
 
-        /* Formato oficial Partners */
         window.nube.send("cart:add", function() {
           return {
             cart: {
-              items: [item]
+              items: [itemObj]
             }
           };
         });
 
-        /* Escuchar éxito y abrir drawer */
-        var onSuccess = function() {
-          if (btnEl) btnEl.innerHTML = "✓ Agregado";
-          setTimeout(function() {
-            closeModal();
-            try { window.nube.send("cart:open"); } catch (eOpen) {}
-            restoreBtn();
-          }, 400);
-        };
-
-        try {
-          if (typeof window.nube.on === "function") {
-            window.nube.on("cart:add:success", onSuccess);
-            window.nube.on("cart:add:fail", function() {
-              restoreBtn("Error, reintentá");
-            });
-          }
-        } catch (eOn) {}
-
-        /* Fallback UI si no hay eventos */
+        if (btnEl) btnEl.innerHTML = "✓ Agregado";
         setTimeout(function() {
-          if (btnEl && btnEl.innerHTML.indexOf("Agregando") > -1) {
-            onSuccess();
-          }
-        }, 700);
-
+          closeModal();
+          try { window.nube.send("cart:open"); } catch (eOpen) {}
+        }, 350);
         return;
-      } catch (eNube) {
-        /* cae al camino clásico */
-      }
+      } catch (eNube) {}
     }
 
-    /* ═══ CAMINO 2: POST /comprar/ clásico (spec Partners) ═══
-       add_to_cart = product_id
-       variation[0] = valor del talle (ej: "L")
-       credentials: include
-       NO redirigir a /cart ni /carrito (causan 404)
-       Tras éxito: recargar página (única forma de ver el carrito actualizado)
-    */
+    // ═══ CAMINO 2: AJAX a /comprar/ clonando el form nativo ═══
     try {
-      var fd = new FormData();
-
-      /* Intentar clonar el form nativo y pisar la variación */
-      var nativeForm = document.querySelector("form.js-product-form, form[action*='/comprar'], form.product-form, #product_form");
+      var nativeForm = document.querySelector("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], #product_form");
+      var fd;
       if (nativeForm) {
-        try {
-          var nativeFd = new FormData(nativeForm);
-          /* copiar todo */
-          if (nativeFd.forEach) {
-            nativeFd.forEach(function(val, key) {
-              fd.append(key, val);
-            });
-          } else {
-            /* IE fallback: no forEach en FormData */
-            fd = nativeFd;
-          }
-        } catch (eClone) {}
-      }
-
-      /* Spec oficial */
-      fd.set ? fd.set("add_to_cart", String(productId)) : fd.append("add_to_cart", String(productId));
-      fd.set ? fd.set("quantity", "1") : fd.append("quantity", "1");
-
-      /* Variante por dimensión: variation[0], variation[1]... */
-      var vKey = "variation[" + (variantData.variationIndex || 0) + "]";
-      if (fd.set) {
-        fd.set(vKey, String(variantData.variationValue || sizeText));
+        fd = new FormData(nativeForm);
       } else {
-        fd.append(vKey, String(variantData.variationValue || sizeText));
+        fd = new FormData();
       }
 
-      /* También setear selects nativos por si el tema los lee */
-      var selects = document.querySelectorAll("select");
-      for (var s = 0; s < selects.length; s++) {
-        var sel = selects[s];
-        var name = (sel.getAttribute("name") || "").toLowerCase();
-        if (name.indexOf("variation") > -1 || name.indexOf("talle") > -1 || name.indexOf("talla") > -1 || name.indexOf("size") > -1) {
-          for (var o = 0; o < sel.options.length; o++) {
-            if (normalizeSize(sel.options[o].text) === normalizeSize(sizeText) ||
-                normalizeSize(sel.options[o].value) === normalizeSize(sizeText)) {
-              sel.selectedIndex = o;
-              sel.value = sel.options[o].value;
-              if (fd.set) fd.set(sel.name, sel.value);
-              else fd.append(sel.name, sel.value);
-              break;
-            }
-          }
-        }
+      fd.set ? fd.set("add_to_cart", String(productId)) : fd.append("add_to_cart", String(productId));
+      if (!fd.get("quantity")) {
+        fd.set ? fd.set("quantity", "1") : fd.append("quantity", "1");
       }
 
       fetch("/comprar/", {
@@ -9654,30 +9597,26 @@ var renderTablaTalles = function(w) {
         credentials: "include"
       }).then(function(res) {
         return res.json().catch(function() { return { success: res.ok }; });
-      }).then(function(data) {
+      }).then(function() {
         if (btnEl) btnEl.innerHTML = "✓ Agregado";
         setTimeout(function() {
           closeModal();
-          /* Spec Partners: el drawer no se actualiza solo → recargar */
           window.location.reload();
-        }, 450);
+        }, 400);
       }).catch(function() {
-        /* último recurso: submit nativo del form ya con variation seteada */
         if (nativeForm) {
-          try {
-            closeModal();
-            nativeForm.submit();
-            return;
-          } catch (eSub) {}
+          closeModal();
+          nativeForm.submit();
+        } else {
+          window.location.reload();
         }
-        restoreBtn("Error, reintentá");
       });
     } catch (eFetch) {
-      restoreBtn("Error, reintentá");
+      window.location.reload();
     }
   };
 
-  /* ─── Botón (SOLO abre modal, sin pills afuera) ─── */
+  /* ─── Botón en la página (SOLO abre modal, sin pills afuera) ─── */
   var btn = document.createElement("button");
   btn.id = "nvx-tabla-talles-btn";
   btn.type = "button";
