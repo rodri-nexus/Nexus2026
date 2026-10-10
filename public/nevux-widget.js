@@ -9318,7 +9318,7 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v129)
+   WIDGET: TABLA DE TALLES (v130)
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9338,8 +9338,20 @@ var renderTablaTalles = function(w) {
   var orden = cfg.orden_contenido || "imagen_tabla_texto";
   var imagenUrl = cfg.imagen_url || "";
   var textoInfo = cfg.texto_info || "";
-  var celdas = cfg.celdas || [];
   var ubicacion = cfg.ubicacion || "despues_precio";
+  var mostrarSelectorTalles = cfg.mostrar_selector_talles !== false;
+
+  var celdas = cfg.celdas || [];
+  if (!celdas || celdas.length === 0) {
+    celdas = [
+      ["Talle", "Pecho (cm)", "Cintura (cm)", "Cadera (cm)"],
+      ["XS", "82-86", "62-66", "86-90"],
+      ["S", "86-90", "66-70", "90-94"],
+      ["M", "90-94", "70-74", "94-98"],
+      ["L", "94-100", "74-80", "98-104"],
+      ["XL", "100-106", "80-86", "104-110"]
+    ];
+  }
 
   var tipoFondo = cfg.tipo_fondo || "solido";
   var colorFondo1 = cfg.color_fondo || "#111827";
@@ -9433,7 +9445,224 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  // 3. Lógica del Modal
+  // 3. Renderizar las pills clickeables debajo del botón
+  var selectVariantByText = function(text) {
+    var normalizedText = text.trim().toLowerCase();
+    var found = false;
+
+    // Buscar en selects estándar de Tiendanube
+    var selects = document.querySelectorAll("select");
+    for (var i = 0; i < selects.length; i++) {
+      var sel = selects[i];
+      for (var j = 0; j < sel.options.length; j++) {
+        var opt = sel.options[j];
+        var optText = opt.text.trim().toLowerCase();
+        if (optText === normalizedText || optText.indexOf(normalizedText) === 0) {
+          sel.selectedIndex = j;
+          var evt;
+          if (typeof Event === "function") {
+            evt = new Event("change", { bubbles: true });
+          } else {
+            evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", true, true);
+          }
+          sel.dispatchEvent(evt);
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+
+    // Si no es un select tradicional (ej: pills nativas de la plantilla), simular click en el elemento nativo
+    if (!found) {
+      var nativePills = document.querySelectorAll(".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, .js-variant-option");
+      for (var k = 0; k < nativePills.length; k++) {
+        var pill = nativePills[k];
+        var pillText = (pill.textContent || pill.innerText || "").trim().toLowerCase();
+        if (pillText === normalizedText) {
+          pill.click();
+          break;
+        }
+      }
+    }
+  };
+
+  var detectProductSizes = function() {
+    var suspects = [];
+    var sizes = [];
+
+    // 1. Detectar desde variables nativas del frontend de Tiendanube
+    if (window.LS && window.LS.product && window.LS.product.variants) {
+      var variants = window.LS.product.variants;
+      for (var i = 0; i < variants.length; i++) {
+        var v = variants[i];
+        if (v.values) {
+          for (var lang in v.values) {
+            if (v.values.hasOwnProperty(lang)) {
+              var val = v.values[lang];
+              if (val && suspects.indexOf(val) === -1) {
+                suspects.push(val);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Detectar barriendo selects en el DOM
+    var selects = document.querySelectorAll("select");
+    for (var i = 0; i < selects.length; i++) {
+      var sel = selects[i];
+      var nameAttr = (sel.getAttribute("name") || "").toLowerCase();
+      var isSizeSelect = nameAttr.indexOf("talle") > -1 || 
+                         nameAttr.indexOf("talla") > -1 || 
+                         nameAttr.indexOf("size") > -1 ||
+                         nameAttr.indexOf("tamanho") > -1 ||
+                         nameAttr.indexOf("variation_0") > -1 ||
+                         nameAttr.indexOf("variation_1") > -1 ||
+                         nameAttr.indexOf("variation_2") > -1;
+
+      if (isSizeSelect || selects.length <= 3) {
+        for (var j = 0; j < sel.options.length; j++) {
+          var opt = sel.options[j];
+          var val = opt.text.trim();
+          if (val && opt.value && val !== "" && val.toLowerCase().indexOf("seleccionar") === -1 && val.toLowerCase().indexOf("elegir") === -1) {
+            if (suspects.indexOf(val) === -1) {
+              suspects.push(val);
+            }
+          }
+        }
+      }
+    }
+
+    // 3. Filtrar y Normalizar contra la tabla de talles o patrones comunes
+    var configTalles = [];
+    for (var r = 1; r < celdas.length; r++) {
+      if (celdas[r][0]) {
+        configTalles.push(celdas[r][0].trim().toLowerCase());
+      }
+    }
+
+    for (var k = 0; k < suspects.length; k++) {
+      var susp = suspects[k];
+      var suspLower = susp.toLowerCase();
+      var isCommonSize = /^(xs|s|m|l|xl|xxl|xxxl|2xl|3xl|4xl|5xl|[0-9]{2,3})$/.test(suspLower);
+      var isInConfig = configTalles.indexOf(suspLower) > -1;
+
+      if (isInConfig || isCommonSize || (susp.length > 0 && susp.length <= 6)) {
+        if (sizes.indexOf(susp) === -1) {
+          sizes.push(susp);
+        }
+      }
+    }
+
+    // Fallback completo a la primera columna de la tabla si no se detectó nada
+    if (sizes.length === 0 && configTalles.length > 0) {
+      for (var r = 1; r < celdas.length; r++) {
+        if (celdas[r][0]) {
+          sizes.push(celdas[r][0].trim());
+        }
+      }
+    }
+
+    return sizes;
+  };
+
+  if (mostrarSelectorTalles) {
+    var sizesToRender = detectProductSizes();
+    if (sizesToRender.length > 0) {
+      var pillsContainer = document.createElement("div");
+      pillsContainer.id = "nvx-talles-pills-container";
+      pillsContainer.style.cssText = "box-sizing: border-box !important; " +
+                                     "display: flex !important; " +
+                                     "flex-wrap: wrap !important; " +
+                                     "gap: 8px !important; " +
+                                     "margin-top: 10px !important; " +
+                                     "margin-bottom: 15px !important; " +
+                                     "justify-content: center !important; " +
+                                     "width: 100% !important; " +
+                                     "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; ";
+
+      var updatePillSelection = function() {
+        var currentSelected = "";
+        var selects = document.querySelectorAll("select");
+        for (var i = 0; i < selects.length; i++) {
+          var sel = selects[i];
+          var nameAttr = (sel.getAttribute("name") || "").toLowerCase();
+          var isSizeSelect = nameAttr.indexOf("talle") > -1 || 
+                             nameAttr.indexOf("talla") > -1 || 
+                             nameAttr.indexOf("size") > -1 ||
+                             nameAttr.indexOf("tamanho") > -1 ||
+                             nameAttr.indexOf("variation_0") > -1 ||
+                             nameAttr.indexOf("variation_1") > -1 ||
+                             nameAttr.indexOf("variation_2") > -1;
+          if (isSizeSelect && sel.selectedIndex >= 0) {
+            currentSelected = sel.options[sel.selectedIndex].text.trim();
+            break;
+          }
+        }
+
+        var pills = pillsContainer.querySelectorAll(".nvx-talle-pill");
+        for (var j = 0; j < pills.length; j++) {
+          var pill = pills[j];
+          var pillVal = pill.getAttribute("data-size");
+          if (currentSelected && pillVal && pillVal.toLowerCase() === currentSelected.toLowerCase()) {
+            pill.style.background = bgStyle;
+            pill.style.color = colorTextoBoton;
+            pill.style.borderColor = colorFondo1;
+          } else {
+            pill.style.background = "#ffffff";
+            pill.style.color = "#4b5563";
+            pill.style.borderColor = "#e5e7eb";
+          }
+        }
+      };
+
+      for (var idx = 0; idx < sizesToRender.length; idx++) {
+        (function(sz) {
+          var pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "nvx-talle-pill";
+          pill.setAttribute("data-size", sz);
+          pill.style.cssText = "box-sizing: border-box !important; " +
+                               "border: 1.5px solid #e5e7eb !important; " +
+                               "border-radius: 20px !important; " +
+                               "background: #ffffff !important; " +
+                               "color: #4b5563 !important; " +
+                               "padding: 6px 14px !important; " +
+                               "font-size: 13px !important; " +
+                               "font-weight: 700 !important; " +
+                               "cursor: pointer !important; " +
+                               "transition: all 0.2s !important; " +
+                               "font-family: inherit !important; " +
+                               "display: inline-block !important; " +
+                               "line-height: 1.2 !important; ";
+          pill.innerText = sz;
+
+          pill.onclick = function() {
+            selectVariantByText(sz);
+            updatePillSelection();
+          };
+
+          pillsContainer.appendChild(pill);
+        })(sizesToRender[idx]);
+      }
+
+      if (btn.parentNode) {
+        btn.parentNode.insertBefore(pillsContainer, btn.nextSibling);
+      }
+
+      updatePillSelection();
+
+      var nativeSelects = document.querySelectorAll("select");
+      for (var s = 0; s < nativeSelects.length; s++) {
+        nativeSelects[s].addEventListener("change", updatePillSelection);
+      }
+    }
+  }
+
+  // 4. Lógica del Modal
   var buildModalContent = function() {
     var imgHtml = "";
     if (mostrarImagen && imagenUrl) {
