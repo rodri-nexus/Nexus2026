@@ -25,6 +25,7 @@ import BadgeEfectivoEditor from '@/components/widgets/editors/BadgeEfectivoEdito
 import PackComplementariosEditor from '@/components/widgets/editors/PackComplementariosEditor';
 import ComparadorAntesDespuesEditor from '@/components/widgets/editors/ComparadorAntesDespuesEditor';
 import BeneficiosEditor from '@/components/widgets/editors/BeneficiosEditor';
+import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -131,6 +132,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: TABLA DE TALLES
+  if (params.widgetSlug === 'tabla-talles') {
+    return <TablaTallesEditor {...editorProps} />;
+  }
 
   // WIDGET: BENEFICIOS
   if (params.widgetSlug === 'beneficios') {
@@ -265,4 +271,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-        }
+    }
