@@ -9318,9 +9318,8 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v141 - ES5 Estricto)
-   - Pills SOLO dentro del modal
-   - Integración oficial Tiendanube NubeSDK + FormData nativa
+   WIDGET: TABLA DE TALLES (v142 - Vanilla ES5)
+   Integración Nativa Total vía DOM & Variantes Tiendanube
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9377,107 +9376,86 @@ var renderTablaTalles = function(w) {
     return String(t || "").trim().toLowerCase();
   };
 
-  var getProductId = function() {
-    if (window.LS && window.LS.product && window.LS.product.id) {
-      return String(window.LS.product.id);
-    }
-    if (window.LS && window.LS.product_id) {
-      return String(window.LS.product_id);
-    }
-    var nativeInp = document.querySelector('form input[name="add_to_cart"]');
-    if (nativeInp && nativeInp.value) return String(nativeInp.value);
-    if (w && w.target_product_id) return String(w.target_product_id);
-    return "";
+  var dispatchEvents = function(el) {
+    if (!el) return;
+    try {
+      var evtChange = typeof Event === "function" ? new Event("change", { bubbles: true }) : document.createEvent("HTMLEvents");
+      if (typeof Event !== "function") evtChange.initEvent("change", true, true);
+      el.dispatchEvent(evtChange);
+    } catch (e1) {}
+
+    try {
+      var evtInput = typeof Event === "function" ? new Event("input", { bubbles: true }) : document.createEvent("HTMLEvents");
+      if (typeof Event !== "function") evtInput.initEvent("input", true, true);
+      el.dispatchEvent(evtInput);
+    } catch (e2) {}
   };
 
-  var findVariantIdBySize = function(sizeText) {
-    var norm = normalizeSize(sizeText);
-    if (!norm) return null;
-    if (!window.LS || !window.LS.product || !window.LS.product.variants) return null;
-
-    var variants = window.LS.product.variants;
-    for (var i = 0; i < variants.length; i++) {
-      var v = variants[i];
-      if (!v || !v.id) continue;
-
-      var candidates = [];
-      if (v.option_values) {
-        for (var j = 0; j < v.option_values.length; j++) {
-          var ov = v.option_values[j];
-          if (ov) candidates.push(ov.value || ov.name || ov);
-        }
-      }
-      if (v.values) {
-        if (Object.prototype.toString.call(v.values) === "[object Array]") {
-          for (var a = 0; a < v.values.length; a++) candidates.push(v.values[a]);
-        } else if (typeof v.values === "object") {
-          for (var lang in v.values) {
-            if (v.values.hasOwnProperty(lang)) candidates.push(v.values[lang]);
-          }
-        }
-      }
-      if (v.option0) candidates.push(v.option0);
-      if (v.option1) candidates.push(v.option1);
-      if (v.option2) candidates.push(v.option2);
-
-      for (var c = 0; c < candidates.length; c++) {
-        if (normalizeSize(candidates[c]) === norm) return String(v.id);
-      }
-    }
-    return null;
-  };
-
-  var selectSizeInNativeForm = function(sizeText) {
+  /* Selecciona el talle en los controles nativos del tema de Tiendanube */
+  var selectNativeVariant = function(sizeText) {
     var norm = normalizeSize(sizeText);
     if (!norm) return;
+    activeSelectedSize = sizeText;
 
+    // A. Botones/Pills de variante nativos
+    var nativeBtns = document.querySelectorAll(
+      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
+      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
+      ".js-product-variant, .product-variant, [data-value], [data-option-value], " +
+      ".js-variation-btn, .variation-btn, .btn-variant, .product-option-value, " +
+      "button[data-variant], a[data-variant]"
+    );
+
+    for (var b = 0; b < nativeBtns.length; b++) {
+      var btnEl = nativeBtns[b];
+      var txt = normalizeSize(btnEl.textContent || btnEl.innerText || "");
+      var dv = normalizeSize(btnEl.getAttribute("data-value") || btnEl.getAttribute("data-option-value") || btnEl.getAttribute("data-variant") || "");
+      if (txt === norm || dv === norm) {
+        try { btnEl.click(); } catch (eClick) {}
+      }
+    }
+
+    // B. Selects nativos
     var selects = document.querySelectorAll("select");
-    for (var s = 0; s < selects.length; s++) {
-      var sel = selects[s];
-      for (var o = 0; o < sel.options.length; o++) {
-        var opt = sel.options[o];
+    for (var i = 0; i < selects.length; i++) {
+      var sel = selects[i];
+      for (var j = 0; j < sel.options.length; j++) {
+        var opt = sel.options[j];
         var optText = normalizeSize(opt.text);
         var optVal = normalizeSize(opt.value);
-        if (optText === norm || optVal === norm || optText.indexOf(norm) === 0) {
-          sel.selectedIndex = o;
+        if (optText === norm || optVal === norm || optText === "talle " + norm || optText === "talla " + norm || optText.indexOf(norm) === 0) {
+          sel.selectedIndex = j;
           sel.value = opt.value;
-          try {
-            var evt = typeof Event === "function" ? new Event("change", { bubbles: true }) : document.createEvent("HTMLEvents");
-            if (typeof Event !== "function") evt.initEvent("change", true, true);
-            sel.dispatchEvent(evt);
-          } catch (e) {}
+          dispatchEvents(sel);
           break;
         }
       }
     }
 
-    var nativeBtns = document.querySelectorAll(
-      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
-      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
-      ".js-product-variant, .product-variant, [data-value], [data-option-value]"
-    );
-    for (var b = 0; b < nativeBtns.length; b++) {
-      var btn = nativeBtns[b];
-      var txt = normalizeSize(btn.textContent || btn.innerText || "");
-      var dv = normalizeSize(btn.getAttribute("data-value") || btn.getAttribute("data-option-value") || "");
-      if (txt === norm || dv === norm) {
-        try { btn.click(); } catch (e) {}
-      }
-    }
-
+    // C. Radios nativos
     var radios = document.querySelectorAll("input[type='radio']");
     for (var r = 0; r < radios.length; r++) {
       var rad = radios[r];
-      if (normalizeSize(rad.value) === norm) {
+      var radVal = normalizeSize(rad.value);
+      var radLabel = "";
+      if (rad.id) {
+        var lbl = document.querySelector("label[for='" + rad.id + "']");
+        if (lbl) radLabel = normalizeSize(lbl.textContent || lbl.innerText || "");
+      }
+      if (radVal === norm || radLabel === norm) {
         rad.checked = true;
-        try { rad.click(); } catch (e) {}
+        try { rad.click(); } catch (eRad) {}
+        dispatchEvents(rad);
       }
     }
   };
 
+  /* Detecta los talles disponibles en la página */
   var detectProductSizes = function() {
+    var suspects = [];
     var sizes = [];
     var seen = {};
+
     var pushUnique = function(val) {
       var clean = String(val || "").trim();
       if (!clean) return;
@@ -9485,7 +9463,7 @@ var renderTablaTalles = function(w) {
       if (seen[key]) return;
       if (key.indexOf("seleccionar") > -1 || key.indexOf("elegir") > -1) return;
       seen[key] = true;
-      sizes.push(clean);
+      suspects.push(clean);
     };
 
     if (window.LS && window.LS.product && window.LS.product.variants) {
@@ -9513,9 +9491,33 @@ var renderTablaTalles = function(w) {
       }
     }
 
+    var selects = document.querySelectorAll("select");
+    for (var s = 0; s < selects.length; s++) {
+      var sel = selects[s];
+      for (var o = 0; o < sel.options.length; o++) {
+        var opt = sel.options[o];
+        if (opt && opt.value) pushUnique(opt.text);
+      }
+    }
+
+    var configTalles = [];
+    for (var r = 1; r < celdas.length; r++) {
+      if (celdas[r] && celdas[r][0]) configTalles.push(normalizeSize(celdas[r][0]));
+    }
+
+    for (var k = 0; k < suspects.length; k++) {
+      var susp = suspects[k];
+      var suspLower = normalizeSize(susp);
+      var isCommonSize = /^(xs|s|m|l|xl|xxl|xxxl|2xl|3xl|4xl|5xl|[0-9]{1,3})$/i.test(suspLower);
+      var isInConfig = configTalles.indexOf(suspLower) > -1;
+      if (isInConfig || isCommonSize || (suspLower.length > 0 && suspLower.length <= 8)) {
+        if (sizes.indexOf(susp) === -1) sizes.push(susp);
+      }
+    }
+
     if (sizes.length === 0) {
-      for (var r = 1; r < celdas.length; r++) {
-        if (celdas[r] && celdas[r][0]) pushUnique(celdas[r][0]);
+      for (var r2 = 1; r2 < celdas.length; r2++) {
+        if (celdas[r2] && celdas[r2][0]) sizes.push(String(celdas[r2][0]).trim());
       }
     }
 
@@ -9525,98 +9527,45 @@ var renderTablaTalles = function(w) {
     return sizes;
   };
 
-  var addToCartWithSize = function(sizeText, btnEl) {
-    var productId = getProductId();
-    var variantId = findVariantIdBySize(sizeText);
-
-    if (!productId) {
-      if (btnEl) btnEl.innerHTML = "No se detectó el producto";
-      return;
+  /* Ejecuta la compra delegando al botón nativo de la plantilla */
+  var triggerNativeAddToCart = function(sizeText) {
+    if (sizeText) {
+      selectNativeVariant(sizeText);
     }
 
-    if (btnEl) {
-      btnEl.disabled = true;
-      btnEl.innerHTML = "Agregando...";
-    }
+    // Cerrar modal
+    var overlay = document.getElementById("nvx-tabla-talles-modal");
+    if (overlay) overlay.style.display = "none";
 
-    var closeModal = function() {
-      var overlay = document.getElementById("nvx-tabla-talles-modal");
-      if (overlay) overlay.style.display = "none";
-    };
+    // Buscar y presionar el botón oficial "Agregar al carrito" de Tiendanube
+    var nativeBuyBtn = document.querySelector(
+      "form[action*='/cart/add'] input[type='submit'], " +
+      "form[action*='/cart/add'] button[type='submit'], " +
+      "form[action*='/cart/add'] .js-addtocart, " +
+      "form[action*='/comprar'] input[type='submit'], " +
+      "form[action*='/comprar'] button[type='submit'], " +
+      "form[action*='/comprar'] .js-addtocart, " +
+      ".js-addtocart, .js-prod-submit-form, .btn-add-to-cart, .product-form-submit, " +
+      "button[name='add'], input[name='add'], .js-add-to-cart-btn"
+    );
 
-    // Aplicar talle en controles nativos del DOM
-    selectSizeInNativeForm(sizeText);
-
-    // ═══ CAMINO 1: NubeSDK (especificación oficial) ═══
-    if (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function") {
+    if (nativeBuyBtn) {
       try {
-        var itemObj = {
-          product_id: Number(productId) || productId,
-          quantity: 1
-        };
-        if (variantId) {
-          itemObj.variant_id = Number(variantId) || variantId;
-        }
-
-        window.nube.send("cart:add", function() {
-          return {
-            cart: {
-              items: [itemObj]
-            }
-          };
-        });
-
-        if (btnEl) btnEl.innerHTML = "✓ Agregado";
-        setTimeout(function() {
-          closeModal();
-          try { window.nube.send("cart:open"); } catch (eOpen) {}
-        }, 350);
+        nativeBuyBtn.click();
         return;
-      } catch (eNube) {}
+      } catch (e1) {}
     }
 
-    // ═══ CAMINO 2: AJAX a /comprar/ clonando el form nativo ═══
-    try {
-      var nativeForm = document.querySelector("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], #product_form");
-      var fd;
-      if (nativeForm) {
-        fd = new FormData(nativeForm);
-      } else {
-        fd = new FormData();
-      }
-
-      fd.set ? fd.set("add_to_cart", String(productId)) : fd.append("add_to_cart", String(productId));
-      if (!fd.get("quantity")) {
-        fd.set ? fd.set("quantity", "1") : fd.append("quantity", "1");
-      }
-
-      fetch("/comprar/", {
-        method: "POST",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-        body: fd,
-        credentials: "include"
-      }).then(function(res) {
-        return res.json().catch(function() { return { success: res.ok }; });
-      }).then(function() {
-        if (btnEl) btnEl.innerHTML = "✓ Agregado";
-        setTimeout(function() {
-          closeModal();
-          window.location.reload();
-        }, 400);
-      }).catch(function() {
-        if (nativeForm) {
-          closeModal();
-          nativeForm.submit();
-        } else {
-          window.location.reload();
-        }
-      });
-    } catch (eFetch) {
-      window.location.reload();
+    // Fallback: submit directo del formulario nativo
+    var nativeForm = document.querySelector("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], #product_form");
+    if (nativeForm) {
+      try {
+        nativeForm.submit();
+      } catch (e2) {}
     }
   };
 
-  /* ─── Botón en la página (SOLO abre modal, sin pills afuera) ─── */
+  /* ─── 1. Botón "Tabla de talles" (SOLO el botón en la página) ─── */
   var btn = document.createElement("button");
   btn.id = "nvx-tabla-talles-btn";
   btn.type = "button";
@@ -9648,6 +9597,7 @@ var renderTablaTalles = function(w) {
   btn.onmouseover = function() { btn.style.opacity = "0.9"; };
   btn.onmouseout = function() { btn.style.opacity = "1"; };
 
+  /* ─── 2. Inserción ─── */
   var inserted = false;
   if (ubicacion === "despues_info_pago") {
     var payBlock = document.querySelector(
@@ -9684,7 +9634,7 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  /* ─── Modal ─── */
+  /* ─── 3. Modal con Pills de talles DENTRO ─── */
   var buildModalBodyHtml = function() {
     var imgHtml = "";
     if (mostrarImagen && imagenUrl) {
@@ -9775,7 +9725,7 @@ var renderTablaTalles = function(w) {
       addBtn.disabled = true;
       addBtn.style.cssText = "width:100% !important;box-sizing:border-box !important;border:none !important;border-radius:999px !important;" +
         "background:#d1d5db !important;color:#ffffff !important;padding:14px 18px !important;" +
-        "font-size:15px !important;font-weight:800 !important;cursor:not-allowed !important;font-family:inherit !important;";
+        "font-size:15px !important;font-weight:800 !important;cursor:not-allowed !important;font-family:inherit !important;transition:all 0.2s !important;";
       addBtn.innerHTML = "Agregar al carrito";
 
       var paint = function() {
@@ -9824,6 +9774,7 @@ var renderTablaTalles = function(w) {
           pill.onclick = function(ev) {
             if (ev && ev.preventDefault) ev.preventDefault();
             activeSelectedSize = sz;
+            selectNativeVariant(sz);
             paint();
             return false;
           };
@@ -9834,7 +9785,7 @@ var renderTablaTalles = function(w) {
       addBtn.onclick = function(ev) {
         if (ev && ev.preventDefault) ev.preventDefault();
         if (!activeSelectedSize || addBtn.disabled) return false;
-        addToCartWithSize(activeSelectedSize, addBtn);
+        triggerNativeAddToCart(activeSelectedSize);
         return false;
       };
 
