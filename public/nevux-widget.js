@@ -9318,7 +9318,8 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v135)
+   WIDGET: TABLA DE TALLES (v136)
+   Talles + Agregar al carrito DENTRO del modal
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9376,20 +9377,19 @@ var renderTablaTalles = function(w) {
     return String(t || "").trim().toLowerCase();
   };
 
-  var dispatchChange = function(el) {
-    try {
-      var evt;
-      if (typeof Event === "function") {
-        evt = new Event("change", { bubbles: true });
-      } else {
-        evt = document.createEvent("HTMLEvents");
-        evt.initEvent("change", true, true);
-      }
-      el.dispatchEvent(evt);
-    } catch (e1) {}
+  var getProductId = function() {
+    if (window.LS && window.LS.product && window.LS.product.id) {
+      return String(window.LS.product.id);
+    }
+    if (window.LS && window.LS.product_id) {
+      return String(window.LS.product_id);
+    }
+    if (w.target_product_id) {
+      return String(w.target_product_id);
+    }
+    return "";
   };
 
-  /* Resolver variant_id real desde LS.product.variants */
   var findVariantIdBySize = function(sizeText) {
     var norm = normalizeSize(sizeText);
     if (!norm) return null;
@@ -9429,6 +9429,7 @@ var renderTablaTalles = function(w) {
       if (v.option1) candidates.push(v.option1);
       if (v.option2) candidates.push(v.option2);
       if (v.option3) candidates.push(v.option3);
+
       if (v.name) {
         var parts = String(v.name).split(/[\/\-\,\|]/);
         for (var p = 0; p < parts.length; p++) candidates.push(parts[p]);
@@ -9441,200 +9442,6 @@ var renderTablaTalles = function(w) {
       }
     }
     return null;
-  };
-
-  /* Setear variant_id en TODOS los inputs del form nativo de Tiendanube */
-  var applyVariantToNativeForm = function(variantId) {
-    if (!variantId) return;
-
-    var selectors = [
-      'input[name="add_to_cart"]',
-      'input[name="variant_id"]',
-      'input[name="id"]',
-      'input#variant_id',
-      'select[name="variant_id"]',
-      'select[name="id"]'
-    ];
-
-    for (var s = 0; s < selectors.length; s++) {
-      var els = document.querySelectorAll(selectors[s]);
-      for (var i = 0; i < els.length; i++) {
-        var el = els[i];
-        if (el.tagName === "SELECT") {
-          var matched = false;
-          for (var o = 0; o < el.options.length; o++) {
-            if (String(el.options[o].value) === String(variantId)) {
-              el.selectedIndex = o;
-              el.value = variantId;
-              matched = true;
-              break;
-            }
-          }
-          if (!matched) {
-            el.value = variantId;
-          }
-        } else {
-          el.value = String(variantId);
-        }
-        dispatchChange(el);
-      }
-    }
-
-    /* Asegurar que el form de compra tenga add_to_cart = variantId */
-    var forms = document.querySelectorAll(
-      "form[action*='/cart/add'], form[action*='/cart'], form[action*='/comprar'], form.js-product-form, form.product-form, #product_form"
-    );
-    for (var f = 0; f < forms.length; f++) {
-      var form = forms[f];
-      var addInput = form.querySelector('input[name="add_to_cart"]');
-      if (!addInput) {
-        addInput = document.createElement("input");
-        addInput.type = "hidden";
-        addInput.name = "add_to_cart";
-        form.appendChild(addInput);
-      }
-      addInput.value = String(variantId);
-
-      var vidInput = form.querySelector('input[name="variant_id"]');
-      if (!vidInput) {
-        vidInput = document.createElement("input");
-        vidInput.type = "hidden";
-        vidInput.name = "variant_id";
-        form.appendChild(vidInput);
-      }
-      vidInput.value = String(variantId);
-    }
-  };
-
-  /* Clic nativo en opciones visuales de la plantilla */
-  var clickNativeOption = function(sizeText) {
-    var norm = normalizeSize(sizeText);
-    var nodes = document.querySelectorAll(
-      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
-      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
-      ".js-product-variant, .product-variant, [data-value], [data-option-value], " +
-      ".js-variation-btn, .variation-btn, .btn-variant, .product-option-value, " +
-      "button[data-variant], a[data-variant]"
-    );
-    for (var i = 0; i < nodes.length; i++) {
-      var el = nodes[i];
-      var t = normalizeSize(el.textContent || el.innerText || "");
-      var dv = normalizeSize(el.getAttribute("data-value") || el.getAttribute("data-option-value") || el.getAttribute("data-variant") || "");
-      if (t === norm || dv === norm) {
-        try { el.click(); } catch (e) {}
-      }
-    }
-
-    var selects = document.querySelectorAll("select");
-    for (var s = 0; s < selects.length; s++) {
-      var sel = selects[s];
-      for (var j = 0; j < sel.options.length; j++) {
-        var opt = sel.options[j];
-        var ot = normalizeSize(opt.text);
-        var ov = normalizeSize(opt.value);
-        if (ot === norm || ov === norm || ot.indexOf(norm) === 0) {
-          sel.selectedIndex = j;
-          sel.value = opt.value;
-          dispatchChange(sel);
-          break;
-        }
-      }
-    }
-  };
-
-  var selectVariantByText = function(sizeText) {
-    activeSelectedSize = sizeText;
-    activeVariantId = findVariantIdBySize(sizeText);
-
-    clickNativeOption(sizeText);
-
-    if (activeVariantId) {
-      applyVariantToNativeForm(activeVariantId);
-    }
-
-    return !!activeVariantId;
-  };
-
-  /* ─── Agregar al carrito: MISMO PATRÓN que Pack Complementarios ─── */
-  var addVariantToCart = function(variantId, quantity, redirectCheckout) {
-    quantity = quantity || 1;
-    if (!variantId) return Promise.resolve(false);
-
-    function addViaNube(id, qty) {
-      return new Promise(function(resolve) {
-        try {
-          if (window.nube && typeof window.nube.send === "function") {
-            window.nube.send("cart:add", {
-              product_id: id,
-              quantity: qty
-            });
-            /* Algunas plantillas aceptan id / variant_id */
-            try {
-              window.nube.send("cart:add", {
-                id: id,
-                quantity: qty
-              });
-            } catch (eAlt) {}
-            setTimeout(function() { resolve(true); }, 350);
-            return;
-          }
-        } catch (e1) {}
-        resolve(false);
-      });
-    }
-
-    function addViaComprar(id, qty) {
-      return new Promise(function(resolve) {
-        try {
-          var fd = new FormData();
-          /* En Tiendanube con variantes, add_to_cart = VARIANT_ID */
-          fd.append("add_to_cart", String(id));
-          fd.append("quantity", String(qty));
-          fd.append("variant_id", String(id));
-          fetch("/comprar/", {
-            method: "POST",
-            body: fd,
-            credentials: "include"
-          }).then(function() {
-            resolve(true);
-          }).catch(function() {
-            resolve(false);
-          });
-        } catch (e2) {
-          resolve(false);
-        }
-      });
-    }
-
-    var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
-
-    if (hasNube) {
-      return addViaNube(variantId, quantity).then(function(ok) {
-        if (redirectCheckout) {
-          window.location.href = "/comprar/";
-        } else {
-          try { window.nube.send("cart:open"); } catch (e3) {}
-          /* Si no abre el drawer, recargar carrito vía navegación suave */
-          setTimeout(function() {
-            try {
-              if (!document.querySelector(".cart-open, .js-cart-open, .cart-drawer, [data-store='cart-notification']")) {
-                /* noop — la plantilla puede ya haber abierto el mini-cart */
-              }
-            } catch (e4) {}
-          }, 400);
-        }
-        return ok;
-      });
-    }
-
-    return addViaComprar(variantId, quantity).then(function(ok) {
-      if (redirectCheckout) {
-        window.location.href = "/comprar/";
-      } else {
-        window.location.href = "/cart/";
-      }
-      return ok;
-    });
   };
 
   var detectProductSizes = function() {
@@ -9717,7 +9524,108 @@ var renderTablaTalles = function(w) {
     return sizes;
   };
 
-  /* ─── 1. Botón modal ─── */
+  /* Agregar al carrito — patrón Pack Complementarios */
+  var addToCartWithSize = function(sizeText, btnEl) {
+    var variantId = findVariantIdBySize(sizeText);
+    var productId = getProductId();
+    var idToAdd = variantId || productId;
+
+    if (!idToAdd) {
+      if (btnEl) {
+        btnEl.innerHTML = "No se pudo detectar el producto";
+        setTimeout(function() {
+          btnEl.innerHTML = "Agregar al carrito" + (sizeText ? " (" + sizeText + ")" : "");
+          btnEl.disabled = false;
+        }, 1800);
+      }
+      return;
+    }
+
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.innerHTML = "Agregando...";
+    }
+
+    function restoreBtn() {
+      if (!btnEl) return;
+      btnEl.disabled = false;
+      btnEl.innerHTML = "Agregar al carrito" + (activeSelectedSize ? " (" + activeSelectedSize + ")" : "");
+    }
+
+    function addViaNube(id, qty) {
+      return new Promise(function(resolve) {
+        try {
+          if (window.nube && typeof window.nube.send === "function") {
+            window.nube.send("cart:add", {
+              product_id: id,
+              quantity: qty
+            });
+            try {
+              window.nube.send("cart:add", { id: id, quantity: qty });
+            } catch (eAlt) {}
+            setTimeout(function() { resolve(true); }, 350);
+            return;
+          }
+        } catch (e1) {}
+        resolve(false);
+      });
+    }
+
+    function addViaComprar(id, qty, sizeLabel) {
+      return new Promise(function(resolve) {
+        try {
+          var fd = new FormData();
+          fd.append("add_to_cart", String(id));
+          fd.append("quantity", String(qty));
+          if (variantId) {
+            fd.append("variant_id", String(variantId));
+          }
+          if (sizeLabel) {
+            fd.append("properties[Talle]", String(sizeLabel));
+          }
+          fetch("/comprar/", {
+            method: "POST",
+            body: fd,
+            credentials: "include"
+          }).then(function() {
+            resolve(true);
+          }).catch(function() {
+            resolve(false);
+          });
+        } catch (e2) {
+          resolve(false);
+        }
+      });
+    }
+
+    var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
+    var chain;
+
+    if (hasNube) {
+      chain = addViaNube(idToAdd, 1);
+    } else {
+      chain = addViaComprar(idToAdd, 1, sizeText);
+    }
+
+    chain.then(function(ok) {
+      if (btnEl) {
+        btnEl.innerHTML = ok ? "✓ Agregado" : "Error, reintentá";
+      }
+
+      setTimeout(function() {
+        if (hasNube) {
+          try { window.nube.send("cart:open"); } catch (e3) {}
+          restoreBtn();
+        } else {
+          window.location.href = "/cart/";
+        }
+      }, 500);
+    }).catch(function() {
+      restoreBtn();
+    });
+  };
+
+  /* ─── 1. Botón que abre el modal ─── */
   var btn = document.createElement("button");
   btn.id = "nvx-tabla-talles-btn";
   btn.type = "button";
@@ -9790,160 +9698,25 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  /* ─── 3. Pills + intercept add-to-cart ─── */
-  if (mostrarSelectorTalles) {
-    var sizesToRender = detectProductSizes();
-    if (sizesToRender.length > 0) {
-      var pillsContainer = document.createElement("div");
-      pillsContainer.id = "nvx-talles-pills-container";
-      pillsContainer.style.cssText = "box-sizing: border-box !important; " +
-                                     "display: flex !important; " +
-                                     "flex-wrap: wrap !important; " +
-                                     "gap: 8px !important; " +
-                                     "margin-top: 10px !important; " +
-                                     "margin-bottom: 15px !important; " +
-                                     "justify-content: center !important; " +
-                                     "width: 100% !important; " +
-                                     "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; ";
-
-      var updatePillSelection = function(forceSize) {
-        if (forceSize) activeSelectedSize = forceSize;
-        var pills = pillsContainer.querySelectorAll(".nvx-talle-pill");
-        for (var j = 0; j < pills.length; j++) {
-          var pill = pills[j];
-          var pillVal = pill.getAttribute("data-size");
-          if (activeSelectedSize && pillVal && normalizeSize(pillVal) === normalizeSize(activeSelectedSize)) {
-            pill.style.background = bgStyle;
-            pill.style.color = colorTextoBoton;
-            pill.style.borderColor = colorFondo1;
-          } else {
-            pill.style.background = "#ffffff";
-            pill.style.color = "#4b5563";
-            pill.style.borderColor = "#e5e7eb";
-          }
-        }
-      };
-
-      for (var idx = 0; idx < sizesToRender.length; idx++) {
-        (function(sz) {
-          var pill = document.createElement("button");
-          pill.type = "button";
-          pill.className = "nvx-talle-pill";
-          pill.setAttribute("data-size", sz);
-          pill.style.cssText = "box-sizing: border-box !important; " +
-                               "border: 1.5px solid #e5e7eb !important; " +
-                               "border-radius: 20px !important; " +
-                               "background: #ffffff !important; " +
-                               "color: #4b5563 !important; " +
-                               "padding: 6px 14px !important; " +
-                               "font-size: 13px !important; " +
-                               "font-weight: 700 !important; " +
-                               "cursor: pointer !important; " +
-                               "transition: all 0.2s !important; " +
-                               "font-family: inherit !important; " +
-                               "display: inline-block !important; " +
-                               "line-height: 1.2 !important; " +
-                               "outline: none !important; ";
-          pill.innerText = sz;
-          pill.onclick = function(ev) {
-            if (ev && ev.preventDefault) ev.preventDefault();
-            if (ev && ev.stopPropagation) ev.stopPropagation();
-            selectVariantByText(sz);
-            updatePillSelection(sz);
-            return false;
-          };
-          pillsContainer.appendChild(pill);
-        })(sizesToRender[idx]);
-      }
-
-      if (btn.parentNode) {
-        btn.parentNode.insertBefore(pillsContainer, btn.nextSibling);
-      }
-      updatePillSelection();
-
-      /* Interceptar clic en Agregar al carrito nativo */
-      var isAddToCartTarget = function(el) {
-        if (!el) return false;
-        var node = el;
-        for (var depth = 0; depth < 6 && node && node !== document.body; depth++) {
-          var id = (node.id || "").toLowerCase();
-          var cls = (typeof node.className === "string") ? node.className.toLowerCase() : "";
-          var type = (node.getAttribute && node.getAttribute("type")) ? String(node.getAttribute("type")).toLowerCase() : "";
-          var name = (node.getAttribute && node.getAttribute("name")) ? String(node.getAttribute("name")).toLowerCase() : "";
-          var txt = normalizeSize((node.textContent || "").slice(0, 48));
-          if (
-            type === "submit" ||
-            name.indexOf("add") > -1 ||
-            id.indexOf("add-to-cart") > -1 ||
-            id.indexOf("addtocart") > -1 ||
-            cls.indexOf("add-to-cart") > -1 ||
-            cls.indexOf("js-addtocart") > -1 ||
-            cls.indexOf("js-product-add") > -1 ||
-            cls.indexOf("btn-add-to-cart") > -1 ||
-            cls.indexOf("product-form-submit") > -1 ||
-            txt.indexOf("agregar") > -1 ||
-            txt.indexOf("añadir") > -1 ||
-            txt.indexOf("comprar") > -1
-          ) {
-            return true;
-          }
-          node = node.parentNode;
-        }
-        return false;
-      };
-
-      document.addEventListener("click", function(e) {
-        if (!activeSelectedSize || !activeVariantId) return;
-        if (!isAddToCartTarget(e.target)) return;
-
-        /* Re-aplicar variante por si la plantilla la pisó */
-        applyVariantToNativeForm(activeVariantId);
-        selectVariantByText(activeSelectedSize);
-
-        /* Si hay NubeSDK, tomar el control (patrón Pack) */
-        if (window.nube && typeof window.nube.send === "function") {
-          if (e.preventDefault) e.preventDefault();
-          if (e.stopPropagation) e.stopPropagation();
-          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-
-          addVariantToCart(activeVariantId, 1, false);
-          return false;
-        }
-
-        /* Sin NubeSDK: dejar que el form nativo envíe, pero con add_to_cart ya seteado */
-      }, true);
-
-      var cartForms = document.querySelectorAll(
-        "form[action*='cart'], form[action*='comprar'], form.js-product-form, form.product-form, #product_form"
-      );
-      for (var cf = 0; cf < cartForms.length; cf++) {
-        cartForms[cf].addEventListener("submit", function(ev) {
-          if (!activeVariantId) return;
-          applyVariantToNativeForm(activeVariantId);
-        }, true);
-      }
-    }
-  }
-
-  /* ─── 4. Modal ─── */
-  var buildModalContent = function() {
+  /* ─── 3. Contenido del modal ─── */
+  var buildModalBodyHtml = function() {
     var imgHtml = "";
     if (mostrarImagen && imagenUrl) {
-      imgHtml = '<div style="margin-bottom: 14px !important; text-align: center !important;">' +
-                  '<img src="' + imagenUrl + '" alt="Guía de talles" style="max-width: 100% !important; height: auto !important; border-radius: 8px !important; border: 1px solid #e5e7eb !important;" />' +
+      imgHtml = '<div style="margin-bottom:14px !important;text-align:center !important;">' +
+                  '<img src="' + imagenUrl + '" alt="Guía de talles" style="max-width:100% !important;height:auto !important;border-radius:8px !important;border:1px solid #e5e7eb !important;" />' +
                 '</div>';
     }
 
     var tableHtml = "";
     if (mostrarTabla && celdas && celdas.length > 0) {
-      tableHtml = '<div style="overflow-x: auto !important; margin-bottom: 14px !important; border: 1px solid #e5e7eb !important; border-radius: 8px !important; background: #ffffff !important;">' +
-                    '<table style="width: 100% !important; border-collapse: collapse !important; font-size: 13px !important; text-align: center !important;"><tbody>';
+      tableHtml = '<div style="overflow-x:auto !important;margin-bottom:14px !important;border:1px solid #e5e7eb !important;border-radius:8px !important;background:#ffffff !important;">' +
+                    '<table style="width:100% !important;border-collapse:collapse !important;font-size:13px !important;text-align:center !important;"><tbody>';
       for (var r = 0; r < celdas.length; r++) {
         var row = celdas[r];
-        tableHtml += '<tr style="' + (r === 0 ? "background: #f3f4f6 !important; font-weight: 700 !important; color: #111827 !important;" : "border-top: 1px solid #e5e7eb !important;") + '">';
+        tableHtml += '<tr style="' + (r === 0 ? "background:#f3f4f6 !important;font-weight:700 !important;color:#111827 !important;" : "border-top:1px solid #e5e7eb !important;") + '">';
         for (var c = 0; c < row.length; c++) {
           var cellVal = row[c] !== undefined ? row[c] : "";
-          tableHtml += '<td style="padding: 8px 10px !important; ' + (c === 0 && r !== 0 ? "background: #f9fafb !important; font-weight: 700 !important;" : "") + '">' + cellVal + '</td>';
+          tableHtml += '<td style="padding:8px 10px !important;' + (c === 0 && r !== 0 ? "background:#f9fafb !important;font-weight:700 !important;" : "") + '">' + cellVal + '</td>';
         }
         tableHtml += '</tr>';
       }
@@ -9952,7 +9725,7 @@ var renderTablaTalles = function(w) {
 
     var textHtml = "";
     if (mostrarTexto && textoInfo) {
-      textHtml = '<div style="font-size: 13px !important; color: #4b5563 !important; line-height: 1.5 !important; margin-bottom: 14px !important; background: #f9fafb !important; padding: 10px 12px !important; border-radius: 8px !important; border: 1px solid #f3f4f6 !important;">' +
+      textHtml = '<div style="font-size:13px !important;color:#4b5563 !important;line-height:1.5 !important;margin-bottom:14px !important;background:#f9fafb !important;padding:10px 12px !important;border-radius:8px !important;border:1px solid #f3f4f6 !important;">' +
                    textoInfo.replace(/\n/g, "<br/>") +
                  '</div>';
     }
@@ -9965,6 +9738,7 @@ var renderTablaTalles = function(w) {
       "tabla_texto_imagen": [tableHtml, textHtml, imgHtml],
       "texto_imagen_tabla": [textHtml, imgHtml, tableHtml]
     };
+
     return (orderMap[orden] || [imgHtml, tableHtml, textHtml]).join("");
   };
 
@@ -9977,29 +9751,148 @@ var renderTablaTalles = function(w) {
 
     var overlay = document.createElement("div");
     overlay.id = "nvx-tabla-talles-modal";
-    overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.6) !important; z-index: 999999 !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 16px !important; box-sizing: border-box !important; backdrop-filter: blur(2px) !important;";
+    overlay.style.cssText = "position:fixed !important;top:0 !important;left:0 !important;width:100vw !important;height:100vh !important;background:rgba(0,0,0,0.6) !important;z-index:999999 !important;display:flex !important;align-items:center !important;justify-content:center !important;padding:16px !important;box-sizing:border-box !important;backdrop-filter:blur(2px) !important;";
 
     var modal = document.createElement("div");
-    modal.style.cssText = "background: #ffffff !important; border-radius: 16px !important; width: 100% !important; max-width: 500px !important; max-height: 85vh !important; display: flex !important; flex-direction: column !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important; overflow: hidden !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;";
+    modal.style.cssText = "background:#ffffff !important;border-radius:16px !important;width:100% !important;max-width:500px !important;max-height:85vh !important;display:flex !important;flex-direction:column !important;box-shadow:0 10px 25px rgba(0,0,0,0.2) !important;overflow:hidden !important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif !important;";
 
+    /* Header */
     var header = document.createElement("div");
-    header.style.cssText = "display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 16px 20px !important; border-bottom: 1px solid #e5e7eb !important;";
-    header.innerHTML = '<div style="font-size: 16px !important; font-weight: 800 !important; color: ' + colorTextoHeader + ' !important;">' + tituloHeader + '</div>' +
-                       '<button type="button" id="nvx-close-talles-modal" style="background: none !important; border: none !important; font-size: 20px !important; color: #6b7280 !important; cursor: pointer !important; padding: 0 4px !important; line-height: 1 !important;">✕</button>';
+    header.style.cssText = "display:flex !important;align-items:center !important;justify-content:space-between !important;padding:16px 20px !important;border-bottom:1px solid #e5e7eb !important;flex-shrink:0 !important;";
+    header.innerHTML = '<div style="font-size:16px !important;font-weight:800 !important;color:' + colorTextoHeader + ' !important;">' + tituloHeader + '</div>' +
+                       '<button type="button" id="nvx-close-talles-modal" style="background:none !important;border:none !important;font-size:20px !important;color:#6b7280 !important;cursor:pointer !important;padding:0 4px !important;line-height:1 !important;">✕</button>';
 
+    /* Body scrollable */
     var body = document.createElement("div");
-    body.style.cssText = "padding: 20px !important; overflow-y: auto !important; box-sizing: border-box !important;";
-    body.innerHTML = buildModalContent();
+    body.style.cssText = "padding:20px !important;overflow-y:auto !important;box-sizing:border-box !important;flex:1 !important;";
+    body.innerHTML = buildModalBodyHtml();
+
+    /* Bloque selector de talles + CTA (DENTRO del modal) */
+    if (mostrarSelectorTalles) {
+      var sizesToRender = detectProductSizes();
+      if (sizesToRender.length === 0) {
+        sizesToRender = ["XS", "S", "M", "L", "XL"];
+      }
+
+      var selectorBlock = document.createElement("div");
+      selectorBlock.style.cssText = "margin-top:8px !important;padding-top:16px !important;border-top:1px solid #e5e7eb !important;";
+
+      var labelEl = document.createElement("div");
+      labelEl.style.cssText = "font-size:13px !important;font-weight:800 !important;color:#111827 !important;margin-bottom:10px !important;text-align:center !important;";
+      labelEl.innerHTML = "Elegí tu talle";
+      selectorBlock.appendChild(labelEl);
+
+      var pillsWrap = document.createElement("div");
+      pillsWrap.id = "nvx-modal-talles-pills";
+      pillsWrap.style.cssText = "display:flex !important;flex-wrap:wrap !important;gap:8px !important;justify-content:center !important;margin-bottom:14px !important;";
+
+      var statusEl = document.createElement("div");
+      statusEl.id = "nvx-modal-talle-status";
+      statusEl.style.cssText = "font-size:12px !important;color:#6b7280 !important;text-align:center !important;margin-bottom:12px !important;min-height:18px !important;";
+      statusEl.innerHTML = "Seleccioná un talle para continuar";
+
+      var addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.id = "nvx-modal-add-cart";
+      addBtn.disabled = true;
+      addBtn.style.cssText = "width:100% !important;box-sizing:border-box !important;border:none !important;border-radius:999px !important;" +
+                             "background:#d1d5db !important;color:#ffffff !important;padding:14px 18px !important;" +
+                             "font-size:15px !important;font-weight:800 !important;cursor:not-allowed !important;" +
+                             "font-family:inherit !important;transition:all 0.2s !important;";
+      addBtn.innerHTML = "Agregar al carrito";
+
+      var refreshAddBtn = function() {
+        if (activeSelectedSize) {
+          addBtn.disabled = false;
+          addBtn.style.background = bgStyle;
+          addBtn.style.color = colorTextoBoton;
+          addBtn.style.cursor = "pointer";
+          addBtn.innerHTML = "Agregar al carrito (" + activeSelectedSize + ")";
+          statusEl.innerHTML = 'Talle seleccionado: <strong style="color:#111827 !important;">' + activeSelectedSize + "</strong>";
+          statusEl.style.color = "#059669";
+        } else {
+          addBtn.disabled = true;
+          addBtn.style.background = "#d1d5db";
+          addBtn.style.color = "#ffffff";
+          addBtn.style.cursor = "not-allowed";
+          addBtn.innerHTML = "Agregar al carrito";
+          statusEl.innerHTML = "Seleccioná un talle para continuar";
+          statusEl.style.color = "#6b7280";
+        }
+      };
+
+      var paintPills = function() {
+        var pills = pillsWrap.querySelectorAll(".nvx-modal-talle-pill");
+        for (var i = 0; i < pills.length; i++) {
+          var p = pills[i];
+          var sz = p.getAttribute("data-size");
+          if (activeSelectedSize && normalizeSize(sz) === normalizeSize(activeSelectedSize)) {
+            p.style.background = bgStyle;
+            p.style.color = colorTextoBoton;
+            p.style.borderColor = colorFondo1;
+          } else {
+            p.style.background = "#ffffff";
+            p.style.color = "#374151";
+            p.style.borderColor = "#e5e7eb";
+          }
+        }
+        refreshAddBtn();
+      };
+
+      for (var idx = 0; idx < sizesToRender.length; idx++) {
+        (function(sz) {
+          var pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "nvx-modal-talle-pill";
+          pill.setAttribute("data-size", sz);
+          pill.style.cssText = "box-sizing:border-box !important;border:1.5px solid #e5e7eb !important;border-radius:20px !important;" +
+                               "background:#ffffff !important;color:#374151 !important;padding:8px 16px !important;" +
+                               "font-size:14px !important;font-weight:700 !important;cursor:pointer !important;" +
+                               "font-family:inherit !important;line-height:1.2 !important;outline:none !important;" +
+                               "transition:all 0.15s !important;min-width:44px !important;";
+          pill.innerText = sz;
+          pill.onclick = function(ev) {
+            if (ev && ev.preventDefault) ev.preventDefault();
+            activeSelectedSize = sz;
+            activeVariantId = findVariantIdBySize(sz);
+            paintPills();
+            return false;
+          };
+          pillsWrap.appendChild(pill);
+        })(sizesToRender[idx]);
+      }
+
+      addBtn.onclick = function(ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        if (!activeSelectedSize || addBtn.disabled) return false;
+        addToCartWithSize(activeSelectedSize, addBtn);
+        return false;
+      };
+
+      selectorBlock.appendChild(pillsWrap);
+      selectorBlock.appendChild(statusEl);
+      selectorBlock.appendChild(addBtn);
+      body.appendChild(selectorBlock);
+
+      paintPills();
+    }
 
     modal.appendChild(header);
     modal.appendChild(body);
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    var closeModal = function() { overlay.style.display = "none"; };
+    var closeModal = function() {
+      overlay.style.display = "none";
+    };
+
     var closeBtn = document.getElementById("nvx-close-talles-modal");
     if (closeBtn) closeBtn.onclick = closeModal;
-    overlay.onclick = function(e) { if (e.target === overlay) closeModal(); };
+
+    overlay.onclick = function(e) {
+      if (e.target === overlay) closeModal();
+    };
+
     document.addEventListener("keydown", function(e) {
       if (e.key === "Escape") closeModal();
     });
