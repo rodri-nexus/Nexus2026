@@ -9318,7 +9318,7 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v130)
+   WIDGET: TABLA DE TALLES (v131)
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9445,19 +9445,22 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  // 3. Renderizar las pills clickeables debajo del botón
+  // Variable para recordar la selección activa
+  var activeSelectedSize = "";
+
+  // 3. Sincronizar talle seleccionado con Tiendanube
   var selectVariantByText = function(text) {
     var normalizedText = text.trim().toLowerCase();
     var found = false;
 
-    // Buscar en selects estándar de Tiendanube
+    // A. Buscar en selects estándar
     var selects = document.querySelectorAll("select");
     for (var i = 0; i < selects.length; i++) {
       var sel = selects[i];
       for (var j = 0; j < sel.options.length; j++) {
         var opt = sel.options[j];
         var optText = opt.text.trim().toLowerCase();
-        if (optText === normalizedText || optText.indexOf(normalizedText) === 0) {
+        if (optText === normalizedText || optText === "talle " + normalizedText || optText === "talla " + normalizedText) {
           sel.selectedIndex = j;
           var evt;
           if (typeof Event === "function") {
@@ -9474,16 +9477,32 @@ var renderTablaTalles = function(w) {
       if (found) break;
     }
 
-    // Si no es un select tradicional (ej: pills nativas de la plantilla), simular click en el elemento nativo
-    if (!found) {
-      var nativePills = document.querySelectorAll(".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, .js-variant-option");
-      for (var k = 0; k < nativePills.length; k++) {
-        var pill = nativePills[k];
-        var pillText = (pill.textContent || pill.innerText || "").trim().toLowerCase();
-        if (pillText === normalizedText) {
-          pill.click();
-          break;
-        }
+    // B. Buscar en pills/labels de la plantilla
+    var nativePills = document.querySelectorAll(
+      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
+      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, [data-value]"
+    );
+    for (var k = 0; k < nativePills.length; k++) {
+      var pill = nativePills[k];
+      var pillText = (pill.textContent || pill.innerText || "").trim().toLowerCase();
+      var dataVal = (pill.getAttribute("data-value") || "").trim().toLowerCase();
+      if (pillText === normalizedText || dataVal === normalizedText) {
+        pill.click();
+        found = true;
+      }
+    }
+
+    // C. Buscar en Inputs tipo Radio
+    var radios = document.querySelectorAll("input[type='radio']");
+    for (var r = 0; r < radios.length; r++) {
+      var radio = radios[r];
+      var val = (radio.value || "").trim().toLowerCase();
+      if (val === normalizedText) {
+        radio.checked = true;
+        var rEvt = typeof Event === "function" ? new Event("change", { bubbles: true }) : document.createEvent("HTMLEvents");
+        if (typeof Event !== "function") rEvt.initEvent("change", true, true);
+        radio.dispatchEvent(rEvt);
+        found = true;
       }
     }
   };
@@ -9492,7 +9511,6 @@ var renderTablaTalles = function(w) {
     var suspects = [];
     var sizes = [];
 
-    // 1. Detectar desde variables nativas del frontend de Tiendanube
     if (window.LS && window.LS.product && window.LS.product.variants) {
       var variants = window.LS.product.variants;
       for (var i = 0; i < variants.length; i++) {
@@ -9510,7 +9528,6 @@ var renderTablaTalles = function(w) {
       }
     }
 
-    // 2. Detectar barriendo selects en el DOM
     var selects = document.querySelectorAll("select");
     for (var i = 0; i < selects.length; i++) {
       var sel = selects[i];
@@ -9519,9 +9536,7 @@ var renderTablaTalles = function(w) {
                          nameAttr.indexOf("talla") > -1 || 
                          nameAttr.indexOf("size") > -1 ||
                          nameAttr.indexOf("tamanho") > -1 ||
-                         nameAttr.indexOf("variation_0") > -1 ||
-                         nameAttr.indexOf("variation_1") > -1 ||
-                         nameAttr.indexOf("variation_2") > -1;
+                         nameAttr.indexOf("variation") > -1;
 
       if (isSizeSelect || selects.length <= 3) {
         for (var j = 0; j < sel.options.length; j++) {
@@ -9536,7 +9551,6 @@ var renderTablaTalles = function(w) {
       }
     }
 
-    // 3. Filtrar y Normalizar contra la tabla de talles o patrones comunes
     var configTalles = [];
     for (var r = 1; r < celdas.length; r++) {
       if (celdas[r][0]) {
@@ -9557,7 +9571,6 @@ var renderTablaTalles = function(w) {
       }
     }
 
-    // Fallback completo a la primera columna de la tabla si no se detectó nada
     if (sizes.length === 0 && configTalles.length > 0) {
       for (var r = 1; r < celdas.length; r++) {
         if (celdas[r][0]) {
@@ -9584,30 +9597,37 @@ var renderTablaTalles = function(w) {
                                      "width: 100% !important; " +
                                      "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; ";
 
-      var updatePillSelection = function() {
-        var currentSelected = "";
-        var selects = document.querySelectorAll("select");
-        for (var i = 0; i < selects.length; i++) {
-          var sel = selects[i];
-          var nameAttr = (sel.getAttribute("name") || "").toLowerCase();
-          var isSizeSelect = nameAttr.indexOf("talle") > -1 || 
-                             nameAttr.indexOf("talla") > -1 || 
-                             nameAttr.indexOf("size") > -1 ||
-                             nameAttr.indexOf("tamanho") > -1 ||
-                             nameAttr.indexOf("variation_0") > -1 ||
-                             nameAttr.indexOf("variation_1") > -1 ||
-                             nameAttr.indexOf("variation_2") > -1;
-          if (isSizeSelect && sel.selectedIndex >= 0) {
-            currentSelected = sel.options[sel.selectedIndex].text.trim();
-            break;
+      var updatePillSelection = function(forceSize) {
+        if (forceSize) {
+          activeSelectedSize = forceSize;
+        } else {
+          // Detectar desde los selectores del DOM de Tiendanube
+          var currentSelected = "";
+          var selects = document.querySelectorAll("select");
+          for (var i = 0; i < selects.length; i++) {
+            var sel = selects[i];
+            var nameAttr = (sel.getAttribute("name") || "").toLowerCase();
+            var isSizeSelect = nameAttr.indexOf("talle") > -1 || 
+                               nameAttr.indexOf("talla") > -1 || 
+                               nameAttr.indexOf("size") > -1 ||
+                               nameAttr.indexOf("tamanho") > -1 ||
+                               nameAttr.indexOf("variation") > -1;
+            if (isSizeSelect && sel.selectedIndex >= 0) {
+              currentSelected = sel.options[sel.selectedIndex].text.trim();
+              break;
+            }
+          }
+          if (currentSelected) {
+            activeSelectedSize = currentSelected;
           }
         }
 
+        // Aplicar estilos dinámicos a las pills
         var pills = pillsContainer.querySelectorAll(".nvx-talle-pill");
         for (var j = 0; j < pills.length; j++) {
           var pill = pills[j];
           var pillVal = pill.getAttribute("data-size");
-          if (currentSelected && pillVal && pillVal.toLowerCase() === currentSelected.toLowerCase()) {
+          if (activeSelectedSize && pillVal && pillVal.toLowerCase() === activeSelectedSize.toLowerCase()) {
             pill.style.background = bgStyle;
             pill.style.color = colorTextoBoton;
             pill.style.borderColor = colorFondo1;
@@ -9637,12 +9657,13 @@ var renderTablaTalles = function(w) {
                                "transition: all 0.2s !important; " +
                                "font-family: inherit !important; " +
                                "display: inline-block !important; " +
-                               "line-height: 1.2 !important; ";
+                               "line-height: 1.2 !important; " +
+                               "outline: none !important; ";
           pill.innerText = sz;
 
           pill.onclick = function() {
             selectVariantByText(sz);
-            updatePillSelection();
+            updatePillSelection(sz);
           };
 
           pillsContainer.appendChild(pill);
@@ -9653,11 +9674,15 @@ var renderTablaTalles = function(w) {
         btn.parentNode.insertBefore(pillsContainer, btn.nextSibling);
       }
 
+      // Sincronizar estado inicial
       updatePillSelection();
 
+      // Escuchar cambios externos en variantes nativas
       var nativeSelects = document.querySelectorAll("select");
       for (var s = 0; s < nativeSelects.length; s++) {
-        nativeSelects[s].addEventListener("change", updatePillSelection);
+        nativeSelects[s].addEventListener("change", function() {
+          updatePillSelection();
+        });
       }
     }
   }
