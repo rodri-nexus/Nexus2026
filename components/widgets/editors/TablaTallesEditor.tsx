@@ -59,20 +59,42 @@ export interface TablaTallesConfig {
   padding_boton: number;
   margin_top: number;
   margin_bottom: number;
+  mostrar_selector_talles: boolean;
 }
+
+const defaultData: Record<string, string[]> = {
+  'XS': ['82-86', '62-66', '86-90'],
+  'S':  ['86-90', '66-70', '90-94'],
+  'M':  ['90-94', '70-74', '94-98'],
+  'L':  ['94-100', '74-80', '98-104'],
+  'XL': ['100-106', '80-86', '104-110'],
+  'XXL': ['106-112', '86-92', '110-116'],
+  '3XL': ['112-118', '92-98', '116-122'],
+  '4XL': ['118-124', '98-104', '122-128'],
+};
 
 function createEmptyGrid(rows: number, cols: number): string[][] {
   var grid: string[][] = [];
+  var labels = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'];
+  var headers = ['Talle', 'Pecho (cm)', 'Cintura (cm)', 'Cadera (cm)', 'Medida 4', 'Medida 5', 'Medida 6', 'Medida 7'];
+
   for (var r = 0; r < rows; r++) {
     var row: string[] = [];
     for (var c = 0; c < cols; c++) {
-      if (r === 0 && c === 0) row.push('Talle');
-      else if (r === 0) row.push('Medida');
-      else if (c === 0) {
-        var labels = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'];
-        row.push(labels[r - 1] || '');
+      if (r === 0) {
+        row.push(headers[c] || ('Medida ' + c));
       } else {
-        row.push('X-X');
+        if (c === 0) {
+          row.push(labels[r - 1] || ('Talle ' + r));
+        } else {
+          var label = labels[r - 1] || '';
+          var dataVals = defaultData[label];
+          if (dataVals && dataVals[c - 1] !== undefined) {
+            row.push(dataVals[c - 1]);
+          } else {
+            row.push('80-90');
+          }
+        }
       }
     }
     grid.push(row);
@@ -104,6 +126,7 @@ const defaultConfig: TablaTallesConfig = {
   padding_boton: 12,
   margin_top: 10,
   margin_bottom: 15,
+  mostrar_selector_talles: true,
 };
 
 /* ═══════════════════════════════════════════
@@ -255,7 +278,7 @@ function TablaTallesPreview({ config }: { config: TablaTallesConfig }) {
         VISTA PREVIA EN VIVO
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '8px 0' }}>
         <button
           type="button"
           style={{
@@ -277,6 +300,28 @@ function TablaTallesPreview({ config }: { config: TablaTallesConfig }) {
           {config.mostrar_icono_regla ? <span style={{ fontSize: config.tamano_texto + 2 }}>📏</span> : null}
           {config.texto_boton || 'Tabla de talles'}
         </button>
+
+        {config.mostrar_selector_talles ? (
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', width: '100%', marginTop: 4 }}>
+            {['XS', 'S', 'M', 'L', 'XL'].map((talle, idx) => (
+              <span
+                key={talle}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: 20,
+                  border: idx === 2 ? '2px solid ' + config.color_fondo : '1.5px solid #e5e7eb',
+                  background: idx === 2 ? config.color_fondo : '#ffffff',
+                  color: idx === 2 ? config.color_texto_boton : '#4b5563',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'default'
+                }}
+              >
+                {talle}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -300,6 +345,9 @@ export default function TablaTallesEditor({
     if (!base.celdas || !Array.isArray(base.celdas) || base.celdas.length === 0) {
       base.celdas = createEmptyGrid(base.filas || 6, base.columnas || 4);
     }
+    if (base.mostrar_selector_talles === undefined) {
+      base.mostrar_selector_talles = true;
+    }
     return base;
   });
 
@@ -322,20 +370,26 @@ export default function TablaTallesEditor({
     setConfig((prev) => {
       const old = prev.celdas || [];
       const next: string[][] = [];
+      var labels = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'];
+      var headers = ['Talle', 'Pecho (cm)', 'Cintura (cm)', 'Cadera (cm)', 'Medida 4', 'Medida 5', 'Medida 6', 'Medida 7'];
+
       for (var r = 0; r < newRows; r++) {
         const row: string[] = [];
         for (var c = 0; c < newCols; c++) {
           if (old[r] && old[r][c] !== undefined) {
             row.push(old[r][c]);
-          } else if (r === 0 && c === 0) {
-            row.push('Talle');
           } else if (r === 0) {
-            row.push('Medida');
+            row.push(headers[c] || ('Medida ' + c));
           } else if (c === 0) {
-            var labels = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'];
-            row.push(labels[r - 1] || '');
+            row.push(labels[r - 1] || ('Talle ' + r));
           } else {
-            row.push('X-X');
+            var label = labels[r - 1] || '';
+            var dataVals = defaultData[label];
+            if (dataVals && dataVals[c - 1] !== undefined) {
+              row.push(dataVals[c - 1]);
+            } else {
+              row.push('80-90');
+            }
           }
         }
         next.push(row);
@@ -425,8 +479,19 @@ export default function TablaTallesEditor({
         <ToggleSwitch checked={config.mostrar_icono_regla} onChange={(v) => update('mostrar_icono_regla', v)} />
       </div>
 
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '12px 14px',
+      }}>
+        <div>
+          <span style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#111827' }}>Mostrar selector de talles clickeables</span>
+          <span style={{ display: 'block', fontSize: 12, color: '#6b7280', marginTop: 2 }}>Permite al cliente elegir talle directamente debajo del botón.</span>
+        </div>
+        <ToggleSwitch checked={config.mostrar_selector_talles} onChange={(v) => update('mostrar_selector_talles', v)} />
+      </div>
+
       <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 12 }}>Contenido a mostrar</div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 12 }}>Contenido a mostrar en el Modal</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {[
             { key: 'mostrar_imagen' as const, label: 'Mostrar imagen' },
@@ -863,4 +928,4 @@ export default function TablaTallesEditor({
       </div>
     </div>
   );
-  }
+   }
