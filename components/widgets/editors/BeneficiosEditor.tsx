@@ -598,20 +598,20 @@ export default function BeneficiosEditor({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
         <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 12 }}>🎨 Colores principales</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          <div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ background: '#f9fafb', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e5e7eb' }}>
             <FieldLabel>Color del título</FieldLabel>
             <ColorPickerField value={config.color_titulo} onChange={(v) => update('color_titulo', v)} />
           </div>
-          <div>
+          <div style={{ background: '#f9fafb', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e5e7eb' }}>
             <FieldLabel>Color del texto</FieldLabel>
             <ColorPickerField value={config.color_texto} onChange={(v) => update('color_texto', v)} />
           </div>
-          <div>
+          <div style={{ background: '#f9fafb', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e5e7eb' }}>
             <FieldLabel>Color de fondo</FieldLabel>
             <ColorPickerField value={config.color_fondo} onChange={(v) => update('color_fondo', v)} />
           </div>
-          <div>
+          <div style={{ background: '#f9fafb', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e5e7eb' }}>
             <FieldLabel>Color del borde</FieldLabel>
             <ColorPickerField value={config.color_borde} onChange={(v) => update('color_borde', v)} />
           </div>
@@ -883,4 +883,4 @@ export default function BeneficiosEditor({
       </div>
     </div>
   );
-  }
+   }
