@@ -9318,8 +9318,83 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v133)
+   WIDGET: TABLA DE TALLES (v134)
    ═══════════════════════════════════════════ */
+// Interceptador global AJAX para Tiendanube (se instala una sola vez)
+if (typeof window !== "undefined" && !window.__nvxCartInterceptorInstalled) {
+  window.__nvxCartInterceptorInstalled = true;
+  window.__nvxActiveVariantId = null;
+  window.__nvxActiveSelectedSize = null;
+
+  var origFetch = window.fetch;
+  if (origFetch) {
+    window.fetch = function(resource, init) {
+      var url = (typeof resource === "string") ? resource : (resource && resource.url ? resource.url : "");
+      if (url && (url.indexOf("/cart/add") > -1 || url.indexOf("cart/add") > -1)) {
+        if (window.__nvxActiveVariantId && init && init.body) {
+          try {
+            if (typeof FormData !== "undefined" && init.body instanceof FormData) {
+              init.body.set("variant_id", window.__nvxActiveVariantId);
+              init.body.set("add", window.__nvxActiveVariantId);
+            } else if (typeof init.body === "string") {
+              if (init.body.indexOf("variant_id=") > -1) {
+                init.body = init.body.replace(/variant_id=\d+/g, "variant_id=" + window.__nvxActiveVariantId);
+              }
+              if (init.body.indexOf("add=") > -1) {
+                init.body = init.body.replace(/add=\d+/g, "add=" + window.__nvxActiveVariantId);
+              }
+              if (init.body.indexOf("{") === 0) {
+                var parsed = JSON.parse(init.body);
+                parsed.variant_id = window.__nvxActiveVariantId;
+                if (parsed.add) parsed.add = window.__nvxActiveVariantId;
+                init.body = JSON.stringify(parsed);
+              }
+            } else if (typeof URLSearchParams !== "undefined" && init.body instanceof URLSearchParams) {
+              init.body.set("variant_id", window.__nvxActiveVariantId);
+              init.body.set("add", window.__nvxActiveVariantId);
+            }
+          } catch(errFetch) {}
+        }
+      }
+      return origFetch.apply(this, arguments);
+    };
+  }
+
+  var origXHRSend = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.send = function(body) {
+    if (this.__nvxUrl && (this.__nvxUrl.indexOf("/cart/add") > -1 || this.__nvxUrl.indexOf("cart/add") > -1)) {
+      if (window.__nvxActiveVariantId && body) {
+        try {
+          if (typeof FormData !== "undefined" && body instanceof FormData) {
+            body.set("variant_id", window.__nvxActiveVariantId);
+            body.set("add", window.__nvxActiveVariantId);
+          } else if (typeof body === "string") {
+            if (body.indexOf("variant_id=") > -1) {
+              body = body.replace(/variant_id=\d+/g, "variant_id=" + window.__nvxActiveVariantId);
+            }
+            if (body.indexOf("add=") > -1) {
+              body = body.replace(/add=\d+/g, "add=" + window.__nvxActiveVariantId);
+            }
+            if (body.indexOf("{") === 0) {
+              var parsedX = JSON.parse(body);
+              parsedX.variant_id = window.__nvxActiveVariantId;
+              if (parsedX.add) parsedX.add = window.__nvxActiveVariantId;
+              body = JSON.stringify(parsedX);
+            }
+          }
+        } catch(errXHR) {}
+      }
+    }
+    return origXHRSend.apply(this, arguments);
+  };
+
+  var origXHROpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url) {
+    this.__nvxUrl = url;
+    return origXHROpen.apply(this, arguments);
+  };
+}
+
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
   var isProductPage = pType === "product" || pType === "item";
@@ -9436,6 +9511,13 @@ var renderTablaTalles = function(w) {
         if (normalizeSize(v.option1) === norm) return v.id;
         if (normalizeSize(v.option2) === norm) return v.id;
         if (normalizeSize(v.option3) === norm) return v.id;
+
+        if (v.name) {
+          var nameParts = v.name.split(/[\/\-\,]/);
+          for (var np = 0; np < nameParts.length; np++) {
+            if (normalizeSize(nameParts[np]) === norm) return v.id;
+          }
+        }
       }
     }
     return null;
@@ -9443,6 +9525,11 @@ var renderTablaTalles = function(w) {
 
   var setVariantIdInForm = function(variantId, sizeText) {
     if (!variantId && !sizeText) return;
+
+    if (variantId) {
+      window.__nvxActiveVariantId = variantId;
+    }
+    window.__nvxActiveSelectedSize = sizeText;
 
     var forms = document.querySelectorAll("form[action*='cart'], form.js-product-form, form.product-form, form[action*='/cart/add']");
     var i;
@@ -9739,7 +9826,7 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  /* ─── 3. Pills clickeables + force antes de add-to-cart ─── */
+  /* ─── 3. Pills clickeables ─── */
   if (mostrarSelectorTalles) {
     var sizesToRender = detectProductSizes();
     if (sizesToRender.length > 0) {
@@ -9830,7 +9917,6 @@ var renderTablaTalles = function(w) {
         });
       }
 
-      /* Forzar talle JUSTO antes de Agregar al carrito */
       var isAddToCartTarget = function(el) {
         if (!el) return false;
         var node = el;
