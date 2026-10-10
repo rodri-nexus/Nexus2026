@@ -9318,83 +9318,8 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v134)
+   WIDGET: TABLA DE TALLES (v135)
    ═══════════════════════════════════════════ */
-// Interceptador global AJAX para Tiendanube (se instala una sola vez)
-if (typeof window !== "undefined" && !window.__nvxCartInterceptorInstalled) {
-  window.__nvxCartInterceptorInstalled = true;
-  window.__nvxActiveVariantId = null;
-  window.__nvxActiveSelectedSize = null;
-
-  var origFetch = window.fetch;
-  if (origFetch) {
-    window.fetch = function(resource, init) {
-      var url = (typeof resource === "string") ? resource : (resource && resource.url ? resource.url : "");
-      if (url && (url.indexOf("/cart/add") > -1 || url.indexOf("cart/add") > -1)) {
-        if (window.__nvxActiveVariantId && init && init.body) {
-          try {
-            if (typeof FormData !== "undefined" && init.body instanceof FormData) {
-              init.body.set("variant_id", window.__nvxActiveVariantId);
-              init.body.set("add", window.__nvxActiveVariantId);
-            } else if (typeof init.body === "string") {
-              if (init.body.indexOf("variant_id=") > -1) {
-                init.body = init.body.replace(/variant_id=\d+/g, "variant_id=" + window.__nvxActiveVariantId);
-              }
-              if (init.body.indexOf("add=") > -1) {
-                init.body = init.body.replace(/add=\d+/g, "add=" + window.__nvxActiveVariantId);
-              }
-              if (init.body.indexOf("{") === 0) {
-                var parsed = JSON.parse(init.body);
-                parsed.variant_id = window.__nvxActiveVariantId;
-                if (parsed.add) parsed.add = window.__nvxActiveVariantId;
-                init.body = JSON.stringify(parsed);
-              }
-            } else if (typeof URLSearchParams !== "undefined" && init.body instanceof URLSearchParams) {
-              init.body.set("variant_id", window.__nvxActiveVariantId);
-              init.body.set("add", window.__nvxActiveVariantId);
-            }
-          } catch(errFetch) {}
-        }
-      }
-      return origFetch.apply(this, arguments);
-    };
-  }
-
-  var origXHRSend = XMLHttpRequest.prototype.send;
-  XMLHttpRequest.prototype.send = function(body) {
-    if (this.__nvxUrl && (this.__nvxUrl.indexOf("/cart/add") > -1 || this.__nvxUrl.indexOf("cart/add") > -1)) {
-      if (window.__nvxActiveVariantId && body) {
-        try {
-          if (typeof FormData !== "undefined" && body instanceof FormData) {
-            body.set("variant_id", window.__nvxActiveVariantId);
-            body.set("add", window.__nvxActiveVariantId);
-          } else if (typeof body === "string") {
-            if (body.indexOf("variant_id=") > -1) {
-              body = body.replace(/variant_id=\d+/g, "variant_id=" + window.__nvxActiveVariantId);
-            }
-            if (body.indexOf("add=") > -1) {
-              body = body.replace(/add=\d+/g, "add=" + window.__nvxActiveVariantId);
-            }
-            if (body.indexOf("{") === 0) {
-              var parsedX = JSON.parse(body);
-              parsedX.variant_id = window.__nvxActiveVariantId;
-              if (parsedX.add) parsedX.add = window.__nvxActiveVariantId;
-              body = JSON.stringify(parsedX);
-            }
-          }
-        } catch(errXHR) {}
-      }
-    }
-    return origXHRSend.apply(this, arguments);
-  };
-
-  var origXHROpen = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function(method, url) {
-    this.__nvxUrl = url;
-    return origXHROpen.apply(this, arguments);
-  };
-}
-
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
   var isProductPage = pType === "product" || pType === "item";
@@ -9447,14 +9372,13 @@ var renderTablaTalles = function(w) {
   var activeSelectedSize = "";
   var activeVariantId = null;
 
-  /* ─── helpers de variante ─── */
   var normalizeSize = function(t) {
     return String(t || "").trim().toLowerCase();
   };
 
   var dispatchChange = function(el) {
-    var evt;
     try {
+      var evt;
       if (typeof Event === "function") {
         evt = new Event("change", { bubbles: true });
       } else {
@@ -9462,206 +9386,255 @@ var renderTablaTalles = function(w) {
         evt.initEvent("change", true, true);
       }
       el.dispatchEvent(evt);
-    } catch (err) {}
-    try {
-      if (typeof Event === "function") {
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-    } catch (err2) {}
+    } catch (e1) {}
   };
 
+  /* Resolver variant_id real desde LS.product.variants */
   var findVariantIdBySize = function(sizeText) {
     var norm = normalizeSize(sizeText);
     if (!norm) return null;
+    if (!window.LS || !window.LS.product || !window.LS.product.variants) return null;
 
-    if (window.LS && window.LS.product && window.LS.product.variants) {
-      var variants = window.LS.product.variants;
-      for (var i = 0; i < variants.length; i++) {
-        var v = variants[i];
-        if (!v) continue;
+    var variants = window.LS.product.variants;
+    for (var i = 0; i < variants.length; i++) {
+      var v = variants[i];
+      if (!v || !v.id) continue;
 
-        if (v.option_values && v.option_values.length) {
-          for (var j = 0; j < v.option_values.length; j++) {
-            var ov = v.option_values[j];
-            var ovVal = normalizeSize(ov && (ov.value || ov.name || ov));
-            if (ovVal === norm) return v.id;
-          }
+      var candidates = [];
+
+      if (v.option_values) {
+        for (var j = 0; j < v.option_values.length; j++) {
+          var ov = v.option_values[j];
+          if (ov) candidates.push(ov.value || ov.name || ov);
         }
+      }
 
-        if (v.values) {
-          if (Object.prototype.toString.call(v.values) === "[object Array]") {
-            for (var a = 0; a < v.values.length; a++) {
-              if (normalizeSize(v.values[a]) === norm) return v.id;
-            }
-          } else if (typeof v.values === "object") {
-            for (var lang in v.values) {
-              if (!v.values.hasOwnProperty(lang)) continue;
-              var valLang = v.values[lang];
-              if (Object.prototype.toString.call(valLang) === "[object Array]") {
-                for (var b = 0; b < valLang.length; b++) {
-                  if (normalizeSize(valLang[b]) === norm) return v.id;
-                }
-              } else if (normalizeSize(valLang) === norm) {
-                return v.id;
-              }
+      if (v.values) {
+        if (Object.prototype.toString.call(v.values) === "[object Array]") {
+          for (var a = 0; a < v.values.length; a++) candidates.push(v.values[a]);
+        } else if (typeof v.values === "object") {
+          for (var lang in v.values) {
+            if (!v.values.hasOwnProperty(lang)) continue;
+            var vl = v.values[lang];
+            if (Object.prototype.toString.call(vl) === "[object Array]") {
+              for (var b = 0; b < vl.length; b++) candidates.push(vl[b]);
+            } else {
+              candidates.push(vl);
             }
           }
         }
+      }
 
-        if (normalizeSize(v.option1) === norm) return v.id;
-        if (normalizeSize(v.option2) === norm) return v.id;
-        if (normalizeSize(v.option3) === norm) return v.id;
+      if (v.option0) candidates.push(v.option0);
+      if (v.option1) candidates.push(v.option1);
+      if (v.option2) candidates.push(v.option2);
+      if (v.option3) candidates.push(v.option3);
+      if (v.name) {
+        var parts = String(v.name).split(/[\/\-\,\|]/);
+        for (var p = 0; p < parts.length; p++) candidates.push(parts[p]);
+      }
 
-        if (v.name) {
-          var nameParts = v.name.split(/[\/\-\,]/);
-          for (var np = 0; np < nameParts.length; np++) {
-            if (normalizeSize(nameParts[np]) === norm) return v.id;
-          }
+      for (var c = 0; c < candidates.length; c++) {
+        if (normalizeSize(candidates[c]) === norm) {
+          return String(v.id);
         }
       }
     }
     return null;
   };
 
-  var setVariantIdInForm = function(variantId, sizeText) {
-    if (!variantId && !sizeText) return;
+  /* Setear variant_id en TODOS los inputs del form nativo de Tiendanube */
+  var applyVariantToNativeForm = function(variantId) {
+    if (!variantId) return;
 
-    if (variantId) {
-      window.__nvxActiveVariantId = variantId;
-    }
-    window.__nvxActiveSelectedSize = sizeText;
+    var selectors = [
+      'input[name="add_to_cart"]',
+      'input[name="variant_id"]',
+      'input[name="id"]',
+      'input#variant_id',
+      'select[name="variant_id"]',
+      'select[name="id"]'
+    ];
 
-    var forms = document.querySelectorAll("form[action*='cart'], form.js-product-form, form.product-form, form[action*='/cart/add']");
-    var i;
-    var inputs;
-
-    if (!forms.length) {
-      forms = [document];
-    }
-
-    for (i = 0; i < forms.length; i++) {
-      var root = forms[i];
-
-      if (variantId) {
-        inputs = root.querySelectorAll('input[name="variant_id"], input#variant_id, input[name="id"], input[data-variant-id]');
-        for (var x = 0; x < inputs.length; x++) {
-          inputs[x].value = String(variantId);
-          dispatchChange(inputs[x]);
-        }
-
-        var hiddenVid = root.querySelector('input[name="variant_id"]');
-        if (!hiddenVid && root !== document && root.tagName === "FORM") {
-          hiddenVid = document.createElement("input");
-          hiddenVid.type = "hidden";
-          hiddenVid.name = "variant_id";
-          hiddenVid.value = String(variantId);
-          root.appendChild(hiddenVid);
-        } else if (hiddenVid) {
-          hiddenVid.value = String(variantId);
-        }
-      }
-
-      if (sizeText) {
-        var propNames = ["properties[Talle]", "properties[Talla]", "properties[Size]", "properties[talle]"];
-        for (var p = 0; p < propNames.length; p++) {
-          var existing = root.querySelector('input[name="' + propNames[p] + '"]');
-          if (existing) {
-            existing.value = sizeText;
-          } else if (root !== document && root.tagName === "FORM") {
-            var propInput = document.createElement("input");
-            propInput.type = "hidden";
-            propInput.name = propNames[p];
-            propInput.value = sizeText;
-            propInput.setAttribute("data-nvx-talle-prop", "1");
-            root.appendChild(propInput);
-            break;
+    for (var s = 0; s < selectors.length; s++) {
+      var els = document.querySelectorAll(selectors[s]);
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        if (el.tagName === "SELECT") {
+          var matched = false;
+          for (var o = 0; o < el.options.length; o++) {
+            if (String(el.options[o].value) === String(variantId)) {
+              el.selectedIndex = o;
+              el.value = variantId;
+              matched = true;
+              break;
+            }
           }
+          if (!matched) {
+            el.value = variantId;
+          }
+        } else {
+          el.value = String(variantId);
+        }
+        dispatchChange(el);
+      }
+    }
+
+    /* Asegurar que el form de compra tenga add_to_cart = variantId */
+    var forms = document.querySelectorAll(
+      "form[action*='/cart/add'], form[action*='/cart'], form[action*='/comprar'], form.js-product-form, form.product-form, #product_form"
+    );
+    for (var f = 0; f < forms.length; f++) {
+      var form = forms[f];
+      var addInput = form.querySelector('input[name="add_to_cart"]');
+      if (!addInput) {
+        addInput = document.createElement("input");
+        addInput.type = "hidden";
+        addInput.name = "add_to_cart";
+        form.appendChild(addInput);
+      }
+      addInput.value = String(variantId);
+
+      var vidInput = form.querySelector('input[name="variant_id"]');
+      if (!vidInput) {
+        vidInput = document.createElement("input");
+        vidInput.type = "hidden";
+        vidInput.name = "variant_id";
+        form.appendChild(vidInput);
+      }
+      vidInput.value = String(variantId);
+    }
+  };
+
+  /* Clic nativo en opciones visuales de la plantilla */
+  var clickNativeOption = function(sizeText) {
+    var norm = normalizeSize(sizeText);
+    var nodes = document.querySelectorAll(
+      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
+      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
+      ".js-product-variant, .product-variant, [data-value], [data-option-value], " +
+      ".js-variation-btn, .variation-btn, .btn-variant, .product-option-value, " +
+      "button[data-variant], a[data-variant]"
+    );
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var t = normalizeSize(el.textContent || el.innerText || "");
+      var dv = normalizeSize(el.getAttribute("data-value") || el.getAttribute("data-option-value") || el.getAttribute("data-variant") || "");
+      if (t === norm || dv === norm) {
+        try { el.click(); } catch (e) {}
+      }
+    }
+
+    var selects = document.querySelectorAll("select");
+    for (var s = 0; s < selects.length; s++) {
+      var sel = selects[s];
+      for (var j = 0; j < sel.options.length; j++) {
+        var opt = sel.options[j];
+        var ot = normalizeSize(opt.text);
+        var ov = normalizeSize(opt.value);
+        if (ot === norm || ov === norm || ot.indexOf(norm) === 0) {
+          sel.selectedIndex = j;
+          sel.value = opt.value;
+          dispatchChange(sel);
+          break;
         }
       }
     }
   };
 
-  var selectVariantByText = function(text) {
-    var normalizedText = normalizeSize(text);
-    if (!normalizedText) return false;
-    var found = false;
+  var selectVariantByText = function(sizeText) {
+    activeSelectedSize = sizeText;
+    activeVariantId = findVariantIdBySize(sizeText);
 
-    activeSelectedSize = text;
-    activeVariantId = findVariantIdBySize(text);
+    clickNativeOption(sizeText);
 
     if (activeVariantId) {
-      setVariantIdInForm(activeVariantId, text);
-      found = true;
-    } else {
-      setVariantIdInForm(null, text);
+      applyVariantToNativeForm(activeVariantId);
     }
 
-    var nativeElements = document.querySelectorAll(
-      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
-      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
-      ".js-product-variant, .product-variant, [data-value], [data-option-value], " +
-      ".js-variation-btn, .variation-btn, .btn-variant, .product-option-value"
-    );
+    return !!activeVariantId;
+  };
 
-    for (var k = 0; k < nativeElements.length; k++) {
-      var elem = nativeElements[k];
-      var elemText = normalizeSize(elem.textContent || elem.innerText || "");
-      var dataVal = normalizeSize(elem.getAttribute("data-value") || elem.getAttribute("data-option-value") || "");
-      if (elemText === normalizedText || dataVal === normalizedText) {
-        try { elem.click(); } catch (eClick) {}
-        found = true;
-      }
+  /* ─── Agregar al carrito: MISMO PATRÓN que Pack Complementarios ─── */
+  var addVariantToCart = function(variantId, quantity, redirectCheckout) {
+    quantity = quantity || 1;
+    if (!variantId) return Promise.resolve(false);
+
+    function addViaNube(id, qty) {
+      return new Promise(function(resolve) {
+        try {
+          if (window.nube && typeof window.nube.send === "function") {
+            window.nube.send("cart:add", {
+              product_id: id,
+              quantity: qty
+            });
+            /* Algunas plantillas aceptan id / variant_id */
+            try {
+              window.nube.send("cart:add", {
+                id: id,
+                quantity: qty
+              });
+            } catch (eAlt) {}
+            setTimeout(function() { resolve(true); }, 350);
+            return;
+          }
+        } catch (e1) {}
+        resolve(false);
+      });
     }
 
-    var selects = document.querySelectorAll("select");
-    for (var i = 0; i < selects.length; i++) {
-      var sel = selects[i];
-      for (var j = 0; j < sel.options.length; j++) {
-        var opt = sel.options[j];
-        var optText = normalizeSize(opt.text);
-        var optVal = normalizeSize(opt.value);
-        if (
-          optText === normalizedText ||
-          optVal === normalizedText ||
-          optText === "talle " + normalizedText ||
-          optText === "talla " + normalizedText ||
-          optText.indexOf(normalizedText) === 0
-        ) {
-          sel.selectedIndex = j;
-          sel.value = opt.value;
-          dispatchChange(sel);
-          found = true;
-          break;
+    function addViaComprar(id, qty) {
+      return new Promise(function(resolve) {
+        try {
+          var fd = new FormData();
+          /* En Tiendanube con variantes, add_to_cart = VARIANT_ID */
+          fd.append("add_to_cart", String(id));
+          fd.append("quantity", String(qty));
+          fd.append("variant_id", String(id));
+          fetch("/comprar/", {
+            method: "POST",
+            body: fd,
+            credentials: "include"
+          }).then(function() {
+            resolve(true);
+          }).catch(function() {
+            resolve(false);
+          });
+        } catch (e2) {
+          resolve(false);
         }
-      }
+      });
     }
 
-    var radios = document.querySelectorAll("input[type='radio']");
-    for (var r = 0; r < radios.length; r++) {
-      var radio = radios[r];
-      var val = normalizeSize(radio.value);
-      var radioLabel = "";
-      if (radio.id) {
-        var lbl = document.querySelector("label[for='" + radio.id + "']");
-        if (lbl) radioLabel = normalizeSize(lbl.textContent || lbl.innerText || "");
-      }
-      if (val === normalizedText || radioLabel === normalizedText) {
-        radio.checked = true;
-        try { radio.click(); } catch (eRad) {}
-        dispatchChange(radio);
-        found = true;
-      }
-    }
+    var hasNube = (typeof window !== "undefined" && window.nube && typeof window.nube.send === "function");
 
-    if (window.LS && window.LS.product && activeVariantId) {
-      try {
-        if (typeof window.LS.product.setVariant === "function") {
-          window.LS.product.setVariant(activeVariantId);
+    if (hasNube) {
+      return addViaNube(variantId, quantity).then(function(ok) {
+        if (redirectCheckout) {
+          window.location.href = "/comprar/";
+        } else {
+          try { window.nube.send("cart:open"); } catch (e3) {}
+          /* Si no abre el drawer, recargar carrito vía navegación suave */
+          setTimeout(function() {
+            try {
+              if (!document.querySelector(".cart-open, .js-cart-open, .cart-drawer, [data-store='cart-notification']")) {
+                /* noop — la plantilla puede ya haber abierto el mini-cart */
+              }
+            } catch (e4) {}
+          }, 400);
         }
-      } catch (eLS) {}
+        return ok;
+      });
     }
 
-    return found;
+    return addViaComprar(variantId, quantity).then(function(ok) {
+      if (redirectCheckout) {
+        window.location.href = "/comprar/";
+      } else {
+        window.location.href = "/cart/";
+      }
+      return ok;
+    });
   };
 
   var detectProductSizes = function() {
@@ -9687,7 +9660,7 @@ var renderTablaTalles = function(w) {
         if (v.option_values) {
           for (var j = 0; j < v.option_values.length; j++) {
             var ov = v.option_values[j];
-            if (ov && ov.value) pushUnique(ov.value);
+            if (ov && (ov.value || ov.name)) pushUnique(ov.value || ov.name);
           }
         }
         if (v.values) {
@@ -9705,6 +9678,7 @@ var renderTablaTalles = function(w) {
             }
           }
         }
+        if (v.option0) pushUnique(v.option0);
         if (v.option1) pushUnique(v.option1);
         if (v.option2) pushUnique(v.option2);
       }
@@ -9713,17 +9687,9 @@ var renderTablaTalles = function(w) {
     var selects = document.querySelectorAll("select");
     for (var s = 0; s < selects.length; s++) {
       var sel = selects[s];
-      var nameAttr = (sel.getAttribute("name") || "").toLowerCase();
-      var isSizeSelect = nameAttr.indexOf("talle") > -1 ||
-                         nameAttr.indexOf("talla") > -1 ||
-                         nameAttr.indexOf("size") > -1 ||
-                         nameAttr.indexOf("tamanho") > -1 ||
-                         nameAttr.indexOf("variation") > -1;
-      if (isSizeSelect || selects.length <= 3) {
-        for (var o = 0; o < sel.options.length; o++) {
-          var opt = sel.options[o];
-          if (opt && opt.value) pushUnique(opt.text);
-        }
+      for (var o = 0; o < sel.options.length; o++) {
+        var opt = sel.options[o];
+        if (opt && opt.value) pushUnique(opt.text);
       }
     }
 
@@ -9737,7 +9703,7 @@ var renderTablaTalles = function(w) {
       var suspLower = normalizeSize(susp);
       var isCommonSize = /^(xs|s|m|l|xl|xxl|xxxl|2xl|3xl|4xl|5xl|[0-9]{1,3})$/i.test(suspLower);
       var isInConfig = configTalles.indexOf(suspLower) > -1;
-      if (isInConfig || isCommonSize || (suspLower.length > 0 && suspLower.length <= 6)) {
+      if (isInConfig || isCommonSize || (suspLower.length > 0 && suspLower.length <= 8)) {
         if (sizes.indexOf(susp) === -1) sizes.push(susp);
       }
     }
@@ -9751,7 +9717,7 @@ var renderTablaTalles = function(w) {
     return sizes;
   };
 
-  /* ─── 1. Botón principal ─── */
+  /* ─── 1. Botón modal ─── */
   var btn = document.createElement("button");
   btn.id = "nvx-tabla-talles-btn";
   btn.type = "button";
@@ -9780,7 +9746,6 @@ var renderTablaTalles = function(w) {
   }
   btnHtml += '<span>' + textoBoton + '</span>';
   btn.innerHTML = btnHtml;
-
   btn.onmouseover = function() { btn.style.opacity = "0.9"; };
   btn.onmouseout = function() { btn.style.opacity = "1"; };
 
@@ -9805,7 +9770,6 @@ var renderTablaTalles = function(w) {
       var parentBlock = priceBlock.closest
         ? (priceBlock.closest(".js-price-container, .js-product-price-container, .product-price-container, .price-container") || priceBlock.parentNode)
         : priceBlock.parentNode;
-
       if (parentBlock && parentBlock.parentNode && parentBlock !== document.body) {
         parentBlock.parentNode.insertBefore(btn, parentBlock.nextSibling);
         inserted = true;
@@ -9826,7 +9790,7 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  /* ─── 3. Pills clickeables ─── */
+  /* ─── 3. Pills + intercept add-to-cart ─── */
   if (mostrarSelectorTalles) {
     var sizesToRender = detectProductSizes();
     if (sizesToRender.length > 0) {
@@ -9843,10 +9807,7 @@ var renderTablaTalles = function(w) {
                                      "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; ";
 
       var updatePillSelection = function(forceSize) {
-        if (forceSize) {
-          activeSelectedSize = forceSize;
-        }
-
+        if (forceSize) activeSelectedSize = forceSize;
         var pills = pillsContainer.querySelectorAll(".nvx-talle-pill");
         for (var j = 0; j < pills.length; j++) {
           var pill = pills[j];
@@ -9855,12 +9816,10 @@ var renderTablaTalles = function(w) {
             pill.style.background = bgStyle;
             pill.style.color = colorTextoBoton;
             pill.style.borderColor = colorFondo1;
-            pill.setAttribute("aria-pressed", "true");
           } else {
             pill.style.background = "#ffffff";
             pill.style.color = "#4b5563";
             pill.style.borderColor = "#e5e7eb";
-            pill.setAttribute("aria-pressed", "false");
           }
         }
       };
@@ -9871,7 +9830,6 @@ var renderTablaTalles = function(w) {
           pill.type = "button";
           pill.className = "nvx-talle-pill";
           pill.setAttribute("data-size", sz);
-          pill.setAttribute("aria-pressed", "false");
           pill.style.cssText = "box-sizing: border-box !important; " +
                                "border: 1.5px solid #e5e7eb !important; " +
                                "border-radius: 20px !important; " +
@@ -9887,7 +9845,6 @@ var renderTablaTalles = function(w) {
                                "line-height: 1.2 !important; " +
                                "outline: none !important; ";
           pill.innerText = sz;
-
           pill.onclick = function(ev) {
             if (ev && ev.preventDefault) ev.preventDefault();
             if (ev && ev.stopPropagation) ev.stopPropagation();
@@ -9895,7 +9852,6 @@ var renderTablaTalles = function(w) {
             updatePillSelection(sz);
             return false;
           };
-
           pillsContainer.appendChild(pill);
         })(sizesToRender[idx]);
       }
@@ -9903,31 +9859,18 @@ var renderTablaTalles = function(w) {
       if (btn.parentNode) {
         btn.parentNode.insertBefore(pillsContainer, btn.nextSibling);
       }
-
       updatePillSelection();
 
-      var nativeSelects = document.querySelectorAll("select");
-      for (var ns = 0; ns < nativeSelects.length; ns++) {
-        nativeSelects[ns].addEventListener("change", function() {
-          var t = "";
-          try {
-            if (this.selectedIndex >= 0) t = this.options[this.selectedIndex].text;
-          } catch (e) {}
-          if (t) updatePillSelection(t);
-        });
-      }
-
+      /* Interceptar clic en Agregar al carrito nativo */
       var isAddToCartTarget = function(el) {
         if (!el) return false;
         var node = el;
-        for (var depth = 0; depth < 5 && node; depth++) {
-          if (node === document || node === document.body) break;
+        for (var depth = 0; depth < 6 && node && node !== document.body; depth++) {
           var id = (node.id || "").toLowerCase();
-          var cls = (node.className && typeof node.className === "string") ? node.className.toLowerCase() : "";
-          var name = (node.getAttribute && node.getAttribute("name")) ? String(node.getAttribute("name")).toLowerCase() : "";
+          var cls = (typeof node.className === "string") ? node.className.toLowerCase() : "";
           var type = (node.getAttribute && node.getAttribute("type")) ? String(node.getAttribute("type")).toLowerCase() : "";
-          var txt = normalizeSize(node.textContent || node.innerText || "").slice(0, 40);
-
+          var name = (node.getAttribute && node.getAttribute("name")) ? String(node.getAttribute("name")).toLowerCase() : "";
+          var txt = normalizeSize((node.textContent || "").slice(0, 48));
           if (
             type === "submit" ||
             name.indexOf("add") > -1 ||
@@ -9935,12 +9878,12 @@ var renderTablaTalles = function(w) {
             id.indexOf("addtocart") > -1 ||
             cls.indexOf("add-to-cart") > -1 ||
             cls.indexOf("js-addtocart") > -1 ||
+            cls.indexOf("js-product-add") > -1 ||
             cls.indexOf("btn-add-to-cart") > -1 ||
             cls.indexOf("product-form-submit") > -1 ||
             txt.indexOf("agregar") > -1 ||
             txt.indexOf("añadir") > -1 ||
-            txt.indexOf("comprar") > -1 ||
-            txt.indexOf("add to cart") > -1
+            txt.indexOf("comprar") > -1
           ) {
             return true;
           }
@@ -9950,18 +9893,33 @@ var renderTablaTalles = function(w) {
       };
 
       document.addEventListener("click", function(e) {
-        if (!activeSelectedSize) return;
-        if (isAddToCartTarget(e.target)) {
-          selectVariantByText(activeSelectedSize);
+        if (!activeSelectedSize || !activeVariantId) return;
+        if (!isAddToCartTarget(e.target)) return;
+
+        /* Re-aplicar variante por si la plantilla la pisó */
+        applyVariantToNativeForm(activeVariantId);
+        selectVariantByText(activeSelectedSize);
+
+        /* Si hay NubeSDK, tomar el control (patrón Pack) */
+        if (window.nube && typeof window.nube.send === "function") {
+          if (e.preventDefault) e.preventDefault();
+          if (e.stopPropagation) e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+          addVariantToCart(activeVariantId, 1, false);
+          return false;
         }
+
+        /* Sin NubeSDK: dejar que el form nativo envíe, pero con add_to_cart ya seteado */
       }, true);
 
-      var cartForms = document.querySelectorAll("form[action*='cart'], form.js-product-form, form.product-form");
+      var cartForms = document.querySelectorAll(
+        "form[action*='cart'], form[action*='comprar'], form.js-product-form, form.product-form, #product_form"
+      );
       for (var cf = 0; cf < cartForms.length; cf++) {
-        cartForms[cf].addEventListener("submit", function() {
-          if (activeSelectedSize) {
-            selectVariantByText(activeSelectedSize);
-          }
+        cartForms[cf].addEventListener("submit", function(ev) {
+          if (!activeVariantId) return;
+          applyVariantToNativeForm(activeVariantId);
         }, true);
       }
     }
@@ -9979,21 +9937,16 @@ var renderTablaTalles = function(w) {
     var tableHtml = "";
     if (mostrarTabla && celdas && celdas.length > 0) {
       tableHtml = '<div style="overflow-x: auto !important; margin-bottom: 14px !important; border: 1px solid #e5e7eb !important; border-radius: 8px !important; background: #ffffff !important;">' +
-                    '<table style="width: 100% !important; border-collapse: collapse !important; font-size: 13px !important; text-align: center !important;">' +
-                      '<tbody>';
-
+                    '<table style="width: 100% !important; border-collapse: collapse !important; font-size: 13px !important; text-align: center !important;"><tbody>';
       for (var r = 0; r < celdas.length; r++) {
         var row = celdas[r];
         tableHtml += '<tr style="' + (r === 0 ? "background: #f3f4f6 !important; font-weight: 700 !important; color: #111827 !important;" : "border-top: 1px solid #e5e7eb !important;") + '">';
         for (var c = 0; c < row.length; c++) {
           var cellVal = row[c] !== undefined ? row[c] : "";
-          tableHtml += '<td style="padding: 8px 10px !important; ' + (c === 0 && r !== 0 ? "background: #f9fafb !important; font-weight: 700 !important;" : "") + '">' +
-                          cellVal +
-                       '</td>';
+          tableHtml += '<td style="padding: 8px 10px !important; ' + (c === 0 && r !== 0 ? "background: #f9fafb !important; font-weight: 700 !important;" : "") + '">' + cellVal + '</td>';
         }
         tableHtml += '</tr>';
       }
-
       tableHtml += '</tbody></table></div>';
     }
 
@@ -10012,9 +9965,7 @@ var renderTablaTalles = function(w) {
       "tabla_texto_imagen": [tableHtml, textHtml, imgHtml],
       "texto_imagen_tabla": [textHtml, imgHtml, tableHtml]
     };
-
-    var parts = orderMap[orden] || [imgHtml, tableHtml, textHtml];
-    return parts.join("");
+    return (orderMap[orden] || [imgHtml, tableHtml, textHtml]).join("");
   };
 
   btn.onclick = function() {
@@ -10045,17 +9996,10 @@ var renderTablaTalles = function(w) {
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    var closeModal = function() {
-      overlay.style.display = "none";
-    };
-
+    var closeModal = function() { overlay.style.display = "none"; };
     var closeBtn = document.getElementById("nvx-close-talles-modal");
     if (closeBtn) closeBtn.onclick = closeModal;
-
-    overlay.onclick = function(e) {
-      if (e.target === overlay) closeModal();
-    };
-
+    overlay.onclick = function(e) { if (e.target === overlay) closeModal(); };
     document.addEventListener("keydown", function(e) {
       if (e.key === "Escape") closeModal();
     });
