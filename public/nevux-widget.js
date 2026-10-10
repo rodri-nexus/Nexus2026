@@ -9318,8 +9318,8 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v142 - Vanilla ES5)
-   Integración Nativa Total vía DOM & Variantes Tiendanube
+   WIDGET: TABLA DE TALLES (v143 - Vanilla ES5 Estricto)
+   Modal Guía Informativa 100% Limpio y Seguro
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9340,7 +9340,6 @@ var renderTablaTalles = function(w) {
   var imagenUrl = cfg.imagen_url || "";
   var textoInfo = cfg.texto_info || "";
   var ubicacion = cfg.ubicacion || "despues_precio";
-  var mostrarSelectorTalles = cfg.mostrar_selector_talles !== false;
 
   var celdas = cfg.celdas || [];
   if (!celdas || celdas.length === 0) {
@@ -9370,202 +9369,7 @@ var renderTablaTalles = function(w) {
     ? "linear-gradient(135deg, " + colorFondo1 + ", " + colorFondo2 + ")"
     : colorFondo1;
 
-  var activeSelectedSize = "";
-
-  var normalizeSize = function(t) {
-    return String(t || "").trim().toLowerCase();
-  };
-
-  var dispatchEvents = function(el) {
-    if (!el) return;
-    try {
-      var evtChange = typeof Event === "function" ? new Event("change", { bubbles: true }) : document.createEvent("HTMLEvents");
-      if (typeof Event !== "function") evtChange.initEvent("change", true, true);
-      el.dispatchEvent(evtChange);
-    } catch (e1) {}
-
-    try {
-      var evtInput = typeof Event === "function" ? new Event("input", { bubbles: true }) : document.createEvent("HTMLEvents");
-      if (typeof Event !== "function") evtInput.initEvent("input", true, true);
-      el.dispatchEvent(evtInput);
-    } catch (e2) {}
-  };
-
-  /* Selecciona el talle en los controles nativos del tema de Tiendanube */
-  var selectNativeVariant = function(sizeText) {
-    var norm = normalizeSize(sizeText);
-    if (!norm) return;
-    activeSelectedSize = sizeText;
-
-    // A. Botones/Pills de variante nativos
-    var nativeBtns = document.querySelectorAll(
-      ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
-      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
-      ".js-product-variant, .product-variant, [data-value], [data-option-value], " +
-      ".js-variation-btn, .variation-btn, .btn-variant, .product-option-value, " +
-      "button[data-variant], a[data-variant]"
-    );
-
-    for (var b = 0; b < nativeBtns.length; b++) {
-      var btnEl = nativeBtns[b];
-      var txt = normalizeSize(btnEl.textContent || btnEl.innerText || "");
-      var dv = normalizeSize(btnEl.getAttribute("data-value") || btnEl.getAttribute("data-option-value") || btnEl.getAttribute("data-variant") || "");
-      if (txt === norm || dv === norm) {
-        try { btnEl.click(); } catch (eClick) {}
-      }
-    }
-
-    // B. Selects nativos
-    var selects = document.querySelectorAll("select");
-    for (var i = 0; i < selects.length; i++) {
-      var sel = selects[i];
-      for (var j = 0; j < sel.options.length; j++) {
-        var opt = sel.options[j];
-        var optText = normalizeSize(opt.text);
-        var optVal = normalizeSize(opt.value);
-        if (optText === norm || optVal === norm || optText === "talle " + norm || optText === "talla " + norm || optText.indexOf(norm) === 0) {
-          sel.selectedIndex = j;
-          sel.value = opt.value;
-          dispatchEvents(sel);
-          break;
-        }
-      }
-    }
-
-    // C. Radios nativos
-    var radios = document.querySelectorAll("input[type='radio']");
-    for (var r = 0; r < radios.length; r++) {
-      var rad = radios[r];
-      var radVal = normalizeSize(rad.value);
-      var radLabel = "";
-      if (rad.id) {
-        var lbl = document.querySelector("label[for='" + rad.id + "']");
-        if (lbl) radLabel = normalizeSize(lbl.textContent || lbl.innerText || "");
-      }
-      if (radVal === norm || radLabel === norm) {
-        rad.checked = true;
-        try { rad.click(); } catch (eRad) {}
-        dispatchEvents(rad);
-      }
-    }
-  };
-
-  /* Detecta los talles disponibles en la página */
-  var detectProductSizes = function() {
-    var suspects = [];
-    var sizes = [];
-    var seen = {};
-
-    var pushUnique = function(val) {
-      var clean = String(val || "").trim();
-      if (!clean) return;
-      var key = clean.toLowerCase();
-      if (seen[key]) return;
-      if (key.indexOf("seleccionar") > -1 || key.indexOf("elegir") > -1) return;
-      seen[key] = true;
-      suspects.push(clean);
-    };
-
-    if (window.LS && window.LS.product && window.LS.product.variants) {
-      var variants = window.LS.product.variants;
-      for (var i = 0; i < variants.length; i++) {
-        var v = variants[i];
-        if (!v) continue;
-        if (v.option_values) {
-          for (var j = 0; j < v.option_values.length; j++) {
-            var ov = v.option_values[j];
-            if (ov && (ov.value || ov.name)) pushUnique(ov.value || ov.name);
-          }
-        }
-        if (v.values) {
-          if (Object.prototype.toString.call(v.values) === "[object Array]") {
-            for (var a = 0; a < v.values.length; a++) pushUnique(v.values[a]);
-          } else if (typeof v.values === "object") {
-            for (var lang in v.values) {
-              if (v.values.hasOwnProperty(lang)) pushUnique(v.values[lang]);
-            }
-          }
-        }
-        if (v.option1) pushUnique(v.option1);
-        if (v.option0) pushUnique(v.option0);
-      }
-    }
-
-    var selects = document.querySelectorAll("select");
-    for (var s = 0; s < selects.length; s++) {
-      var sel = selects[s];
-      for (var o = 0; o < sel.options.length; o++) {
-        var opt = sel.options[o];
-        if (opt && opt.value) pushUnique(opt.text);
-      }
-    }
-
-    var configTalles = [];
-    for (var r = 1; r < celdas.length; r++) {
-      if (celdas[r] && celdas[r][0]) configTalles.push(normalizeSize(celdas[r][0]));
-    }
-
-    for (var k = 0; k < suspects.length; k++) {
-      var susp = suspects[k];
-      var suspLower = normalizeSize(susp);
-      var isCommonSize = /^(xs|s|m|l|xl|xxl|xxxl|2xl|3xl|4xl|5xl|[0-9]{1,3})$/i.test(suspLower);
-      var isInConfig = configTalles.indexOf(suspLower) > -1;
-      if (isInConfig || isCommonSize || (suspLower.length > 0 && suspLower.length <= 8)) {
-        if (sizes.indexOf(susp) === -1) sizes.push(susp);
-      }
-    }
-
-    if (sizes.length === 0) {
-      for (var r2 = 1; r2 < celdas.length; r2++) {
-        if (celdas[r2] && celdas[r2][0]) sizes.push(String(celdas[r2][0]).trim());
-      }
-    }
-
-    if (sizes.length === 0) {
-      sizes = ["XS", "S", "M", "L", "XL"];
-    }
-    return sizes;
-  };
-
-  /* Ejecuta la compra delegando al botón nativo de la plantilla */
-  var triggerNativeAddToCart = function(sizeText) {
-    if (sizeText) {
-      selectNativeVariant(sizeText);
-    }
-
-    // Cerrar modal
-    var overlay = document.getElementById("nvx-tabla-talles-modal");
-    if (overlay) overlay.style.display = "none";
-
-    // Buscar y presionar el botón oficial "Agregar al carrito" de Tiendanube
-    var nativeBuyBtn = document.querySelector(
-      "form[action*='/cart/add'] input[type='submit'], " +
-      "form[action*='/cart/add'] button[type='submit'], " +
-      "form[action*='/cart/add'] .js-addtocart, " +
-      "form[action*='/comprar'] input[type='submit'], " +
-      "form[action*='/comprar'] button[type='submit'], " +
-      "form[action*='/comprar'] .js-addtocart, " +
-      ".js-addtocart, .js-prod-submit-form, .btn-add-to-cart, .product-form-submit, " +
-      "button[name='add'], input[name='add'], .js-add-to-cart-btn"
-    );
-
-    if (nativeBuyBtn) {
-      try {
-        nativeBuyBtn.click();
-        return;
-      } catch (e1) {}
-    }
-
-    // Fallback: submit directo del formulario nativo
-    var nativeForm = document.querySelector("form.js-product-form, form[action*='/comprar'], form[action*='/cart'], #product_form");
-    if (nativeForm) {
-      try {
-        nativeForm.submit();
-      } catch (e2) {}
-    }
-  };
-
-  /* ─── 1. Botón "Tabla de talles" (SOLO el botón en la página) ─── */
+  // 1. Crear el botón del widget
   var btn = document.createElement("button");
   btn.id = "nvx-tabla-talles-btn";
   btn.type = "button";
@@ -9594,11 +9398,13 @@ var renderTablaTalles = function(w) {
   }
   btnHtml += '<span>' + textoBoton + '</span>';
   btn.innerHTML = btnHtml;
+
   btn.onmouseover = function() { btn.style.opacity = "0.9"; };
   btn.onmouseout = function() { btn.style.opacity = "1"; };
 
-  /* ─── 2. Inserción ─── */
+  // 2. Inserción del botón en la página del producto
   var inserted = false;
+
   if (ubicacion === "despues_info_pago") {
     var payBlock = document.querySelector(
       ".js-max-installments-container, .installments-container, .js-installments-container, [data-store='installments'], .payment-details"
@@ -9608,6 +9414,7 @@ var renderTablaTalles = function(w) {
       inserted = true;
     }
   }
+
   if (!inserted) {
     var priceBlock = document.querySelector(
       ".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']"
@@ -9616,6 +9423,7 @@ var renderTablaTalles = function(w) {
       var parentBlock = priceBlock.closest
         ? (priceBlock.closest(".js-price-container, .js-product-price-container, .product-price-container, .price-container") || priceBlock.parentNode)
         : priceBlock.parentNode;
+
       if (parentBlock && parentBlock.parentNode && parentBlock !== document.body) {
         parentBlock.parentNode.insertBefore(btn, parentBlock.nextSibling);
         inserted = true;
@@ -9625,6 +9433,7 @@ var renderTablaTalles = function(w) {
       }
     }
   }
+
   if (!inserted) {
     var formEl = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], .js-product-form, .product-form");
     if (formEl && formEl.parentNode) {
@@ -9634,36 +9443,41 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  /* ─── 3. Modal con Pills de talles DENTRO ─── */
-  var buildModalBodyHtml = function() {
+  // 3. Construcción del contenido del Modal
+  var buildModalContent = function() {
     var imgHtml = "";
     if (mostrarImagen && imagenUrl) {
-      imgHtml = '<div style="margin-bottom:14px !important;text-align:center !important;">' +
-        '<img src="' + imagenUrl + '" alt="Guía de talles" style="max-width:100% !important;height:auto !important;border-radius:8px !important;border:1px solid #e5e7eb !important;" />' +
-        '</div>';
+      imgHtml = '<div style="margin-bottom: 14px !important; text-align: center !important;">' +
+                  '<img src="' + imagenUrl + '" alt="Guía de talles" style="max-width: 100% !important; height: auto !important; border-radius: 8px !important; border: 1px solid #e5e7eb !important;" />' +
+                '</div>';
     }
 
     var tableHtml = "";
     if (mostrarTabla && celdas && celdas.length > 0) {
-      tableHtml = '<div style="overflow-x:auto !important;margin-bottom:14px !important;border:1px solid #e5e7eb !important;border-radius:8px !important;background:#ffffff !important;">' +
-        '<table style="width:100% !important;border-collapse:collapse !important;font-size:13px !important;text-align:center !important;"><tbody>';
+      tableHtml = '<div style="overflow-x: auto !important; margin-bottom: 14px !important; border: 1px solid #e5e7eb !important; border-radius: 8px !important; background: #ffffff !important;">' +
+                    '<table style="width: 100% !important; border-collapse: collapse !important; font-size: 13px !important; text-align: center !important;">' +
+                      '<tbody>';
+
       for (var r = 0; r < celdas.length; r++) {
         var row = celdas[r];
-        tableHtml += '<tr style="' + (r === 0 ? "background:#f3f4f6 !important;font-weight:700 !important;color:#111827 !important;" : "border-top:1px solid #e5e7eb !important;") + '">';
+        tableHtml += '<tr style="' + (r === 0 ? "background: #f3f4f6 !important; font-weight: 700 !important; color: #111827 !important;" : "border-top: 1px solid #e5e7eb !important;") + '">';
         for (var c = 0; c < row.length; c++) {
           var cellVal = row[c] !== undefined ? row[c] : "";
-          tableHtml += '<td style="padding:8px 10px !important;' + (c === 0 && r !== 0 ? "background:#f9fafb !important;font-weight:700 !important;" : "") + '">' + cellVal + '</td>';
+          tableHtml += '<td style="padding: 8px 10px !important; ' + (c === 0 && r !== 0 ? "background: #f9fafb !important; font-weight: 700 !important;" : "") + '">' +
+                          cellVal +
+                       '</td>';
         }
         tableHtml += '</tr>';
       }
+
       tableHtml += '</tbody></table></div>';
     }
 
     var textHtml = "";
     if (mostrarTexto && textoInfo) {
-      textHtml = '<div style="font-size:13px !important;color:#4b5563 !important;line-height:1.5 !important;margin-bottom:14px !important;background:#f9fafb !important;padding:10px 12px !important;border-radius:8px !important;border:1px solid #f3f4f6 !important;">' +
-        textoInfo.replace(/\n/g, "<br/>") +
-        '</div>';
+      textHtml = '<div style="font-size: 13px !important; color: #4b5563 !important; line-height: 1.5 !important; margin-bottom: 14px !important; background: #f9fafb !important; padding: 10px 12px !important; border-radius: 8px !important; border: 1px solid #f3f4f6 !important;">' +
+                   textoInfo.replace(/\n/g, "<br/>") +
+                 '</div>';
     }
 
     var orderMap = {
@@ -9674,9 +9488,12 @@ var renderTablaTalles = function(w) {
       "tabla_texto_imagen": [tableHtml, textHtml, imgHtml],
       "texto_imagen_tabla": [textHtml, imgHtml, tableHtml]
     };
-    return (orderMap[orden] || [imgHtml, tableHtml, textHtml]).join("");
+
+    var parts = orderMap[orden] || [imgHtml, tableHtml, textHtml];
+    return parts.join("");
   };
 
+  // 4. Lógica de Apertura del Modal
   btn.onclick = function() {
     var existingModal = document.getElementById("nvx-tabla-talles-modal");
     if (existingModal) {
@@ -9684,130 +9501,44 @@ var renderTablaTalles = function(w) {
       return;
     }
 
-    activeSelectedSize = "";
-
     var overlay = document.createElement("div");
     overlay.id = "nvx-tabla-talles-modal";
-    overlay.style.cssText = "position:fixed !important;top:0 !important;left:0 !important;width:100vw !important;height:100vh !important;background:rgba(0,0,0,0.6) !important;z-index:999999 !important;display:flex !important;align-items:center !important;justify-content:center !important;padding:16px !important;box-sizing:border-box !important;";
+    overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.6) !important; z-index: 999999 !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 16px !important; box-sizing: border-box !important; backdrop-filter: blur(2px) !important;";
 
     var modal = document.createElement("div");
-    modal.style.cssText = "background:#ffffff !important;border-radius:16px !important;width:100% !important;max-width:500px !important;max-height:85vh !important;display:flex !important;flex-direction:column !important;box-shadow:0 10px 25px rgba(0,0,0,0.2) !important;overflow:hidden !important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif !important;";
+    modal.style.cssText = "background: #ffffff !important; border-radius: 16px !important; width: 100% !important; max-width: 500px !important; max-height: 85vh !important; display: flex !important; flex-direction: column !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important; overflow: hidden !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;";
 
+    // Header del Modal
     var header = document.createElement("div");
-    header.style.cssText = "display:flex !important;align-items:center !important;justify-content:space-between !important;padding:16px 20px !important;border-bottom:1px solid #e5e7eb !important;flex-shrink:0 !important;";
-    header.innerHTML = '<div style="font-size:16px !important;font-weight:800 !important;color:' + colorTextoHeader + ' !important;">' + tituloHeader + '</div>' +
-      '<button type="button" id="nvx-close-talles-modal" style="background:none !important;border:none !important;font-size:20px !important;color:#6b7280 !important;cursor:pointer !important;padding:0 4px !important;line-height:1 !important;">✕</button>';
+    header.style.cssText = "display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 16px 20px !important; border-bottom: 1px solid #e5e7eb !important; flex-shrink: 0 !important;";
+    header.innerHTML = '<div style="font-size: 16px !important; font-weight: 800 !important; color: ' + colorTextoHeader + ' !important;">' + tituloHeader + '</div>' +
+                       '<button type="button" id="nvx-close-talles-modal" style="background: none !important; border: none !important; font-size: 20px !important; color: #6b7280 !important; cursor: pointer !important; padding: 0 4px !important; line-height: 1 !important;">✕</button>';
 
+    // Body del Modal
     var body = document.createElement("div");
-    body.style.cssText = "padding:20px !important;overflow-y:auto !important;box-sizing:border-box !important;flex:1 !important;";
-    body.innerHTML = buildModalBodyHtml();
-
-    if (mostrarSelectorTalles) {
-      var sizesToRender = detectProductSizes();
-
-      var selectorBlock = document.createElement("div");
-      selectorBlock.style.cssText = "margin-top:8px !important;padding-top:16px !important;border-top:1px solid #e5e7eb !important;";
-
-      var labelEl = document.createElement("div");
-      labelEl.style.cssText = "font-size:13px !important;font-weight:800 !important;color:#111827 !important;margin-bottom:10px !important;text-align:center !important;";
-      labelEl.innerHTML = "Elegí tu talle";
-      selectorBlock.appendChild(labelEl);
-
-      var pillsWrap = document.createElement("div");
-      pillsWrap.style.cssText = "display:flex !important;flex-wrap:wrap !important;gap:8px !important;justify-content:center !important;margin-bottom:12px !important;";
-
-      var statusEl = document.createElement("div");
-      statusEl.style.cssText = "font-size:12px !important;color:#6b7280 !important;text-align:center !important;margin-bottom:12px !important;";
-      statusEl.innerHTML = "Seleccioná un talle para continuar";
-
-      var addBtn = document.createElement("button");
-      addBtn.type = "button";
-      addBtn.disabled = true;
-      addBtn.style.cssText = "width:100% !important;box-sizing:border-box !important;border:none !important;border-radius:999px !important;" +
-        "background:#d1d5db !important;color:#ffffff !important;padding:14px 18px !important;" +
-        "font-size:15px !important;font-weight:800 !important;cursor:not-allowed !important;font-family:inherit !important;transition:all 0.2s !important;";
-      addBtn.innerHTML = "Agregar al carrito";
-
-      var paint = function() {
-        var pills = pillsWrap.querySelectorAll("button");
-        for (var i = 0; i < pills.length; i++) {
-          var p = pills[i];
-          var sz = p.getAttribute("data-size");
-          if (activeSelectedSize && normalizeSize(sz) === normalizeSize(activeSelectedSize)) {
-            p.style.background = bgStyle;
-            p.style.color = colorTextoBoton;
-            p.style.borderColor = colorFondo1;
-          } else {
-            p.style.background = "#ffffff";
-            p.style.color = "#374151";
-            p.style.borderColor = "#e5e7eb";
-          }
-        }
-        if (activeSelectedSize) {
-          addBtn.disabled = false;
-          addBtn.style.background = bgStyle;
-          addBtn.style.color = colorTextoBoton;
-          addBtn.style.cursor = "pointer";
-          addBtn.innerHTML = "Agregar al carrito (" + activeSelectedSize + ")";
-          statusEl.innerHTML = 'Talle: <strong style="color:#111827;">' + activeSelectedSize + "</strong>";
-          statusEl.style.color = "#059669";
-        } else {
-          addBtn.disabled = true;
-          addBtn.style.background = "#d1d5db";
-          addBtn.style.cursor = "not-allowed";
-          addBtn.innerHTML = "Agregar al carrito";
-          statusEl.innerHTML = "Seleccioná un talle para continuar";
-          statusEl.style.color = "#6b7280";
-        }
-      };
-
-      for (var idx = 0; idx < sizesToRender.length; idx++) {
-        (function(sz) {
-          var pill = document.createElement("button");
-          pill.type = "button";
-          pill.setAttribute("data-size", sz);
-          pill.style.cssText = "box-sizing:border-box !important;border:1.5px solid #e5e7eb !important;border-radius:20px !important;" +
-            "background:#ffffff !important;color:#374151 !important;padding:8px 16px !important;" +
-            "font-size:14px !important;font-weight:700 !important;cursor:pointer !important;" +
-            "font-family:inherit !important;min-width:44px !important;";
-          pill.innerText = sz;
-          pill.onclick = function(ev) {
-            if (ev && ev.preventDefault) ev.preventDefault();
-            activeSelectedSize = sz;
-            selectNativeVariant(sz);
-            paint();
-            return false;
-          };
-          pillsWrap.appendChild(pill);
-        })(sizesToRender[idx]);
-      }
-
-      addBtn.onclick = function(ev) {
-        if (ev && ev.preventDefault) ev.preventDefault();
-        if (!activeSelectedSize || addBtn.disabled) return false;
-        triggerNativeAddToCart(activeSelectedSize);
-        return false;
-      };
-
-      selectorBlock.appendChild(pillsWrap);
-      selectorBlock.appendChild(statusEl);
-      selectorBlock.appendChild(addBtn);
-      body.appendChild(selectorBlock);
-      paint();
-    }
+    body.style.cssText = "padding: 20px !important; overflow-y: auto !important; box-sizing: border-box !important; flex: 1 !important;";
+    body.innerHTML = buildModalContent();
 
     modal.appendChild(header);
     modal.appendChild(body);
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    var closeBtn = document.getElementById("nvx-close-talles-modal");
-    if (closeBtn) {
-      closeBtn.onclick = function() { overlay.style.display = "none"; };
-    }
-    overlay.onclick = function(e) {
-      if (e.target === overlay) overlay.style.display = "none";
+    // Eventos de Cierre
+    var closeModal = function() {
+      overlay.style.display = "none";
     };
+
+    var closeBtn = document.getElementById("nvx-close-talles-modal");
+    if (closeBtn) closeBtn.onclick = closeModal;
+
+    overlay.onclick = function(e) {
+      if (e.target === overlay) closeModal();
+    };
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") closeModal();
+    });
   };
 };
 })(); 
