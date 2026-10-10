@@ -9318,7 +9318,7 @@ var renderBeneficios = function(w) {
   }
 };
   /* ═══════════════════════════════════════════
-   WIDGET: TABLA DE TALLES (v131)
+   WIDGET: TABLA DE TALLES (v132)
    ═══════════════════════════════════════════ */
 var renderTablaTalles = function(w) {
   var pType = typeof detectPageType === "function" ? detectPageType() : "";
@@ -9445,59 +9445,85 @@ var renderTablaTalles = function(w) {
     }
   }
 
-  // Variable para recordar la selección activa
+  // Variable de estado local del talle seleccionado
   var activeSelectedSize = "";
 
-  // 3. Sincronizar talle seleccionado con Tiendanube
+  // 3. Sincronización Avanzada de Variantes (Simulación de clics físicos nativos)
   var selectVariantByText = function(text) {
     var normalizedText = text.trim().toLowerCase();
     var found = false;
 
-    // A. Buscar en selects estándar
-    var selects = document.querySelectorAll("select");
-    for (var i = 0; i < selects.length; i++) {
-      var sel = selects[i];
-      for (var j = 0; j < sel.options.length; j++) {
-        var opt = sel.options[j];
-        var optText = opt.text.trim().toLowerCase();
-        if (optText === normalizedText || optText === "talle " + normalizedText || optText === "talla " + normalizedText) {
-          sel.selectedIndex = j;
-          var evt;
-          if (typeof Event === "function") {
-            evt = new Event("change", { bubbles: true });
-          } else {
-            evt = document.createEvent("HTMLEvents");
-            evt.initEvent("change", true, true);
-          }
-          sel.dispatchEvent(evt);
-          found = true;
-          break;
-        }
-      }
-      if (found) break;
-    }
-
-    // B. Buscar en pills/labels de la plantilla
-    var nativePills = document.querySelectorAll(
+    // A. PASO 1: Simular clics en elementos de diseño nativos (Spans, Labels, Buttons, Divs de variantes)
+    // Esto es vital porque Tiendanube asocia su script dinámico de "Agregar al Carrito" a estos clics.
+    var nativeElements = document.querySelectorAll(
       ".js-insta-variation-label, .variation-label, .js-variation-option, .variation-option, " +
-      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, [data-value]"
+      ".js-variant-option, .js-variant-pill, .variant-pill, label.js-variation-option, " +
+      ".js-product-variant, .product-variant, [data-value], [data-option-value]"
     );
-    for (var k = 0; k < nativePills.length; k++) {
-      var pill = nativePills[k];
-      var pillText = (pill.textContent || pill.innerText || "").trim().toLowerCase();
-      var dataVal = (pill.getAttribute("data-value") || "").trim().toLowerCase();
-      if (pillText === normalizedText || dataVal === normalizedText) {
-        pill.click();
+
+    for (var k = 0; k < nativeElements.length; k++) {
+      var elem = nativeElements[k];
+      var elemText = (elem.textContent || elem.innerText || "").trim().toLowerCase();
+      var dataVal = (elem.getAttribute("data-value") || elem.getAttribute("data-option-value") || "").trim().toLowerCase();
+
+      if (elemText === normalizedText || dataVal === normalizedText) {
+        elem.click();
         found = true;
       }
     }
 
-    // C. Buscar en Inputs tipo Radio
+    // B. PASO 2: Sincronizar selectores <select> nativos (como fallback o refuerzo)
+    var selects = document.querySelectorAll("select");
+    for (var i = 0; i < selects.length; i++) {
+      var sel = selects[i];
+      var nameAttr = (sel.getAttribute("name") || "").toLowerCase();
+      var isSizeSelect = nameAttr.indexOf("talle") > -1 || 
+                         nameAttr.indexOf("talla") > -1 || 
+                         nameAttr.indexOf("size") > -1 ||
+                         nameAttr.indexOf("tamanho") > -1 ||
+                         nameAttr.indexOf("variation") > -1;
+
+      if (isSizeSelect || selects.length <= 3) {
+        for (var j = 0; j < sel.options.length; j++) {
+          var opt = sel.options[j];
+          var optText = opt.text.trim().toLowerCase();
+          var optVal = opt.value.trim().toLowerCase();
+
+          if (optText === normalizedText || optText === "talle " + normalizedText || optText === "talla " + normalizedText || optVal === normalizedText) {
+            sel.selectedIndex = j;
+            
+            // Disparar evento de cambio para que Tiendanube procese la selección de variante
+            var evt;
+            if (typeof Event === "function") {
+              evt = new Event("change", { bubbles: true });
+            } else {
+              evt = document.createEvent("HTMLEvents");
+              evt.initEvent("change", true, true);
+            }
+            sel.dispatchEvent(evt);
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // C. PASO 3: Inputs tipo Radio
     var radios = document.querySelectorAll("input[type='radio']");
     for (var r = 0; r < radios.length; r++) {
       var radio = radios[r];
       var val = (radio.value || "").trim().toLowerCase();
-      if (val === normalizedText) {
+      var radioLabel = "";
+
+      if (radio.id) {
+        var lbl = document.querySelector("label[for='" + radio.id + "']");
+        if (lbl) {
+          radioLabel = (lbl.textContent || lbl.innerText || "").trim().toLowerCase();
+        }
+      }
+
+      if (val === normalizedText || radioLabel === normalizedText) {
+        radio.click();
         radio.checked = true;
         var rEvt = typeof Event === "function" ? new Event("change", { bubbles: true }) : document.createEvent("HTMLEvents");
         if (typeof Event !== "function") rEvt.initEvent("change", true, true);
@@ -9601,7 +9627,7 @@ var renderTablaTalles = function(w) {
         if (forceSize) {
           activeSelectedSize = forceSize;
         } else {
-          // Detectar desde los selectores del DOM de Tiendanube
+          // Leer selección actual desde los controles nativos de Tiendanube
           var currentSelected = "";
           var selects = document.querySelectorAll("select");
           for (var i = 0; i < selects.length; i++) {
@@ -9622,7 +9648,7 @@ var renderTablaTalles = function(w) {
           }
         }
 
-        // Aplicar estilos dinámicos a las pills
+        // Aplicar estilos a las pills según el talle activo seleccionado
         var pills = pillsContainer.querySelectorAll(".nvx-talle-pill");
         for (var j = 0; j < pills.length; j++) {
           var pill = pills[j];
@@ -9674,10 +9700,10 @@ var renderTablaTalles = function(w) {
         btn.parentNode.insertBefore(pillsContainer, btn.nextSibling);
       }
 
-      // Sincronizar estado inicial
+      // Sincronizar estado inicial al cargar la página
       updatePillSelection();
 
-      // Escuchar cambios externos en variantes nativas
+      // Escuchar si el cliente cambia el talle desde los selectores nativos externos
       var nativeSelects = document.querySelectorAll("select");
       for (var s = 0; s < nativeSelects.length; s++) {
         nativeSelects[s].addEventListener("change", function() {
