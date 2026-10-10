@@ -9144,105 +9144,122 @@ var renderBeneficios = function(w) {
 
   var cfg = w.config || {};
 
+  // Presets de Campañas / Fechas especiales
+  var presets = {
+    "black-friday": { fondo: "#111827", titulo: "#ffffff", texto: "#f3f4f6", borde: "#F59E0B" },
+    "hot-sale": { fondo: "#0F172A", titulo: "#ffffff", texto: "#e2e8f0", borde: "#3B82F6" },
+    "cyber-monday": { fondo: "#090D16", titulo: "#ffffff", texto: "#cbd5e1", borde: "#10B981" },
+    "navidad": { fondo: "#064E3B", titulo: "#ffffff", texto: "#ecfdf5", borde: "#EF4444" },
+    "san-valentin": { fondo: "#fdf2f8", titulo: "#831843", texto: "#9d174d", borde: "#F43F5E" },
+    "dia-padre-madre": { fondo: "#312E81", titulo: "#ffffff", texto: "#e0e7ff", borde: "#10B981" },
+    "liquidacion": { fondo: "#7F1D1D", titulo: "#ffffff", texto: "#fef2f2", borde: "#FBBF24" }
+  };
+
+  var theme = cfg.campaignTheme || "none";
+  var presetTheme = presets[theme] || null;
+
   // Helper Markdown: convierte **texto** en <strong>texto</strong>
   var formatMarkdown = function(text) {
     if (!text) return "";
     return String(text).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
   };
 
-  // Configuración de items
+  // 1. Título y textos
+  var rawTitulo = cfg.titulo !== undefined ? cfg.titulo : (cfg.title || "¿Por qué elegirnos?");
+  var titulo = String(rawTitulo).trim();
+
   var defaultItems = [
-    { icon: "🚚", text: "Envío **gratis** a todo el país" },
-    { icon: "💳", text: "Hasta **6 cuotas sin interés**" },
-    { icon: "🛡️", text: "Compra **100% protegida**" }
+    { id: "1", icon: "🚚", text: "Envío **gratis** a todo el país" },
+    { id: "2", icon: "🔒", text: "Pago **seguro** y protegido" },
+    { id: "3", icon: "✅", text: "Garantía de **satisfacción**" }
   ];
 
   var items = (cfg.items && cfg.items.length > 0) ? cfg.items : defaultItems;
 
-  // Estilos y dimensiones
-  var title = cfg.title ? String(cfg.title).trim() : "";
-  var showTitle = cfg.showTitle !== false && title !== "";
-  var titleColor = cfg.titleColor || "#111827";
-  var titleFontSize = (cfg.titleFontSize || 13) + "px";
+  // 2. Colores (Prioriza preset de campaña si está activo, sino usa los de Estilos)
+  var colorFondo = presetTheme ? presetTheme.fondo : (cfg.color_fondo || cfg.bgColor || "#ffffff");
+  var colorTitulo = presetTheme ? presetTheme.titulo : (cfg.color_titulo || cfg.titleColor || "#111827");
+  var colorTexto = presetTheme ? presetTheme.texto : (cfg.color_texto || cfg.textColor || "#374151");
+  var colorBorde = presetTheme ? presetTheme.borde : (cfg.color_borde || cfg.borderColor || "#e5e7eb");
 
-  var textColor = cfg.textColor || "#374151";
-  var fontSize = (cfg.fontSize || 12) + "px";
-  var iconSize = (cfg.iconSize || (parseInt(fontSize, 10) + 3)) + "px";
-  var isBold = !!cfg.isBold;
-  var itemGap = (cfg.itemGap !== undefined ? cfg.itemGap : 6) + "px";
+  // 3. Tipografías y tamaños
+  var tamTextoMap = { pequeno: "12px", mediano: "14px", grande: "16px" };
+  var tamIconoMap = { pequeno: "16px", mediano: "20px", grande: "24px" };
 
-  var bgColor = cfg.bgColor || "#ffffff";
-  var showBorder = cfg.showBorder !== false;
-  var borderColor = cfg.borderColor || "#e5e7eb";
-  var borderWidth = (cfg.borderWidth !== undefined ? cfg.borderWidth : 1) + "px";
-  var borderStyle = cfg.borderStyle || "solid";
-  var borderRadius = (cfg.borderRadius !== undefined ? cfg.borderRadius : 8) + "px";
-  var padding = (cfg.padding !== undefined ? cfg.padding : 10) + "px";
-  var marginTop = (cfg.marginTop !== undefined ? cfg.marginTop : 10) + "px";
-  var marginBottom = (cfg.marginBottom !== undefined ? cfg.marginBottom : 10) + "px";
-  var position = cfg.position || "below_price"; // 'below_price' | 'above_form'
+  var fontSize = tamTextoMap[cfg.tamano_texto] || (cfg.fontSize ? cfg.fontSize + "px" : "14px");
+  var titleFontSize = (parseInt(fontSize, 10) + 2) + "px";
+  var iconSize = tamIconoMap[cfg.tamano_icono] || (cfg.iconSize ? cfg.iconSize + "px" : "20px");
+  var isBold = (cfg.estilo_texto === "resaltado" || !!cfg.isBold);
+  var fontWeight = isBold ? "700" : "500";
 
-  // Crear contenedor
+  // 4. Medidas y bordes
+  var borderRadius = (cfg.borde_redondeado !== undefined ? cfg.borde_redondeado : (cfg.borderRadius !== undefined ? cfg.borderRadius : 12)) + "px";
+  var padding = (cfg.padding !== undefined ? cfg.padding : 16) + "px";
+  var marginTop = (cfg.margin_top !== undefined ? cfg.margin_top : (cfg.marginTop !== undefined ? cfg.marginTop : 16)) + "px";
+  var marginBottom = (cfg.margin_bottom !== undefined ? cfg.margin_bottom : (cfg.marginBottom !== undefined ? cfg.marginBottom : 16)) + "px";
+  var ubicacion = cfg.ubicacion || cfg.position || "debajo_precio";
+
+  // 5. Construcción del contenedor
   var container = document.createElement("div");
   container.id = "nvx-beneficios-product";
-  
+
   var css = "box-sizing: border-box !important; " +
             "width: 100% !important; " +
             "max-width: 100% !important; " +
-            "background: " + bgColor + " !important; " +
+            "background: " + colorFondo + " !important; " +
             "padding: " + padding + " !important; " +
             "border-radius: " + borderRadius + " !important; " +
             "margin-top: " + marginTop + " !important; " +
             "margin-bottom: " + marginBottom + " !important; " +
             "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; " +
-            "clear: both !important; ";
+            "clear: both !important; " +
+            "box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important; ";
 
-  if (showBorder) {
-    css += "border: " + borderWidth + " " + borderStyle + " " + borderColor + " !important; ";
+  if (colorBorde && colorBorde !== "transparent") {
+    css += "border: 1.5px solid " + colorBorde + " !important; ";
   } else {
     css += "border: none !important; ";
   }
 
   container.style.cssText = css;
 
-  // Armar HTML interno
+  // 6. Armado del HTML interno
   var html = "";
 
-  if (showTitle) {
-    html += '<div style="font-size: ' + titleFontSize + ' !important; font-weight: 800 !important; color: ' + titleColor + ' !important; margin-bottom: 8px !important; line-height: 1.3 !important;">' +
-              formatMarkdown(title) +
+  if (titulo) {
+    html += '<div style="font-size: ' + titleFontSize + ' !important; font-weight: 800 !important; color: ' + colorTitulo + ' !important; margin-bottom: 12px !important; line-height: 1.3 !important;">' +
+              formatMarkdown(titulo) +
             '</div>';
   }
 
-  html += '<div style="display: flex !important; flex-direction: column !important; gap: ' + itemGap + ' !important;">';
+  html += '<div style="display: flex !important; flex-direction: column !important; gap: 10px !important;">';
 
   for (var i = 0; i < items.length; i++) {
-    var item = items[i];
-    if (!item) continue;
+    var it = items[i];
+    if (!it) continue;
 
-    var itemIcon = item.icon || "✓";
-    var itemText = item.text || "";
-    if (!itemText) continue;
+    var iconStr = it.icon || "✅";
+    var textStr = it.text || "";
+    if (!textStr) continue;
 
-    html += '<div style="display: flex !important; align-items: center !important; gap: 8px !important; line-height: 1.35 !important;">' +
+    html += '<div style="display: flex !important; align-items: center !important; gap: 10px !important; line-height: 1.35 !important;">' +
               '<span style="font-size: ' + iconSize + ' !important; line-height: 1 !important; flex-shrink: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">' +
-                itemIcon +
+                iconStr +
               '</span>' +
-              '<span style="font-size: ' + fontSize + ' !important; color: ' + textColor + ' !important; font-weight: ' + (isBold ? "700" : "400") + ' !important;">' +
-                formatMarkdown(itemText) +
+              '<span style="font-size: ' + fontSize + ' !important; color: ' + colorTexto + ' !important; font-weight: ' + fontWeight + ' !important;">' +
+                formatMarkdown(textStr) +
               '</span>' +
             '</div>';
   }
 
   html += '</div>';
-
   container.innerHTML = html;
 
-  // Inserción en el DOM
+  // 7. Inserción en el DOM según la ubicación configurada
   var inserted = false;
 
-  // Opción 1: Arriba del formulario de compra
-  if (position === "above_form") {
+  // Opción: Por encima del formulario de compra
+  if (ubicacion === "encima_formulario" || ubicacion === "above_form") {
     var formEl = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, .js-addtocart");
     if (formEl && formEl.parentNode) {
       formEl.parentNode.insertBefore(container, formEl);
@@ -9250,7 +9267,7 @@ var renderBeneficios = function(w) {
     }
   }
 
-  // Opción 2: Debajo del precio (o fallback de above_form)
+  // Opción: Debajo del precio (o fallback)
   if (!inserted) {
     var priceBlock = document.querySelector(
       ".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']"
@@ -9271,7 +9288,7 @@ var renderBeneficios = function(w) {
     }
   }
 
-  // Fallback selector de precio directo
+  // Fallback directo por selector de precio
   if (!inserted) {
     var allPrices = document.querySelectorAll(".js-price-display, #price_display, .js-product-price");
     if (allPrices && allPrices.length > 0) {
@@ -9286,7 +9303,7 @@ var renderBeneficios = function(w) {
     }
   }
 
-  // Fallback final: Arriba del formulario o al final
+  // Fallback final general
   if (!inserted) {
     var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
     if (fallbackForm && fallbackForm.parentNode) {
