@@ -1819,6 +1819,7 @@
             if (w.widget_slug === "banner-superior") renderBannerSuperior(w);
             if (w.widget_slug === "pack-complementarios") renderPackComplementarios(w);
             if (w.widget_slug === "comparador-antes-despues") renderComparadorAntesDespues(w);
+            if (w.widget_slug === "beneficios") renderBeneficios(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -9129,6 +9130,173 @@ var renderComparadorAntesDespues = function(w) {
     box.addEventListener("touchstart", onStart);
     window.addEventListener("touchmove", onMove);
     window.addEventListener("touchend", onEnd);
+  }
+};
+              /* ═══════════════════════════════════════════
+   WIDGET: BENEFICIOS (v127)
+   ═══════════════════════════════════════════ */
+var renderBeneficios = function(w) {
+  var pType = typeof detectPageType === "function" ? detectPageType() : "";
+  var isProductPage = pType === "product" || pType === "item";
+
+  if (!isProductPage) return;
+  if (document.getElementById("nvx-beneficios-product")) return;
+
+  var cfg = w.config || {};
+
+  // Helper Markdown: convierte **texto** en <strong>texto</strong>
+  var formatMarkdown = function(text) {
+    if (!text) return "";
+    return String(text).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  };
+
+  // Configuración de items
+  var defaultItems = [
+    { icon: "🚚", text: "Envío **gratis** a todo el país" },
+    { icon: "💳", text: "Hasta **6 cuotas sin interés**" },
+    { icon: "🛡️", text: "Compra **100% protegida**" }
+  ];
+
+  var items = (cfg.items && cfg.items.length > 0) ? cfg.items : defaultItems;
+
+  // Estilos y dimensiones
+  var title = cfg.title ? String(cfg.title).trim() : "";
+  var showTitle = cfg.showTitle !== false && title !== "";
+  var titleColor = cfg.titleColor || "#111827";
+  var titleFontSize = (cfg.titleFontSize || 13) + "px";
+
+  var textColor = cfg.textColor || "#374151";
+  var fontSize = (cfg.fontSize || 12) + "px";
+  var iconSize = (cfg.iconSize || (parseInt(fontSize, 10) + 3)) + "px";
+  var isBold = !!cfg.isBold;
+  var itemGap = (cfg.itemGap !== undefined ? cfg.itemGap : 6) + "px";
+
+  var bgColor = cfg.bgColor || "#ffffff";
+  var showBorder = cfg.showBorder !== false;
+  var borderColor = cfg.borderColor || "#e5e7eb";
+  var borderWidth = (cfg.borderWidth !== undefined ? cfg.borderWidth : 1) + "px";
+  var borderStyle = cfg.borderStyle || "solid";
+  var borderRadius = (cfg.borderRadius !== undefined ? cfg.borderRadius : 8) + "px";
+  var padding = (cfg.padding !== undefined ? cfg.padding : 10) + "px";
+  var marginTop = (cfg.marginTop !== undefined ? cfg.marginTop : 10) + "px";
+  var marginBottom = (cfg.marginBottom !== undefined ? cfg.marginBottom : 10) + "px";
+  var position = cfg.position || "below_price"; // 'below_price' | 'above_form'
+
+  // Crear contenedor
+  var container = document.createElement("div");
+  container.id = "nvx-beneficios-product";
+  
+  var css = "box-sizing: border-box !important; " +
+            "width: 100% !important; " +
+            "max-width: 100% !important; " +
+            "background: " + bgColor + " !important; " +
+            "padding: " + padding + " !important; " +
+            "border-radius: " + borderRadius + " !important; " +
+            "margin-top: " + marginTop + " !important; " +
+            "margin-bottom: " + marginBottom + " !important; " +
+            "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; " +
+            "clear: both !important; ";
+
+  if (showBorder) {
+    css += "border: " + borderWidth + " " + borderStyle + " " + borderColor + " !important; ";
+  } else {
+    css += "border: none !important; ";
+  }
+
+  container.style.cssText = css;
+
+  // Armar HTML interno
+  var html = "";
+
+  if (showTitle) {
+    html += '<div style="font-size: ' + titleFontSize + ' !important; font-weight: 800 !important; color: ' + titleColor + ' !important; margin-bottom: 8px !important; line-height: 1.3 !important;">' +
+              formatMarkdown(title) +
+            '</div>';
+  }
+
+  html += '<div style="display: flex !important; flex-direction: column !important; gap: ' + itemGap + ' !important;">';
+
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    if (!item) continue;
+
+    var itemIcon = item.icon || "✓";
+    var itemText = item.text || "";
+    if (!itemText) continue;
+
+    html += '<div style="display: flex !important; align-items: center !important; gap: 8px !important; line-height: 1.35 !important;">' +
+              '<span style="font-size: ' + iconSize + ' !important; line-height: 1 !important; flex-shrink: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">' +
+                itemIcon +
+              '</span>' +
+              '<span style="font-size: ' + fontSize + ' !important; color: ' + textColor + ' !important; font-weight: ' + (isBold ? "700" : "400") + ' !important;">' +
+                formatMarkdown(itemText) +
+              '</span>' +
+            '</div>';
+  }
+
+  html += '</div>';
+
+  container.innerHTML = html;
+
+  // Inserción en el DOM
+  var inserted = false;
+
+  // Opción 1: Arriba del formulario de compra
+  if (position === "above_form") {
+    var formEl = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, .js-addtocart");
+    if (formEl && formEl.parentNode) {
+      formEl.parentNode.insertBefore(container, formEl);
+      inserted = true;
+    }
+  }
+
+  // Opción 2: Debajo del precio (o fallback de above_form)
+  if (!inserted) {
+    var priceBlock = document.querySelector(
+      ".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']"
+    );
+
+    if (priceBlock && priceBlock.parentNode) {
+      var parentBlock = priceBlock.closest
+        ? (priceBlock.closest(".js-price-container, .js-product-price-container, .product-price-container, .price-container") || priceBlock.parentNode)
+        : priceBlock.parentNode;
+
+      if (parentBlock && parentBlock.parentNode && parentBlock !== document.body) {
+        parentBlock.parentNode.insertBefore(container, parentBlock.nextSibling);
+        inserted = true;
+      } else if (priceBlock.parentNode) {
+        priceBlock.parentNode.insertBefore(container, priceBlock.nextSibling);
+        inserted = true;
+      }
+    }
+  }
+
+  // Fallback selector de precio directo
+  if (!inserted) {
+    var allPrices = document.querySelectorAll(".js-price-display, #price_display, .js-product-price");
+    if (allPrices && allPrices.length > 0) {
+      var lastP = allPrices[allPrices.length - 1];
+      var wrap = lastP.parentNode;
+      if (wrap && wrap.parentNode && wrap.parentNode !== document.body) {
+        wrap.parentNode.insertBefore(container, wrap.nextSibling);
+      } else if (wrap) {
+        wrap.insertBefore(container, lastP.nextSibling);
+      }
+      inserted = true;
+    }
+  }
+
+  // Fallback final: Arriba del formulario o al final
+  if (!inserted) {
+    var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
+    if (fallbackForm && fallbackForm.parentNode) {
+      fallbackForm.parentNode.insertBefore(container, fallbackForm);
+    } else {
+      var mainWrap = document.querySelector(".js-product-detail, .product-detail, main, #single-product");
+      if (mainWrap) {
+        mainWrap.appendChild(container);
+      }
+    }
   }
 };
 })(); 
