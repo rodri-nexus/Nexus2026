@@ -636,7 +636,7 @@ Dejá de perder ventas por postergación de tus visitas.
                   </div>
                 </div>
 
-                <div style={{ textAlignment: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 12 }}>
+                <div style={{ textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 12 }}>
                   <p style={{ fontSize: 11, color: '#cbd5e1', margin: 0 }}>Poné el sticker de encuesta SI / NO arriba 👆</p>
                 </div>
               </div>
@@ -1899,4 +1899,4 @@ Dejá de perder ventas por postergación de tus visitas.
       </main>
     </div>
   );
-          }
+  }
