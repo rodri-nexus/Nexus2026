@@ -14,59 +14,59 @@ import {
   Gift 
 } from 'lucide-react';
 
-// Función auxiliar para renderizar el Logo Oficial de Nevux
-function renderNevuxLogo(size = 32) {
-  const iconSize = Math.round(size * 0.52);
-  const fontSize = Math.round(size * 0.55);
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div 
-        style={{ 
-          width: size + 'px', 
-          height: size + 'px', 
-          borderRadius: '50%', 
-          backgroundColor: '#000000', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          border: '1px solid rgba(255, 255, 255, 0.2)', 
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.9)', 
-          flexShrink: 0 
-        }}
-      >
-        <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none">
-          <path d="M3 3H7.5V21H3V3Z" fill="#FFFFFF" />
-          <path d="M16.5 3H21V21H16.5V3Z" fill="#FFFFFF" />
-          <path d="M7.5 3L21 21H16.5L3 3H7.5Z" fill="url(#nevux_diag_grad)" />
-          <defs>
-            <linearGradient id="nevux_diag_grad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="35%" stopColor="#E4E4E7" />
-              <stop offset="75%" stopColor="#52525B" />
-              <stop offset="100%" stopColor="#10B981" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <span 
-        style={{ 
-          fontSize: fontSize + 'px', 
-          fontWeight: 900, 
-          color: '#FFFFFF', 
-          letterSpacing: '0.08em', 
-          fontFamily: 'system-ui, -apple-system, sans-serif', 
-          lineHeight: 1 
-        }}
-      >
-        NEVUX
-      </span>
-    </div>
-  );
-}
-
 export default function BannersPage() {
   const [activeTab, setActiveTab] = useState('lunes');
+
+  // Función auxiliar para renderizar el Logo Oficial de Nevux
+  const renderNevuxLogo = (size = 32) => {
+    const iconSize = Math.round(size * 0.52);
+    const fontSize = Math.round(size * 0.55);
+
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div 
+          style={{ 
+            width: size + 'px', 
+            height: size + 'px', 
+            borderRadius: '50%', 
+            backgroundColor: '#000000', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            border: '1px solid rgba(255, 255, 255, 0.2)', 
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.9)', 
+            flexShrink: 0 
+          }}
+        >
+          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none">
+            <path d="M3 3H7.5V21H3V3Z" fill="#FFFFFF" />
+            <path d="M16.5 3H21V21H16.5V3Z" fill="#FFFFFF" />
+            <path d="M7.5 3L21 21H16.5L3 3H7.5Z" fill="url(#nevux_diag_grad)" />
+            <defs>
+              <linearGradient id="nevux_diag_grad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#FFFFFF" />
+                <stop offset="35%" stopColor="#E4E4E7" />
+                <stop offset="75%" stopColor="#52525B" />
+                <stop offset="100%" stopColor="#10B981" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span 
+          style={{ 
+            fontSize: fontSize + 'px', 
+            fontWeight: 900, 
+            color: '#FFFFFF', 
+            letterSpacing: '0.08em', 
+            fontFamily: 'system-ui, -apple-system, sans-serif', 
+            lineHeight: 1 
+          }}
+        >
+          NEVUX
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div 
@@ -432,7 +432,7 @@ export default function BannersPage() {
                 </div>
 
                 <div style={{ textAlign: 'center', zIndex: 10 }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#10B981', color: '#020a07', fontWeight: 900, fontSize: '12px', padding: '10px 18px', borderRadius: '9999px' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#10B981', color: '#020a07', fontWeight 900, fontSize: '12px', padding: '10px 18px', borderRadius: '9999px' }}>
                     <Flame style={{ width: '15px', height: '15px', fill: '#020a07' }} />
                     PROBÁ NEVUX 7 DÍAS GRATIS
                   </div>
