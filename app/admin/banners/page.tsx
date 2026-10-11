@@ -7,15 +7,19 @@ import {
   Sparkles, 
   Clock, 
   AlertTriangle, 
-  Flame,
-  Zap,
-  Rocket,
-  BarChart3,
-  Gift
+  Flame, 
+  Zap, 
+  Rocket, 
+  BarChart3, 
+  Gift 
 } from 'lucide-react';
 
-// Componente del Logo Oficial de Nevux (Círculo negro + N metálica + Nombre NEVUX)
-function NevuxOfficialLogo(props: { size?: number }) {
+interface NevuxLogoProps {
+  size?: number;
+}
+
+// Componente del Logo Oficial de Nevux
+function NevuxOfficialLogo(props: NevuxLogoProps) {
   const size = props.size || 32;
   const iconSize = Math.round(size * 0.52);
   const fontSize = Math.round(size * 0.55);
@@ -24,16 +28,16 @@ function NevuxOfficialLogo(props: { size?: number }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       <div 
         style={{ 
-          width: `${size}px`, 
-          height: `${size}px`, 
+          width: size + 'px', 
+          height: size + 'px', 
           borderRadius: '50%', 
           backgroundColor: '#000000', 
           display: 'flex', 
           alignItems: 'center', 
-          justifyContent: 'center',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.9)',
-          flexShrink: 0
+          justifyContent: 'center', 
+          border: '1px solid rgba(255, 255, 255, 0.2)', 
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.9)', 
+          flexShrink: 0 
         }}
       >
         <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none">
@@ -52,12 +56,12 @@ function NevuxOfficialLogo(props: { size?: number }) {
       </div>
       <span 
         style={{ 
-          fontSize: `${fontSize}px`, 
+          fontSize: fontSize + 'px', 
           fontWeight: 900, 
           color: '#FFFFFF', 
           letterSpacing: '0.08em', 
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          lineHeight: 1
+          fontFamily: 'system-ui, -apple-system, sans-serif', 
+          lineHeight: 1 
         }}
       >
         NEVUX
@@ -75,7 +79,7 @@ export default function BannersPage() {
         minHeight: '100vh', 
         backgroundColor: '#020a07', 
         color: '#f8fafc', 
-        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', 
         paddingBottom: '96px' 
       }}
     >
@@ -86,8 +90,8 @@ export default function BannersPage() {
           backgroundColor: '#04140e', 
           position: 'sticky', 
           top: 0, 
-          zIndex: 50,
-          padding: '12px 16px'
+          zIndex: 50, 
+          padding: '12px 16px' 
         }}
       >
         <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -303,7 +307,7 @@ export default function BannersPage() {
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <h3 style={{ fontSize: '22px', fontWeight 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
+                  <h3 style={{ fontSize: '22px', fontWeight: 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
                     El error #1 que <span style={{ color: '#f87171' }}>estanca las ventas</span> de tu tienda
                   </h3>
                   <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
@@ -338,7 +342,7 @@ export default function BannersPage() {
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <h3 style={{ fontSize: '22px', fontWeight 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
+                  <h3 style={{ fontSize: '22px', fontWeight: 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
                     Instalá Pack Complementarios en <span style={{ color: '#34d399' }}>15 segundos</span>
                   </h3>
                   <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
@@ -418,7 +422,7 @@ export default function BannersPage() {
                   <h3 style={{ fontSize: '30px', fontWeight: 900, color: '#ffffff', lineHeight: 1, margin: 0 }}>
                     PREPARÁ TU
                   </h3>
-                  <h4 style={{ fontSize: '30px', fontWeight 900, color: '#10B981', lineHeight: 1, margin: '4px 0 8px 0' }}>
+                  <h4 style={{ fontSize: '30px', fontWeight: 900, color: '#10B981', lineHeight: 1, margin: '4px 0 8px 0' }}>
                     TIENDANUBE
                   </h4>
                   <p style={{ fontSize: '12px', fontWeight: 600, color: '#cbd5e1', margin: '0 0 16px 0' }}>
@@ -466,4 +470,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-          }
+}
