@@ -254,13 +254,10 @@ export default function BannersPage() {
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', justifyContent: 'center' }}>
               
-              {/* STORY 1 (09:30 HS - ENCUESTA TICKET PROMEDIO) */}
+              {/* STORY 1 (ENCUESTA TICKET PROMEDIO) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <NevuxOfficialLogo size={28} />
-                  <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#34d399', backgroundColor: 'rgba(6, 30, 20, 0.8)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                    📊 STORY 1 • 09:30 HS
-                  </span>
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -297,17 +294,14 @@ export default function BannersPage() {
                 </div>
               </div>
 
-              {/* STORY 2 (18:30 HS - EMPUJE AL REEL) */}
+              {/* STORY 2 (EMPUJE AL REEL) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <NevuxOfficialLogo size={28} />
-                  <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#fbbf24', backgroundColor: 'rgba(120, 53, 15, 0.4)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                    🔥 STORY 2 • 18:30 HS
-                  </span>
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <h3 style={{ fontSize: '22px', fontWeight: 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
+                  <h3 style={{ fontSize: '22px', fontWeight 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
                     El error #1 que <span style={{ color: '#f87171' }}>estanca las ventas</span> de tu tienda
                   </h3>
                   <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
@@ -332,17 +326,14 @@ export default function BannersPage() {
                 </div>
               </div>
 
-              {/* STORY 3 (21:00 HS - PRUEBA SOCIAL + LINK) */}
+              {/* STORY 3 (PRUEBA SOCIAL + LINK) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <NevuxOfficialLogo size={28} />
-                  <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#34d399', backgroundColor: 'rgba(6, 30, 20, 0.8)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                    ⚡ STORY 3 • 21:00 HS
-                  </span>
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <h3 style={{ fontSize: '22px', fontWeight: 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
+                  <h3 style={{ fontSize: '22px', fontWeight 900, color: '#ffffff', lineHeight: 1.2, margin: 0 }}>
                     Instalá Pack Complementarios en <span style={{ color: '#34d399' }}>15 segundos</span>
                   </h3>
                   <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
@@ -470,4 +461,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-}
+    }
