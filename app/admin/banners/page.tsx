@@ -14,13 +14,8 @@ import {
   Gift 
 } from 'lucide-react';
 
-interface NevuxLogoProps {
-  size?: number;
-}
-
-// Componente del Logo Oficial de Nevux
-function NevuxOfficialLogo(props: NevuxLogoProps) {
-  const size = props.size || 32;
+// Función auxiliar para renderizar el Logo Oficial de Nevux
+function renderNevuxLogo(size = 32) {
   const iconSize = Math.round(size * 0.52);
   const fontSize = Math.round(size * 0.55);
 
@@ -102,7 +97,7 @@ export default function BannersPage() {
             >
               <ArrowLeft style={{ width: '20px', height: '20px' }} />
             </Link>
-            <NevuxOfficialLogo size={28} />
+            {renderNevuxLogo(28)}
           </div>
           <span style={{ fontSize: '11px', backgroundColor: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 10px', borderRadius: '9999px', fontWeight: 600 }}>
             Tiendanube App #37382
@@ -257,7 +252,7 @@ export default function BannersPage() {
               {/* STORY 1 (ENCUESTA TICKET PROMEDIO) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <NevuxOfficialLogo size={28} />
+                  {renderNevuxLogo(28)}
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -297,7 +292,7 @@ export default function BannersPage() {
               {/* STORY 2 (EMPUJE AL REEL) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <NevuxOfficialLogo size={28} />
+                  {renderNevuxLogo(28)}
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -329,7 +324,7 @@ export default function BannersPage() {
               {/* STORY 3 (PRUEBA SOCIAL + LINK) */}
               <div style={{ width: '100%', maxWidth: '360px', aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <NevuxOfficialLogo size={28} />
+                  {renderNevuxLogo(28)}
                 </div>
 
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -386,7 +381,7 @@ export default function BannersPage() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
-                  <NevuxOfficialLogo size={36} />
+                  {renderNevuxLogo(36)}
                   <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace', backgroundColor: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     APP #37382
                   </span>
@@ -413,7 +408,7 @@ export default function BannersPage() {
                   <h3 style={{ fontSize: '30px', fontWeight: 900, color: '#ffffff', lineHeight: 1, margin: 0 }}>
                     PREPARÁ TU
                   </h3>
-                  <h4 style={{ fontSize: '30px', fontWeight: 900, color: '#10B981', lineHeight: 1, margin: '4px 0 8px 0' }}>
+                  <h4 style={{ fontSize: '30px', fontWeight 900, color: '#10B981', lineHeight: 1, margin: '4px 0 8px 0' }}>
                     TIENDANUBE
                   </h4>
                   <p style={{ fontSize: '12px', fontWeight: 600, color: '#cbd5e1', margin: '0 0 16px 0' }}>
@@ -461,4 +456,4 @@ export default function BannersPage() {
       </main>
     </div>
   );
-              }
+                }
