@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 
 export default function BannerAdminPage() {
-  const [activeTab, setActiveTab] = useState('lunes');
+  const [activeTab, setActiveTab] = useState<string>('lunes');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, id: string) => {
@@ -15,7 +15,7 @@ export default function BannerAdminPage() {
     }
   };
 
-  // COPIES PAS
+  // --- COPIES CON FÓRMULA PAS ---
   const copyLunesReel = `El error que te está costando un 20% más por pedido en Tiendanube 👇
 
 La mayoría de las tiendas intentan facturar más metiendo más plata en Meta Ads.
@@ -150,7 +150,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
         </div>
       </div>
 
-      {/* TABS */}
+      {/* TABS DE SELECCIÓN */}
       <div style={{ maxWidth: '1200px', margin: '0 auto 24px auto' }}>
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
           {[
@@ -309,7 +309,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
               <span style={{ fontSize: '11px', color: '#34D399', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '8px' }}>
                 Miniatura 9:16 (Reel / TikTok)
               </span>
-              <div style={{ width: '300px', height: '533px', backgroundColor: '#020A07', border: '2px solid rgba(244, 63, 94, 0.4)', borderRadius: '24px', padding: '20px', display: 'flex', flexDirection: 'column', justifyBetween: 'space-between', boxSizing: 'border-box' }}>
+              <div style={{ width: '300px', height: '533px', backgroundColor: '#020A07', border: '2px solid rgba(244, 63, 94, 0.4)', borderRadius: '24px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ backgroundColor: 'rgba(244, 63, 94, 0.2)', color: '#FDA4AF', border: '1px solid rgba(244, 63, 94, 0.4)', borderRadius: '12px', padding: '4px 8px', fontSize: '9px', fontWeight: 'bold' }}>
                     ⚠️ CONTROL DE COSTOS • CX
@@ -360,7 +360,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
         {activeTab === 'jueves' && (
           <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 10px 0' }}>Tip de Stories para Jueves</h3>
-            <p style={{ fontSize: '12px', color: '#CBD5E1' }}>Usá la encuesta interactiva en Instagram: "¿Tenés activada la barra de envío gratis en tu Tiendanube?"</p>
+            <p style={{ fontSize: '12px', color: '#CBD5E1' }}>Usá la encuesta interactiva en Instagram: &quot;¿Tenés activada la barra de envío gratis en tu Tiendanube?&quot;</p>
           </div>
         )}
 
