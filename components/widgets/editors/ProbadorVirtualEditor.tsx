@@ -38,8 +38,9 @@ interface ProbadorVirtualEditorProps {
 export interface ProbadorVirtualConfig {
   texto_boton: string;
   titulo_modal: string;
+  mostrar_icono_percha: boolean;
+  imagen_producto: string;
   usar_imagen_producto: boolean;
-  imagen_custom_url: string;
   habilitar_camara: boolean;
   habilitar_subir_imagen: boolean;
   habilitar_rotar: boolean;
@@ -64,10 +65,11 @@ export interface ProbadorVirtualConfig {
 }
 
 const defaultConfig: ProbadorVirtualConfig = {
-  texto_boton: '📷 Probador virtual',
+  texto_boton: 'Probador virtual',
   titulo_modal: 'Probador Virtual',
+  mostrar_icono_percha: true,
+  imagen_producto: '',
   usar_imagen_producto: true,
-  imagen_custom_url: '',
   habilitar_camara: true,
   habilitar_subir_imagen: true,
   habilitar_rotar: true,
@@ -280,13 +282,179 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
   );
 }
 
+/* Subida de imagen desde galería (mismo patrón que ComparadorAntesDespues) */
+function ImagePickerField({
+  label,
+  value,
+  onChange,
+  required = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (dataUrl: string) => void;
+  required?: boolean;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setErrorMsg(null);
+
+    const maxBytes = 3 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setErrorMsg('La imagen supera los 3MB. Elegí una más liviana.');
+      return;
+    }
+
+    const okTypes = ['image/png', 'image/webp', 'image/jpeg', 'image/jpg'];
+    if (okTypes.indexOf(file.type) === -1) {
+      setErrorMsg('Formato no soportado. Usá PNG, WEBP o JPG.');
+      return;
+    }
+
+    setLoading(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 900;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const isPng = file.type === 'image/png' || file.type === 'image/webp';
+          const compressedBase64 = isPng
+            ? canvas.toDataURL('image/png')
+            : canvas.toDataURL('image/jpeg', 0.85);
+          onChange(compressedBase64);
+        }
+        setLoading(false);
+      };
+      img.onerror = () => {
+        setErrorMsg('No se pudo leer la imagen.');
+        setLoading(false);
+      };
+      if (event.target?.result) {
+        img.src = event.target.result as string;
+      }
+    };
+    reader.onerror = () => {
+      setErrorMsg('Error al leer el archivo.');
+      setLoading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div style={{ marginBottom: 4 }}>
+      <FieldLabel required={required}>{label}</FieldLabel>
+
+      {value ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 10, overflow: 'hidden',
+            border: '1.5px solid #e5e7eb', flexShrink: 0,
+            background: 'repeating-conic-gradient(#f3f4f6 0% 25%, #ffffff 0% 50%) 50% / 12px 12px',
+          }}>
+            <img src={value} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#10B981', marginBottom: 6 }}>✓ Imagen cargada</div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: '#ffffff', border: '1.5px solid #10B981', color: '#10B981',
+                padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                cursor: 'pointer',
+              }}>
+                🔄 Cambiar foto
+                <input type="file" accept="image/png,image/webp,image/jpeg" onChange={handleFileChange} style={{ display: 'none' }} />
+              </label>
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                style={{
+                  background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444',
+                  padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                🗑️ Quitar
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <label style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: 8, padding: '28px 16px', borderRadius: 12,
+          border: '2px dashed #d1d5db', background: '#f9fafb',
+          cursor: loading ? 'wait' : 'pointer', textAlign: 'center',
+        }}>
+          <span style={{ fontSize: 28, opacity: 0.45 }}>☁️⬆️</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#374151', lineHeight: 1.35 }}>
+            {loading ? 'Procesando imagen...' : 'Arrastra una imagen o haz clic para subir'}
+          </span>
+          <span style={{ fontSize: 12, color: '#9ca3af' }}>
+            PNG o WEBP con fondo transparente (máx. 3MB)
+          </span>
+          <input
+            type="file"
+            accept="image/png,image/webp,image/jpeg"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+            disabled={loading}
+          />
+        </label>
+      )}
+
+      {errorMsg ? (
+        <div style={{ marginTop: 8, fontSize: 12, color: '#b91c1c', fontWeight: 600 }}>⚠️ {errorMsg}</div>
+      ) : null}
+
+      <div style={{
+        marginTop: 12, background: '#f0f9ff', border: '1px solid #bae6fd',
+        borderRadius: 12, padding: '12px 14px',
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#0c4a6e', marginBottom: 8 }}>
+          💡 Recomendaciones para mejor experiencia:
+        </div>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#075985', lineHeight: 1.55 }}>
+          <li>Usá <strong>PNG o WEBP con fondo transparente</strong></li>
+          <li>El producto debe estar en <strong>primer plano y centrado</strong></li>
+          <li>Ideal para: gorras, lentes, sombreros, accesorios</li>
+          <li>Evitá imágenes con fondos sólidos o modelos</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════
    PREVIEW EN TIEMPO REAL
 ═══════════════════════════════════════════ */
 function ProbadorVirtualPreview({ config }: { config: ProbadorVirtualConfig }) {
   const buttonBackground = config.tipo_fondo === 'degrade'
-    ? `linear-gradient(135deg, ${config.color_fondo}, ${config.color_fondo_2})`
+    ? 'linear-gradient(135deg, ' + config.color_fondo + ', ' + config.color_fondo_2 + ')'
     : config.color_fondo;
+
+  const btnLabel = (config.mostrar_icono_percha ? '🧥 ' : '') + (config.texto_boton || 'Probador virtual');
 
   return (
     <div style={{
@@ -301,7 +469,6 @@ function ProbadorVirtualPreview({ config }: { config: ProbadorVirtualConfig }) {
         background: '#f9fafb', borderRadius: 12, padding: 20,
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
       }}>
-        {/* Botón del widget */}
         <button
           type="button"
           style={{
@@ -309,7 +476,7 @@ function ProbadorVirtualPreview({ config }: { config: ProbadorVirtualConfig }) {
             color: config.color_texto_boton,
             border: 'none',
             borderRadius: config.borde_boton,
-            padding: `${config.padding_boton}px ${config.padding_boton + 10}px`,
+            padding: config.padding_boton + 'px ' + (config.padding_boton + 10) + 'px',
             fontSize: config.tamano_texto_boton,
             fontWeight: 800,
             cursor: 'pointer',
@@ -319,10 +486,19 @@ function ProbadorVirtualPreview({ config }: { config: ProbadorVirtualConfig }) {
             gap: 6,
           }}
         >
-          {config.texto_boton || '📷 Probador virtual'}
+          {btnLabel}
         </button>
 
-        {/* Mini preview del modal */}
+        {config.imagen_producto ? (
+          <div style={{
+            width: 64, height: 64, borderRadius: 10, overflow: 'hidden',
+            border: '1.5px solid #e5e7eb',
+            background: 'repeating-conic-gradient(#f3f4f6 0% 25%, #ffffff 0% 50%) 50% / 10px 10px',
+          }}>
+            <img src={config.imagen_producto} alt="Producto" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </div>
+        ) : null}
+
         <div style={{
           background: config.color_fondo_modal, borderRadius: 10, padding: 10,
           width: '100%', maxWidth: 240, border: '1px solid #e5e7eb',
@@ -356,10 +532,7 @@ function ProbadorVirtualPreview({ config }: { config: ProbadorVirtualConfig }) {
             ) : null}
           </div>
 
-          <div style={{
-            fontSize: 7.5, color: config.color_texto_modal, opacity: 0.6,
-            textAlign: 'center',
-          }}>
+          <div style={{ fontSize: 7.5, color: config.color_texto_modal, opacity: 0.6, textAlign: 'center' }}>
             Controles: ↑↓←→ · +− {config.habilitar_rotar ? '· ↻↺' : ''}
           </div>
         </div>
@@ -431,6 +604,11 @@ export default function ProbadorVirtualEditor({
   }
 
   const handleSave = async () => {
+    if (!config.imagen_producto && !config.usar_imagen_producto) {
+      setError('Subí una imagen del producto o activá "Usar imagen del producto automáticamente".');
+      return;
+    }
+
     setSaving(true);
     setError(null);
     setSavedOK(false);
@@ -461,7 +639,7 @@ export default function ProbadorVirtualEditor({
         params.set('created', wd.slug);
         if (targetType === 'product' && productId) params.set('product', String(productId));
         if (targetType === 'category' && categoryId) params.set('category', String(categoryId));
-        router.push(`/widgets?${params.toString()}`);
+        router.push('/widgets?' + params.toString());
       } else {
         router.push('/widgets');
       }
@@ -478,11 +656,17 @@ export default function ProbadorVirtualEditor({
         <TextInput
           value={config.texto_boton}
           onChange={(v) => update('texto_boton', v)}
-          placeholder="ej: 📷 Probador virtual"
+          placeholder="ej: Probador virtual"
           maxLength={40}
         />
-        <FieldHelper>Puedes incluir un emoji al inicio (ej: 📷, 🪞, 👕).</FieldHelper>
       </div>
+
+      <ToggleRow
+        label="Mostrar ícono de percha en el botón"
+        description="Agrega 🧥 al inicio del texto del botón."
+        checked={config.mostrar_icono_percha}
+        onChange={(v) => update('mostrar_icono_percha', v)}
+      />
 
       <div>
         <FieldLabel>Título del modal</FieldLabel>
@@ -496,27 +680,23 @@ export default function ProbadorVirtualEditor({
 
       <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: '#111827', marginBottom: 12 }}>
-          🖼️ Imagen que se "prueba"
+          🖼️ Imagen que se prueba
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+        <ImagePickerField
+          label="Imagen del producto"
+          value={config.imagen_producto}
+          onChange={(v) => update('imagen_producto', v)}
+          required
+        />
+
+        <div style={{ marginTop: 14 }}>
           <ToggleRow
-            label="Usar imagen del producto automáticamente"
-            description="Toma la imagen principal del producto de Tiendanube. Ideal para indumentaria."
+            label="Usar imagen del producto de Tiendanube como respaldo"
+            description="Si no hay imagen subida, toma la foto principal del producto automáticamente."
             checked={config.usar_imagen_producto}
             onChange={(v) => update('usar_imagen_producto', v)}
           />
-
-          <div>
-            <FieldLabel>URL de imagen custom (opcional)</FieldLabel>
-            <TextInput
-              value={config.imagen_custom_url}
-              onChange={(v) => update('imagen_custom_url', v)}
-              placeholder="https://... (PNG con transparencia recomendado)"
-            />
-            <FieldHelper>
-              Si definís una URL custom, tiene prioridad sobre la imagen automática. Usá un PNG con fondo transparente para mejor resultado.
-            </FieldHelper>
-          </div>
         </div>
       </div>
 
@@ -527,31 +707,28 @@ export default function ProbadorVirtualEditor({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <ToggleRow
             label="📷 Activar modo Cámara"
-            description="Permite al cliente usar la webcam en vivo. Requiere permiso del navegador."
+            description="Permite al cliente usar la webcam en vivo."
             checked={config.habilitar_camara}
             onChange={(v) => update('habilitar_camara', v)}
           />
           <ToggleRow
             label="🖼️ Activar modo Subir imagen"
-            description="Permite al cliente subir una foto desde su galería/dispositivo."
+            description="Permite al cliente subir una foto desde su galería."
             checked={config.habilitar_subir_imagen}
             onChange={(v) => update('habilitar_subir_imagen', v)}
           />
           <ToggleRow
             label="↻ Permitir rotar la imagen"
-            description="Agrega botones de rotación (↻ ↺) en el modal."
             checked={config.habilitar_rotar}
             onChange={(v) => update('habilitar_rotar', v)}
           />
           <ToggleRow
             label="📥 Botón Descargar foto"
-            description="El cliente puede guardar el resultado como imagen."
             checked={config.habilitar_descargar}
             onChange={(v) => update('habilitar_descargar', v)}
           />
           <ToggleRow
             label="🔄 Botón Resetear posición"
-            description="Vuelve la imagen a su posición y tamaño inicial."
             checked={config.habilitar_resetear}
             onChange={(v) => update('habilitar_resetear', v)}
           />
@@ -687,7 +864,7 @@ export default function ProbadorVirtualEditor({
             <ColorPickerField value={config.color_texto_modal} onChange={(v) => update('color_texto_modal', v)} />
           </div>
           <div style={{ background: '#f9fafb', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e5e7eb' }}>
-            <FieldLabel>Color de acento (botones activos y controles)</FieldLabel>
+            <FieldLabel>Color de acento</FieldLabel>
             <ColorPickerField value={config.color_acento} onChange={(v) => update('color_acento', v)} />
           </div>
         </div>
@@ -725,7 +902,7 @@ export default function ProbadorVirtualEditor({
     <div>
       <div style={{ marginBottom: 20 }}>
         <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
-        <FieldHelper>Al elegir una campaña se aplican colores temáticos de alto impacto al botón y al modal del probador.</FieldHelper>
+        <FieldHelper>Al elegir una campaña se aplican colores temáticos de alto impacto al botón y al modal.</FieldHelper>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {CAMPAIGN_PRESETS.map((preset) => {
@@ -830,7 +1007,7 @@ export default function ProbadorVirtualEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000', lineHeight: 1.5 }}>
-              El probador virtual permite al cliente ver cómo le queda el producto antes de comprar, usando su cámara o una foto. Ideal para indumentaria, gorros, lentes y accesorios.
+              Subí una imagen PNG/WEBP con fondo transparente del producto. El cliente se lo prueba con su cámara o una foto propia antes de comprar.
             </span>
           </div>
 
@@ -866,7 +1043,10 @@ export default function ProbadorVirtualEditor({
             marginTop: 32, paddingTop: 20, borderTop: '1px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
           }}>
-            <ToggleSwitch checked={isActive} onChange={setIsActive} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ToggleSwitch checked={isActive} onChange={setIsActive} />
+              <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>Widget activo</span>
+            </div>
             <button
               type="button"
               onClick={handleSave}
@@ -899,4 +1079,4 @@ export default function ProbadorVirtualEditor({
       </div>
     </div>
   );
-}
+       }
