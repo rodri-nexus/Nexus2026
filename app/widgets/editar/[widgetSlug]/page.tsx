@@ -1,4 +1,3 @@
-// app/widgets/editar/[widgetSlug]/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import BannerSuperiorEditor from '@/components/widgets/editors/BannerSuperiorEditor';
@@ -26,6 +25,7 @@ import PackComplementariosEditor from '@/components/widgets/editors/PackCompleme
 import ComparadorAntesDespuesEditor from '@/components/widgets/editors/ComparadorAntesDespuesEditor';
 import BeneficiosEditor from '@/components/widgets/editors/BeneficiosEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
+import ProbadorVirtualEditor from '@/components/widgets/editors/ProbadorVirtualEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -132,6 +132,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: PROBADOR VIRTUAL
+  if (params.widgetSlug === 'probador-virtual') {
+    return <ProbadorVirtualEditor {...editorProps} />;
+  }
 
   // WIDGET: TABLA DE TALLES
   if (params.widgetSlug === 'tabla-talles') {
@@ -271,4 +276,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-    }
+}
