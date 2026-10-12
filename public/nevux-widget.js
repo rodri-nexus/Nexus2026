@@ -9543,15 +9543,324 @@ var renderTablaTalles = function(w) {
   };
 };
   /* ═════════════════════════════════════════════════════════════════════
-   WIDGET #27: PROBADOR VIRTUAL (slug: probador-virtual)
+   WIDGET #27: PROBADOR VIRTUAL (v144 - Vanilla ES5 Estricto)
    ═════════════════════════════════════════════════════════════════════ */
+var openProbadorModal = function(widget, productImgUrl) {
+  var cfg = widget.config || {};
+  var tituloModal = cfg.titulo_modal || "Probador Virtual";
+  var habilitarCamara = cfg.habilitar_camara !== false;
+  var habilitarSubir = cfg.habilitar_subir_imagen !== false;
+  var habilitarRotar = !!cfg.habilitar_rotar;
+  var colorModalBg = cfg.color_fondo_modal || "#111827";
+  var colorModalTxt = cfg.color_texto_modal || "#ffffff";
+  var colorAcento = cfg.color_acento || "#10B981";
+
+  // Prevenir duplicados
+  var existing = document.getElementById("nevux-pv-modal-overlay");
+  if (existing && existing.parentNode) {
+    existing.parentNode.removeChild(existing);
+  }
+
+  // Estado del probador
+  var mediaStream = null;
+  var facingMode = "user"; // 'user' (frontal) o 'environment' (trasera)
+  var posX = 0;
+  var posY = 0;
+  var scale = 1.0;
+  var rotation = 0;
+
+  // Overlay
+  var overlay = document.createElement("div");
+  overlay.id = "nevux-pv-modal-overlay";
+  overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; " +
+                          "width: 100vw !important; height: 100vh !important; " +
+                          "background: rgba(0,0,0,0.9) !important; z-index: 999999 !important; " +
+                          "display: flex !important; flex-direction: column !important; " +
+                          "align-items: center !important; justify-content: center !important; " +
+                          "padding: 12px !important; box-sizing: border-box !important; " +
+                          "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;";
+
+  // Modal Box estilo Wigy
+  var modal = document.createElement("div");
+  modal.style.cssText = "background: " + colorModalBg + " !important; " +
+                        "color: " + colorModalTxt + " !important; " +
+                        "border-radius: 16px !important; width: 100% !important; " +
+                        "max-width: 480px !important; height: 88vh !important; max-height: 720px !important; " +
+                        "display: flex !important; flex-direction: column !important; " +
+                        "box-shadow: 0 12px 32px rgba(0,0,0,0.5) !important; " +
+                        "overflow: hidden !important; position: relative !important;";
+
+  // Header
+  var header = document.createElement("div");
+  header.style.cssText = "display: flex !important; align-items: center !important; " +
+                         "justify-content: space-between !important; padding: 14px 18px !important; " +
+                         "border-bottom: 1px solid rgba(255,255,255,0.1) !important; flex-shrink: 0 !important; " +
+                         "background: rgba(0,0,0,0.2) !important;";
+
+  header.innerHTML = '<div style="font-size: 16px !important; font-weight: 800 !important; color: ' + colorModalTxt + ' !important;">' +
+                     tituloModal +
+                     '</div>' +
+                     '<button type="button" id="nevux-pv-close-btn" style="background: none !important; border: none !important; ' +
+                     'font-size: 22px !important; color: ' + colorModalTxt + ' !important; cursor: pointer !important; opacity: 0.8 !important; padding: 0 4px !important; line-height: 1 !important;">✕</button>';
+
+  // Contenido principal
+  var content = document.createElement("div");
+  content.id = "nevux-pv-content";
+  content.style.cssText = "flex: 1 !important; display: flex !important; flex-direction: column !important; " +
+                          "align-items: center !important; justify-content: center !important; " +
+                          "position: relative !important; overflow: hidden !important; padding: 12px !important;";
+
+  modal.appendChild(header);
+  modal.appendChild(content);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Detener cámara
+  var stopCamera = function() {
+    if (mediaStream) {
+      try {
+        var tracks = mediaStream.getTracks();
+        for (var t = 0; t < tracks.length; t++) {
+          tracks[t].stop();
+        }
+      } catch (err) {}
+      mediaStream = null;
+    }
+  };
+
+  // Cerrar modal
+  var closeModal = function() {
+    stopCamera();
+    if (overlay.parentNode) {
+      overlay.parentNode.removeChild(overlay);
+    }
+  };
+
+  var closeBtn = document.getElementById("nevux-pv-close-btn");
+  if (closeBtn) closeBtn.onclick = closeModal;
+
+  overlay.onclick = function(e) {
+    if (e.target === overlay) closeModal();
+  };
+
+  // Actualizar posición/escala del producto
+  var updateProductTransform = function() {
+    var prodImg = document.getElementById("nevux-pv-prod-overlay");
+    if (prodImg) {
+      prodImg.style.transform = "translate(" + posX + "px, " + posY + "px) scale(" + scale + ") rotate(" + rotation + "deg)";
+    }
+  };
+
+  // Renderizar la vista activa de prueba con controles (Pills)
+  var renderTryOnView = function(bgElement) {
+    content.innerHTML = "";
+
+    var stage = document.createElement("div");
+    stage.style.cssText = "width: 100% !important; flex: 1 !important; position: relative !important; " +
+                          "overflow: hidden !important; border-radius: 12px !important; background: #000000 !important; " +
+                          "display: flex !important; align-items: center !important; justify-content: center !important;";
+
+    bgElement.style.cssText = "width: 100% !important; height: 100% !important; object-fit: cover !important; position: absolute !important; top: 0 !important; left: 0 !important;";
+    stage.appendChild(bgElement);
+
+    if (productImgUrl) {
+      var prodImg = document.createElement("img");
+      prodImg.id = "nevux-pv-prod-overlay";
+      prodImg.src = productImgUrl;
+      prodImg.style.cssText = "position: absolute !important; max-width: 65% !important; max-height: 65% !important; " +
+                              "object-fit: contain !important; pointer-events: none !important; z-index: 10 !important; " +
+                              "transition: transform 0.05s ease-out !important; " +
+                              "filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)) !important;";
+      stage.appendChild(prodImg);
+    }
+
+    content.appendChild(stage);
+
+    // Barra de controles en pills
+    var controls = document.createElement("div");
+    controls.style.cssText = "width: 100% !important; padding-top: 10px !important; display: flex !important; " +
+                             "flex-direction: column !important; gap: 8px !important; align-items: center !important; flex-shrink: 0 !important;";
+
+    var pillsRow = document.createElement("div");
+    pillsRow.style.cssText = "display: flex !important; flex-wrap: wrap !important; gap: 6px !important; " +
+                             "justify-content: center !important; align-items: center !important; width: 100% !important;";
+
+    var pillBtnStyle = "background: rgba(255,255,255,0.15) !important; color: #ffffff !important; " +
+                       "border: 1px solid rgba(255,255,255,0.25) !important; border-radius: 20px !important; " +
+                       "padding: 6px 12px !important; font-size: 13px !important; font-weight: 800 !important; " +
+                       "cursor: pointer !important; user-select: none !important; font-family: inherit !important;";
+
+    var btnUp = '<button type="button" class="nvx-pv-control-btn" data-act="up" style="' + pillBtnStyle + '">↑</button>';
+    var btnDown = '<button type="button" class="nvx-pv-control-btn" data-act="down" style="' + pillBtnStyle + '">↓</button>';
+    var btnLeft = '<button type="button" class="nvx-pv-control-btn" data-act="left" style="' + pillBtnStyle + '">←</button>';
+    var btnRight = '<button type="button" class="nvx-pv-control-btn" data-act="right" style="' + pillBtnStyle + '">→</button>';
+
+    var btnZoomIn = '<button type="button" class="nvx-pv-control-btn" data-act="plus" style="' + pillBtnStyle + '">+</button>';
+    var btnZoomOut = '<button type="button" class="nvx-pv-control-btn" data-act="minus" style="' + pillBtnStyle + '">−</button>';
+
+    var btnRotL = habilitarRotar ? '<button type="button" class="nvx-pv-control-btn" data-act="rotL" style="' + pillBtnStyle + '">↺</button>' : '';
+    var btnRotR = habilitarRotar ? '<button type="button" class="nvx-pv-control-btn" data-act="rotR" style="' + pillBtnStyle + '">↻</button>' : '';
+
+    var btnFlip = mediaStream ? '<button type="button" class="nvx-pv-control-btn" data-act="flip" style="' + pillBtnStyle + '">⇆ Voltear</button>' : '';
+    var btnReset = '<button type="button" class="nvx-pv-control-btn" data-act="reset" style="' + pillBtnStyle + '">🔄 Reset</button>';
+
+    pillsRow.innerHTML = '<span style="font-size: 11px !important; opacity: 0.7 !important; margin-right: 4px !important;">Posición:</span>' +
+                         btnUp + btnDown + btnLeft + btnRight +
+                         '<span style="font-size: 11px !important; opacity: 0.7 !important; margin-left: 6px !important; margin-right: 4px !important;">Tamaño:</span>' +
+                         btnZoomIn + btnZoomOut +
+                         btnRotL + btnRotR +
+                         btnFlip + btnReset;
+
+    controls.appendChild(pillsRow);
+    content.appendChild(controls);
+
+    updateProductTransform();
+
+    // Listener de controles
+    var ctrlBtns = controls.querySelectorAll(".nvx-pv-control-btn");
+    for (var b = 0; b < ctrlBtns.length; b++) {
+      (function(btnEl) {
+        btnEl.onclick = function() {
+          var act = btnEl.getAttribute("data-act");
+          var stepPos = 12;
+          var stepScale = 0.1;
+          var stepRot = 15;
+
+          if (act === "up") posY -= stepPos;
+          else if (act === "down") posY += stepPos;
+          else if (act === "left") posX -= stepPos;
+          else if (act === "right") posX += stepPos;
+          else if (act === "plus") scale = Math.min(3.0, scale + stepScale);
+          else if (act === "minus") scale = Math.max(0.2, scale - stepScale);
+          else if (act === "rotL") rotation -= stepRot;
+          else if (act === "rotR") rotation += stepRot;
+          else if (act === "reset") {
+            posX = 0; posY = 0; scale = 1.0; rotation = 0;
+          } else if (act === "flip") {
+            facingMode = (facingMode === "user") ? "environment" : "user";
+            startCameraStream();
+            return;
+          }
+          updateProductTransform();
+        };
+      })(ctrlBtns[b]);
+    }
+  };
+
+  // Iniciar Stream de Cámara
+  var startCameraStream = function() {
+    stopCamera();
+
+    var video = document.createElement("video");
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = true;
+
+    content.innerHTML = '<div style="font-size: 14px !important; color: ' + colorModalTxt + ' !important; opacity: 0.8 !important;">Iniciando cámara...</div>';
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facingMode }
+      }).then(function(stream) {
+        mediaStream = stream;
+        video.srcObject = stream;
+        video.onloadedmetadata = function() {
+          video.play();
+          renderTryOnView(video);
+        };
+      }).catch(function(err) {
+        content.innerHTML = '<div style="text-align: center !important; padding: 20px !important;">' +
+                            '<div style="font-size: 14px !important; color: #ef4444 !important; font-weight: 700 !important; margin-bottom: 8px !important;">⚠️ No se pudo acceder a la cámara</div>' +
+                            '<div style="font-size: 12px !important; opacity: 0.7 !important; margin-bottom: 16px !important;">Permití el permiso de cámara en tu navegador o usá la opción de subir imagen.</div>' +
+                            '<button type="button" id="nevux-pv-retry-choice" style="background: ' + colorAcento + ' !important; color: #fff !important; border: none !important; border-radius: 20px !important; padding: 10px 18px !important; font-weight: 800 !important; cursor: pointer !important;">Volver al inicio</button>' +
+                            '</div>';
+        var retryBtn = document.getElementById("nevux-pv-retry-choice");
+        if (retryBtn) retryBtn.onclick = renderChoiceView;
+      });
+    } else {
+      content.innerHTML = '<div style="font-size: 13px !important; color: #ef4444 !important;">Cámara no soportada en este navegador.</div>';
+    }
+  };
+
+  // Procesar archivo subido por usuario
+  var handleFileUpload = function(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = document.createElement("img");
+      img.src = e.target.result;
+      img.onload = function() {
+        stopCamera();
+        renderTryOnView(img);
+      };
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Pantalla de elección inicial estilo Wigy
+  var renderChoiceView = function() {
+    stopCamera();
+    content.innerHTML = "";
+
+    var box = document.createElement("div");
+    box.style.cssText = "display: flex !important; flex-direction: column !important; " +
+                        "align-items: center !important; justify-content: center !important; " +
+                        "gap: 16px !important; text-align: center !important; width: 100% !important; height: 100% !important; padding: 20px !important; box-sizing: border-box !important;";
+
+    var promptTxt = document.createElement("div");
+    promptTxt.style.cssText = "font-size: 16px !important; font-weight: 700 !important; color: " + colorModalTxt + " !important;";
+    promptTxt.innerText = "¿Cómo querés probarte el producto?";
+    box.appendChild(promptTxt);
+
+    var btnsRow = document.createElement("div");
+    btnsRow.style.cssText = "display: flex !important; flex-wrap: wrap !important; gap: 12px !important; justify-content: center !important;";
+
+    var ctaStyle = "background: #27272a !important; color: #ffffff !important; " +
+                   "border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 30px !important; " +
+                   "padding: 12px 22px !important; font-size: 14px !important; font-weight: 800 !important; " +
+                   "cursor: pointer !important; display: inline-flex !important; align-items: center !important; " +
+                   "gap: 8px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important; transition: transform 0.15s !important;";
+
+    if (habilitarCamara) {
+      var btnCam = document.createElement("button");
+      btnCam.type = "button";
+      btnCam.style.cssText = ctaStyle;
+      btnCam.innerHTML = "📷 Usar cámara";
+      btnCam.onclick = startCameraStream;
+      btnsRow.appendChild(btnCam);
+    }
+
+    if (habilitarSubir) {
+      var btnUpload = document.createElement("label");
+      btnUpload.style.cssText = ctaStyle;
+      btnUpload.innerHTML = '🖼️ Subir imagen <input type="file" id="nevux-pv-file-input" accept="image/*" style="display:none !important;" />';
+      btnsRow.appendChild(btnUpload);
+
+      setTimeout(function() {
+        var fileInp = document.getElementById("nevux-pv-file-input");
+        if (fileInp) {
+          fileInp.onchange = function(e) {
+            if (e.target.files && e.target.files[0]) {
+              handleFileUpload(e.target.files[0]);
+            }
+          };
+        }
+      }, 50);
+    }
+
+    box.appendChild(btnsRow);
+    content.appendChild(box);
+  };
+
+  renderChoiceView();
+};
+
 function renderProbadorVirtual(widget) {
   if (!widget || !widget.config) return;
   var cfg = widget.config;
 
   var textoBoton = cfg.texto_boton || 'Probador virtual';
   var mostrarPercha = cfg.mostrar_icono_percha !== false;
-  var tituloModal = cfg.titulo_modal || 'Probador Virtual';
   var imagenCustom = cfg.imagen_producto || cfg.imagen_custom_url || '';
   var usarImgProdRespaldo = cfg.usar_imagen_producto !== false;
   var ubicacion = cfg.ubicacion || 'debajo_precio';
@@ -9560,10 +9869,10 @@ function renderProbadorVirtual(widget) {
   var colorFondo2 = cfg.color_fondo_2 || '#374151';
   var colorTextoBoton = cfg.color_texto_boton || '#ffffff';
   var tamTextoBtn = cfg.tamano_texto_boton || 14;
-  var bordeBtn = cfg.borde_boton || 25;
-  var paddingBtn = cfg.padding_boton || 12;
-  var marginTop = cfg.margin_top || 10;
-  var marginBottom = cfg.margin_bottom || 15;
+  var bordeBtn = cfg.borde_boton !== undefined ? cfg.borde_boton : 25;
+  var paddingBtn = cfg.padding_boton !== undefined ? cfg.padding_boton : 12;
+  var marginTop = cfg.margin_top !== undefined ? cfg.margin_top : 10;
+  var marginBottom = cfg.margin_bottom !== undefined ? cfg.margin_bottom : 15;
 
   if (document.getElementById('nevux-probador-virtual-' + widget.id)) return;
 
@@ -9657,5 +9966,5 @@ function renderProbadorVirtual(widget) {
       openProbadorModal(widget, productImgUrl);
     });
   }
-}
+        }
 })(); 
