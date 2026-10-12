@@ -8,6 +8,51 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function ProbadorVirtualPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📷 PROBADOR VIRTUAL</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          CÁMARA
+        </span>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center", padding: "4px 0" }}>
+        <div
+          style={{
+            background: "#111827",
+            color: "#ffffff",
+            borderRadius: "20px",
+            padding: "4px 12px",
+            fontSize: "7px",
+            fontWeight: 800,
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          }}
+        >
+          <span>📷</span>
+          <span>Probador virtual</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TablaTallesPreview() {
   return (
     <div
@@ -132,7 +177,6 @@ function ComparadorAntesDespuesPreview() {
           display: "flex",
         }}
       >
-        {/* Lado Antes */}
         <div
           style={{
             width: "50%",
@@ -153,7 +197,6 @@ function ComparadorAntesDespuesPreview() {
           📷
         </div>
 
-        {/* Lado Después */}
         <div
           style={{
             width: "50%",
@@ -174,7 +217,6 @@ function ComparadorAntesDespuesPreview() {
           ✨
         </div>
 
-        {/* Línea divisora central */}
         <div
           style={{
             position: "absolute",
@@ -1585,6 +1627,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "probador-virtual":
+      return <ProbadorVirtualPreview />;
     case "tabla-talles":
       return <TablaTallesPreview />;
     case "beneficios":
@@ -1664,4 +1708,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-          }
+}
