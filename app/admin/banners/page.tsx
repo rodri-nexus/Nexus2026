@@ -4,26 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 
 export default function BannerAdminPage() {
-  const [activeTab, setActiveTab] = useState<
-    | 'lunes'
-    | 'martes'
-    | 'miercoles'
-    | 'jueves'
-    | 'jueves-portada'
-    | 'viernes'
-    | 'viernes-portada'
-    | 'ideas-reels'
-  >('lunes');
-
+  const [activeTab, setActiveTab] = useState<string>('lunes');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2500);
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2500);
+    }
   };
 
-  // --- TEXTOS EXACTOS DE COPYWRITING (FORMULA PAS) ---
   const copyLunesReel = `El error que te está costando un 20% más por pedido en Tiendanube 👇
 
 La mayoría de las tiendas intentan facturar más metiendo más plata en Meta Ads.
@@ -53,7 +44,7 @@ Instalá Nevux hoy en Tiendanube y activá 7 días de prueba gratis. Link en bio
 
   const copyMiercolesReel = `La devolución más cara de tu tienda no es la que te pide el cliente... es la venta que nunca ocurrió por falta de soporte instantáneo 💬
 
-Un cliente tiene una duda sobre su talle o el método de envío a las 23:30 hs.
+Un cliente tiene una duda sobre su talle o el método de envío a medianoche.
 Si no le respondés en el momento: cierra la pestaña y le compra a tu competencia.
 
 Con el Asistente IA de Nevux integrado a tu catálogo de Tiendanube:
@@ -88,17 +79,16 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans">
-      {/* HEADER PRINCIPAL */}
       <div className="max-w-7xl mx-auto mb-8 border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span className="text-xs font-mono tracking-widest text-emerald-400 uppercase font-bold">
-              Nevux Brand & Marketing Hub
+              Nevux Brand &amp; Marketing Hub
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Panel de Contenido & Miniaturas
+            Panel de Contenido &amp; Miniaturas
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-1">
             Templates visuales 9:16 y copys de alta conversión listos para publicar.
@@ -110,7 +100,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
             href="/"
             className="px-4 py-2 text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all"
           >
-            ← Volver a la Tienda
+            &larr; Volver a la Tienda
           </Link>
           <a
             href="https://nevuxapp.mitiendanube.com/"
@@ -118,15 +108,15 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
             rel="noopener noreferrer"
             className="px-4 py-2 text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-lg transition-all"
           >
-            Ver Sandbox Tiendanube ↗
+            Ver Sandbox Tiendanube &nearr;
           </a>
         </div>
       </div>
 
-      {/* TABS DE SELECCIÓN */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
           <button
+            type="button"
             onClick={() => setActiveTab('lunes')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'lunes'
@@ -134,9 +124,10 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                 : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            Lunes (Stories & Reel)
+            Lunes (Stories &amp; Reel)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('martes')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'martes'
@@ -144,9 +135,10 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                 : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            Martes (Stories & Comparativa)
+            Martes (Stories &amp; Comparativa)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('miercoles')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'miercoles'
@@ -154,9 +146,10 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                 : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            Miércoles (Stories & Reel)
+            Miércoles (Stories &amp; Reel)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('jueves')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'jueves'
@@ -167,6 +160,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
             Jueves (Stories Tip)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('jueves-portada')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'jueves-portada'
@@ -177,6 +171,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
             Jueves (Carrusel Urgencia)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('viernes')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'viernes'
@@ -187,6 +182,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
             Viernes (Stories Garantía)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('viernes-portada')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'viernes-portada'
@@ -197,6 +193,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
             Viernes (Miniatura Reel)
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('ideas-reels')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === 'ideas-reels'
@@ -209,9 +206,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
         </div>
       </div>
 
-      {/* CONTENIDO DE LAS PESTAÑAS */}
       <div className="max-w-7xl mx-auto">
-        {/* ==================== TAB: LUNES ==================== */}
         {activeTab === 'lunes' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 flex flex-col items-center">
@@ -259,6 +254,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                     <p className="text-xs text-slate-400">Fórmula PAS (Problema - Agitación - Solución).</p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(copyLunesReel, 'copy-lunes')}
                     className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
                   >
@@ -278,7 +274,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                   🎬 Guión de Grabación Recomendado
                 </h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  <strong>00:00 - 00:03:</strong> Grabá el carrito simple en Tiendanube y decí: <em>&quot;Si seguís vendiendo así, estás reglando un 20% por pedido&quot;</em>.<br />
+                  <strong>00:00 - 00:03:</strong> Grabá el carrito simple en Tiendanube y decí: &quot;Si seguís vendiendo así, estás regalando un 20% por pedido&quot;.<br />
                   <strong>00:03 - 00:08:</strong> Mostrá el pop-up de Nevux activando el cross-selling en 1 clic.<br />
                   <strong>00:08 - 00:15:</strong> Mostrá el total aumentado y llamá a probar los 7 días gratis.
                 </p>
@@ -287,7 +283,6 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
           </div>
         )}
 
-        {/* ==================== TAB: MARTES ==================== */}
         {activeTab === 'martes' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 flex flex-col items-center">
@@ -327,6 +322,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                     <p className="text-xs text-slate-400">Ideal para interacciones y guardados.</p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(copyMartesCarrusel, 'copy-martes')}
                     className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
                   >
@@ -344,7 +340,6 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
           </div>
         )}
 
-        {/* ==================== TAB: MIÉRCOLES ==================== */}
         {activeTab === 'miercoles' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 flex flex-col items-center">
@@ -388,10 +383,11 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-base font-black text-white">Copy para Reel de Soporte & IA</h3>
+                    <h3 className="text-base font-black text-white">Copy para Reel de Soporte &amp; IA</h3>
                     <p className="text-xs text-slate-400">Enfocado en resolver pérdida de ventas nocturnas.</p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(copyMiercolesReel, 'copy-miercoles')}
                     className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
                   >
@@ -409,7 +405,6 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
           </div>
         )}
 
-        {/* ==================== TAB: JUEVES ==================== */}
         {activeTab === 'jueves' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 flex flex-col items-center">
@@ -460,7 +455,6 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
           </div>
         )}
 
-        {/* ==================== TAB: JUEVES PORTADA ==================== */}
         {activeTab === 'jueves-portada' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 flex flex-col items-center">
@@ -496,6 +490,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                     <p className="text-xs text-slate-400">Educativo, directo y enfocado en la conversión rápida.</p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(copyJuevesCarrusel, 'copy-jueves')}
                     className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
                   >
@@ -513,12 +508,11 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
           </div>
         )}
 
-        {/* ==================== TAB: VIERNES ==================== */}
         {activeTab === 'viernes' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 flex flex-col items-center">
               <span className="text-xs font-mono text-emerald-400 mb-3 font-bold uppercase tracking-wider">
-                Story Garantía & Cierre (9:16)
+                Story Garantía &amp; Cierre (9:16)
               </span>
               <div className="w-full max-w-[300px] aspect-[9/16] bg-slate-950 border-2 border-emerald-500/50 rounded-3xl p-6 flex flex-col justify-between text-center shadow-2xl">
                 <div className="space-y-3">
@@ -553,7 +547,6 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
           </div>
         )}
 
-        {/* ==================== TAB: VIERNES PORTADA ==================== */}
         {activeTab === 'viernes-portada' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 flex flex-col items-center">
@@ -601,6 +594,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                     <p className="text-xs text-slate-400">Enfocado en automatizar y hacer crecer las ventas sin esfuerzo.</p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(copyViernesReel, 'copy-viernes')}
                     className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
                   >
@@ -618,7 +612,6 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
           </div>
         )}
 
-        {/* ==================== TAB: IDEAS REELS ==================== */}
         {activeTab === 'ideas-reels' && (
           <div className="space-y-8">
             <div className="bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 md:p-8">
@@ -648,7 +641,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 font-mono font-black flex items-center justify-center text-base">
                   02
                 </div>
-                <h3 className="text-sm font-black text-white">Voz & Subtítulos en CapCut</h3>
+                <h3 className="text-sm font-black text-white">Voz &amp; Subtítulos en CapCut</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   Importá el video en la app gratuita de CapCut, grabá la voz en off leyendo el copy y seleccioná <strong>Subtítulos Automáticos</strong> en mayúsculas amarillas o verdes con contorno negro.
                 </p>
@@ -658,7 +651,7 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 font-mono font-black flex items-center justify-center text-base">
                   03
                 </div>
-                <h3 className="text-sm font-black text-white">Portada 9:16 & Publicación</h3>
+                <h3 className="text-sm font-black text-white">Portada 9:16 &amp; Publicación</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   Usá los templates de este panel como portada visual para mantener la estética profesional de la marca en Instagram y TikTok.
                 </p>
