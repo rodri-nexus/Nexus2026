@@ -9543,8 +9543,21 @@ var renderTablaTalles = function(w) {
   };
 };
   /* ═════════════════════════════════════════════════════════════════════
-   WIDGET #27: PROBADOR VIRTUAL (v145 - Vanilla ES5 Estricto - Wigy UI)
+   WIDGET #27: PROBADOR VIRTUAL (v146 - AI Auto-Tracking + Photo Capture)
    ═════════════════════════════════════════════════════════════════════ */
+var loadScriptHelper = function(src, callback) {
+  if (document.querySelector('script[src="' + src + '"]')) {
+    if (typeof callback === "function") callback();
+    return;
+  }
+  var s = document.createElement("script");
+  s.src = src;
+  s.async = true;
+  s.onload = function() { if (typeof callback === "function") callback(); };
+  s.onerror = function() { if (typeof callback === "function") callback(); };
+  document.head.appendChild(s);
+};
+
 var openProbadorModal = function(widget, productImgUrl) {
   var cfg = widget.config || {};
   var tituloModal = cfg.titulo_modal || "Probador virtual";
@@ -9558,15 +9571,48 @@ var openProbadorModal = function(widget, productImgUrl) {
     existing.parentNode.removeChild(existing);
   }
 
+  // Cargar MediaPipe en segundo plano
+  loadScriptHelper("https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js");
+  loadScriptHelper("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
+
   // Estado del probador
   var mediaStream = null;
   var facingMode = "user"; // 'user' (frontal) o 'environment' (trasera)
-  var posX = 0;
-  var posY = 0;
-  var scale = 1.0;
-  var rotation = 0;
+  var isFrozenPhoto = false;
 
-  // Overlay
+  // Offsets de usuario
+  var userX = 0;
+  var userY = 0;
+  var userScale = 1.0;
+  var userRot = 0;
+
+  // Offsets de Auto-tracking AI
+  var autoX = 0;
+  var autoY = 0;
+  var autoScale = 1.0;
+  var autoRot = 0;
+
+  // Clasificación inteligente del producto según nombre en Tiendanube
+  var detectCategory = function() {
+    var productName = "";
+    if (window.LS && window.LS.product && window.LS.product.name) {
+      productName = String(window.LS.product.name).toLowerCase();
+    } else {
+      var h1 = document.querySelector("h1, .product-name, .js-product-name");
+      if (h1) productName = (h1.textContent || h1.innerText || "").toLowerCase();
+    }
+
+    if (/anteojo|lente|gafa|sunglass|optica/i.test(productName)) return "glasses";
+    if (/gorro|sombrero|cap|visera|vincha|gorra|boina|casco|hat/i.test(productName)) return "hat";
+    if (/collar|cadena|gargantilla|dije|necklace/i.test(productName)) return "necklace";
+    if (/corrector|postura|espalda|faja|chaleco|remera|buzo|chomba|camisa|vest/i.test(productName)) return "torso";
+    if (/reloj|pulsera|brazalete|watch|bracelet/i.test(productName)) return "wrist";
+    return "face";
+  };
+
+  var productCategory = detectCategory();
+
+  // Overlay Fullscreen
   var overlay = document.createElement("div");
   overlay.id = "nevux-pv-modal-overlay";
   overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; " +
@@ -9586,7 +9632,7 @@ var openProbadorModal = function(widget, productImgUrl) {
                         "box-shadow: 0 12px 32px rgba(0,0,0,0.5) !important; " +
                         "overflow: hidden !important; position: relative !important;";
 
-  // Header oscuro con título y botón de cierre X
+  // Header
   var header = document.createElement("div");
   header.style.cssText = "display: flex !important; align-items: center !important; " +
                          "justify-content: space-between !important; padding: 14px 18px !important; " +
@@ -9639,19 +9685,66 @@ var openProbadorModal = function(widget, productImgUrl) {
     if (e.target === overlay) closeModal();
   };
 
-  // Actualizar posición/escala del producto
+  // Actualizar posición/escala combinando AI + Offsets de usuario
   var updateProductTransform = function() {
     var prodImg = document.getElementById("nevux-pv-prod-overlay");
     if (prodImg) {
-      prodImg.style.transform = "translate(" + posX + "px, " + posY + "px) scale(" + scale + ") rotate(" + rotation + "deg)";
+      var totalX = autoX + userX;
+      var totalY = autoY + userY;
+      var totalScale = autoScale * userScale;
+      var totalRot = autoRot + userRot;
+
+      prodImg.style.transform = "translate(" + totalX + "px, " + totalY + "px) scale(" + totalScale + ") rotate(" + totalRot + "deg)";
     }
   };
 
-  // Renderizar la vista de probador en vivo con barra de controles estilo Wigy
+  // Asignar posición inicial por categoría de producto
+  var applyCategoryDefaults = function() {
+    if (productCategory === "hat") {
+      autoY = -70;
+      autoScale = 0.9;
+    } else if (productCategory === "glasses") {
+      autoY = -35;
+      autoScale = 0.6;
+    } else if (productCategory === "necklace") {
+      autoY = 40;
+      autoScale = 0.75;
+    } else if (productCategory === "torso") {
+      autoY = 60;
+      autoScale = 1.1;
+    } else if (productCategory === "wrist") {
+      autoY = 80;
+      autoScale = 0.5;
+    } else {
+      autoY = 0;
+      autoScale = 0.85;
+    }
+    updateProductTransform();
+  };
+
+  // Capturar foto actual del video y congelar pantalla
+  var captureCurrentFrame = function(videoEl) {
+    try {
+      var canvas = document.createElement("canvas");
+      canvas.width = videoEl.videoWidth || videoEl.clientWidth || 640;
+      canvas.height = videoEl.videoHeight || videoEl.clientHeight || 480;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+      var img = document.createElement("img");
+      img.src = canvas.toDataURL("image/jpeg", 0.9);
+      stopCamera();
+      isFrozenPhoto = true;
+      renderTryOnView(img);
+    } catch(errCap) {}
+  };
+
+  // Renderizar vista del probador con barra de controles estilo Wigy
   var renderTryOnView = function(bgElement) {
     content.innerHTML = "";
 
     var stage = document.createElement("div");
+    stage.id = "nevux-pv-stage";
     stage.style.cssText = "width: 100% !important; flex: 1 !important; position: relative !important; " +
                           "overflow: hidden !important; background: #000000 !important; " +
                           "display: flex !important; align-items: center !important; justify-content: center !important;";
@@ -9672,7 +9765,7 @@ var openProbadorModal = function(widget, productImgUrl) {
 
     content.appendChild(stage);
 
-    // Barra de controles inferior sobre fondo blanco estilo Wigy
+    // Barra de controles inferior sobre fondo blanco
     var controlsBar = document.createElement("div");
     controlsBar.style.cssText = "width: 100% !important; background: #ffffff !important; " +
                                 "border-top: 1px solid #e5e7eb !important; padding: 12px 10px !important; " +
@@ -9705,22 +9798,22 @@ var openProbadorModal = function(widget, productImgUrl) {
                      '</div>';
 
     var row2 = document.createElement("div");
-    row2.style.cssText = "display: flex !important; flex-wrap: wrap !important; gap: 10px !important; " +
+    row2.style.cssText = "display: flex !important; flex-wrap: wrap !important; gap: 8px !important; " +
                          "align-items: center !important; justify-content: center !important; width: 100% !important; " +
                          "color: #111827 !important; font-size: 12px !important; font-weight: 700 !important;";
 
-    var btnFlipHtml = mediaStream ? '<button type="button" class="nvx-pv-control-btn" data-act="flip" style="' + pillBtnStyle + '">⇆</button>' : '';
+    var btnPhotoHtml = (mediaStream && !isFrozenPhoto) ? '<button type="button" class="nvx-pv-control-btn" data-act="snap" style="' + pillBtnStyle + ' background: #10B981 !important;">📸 Sacar foto</button>' : '';
+    var btnReCamHtml = isFrozenPhoto ? '<button type="button" class="nvx-pv-control-btn" data-act="recam" style="' + pillBtnStyle + ' background: #3B82F6 !important;">📹 Volver a cámara</button>' : '';
+    var btnFlipHtml = (mediaStream && !isFrozenPhoto) ? '<button type="button" class="nvx-pv-control-btn" data-act="flip" style="' + pillBtnStyle + '">⇆</button>' : '';
     var btnRotLHtml = habilitarRotar ? '<button type="button" class="nvx-pv-control-btn" data-act="rotL" style="' + pillBtnStyle + '">↺</button>' : '';
     var btnRotRHtml = habilitarRotar ? '<button type="button" class="nvx-pv-control-btn" data-act="rotR" style="' + pillBtnStyle + '">↻</button>' : '';
 
     var row2Content = '';
-    if (mediaStream) {
-      row2Content += '<div style="display:flex !important; align-items:center !important; gap:4px !important;"><span>Voltear:</span> ' + btnFlipHtml + '</div>';
-    }
-    if (habilitarRotar) {
-      row2Content += '<div style="display:flex !important; align-items:center !important; gap:4px !important;"><span>Rotar:</span> ' + btnRotLHtml + btnRotRHtml + '</div>';
-    }
-    row2Content += '<button type="button" class="nvx-pv-control-btn" data-act="reset" style="' + pillBtnStyle + ' padding: 6px 14px !important;">🔄 Reset</button>';
+    if (btnPhotoHtml) row2Content += btnPhotoHtml;
+    if (btnReCamHtml) row2Content += btnReCamHtml;
+    if (btnFlipHtml) row2Content += btnFlipHtml;
+    if (habilitarRotar) row2Content += btnRotLHtml + btnRotRHtml;
+    row2Content += '<button type="button" class="nvx-pv-control-btn" data-act="reset" style="' + pillBtnStyle + ' padding: 6px 12px !important;">🔄 Reset</button>';
 
     row2.innerHTML = row2Content;
 
@@ -9728,7 +9821,7 @@ var openProbadorModal = function(widget, productImgUrl) {
     controlsBar.appendChild(row2);
     content.appendChild(controlsBar);
 
-    updateProductTransform();
+    applyCategoryDefaults();
 
     // Event listeners para los botones de control
     var ctrlBtns = controlsBar.querySelectorAll(".nvx-pv-control-btn");
@@ -9740,18 +9833,28 @@ var openProbadorModal = function(widget, productImgUrl) {
           var stepScale = 0.1;
           var stepRot = 15;
 
-          if (act === "up") posY -= stepPos;
-          else if (act === "down") posY += stepPos;
-          else if (act === "left") posX -= stepPos;
-          else if (act === "right") posX += stepPos;
-          else if (act === "plus") scale = Math.min(3.0, scale + stepScale);
-          else if (act === "minus") scale = Math.max(0.2, scale - stepScale);
-          else if (act === "rotL") rotation -= stepRot;
-          else if (act === "rotR") rotation += stepRot;
+          if (act === "up") userY -= stepPos;
+          else if (act === "down") userY += stepPos;
+          else if (act === "left") userX -= stepPos;
+          else if (act === "right") userX += stepPos;
+          else if (act === "plus") userScale = Math.min(3.0, userScale + stepScale);
+          else if (act === "minus") userScale = Math.max(0.2, userScale - stepScale);
+          else if (act === "rotL") userRot -= stepRot;
+          else if (act === "rotR") userRot += stepRot;
           else if (act === "reset") {
-            posX = 0; posY = 0; scale = 1.0; rotation = 0;
+            userX = 0; userY = 0; userScale = 1.0; userRot = 0;
+            applyCategoryDefaults();
           } else if (act === "flip") {
             facingMode = (facingMode === "user") ? "environment" : "user";
+            startCameraStream();
+            return;
+          } else if (act === "snap") {
+            if (bgElement && bgElement.tagName === "VIDEO") {
+              captureCurrentFrame(bgElement);
+            }
+            return;
+          } else if (act === "recam") {
+            isFrozenPhoto = false;
             startCameraStream();
             return;
           }
@@ -9764,6 +9867,7 @@ var openProbadorModal = function(widget, productImgUrl) {
   // Iniciar Stream de Cámara
   var startCameraStream = function() {
     stopCamera();
+    isFrozenPhoto = false;
 
     var video = document.createElement("video");
     video.autoplay = true;
@@ -9805,6 +9909,7 @@ var openProbadorModal = function(widget, productImgUrl) {
       img.src = e.target.result;
       img.onload = function() {
         stopCamera();
+        isFrozenPhoto = true;
         renderTryOnView(img);
       };
     };
@@ -9980,5 +10085,5 @@ function renderProbadorVirtual(widget) {
       openProbadorModal(widget, productImgUrl);
     });
   }
-                                       }
+    }
 })(); 
