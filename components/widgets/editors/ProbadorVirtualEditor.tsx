@@ -282,7 +282,7 @@ function ColorPickerField({ value, onChange }: { value: string; onChange: (v: st
   );
 }
 
-/* Subida de imagen desde galería (mismo patrón que ComparadorAntesDespues) */
+/* Subida de imagen desde galería con aviso de coincidencia de producto */
 function ImagePickerField({
   label,
   value,
@@ -365,6 +365,18 @@ function ImagePickerField({
     <div style={{ marginBottom: 4 }}>
       <FieldLabel required={required}>{label}</FieldLabel>
 
+      {/* Cartel de aviso importante para el comerciante */}
+      <div style={{
+        background: '#fffbe3', border: '1.5px solid #fde047',
+        borderRadius: 12, padding: '12px 14px', marginBottom: 14,
+        display: 'flex', alignItems: 'flex-start', gap: 10,
+      }}>
+        <span style={{ fontSize: 18, lineHeight: 1 }}>⚠️</span>
+        <div style={{ fontSize: 13, color: '#713f12', lineHeight: 1.45 }}>
+          <strong>Importante para la tienda:</strong> Subí la foto limpia y transparente del producto exacto que estás configurando (ej: si vendés un gorro, subí la foto limpia del gorro; si vendés anteojos, la foto limpia del anteojo). Esto garantiza que la Inteligencia Artificial del probador lo ubique e integre perfectamente sobre la persona.
+        </div>
+      </div>
+
       {value ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
           <div style={{
@@ -375,7 +387,7 @@ function ImagePickerField({
             <img src={value} alt="Vista previa" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#10B981', marginBottom: 6 }}>✓ Imagen cargada</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#10B981', marginBottom: 6 }}>✓ Imagen cargada correctamente</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <label style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -438,8 +450,8 @@ function ImagePickerField({
         <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#075985', lineHeight: 1.55 }}>
           <li>Usá <strong>PNG o WEBP con fondo transparente</strong></li>
           <li>El producto debe estar en <strong>primer plano y centrado</strong></li>
-          <li>Ideal para: gorras, lentes, sombreros, accesorios</li>
-          <li>Evitá imágenes con fondos sólidos o modelos</li>
+          <li>Ideal para: gorras, anteojos, sombreros, correctores de postura, accesorios</li>
+          <li>Evitá imágenes con fondos sólidos o modelos puestos</li>
         </ul>
       </div>
     </div>
