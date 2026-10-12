@@ -2,7 +2,27 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BarChart3, Gift, Rocket, Flame, Scale, Ruler, Copy, Check, Film, Clock, Music, Mic, MessageSquare, Send, Search, Lightbulb, Monitor, Volume2, Scissors, Camera, Sparkles } from 'lucide-react';
+import {
+  ArrowLeft,
+  BarChart3,
+  Gift,
+  Rocket,
+  Flame,
+  Scale,
+  Ruler,
+  Copy,
+  Check,
+  Film,
+  Clock,
+  Music,
+  Mic,
+  Lightbulb,
+  Monitor,
+  Volume2,
+  Scissors,
+  Camera,
+  Sparkles
+} from 'lucide-react';
 
 function NevuxLogo({ size = 32 }: { size?: number }) {
   const iconSize = Math.round(size * 0.52);
@@ -303,14 +323,14 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
       <div style={{ maxWidth: 1280, margin: '20px auto 0', padding: '0 16px' }}>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
           {[
-            { id: 'lunes', label: '📊 Stories Lunes (Packs)' },
+            { id: 'lunes', label: '📊 Stories Lunes' },
             { id: 'martes', label: '🧠 Martes (Comparador)' },
             { id: 'miercoles', label: '📏 Miércoles (Talles)' },
-            { id: 'jueves', label: '⏱️ Stories Jueves (Tip)' },
-            { id: 'jueves-portada', label: '🎠 Carrusel Jueves (Urgencia)' },
+            { id: 'jueves', label: '⏱️ Stories Jueves' },
+            { id: 'jueves-portada', label: '🎠 Carrusel Jueves' },
             { id: 'viernes', label: '🛡️ Stories Viernes' },
             { id: 'viernes-portada', label: '🎬 Portada Reel Viernes' },
-            { id: 'ideas-reels', label: '💡 Ideas Reels' }
+            { id: 'ideas-reels', label: '💡 Ideas Reels (CapCut)' }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -357,27 +377,9 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
-
-              {/* STORY 1 — Encuesta */}
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: 360,
-                  aspectRatio: '9/16',
-                  backgroundColor: '#020a07',
-                  border: '2px solid rgba(16,185,129,0.3)',
-                  borderRadius: 24,
-                  padding: 24,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <NevuxLogo size={28} />
-                </div>
-
+              {/* STORY 1 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
                     ¿Cuánto es el <span style={{ color: '#10B981' }}>Ticket Promedio</span> en tu Tiendanube?
@@ -385,70 +387,22 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                   <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
                     De cada 100 personas que te compran, ¿cuánto dinero deja en promedio cada cliente?
                   </p>
-
-                  <div
-                    style={{
-                      backgroundColor: '#ffffff',
-                      borderRadius: 16,
-                      padding: 16,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 8,
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
-                    }}
-                  >
-                    {[
-                      { t: 'A) $5.000 - $10.000', e: '💸' },
-                      { t: 'B) $10.000 - $25.000', e: '📦' },
-                      { t: 'C) Más de $25.000', e: '🚀' },
-                      { t: 'D) No lo tengo medido', e: '🤯' }
-                    ].map((opt, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          backgroundColor: '#f1f5f9',
-                          border: '1px solid #cbd5e1',
-                          borderRadius: 10,
-                          padding: '10px 12px',
-                          fontSize: 12,
-                          fontWeight: 'bold',
-                          color: '#1e293b',
-                          display: 'flex',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <span>{opt.t}</span>
-                        <span style={{ color: '#64748b' }}>{opt.e}</span>
+                  <div style={{ backgroundColor: '#ffffff', borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {['A) $5.000 - $10.000 💸', 'B) $10.000 - $25.000 📦', 'C) Más de $25.000 🚀', 'D) No lo tengo medido 🤯'].map((opt, i) => (
+                      <div key={i} style={{ backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: 10, padding: '10px 12px', fontSize: 12, fontWeight: 'bold', color: '#1e293b' }}>
+                        {opt}
                       </div>
                     ))}
                   </div>
                 </div>
-
                 <div style={{ textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 12 }}>
                   <p style={{ fontSize: 11, color: '#cbd5e1', margin: 0 }}>Poné el sticker de encuesta interactivo arriba 👆</p>
                 </div>
               </div>
 
-              {/* STORY 2 — Empuje al Reel */}
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: 360,
-                  aspectRatio: '9/16',
-                  backgroundColor: '#020a07',
-                  border: '2px solid rgba(16,185,129,0.3)',
-                  borderRadius: 24,
-                  padding: 24,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <NevuxLogo size={28} />
-                </div>
-
+              {/* STORY 2 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
                     El error #1 que <span style={{ color: '#f87171' }}>estanca las ventas</span> de tu tienda
@@ -456,66 +410,23 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                   <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
                     Dejar que el cliente compre 1 solo producto cuando por un extra mínimo se llevaría el combo completo.
                   </p>
-
-                  <div
-                    style={{
-                      backgroundColor: '#061e14',
-                      border: '1px solid rgba(16,185,129,0.3)',
-                      padding: 16,
-                      borderRadius: 16,
-                      textAlign: 'center',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 10
-                    }}
-                  >
+                  <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', padding: 16, borderRadius: 16, textAlign: 'center' }}>
                     <div style={{ fontSize: 12, fontWeight: 'bold', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                       <Gift style={{ width: 16, height: 16 }} /> PACK COMPLEMENTARIOS
                     </div>
-                    <p style={{ fontSize: 11, color: '#cbd5e1', margin: 0 }}>
-                      Mirá el nuevo Reel que subimos al feed para ver cómo funciona en vivo.
-                    </p>
-                    <div
-                      style={{
-                        backgroundColor: '#10B981',
-                        color: '#020a07',
-                        fontWeight: 900,
-                        fontSize: 12,
-                        padding: 10,
-                        borderRadius: 10,
-                        marginTop: 4
-                      }}
-                    >
+                    <div style={{ backgroundColor: '#10B981', color: '#020a07', fontWeight: 900, fontSize: 12, padding: 10, borderRadius: 10, marginTop: 10 }}>
                       ▶ VER REEL EN EL FEED
                     </div>
                   </div>
                 </div>
-
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Tocá para ir directo a ver el Reel 👇</p>
                 </div>
               </div>
 
-              {/* STORY 3 — CTA */}
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: 360,
-                  aspectRatio: '9/16',
-                  backgroundColor: '#020a07',
-                  border: '2px solid rgba(16,185,129,0.3)',
-                  borderRadius: 24,
-                  padding: 24,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <NevuxLogo size={28} />
-                </div>
-
+              {/* STORY 3 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
                 <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
                     Instalá Pack Complementarios en <span style={{ color: '#34d399' }}>15 segundos</span>
@@ -523,28 +434,17 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                   <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
                     Sincronizado con tu Tiendanube, sin tocar código y adaptado automáticamente a los colores de tu marca.
                   </p>
-
-                  <div
-                    style={{
-                      backgroundColor: '#10B981',
-                      borderRadius: 16,
-                      padding: 16,
-                      textAlign: 'center',
-                      boxShadow: '0 8px 24px rgba(16,185,129,0.4)'
-                    }}
-                  >
+                  <div style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, textAlign: 'center' }}>
                     <p style={{ fontSize: 13, fontWeight: 900, color: '#020a07', margin: 0 }}>
                       🔗 PROBAR NEVUX 7 DÍAS GRATIS
                     </p>
-                    <span style={{ fontSize: 9, color: '#020a07', fontWeight: 700, opacity: 0.8 }}>nevux.ar</span>
+                    <span style={{ fontSize: 9, color: '#020a07', fontWeight: 700 }}>nevux.ar</span>
                   </div>
                 </div>
-
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>App Oficial Tiendanube #37382 • Sin tarjeta</p>
                 </div>
               </div>
-
             </div>
 
             <CopyBlock
@@ -565,12 +465,23 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                 <Scale style={{ width: 20, height: 20, color: '#34d399' }} />
                 Stories Martes: Comparador Antes y Después
               </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>3 Stories + 5 placas de Carrusel. Sacá captura de cada una.</p>
             </div>
-            <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 13 }}>
-              (Contenido completo de Martes — Stories + Carrusel — ya cargado arriba en el código original)
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
+                    ¿Alguna vez compraste algo online y te llegó <span style={{ color: '#facc15' }}>distinto</span> a la foto?
+                  </h3>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '2px solid #f87171', borderRadius: 12, padding: 14, textAlign: 'center', fontWeight: 900, color: '#1e293b' }}>😩 SÍ</div>
+                    <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '2px solid #10B981', borderRadius: 12, padding: 14, textAlign: 'center', fontWeight: 900, color: '#1e293b' }}>😌 NO</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}><p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Sticker de encuesta arriba 👆</p></div>
+              </div>
             </div>
-            <CopyBlock id="martes-carrusel" title="Descripción Carrusel Martes (Comparador Antes y Después)" text={copyMartesCarrusel} copied={copiedId === 'martes-carrusel'} onCopy={handleCopy} />
+            <CopyBlock id="martes-carrusel" title="Descripción Carrusel Martes" text={copyMartesCarrusel} copied={copiedId === 'martes-carrusel'} onCopy={handleCopy} />
           </div>
         )}
 
@@ -582,16 +493,12 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                 <Ruler style={{ width: 20, height: 20, color: '#34d399' }} />
                 Stories Miércoles: Tabla de Talles + Beneficios
               </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>3 Stories + Guía de edición del Reel + Descripción para publicar.</p>
-            </div>
-            <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 13 }}>
-              (Contenido completo de Miércoles — Stories + Guía Reel + Checklist — ya cargado arriba en el código original)
             </div>
             <CopyBlock id="miercoles-reel" title="Descripción Reel Miércoles (Tabla de Talles)" text={copyMiercolesReel} copied={copiedId === 'miercoles-reel'} onCopy={handleCopy} />
           </div>
         )}
 
-        {/* ========== JUEVES STORIES ========== */}
+        {/* ========== JUEVES ========== */}
         {activeTab === 'jueves' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
@@ -599,10 +506,6 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                 <Clock style={{ width: 20, height: 20, color: '#34d399' }} />
                 Stories Jueves: Urgencia y Ventas Rápidas
               </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>Dos historias para preparar a tu audiencia antes del Carrusel.</p>
-            </div>
-            <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 13 }}>
-              (Contenido completo de Jueves Stories ya cargado arriba en el código original)
             </div>
           </div>
         )}
@@ -615,10 +518,6 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                 <Rocket style={{ width: 20, height: 20, color: '#10B981' }} />
                 Carrusel Jueves Feed: El Gatillo Mental de la Urgencia
               </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>Formato 1:1 cuadrado para feed.</p>
-            </div>
-            <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 13 }}>
-              (Contenido completo Carrusel Jueves ya cargado arriba en el código original)
             </div>
             <CopyBlock id="jueves-carrusel" title="Descripción Carrusel Jueves (Urgencia)" text={copyJuevesCarrusel} copied={copiedId === 'jueves-carrusel'} onCopy={handleCopy} />
           </div>
@@ -632,15 +531,50 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                 <Rocket style={{ width: 20, height: 20, color: '#34d399' }} />
                 Stories Viernes: Ecosistema de Confianza Finde
               </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>3 Stories para el viernes. Sacá captura y publicá.</p>
             </div>
-            <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 13 }}>
-              (Contenido completo Stories Viernes ya cargado arriba en el código original)
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
+              {/* STORY 1 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 'bold', color: '#f87171' }}>🚨 ALERTA FIN DE SEMANA</div>
+                  <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: 0 }}>
+                    El <span style={{ color: '#f87171' }}>68%</span> de las ventas se definen el finde
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                    El tráfico explota. ¿Tu tienda está lista para convencer y vender sola?
+                  </p>
+                  <div style={{ backgroundColor: '#ffffff', borderRadius: 16, padding: 16, display: 'flex', gap: 8 }}>
+                    <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '1px solid #10b981', borderRadius: 8, padding: 8, textAlign: 'center', color: '#1e293b', fontWeight: 900, fontSize: 12 }}>✅ SÍ, LISTA</div>
+                    <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '1px solid #f87171', borderRadius: 8, padding: 8, textAlign: 'center', color: '#1e293b', fontWeight: 900, fontSize: 12 }}>❌ ME FALTA</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}><p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Encuesta interactiva arriba 👆</p></div>
+              </div>
+
+              {/* STORY 2 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 'bold', color: '#34d399' }}>💡 SOLUCIÓN RÁPIDA</div>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
+                    2 widgets = <span style={{ color: '#34d399' }}>Cero dudas</span> al pagar
+                  </h3>
+                  <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: '#34d399' }}>🛡️ Mensaje de Garantía</span>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: '#facc15' }}>💵 Badge de Efectivo / Transferencia</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center', backgroundColor: '#10B981', borderRadius: 12, padding: 10 }}>
+                  <p style={{ fontSize: 11, fontWeight: 900, color: '#020a07', margin: 0 }}>🔗 ACTIVAR EN MI TIENDA</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* ========== VIERNES PORTADA REEL ========== */}
+        {/* ========== PORTADA REEL VIERNES ========== */}
         {activeTab === 'viernes-portada' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
@@ -648,12 +582,32 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
                 <Film style={{ width: 20, height: 20, color: '#34d399' }} />
                 Reel Viernes: Dejá tu Tienda Vendiendo Sola
               </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>Portada visual + Datos técnicos y guión PAS.</p>
             </div>
-            <div style={{ textAlign: 'center', padding: 40, color: '#64748b', fontSize: 13 }}>
-              (Contenido completo Portada Reel Viernes ya cargado arriba en el código original)
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+              {[
+                { icon: <Clock style={{ width: 18, height: 18 }} />, label: 'Duración', value: '22 segundos' },
+                { icon: <Film style={{ width: 18, height: 18 }} />, label: 'Formato', value: '9:16 · 1080x1920' },
+                { icon: <Music style={{ width: 18, height: 18 }} />, label: 'Música', value: 'Deep House 118 BPM' },
+                { icon: <Mic style={{ width: 18, height: 18 }} />, label: 'Audio', value: 'Voz off -6dB / Música -20dB' }
+              ].map((item, i) => (
+                <div key={i} style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#34d399' }}>
+                    {item.icon}
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>{item.label}</span>
+                  </div>
+                  <span style={{ fontSize: 13, color: '#fff', fontWeight: 700, marginTop: 4, display: 'block' }}>{item.value}</span>
+                </div>
+              ))}
             </div>
-            <CopyBlock id="viernes-reel" title="Descripción Reel Viernes (Garantía + Efectivo)" text={copyViernesReel} copied={copiedId === 'viernes-reel'} onCopy={handleCopy} />
+
+            <CopyBlock
+              id="viernes-reel"
+              title="Descripción Reel Viernes (Garantía + Efectivo)"
+              text={copyViernesReel}
+              copied={copiedId === 'viernes-reel'}
+              onCopy={handleCopy}
+            />
           </div>
         )}
 
@@ -662,8 +616,6 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
         {/* ================================================================ */}
         {activeTab === 'ideas-reels' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-
-            {/* ENCABEZADO */}
             <div
               style={{
                 background: 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(250,204,21,0.08) 100%)',
@@ -674,523 +626,83 @@ Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas
             >
               <h2 style={{ fontSize: 18, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Lightbulb style={{ width: 22, height: 22, color: '#facc15' }} />
-                Ideas y Guía de Producción para Reels
+                Guía de Producción Profesional (CapCut / Grabación)
               </h2>
               <p style={{ fontSize: 12, color: '#94a3b8', margin: '8px 0 0 0', lineHeight: 1.6 }}>
-                Acá vas a encontrar ideas creativas concretas, textos exactos para pantalla, efectos de sonido buscables en CapCut, transiciones y tips de grabación para cada Reel. Todo listo para que grabes y edites como un pro.
+                Acá tenés todo el detalle técnico para grabar y editar el Reel de Viernes con nivel top.
               </p>
             </div>
 
-            {/* SELECTOR DE DÍA */}
-            <div
-              style={{
-                backgroundColor: '#061e14',
-                border: '1px solid rgba(16,185,129,0.2)',
-                borderRadius: 16,
-                padding: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12
-              }}
-            >
-              <h3 style={{ fontSize: 13, fontWeight: 'bold', color: '#34d399', margin: 0 }}>📅 Seleccioná el día del Reel:</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {[
-                  { day: 'Lunes', status: '🟢 Grabado', widget: 'Pack Complementarios' },
-                  { day: 'Martes', status: '🟡 Pendiente', widget: 'Comparador' },
-                  { day: 'Miércoles', status: '🟡 Pendiente', widget: 'Talles + Beneficios' },
-                  { day: 'Jueves', status: '⚪ Carrusel (no Reel)', widget: 'Oferta Especial' },
-                  { day: 'Viernes', status: '🔴 PRÓXIMO', widget: 'Garantía + Efectivo' }
-                ].map((d, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      backgroundColor: d.day === 'Viernes' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: d.day === 'Viernes' ? '2px solid #10B981' : '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 10,
-                      padding: '10px 14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 4,
-                      minWidth: 120
-                    }}
-                  >
-                    <span style={{ fontSize: 12, fontWeight: 900, color: '#fff' }}>{d.day}</span>
-                    <span style={{ fontSize: 10, color: '#94a3b8' }}>{d.widget}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: d.day === 'Viernes' ? '#10B981' : '#64748b' }}>{d.status}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ===================================================== */}
-            {/* REEL VIERNES — GUÍA COMPLETA DE PRODUCCIÓN */}
-            {/* ===================================================== */}
-
-            <div
-              style={{
-                backgroundColor: 'rgba(6,30,20,0.8)',
-                border: '2px solid rgba(16,185,129,0.4)',
-                borderRadius: 16,
-                padding: 20,
-                boxShadow: '0 0 30px rgba(16,185,129,0.1)'
-              }}
-            >
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Flame style={{ width: 20, height: 20, color: '#facc15' }} />
-                REEL VIERNES: &quot;Dejá tu Tienda Vendiendo Sola&quot;
-              </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>
-                Guía completa de producción. Duración: 22s. Formato: 9:16.
-              </p>
-            </div>
-
-            {/* IDEA 1: EL ÁNGULO CREATIVO */}
-            <div
-              style={{
-                backgroundColor: '#061e14',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 16,
-                padding: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16
-              }}
-            >
-              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#facc15', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles style={{ width: 16, height: 16 }} />
-                IDEA CREATIVA: &quot;El Viernes del Emprendedor&quot;
-              </h3>
-              <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.7, margin: 0 }}>
-                El concepto es mostrar el <strong style={{ color: '#fff' }}>contraste</strong> entre dos viernes: el del emprendedor estresado que pierde ventas todo el finde porque su tienda no genera confianza, vs. el emprendedor tranquilo que activó Nevux y su tienda vende sola mientras él descansa.
-              </p>
-              <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.7, margin: 0 }}>
-                <strong style={{ color: '#34d399' }}>Ángulo emocional:</strong> No le vendés un widget. Le vendés <em style={{ color: '#facc15' }}>tranquilidad de fin de semana</em>. Ese es el gancho que conecta con el emprendedor real que está cansado de trabajar 24/7.
-              </p>
-            </div>
-
-            {/* QUÉ GRABAR EXACTAMENTE */}
-            <div
-              style={{
-                backgroundColor: '#061e14',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 16,
-                padding: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 14
-              }}
-            >
+            {/* QUÉ GRABAR */}
+            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Camera style={{ width: 16, height: 16, color: '#34d399' }} />
-                QUÉ GRABAR (3 clips de 10 segundos cada uno)
+                1. QUÉ GRABAR (Solo 3 tomas con tu celular)
               </h3>
-
               {[
                 {
-                  clip: 'CLIP 1 — Tu cara + celular (Gancho + Problema)',
-                  duracion: 'Grabá 10s, usás 7s en edición',
-                  que: 'Sentate frente a la cámara con tu celular en la mano mostrando la tienda demo (nevuxapp.mitiendanube.com). Mirá a cámara con cara de &quot;te voy a contar un secreto&quot;. Empezá hablando directo.',
-                  tip: 'Iluminación natural de frente (ventana). Fondo limpio (pared lisa o escritorio ordenado). El celular tiene que verse la pantalla encendida con la tienda.',
-                  angulo: 'Plano medio corto (de pecho para arriba). Ligeramente contrapicado para dar autoridad.'
+                  toma: 'TOMA 1 (0-7s) — Frente a cámara',
+                  desc: 'Vos con el celular en la mano mostrando la tienda demo abierta. Mirá a cámara con energía. Decí el gancho y el problema.',
+                  tip: 'Buena luz de frente, fondo ordenado, plano pecho para arriba.'
                 },
                 {
-                  clip: 'CLIP 2 — Grabación de pantalla (Solución)',
-                  duracion: 'Grabá 15s, usás 8s en edición',
-                  que: 'Grabá la pantalla de tu PC o celular navegando la tienda demo. Hacé scroll hasta un producto, mostrá el botón de compra y cómo abajo aparecen el Widget de Garantía (&quot;30 días de cambio libre&quot;) y el Badge de Efectivo (&quot;15% OFF con transferencia&quot;). Hacé un tap/clic en cada widget para que se note que es interactivo.',
-                  tip: 'Usá la grabación de pantalla nativa del celular (iPhone: deslizar arriba → grabar / Android: barra rápida). Limpiá notificaciones antes de grabar.',
-                  angulo: 'Full screen de la grabación. En edición le ponés un marco de celular mockup si querés que se vea más pro.'
+                  toma: 'TOMA 2 (7-15s) — Grabación de pantalla',
+                  desc: 'Grabá la pantalla de tu tienda demo (nevuxapp.mitiendanube.com). Hacé scroll hasta ver el Mensaje de Garantía y el Badge de Efectivo funcionando.',
+                  tip: 'Hacé un toque en cada widget para que se note que es 100% interactivo y real.'
                 },
                 {
-                  clip: 'CLIP 3 — Tu cara + cierre (CTA)',
-                  duracion: 'Grabá 8s, usás 5s en edición',
-                  que: 'Volvé a tu cara. Sonreí con confianza. Señalá hacia abajo (donde va a ir el texto de nevux.ar). Decí el CTA con energía.',
-                  tip: 'Cambiá ligeramente el ángulo respecto al Clip 1 (girá la cámara 15°) para que en edición se note el corte y sea dinámico.',
-                  angulo: 'Mismo plano medio corto pero con leve zoom-in en edición para dar intimidad al CTA.'
+                  toma: 'TOMA 3 (15-22s) — Cierre y CTA',
+                  desc: 'Volvés a cámara. Sonreí y señalá abajo indicando el link de nevux.ar.',
+                  tip: 'Girá 10 grados el cuerpo para que el corte entre toma 2 y 3 sea súper dinámico.'
                 }
               ].map((c, i) => (
-                <div
-                  key={i}
-                  style={{
-                    backgroundColor: '#020a07',
-                    border: '1px solid rgba(16,185,129,0.2)',
-                    borderRadius: 12,
-                    padding: 16,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 10
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
-                    <span style={{ fontSize: 12, fontWeight: 900, color: '#10B981' }}>{c.clip}</span>
-                    <span style={{ fontSize: 10, color: '#64748b', fontFamily: 'ui-monospace, monospace' }}>⏱ {c.duracion}</span>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>🎬 QUÉ HACER:</span>
-                    <p style={{ fontSize: 12, color: '#cbd5e1', margin: '4px 0 0 0', lineHeight: 1.6 }}>{c.que}</p>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>💡 TIP PRO:</span>
-                    <p style={{ fontSize: 12, color: '#cbd5e1', margin: '4px 0 0 0', lineHeight: 1.6 }}>{c.tip}</p>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>📐 ÁNGULO:</span>
-                    <p style={{ fontSize: 12, color: '#cbd5e1', margin: '4px 0 0 0', lineHeight: 1.6 }}>{c.angulo}</p>
-                  </div>
+                <div key={i} style={{ backgroundColor: '#020a07', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 10, padding: 12 }}>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: '#10B981' }}>{c.toma}</span>
+                  <p style={{ fontSize: 12, color: '#cbd5e1', margin: '4px 0 0 0', lineHeight: 1.5 }}>{c.desc}</p>
+                  <span style={{ fontSize: 10, color: '#facc15', marginTop: 4, display: 'block' }}>💡 {c.tip}</span>
                 </div>
               ))}
             </div>
 
-            {/* TEXTOS EXACTOS EN PANTALLA */}
-            <div
-              style={{
-                backgroundColor: '#061e14',
-                border: '1px solid rgba(250,204,21,0.3)',
-                borderRadius: 16,
-                padding: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 14
-              }}
-            >
+            {/* TEXTOS Y SFX */}
+            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(250,204,21,0.3)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#facc15', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Monitor style={{ width: 16, height: 16 }} />
-                TEXTOS EXACTOS EN PANTALLA (para agregar en CapCut)
+                <Volume2 style={{ width: 16, height: 16 }} />
+                2. EFECTOS DE SONIDO Y TEXTOS (CapCut)
               </h3>
-              <p style={{ fontSize: 11, color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                Estos son los textos que van SOBRE el video como subtítulos gigantes. Usá Montserrat Black o Rubik ExtraBold, All Caps, con stroke/sombra negra de 3px. Las palabras entre [CORCHETES] van en color destacado.
-              </p>
-
               {[
-                {
-                  tiempo: '0.0s - 2.0s',
-                  linea1: 'TU TIENDA PUEDE',
-                  linea2: '[VENDER SOLA]',
-                  color: '#facc15',
-                  nota: 'La palabra VENDIENDO SOLA en amarillo gigante. El resto en blanco.'
-                },
-                {
-                  tiempo: '2.0s - 4.5s',
-                  linea1: 'EL VIERNES EL TRÁFICO',
-                  linea2: '[EXPLOTA] 📈',
-                  color: '#34d399',
-                  nota: 'EXPLOTA en verde. Agregá un emoji de gráfico subiendo animado.'
-                },
-                {
-                  tiempo: '4.5s - 7.0s',
-                  linea1: 'PERO TUS CLIENTES',
-                  linea2: '[NO CONFÍAN] ❌',
-                  color: '#f87171',
-                  nota: 'NO CONFÍAN en rojo con shake/temblor. Pop seco al aparecer.'
-                },
-                {
-                  tiempo: '7.0s - 9.5s',
-                  linea1: 'DUDAN DEL ENVÍO...',
-                  linea2: 'DEL PAGO... [SE VAN]',
-                  color: '#f87171',
-                  nota: 'SE VAN con efecto de deslizamiento hacia la derecha (como si se fueran).'
-                },
-                {
-                  tiempo: '9.5s - 12.0s',
-                  linea1: 'ACTIVÁ [GARANTÍA]',
-                  linea2: 'EN 1 CLIC 🛡️',
-                  color: '#10B981',
-                  nota: 'GARANTÍA en verde esmeralda brillante. Flash blanco de transición antes.'
-                },
-                {
-                  tiempo: '12.0s - 15.0s',
-                  linea1: '+ [BADGE DE EFECTIVO]',
-                  linea2: '= VENTAS EN PILOTO 💵',
-                  color: '#facc15',
-                  nota: 'BADGE DE EFECTIVO en amarillo. El signo = aparece con pop. PILOTO con brillo.'
-                },
-                {
-                  tiempo: '15.0s - 18.0s',
-                  linea1: 'PROBÁ [NEVUX]',
-                  linea2: '[7 DÍAS GRATIS] 🚀',
-                  color: '#10B981',
-                  nota: 'NEVUX en verde, 7 DÍAS GRATIS en amarillo. Ambos con efecto de escala (zoom-in suave).'
-                },
-                {
-                  tiempo: '18.0s - 20.0s',
-                  linea1: 'LINK EN BIO',
-                  linea2: '[@nevuxapp]',
-                  color: '#34d399',
-                  nota: 'Flecha animada señalando hacia abajo. Fondo semi-transparente verde.'
-                },
-                {
-                  tiempo: '20.0s - 22.0s',
-                  linea1: 'NEVUX',
-                  linea2: 'App #37382',
-                  color: '#ffffff',
-                  nota: 'Logo oficial centrado. Fade-in suave desde negro.'
-                }
-              ].map((t, i) => (
-                <div
-                  key={i}
-                  style={{
-                    backgroundColor: '#020a07',
-                    border: `1px solid ${t.color}33`,
-                    borderLeft: `4px solid ${t.color}`,
-                    borderRadius: 10,
-                    padding: 14,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 10, color: '#64748b', fontFamily: 'ui-monospace, monospace' }}>⏱ {t.tiempo}</span>
-                    <span style={{ fontSize: 10, color: t.color, fontWeight: 700 }}>COLOR: {t.color}</span>
+                { sfx: 'Whoosh Deep', seg: 'Seg 0.0', text: 'TIENDA ONLINE EN AUTOMÁTICO', col: '#facc15' },
+                { sfx: 'Pop / Click', seg: 'Seg 4.0', text: '❌ CARassistantRITOS ABANDONADOS', col: '#f87171' },
+                { sfx: 'Glitch + Flash', seg: 'Seg 7.0', text: '🛡️ WIDGETS DE CONFIANZA', col: '#34d399' },
+                { sfx: 'Ding Success', seg: 'Seg 12.0', text: '💵 BADGE DE EFECTIVO', col: '#10B981' },
+                { sfx: 'Camera Shutter', seg: 'Seg 16.0', text: '🚀 PROBÁ 7 DÍAS GRATIS', col: '#facc15' }
+              ].map((s, i) => (
+                <div key={i} style={{ backgroundColor: '#020a07', borderLeft: `4px solid ${s.col}`, borderRadius: 8, padding: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                  <div>
+                    <span style={{ fontSize: 11, color: '#64748b' }}>{s.seg} — </span>
+                    <strong style={{ fontSize: 12, color: '#fff' }}>SFX: &quot;{s.sfx}&quot;</strong>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '0.02em' }}>
-                      {t.linea1.replace(/\[([^\]]+)\]/g, '$1')}
-                    </span>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: t.color, letterSpacing: '0.02em' }}>
-                      {t.linea2.replace(/\[([^\]]+)\]/g, '$1')}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 10, color: '#94a3b8', margin: 0, lineHeight: 1.4 }}>
-                    📝 {t.nota}
-                  </p>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: s.col }}>{s.text}</span>
                 </div>
               ))}
             </div>
 
-            {/* EFECTOS DE SONIDO */}
-            <div
-              style={{
-                backgroundColor: '#061e14',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 16,
-                padding: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 14
-              }}
-            >
-              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Volume2 style={{ width: 16, height: 16, color: '#34d399' }} />
-                EFECTOS DE SONIDO (buscá estos nombres exactos en CapCut)
-              </h3>
-              <p style={{ fontSize: 11, color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                En CapCut andá a Audio → Efectos de sonido → buscá el nombre exacto. Todos son gratis dentro de la app.
-              </p>
-
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: 10
-                }}
-              >
-                {[
-                  {
-                    nombre: 'Whoosh Deep',
-                    cuando: 'Segundo 0.0 — Inicio del video',
-                    para: 'Dar impacto al gancho. Que el espectador sienta que arranca algo importante.',
-                    volumen: '70%',
-                    alt: 'Si no lo encontrás buscá: &quot;Swoosh Low&quot; o &quot;Wind Whoosh&quot;'
-                  },
-                  {
-                    nombre: 'Pop',
-                    cuando: 'Segundo 2.5, 4.5, 7.0',
-                    para: 'Cada vez que aparece un texto nuevo en pantalla (EXPLOTA, NO CONFÍAN, SE VAN).',
-                    volumen: '50%',
-                    alt: 'Buscá también: &quot;Bubble Pop&quot; o &quot;Click Pop&quot;'
-                  },
-                  {
-                    nombre: 'Glitch',
-                    cuando: 'Segundo 7.0 — Transición Problema → Solución',
-                    para: 'Corte dramático entre la parte negativa y la solución. Flash blanco + glitch.',
-                    volumen: '60%',
-                    alt: 'Buscá: &quot;Digital Glitch&quot; o &quot;TV Static&quot;'
-                  },
-                  {
-                    nombre: 'Ding Success',
-                    cuando: 'Segundo 9.5 y 12.0',
-                    para: 'Cuando mostrás cada widget activado (Garantía y Efectivo). Sensación de &quot;problema resuelto&quot;.',
-                    volumen: '65%',
-                    alt: 'Buscá: &quot;Notification Ding&quot; o &quot;Bell Positive&quot;'
-                  },
-                  {
-                    nombre: 'Cash Register',
-                    cuando: 'Segundo 13.5',
-                    para: 'Cuando aparece &quot;VENTAS EN PILOTO&quot;. Refuerza la idea de dinero entrando.',
-                    volumen: '45%',
-                    alt: 'Buscá: &quot;Cha Ching&quot; o &quot;Coin Drop&quot;'
-                  },
-                  {
-                    nombre: 'Camera Shutter',
-                    cuando: 'Segundo 16.0',
-                    para: 'Cuando aparece nevux.ar y el CTA. Da sensación de &quot;capturá esta info&quot;.',
-                    volumen: '55%',
-                    alt: 'Buscá: &quot;Photo Click&quot; o &quot;Shutter Snap&quot;'
-                  },
-                  {
-                    nombre: 'Swoosh Soft',
-                    cuando: 'Segundo 20.0 — Cierre con logo',
-                    para: 'Fade-out suave hacia el logo final. Cierre elegante.',
-                    volumen: '40%',
-                    alt: 'Buscá: &quot;Soft Wind&quot; o &quot;Gentle Swoosh&quot;'
-                  }
-                ].map((sfx, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      backgroundColor: '#020a07',
-                      border: '1px solid rgba(16,185,129,0.15)',
-                      borderRadius: 10,
-                      padding: 14,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 8
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 13, fontWeight: 900, color: '#facc15' }}>🔊 {sfx.nombre}</span>
-                      <span style={{ fontSize: 10, color: '#34d399', fontWeight: 700 }}>Vol: {sfx.volumen}</span>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>⏱ CUÁNDO:</span>
-                      <p style={{ fontSize: 11, color: '#fff', margin: '2px 0 0 0', fontWeight: 600 }}>{sfx.cuando}</p>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>🎯 PARA QUÉ:</span>
-                      <p style={{ fontSize: 11, color: '#cbd5e1', margin: '2px 0 0 0', lineHeight: 1.5 }}>{sfx.para}</p>
-                    </div>
-                    <p style={{ fontSize: 10, color: '#64748b', margin: 0, fontStyle: 'italic', lineHeight: 1.4 }}>
-                      💡 {sfx.alt}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* MÚSICA DE FONDO */}
-            <div
-              style={{
-                backgroundColor: '#061e14',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 16,
-                padding: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 12
-              }}
-            >
+            {/* MÚSICA */}
+            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
               <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Music style={{ width: 16, height: 16, color: '#34d399' }} />
-                MÚSICA DE FONDO (buscá en CapCut → Audio → Música)
+                3. AJUSTE DE VOLUMEN (Regla de Oro)
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[
-                  { nombre: 'Deep House Background', bpm: '118 BPM', vibe: 'Moderno, tech, confiable. Ideal para SaaS.', prio: '⭐ OPCIÓN #1' },
-                  { nombre: 'Tech House Groove', bpm: '120 BPM', vibe: 'Más energético. Bueno si hablás rápido.', prio: 'OPCIÓN #2' },
-                  { nombre: 'Minimal Future Beat', bpm: '115 BPM', vibe: 'Más calmo y premium. Estilo Shopify.', prio: 'OPCIÓN #3' },
-                  { nombre: 'Lo-Fi Confidence', bpm: '110 BPM', vibe: 'Relajado pero con ritmo. Estilo tutorial pro.', prio: 'OPCIÓN #4' }
-                ].map((m, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      backgroundColor: i === 0 ? 'rgba(16,185,129,0.1)' : '#020a07',
-                      border: i === 0 ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.06)',
-                      borderRadius: 10,
-                      padding: 12,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      flexWrap: 'wrap',
-                      gap: 8
-                    }}
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>🎵 {m.nombre}</span>
-                      <span style={{ fontSize: 10, color: '#94a3b8' }}>{m.vibe}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 10, color: '#64748b', fontFamily: 'ui-monospace, monospace' }}>{m.bpm}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: i === 0 ? '#facc15' : '#64748b' }}>{m.prio}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p style={{ fontSize: 11, color: '#f87171', fontWeight: 700, margin: 0 }}>
-                ⚠️ RECORDÁ: Música al -20dB. Tu voz al -6dB. La música NUNCA debe competir con tu voz.
+              <p style={{ fontSize: 12, color: '#cbd5e1', margin: '8px 0 0 0', lineHeight: 1.5 }}>
+                • <strong style={{ color: '#34d399' }}>Voz principal:</strong> -6 dB (clara y protagonista)<br />
+                • <strong style={{ color: '#facc15' }}>Música Tech House:</strong> -20 dB (suave de fondo, nunca tapa la voz)<br />
+                • <strong style={{ color: '#fff' }}>Efectos de sonido (SFX):</strong> -10 dB a -12 dB
               </p>
             </div>
+          </div>
+        )}
 
-            {/* TRANSICIONES Y EFECTOS DE VIDEO */}
-            <div
-              style={{
-                backgroundColor: '#061e14',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 16,
-                padding: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 14
-              }}
-            >
-              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Scissors style={{ width: 16, height: 16, color: '#34d399' }} />
-                TRANSICIONES Y EFECTOS DE VIDEO (en CapCut)
-              </h3>
-
-              {[
-                {
-                  momento: 'Seg 0.0 → 2.0 (Inicio)',
-                  efecto: 'Zoom In Lento',
-                  como: 'Seleccioná el Clip 1 → Animación → Entrada → &quot;Zoom In&quot;. Duración: 0.5s.',
-                  porQue: 'Da sensación de que te acercás al espectador. Genera intimidad inmediata.'
-                },
-                {
-                  momento: 'Seg 2.0 → 4.5 (Tráfico explota)',
-                  efecto: 'Shake / Temblor',
-                  como: 'Seleccioná el clip → Efectos → &quot;Shake&quot; o &quot;Vibrate&quot;. Aplicá solo 0.3s cuando decís EXPLOTA.',
-                  porQue: 'Refuerza la urgencia del dato. El temblor visual = alarma.'
-                },
-                {
-                  momento: 'Seg 7.0 (Problema → Solución)',
-                  efecto: 'Flash Blanco + Glitch',
-                  como: 'Cortá el clip en el seg 7.0. Insertá un frame blanco de 2 cuadros (0.07s). Después agregá efecto &quot;Glitch&quot; de 0.3s.',
-                  porQue: 'Es la transición más usada en reels de alto rendimiento. Marca el punto de quiebre.'
-                },
-                {
-                  momento: 'Seg 9.5 → 15.0 (Widgets en vivo)',
-                  efecto: 'Zoom In Suave + Brillo',
-                  como: 'Sobre la grabación de pantalla, aplicá Animación → &quot;Zoom In&quot; lento (2s). Agregá efecto &quot;Glow&quot; o &quot;Bright&quot; cuando aparecen los widgets.',
-                  porQue: 'Dirige la mirada del espectador al widget. El brillo = &quot;esto es importante&quot;.'
-                },
-                {
-                  momento: 'Seg 15.0 (CTA)',
-                  efecto: 'Zoom Out + Blur de fondo',
-                  como: 'Cortá el clip. Al CTA aplicá Animación → &quot;Zoom Out&quot;. Al fondo del clip anterior agregá &quot;Blur&quot; de 0.5s.',
-                  porQue: 'Separa visualmente la solución del llamado a la acción. El cerebro entiende que viene el cierre.'
-                },
-                {
-                  momento: 'Seg 20.0 → 22.0 (Logo final)',
-                  efecto: 'Fade to Black',
-                  como: 'Transición → &quot;Fade&quot; de 0.5s hacia negro. El logo aparece con Animación → &quot;Fade In&quot; de 0.3s.',
-                  porQue: 'Cierre limpio y profesional. Estilo marca grande.'
-                }
-              ].map((tr, i) => (
-                <div
-                  key={i}
-                  style={{
-                    backgroundColor: '#020a07',
-                    border: '1px solid rgba(16,185,129,0.15)',
-                    borderRadius: 10,
-                    padding: 14,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
-                    <span style={{ fontSize: 11, color: '#facc15', fontWeight: 900 }}>{tr.momento}</span>
-                    <span style={{ fontSize: 11, color: '#10B981', fontWeight: 700 }}>✨ {tr.efecto}</span>
-                  </div>
-                  <div>
-                    <span style={{ fontSize
+      </main>
+    </div>
+  );
+      }
