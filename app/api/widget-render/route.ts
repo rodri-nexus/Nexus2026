@@ -38,13 +38,49 @@ export async function GET(req: NextRequest) {
       return corsResponse({ error: "store_id inválido" }, 400);
     }
 
-    // 1. Obtener tienda activa para obtener access_token
+    // 1. Obtener datos de la tienda y estado de su suscripción
     const { data: storeRow } = await supabaseAdmin
       .from("stores")
-      .select("access_token")
+      .select("access_token, is_active, trial_ends_at, plan_status, plan_active_until")
       .eq("store_id", storeId)
       .eq("is_active", true)
       .maybeSingle();
+
+    if (!storeRow) {
+      return corsResponse({
+        widgets: [],
+        socialProof: null,
+        virtualSalesman: null,
+        voiceSearch: null,
+        error: "Tienda no encontrada o inactiva",
+      });
+    }
+
+    // 🔒 CONTROL ESTRICTO DE SUSCRIPCIÓN Y PRUEBA
+    const now = new Date();
+
+    // A) ¿Está dentro del período de prueba gratis?
+    const trialEnd = storeRow.trial_ends_at ? new Date(storeRow.trial_ends_at) : null;
+    const isTrialActive = trialEnd ? trialEnd > now : false;
+
+    // B) ¿Tiene un plan pago activo?
+    const isPlanActiveStatus = storeRow.plan_status === "active";
+    const planUntil = storeRow.plan_active_until ? new Date(storeRow.plan_active_until) : null;
+    const isPlanValid = isPlanActiveStatus && (!planUntil || planUntil > now);
+
+    // C) Si no está en prueba activa ni tiene plan pago -> BLOQUEO INMEDIATO
+    if (!isTrialActive && !isPlanValid) {
+      console.warn(`[widget-render] Acceso bloqueado para tienda ${storeId}. Trial y Plan expirados.`);
+      return corsResponse({
+        widgets: [],
+        socialProof: null,
+        virtualSalesman: null,
+        voiceSearch: null,
+        trial_expired: true,
+        message: "Período de prueba finalizado. Suscríbete para reactivar tus widgets.",
+        ts: Date.now(),
+      });
+    }
 
     // 2. Obtener categorías de Tiendanube para mapear ID -> Handle / Nombre
     const categoryMetaMap: Record<string, { handle: string; name: string }> = {};
@@ -102,7 +138,6 @@ export async function GET(req: NextRequest) {
     // 5. Social Proof (DETECCIÓN ESTRICTA DEL ESTADO APAGADO)
     let socialProofData: Record<string, unknown> | null = null;
     try {
-      // Buscar explícitamente la fila del widget en la BD para verificar si fue desactivado
       const { data: spWidgetRow } = await supabaseAdmin
         .from("widgets")
         .select("is_active, config")
@@ -118,12 +153,10 @@ export async function GET(req: NextRequest) {
 
       let isSocialProofActive = true;
 
-      // Si el widget fue desactivado desde "Mis Widgets"
       if (spWidgetRow && spWidgetRow.is_active === false) {
         isSocialProofActive = false;
       }
 
-      // Si fue desactivado desde la página de Notificaciones
       if (spRow && (spRow.is_active === false || spRow.user_disabled === true)) {
         isSocialProofActive = false;
       }
@@ -186,4 +219,4 @@ export async function GET(req: NextRequest) {
     const message = error instanceof Error ? error.message : "Error en render";
     return corsResponse({ error: message }, 500);
   }
-}
+  }
