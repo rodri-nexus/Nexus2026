@@ -9543,21 +9543,8 @@ var renderTablaTalles = function(w) {
   };
 };
   /* ═════════════════════════════════════════════════════════════════════
-   WIDGET #27: PROBADOR VIRTUAL (v146 - AI Auto-Tracking + Photo Capture)
+   WIDGET #27: PROBADOR VIRTUAL (v147 - MediaPipe Live Tracking)
    ═════════════════════════════════════════════════════════════════════ */
-var loadScriptHelper = function(src, callback) {
-  if (document.querySelector('script[src="' + src + '"]')) {
-    if (typeof callback === "function") callback();
-    return;
-  }
-  var s = document.createElement("script");
-  s.src = src;
-  s.async = true;
-  s.onload = function() { if (typeof callback === "function") callback(); };
-  s.onerror = function() { if (typeof callback === "function") callback(); };
-  document.head.appendChild(s);
-};
-
 var openProbadorModal = function(widget, productImgUrl) {
   var cfg = widget.config || {};
   var tituloModal = cfg.titulo_modal || "Probador virtual";
@@ -9565,34 +9552,36 @@ var openProbadorModal = function(widget, productImgUrl) {
   var habilitarSubir = cfg.habilitar_subir_imagen !== false;
   var habilitarRotar = !!cfg.habilitar_rotar;
 
-  // Prevenir duplicados
   var existing = document.getElementById("nevux-pv-modal-overlay");
   if (existing && existing.parentNode) {
     existing.parentNode.removeChild(existing);
   }
 
-  // Cargar MediaPipe en segundo plano
-  loadScriptHelper("https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js");
-  loadScriptHelper("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
-
-  // Estado del probador
+  // Estado
   var mediaStream = null;
-  var facingMode = "user"; // 'user' (frontal) o 'environment' (trasera)
+  var facingMode = "user";
   var isFrozenPhoto = false;
+  var trackingRAF = null;
+  var faceLandmarker = null;
+  var poseLandmarker = null;
+  var mpReady = false;
 
-  // Offsets de usuario
+  // Offsets manuales
   var userX = 0;
   var userY = 0;
   var userScale = 1.0;
   var userRot = 0;
 
-  // Offsets de Auto-tracking AI
+  // Offsets AI (actualizados por el loop)
   var autoX = 0;
   var autoY = 0;
   var autoScale = 1.0;
   var autoRot = 0;
 
-  // Clasificación inteligente del producto según nombre en Tiendanube
+  var currentVideo = null;
+  var currentStage = null;
+
+  // Clasificación del producto por nombre
   var detectCategory = function() {
     var productName = "";
     if (window.LS && window.LS.product && window.LS.product.name) {
@@ -9611,8 +9600,204 @@ var openProbadorModal = function(widget, productImgUrl) {
   };
 
   var productCategory = detectCategory();
+  var usesPose = (productCategory === "torso" || productCategory === "wrist");
 
-  // Overlay Fullscreen
+  /* ─── Carga de MediaPipe Tasks Vision desde CDN ─── */
+  var ensureMediaPipe = function(callback) {
+    if (mpReady) { callback(); return; }
+
+    try {
+      import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs")
+        .then(function(vision) {
+          var FilesetResolver = vision.FilesetResolver;
+          var FaceLandmarker = vision.FaceLandmarker;
+          var PoseLandmarker = vision.PoseLandmarker;
+
+          FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm")
+            .then(function(fileset) {
+              var tasks = [];
+
+              if (!usesPose) {
+                tasks.push(FaceLandmarker.createFromOptions(fileset, {
+                  baseOptions: {
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+                    delegate: "GPU"
+                  },
+                  outputFaceBlendshapes: false,
+                  runningMode: "VIDEO",
+                  numFaces: 1
+                }).then(function(fl) { faceLandmarker = fl; }));
+              } else {
+                tasks.push(PoseLandmarker.createFromOptions(fileset, {
+                  baseOptions: {
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+                    delegate: "GPU"
+                  },
+                  runningMode: "VIDEO",
+                  numPoses: 1
+                }).then(function(pl) { poseLandmarker = pl; }));
+              }
+
+              Promise.all(tasks).then(function() {
+                mpReady = true;
+                callback();
+              }).catch(function() { callback(); });
+            }).catch(function() { callback(); });
+        }).catch(function() { callback(); });
+    } catch (err) {
+      callback();
+    }
+  };
+
+  /* ─── Loop de tracking en vivo ─── */
+  var stopTracking = function() {
+    if (trackingRAF) {
+      cancelAnimationFrame(trackingRAF);
+      trackingRAF = null;
+    }
+  };
+
+  var smooth = function(prev, next, factor) {
+    return prev + (next - prev) * factor;
+  };
+
+  var runTrackingLoop = function(videoEl, stageEl) {
+    if (!videoEl || !stageEl) return;
+    if (videoEl.readyState < 2) {
+      trackingRAF = requestAnimationFrame(function() { runTrackingLoop(videoEl, stageEl); });
+      return;
+    }
+
+    var stageRect = stageEl.getBoundingClientRect();
+    var stageW = stageRect.width;
+    var stageH = stageRect.height;
+
+    var ts = performance.now();
+
+    try {
+      if (faceLandmarker && !usesPose) {
+        var faceResult = faceLandmarker.detectForVideo(videoEl, ts);
+        if (faceResult && faceResult.faceLandmarks && faceResult.faceLandmarks[0]) {
+          var lm = faceResult.faceLandmarks[0];
+          // Puntos clave:
+          // 10 = frente arriba, 152 = mentón, 234 = lado izq, 454 = lado der,
+          // 168 = entrecejo (nariz top), 2 = punta nariz, 33/263 = ojos
+          var top = lm[10];
+          var chin = lm[152];
+          var leftC = lm[234];
+          var rightC = lm[454];
+          var noseTop = lm[168];
+          var leftEye = lm[33];
+          var rightEye = lm[263];
+
+          // Reflejar X si cámara frontal (video espejado)
+          var mirror = (facingMode === "user") ? -1 : 1;
+
+          var faceW = Math.abs(rightC.x - leftC.x) * stageW;
+          var faceH = Math.abs(chin.y - top.y) * stageH;
+
+          var centerX = ((leftC.x + rightC.x) / 2) * stageW;
+          var centerY = ((top.y + chin.y) / 2) * stageH;
+
+          // Rotación aproximada basada en inclinación de ojos
+          var dxEye = (rightEye.x - leftEye.x) * stageW;
+          var dyEye = (rightEye.y - leftEye.y) * stageH;
+          var angleDeg = Math.atan2(dyEye, dxEye) * 180 / Math.PI;
+
+          var targetX = 0;
+          var targetY = 0;
+          var targetScale = 1;
+          var targetRot = angleDeg;
+
+          if (productCategory === "hat") {
+            // Encima de la frente
+            var topY = top.y * stageH;
+            targetX = (centerX - stageW / 2) * mirror * -1;
+            targetY = topY - stageH / 2 - faceH * 0.45;
+            targetScale = (faceW / stageW) * 2.2;
+          } else if (productCategory === "glasses") {
+            // En los ojos
+            var eyeCenterY = ((leftEye.y + rightEye.y) / 2) * stageH;
+            var eyeCenterX = ((leftEye.x + rightEye.x) / 2) * stageW;
+            targetX = (eyeCenterX - stageW / 2) * mirror * -1;
+            targetY = eyeCenterY - stageH / 2;
+            targetScale = (faceW / stageW) * 1.8;
+          } else if (productCategory === "necklace") {
+            // Debajo del mentón
+            var chinY = chin.y * stageH;
+            targetX = (centerX - stageW / 2) * mirror * -1;
+            targetY = chinY - stageH / 2 + faceH * 0.5;
+            targetScale = (faceW / stageW) * 2.0;
+          } else {
+            // face por defecto: centrado en la cara
+            targetX = (centerX - stageW / 2) * mirror * -1;
+            targetY = centerY - stageH / 2;
+            targetScale = (faceW / stageW) * 1.6;
+          }
+
+          autoX = smooth(autoX, targetX, 0.35);
+          autoY = smooth(autoY, targetY, 0.35);
+          autoScale = smooth(autoScale, targetScale, 0.3);
+          autoRot = smooth(autoRot, targetRot, 0.25);
+          updateProductTransform();
+        }
+      } else if (poseLandmarker && usesPose) {
+        var poseResult = poseLandmarker.detectForVideo(videoEl, ts);
+        if (poseResult && poseResult.landmarks && poseResult.landmarks[0]) {
+          var pl = poseResult.landmarks[0];
+          var mirror2 = (facingMode === "user") ? -1 : 1;
+
+          // 11 = hombro izq, 12 = hombro der, 23 = cadera izq, 24 = cadera der
+          // 15 = muñeca izq, 16 = muñeca der
+          var lSh = pl[11];
+          var rSh = pl[12];
+          var lHip = pl[23];
+          var rHip = pl[24];
+          var rWrist = pl[16];
+
+          if (productCategory === "torso" && lSh && rSh && lHip && rHip) {
+            var shouldersX = ((lSh.x + rSh.x) / 2) * stageW;
+            var shouldersY = ((lSh.y + rSh.y) / 2) * stageH;
+            var hipsY = ((lHip.y + rHip.y) / 2) * stageH;
+            var shoulderW = Math.abs(rSh.x - lSh.x) * stageW;
+            var torsoH = Math.abs(hipsY - shouldersY);
+            var torsoCenterY = (shouldersY + hipsY) / 2;
+
+            var dxSh = (rSh.x - lSh.x) * stageW;
+            var dySh = (rSh.y - lSh.y) * stageH;
+            var torsoAngle = Math.atan2(dySh, dxSh) * 180 / Math.PI;
+
+            var targetXT = (shouldersX - stageW / 2) * mirror2 * -1;
+            var targetYT = torsoCenterY - stageH / 2;
+            var targetScaleT = (shoulderW / stageW) * 2.4;
+
+            autoX = smooth(autoX, targetXT, 0.3);
+            autoY = smooth(autoY, targetYT, 0.3);
+            autoScale = smooth(autoScale, targetScaleT, 0.25);
+            autoRot = smooth(autoRot, torsoAngle, 0.2);
+            updateProductTransform();
+          } else if (productCategory === "wrist" && rWrist) {
+            var wristX = rWrist.x * stageW;
+            var wristY = rWrist.y * stageH;
+
+            var targetXW = (wristX - stageW / 2) * mirror2 * -1;
+            var targetYW = wristY - stageH / 2;
+            var targetScaleW = 0.4;
+
+            autoX = smooth(autoX, targetXW, 0.4);
+            autoY = smooth(autoY, targetYW, 0.4);
+            autoScale = smooth(autoScale, targetScaleW, 0.3);
+            autoRot = smooth(autoRot, 0, 0.2);
+            updateProductTransform();
+          }
+        }
+      }
+    } catch (eDetect) {}
+
+    trackingRAF = requestAnimationFrame(function() { runTrackingLoop(videoEl, stageEl); });
+  };
+
+  /* ─── Overlay y Modal ─── */
   var overlay = document.createElement("div");
   overlay.id = "nevux-pv-modal-overlay";
   overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; " +
@@ -9623,7 +9808,6 @@ var openProbadorModal = function(widget, productImgUrl) {
                           "padding: 10px !important; box-sizing: border-box !important; " +
                           "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;";
 
-  // Modal Box estilo Wigy
   var modal = document.createElement("div");
   modal.style.cssText = "background: #111827 !important; color: #ffffff !important; " +
                         "border-radius: 16px !important; width: 100% !important; " +
@@ -9632,20 +9816,19 @@ var openProbadorModal = function(widget, productImgUrl) {
                         "box-shadow: 0 12px 32px rgba(0,0,0,0.5) !important; " +
                         "overflow: hidden !important; position: relative !important;";
 
-  // Header
   var header = document.createElement("div");
   header.style.cssText = "display: flex !important; align-items: center !important; " +
                          "justify-content: space-between !important; padding: 14px 18px !important; " +
                          "border-bottom: 1px solid rgba(255,255,255,0.1) !important; flex-shrink: 0 !important; " +
                          "background: #111827 !important;";
 
-  header.innerHTML = '<div style="font-size: 16px !important; font-weight: 800 !important; color: #ffffff !important;">' +
+  header.innerHTML = '<div style="font-size: 16px !important; font-weight: 800 !important; color: #ffffff !important; display: flex !important; align-items: center !important; gap: 8px !important;">' +
                      tituloModal +
+                     ' <span id="nevux-pv-ai-badge" style="font-size: 9px !important; background: #10B981 !important; color: #fff !important; padding: 2px 7px !important; border-radius: 999px !important; font-weight: 900 !important; display: none !important;">AI</span>' +
                      '</div>' +
                      '<button type="button" id="nevux-pv-close-btn" style="background: none !important; border: none !important; ' +
                      'font-size: 22px !important; color: #ffffff !important; cursor: pointer !important; opacity: 0.8 !important; padding: 0 4px !important; line-height: 1 !important;">✕</button>';
 
-  // Contenido principal
   var content = document.createElement("div");
   content.id = "nevux-pv-content";
   content.style.cssText = "flex: 1 !important; display: flex !important; flex-direction: column !important; " +
@@ -9657,8 +9840,8 @@ var openProbadorModal = function(widget, productImgUrl) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // Detener cámara
   var stopCamera = function() {
+    stopTracking();
     if (mediaStream) {
       try {
         var tracks = mediaStream.getTracks();
@@ -9670,7 +9853,6 @@ var openProbadorModal = function(widget, productImgUrl) {
     }
   };
 
-  // Cerrar modal
   var closeModal = function() {
     stopCamera();
     if (overlay.parentNode) {
@@ -9685,46 +9867,33 @@ var openProbadorModal = function(widget, productImgUrl) {
     if (e.target === overlay) closeModal();
   };
 
-  // Actualizar posición/escala combinando AI + Offsets de usuario
   var updateProductTransform = function() {
     var prodImg = document.getElementById("nevux-pv-prod-overlay");
     if (prodImg) {
       var totalX = autoX + userX;
       var totalY = autoY + userY;
-      var totalScale = autoScale * userScale;
+      var totalScale = Math.max(0.1, autoScale * userScale);
       var totalRot = autoRot + userRot;
 
-      prodImg.style.transform = "translate(" + totalX + "px, " + totalY + "px) scale(" + totalScale + ") rotate(" + totalRot + "deg)";
+      prodImg.style.transform = "translate(-50%, -50%) translate(" + totalX + "px, " + totalY + "px) scale(" + totalScale + ") rotate(" + totalRot + "deg)";
     }
   };
 
-  // Asignar posición inicial por categoría de producto
   var applyCategoryDefaults = function() {
-    if (productCategory === "hat") {
-      autoY = -70;
-      autoScale = 0.9;
-    } else if (productCategory === "glasses") {
-      autoY = -35;
-      autoScale = 0.6;
-    } else if (productCategory === "necklace") {
-      autoY = 40;
-      autoScale = 0.75;
-    } else if (productCategory === "torso") {
-      autoY = 60;
-      autoScale = 1.1;
-    } else if (productCategory === "wrist") {
-      autoY = 80;
-      autoScale = 0.5;
-    } else {
-      autoY = 0;
-      autoScale = 0.85;
-    }
+    autoX = 0;
+    if (productCategory === "hat") { autoY = -70; autoScale = 0.9; }
+    else if (productCategory === "glasses") { autoY = -35; autoScale = 0.6; }
+    else if (productCategory === "necklace") { autoY = 40; autoScale = 0.75; }
+    else if (productCategory === "torso") { autoY = 60; autoScale = 1.1; }
+    else if (productCategory === "wrist") { autoY = 80; autoScale = 0.5; }
+    else { autoY = 0; autoScale = 0.85; }
+    autoRot = 0;
     updateProductTransform();
   };
 
-  // Capturar foto actual del video y congelar pantalla
   var captureCurrentFrame = function(videoEl) {
     try {
+      stopTracking();
       var canvas = document.createElement("canvas");
       canvas.width = videoEl.videoWidth || videoEl.clientWidth || 640;
       canvas.height = videoEl.videoHeight || videoEl.clientHeight || 480;
@@ -9739,33 +9908,39 @@ var openProbadorModal = function(widget, productImgUrl) {
     } catch(errCap) {}
   };
 
-  // Renderizar vista del probador con barra de controles estilo Wigy
   var renderTryOnView = function(bgElement) {
     content.innerHTML = "";
+    currentVideo = (bgElement && bgElement.tagName === "VIDEO") ? bgElement : null;
 
     var stage = document.createElement("div");
     stage.id = "nevux-pv-stage";
     stage.style.cssText = "width: 100% !important; flex: 1 !important; position: relative !important; " +
                           "overflow: hidden !important; background: #000000 !important; " +
                           "display: flex !important; align-items: center !important; justify-content: center !important;";
+    currentStage = stage;
 
     bgElement.style.cssText = "width: 100% !important; height: 100% !important; object-fit: cover !important; position: absolute !important; top: 0 !important; left: 0 !important;";
+    if (currentVideo && facingMode === "user") {
+      bgElement.style.transform = "scaleX(-1)";
+    }
     stage.appendChild(bgElement);
 
     if (productImgUrl) {
       var prodImg = document.createElement("img");
       prodImg.id = "nevux-pv-prod-overlay";
       prodImg.src = productImgUrl;
-      prodImg.style.cssText = "position: absolute !important; max-width: 65% !important; max-height: 65% !important; " +
+      prodImg.style.cssText = "position: absolute !important; top: 50% !important; left: 50% !important; " +
+                              "max-width: 65% !important; max-height: 65% !important; width: auto !important; height: auto !important; " +
                               "object-fit: contain !important; pointer-events: none !important; z-index: 10 !important; " +
-                              "transition: transform 0.05s ease-out !important; " +
-                              "filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)) !important;";
+                              "transition: transform 0.08s linear !important; " +
+                              "filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)) !important; " +
+                              "transform: translate(-50%, -50%) !important;";
       stage.appendChild(prodImg);
     }
 
     content.appendChild(stage);
 
-    // Barra de controles inferior sobre fondo blanco
+    // Controles
     var controlsBar = document.createElement("div");
     controlsBar.style.cssText = "width: 100% !important; background: #ffffff !important; " +
                                 "border-top: 1px solid #e5e7eb !important; padding: 12px 10px !important; " +
@@ -9802,9 +9977,9 @@ var openProbadorModal = function(widget, productImgUrl) {
                          "align-items: center !important; justify-content: center !important; width: 100% !important; " +
                          "color: #111827 !important; font-size: 12px !important; font-weight: 700 !important;";
 
-    var btnPhotoHtml = (mediaStream && !isFrozenPhoto) ? '<button type="button" class="nvx-pv-control-btn" data-act="snap" style="' + pillBtnStyle + ' background: #10B981 !important;">📸 Sacar foto</button>' : '';
-    var btnReCamHtml = isFrozenPhoto ? '<button type="button" class="nvx-pv-control-btn" data-act="recam" style="' + pillBtnStyle + ' background: #3B82F6 !important;">📹 Volver a cámara</button>' : '';
-    var btnFlipHtml = (mediaStream && !isFrozenPhoto) ? '<button type="button" class="nvx-pv-control-btn" data-act="flip" style="' + pillBtnStyle + '">⇆</button>' : '';
+    var btnPhotoHtml = (currentVideo && !isFrozenPhoto) ? '<button type="button" class="nvx-pv-control-btn" data-act="snap" style="' + pillBtnStyle + ' background: #10B981 !important; border-color: #059669 !important;">📸 Sacar foto</button>' : '';
+    var btnReCamHtml = isFrozenPhoto ? '<button type="button" class="nvx-pv-control-btn" data-act="recam" style="' + pillBtnStyle + ' background: #3B82F6 !important; border-color: #2563EB !important;">📹 Volver a cámara</button>' : '';
+    var btnFlipHtml = (currentVideo && !isFrozenPhoto) ? '<button type="button" class="nvx-pv-control-btn" data-act="flip" style="' + pillBtnStyle + '">⇆</button>' : '';
     var btnRotLHtml = habilitarRotar ? '<button type="button" class="nvx-pv-control-btn" data-act="rotL" style="' + pillBtnStyle + '">↺</button>' : '';
     var btnRotRHtml = habilitarRotar ? '<button type="button" class="nvx-pv-control-btn" data-act="rotR" style="' + pillBtnStyle + '">↻</button>' : '';
 
@@ -9823,7 +9998,6 @@ var openProbadorModal = function(widget, productImgUrl) {
 
     applyCategoryDefaults();
 
-    // Event listeners para los botones de control
     var ctrlBtns = controlsBar.querySelectorAll(".nvx-pv-control-btn");
     for (var b = 0; b < ctrlBtns.length; b++) {
       (function(btnEl) {
@@ -9849,9 +10023,7 @@ var openProbadorModal = function(widget, productImgUrl) {
             startCameraStream();
             return;
           } else if (act === "snap") {
-            if (bgElement && bgElement.tagName === "VIDEO") {
-              captureCurrentFrame(bgElement);
-            }
+            if (currentVideo) captureCurrentFrame(currentVideo);
             return;
           } else if (act === "recam") {
             isFrozenPhoto = false;
@@ -9862,9 +10034,19 @@ var openProbadorModal = function(widget, productImgUrl) {
         };
       })(ctrlBtns[b]);
     }
+
+    // Si hay video, lanzar tracking cuando MediaPipe esté listo
+    if (currentVideo && !isFrozenPhoto) {
+      ensureMediaPipe(function() {
+        var badge = document.getElementById("nevux-pv-ai-badge");
+        if (mpReady && badge) badge.style.display = "inline-block";
+        if (mpReady) {
+          runTrackingLoop(currentVideo, stage);
+        }
+      });
+    }
   };
 
-  // Iniciar Stream de Cámara
   var startCameraStream = function() {
     stopCamera();
     isFrozenPhoto = false;
@@ -9878,7 +10060,7 @@ var openProbadorModal = function(widget, productImgUrl) {
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
-        video: { facingMode: facingMode }
+        video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
       }).then(function(stream) {
         mediaStream = stream;
         video.srcObject = stream;
@@ -9900,7 +10082,6 @@ var openProbadorModal = function(widget, productImgUrl) {
     }
   };
 
-  // Procesar archivo subido por usuario
   var handleFileUpload = function(file) {
     if (!file) return;
     var reader = new FileReader();
@@ -9916,7 +10097,6 @@ var openProbadorModal = function(widget, productImgUrl) {
     reader.readAsDataURL(file);
   };
 
-  // Pantalla de elección inicial estilo Wigy
   var renderChoiceView = function() {
     stopCamera();
     content.innerHTML = "";
@@ -10085,5 +10265,5 @@ function renderProbadorVirtual(widget) {
       openProbadorModal(widget, productImgUrl);
     });
   }
-    }
+        }
 })(); 
