@@ -8,6 +8,64 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function CajaContactoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div
+          style={{
+            width: "24px",
+            height: "24px",
+            borderRadius: "50%",
+            background: "#e5e7eb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "12px",
+            flexShrink: 0,
+          }}
+        >
+          👨‍💼
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", lineHeight: 1.1 }}>
+            ¿Tenés alguna pregunta?
+          </div>
+          <div style={{ fontSize: "5.5px", color: "#6b7280", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: "2px" }}>
+            Podés escribirle a nuestros especialistas...
+          </div>
+        </div>
+      </div>
+      <div
+        style={{
+          background: "#111827",
+          color: "#ffffff",
+          borderRadius: "12px",
+          padding: "3px 8px",
+          fontSize: "6px",
+          fontWeight: 800,
+          alignSelf: "flex-start",
+          marginLeft: "32px",
+        }}
+      >
+        Contactanos
+      </div>
+    </div>
+  );
+}
+
 function CajaOpinionesPreview() {
   return (
     <div
@@ -1679,6 +1737,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "caja-contacto":
+      return <CajaContactoPreview />;
     case "caja-opiniones":
       return <CajaOpinionesPreview />;
     case "probador-virtual":
