@@ -29,6 +29,7 @@ import ProbadorVirtualEditor from '@/components/widgets/editors/ProbadorVirtualE
 import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
 import CajaContactoEditor from '@/components/widgets/editors/CajaContactoEditor';
 import SliderImagenesEditor from '@/components/widgets/editors/SliderImagenesEditor';
+import VideoTextoEditor from '@/components/widgets/editors/VideoTextoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -135,6 +136,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: VIDEO Y TEXTO
+  if (params.widgetSlug === 'video-texto') {
+    return <VideoTextoEditor {...editorProps} />;
+  }
 
   // WIDGET: SLIDER DE IMÁGENES
   if (params.widgetSlug === 'slider-imagenes') {
@@ -294,4 +300,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+    }
