@@ -27,9 +27,9 @@ interface SliderImagenesEditorProps {
 }
 
 const CAMPAIGN_THEMES: Record<string, { bg: string; text: string; border: string; accent: string }> = {
-  'black-friday': { bg: '#111827', text: '#ffffff', border: '#374151', accent: '#F59E0B' },
-  'hot-sale': { bg: '#0F172A', text: '#ffffff', border: '#1e293b', accent: '#EF4444' },
-  'cyber-monday': { bg: '#090D16', text: '#ffffff', border: '#1e3a5f', accent: '#3B82F6' },
+  'black-friday': { bg: '#F59E0B', text: '#111827', border: '#D97706', accent: '#111827' },
+  'hot-sale': { bg: '#EF4444', text: '#ffffff', border: '#B91C1C', accent: '#ffffff' },
+  'cyber-monday': { bg: '#3B82F6', text: '#ffffff', border: '#1D4ED8', accent: '#ffffff' },
   'navidad': { bg: '#064E3B', text: '#ffffff', border: '#047857', accent: '#EF4444' },
   'san-valentin': { bg: '#831843', text: '#ffffff', border: '#9d174d', accent: '#F43F5E' },
   'dia-padre-madre': { bg: '#312E81', text: '#ffffff', border: '#4338ca', accent: '#10B981' },
@@ -327,7 +327,8 @@ export default function SliderImagenesEditor({
           boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
           maxWidth: '520px',
           margin: '0 auto',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          border: campaignTheme !== 'none' && CAMPAIGN_THEMES[campaignTheme] ? '2px solid ' + CAMPAIGN_THEMES[campaignTheme].border : 'none'
         }}>
           {title ? (
             <div style={{
@@ -1002,4 +1003,4 @@ export default function SliderImagenesEditor({
       </div>
     </div>
   );
-}
+  }
