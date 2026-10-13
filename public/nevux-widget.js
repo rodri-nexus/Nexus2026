@@ -1824,6 +1824,7 @@
             if (w.widget_slug === "probador-virtual") renderProbadorVirtual(w);
             if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
             if (w.widget_slug === "caja-contacto") renderCajaContacto(w);
+            if (w.widget_slug === "slider-imagenes") renderSliderImagenes(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -10698,4 +10699,179 @@ function renderCajaContacto(w) {
     // Silencioso
   }
 }
+                                      // WIDGET #30: SLIDER DE IMÁGENES
+  var renderSliderImagenes = function(w) {
+    var pType = detectPageType();
+    if (pType !== "product") return;
+
+    if (document.getElementById("nvx-slider-imagenes-" + w.id)) return;
+
+    var cfg = w.config || {};
+    var targetCatId = w.target_category_id || (cfg && cfg.category_id);
+    if (w.target_type === "category" && targetCatId) {
+      if (!checkCategoryMatch(targetCatId)) return;
+    }
+
+    var images = cfg.images || [];
+    if (!images || images.length === 0) return;
+
+    var title = cfg.title || "";
+    var position = cfg.position || "before-description";
+    var speed = typeof cfg.speed === "number" ? cfg.speed : 0.8;
+    var imageSize = cfg.imageSize || 250;
+    var borderRadius = typeof cfg.borderRadius === "number" ? cfg.borderRadius : 10;
+    var titleAlign = cfg.titleAlign || "left";
+    var titleColor = cfg.titleColor || "#000000";
+    var titleSize = cfg.titleSize || 22;
+    var bgColor = cfg.bgColor || "#ffffff";
+    var gap = typeof cfg.gap === "number" ? cfg.gap : 12;
+    var disableModal = !!cfg.disableModal;
+    var modalControlsColor = cfg.modalControlsColor || "#333333";
+
+    // Inyectar Keyframes de animación continua horizontal (si no existen)
+    if (!document.getElementById("nvx-slider-keyframes")) {
+      var styleEl = document.createElement("style");
+      styleEl.id = "nvx-slider-keyframes";
+      styleEl.innerHTML = "@keyframes nvxContinuousSlide { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } " +
+        ".nvx-slider-track:hover { animation-play-state: paused !important; }";
+      document.head.appendChild(styleEl);
+    }
+
+    var container = document.createElement("div");
+    container.id = "nvx-slider-imagenes-" + w.id;
+    container.className = "nvx-widget-container";
+    container.style.cssText = "width:100% !important; margin:20px 0 !important; box-sizing:border-box !important; background-color:" + bgColor + " !important; border-radius:12px !important; padding:16px !important; overflow:hidden !important; position:relative !important;";
+
+    var html = "";
+
+    if (title) {
+      var alignCss = titleAlign === "center" ? "center" : "left";
+      html += '<div style="font-size:' + titleSize + 'px !important; font-weight:800 !important; color:' + titleColor + ' !important; text-align:' + alignCss + ' !important; margin-bottom:14px !important; font-family:system-ui, -apple-system, sans-serif !important;">' + title + '</div>';
+    }
+
+    var previewDuration = speed <= 0 ? 0 : Math.max(8, Math.round(40 - speed * 28));
+    var animCss = speed > 0 ? "animation: nvxContinuousSlide " + previewDuration + "s linear infinite !important;" : "";
+
+    html += '<div style="overflow:hidden !important; width:100% !important; position:relative !important;">';
+    html += '<div class="nvx-slider-track" style="display:flex !important; gap:' + gap + 'px !important; width:max-content !important; ' + animCss + '">';
+
+    // Duplicar array para carrusel infinito continuo
+    var doubleImages = images.concat(images);
+    for (var i = 0; i < doubleImages.length; i++) {
+      var img = doubleImages[i];
+      var cursorCss = disableModal ? "default" : "pointer";
+      html += '<div class="nvx-slider-item" data-idx="' + (i % images.length) + '" style="width:' + imageSize + 'px !important; height:' + Math.round(imageSize * 1.15) + 'px !important; border-radius:' + borderRadius + 'px !important; overflow:hidden !important; flex-shrink:0 !important; background-color:#f3f4f6 !important; border:1px solid rgba(0,0,0,0.06) !important; cursor:' + cursorCss + ' !important;">';
+      html += '<img src="' + img.url + '" alt="" style="width:100% !important; height:100% !important; object-fit:cover !important; display:block !important;" />';
+      html += '</div>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    // Lógica de inyección según ubicación
+    var inserted = false;
+
+    if (position === "after-description") {
+      // Regla #53: Buscador DOM de 3 niveles para la descripción
+      var descEl = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description");
+      if (!descEl) {
+        var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+        for (var h = 0; h < headers.length; h++) {
+          if ((headers[h].textContent || "").toLowerCase().indexOf("descripci") !== -1) {
+            descEl = headers[h].parentNode;
+            break;
+          }
+        }
+      }
+      if (!descEl) {
+        descEl = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+      }
+      if (descEl && descEl.parentNode) {
+        descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        inserted = true;
+      }
+    }
+
+    if (!inserted) {
+      // Ubicación por defecto: "before-description" (debajo del botón de compra)
+      var targetEl = document.querySelector("form[action*='/cart/add']");
+      if (targetEl && targetEl.parentNode) {
+        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+      } else {
+        var mainContainer = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+        if (mainContainer) mainContainer.appendChild(container);
+      }
+    }
+
+    // Modal / Lightbox al hacer click en una imagen (si no está desactivado)
+    if (!disableModal) {
+      var items = container.querySelectorAll(".nvx-slider-item");
+      for (var k = 0; k < items.length; k++) {
+        (function(itemEl) {
+          itemEl.addEventListener("click", function() {
+            var rawIdx = parseInt(itemEl.getAttribute("data-idx") || "0", 10);
+            openImageModal(images, rawIdx, modalControlsColor);
+          });
+        })(items[k]);
+      }
+    }
+  };
+
+  // Helper Modal Lightbox para Slider de Imágenes
+  var openImageModal = function(images, initialIdx, controlsColor) {
+    var existingModal = document.getElementById("nvx-img-modal");
+    if (existingModal && existingModal.parentNode) {
+      existingModal.parentNode.removeChild(existingModal);
+    }
+
+    var currentIdx = initialIdx;
+
+    var modal = document.createElement("div");
+    modal.id = "nvx-img-modal";
+    modal.style.cssText = "position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; background-color:rgba(0,0,0,0.85) !important; z-index:999999 !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:20px !important; box-sizing:border-box !important;";
+
+    var closeBtn = document.createElement("button");
+    closeBtn.innerHTML = "✕";
+    closeBtn.style.cssText = "position:absolute !important; top:20px !important; right:20px !important; background:none !important; border:none !important; color:" + controlsColor + " !important; font-size:28px !important; font-weight:800 !important; cursor:pointer !important; z-index:1000000 !important;";
+    closeBtn.onclick = function() {
+      if (modal.parentNode) modal.parentNode.removeChild(modal);
+    };
+
+    var imgEl = document.createElement("img");
+    imgEl.src = images[currentIdx].url;
+    imgEl.style.cssText = "max-width:90vw !important; max-height:80vh !important; object-fit:contain !important; border-radius:12px !important; box-shadow:0 10px 30px rgba(0,0,0,0.5) !important;";
+
+    var prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "‹";
+    prevBtn.style.cssText = "position:absolute !important; left:20px !important; top:50% !important; transform:translateY(-50%) !important; background:rgba(255,255,255,0.9) !important; border:none !important; color:" + controlsColor + " !important; font-size:32px !important; font-weight:800 !important; width:44px !important; height:44px !important; border-radius:50% !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important;";
+    prevBtn.onclick = function(e) {
+      e.stopPropagation();
+      currentIdx = (currentIdx - 1 + images.length) % images.length;
+      imgEl.src = images[currentIdx].url;
+    };
+
+    var nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "›";
+    nextBtn.style.cssText = "position:absolute !important; right:20px !important; top:50% !important; transform:translateY(-50%) !important; background:rgba(255,255,255,0.9) !important; border:none !important; color:" + controlsColor + " !important; font-size:32px !important; font-weight:800 !important; width:44px !important; height:44px !important; border-radius:50% !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important;";
+    nextBtn.onclick = function(e) {
+      e.stopPropagation();
+      currentIdx = (currentIdx + 1) % images.length;
+      imgEl.src = images[currentIdx].url;
+    };
+
+    modal.appendChild(closeBtn);
+    modal.appendChild(prevBtn);
+    modal.appendChild(imgEl);
+    modal.appendChild(nextBtn);
+
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        if (modal.parentNode) modal.parentNode.removeChild(modal);
+      }
+    };
+
+    document.body.appendChild(modal);
+  };
 })(); 
