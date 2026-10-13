@@ -626,7 +626,7 @@ export default function VideoTextoEditor({
             </div>
 
             <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '12px', fontWeight 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
                 Color del título
               </label>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -843,4 +843,4 @@ export default function VideoTextoEditor({
       </div>
     </div>
   );
-                   }
+}
