@@ -10276,45 +10276,49 @@ function renderCajaOpiniones(w) {
   var opinions = config.opinions || [];
   if (!opinions || opinions.length === 0) return;
 
-  var style = config.style || {};
+  // Filtrar opiniones vacías
+  var valid = [];
+  for (var vi = 0; vi < opinions.length; vi++) {
+    var opp = opinions[vi];
+    if (opp && (opp.name || opp.text)) valid.push(opp);
+  }
+  if (valid.length === 0) return;
+  opinions = valid;
+
   var location = config.location || 'product_after';
   var target = null;
 
-  // Mapa de presets para Fechas Especiales si se selecciona un evento
-  var eventKey = config.event || config.campaign || config.season || config.preset || style.preset || '';
-  var eventPresets = {
-    'cyber-monday': { bg: '#0b0f19', color: '#ffffff', star: '#3b82f6', border: '#1e293b' },
-    'black-friday': { bg: '#0f172a', color: '#ffffff', star: '#f59e0b', border: '#1e293b' },
-    'hot-sale': { bg: '#991b1b', color: '#ffffff', star: '#fef08a', border: '#b91c1c' },
-    'navidad': { bg: '#064e3b', color: '#ffffff', star: '#fbbf24', border: '#047857' },
-    'san-valentin': { bg: '#831843', color: '#ffffff', star: '#f472b6', border: '#9d174d' },
-    'liquidacion': { bg: '#431407', color: '#ffffff', star: '#fdba74', border: '#7c2d12' }
-  };
-  var activePreset = eventPresets[eventKey] || {};
-
-  // Colores finales priorizando la configuración guarda
-  var bgColor = style.backgroundColor || style.bg || activePreset.bg || '#ffffff';
-  var textColor = style.textColor || style.color || activePreset.color || '#1a1a1a';
-  var starColor = style.starColor || activePreset.star || '#f5a623';
-  var borderColor = style.borderColor || activePreset.border || '#e2e8f0';
+  // Lectura directa de keys reales del editor (NO config.style)
+  var bgColor = config.bgColor || '#f7f7f7';
+  var textColor = config.textColor || '#333333';
+  var starColor = config.starColor || '#f5b301';
+  var borderColor = config.borderColor || '#cccccc';
+  var showBorder = config.showBorder !== false;
+  var nameFontSize = config.nameFontSize || 16;
+  var textFontSize = config.textFontSize || 15;
+  var borderRadius = typeof config.borderRadius === 'number' ? config.borderRadius : 10;
+  var paddingVal = typeof config.padding === 'number' ? config.padding : 20;
+  var marginTop = typeof config.marginTop === 'number' ? config.marginTop : 16;
+  var marginBottom = typeof config.marginBottom === 'number' ? config.marginBottom : 16;
+  var autoplayEnabled = config.autoplayEnabled !== false;
+  var autoplayInterval = (config.autoplayInterval || 5) * 1000;
 
   // Ubicación precisa en Tiendanube
   if (location === 'product_after') {
-    target = document.querySelector('.js-addtocart') ||
-             document.querySelector('.js-add-to-cart-btn') ||
-             document.querySelector('form[action="/cart/add"] button[type="submit"]') ||
-             document.querySelector('form[action="/cart/add"] input[type="submit"]') ||
-             document.querySelector('form[action="/cart/add"]') ||
+    target = document.querySelector('form[action*="/cart/add"]') ||
+             document.querySelector('.js-addtocart') ||
              document.querySelector('[data-store="product-buy-button"]');
   } else if (location === 'product_before') {
-    target = document.querySelector('form[action="/cart/add"]') ||
+    target = document.querySelector('form[action*="/cart/add"]') ||
              document.querySelector('.js-product-container') ||
              document.querySelector('.js-product-detail');
   } else if (location === 'price_after') {
-    target = document.querySelector('.js-price-display') ||
+    target = document.querySelector('.js-price-container') ||
+             document.querySelector('.js-product-price-container') ||
              document.querySelector('.price-container') ||
-             document.querySelector('.js-product-price') ||
-             document.querySelector('[data-store="product-price"]');
+             document.querySelector('.js-item-price') ||
+             document.querySelector('[data-store="product-price"]') ||
+             document.querySelector('.js-price-display');
   } else if (location === 'cart') {
     target = document.querySelector('.js-cart-container') ||
              document.querySelector('#main-cart') ||
@@ -10330,96 +10334,100 @@ function renderCajaOpiniones(w) {
   var div = document.createElement('div');
   div.id = containerId;
 
-  div.style.margin = (style.marginTop !== undefined ? style.marginTop : '20') + 'px ' +
-                     (style.marginRight !== undefined ? style.marginRight : '0') + 'px ' +
-                     (style.marginBottom !== undefined ? style.marginBottom : '20') + 'px ' +
-                     (style.marginLeft !== undefined ? style.marginLeft : '0') + 'px';
-  div.style.padding = (style.padding !== undefined ? style.padding : '18') + 'px';
-  div.style.backgroundColor = bgColor;
-  div.style.borderRadius = (style.borderRadius !== undefined ? style.borderRadius : '14') + 'px';
-  div.style.border = (style.borderWidth !== undefined ? style.borderWidth : '1') + 'px solid ' + borderColor;
-  div.style.fontFamily = style.fontFamily || 'inherit';
-  div.style.color = textColor;
-  div.style.boxSizing = 'border-box';
-  div.style.width = '100%';
-  div.style.transition = 'opacity 0.2s ease';
+  div.style.cssText = 'position:relative !important;' +
+    'background-color:' + bgColor + ' !important;' +
+    'color:' + textColor + ' !important;' +
+    'border:' + (showBorder ? '1px solid ' + borderColor : 'none') + ' !important;' +
+    'border-radius:' + borderRadius + 'px !important;' +
+    'padding:' + paddingVal + 'px !important;' +
+    'margin-top:' + marginTop + 'px !important;' +
+    'margin-bottom:' + marginBottom + 'px !important;' +
+    'box-sizing:border-box !important;' +
+    'width:100% !important;' +
+    'max-width:100% !important;' +
+    'font-family:inherit !important;' +
+    'transition:opacity 0.2s ease !important;' +
+    'box-shadow:0 2px 8px rgba(0,0,0,0.03) !important;';
 
   var currentIndex = 0;
   var intervalId = null;
-  var autoplaySeconds = parseInt(config.autoplay, 10) || 0;
 
   function createStars(rating) {
-    var html = '<div style="display:inline-flex; gap:3px; align-items:center;">';
+    var html = '<div style="display:inline-flex !important;gap:2px !important;align-items:center !important;flex-shrink:0 !important;">';
     for (var i = 1; i <= 5; i++) {
       var isFilled = i <= rating;
-      var color = isFilled ? starColor : '#475569';
-      html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="' + (isFilled ? color : 'none') + '" stroke="' + color + '" stroke-width="2" style="display:inline-block;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+      var color = isFilled ? starColor : '#d1d5db';
+      html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (isFilled ? color : 'none') + '" stroke="' + color + '" stroke-width="2" style="display:inline-block;flex-shrink:0;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
     }
     html += '</div>';
     return html;
   }
 
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   function formatText(txt) {
     if (!txt) return '';
-    return txt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    var escaped = escapeHtml(txt);
+    return escaped.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:700;color:' + textColor + ';">$1</strong>');
   }
 
   function renderSlide(index) {
     var op = opinions[index];
     if (!op) return '';
 
-    var nameVal = op.name || op.nombre || op.author || 'Cliente';
-    var commentVal = op.comment || op.text || op.opinion || op.description || op.descripcion || op.contenido || '';
-    var photoVal = op.image || op.photo || op.img || op.foto || op.avatar || '';
-    var isVerified = op.verified !== undefined ? op.verified : (op.verificado !== undefined ? op.verificado : true);
-    var ratingVal = parseInt(op.rating || op.estrellas || 5, 10) || 5;
+    var nameVal = op.name || 'Cliente';
+    var commentVal = op.text || '';
+    var photoVal = op.photo || '';
+    var isVerified = op.verified !== false;
+    var ratingVal = parseInt(op.rating, 10) || 5;
 
-    var slideHtml = '<div style="width:100%; box-sizing:border-box;">';
+    var showArrows = opinions.length > 1;
 
-    // Header principal: Avatar centrado verticalmente con Nombre y Estrellas
-    slideHtml += '<div style="display:flex; align-items:center; gap:12px; width:100%; margin-bottom:12px;">';
+    var html = '';
 
-    // Avatar Circular
+    // Flechas en position absolute arriba a la derecha
+    if (showArrows) {
+      html += '<div style="position:absolute !important;top:12px !important;right:12px !important;display:flex !important;align-items:center !important;gap:4px !important;z-index:2 !important;">' +
+        '<span class="nevux-prev" style="cursor:pointer !important;user-select:none !important;font-weight:bold !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">‹</span>' +
+        '<span class="nevux-next" style="cursor:pointer !important;user-select:none !important;font-weight:bold !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">›</span>' +
+        '</div>';
+    }
+
+    // Header: Avatar + Nombre + Estrellas en una sola fila
+    html += '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;' + (showArrows ? 'padding-right:60px !important;' : '') + '">';
+
+    // Avatar
     if (photoVal) {
-      slideHtml += '<img src="' + photoVal + '" style="width:50px; height:50px; border-radius:50%; object-fit:cover; display:block; flex-shrink:0;">';
+      html += '<img src="' + photoVal + '" alt="" style="width:44px !important;height:44px !important;border-radius:50% !important;object-fit:cover !important;display:block !important;flex-shrink:0 !important;">';
     } else {
-      slideHtml += '<div style="width:50px; height:50px; border-radius:50%; background-color:rgba(255,255,255,0.15); color:' + textColor + '; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:18px; flex-shrink:0; border:1px solid rgba(255,255,255,0.2);">' + nameVal.charAt(0).toUpperCase() + '</div>';
+      html += '<div style="width:44px !important;height:44px !important;border-radius:50% !important;background-color:rgba(255,255,255,0.15) !important;color:' + textColor + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:700 !important;font-size:16px !important;flex-shrink:0 !important;border:1px solid rgba(255,255,255,0.2) !important;">' + escapeHtml(nameVal.charAt(0).toUpperCase()) + '</div>';
     }
 
-    // Contenedor a la derecha del Avatar
-    slideHtml += '<div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">';
-    
-    // Fila 1: Nombre (Centrado a la izq) + Estrellas (a la der)
-    slideHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;">';
-    slideHtml += '<span style="font-weight:700; font-size:16px; color:' + textColor + '; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + nameVal + '</span>';
-    slideHtml += createStars(ratingVal);
-    slideHtml += '</div>';
+    // Nombre + Estrellas (alineados en fila con el avatar)
+    html += '<div style="flex:1 !important;min-width:0 !important;display:flex !important;align-items:center !important;gap:10px !important;flex-wrap:wrap !important;">';
+    html += '<span style="font-weight:700 !important;font-size:' + nameFontSize + 'px !important;color:' + textColor + ' !important;line-height:1.2 !important;">' + escapeHtml(nameVal) + '</span>';
+    html += createStars(ratingVal);
+    html += '</div>';
 
-    // Fila 2: Flechas `<` `>` justo debajo del nombre
-    if (opinions.length > 1) {
-      slideHtml += '<div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:14px; color:' + textColor + '; opacity:0.8;">';
-      slideHtml += '<span class="nevux-prev" style="cursor:pointer; user-select:none; font-weight:bold; padding:2px 4px;">‹</span>';
-      slideHtml += '<span class="nevux-next" style="cursor:pointer; user-select:none; font-weight:bold; padding:2px 4px;">›</span>';
-      slideHtml += '</div>';
-    }
-
-    slideHtml += '</div>'; // fin info header
-    slideHtml += '</div>'; // fin header flex
+    html += '</div>'; // fin header
 
     // Comentario
     if (commentVal) {
-      slideHtml += '<div style="margin-top:8px; font-size:14px; line-height:1.5; color:' + textColor + '; word-break:break-word; text-align:left;">' + formatText(commentVal) + '</div>';
+      html += '<div style="margin-top:10px !important;font-size:' + textFontSize + 'px !important;line-height:1.5 !important;color:' + textColor + ' !important;word-break:break-word !important;text-align:left !important;">' + formatText(commentVal) + '</div>';
     }
 
-    // Compra Verificada (Abajo de todo)
+    // Compra Verificada (inline minimalista)
     if (isVerified) {
-      slideHtml += '<div style="margin-top:10px; display:inline-flex; align-items:center; gap:6px; color:#10b981; font-size:13px; font-weight:600;">';
-      slideHtml += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
-      slideHtml += 'Compra verificada</div>';
+      html += '<div style="margin-top:10px !important;display:inline-flex !important;align-items:center !important;gap:5px !important;color:#10b981 !important;font-size:12px !important;font-weight:600 !important;background:transparent !important;border:none !important;padding:0 !important;">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>' +
+        '<span style="color:#10b981 !important;">Compra verificada</span>' +
+        '</div>';
     }
 
-    slideHtml += '</div>';
-    return slideHtml;
+    return html;
   }
 
   function updateContent() {
@@ -10439,6 +10447,7 @@ function renderCajaOpiniones(w) {
     if (btnPrev) {
       btnPrev.onclick = function(e) {
         if (e && e.stopPropagation) e.stopPropagation();
+        if (e && e.preventDefault) e.preventDefault();
         currentIndex = (currentIndex - 1 + opinions.length) % opinions.length;
         updateContent();
         resetInterval();
@@ -10448,6 +10457,7 @@ function renderCajaOpiniones(w) {
     if (btnNext) {
       btnNext.onclick = function(e) {
         if (e && e.stopPropagation) e.stopPropagation();
+        if (e && e.preventDefault) e.preventDefault();
         currentIndex = (currentIndex + 1) % opinions.length;
         updateContent();
         resetInterval();
@@ -10455,8 +10465,23 @@ function renderCajaOpiniones(w) {
     }
   }
 
+  function startInterval() {
+    if (autoplayEnabled && opinions.length > 1) {
+      intervalId = setInterval(function() {
+        currentIndex = (currentIndex + 1) % opinions.length;
+        updateContent();
+      }, autoplayInterval);
+    }
+  }
+
+  function resetInterval() {
+    if (intervalId) clearInterval(intervalId);
+    startInterval();
+  }
+
   div.innerHTML = renderSlide(0);
 
+  // Inyección según location
   if (location === 'product_after' || location === 'price_after' || location === 'cart') {
     if (target.nextSibling) {
       target.parentNode.insertBefore(div, target.nextSibling);
@@ -10464,29 +10489,15 @@ function renderCajaOpiniones(w) {
       target.parentNode.appendChild(div);
     }
   } else {
+    // product_before
     target.parentNode.insertBefore(div, target);
   }
 
   bindEvents();
 
   if (opinions.length > 1) {
-    function startInterval() {
-      if (autoplaySeconds > 0) {
-        intervalId = setInterval(function() {
-          currentIndex = (currentIndex + 1) % opinions.length;
-          updateContent();
-        }, autoplaySeconds * 1000);
-      }
-    }
-
-    function resetInterval() {
-      if (intervalId) clearInterval(intervalId);
-      startInterval();
-    }
-
     div.onmouseenter = function() { if (intervalId) clearInterval(intervalId); };
     div.onmouseleave = function() { startInterval(); };
-
     startInterval();
   }
 }
