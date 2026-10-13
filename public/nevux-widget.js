@@ -1825,6 +1825,7 @@
             if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
             if (w.widget_slug === "caja-contacto") renderCajaContacto(w);
             if (w.widget_slug === "slider-imagenes") renderSliderImagenes(w);
+            if (w.widget_slug === "video-texto") renderVideoTexto(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -10923,6 +10924,156 @@ function renderCajaContacto(w) {
           });
         })(items[k]);
       }
+    }
+  };
+    // WIDGET #31: VIDEO Y TEXTO
+  var renderVideoTexto = function(w) {
+    var pType = detectPageType();
+    if (pType !== "product") return;
+
+    if (document.getElementById("nvx-video-texto-" + w.id)) return;
+
+    var cfg = w.config || {};
+    var targetCatId = w.target_category_id || (cfg && cfg.category_id);
+    if (w.target_type === "category" && targetCatId) {
+      if (!checkCategoryMatch(targetCatId)) return;
+    }
+
+    var title = cfg.title || "";
+    var description = cfg.description || "";
+    var videoType = cfg.videoType || "youtube";
+    var youtubeUrl = cfg.youtubeUrl || "";
+    var customVideoUrl = cfg.customVideoUrl || "";
+    var position = cfg.position || "before-description";
+    var videoPosition = cfg.videoPosition || "right";
+
+    var bgColor = cfg.bgColor || "#fafafa";
+    var titleColor = cfg.titleColor || "#111827";
+    var textColor = cfg.textColor || "#4B5563";
+    var titleSize = cfg.titleSize || 22;
+    var textSize = cfg.textSize || 15;
+    var campaignTheme = cfg.campaignTheme || "none";
+
+    var PRESETS_DATA = {
+      "black-friday": { bg: "#F59E0B", text: "#111827", border: "#D97706" },
+      "hot-sale": { bg: "#EF4444", text: "#ffffff", border: "#B91C1C" },
+      "cyber-monday": { bg: "#3B82F6", text: "#ffffff", border: "#1D4ED8" },
+      "navidad": { bg: "#064E3B", text: "#ffffff", border: "#047857" },
+      "san-valentin": { bg: "#831843", text: "#ffffff", border: "#9d174d" },
+      "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#4338ca" },
+      "liquidacion": { bg: "#7F1D1D", text: "#ffffff", border: "#991b1b" }
+    };
+
+    var borderCss = "border:1px solid rgba(0,0,0,0.06) !important;";
+    if (campaignTheme !== "none" && PRESETS_DATA[campaignTheme]) {
+      var th = PRESETS_DATA[campaignTheme];
+      bgColor = th.bg;
+      titleColor = th.text;
+      textColor = th.text;
+      borderCss = "border:2px solid " + th.border + " !important;";
+    }
+
+    var getEmbedUrl = function(url) {
+      if (!url) return "";
+      var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      var match = url.match(regExp);
+      return (match && match[2].length === 11) ? "https://www.youtube.com/embed/" + match[2] : url;
+    };
+
+    var container = document.createElement("div");
+    container.id = "nvx-video-texto-" + w.id;
+    container.className = "nvx-widget-container";
+    container.style.cssText = "width:100% !important; margin:20px 0 !important; box-sizing:border-box !important; background-color:" + bgColor + " !important; " + borderCss + " border-radius:16px !important; padding:20px !important; overflow:hidden !important; position:relative !important; display:block !important;";
+
+    var rowDirection = videoPosition === "left" ? "row-reverse" : "row";
+
+    var html = '<div style="display:flex !important; flex-wrap:wrap !important; gap:20px !important; align-items:center !important; flex-direction:' + rowDirection + ' !important;">';
+
+    // Bloque Texto
+    html += '<div style="flex:1 1 220px !important; min-width:200px !important;">';
+    if (title) {
+      html += '<div style="font-size:' + titleSize + 'px !important; font-weight:800 !important; color:' + titleColor + ' !important; margin-bottom:10px !important; line-height:1.3 !important; font-family:system-ui, -apple-system, sans-serif !important;">' + title + '</div>';
+    }
+    if (description) {
+      html += '<div style="font-size:' + textSize + 'px !important; color:' + textColor + ' !important; line-height:1.5 !important; font-family:system-ui, -apple-system, sans-serif !important;">' + description + '</div>';
+    }
+    html += '</div>';
+
+    // Bloque Video
+    html += '<div style="flex:1 1 260px !important; min-width:240px !important; width:100% !important;">';
+    html += '<div style="position:relative !important; width:100% !important; padding-bottom:56.25% !important; height:0 !important; border-radius:12px !important; overflow:hidden !important; background-color:#000000 !important; box-shadow:0 4px 12px rgba(0,0,0,0.1) !important;">';
+
+    if (videoType === "youtube") {
+      var embed = getEmbedUrl(youtubeUrl);
+      if (embed) {
+        html += '<iframe src="' + embed + '" title="Video" style="position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:none !important;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+      }
+    } else {
+      if (customVideoUrl) {
+        html += '<video src="' + customVideoUrl + '" controls style="position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; object-fit:cover !important;"></video>';
+      }
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    var findDescriptionEl = function() {
+      var descEl = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description, .product-description-container, #product-description, .js-product-description-container");
+      if (!descEl) {
+        var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab], .tab-title, .nav-link");
+        for (var h = 0; h < headers.length; h++) {
+          var ht = (headers[h].textContent || "").toLowerCase();
+          if (ht.indexOf("descripci") !== -1 || ht.indexOf("description") !== -1) {
+            descEl = headers[h].closest(".tab-content, .accordion, .js-accordion-container, .product-tabs, .tabs-content, section, .tab-pane") || headers[h].parentNode;
+            break;
+          }
+        }
+      }
+      return descEl || null;
+    };
+
+    var inserted = false;
+    var descEl = findDescriptionEl();
+
+    if (position === "after-description") {
+      if (descEl && descEl.parentNode) {
+        descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        inserted = true;
+      } else {
+        var mainAfter = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+        if (mainAfter) {
+          mainAfter.appendChild(container);
+          inserted = true;
+        }
+      }
+    } else {
+      if (descEl && descEl.parentNode) {
+        descEl.parentNode.insertBefore(container, descEl);
+        inserted = true;
+      }
+      if (!inserted) {
+        var cartForm = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form.js-product-form, form#product_form, form.product-form");
+        if (cartForm && cartForm.parentNode) {
+          cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
+          inserted = true;
+        }
+      }
+    }
+
+    if (!inserted || !container.parentNode) {
+      setTimeout(function() {
+        if (document.getElementById("nvx-video-texto-" + w.id) && container.parentNode) return;
+        var d = findDescriptionEl();
+        if (position === "after-description") {
+          if (d && d.parentNode) d.parentNode.insertBefore(container, d.nextSibling);
+        } else {
+          if (d && d.parentNode) d.parentNode.insertBefore(container, d);
+        }
+      }, 500);
     }
   };
 })(); 
