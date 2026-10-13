@@ -27,6 +27,7 @@ import BeneficiosEditor from '@/components/widgets/editors/BeneficiosEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
 import ProbadorVirtualEditor from '@/components/widgets/editors/ProbadorVirtualEditor';
 import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
+import CajaContactoEditor from '@/components/widgets/editors/CajaContactoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -133,6 +134,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: CAJA DE CONTACTO
+  if (params.widgetSlug === 'caja-contacto') {
+    return <CajaContactoEditor {...editorProps} />;
+  }
 
   // WIDGET: CAJA DE OPINIONES
   if (params.widgetSlug === 'caja-opiniones') {
@@ -282,4 +288,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-        }
+}
