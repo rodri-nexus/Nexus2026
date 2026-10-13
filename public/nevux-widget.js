@@ -10269,7 +10269,7 @@ function renderProbadorVirtual(widget) {
         }
       /* ==========================================================================
    WIDGET #28: CAJA DE OPINIONES (caja-opiniones)
-   Ancho 100% horizontal — se inyecta DEBAJO de la fila qty+botón
+   Inyección exterior a 100% ancho horizontal
    ========================================================================== */
 
 function renderCajaOpiniones(w) {
@@ -10287,18 +10287,16 @@ function renderCajaOpiniones(w) {
 
   var location = config.location || 'product_after';
 
-  // Colores del editor
   var bgColor = config.bgColor || '#f5f5f5';
   var textColor = config.textColor || '#333333';
   var starColor = config.starColor || '#f5b301';
   var borderColor = config.borderColor || '#e5e7eb';
   var showBorder = config.showBorder !== false;
 
-  // Tamaño FIJO profesional (igual a la referencia)
   var paddingVal = 14;
   var borderRadius = 12;
-  var marginTop = 12;
-  var marginBottom = 12;
+  var marginTop = 14;
+  var marginBottom = 14;
   var nameFontSize = 15;
   var textFontSize = 14;
   var avatarSize = 42;
@@ -10309,140 +10307,84 @@ function renderCajaOpiniones(w) {
   var containerId = 'nevux-opiniones-' + w.id;
   if (document.getElementById(containerId)) return;
 
-  // ——— Buscar punto de inserción CORRECTO (fuera de la fila flex) ———
-  function findForm() {
-    return document.querySelector('form[action*="/cart/add"]') ||
-           document.querySelector('form[action*="/comprar"]') ||
-           document.querySelector('.js-product-form') ||
-           document.querySelector('form[data-store="product-form"]');
-  }
+  // Buscar el elemento formulario completo de compra
+  var target = null;
+  if (location === 'cart') {
+    target = document.querySelector('.cart-summary') ||
+             document.querySelector('.js-cart-total') ||
+             document.querySelector('#cart-total') ||
+             document.querySelector('.js-cart-container') ||
+             document.querySelector('#main-cart');
+  } else if (location === 'price_after') {
+    target = document.querySelector('.js-price-container') ||
+             document.querySelector('.js-product-price-container') ||
+             document.querySelector('.price-container') ||
+             document.querySelector('.js-item-price') ||
+             document.querySelector('[data-store="product-price"]') ||
+             document.querySelector('.js-price-display');
+  } else {
+    // product_after (default) / product_before
+    var btn = document.querySelector('.js-addtocart') ||
+              document.querySelector('.js-add-to-cart-btn') ||
+              document.querySelector('form[action*="/cart/add"]') ||
+              document.querySelector('form[action*="/comprar"]') ||
+              document.querySelector('[data-store="product-buy-button"]') ||
+              document.querySelector('.js-product-form');
 
-  function findQtyRow(form) {
-    // Sube niveles buscando el contenedor que tiene CANTIDAD + BOTÓN juntos
-    var el = form;
-    for (var hop = 0; hop < 6 && el && el.parentNode; hop++) {
-      var parent = el.parentNode;
-      if (!parent || parent === document.body || parent === document.documentElement) break;
-      var hasQty = false;
-      var kids = parent.children || [];
-      for (var k = 0; k < kids.length; k++) {
-        var kid = kids[k];
-        if (!kid || kid === el) continue;
-        var cls = (kid.className && String(kid.className)) || '';
-        var txt = '';
-        try { txt = kid.textContent || ''; } catch (e1) {}
-        if (
-          (kid.querySelector && (
-            kid.querySelector('input[name="quantity"]') ||
-            kid.querySelector('input[type="number"]') ||
-            kid.querySelector('.js-quantity') ||
-            kid.querySelector('[data-quantity]') ||
-            kid.querySelector('.quantity') ||
-            kid.querySelector('.js-amount')
-          )) ||
-          cls.indexOf('quantity') !== -1 ||
-          cls.indexOf('qty') !== -1 ||
-          cls.indexOf('amount') !== -1 ||
-          (txt.indexOf('+') !== -1 && txt.indexOf('-') !== -1 && txt.length < 30)
-        ) {
-          hasQty = true;
-          break;
+    if (btn) {
+      var formEl = null;
+      if (btn.tagName === 'FORM') {
+        formEl = btn;
+      } else if (btn.closest) {
+        formEl = btn.closest('form') || btn.closest('.js-product-form') || btn.closest('.product-buy-container');
+      }
+      if (!formEl) {
+        var p = btn.parentNode;
+        if (p && (p.tagName === 'FORM' || (p.className && String(p.className).indexOf('form') !== -1))) {
+          formEl = p;
+        } else if (p && p.parentNode && p.parentNode.tagName === 'FORM') {
+          formEl = p.parentNode;
+        } else {
+          formEl = p || btn;
         }
       }
-      // También detectar si el padre es flex horizontal
-      var isFlexRow = false;
-      try {
-        var cs = window.getComputedStyle(parent);
-        var d = cs.display || '';
-        var fd = cs.flexDirection || 'row';
-        if ((d === 'flex' || d === 'inline-flex') && fd !== 'column') isFlexRow = true;
-      } catch (e2) {}
-
-      if (hasQty || isFlexRow) {
-        return parent; // este es el row qty+botón
-      }
-      el = parent;
+      target = formEl;
+    } else {
+      target = document.querySelector('.js-product-container') ||
+               document.querySelector('.product-container') ||
+               document.querySelector('.js-price-container');
     }
-    return form;
   }
 
-  function findPriceBlock() {
-    return document.querySelector('.js-price-container') ||
-           document.querySelector('.js-product-price-container') ||
-           document.querySelector('.product-price-container') ||
-           document.querySelector('.price-container') ||
-           document.querySelector('.js-item-price') ||
-           document.querySelector('[data-store="product-price"]');
-  }
-
-  function findCartBlock() {
-    return document.querySelector('.cart-summary') ||
-           document.querySelector('.js-cart-total') ||
-           document.querySelector('#cart-total') ||
-           document.querySelector('.js-cart-container') ||
-           document.querySelector('#main-cart');
-  }
-
-  var insertAfterEl = null;
-  var insertBeforeEl = null;
-
-  if (location === 'cart') {
-    var cartEl = findCartBlock();
-    if (!cartEl) return;
-    insertAfterEl = cartEl;
-  } else if (location === 'price_after') {
-    var priceEl = findPriceBlock();
-    if (!priceEl) return;
-    insertAfterEl = priceEl;
-  } else if (location === 'product_before') {
-    var formB = findForm();
-    if (!formB) return;
-    var rowB = findQtyRow(formB);
-    insertBeforeEl = rowB;
-  } else {
-    // product_after (default): DEBAJO de toda la fila cantidad + botón
-    var formA = findForm();
-    if (!formA) return;
-    var rowA = findQtyRow(formA);
-    insertAfterEl = rowA;
-  }
+  if (!target || !target.parentNode) return;
 
   var div = document.createElement('div');
   div.id = containerId;
 
-  // Ancho 100% forzado — barra horizontal profesional
+  // Estilo 100% Ancho Horizontal
   div.style.cssText = [
-    'display:block',
-    'width:100%',
-    'max-width:100%',
-    'min-width:0',
-    'box-sizing:border-box',
-    'clear:both',
-    'float:none',
-    'flex:0 0 auto',
-    'align-self:stretch',
-    'position:relative',
-    'background-color:' + bgColor,
-    'color:' + textColor,
-    'border:' + (showBorder ? '1px solid ' + borderColor : 'none'),
-    'border-radius:' + borderRadius + 'px',
-    'padding:' + paddingVal + 'px',
-    'margin-top:' + marginTop + 'px',
-    'margin-bottom:' + marginBottom + 'px',
-    'margin-left:0',
-    'margin-right:0',
-    'font-family:inherit',
-    'line-height:1.4',
-    'transition:opacity 0.2s ease',
-    'box-shadow:none',
-    'overflow:hidden'
-  ].join(' !important;') + ' !important;';
+    'display:block !important',
+    'width:100% !important',
+    'max-width:100% !important',
+    'box-sizing:border-box !important',
+    'clear:both !important',
+    'margin-top:' + marginTop + 'px !important',
+    'margin-bottom:' + marginBottom + 'px !important',
+    'padding:' + paddingVal + 'px !important',
+    'background-color:' + bgColor + ' !important',
+    'color:' + textColor + ' !important',
+    'border:' + (showBorder ? '1px solid ' + borderColor : 'none') + ' !important',
+    'border-radius:' + borderRadius + 'px !important',
+    'font-family:inherit !important',
+    'line-height:1.4 !important',
+    'position:relative !important'
+  ].join(';');
 
   var currentIndex = 0;
   var intervalId = null;
 
   function createStars(rating) {
-    var html = '<span style="display:inline-flex;align-items:center;gap:1px;flex-shrink:0;line-height:1;">';
+    var html = '<span style="display:inline-flex !important;align-items:center !important;gap:2px !important;flex-shrink:0 !important;line-height:1 !important;">';
     for (var i = 1; i <= 5; i++) {
       var filled = i <= rating;
       var c = filled ? starColor : '#d1d5db';
@@ -10477,40 +10419,37 @@ function renderCajaOpiniones(w) {
     var ratingVal = parseInt(op.rating, 10) || 5;
     var showArrows = opinions.length > 1;
 
-    // HEADER horizontal: [Avatar] [Nombre] [★★★★★] ........ [‹ ›]
-    var html = '<div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;box-sizing:border-box;">';
+    var html = '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;gap:8px !important;box-sizing:border-box !important;">';
 
-    html += '<div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">';
+    html += '<div style="display:flex !important;align-items:center !important;gap:10px !important;min-width:0 !important;flex:1 !important;">';
 
     if (photoVal) {
-      html += '<img src="' + photoVal + '" alt="" style="width:' + avatarSize + 'px;height:' + avatarSize + 'px;border-radius:50%;object-fit:cover;display:block;flex-shrink:0;">';
+      html += '<img src="' + photoVal + '" alt="" style="width:' + avatarSize + 'px !important;height:' + avatarSize + 'px !important;border-radius:50% !important;object-fit:cover !important;display:block !important;flex-shrink:0 !important;">';
     } else {
-      html += '<div style="width:' + avatarSize + 'px;height:' + avatarSize + 'px;border-radius:50%;background:#e5e7eb;color:#374151;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;">' + escapeHtml(nameVal.charAt(0).toUpperCase()) + '</div>';
+      html += '<div style="width:' + avatarSize + 'px !important;height:' + avatarSize + 'px !important;border-radius:50% !important;background:#e5e7eb !important;color:#374151 !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:700 !important;font-size:15px !important;flex-shrink:0 !important;">' + escapeHtml(nameVal.charAt(0).toUpperCase()) + '</div>';
     }
 
-    html += '<span style="font-weight:700;font-size:' + nameFontSize + 'px;color:' + textColor + ';line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(nameVal) + '</span>';
+    html += '<span style="font-weight:700 !important;font-size:' + nameFontSize + 'px !important;color:' + textColor + ' !important;line-height:1.2 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + escapeHtml(nameVal) + '</span>';
     html += createStars(ratingVal);
     html += '</div>';
 
     if (showArrows) {
-      html += '<div style="display:flex;align-items:center;gap:0;flex-shrink:0;">' +
-        '<span class="nevux-prev" style="cursor:pointer;user-select:none;font-weight:700;padding:4px 7px;font-size:17px;line-height:1;color:' + textColor + ';opacity:0.5;">‹</span>' +
-        '<span class="nevux-next" style="cursor:pointer;user-select:none;font-weight:700;padding:4px 7px;font-size:17px;line-height:1;color:' + textColor + ';opacity:0.5;">›</span>' +
+      html += '<div style="display:flex !important;align-items:center !important;gap:2px !important;flex-shrink:0 !important;">' +
+        '<span class="nevux-prev" style="cursor:pointer !important;user-select:none !important;font-weight:700 !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">‹</span>' +
+        '<span class="nevux-next" style="cursor:pointer !important;user-select:none !important;font-weight:700 !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">›</span>' +
         '</div>';
     }
 
     html += '</div>';
 
-    // Comentario a todo el ancho
     if (commentVal) {
-      html += '<div style="margin-top:10px;font-size:' + textFontSize + 'px;line-height:1.5;color:' + textColor + ';word-break:break-word;text-align:left;width:100%;box-sizing:border-box;">' + formatText(commentVal) + '</div>';
+      html += '<div style="margin-top:10px !important;font-size:' + textFontSize + 'px !important;line-height:1.5 !important;color:' + textColor + ' !important;word-break:break-word !important;text-align:left !important;width:100% !important;box-sizing:border-box !important;">' + formatText(commentVal) + '</div>';
     }
 
-    // Compra verificada minimalista
     if (isVerified) {
-      html += '<div style="margin-top:8px;display:inline-flex;align-items:center;gap:5px;color:#10b981;font-size:12px;font-weight:600;background:transparent;border:none;padding:0;">' +
+      html += '<div style="margin-top:8px !important;display:inline-flex !important;align-items:center !important;gap:5px !important;color:#10b981 !important;font-size:12px !important;font-weight:600 !important;background:transparent !important;border:none !important;padding:0 !important;">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>' +
-        '<span style="color:#10b981;">Compra verificada</span>' +
+        '<span style="color:#10b981 !important;">Compra verificada</span>' +
         '</div>';
     }
 
@@ -10566,67 +10505,16 @@ function renderCajaOpiniones(w) {
 
   div.innerHTML = renderSlide(0);
 
-  // ——— INYECCIÓN ———
-  var placed = false;
-  try {
-    if (insertBeforeEl && insertBeforeEl.parentNode) {
-      insertBeforeEl.parentNode.insertBefore(div, insertBeforeEl);
-      placed = true;
-    } else if (insertAfterEl && insertAfterEl.parentNode) {
-      if (insertAfterEl.nextSibling) {
-        insertAfterEl.parentNode.insertBefore(div, insertAfterEl.nextSibling);
-      } else {
-        insertAfterEl.parentNode.appendChild(div);
-      }
-      placed = true;
-    }
-  } catch (errIns) {}
-
-  // Fallback
-  if (!placed) {
-    var formFb = findForm();
-    if (formFb && formFb.parentNode) {
-      if (formFb.parentNode.parentNode) {
-        var grand = formFb.parentNode.parentNode;
-        if (formFb.parentNode.nextSibling) {
-          grand.insertBefore(div, formFb.parentNode.nextSibling);
-        } else {
-          grand.appendChild(div);
-        }
-        placed = true;
-      }
+  // Inyección fuera del formulario de compra
+  if (location === 'product_before') {
+    target.parentNode.insertBefore(div, target);
+  } else {
+    if (target.nextSibling) {
+      target.parentNode.insertBefore(div, target.nextSibling);
+    } else {
+      target.parentNode.appendChild(div);
     }
   }
-
-  if (!placed) return;
-
-  // Refuerzo post-inserción: copiar el ancho real del bloque de compra
-  try {
-    var ref = insertAfterEl || insertBeforeEl || findForm();
-    if (ref && ref.getBoundingClientRect) {
-      var rw = ref.getBoundingClientRect().width;
-      // Si el ref es la fila qty+btn, su width YA es el ancho correcto de columna
-      if (rw && rw > 150) {
-        div.style.setProperty('width', '100%', 'important');
-        div.style.setProperty('max-width', '100%', 'important');
-      }
-    }
-    // Si el padre directo es flex-row, forzar salto de línea
-    var dp = div.parentNode;
-    if (dp) {
-      var dcs = window.getComputedStyle(dp);
-      if ((dcs.display === 'flex' || dcs.display === 'inline-flex') && (dcs.flexDirection || 'row') !== 'column') {
-        div.style.setProperty('flex-basis', '100%', 'important');
-        div.style.setProperty('width', '100%', 'important');
-        div.style.setProperty('max-width', '100%', 'important');
-        // Forzar que ocupe línea completa
-        var breaker = document.createElement('div');
-        breaker.setAttribute('aria-hidden', 'true');
-        breaker.style.cssText = 'flex-basis:100% !important;width:100% !important;height:0 !important;margin:0 !important;padding:0 !important;border:0 !important;overflow:hidden !important;';
-        dp.insertBefore(breaker, div);
-      }
-    }
-  } catch (errW) {}
 
   bindEvents();
 
@@ -10635,5 +10523,5 @@ function renderCajaOpiniones(w) {
     div.onmouseleave = function() { startInterval(); };
     startInterval();
   }
-          }
+            }
 })(); 
