@@ -10267,168 +10267,161 @@ function renderProbadorVirtual(widget) {
     });
   }
         }
-      /* ═══════════════════════════════════════════
-   WIDGET 28: CAJA DE OPINIONES
-   ═══════════════════════════════════════════ */
-function renderCajaOpiniones(w) {
-  if (!w || !w.config) return;
-  var c = w.config;
-  var opinions = c.opinions;
-  if (!opinions || !opinions.length) return;
+      /* ==========================================================================
+   WIDGET #28: CAJA DE OPINIONES (caja-opiniones)
+   ========================================================================== */
 
-  var containerId = "nevux-caja-opiniones-" + (w.id || Math.floor(Math.random() * 10000));
+function renderCajaOpiniones(w) {
+  var config = w.config || {};
+  var opinions = config.opinions || [];
+  if (opinions.length === 0) return;
+
+  var style = config.style || {};
+  var location = config.location || 'product_after';
+  var target = null;
+
+  if (location === 'product_after') {
+    target = document.querySelector('form[action="/cart/add"]') || document.querySelector('.js-product-container');
+  } else if (location === 'product_before') {
+    var form = document.querySelector('form[action="/cart/add"]');
+    target = form ? form.parentElement : document.querySelector('.js-product-container');
+  } else if (location === 'price_after') {
+    target = document.querySelector('.js-price-display') || document.querySelector('.price-container');
+  } else if (location === 'cart') {
+    target = document.querySelector('.js-cart-container') || document.querySelector('#main-cart') || document.querySelector('.cart-summary');
+  }
+
+  if (!target || !target.parentNode) return;
+
+  var containerId = 'nevux-opiniones-' + w.id;
   if (document.getElementById(containerId)) return;
 
-  var target = document.querySelector('form[action*="/comprar/"]') ||
-               document.querySelector('.js-product-form') ||
-               document.querySelector('.js-product-container') ||
-               document.querySelector('.product-form') ||
-               document.querySelector('.js-buy-button-container') ||
-               document.querySelector('button[type="submit"]');
-
-  if (!target) return;
-
-  var wrapper = document.createElement('div');
-  wrapper.id = containerId;
-  wrapper.className = 'nevux-widget-caja-opiniones';
-  wrapper.style.boxSizing = 'border-box';
-  wrapper.style.width = '100%';
-  wrapper.style.marginTop = (c.marginTop || 16) + 'px';
-  wrapper.style.marginBottom = (c.marginBottom || 16) + 'px';
-  wrapper.style.padding = (c.padding || 20) + 'px';
-  wrapper.style.backgroundColor = c.bgColor || '#f7f7f7';
-  wrapper.style.color = c.textColor || '#333333';
-  if (c.showBorder !== false) {
-    wrapper.style.border = '1px solid ' + (c.borderColor || '#cccccc');
-  } else {
-    wrapper.style.border = 'none';
-  }
-  wrapper.style.borderRadius = (c.borderRadius || 10) + 'px';
-  wrapper.style.boxShadow = '0 2px 8px rgba(0,0,0,0.03)';
-  wrapper.style.fontFamily = 'inherit';
+  var div = document.createElement('div');
+  div.id = containerId;
+  div.style.margin = (style.marginTop || '20') + 'px ' + (style.marginRight || '0') + 'px ' + (style.marginBottom || '20') + 'px ' + (style.marginLeft || '0') + 'px';
+  div.style.padding = (style.padding || '15') + 'px';
+  div.style.backgroundColor = style.backgroundColor || '#ffffff';
+  div.style.borderRadius = (style.borderRadius || '8') + 'px';
+  div.style.border = (style.borderWidth || '1') + 'px solid ' + (style.borderColor || '#eeeeee');
+  div.style.fontFamily = style.fontFamily || 'inherit';
+  div.style.color = style.textColor || '#333333';
+  div.style.position = 'relative';
+  div.style.overflow = 'hidden';
+  div.style.boxSizing = 'border-box';
+  div.style.width = '100%';
 
   var currentIndex = 0;
-  var timer = null;
+  var intervalId = null;
+  var autoplaySeconds = parseInt(config.autoplay, 10) || 0;
 
-  function formatText(str) {
-    if (!str) return '';
-    var safeStr = String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-    return safeStr.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  }
-
-  function getStarsHtml(rating) {
-    var r = parseInt(rating, 10) || 5;
-    var html = '';
-    var starColor = c.starColor || '#f5b301';
+  function createStars(rating) {
+    var html = '<div style="display:flex; gap:2px; margin-bottom:8px;">';
     for (var i = 1; i <= 5; i++) {
-      var col = (i <= r) ? starColor : '#d1d5db';
-      html += '<span style="color:' + col + ';font-size:14px;margin-right:2px;">★</span>';
+      var color = i <= rating ? (style.starColor || '#ffc107') : '#e0e0e0';
+      html += '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + color + '" style="display:inline-block;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
     }
+    html += '</div>';
     return html;
   }
 
-  function renderCurrentOpinion() {
-    var op = opinions[currentIndex] || opinions[0];
-    var name = op.name || 'Cliente';
-    var initial = name ? name.charAt(0).toUpperCase() : 'U';
+  function formatText(txt) {
+    if (!txt) return '';
+    return txt.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  }
 
-    var html = '';
-    html += '<div style="display:flex;align-items:flex-start;gap:12px;">';
-
-    if (op.photo) {
-      html += '<img src="' + op.photo + '" alt="' + name + '" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;" />';
-    } else {
-      html += '<div style="width:44px;height:44px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#374151;flex-shrink:0;">' + initial + '</div>';
-    }
-
-    html += '<div style="flex:1;min-width:0;">';
-    html += '  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">';
-    html += '    <div style="display:flex;align-items:center;gap:8px;">';
-    html += '      <span style="font-size:' + (c.nameFontSize || 16) + 'px;font-weight:700;color:' + (c.textColor || '#333333') + ';">' + name + '</span>';
-    html += '      ' + getStarsHtml(op.rating);
-    html += '    </div>';
-
-    if (opinions.length > 1) {
-      html += '    <div style="display:flex;align-items:center;gap:6px;">';
-      html += '      <button type="button" class="nevux-co-prev" style="background:none;border:none;color:' + (c.textColor || '#333333') + ';opacity:0.6;font-size:16px;font-weight:700;cursor:pointer;padding:0 4px;line-height:1;">‹</button>';
-      html += '      <button type="button" class="nevux-co-next" style="background:none;border:none;color:' + (c.textColor || '#333333') + ';opacity:0.6;font-size:16px;font-weight:700;cursor:pointer;padding:0 4px;line-height:1;">›</button>';
-      html += '    </div>';
-    }
-
-    html += '  </div>';
-
-    html += '  <div style="font-size:' + (c.textFontSize || 15) + 'px;color:' + (c.textColor || '#333333') + ';margin-top:8px;line-height:1.5;">' + formatText(op.text) + '</div>';
-
+  function renderSlide(index) {
+    var op = opinions[index];
+    if (!op) return '';
+    var slideHtml = '<div style="display:flex; flex-direction:column; align-items:flex-start; min-height:80px; transition: opacity 0.3s ease;">';
+    
+    slideHtml += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; width:100%; flex-wrap:wrap;">';
+    slideHtml += '<span style="font-weight:bold; font-size:14px;">' + (op.name || '') + '</span>';
     if (op.verified) {
-      html += '  <div style="display:flex;align-items:center;gap:4px;margin-top:8px;font-size:12px;font-weight:600;color:#10B981;">';
-      html += '    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
-      html += '    <span>Compra verificada</span>';
-      html += '  </div>';
+      slideHtml += '<div style="display:flex; align-items:center; gap:4px; color:#28a745; font-size:11px; font-weight:600;">';
+      slideHtml += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      slideHtml += 'Compra verificada</div>';
+    }
+    slideHtml += '</div>';
+
+    slideHtml += createStars(parseInt(op.rating, 10) || 5);
+    slideHtml += '<div style="font-size:13px; line-height:1.5; margin-bottom:10px;">' + formatText(op.comment || '') + '</div>';
+
+    if (op.image) {
+      slideHtml += '<img src="' + op.image + '" style="max-width:80px; max-height:80px; object-fit:cover; border-radius:4px; margin-top:5px; border:1px solid #eee;">';
     }
 
-    html += '</div>';
-    html += '</div>';
+    slideHtml += '</div>';
+    return slideHtml;
+  }
 
-    wrapper.innerHTML = html;
+  function updateContent() {
+    var contentDiv = div.querySelector('.nevux-opinion-content');
+    if (contentDiv) {
+      contentDiv.style.opacity = '0';
+      setTimeout(function() {
+        contentDiv.innerHTML = renderSlide(currentIndex);
+        contentDiv.style.opacity = '1';
+      }, 200);
+    }
+  }
 
-    if (opinions.length > 1) {
-      var prevBtn = wrapper.querySelector('.nevux-co-prev');
-      var nextBtn = wrapper.querySelector('.nevux-co-next');
+  var mainHtml = '';
+  if (opinions.length > 1) {
+    var arrowStyle = 'position:absolute; top:50%; transform:translateY(-50%); cursor:pointer; z-index:2; padding:10px; font-size:20px; font-weight:bold; user-select:none; color:' + (style.textColor || '#333333') + '; opacity:0.5;';
+    mainHtml += '<div class="nevux-prev" style="' + arrowStyle + ' left:0;">‹</div>';
+    mainHtml += '<div class="nevux-next" style="' + arrowStyle + ' right:0;">›</div>';
+  }
+  mainHtml += '<div class="nevux-opinion-content" style="padding: 0 30px; transition: opacity 0.2s ease;">' + renderSlide(0) + '</div>';
+  
+  div.innerHTML = mainHtml;
 
-      if (prevBtn) {
-        prevBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          currentIndex = (currentIndex === 0) ? opinions.length - 1 : currentIndex - 1;
-          renderCurrentOpinion();
-          resetTimer();
-        });
+  if (location === 'product_after' || location === 'price_after' || location === 'cart') {
+    if (target.nextSibling) {
+      target.parentNode.insertBefore(div, target.nextSibling);
+    } else {
+      target.parentNode.appendChild(div);
+    }
+  } else {
+    target.parentNode.insertBefore(div, target);
+  }
+
+  if (opinions.length > 1) {
+    var btnPrev = div.querySelector('.nevux-prev');
+    var btnNext = div.querySelector('.nevux-next');
+    
+    if (btnPrev) {
+      btnPrev.onclick = function() {
+        currentIndex = (currentIndex - 1 + opinions.length) % opinions.length;
+        updateContent();
+        resetInterval();
+      };
+    }
+    if (btnNext) {
+      btnNext.onclick = function() {
+        currentIndex = (currentIndex + 1) % opinions.length;
+        updateContent();
+        resetInterval();
+      };
+    }
+
+    function startInterval() {
+      if (autoplaySeconds > 0) {
+        intervalId = setInterval(function() {
+          currentIndex = (currentIndex + 1) % opinions.length;
+          updateContent();
+        }, autoplaySeconds * 1000);
       }
-      if (nextBtn) {
-        nextBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          currentIndex = (currentIndex === opinions.length - 1) ? 0 : currentIndex + 1;
-          renderCurrentOpinion();
-          resetTimer();
-        });
-      }
     }
-  }
 
-  function startAutoplay() {
-    if (c.autoplayEnabled === false || opinions.length <= 1) return;
-    var intervalMs = (parseInt(c.autoplayInterval, 10) || 5) * 1000;
-    stopAutoplay();
-    timer = setInterval(function() {
-      currentIndex = (currentIndex === opinions.length - 1) ? 0 : currentIndex + 1;
-      renderCurrentOpinion();
-    }, intervalMs);
-  }
-
-  function stopAutoplay() {
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
+    function resetInterval() {
+      if (intervalId) clearInterval(intervalId);
+      startInterval();
     }
-  }
 
-  function resetTimer() {
-    stopAutoplay();
-    startAutoplay();
-  }
+    div.onmouseenter = function() { if (intervalId) clearInterval(intervalId); };
+    div.onmouseleave = function() { startInterval(); };
 
-  wrapper.addEventListener('mouseenter', stopAutoplay);
-  wrapper.addEventListener('mouseleave', startAutoplay);
-  wrapper.addEventListener('touchstart', stopAutoplay);
-  wrapper.addEventListener('touchend', startAutoplay);
-
-  renderCurrentOpinion();
-  startAutoplay();
-
-  if (target.parentNode) {
-    target.parentNode.insertBefore(wrapper, target.nextSibling);
+    startInterval();
   }
-  }
+                                      }
 })(); 
