@@ -2,181 +2,350 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import {
+  ArrowLeft,
+  BarChart3,
+  Gift,
+  Rocket,
+  Flame,
+  Scale,
+  Ruler,
+  Copy,
+  Check,
+  Film,
+  Clock,
+  Music,
+  Mic,
+  Lightbulb,
+  Monitor,
+  Volume2,
+  Scissors,
+  Camera,
+  Sparkles
+} from 'lucide-react';
 
-export default function BannerAdminPage() {
-  const [activeTab, setActiveTab] = useState<string>('lunes');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+function NevuxLogo({ size = 32 }: { size?: number }) {
+  const iconSize = Math.round(size * 0.52);
+  const fontSize = Math.round(size * 0.55);
 
-  const copyToClipboard = (text: string, id: string) => {
-    if (typeof window !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2500);
-    }
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+          backgroundColor: '#000000',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid rgba(255,255,255,0.2)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.9)',
+          flexShrink: 0
+        }}
+      >
+        <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none">
+          <path d="M3 3H7.5V21H3V3Z" fill="#FFFFFF" />
+          <path d="M16.5 3H21V21H16.5V3Z" fill="#FFFFFF" />
+          <path d="M7.5 3L21 21H16.5L3 3H7.5Z" fill="url(#nevuxGrad)" />
+          <defs>
+            <linearGradient id="nevuxGrad" x1="3" y1="3" x2="21" y2="21">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="35%" stopColor="#E4E4E7" />
+              <stop offset="75%" stopColor="#52525B" />
+              <stop offset="100%" stopColor="#10B981" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span
+        style={{
+          fontSize: fontSize,
+          fontWeight: 900,
+          color: '#FFFFFF',
+          letterSpacing: '0.08em',
+          lineHeight: 1
+        }}
+      >
+        NEVUX
+      </span>
+    </div>
+  );
+}
+
+interface CopyBlockProps {
+  id: string;
+  title: string;
+  text: string;
+  copied: boolean;
+  onCopy: (id: string, text: string) => void;
+}
+
+function CopyBlock({ id, title, text, copied, onCopy }: CopyBlockProps) {
+  return (
+    <div
+      style={{
+        backgroundColor: '#061e14',
+        border: '1px solid rgba(16,185,129,0.3)',
+        borderRadius: 16,
+        padding: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          📝 {title}
+        </h3>
+        <button
+          onClick={() => onCopy(id, text)}
+          style={{
+            backgroundColor: copied ? '#10B981' : 'rgba(16,185,129,0.15)',
+            color: copied ? '#020a07' : '#34d399',
+            border: '1px solid rgba(16,185,129,0.4)',
+            borderRadius: 10,
+            padding: '8px 14px',
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            transition: 'all 0.2s'
+          }}
+        >
+          {copied ? (
+            <>
+              <Check style={{ width: 14, height: 14 }} /> COPIADO
+            </>
+          ) : (
+            <>
+              <Copy style={{ width: 14, height: 14 }} /> COPIAR
+            </>
+          )}
+        </button>
+      </div>
+
+      <div
+        style={{
+          backgroundColor: '#020a07',
+          border: '1px solid rgba(16,185,129,0.15)',
+          borderRadius: 12,
+          padding: 14,
+          fontSize: 12,
+          color: '#cbd5e1',
+          lineHeight: 1.6,
+          whiteSpace: 'pre-wrap',
+          fontFamily: 'ui-monospace, monospace',
+          maxHeight: 400,
+          overflowY: 'auto'
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  );
+}
+
+export default function BannersPage() {
+  const [activeTab, setActiveTab] = useState('lunes');
+  const [copiedId, setCopiedId] = useState('');
+
+  const handleCopy = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(''), 2000);
   };
 
-  // --- COPIES CON FÓRMULA PAS ---
-  const copyLunesReel = `El error que te está costando un 20% más por pedido en Tiendanube 👇
+  // ======= COPYS =======
+  const copyLunesReel = `📦 El error #1 que estanca las ventas de tu Tiendanube 👇
 
-La mayoría de las tiendas intentan facturar más metiendo más plata en Meta Ads.
-Pero cuando el cliente ya tiene la tarjeta en la mano para pagar... nadie le ofrece nada más.
+Si tenés una tienda y cada cliente te compra UN SOLO producto... estás regalando plata. 💸
 
-Mirá la diferencia:
-❌ Sin Nevux: El cliente compra 1 producto, paga el envío y se va. Ticket: $35.000.
-✅ Con Nevux: Antes de cerrar, la tienda le ofrece un complemento clave con 15% OFF en 1 solo clic. Ticket: $48.500.
+El 90% de los emprendedores no activa Packs Complementarios. Resultado: ticket promedio bajo, ganancia estancada y publicidad que cada vez rinde menos.
 
-Mismo costo publicitario. +38% de ganancia neta en la misma compra.
+Con el widget "Pack Complementarios" de Nevux:
+✅ Mostrás combos armados en la ficha de producto
+✅ El cliente agrega más productos con 1 solo clic
+✅ Subís tu ticket promedio SIN gastar más en pauta
+✅ Se instala en 15 segundos, sin tocar código
 
-Lo mejor: se instala en 60 segundos desde la Tienda de Aplicaciones de Tiendanube.
+🚀 Probá Nevux GRATIS por 7 días desde el link de nuestra biografía (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
 
-🚀 Probá Nevux 7 días GRATIS en tu tienda con el link de nuestra bio o buscá "Nevux" en Tiendanube.
+#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux`;
 
-#tiendanube #ecommerceargentina #aumentarticketpromedio #crossselling #ventasonline #emprendedoresargentina`;
+  const copyMartesCarrusel = `⚖️ El 73% de tus clientes abandona por ESTA duda 👇
 
-  const copyMartesCarrusel = `¿Tu tienda parece del 2018 o una máquina de conversión del 2025? 📊
+Tus visitas entran a tu Tiendanube, miran tu producto... y se van sin comprar.
 
-Deslizá para ver la diferencia real entre una tienda que pierde ventas en el checkout y una que multiplica su ticket promedio en automático.
+¿Por qué? Porque no pueden ver la diferencia REAL de lo que ofrecés.
 
-👉 Diapositiva 2: El carrito abandonado vs. El carrito inteligente
-👉 Diapositiva 3: Promociones invisibles vs. Ofertas de 1 solo clic
-👉 Diapositiva 4: Instalación manual con código vs. Activación en 60 segundos con Nevux
+Una sola foto estática no alcanza. El cliente necesita comparar, ver el resultado, sentir confianza antes de pagar.
 
-Instalá Nevux hoy en Tiendanube y activá 7 días de prueba gratis. Link en bio 🔗`;
+Y si no se la das, se van a buscar reviews a Google. Y ahí descubren a tu competencia. 💸
 
-  const copyMiercolesReel = `La devolución más cara de tu tienda no es la que te pide el cliente... es la venta que nunca ocurrió por falta de soporte instantáneo 💬
+La solución: Widget "Comparador Antes y Después" de Nevux.
 
-Un cliente tiene una duda sobre su talle o el método de envío a las 23:30 hs.
-Si no le respondés en el momento: cierra la pestaña y le compra a tu competencia.
+Tu cliente desliza y ve el resultado real de tu producto:
+✅ Cero dudas
+✅ Confianza instantánea  
+✅ Menos devoluciones
+✅ Más ventas cerradas
 
-Con el Asistente IA de Nevux integrado a tu catálogo de Tiendanube:
-⚡ Respuestas instantáneas 24/7 sobre stock real y medidas
-⚡ Recomienda productos complementarios
-⚡ Cierra la venta mientras dormís
+Perfecto para cosmética, indumentaria, deco, fitness y cualquier rubro donde el ANTES vs DESPUÉS vende solo.
 
-Instalalo hoy con 7 días gratis. Link en bio 📲`;
+🚀 Probá Nevux GRATIS 7 días → link en bio (@nevuxapp) o App Store oficial de Tiendanube (ID #37382).
 
-  const copyJuevesCarrusel = `⚠️ ALERTA: Si estás esperando al Hot Sale o Cyber Monday para optimizar tu checkout, ya vas tarde.
+#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux`;
 
-Los 3 ajustes que tenés que activar HOY en tu Tiendanube:
-1️⃣ Cross-selling en el carrito (complementos automáticos)
-2️⃣ Barra de progreso para Envío Gratis
-3️⃣ Ofertas post-compra de 1 solo clic
+  const copyMiercolesReel = `📏 La devolución más cara que podés tener en tu Tiendanube 👇
 
-Con Nevux activás los 3 en menos de 2 minutos sin tocar una sola línea de código.
+El cliente te compra, pagás vos el envío, llega el paquete... y te lo devuelve porque "no le entró". 😩
 
-👉 Probá los 7 días gratis desde el enlace en nuestro perfil.`;
+Perdiste:
+❌ El envío de ida
+❌ El envío de vuelta  
+❌ La venta
+❌ Y encima el cliente queda frustrado y no vuelve
 
-  const copyViernesReel = `Dejá tu tienda vendiendo sola y multiplicando el ticket promedio este fin de semana 🚀
+El problema NO es tu producto. Es que no le diste la info clara ANTES de comprar.
 
-Viernes a la tarde: configurás tu oferta de Cross-selling en el panel de Nevux.
-Sábado y Domingo: cada cliente que entra a tu Tiendanube ve complementos irresistibles en 1 clic.
-Lunes a la mañana: abrís tus métricas y ves un +25% de facturación con el mismo tráfico.
+Solución: Widget "Tabla de Talles" + "Beneficios" de Nevux.
 
-Sin saber programar.
-100% integrado a Tiendanube.
-7 días de prueba sin cargo.
+✅ Tabla visual con medidas reales de tu producto
+✅ Beneficios destacados que generan confianza
+✅ Cliente seguro = Cliente que compra sin dudar
+✅ Menos devoluciones = Más ganancia neta
 
-Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
+Se activa en 2 minutos desde tu panel. Sin tocar código.
+
+🚀 Probá Nevux GRATIS 7 días → link en bio (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
+
+#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux #tabladetalles`;
+
+  const copyJuevesCarrusel = `⌛ El truco psicológico que usan las grandes marcas para vender un 30% más rápido 👇
+
+El cliente entra a tu Tiendanube, mira tus productos, le gustan... pero piensa: "Bueno, después compro".
+
+Y ese "después" en el 95% de los casos es NUNCA. 📉
+
+¿Por qué pasa esto? Porque no sienten urgencia. Tu tienda es un catálogo pasivo que siempre va a estar ahí igual.
+
+Para vender hoy, necesitás activar el gatillo mental más potente del eCommerce: la ESCASEZ y la URGENCIA.
+
+La solución: Widget "¡Oferta Especial Hoy!" de Nevux.
+
+✅ Un contador regresivo visual en tiempo real
+✅ Un descuento que desaparece cuando el reloj llega a cero
+✅ Generás acción inmediata: el cliente compra HOY o pierde el beneficio
+✅ Se activa en un clic, 100% automático
+
+Dejá de perder ventas por postergación de tus visitas.
+
+🚀 Probá Nevux GRATIS 7 días → link en bio (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
+
+#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux #urgenciayescasez`;
+
+  const copyViernesReel = `🛡️ Dejá tu Tiendanube vendiendo sola este fin de semana 👇
+
+Llega el viernes a la tarde y el tráfico de tu tienda sube... pero muchas ventas se caen a último momento. 📉
+
+¿Por qué? Porque el cliente duda del envío, de la seguridad del sitio o de los métodos de pago, y no tiene a quién preguntarle porque es fin de semana de descanso. 
+
+No dejes que las dudas maten tus ventas de sábado y domingo.
+
+Con Nevux activás dos widgets clave en un par de clics:
+✅ Widget "Mensaje de Garantía": Generá confianza visual directa abajo del botón de compra.
+✅ Widget "Badge de Efectivo / Transferencia": Mostrá descuentos reales por pago directo y resolvé la duda de pago al instante.
+
+Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas con confianza. 🚀
+
+🚀 Probá Nevux GRATIS por 7 días desde el link de nuestra biografía (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
+
+#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux #garantiadecompra #badgeefectivo`;
 
   return (
     <div
       style={{
-        backgroundColor: '#020A07',
-        color: '#FFFFFF',
         minHeight: '100vh',
-        padding: '24px 16px',
+        backgroundColor: '#020a07',
+        color: '#f8fafc',
         fontFamily: 'system-ui, -apple-system, sans-serif',
+        paddingBottom: 96
       }}
     >
-      {/* HEADER */}
-      <div
+      {/* Header */}
+      <header
         style={{
-          maxWidth: '1200px',
-          margin: '0 auto 24px auto',
-          borderBottom: '1px solid #1E293B',
-          paddingBottom: '20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
+          borderBottom: '1px solid rgba(16,185,129,0.2)',
+          backgroundColor: '#04140e',
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          padding: '12px 16px'
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981' }}></span>
-            <span style={{ fontSize: '11px', color: '#34D399', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Nevux Brand Hub
-            </span>
+        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link
+              href="/admin"
+              style={{
+                padding: 8,
+                color: '#94a3b8',
+                display: 'flex',
+                borderRadius: 8,
+                backgroundColor: 'rgba(6,30,20,0.5)',
+                textDecoration: 'none'
+              }}
+            >
+              <ArrowLeft style={{ width: 20, height: 20 }} />
+            </Link>
+            <NevuxLogo size={28} />
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: '900', margin: '0' }}>Panel de Contenido &amp; Miniaturas</h1>
-          <p style={{ fontSize: '12px', color: '#94A3B8', margin: '4px 0 0 0' }}>
-            Templates visuales 9:16 y copys de alta conversión listos para publicar.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <Link
-            href="/"
+          <span
             style={{
-              padding: '8px 16px',
-              backgroundColor: '#0F172A',
-              color: '#CBD5E1',
-              border: '1px solid #1E293B',
-              borderRadius: '10px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              textDecoration: 'none',
+              fontSize: 11,
+              backgroundColor: 'rgba(16,185,129,0.15)',
+              color: '#34d399',
+              border: '1px solid rgba(16,185,129,0.3)',
+              padding: '4px 10px',
+              borderRadius: 9999,
+              fontWeight: 600
             }}
           >
-            ← Volver a la Tienda
-          </Link>
-          <a
-            href="https://nevuxapp.mitiendanube.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#10B981',
-              color: '#000000',
-              borderRadius: '10px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              textDecoration: 'none',
-            }}
-          >
-            Ver Sandbox ↗
-          </a>
+            Tiendanube App #37382
+          </span>
         </div>
-      </div>
+      </header>
 
-      {/* TABS DE SELECCIÓN */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto 24px auto' }}>
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
+      {/* Tabs */}
+      <div style={{ maxWidth: 1280, margin: '20px auto 0', padding: '0 16px' }}>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
           {[
-            { id: 'lunes', label: 'Lunes (Stories & Reel)' },
-            { id: 'martes', label: 'Martes (Stories & Comparativa)' },
-            { id: 'miercoles', label: 'Miércoles (Stories & Reel)' },
-            { id: 'jueves', label: 'Jueves (Stories Tip)' },
-            { id: 'jueves-portada', label: 'Jueves (Carrusel Urgencia)' },
-            { id: 'viernes', label: 'Viernes (Stories Garantía)' },
-            { id: 'viernes-portada', label: 'Viernes (Miniatura Reel)' },
-            { id: 'ideas-reels', label: '💡 Ideas Reels (CapCut Playbook)' },
+            { id: 'lunes', label: '📊 Stories Lunes' },
+            { id: 'martes', label: '🧠 Martes (Comparador)' },
+            { id: 'miercoles', label: '📏 Miércoles (Talles)' },
+            { id: 'jueves', label: '⏱️ Stories Jueves' },
+            { id: 'jueves-portada', label: '🎠 Carrusel Jueves' },
+            { id: 'viernes', label: '🛡️ Stories Viernes' },
+            { id: 'viernes-portada', label: '🎬 Portada Reel Viernes' },
+            { id: 'ideas-reels', label: '💡 Ideas Reels (CapCut)' }
           ].map((tab) => (
             <button
               key={tab.id}
-              type="button"
               onClick={() => setActiveTab(tab.id)}
               style={{
                 padding: '10px 16px',
-                backgroundColor: activeTab === tab.id ? (tab.id === 'ideas-reels' ? '#FACC15' : '#10B981') : '#0F172A',
-                color: activeTab === tab.id ? '#000000' : '#94A3B8',
-                border: activeTab === tab.id ? '1px solid #34D399' : '1px solid #1E293B',
-                borderRadius: '10px',
-                fontSize: '12px',
+                borderRadius: 12,
+                fontSize: 12,
                 fontWeight: 'bold',
-                cursor: 'pointer',
                 whiteSpace: 'nowrap',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: activeTab === tab.id ? '#10B981' : '#061e14',
+                color: activeTab === tab.id ? '#ffffff' : '#94a3b8',
+                boxShadow: activeTab === tab.id ? '0 4px 14px rgba(16,185,129,0.3)' : 'none'
               }}
             >
               {tab.label}
@@ -185,239 +354,355 @@ Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
         </div>
       </div>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* LUNES */}
+      <main style={{ maxWidth: 1280, margin: '20px auto 0', padding: '0 16px' }}>
+
+        {/* ========== STORIES LUNES ========== */}
         {activeTab === 'lunes' && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '28px', alignItems: 'flex-start' }}>
-            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontSize: '11px', color: '#34D399', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '8px' }}>
-                Miniatura 9:16 (Reel / TikTok)
-              </span>
-              <div
-                style={{
-                  width: '300px',
-                  height: '533px',
-                  backgroundColor: '#020A07',
-                  border: '2px solid rgba(16, 185, 129, 0.5)',
-                  borderRadius: '24px',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxSizing: 'border-box',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: '#6EE7B7', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '12px', padding: '4px 8px', fontSize: '9px', fontWeight: 'bold' }}>
-                    📈 CRECIMIENTO • TICKET PROMEDIO
-                  </span>
-                  <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 'bold' }}>Nevux</span>
-                </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div
+              style={{
+                backgroundColor: 'rgba(6,30,20,0.8)',
+                border: '1px solid rgba(16,185,129,0.3)',
+                borderRadius: 16,
+                padding: 16
+              }}
+            >
+              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BarChart3 style={{ width: 20, height: 20, color: '#34d399' }} />
+                Stories Lunes: Pack Complementarios
+              </h2>
+              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>
+                Sacá captura de cada una y publicá en los horarios del plan.
+              </p>
+            </div>
 
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
+              {/* STORY 1 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
+                    ¿Cuánto es el <span style={{ color: '#10B981' }}>Ticket Promedio</span> en tu Tiendanube?
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                    De cada 100 personas que te compran, ¿cuánto dinero deja en promedio cada cliente?
+                  </p>
+                  <div style={{ backgroundColor: '#ffffff', borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {['A) $5.000 - $10.000 💸', 'B) $10.000 - $25.000 📦', 'C) Más de $25.000 🚀', 'D) No lo tengo medido 🤯'].map((opt, i) => (
+                      <div key={i} style={{ backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: 10, padding: '10px 12px', fontSize: 12, fontWeight: 'bold', color: '#1e293b' }}>
+                        {opt}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 12 }}>
+                  <p style={{ fontSize: 11, color: '#cbd5e1', margin: 0 }}>Poné el sticker de encuesta interactivo arriba 👆</p>
+                </div>
+              </div>
+
+              {/* STORY 2 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
+                    El error #1 que <span style={{ color: '#f87171' }}>estanca las ventas</span> de tu tienda
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                    Dejar que el cliente compre 1 solo producto cuando por un extra mínimo se llevaría el combo completo.
+                  </p>
+                  <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', padding: 16, borderRadius: 16, textAlign: 'center' }}>
+                    <div style={{ fontSize: 12, fontWeight: 'bold', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      <Gift style={{ width: 16, height: 16 }} /> PACK COMPLEMENTARIOS
+                    </div>
+                    <div style={{ backgroundColor: '#10B981', color: '#020a07', fontWeight: 900, fontSize: 12, padding: 10, borderRadius: 10, marginTop: 10 }}>
+                      ▶ VER REEL EN EL FEED
+                    </div>
+                  </div>
+                </div>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ backgroundColor: 'rgba(244, 63, 94, 0.2)', color: '#FB7185', border: '1px solid rgba(244, 63, 94, 0.4)', borderRadius: '6px', padding: '3px 8px', fontSize: '9px', fontWeight: 'bold', display: 'inline-block', marginBottom: '10px' }}>
-                    ⚠️ Error Costoso en Tiendanube
-                  </span>
-                  <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#FFFFFF', lineHeight: '1.2', margin: '0 0 8px 0' }}>
-                    SUBÍ EL <span style={{ color: '#34D399' }}>TICKET PROMEDIO</span> SIN GASTAR EN PAUTA
-                  </h2>
-                  <p style={{ fontSize: '11px', color: '#CBD5E1', margin: '0', lineHeight: '1.4' }}>
-                    Cómo sumar productos complementarios en 1 clic y facturar hasta un 38% más por cliente.
+                  <p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Tocá para ir directo a ver el Reel 👇</p>
+                </div>
+              </div>
+
+              {/* STORY 3 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
+                    Instalá Pack Complementarios en <span style={{ color: '#34d399' }}>15 segundos</span>
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                    Sincronizado con tu Tiendanube, sin tocar código y adaptado automáticamente a los colores de tu marca.
                   </p>
+                  <div style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, textAlign: 'center' }}>
+                    <p style={{ fontSize: 13, fontWeight: 900, color: '#020a07', margin: 0 }}>
+                      🔗 PROBAR NEVUX 7 DÍAS GRATIS
+                    </p>
+                    <span style={{ fontSize: 9, color: '#020a07', fontWeight: 700 }}>nevux.ar</span>
+                  </div>
                 </div>
-
-                <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '14px', padding: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', borderBottom: '1px solid #1E293B', paddingBottom: '6px', marginBottom: '6px' }}>
-                    <span>Cross-selling Activo</span>
-                    <span style={{ color: '#34D399' }}>+38% Ganancia</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8' }}>
-                    <span>Instalación: 60 seg</span>
-                    <span style={{ color: '#FACC15', fontWeight: 'bold' }}>7 Días Gratis</span>
-                  </div>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>App Oficial Tiendanube #37382 • Sin tarjeta</p>
                 </div>
               </div>
             </div>
 
-            <div style={{ flex: '2 1 400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0' }}>Copy para Reel</h3>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(copyLunesReel, 'copy-lunes')}
-                    style={{ backgroundColor: '#10B981', color: '#000000', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    {copiedId === 'copy-lunes' ? '✓ ¡Copiado!' : 'Copiar Texto'}
-                  </button>
-                </div>
-                <textarea readOnly value={copyLunesReel} rows={12} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1E293B', borderRadius: '10px', padding: '12px', color: '#CBD5E1', fontSize: '11px', fontFamily: 'monospace', resize: 'none', boxSizing: 'border-box' }} />
-              </div>
-            </div>
+            <CopyBlock
+              id="lunes-reel"
+              title="Descripción Reel Lunes (Pack Complementarios)"
+              text={copyLunesReel}
+              copied={copiedId === 'lunes-reel'}
+              onCopy={handleCopy}
+            />
           </div>
         )}
 
-        {/* MARTES */}
+        {/* ========== MARTES ========== */}
         {activeTab === 'martes' && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '28px', alignItems: 'flex-start' }}>
-            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontSize: '11px', color: '#34D399', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '8px' }}>
-                Placa Comparativa 1:1
-              </span>
-              <div style={{ width: '300px', height: '300px', backgroundColor: '#020A07', border: '2px solid #1E293B', borderRadius: '20px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #1E293B', paddingBottom: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 'bold' }}>¿CÓMO CONVIERTE TU TIENDA?</span>
-                  <span style={{ color: '#34D399', fontSize: '10px', fontWeight: 'bold' }}>Nevux</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div style={{ backgroundColor: 'rgba(136, 19, 55, 0.3)', border: '1px solid rgba(159, 18, 57, 0.4)', borderRadius: '10px', padding: '10px', textAlign: 'center' }}>
-                    <span style={{ color: '#FB7185', fontSize: '9px', fontWeight: 'bold', display: 'block' }}>❌ Sin Nevux</span>
-                    <p style={{ fontSize: '10px', fontWeight: 'bold', margin: '4px 0' }}>1 Producto por compra</p>
-                    <p style={{ fontSize: '9px', color: '#94A3B8', margin: '0' }}>Ticket: $35.000</p>
-                  </div>
-                  <div style={{ backgroundColor: 'rgba(6, 78, 59, 0.4)', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '10px', padding: '10px', textAlign: 'center' }}>
-                    <span style={{ color: '#34D399', fontSize: '9px', fontWeight: 'bold', display: 'block' }}>✅ Con Nevux</span>
-                    <p style={{ fontSize: '10px', fontWeight: 'bold', margin: '4px 0' }}>Cross-selling en 1 clic</p>
-                    <p style={{ fontSize: '9px', color: '#6EE7B7', fontWeight: 'bold', margin: '0' }}>Ticket: $48.500</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Scale style={{ width: 20, height: 20, color: '#34d399' }} />
+                Stories Martes: Comparador Antes y Después
+              </h2>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
+                    ¿Alguna vez compraste algo online y te llegó <span style={{ color: '#facc15' }}>distinto</span> a la foto?
+                  </h3>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '2px solid #f87171', borderRadius: 12, padding: 14, textAlign: 'center', fontWeight: 900, color: '#1e293b' }}>😩 SÍ</div>
+                    <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '2px solid #10B981', borderRadius: 12, padding: 14, textAlign: 'center', fontWeight: 900, color: '#1e293b' }}>😌 NO</div>
                   </div>
                 </div>
-                <div style={{ backgroundColor: '#0F172A', borderRadius: '10px', padding: '8px', textAlign: 'center', fontSize: '10px', fontWeight: 'bold' }}>
-                  Instalación en 60 seg • 7 Días Gratis
-                </div>
+                <div style={{ textAlign: 'center' }}><p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Sticker de encuesta arriba 👆</p></div>
               </div>
             </div>
-
-            <div style={{ flex: '2 1 400px' }}>
-              <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0' }}>Copy para Carrusel</h3>
-                  <button type="button" onClick={() => copyToClipboard(copyMartesCarrusel, 'copy-martes')} style={{ backgroundColor: '#10B981', color: '#000000', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
-                    {copiedId === 'copy-martes' ? '✓ ¡Copiado!' : 'Copiar Texto'}
-                  </button>
-                </div>
-                <textarea readOnly value={copyMartesCarrusel} rows={10} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1E293B', borderRadius: '10px', padding: '12px', color: '#CBD5E1', fontSize: '11px', fontFamily: 'monospace', resize: 'none', boxSizing: 'border-box' }} />
-              </div>
-            </div>
+            <CopyBlock id="martes-carrusel" title="Descripción Carrusel Martes" text={copyMartesCarrusel} copied={copiedId === 'martes-carrusel'} onCopy={handleCopy} />
           </div>
         )}
 
-        {/* MIÉRCOLES */}
+        {/* ========== MIÉRCOLES ========== */}
         {activeTab === 'miercoles' && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '28px', alignItems: 'flex-start' }}>
-            <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ fontSize: '11px', color: '#34D399', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '8px' }}>
-                Miniatura 9:16 (Reel / TikTok)
-              </span>
-              <div style={{ width: '300px', height: '533px', backgroundColor: '#020A07', border: '2px solid rgba(244, 63, 94, 0.4)', borderRadius: '24px', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ backgroundColor: 'rgba(244, 63, 94, 0.2)', color: '#FDA4AF', border: '1px solid rgba(244, 63, 94, 0.4)', borderRadius: '12px', padding: '4px 8px', fontSize: '9px', fontWeight: 'bold' }}>
-                    ⚠️ CONTROL DE COSTOS • CX
-                  </span>
-                  <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 'bold' }}>Nevux IA</span>
-                </div>
-
-                <div style={{ textAlign: 'center', margin: 'auto 0' }}>
-                  <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)', color: '#FDE047', border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: '6px', padding: '3px 8px', fontSize: '9px', fontWeight: 'bold', display: 'inline-block', marginBottom: '10px' }}>
-                    🚨 Fuga Silenciosa de Ventas
-                  </span>
-                  <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#FFFFFF', lineHeight: '1.2', margin: '0 0 8px 0' }}>
-                    LA DEVOLUCIÓN <span style={{ color: '#FB7185' }}>MÁS CARA</span> DE TU TIENDA
-                  </h2>
-                  <p style={{ fontSize: '11px', color: '#CBD5E1', margin: '0', lineHeight: '1.4' }}>
-                    El 67% de los carritos se caen por dudas de talle o stock a deshoras.
-                  </p>
-                </div>
-
-                <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '14px', padding: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', borderBottom: '1px solid #1E293B', paddingBottom: '6px', marginBottom: '6px' }}>
-                    <span>Asistente IA 24/7</span>
-                    <span style={{ color: '#34D399' }}>0 Carritos Caídos</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8' }}>
-                    <span>Responde en 2 seg</span>
-                    <span style={{ color: '#6EE7B7', fontWeight: 'bold' }}>Instalación Fácil</span>
-                  </div>
-                </div>
-              </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Ruler style={{ width: 20, height: 20, color: '#34d399' }} />
+                Stories Miércoles: Tabla de Talles + Beneficios
+              </h2>
             </div>
-
-            <div style={{ flex: '2 1 400px' }}>
-              <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0' }}>Copy para Reel</h3>
-                  <button type="button" onClick={() => copyToClipboard(copyMiercolesReel, 'copy-miercoles')} style={{ backgroundColor: '#10B981', color: '#000000', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
-                    {copiedId === 'copy-miercoles' ? '✓ ¡Copiado!' : 'Copiar Texto'}
-                  </button>
-                </div>
-                <textarea readOnly value={copyMiercolesReel} rows={12} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1E293B', borderRadius: '10px', padding: '12px', color: '#CBD5E1', fontSize: '11px', fontFamily: 'monospace', resize: 'none', boxSizing: 'border-box' }} />
-              </div>
-            </div>
+            <CopyBlock id="miercoles-reel" title="Descripción Reel Miércoles (Tabla de Talles)" text={copyMiercolesReel} copied={copiedId === 'miercoles-reel'} onCopy={handleCopy} />
           </div>
         )}
 
-        {/* JUEVES & OTROS TABS */}
+        {/* ========== JUEVES ========== */}
         {activeTab === 'jueves' && (
-          <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 10px 0' }}>Tip de Stories para Jueves</h3>
-            <p style={{ fontSize: '12px', color: '#CBD5E1' }}>Usá la encuesta interactiva en Instagram: &quot;¿Tenés activada la barra de envío gratis en tu Tiendanube?&quot;</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Clock style={{ width: 20, height: 20, color: '#34d399' }} />
+                Stories Jueves: Urgencia y Ventas Rápidas
+              </h2>
+            </div>
           </div>
         )}
 
+        {/* ========== JUEVES CARRUSEL ========== */}
         {activeTab === 'jueves-portada' && (
-          <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0' }}>Copy para Carrusel de Urgencia</h3>
-              <button type="button" onClick={() => copyToClipboard(copyJuevesCarrusel, 'copy-jueves')} style={{ backgroundColor: '#10B981', color: '#000000', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
-                {copiedId === 'copy-jueves' ? '✓ ¡Copiado!' : 'Copiar Texto'}
-              </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Rocket style={{ width: 20, height: 20, color: '#10B981' }} />
+                Carrusel Jueves Feed: El Gatillo Mental de la Urgencia
+              </h2>
             </div>
-            <textarea readOnly value={copyJuevesCarrusel} rows={10} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1E293B', borderRadius: '10px', padding: '12px', color: '#CBD5E1', fontSize: '11px', fontFamily: 'monospace', resize: 'none', boxSizing: 'border-box' }} />
+            <CopyBlock id="jueves-carrusel" title="Descripción Carrusel Jueves (Urgencia)" text={copyJuevesCarrusel} copied={copiedId === 'jueves-carrusel'} onCopy={handleCopy} />
           </div>
         )}
 
+        {/* ========== STORIES VIERNES ========== */}
         {activeTab === 'viernes' && (
-          <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 10px 0' }}>Garantía de Viernes</h3>
-            <p style={{ fontSize: '12px', color: '#CBD5E1' }}>7 Días de prueba sin tarjeta. ID de App en Tiendanube: #37382.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Rocket style={{ width: 20, height: 20, color: '#34d399' }} />
+                Stories Viernes: Ecosistema de Confianza Finde
+              </h2>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
+              {/* STORY 1 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 'bold', color: '#f87171' }}>🚨 ALERTA FIN DE SEMANA</div>
+                  <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: 0 }}>
+                    El <span style={{ color: '#f87171' }}>68%</span> de las ventas se definen el finde
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                    El tráfico explota. ¿Tu tienda está lista para convencer y vender sola?
+                  </p>
+                  <div style={{ backgroundColor: '#ffffff', borderRadius: 16, padding: 16, display: 'flex', gap: 8 }}>
+                    <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '1px solid #10b981', borderRadius: 8, padding: 8, textAlign: 'center', color: '#1e293b', fontWeight: 900, fontSize: 12 }}>✅ SÍ, LISTA</div>
+                    <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '1px solid #f87171', borderRadius: 8, padding: 8, textAlign: 'center', color: '#1e293b', fontWeight: 900, fontSize: 12 }}>❌ ME FALTA</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}><p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Encuesta interactiva arriba 👆</p></div>
+              </div>
+
+              {/* STORY 2 */}
+              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <NevuxLogo size={28} />
+                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 'bold', color: '#34d399' }}>💡 SOLUCIÓN RÁPIDA</div>
+                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
+                    2 widgets = <span style={{ color: '#34d399' }}>Cero dudas</span> al pagar
+                  </h3>
+                  <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: '#34d399' }}>🛡️ Mensaje de Garantía</span>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: '#facc15' }}>💵 Badge de Efectivo / Transferencia</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center', backgroundColor: '#10B981', borderRadius: 12, padding: 10 }}>
+                  <p style={{ fontSize: 11, fontWeight: 900, color: '#020a07', margin: 0 }}>🔗 ACTIVAR EN MI TIENDA</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* ========== PORTADA REEL VIERNES ========== */}
         {activeTab === 'viernes-portada' && (
-          <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '16px', padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0' }}>Copy para Reel de Viernes</h3>
-              <button type="button" onClick={() => copyToClipboard(copyViernesReel, 'copy-viernes')} style={{ backgroundColor: '#10B981', color: '#000000', border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
-                {copiedId === 'copy-viernes' ? '✓ ¡Copiado!' : 'Copiar Texto'}
-              </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Film style={{ width: 20, height: 20, color: '#34d399' }} />
+                Reel Viernes: Dejá tu Tienda Vendiendo Sola
+              </h2>
             </div>
-            <textarea readOnly value={copyViernesReel} rows={12} style={{ width: '100%', backgroundColor: '#020617', border: '1px solid #1E293B', borderRadius: '10px', padding: '12px', color: '#CBD5E1', fontSize: '11px', fontFamily: 'monospace', resize: 'none', boxSizing: 'border-box' }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+              {[
+                { icon: <Clock style={{ width: 18, height: 18 }} />, label: 'Duración', value: '22 segundos' },
+                { icon: <Film style={{ width: 18, height: 18 }} />, label: 'Formato', value: '9:16 · 1080x1920' },
+                { icon: <Music style={{ width: 18, height: 18 }} />, label: 'Música', value: 'Deep House 118 BPM' },
+                { icon: <Mic style={{ width: 18, height: 18 }} />, label: 'Audio', value: 'Voz off -6dB / Música -20dB' }
+              ].map((item, i) => (
+                <div key={i} style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#34d399' }}>
+                    {item.icon}
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>{item.label}</span>
+                  </div>
+                  <span style={{ fontSize: 13, color: '#fff', fontWeight: 700, marginTop: 4, display: 'block' }}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+
+            <CopyBlock
+              id="viernes-reel"
+              title="Descripción Reel Viernes (Garantía + Efectivo)"
+              text={copyViernesReel}
+              copied={copiedId === 'viernes-reel'}
+              onCopy={handleCopy}
+            />
           </div>
         )}
 
-        {/* IDEAS REELS */}
+        {/* ================================================================ */}
+        {/* ========== 💡 IDEAS REELS — GUÍA DE PRODUCCIÓN ========== */}
+        {/* ================================================================ */}
         {activeTab === 'ideas-reels' && (
-          <div style={{ backgroundColor: '#0F172A', border: '1px solid #1E293B', borderRadius: '20px', padding: '24px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 16px 0', color: '#FACC15' }}>
-              Playbook de Grabación para Reels (CapCut)
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', fontSize: '12px', color: '#CBD5E1' }}>
-              <div style={{ backgroundColor: '#020617', padding: '16px', borderRadius: '12px', border: '1px solid #1E293B' }}>
-                <strong style={{ color: '#34D399', display: 'block', marginBottom: '6px' }}>1. Grabá Pantalla</strong>
-                Entrá a nevuxapp.mitiendanube.com y grabá cómo agregás un producto y salta la oferta.
-              </div>
-              <div style={{ backgroundColor: '#020617', padding: '16px', borderRadius: '12px', border: '1px solid #1E293B' }}>
-                <strong style={{ color: '#34D399', display: 'block', marginBottom: '6px' }}>2. CapCut Audio</strong>
-                Voz en off a -6dB. Música a -22dB. Subtítulos Montserrat Black en amarillo/verde.
-              </div>
-              <div style={{ backgroundColor: '#020617', padding: '16px', borderRadius: '12px', border: '1px solid #1E293B' }}>
-                <strong style={{ color: '#34D399', display: 'block', marginBottom: '6px' }}>3. Publicación</strong>
-                Usá las miniaturas 9:16 de este panel como portada del video.
-              </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div
+              style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(250,204,21,0.08) 100%)',
+                border: '1px solid rgba(16,185,129,0.4)',
+                borderRadius: 16,
+                padding: 20
+              }}
+            >
+              <h2 style={{ fontSize: 18, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Lightbulb style={{ width: 22, height: 22, color: '#facc15' }} />
+                Guía de Producción Profesional (CapCut / Grabación)
+              </h2>
+              <p style={{ fontSize: 12, color: '#94a3b8', margin: '8px 0 0 0', lineHeight: 1.6 }}>
+                Acá tenés todo el detalle técnico para grabar y editar el Reel de Viernes con nivel top.
+              </p>
+            </div>
+
+            {/* QUÉ GRABAR */}
+            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Camera style={{ width: 16, height: 16, color: '#34d399' }} />
+                1. QUÉ GRABAR (Solo 3 tomas con tu celular)
+              </h3>
+              {[
+                {
+                  toma: 'TOMA 1 (0-7s) — Frente a cámara',
+                  desc: 'Vos con el celular en la mano mostrando la tienda demo abierta. Mirá a cámara con energía. Decí el gancho y el problema.',
+                  tip: 'Buena luz de frente, fondo ordenado, plano pecho para arriba.'
+                },
+                {
+                  toma: 'TOMA 2 (7-15s) — Grabación de pantalla',
+                  desc: 'Grabá la pantalla de tu tienda demo (nevuxapp.mitiendanube.com). Hacé scroll hasta ver el Mensaje de Garantía y el Badge de Efectivo funcionando.',
+                  tip: 'Hacé un toque en cada widget para que se note que es 100% interactivo y real.'
+                },
+                {
+                  toma: 'TOMA 3 (15-22s) — Cierre y CTA',
+                  desc: 'Volvés a cámara. Sonreí y señalá abajo indicando el link de nevux.ar.',
+                  tip: 'Girá 10 grados el cuerpo para que el corte entre toma 2 y 3 sea súper dinámico.'
+                }
+              ].map((c, i) => (
+                <div key={i} style={{ backgroundColor: '#020a07', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 10, padding: 12 }}>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: '#10B981' }}>{c.toma}</span>
+                  <p style={{ fontSize: 12, color: '#cbd5e1', margin: '4px 0 0 0', lineHeight: 1.5 }}>{c.desc}</p>
+                  <span style={{ fontSize: 10, color: '#facc15', marginTop: 4, display: 'block' }}>💡 {c.tip}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* TEXTOS Y SFX */}
+            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(250,204,21,0.3)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#facc15', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Volume2 style={{ width: 16, height: 16 }} />
+                2. EFECTOS DE SONIDO Y TEXTOS (CapCut)
+              </h3>
+              {[
+                { sfx: 'Whoosh Deep', seg: 'Seg 0.0', text: 'TIENDA ONLINE EN AUTOMÁTICO', col: '#facc15' },
+                { sfx: 'Pop / Click', seg: 'Seg 4.0', text: '❌ CARassistantRITOS ABANDONADOS', col: '#f87171' },
+                { sfx: 'Glitch + Flash', seg: 'Seg 7.0', text: '🛡️ WIDGETS DE CONFIANZA', col: '#34d399' },
+                { sfx: 'Ding Success', seg: 'Seg 12.0', text: '💵 BADGE DE EFECTIVO', col: '#10B981' },
+                { sfx: 'Camera Shutter', seg: 'Seg 16.0', text: '🚀 PROBÁ 7 DÍAS GRATIS', col: '#facc15' }
+              ].map((s, i) => (
+                <div key={i} style={{ backgroundColor: '#020a07', borderLeft: `4px solid ${s.col}`, borderRadius: 8, padding: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                  <div>
+                    <span style={{ fontSize: 11, color: '#64748b' }}>{s.seg} — </span>
+                    <strong style={{ fontSize: 12, color: '#fff' }}>SFX: &quot;{s.sfx}&quot;</strong>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: s.col }}>{s.text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* MÚSICA */}
+            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Music style={{ width: 16, height: 16, color: '#34d399' }} />
+                3. AJUSTE DE VOLUMEN (Regla de Oro)
+              </h3>
+              <p style={{ fontSize: 12, color: '#cbd5e1', margin: '8px 0 0 0', lineHeight: 1.5 }}>
+                • <strong style={{ color: '#34d399' }}>Voz principal:</strong> -6 dB (clara y protagonista)<br />
+                • <strong style={{ color: '#facc15' }}>Música Tech House:</strong> -20 dB (suave de fondo, nunca tapa la voz)<br />
+                • <strong style={{ color: '#fff' }}>Efectos de sonido (SFX):</strong> -10 dB a -12 dB
+              </p>
             </div>
           </div>
         )}
-      </div>
+
+      </main>
     </div>
   );
-          }
+  }
