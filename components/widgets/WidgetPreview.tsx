@@ -8,6 +8,58 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function CajaOpinionesPreview() {
+  return (
+    <div
+      style={{
+        background: "#f7f7f7",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1px solid #cccccc",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div
+          style={{
+            width: "20px",
+            height: "20px",
+            borderRadius: "50%",
+            background: "#374151",
+            color: "#ffffff",
+            fontSize: "7px",
+            fontWeight: 800,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          R
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: "6.5px", fontWeight: 800, color: "#333333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              rodrigo lázaro
+            </span>
+            <div style={{ display: "flex", gap: "2px", fontSize: "5.5px", color: "#f5b301" }}>
+              ★★★★★
+            </div>
+          </div>
+        </div>
+        <span style={{ fontSize: "6px", color: "#6b7280", opacity: 0.7 }}>‹ ›</span>
+      </div>
+      <div style={{ fontSize: "5.5px", color: "#555555", lineHeight: 1.2, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+        Me encantó el producto, cumple con mis expectativas
+      </div>
+    </div>
+  );
+}
+
 function ProbadorVirtualPreview() {
   return (
     <div
@@ -1627,6 +1679,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "caja-opiniones":
+      return <CajaOpinionesPreview />;
     case "probador-virtual":
       return <ProbadorVirtualPreview />;
     case "tabla-talles":
@@ -1708,4 +1762,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-}
+      }
