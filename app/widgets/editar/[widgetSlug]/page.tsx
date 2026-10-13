@@ -26,6 +26,7 @@ import ComparadorAntesDespuesEditor from '@/components/widgets/editors/Comparado
 import BeneficiosEditor from '@/components/widgets/editors/BeneficiosEditor';
 import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
 import ProbadorVirtualEditor from '@/components/widgets/editors/ProbadorVirtualEditor';
+import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -132,6 +133,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: CAJA DE OPINIONES
+  if (params.widgetSlug === 'caja-opiniones') {
+    return <CajaOpinionesEditor {...editorProps} />;
+  }
 
   // WIDGET: PROBADOR VIRTUAL
   if (params.widgetSlug === 'probador-virtual') {
@@ -276,4 +282,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+        }
