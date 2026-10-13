@@ -1823,6 +1823,7 @@
             if (w.widget_slug === "tabla-talles") renderTablaTalles(w);
             if (w.widget_slug === "probador-virtual") renderProbadorVirtual(w);
             if (w.widget_slug === "caja-opiniones") renderCajaOpiniones(w);
+            if (w.widget_slug === "caja-contacto") renderCajaContacto(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -10524,4 +10525,164 @@ function renderCajaOpiniones(w) {
     startInterval();
   }
             }
+  /* ==========================================================================
+   WIDGET #29: CAJA DE CONTACTO (caja-contacto)
+   ========================================================================== */
+
+function renderCajaContacto(w) {
+  try {
+    var config = w.config || {};
+    var title = config.title || '¿Tenés alguna pregunta?';
+    var text = config.text || '';
+    var buttonText = config.buttonText || 'Contactanos';
+    var buttonLink = config.buttonLink || '#';
+    var image = config.image || '';
+    var location = config.location || 'product_after';
+
+    var bgColor = config.bgColor || '#ffffff';
+    var textColor = config.textColor || '#111111';
+    var buttonBg = config.buttonBg || '#191919';
+    var buttonTextColor = config.buttonTextColor || '#ffffff';
+    var borderColor = config.borderColor || '#e5e5e5';
+    var sectionBg = config.sectionBg || 'transparent';
+    var showBorder = config.showBorder !== false;
+
+    var titleFontSize = config.titleFontSize || 18;
+    var textFontSize = config.textFontSize || 14;
+    var borderRadius = typeof config.borderRadius === 'number' ? config.borderRadius : 12;
+    var paddingVal = typeof config.padding === 'number' ? config.padding : 20;
+    var buttonBorderRadius = typeof config.buttonBorderRadius === 'number' ? config.buttonBorderRadius : 25;
+
+    var pageType = detectPageType();
+    var isCartPage = pageType === 'cart' || window.location.pathname.indexOf('/carrito') !== -1 || window.location.pathname.indexOf('/cart') !== -1;
+
+    if (location === 'cart' && !isCartPage) return;
+
+    var containerId = 'nevux-contacto-' + w.id;
+    if (document.getElementById(containerId)) return;
+
+    var target = null;
+    if (location === 'cart') {
+      target = document.querySelector('.cart-summary') ||
+               document.querySelector('.js-cart-total') ||
+               document.querySelector('#cart-total') ||
+               document.querySelector('.js-cart-container') ||
+               document.querySelector('#main-cart');
+    } else if (location === 'description_after') {
+      target = document.querySelector('.js-product-description') ||
+               document.querySelector('.product-description') ||
+               document.querySelector('#description') ||
+               document.querySelector('.description') ||
+               document.querySelector('.js-product-description-container');
+    }
+
+    // Fallback o default product_after
+    if (!target) {
+      var btn = document.querySelector('.js-addtocart') ||
+                document.querySelector('.js-add-to-cart-btn') ||
+                document.querySelector('form[action*="/cart/add"]') ||
+                document.querySelector('form[action*="/comprar"]') ||
+                document.querySelector('[data-store="product-buy-button"]') ||
+                document.querySelector('.js-product-form');
+
+      if (btn) {
+        var formEl = null;
+        if (btn.tagName === 'FORM') {
+          formEl = btn;
+        } else if (btn.closest) {
+          formEl = btn.closest('form') || btn.closest('.js-product-form') || btn.closest('.product-buy-container');
+        }
+        if (!formEl) {
+          var p = btn.parentNode;
+          if (p && (p.tagName === 'FORM' || (p.className && String(p.className).indexOf('form') !== -1))) {
+            formEl = p;
+          } else if (p && p.parentNode && p.parentNode.tagName === 'FORM') {
+            formEl = p.parentNode;
+          } else {
+            formEl = p || btn;
+          }
+        }
+        target = formEl;
+      } else {
+        target = document.querySelector('.js-product-container') ||
+                 document.querySelector('.product-container') ||
+                 document.querySelector('.js-price-container');
+      }
+    }
+
+    if (!target || !target.parentNode) return;
+
+    var wrapper = document.createElement('div');
+    wrapper.id = containerId;
+
+    var wrapperStyle = [
+      'display:block !important',
+      'width:100% !important',
+      'max-width:100% !important',
+      'box-sizing:border-box !important',
+      'clear:both !important',
+      'margin-top:16px !important',
+      'margin-bottom:16px !important',
+      'position:relative !important'
+    ];
+
+    if (sectionBg && sectionBg !== 'transparent') {
+      wrapperStyle.push('background-color:' + sectionBg + ' !important');
+      wrapperStyle.push('padding:16px !important');
+      wrapperStyle.push('border-radius:' + (borderRadius + 4) + 'px !important');
+    }
+
+    wrapper.style.cssText = wrapperStyle.join(';');
+
+    var escapeHtml = function(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+
+    var boxHtml = '<div style="display:block !important;width:100% !important;box-sizing:border-box !important;' +
+      'background-color:' + bgColor + ' !important;' +
+      'color:' + textColor + ' !important;' +
+      'border:' + (showBorder ? '1px solid ' + borderColor : 'none') + ' !important;' +
+      'border-radius:' + borderRadius + 'px !important;' +
+      'padding:' + paddingVal + 'px !important;' +
+      'font-family:inherit !important;' +
+      'box-shadow:0 2px 8px rgba(0,0,0,0.03) !important;">' +
+        '<div style="display:flex !important;align-items:flex-start !important;gap:16px !important;width:100% !important;box-sizing:border-box !important;">';
+
+    if (image) {
+      boxHtml += '<img src="' + image + '" alt="Contacto" style="width:52px !important;height:52px !important;border-radius:50% !important;object-fit:cover !important;display:block !important;flex-shrink:0 !important;" />';
+    } else {
+      boxHtml += '<div style="width:52px !important;height:52px !important;border-radius:50% !important;background:#e5e7eb !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:22px !important;flex-shrink:0 !important;">👨‍💼</div>';
+    }
+
+    boxHtml += '<div style="flex:1 !important;min-width:0 !important;">' +
+      '<div style="font-size:' + titleFontSize + 'px !important;font-weight:800 !important;color:' + textColor + ' !important;line-height:1.25 !important;margin-bottom:6px !important;">' + escapeHtml(title) + '</div>';
+
+    if (text) {
+      boxHtml += '<div style="font-size:' + textFontSize + 'px !important;color:' + textColor + ' !important;opacity:0.85 !important;line-height:1.45 !important;margin-bottom:14px !important;">' + escapeHtml(text) + '</div>';
+    }
+
+    var href = escapeHtml(buttonLink);
+    var targetAttr = (buttonLink.indexOf('wa.me') !== -1 || buttonLink.indexOf('whatsapp') !== -1 || buttonLink.indexOf('http') === 0) ? ' target="_blank" rel="noopener noreferrer"' : '';
+
+    boxHtml += '<a href="' + href + '"' + targetAttr + ' style="display:inline-block !important;background-color:' + buttonBg + ' !important;color:' + buttonTextColor + ' !important;border-radius:' + buttonBorderRadius + 'px !important;border:none !important;padding:10px 22px !important;font-size:14px !important;font-weight:700 !important;text-decoration:none !important;cursor:pointer !important;font-family:inherit !important;line-height:1.2 !important;text-align:center !important;">' + escapeHtml(buttonText) + '</a>' +
+      '</div>' +
+      '</div>' +
+      '</div>';
+
+    wrapper.innerHTML = boxHtml;
+
+    if (target.nextSibling) {
+      target.parentNode.insertBefore(wrapper, target.nextSibling);
+    } else {
+      target.parentNode.appendChild(wrapper);
+    }
+  } catch (err) {
+    // Silencioso
+  }
+}
 })(); 
