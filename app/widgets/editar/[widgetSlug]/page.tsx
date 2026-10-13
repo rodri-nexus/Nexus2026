@@ -28,6 +28,7 @@ import TablaTallesEditor from '@/components/widgets/editors/TablaTallesEditor';
 import ProbadorVirtualEditor from '@/components/widgets/editors/ProbadorVirtualEditor';
 import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEditor';
 import CajaContactoEditor from '@/components/widgets/editors/CajaContactoEditor';
+import SliderImagenesEditor from '@/components/widgets/editors/SliderImagenesEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -134,6 +135,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: SLIDER DE IMÁGENES
+  if (params.widgetSlug === 'slider-imagenes') {
+    return <SliderImagenesEditor {...editorProps} />;
+  }
 
   // WIDGET: CAJA DE CONTACTO
   if (params.widgetSlug === 'caja-contacto') {
