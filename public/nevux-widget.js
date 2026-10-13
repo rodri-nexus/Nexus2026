@@ -10280,6 +10280,24 @@ function renderCajaOpiniones(w) {
   var location = config.location || 'product_after';
   var target = null;
 
+  // Mapa de presets para Fechas Especiales si se selecciona un evento
+  var eventKey = config.event || config.campaign || config.season || config.preset || style.preset || '';
+  var eventPresets = {
+    'cyber-monday': { bg: '#0b0f19', color: '#ffffff', star: '#3b82f6', border: '#1e293b' },
+    'black-friday': { bg: '#0f172a', color: '#ffffff', star: '#f59e0b', border: '#1e293b' },
+    'hot-sale': { bg: '#991b1b', color: '#ffffff', star: '#fef08a', border: '#b91c1c' },
+    'navidad': { bg: '#064e3b', color: '#ffffff', star: '#fbbf24', border: '#047857' },
+    'san-valentin': { bg: '#831843', color: '#ffffff', star: '#f472b6', border: '#9d174d' },
+    'liquidacion': { bg: '#431407', color: '#ffffff', star: '#fdba74', border: '#7c2d12' }
+  };
+  var activePreset = eventPresets[eventKey] || {};
+
+  // Colores finales priorizando la configuración guarda
+  var bgColor = style.backgroundColor || style.bg || activePreset.bg || '#ffffff';
+  var textColor = style.textColor || style.color || activePreset.color || '#1a1a1a';
+  var starColor = style.starColor || activePreset.star || '#f5a623';
+  var borderColor = style.borderColor || activePreset.border || '#e2e8f0';
+
   // Ubicación precisa en Tiendanube
   if (location === 'product_after') {
     target = document.querySelector('.js-addtocart') ||
@@ -10312,22 +10330,14 @@ function renderCajaOpiniones(w) {
   var div = document.createElement('div');
   div.id = containerId;
 
-  // Extraer valores del tema seleccionado (Fechas especiales o personalizado)
-  var bgColor = style.backgroundColor || style.bg || '#ffffff';
-  var textColor = style.textColor || style.color || '#1a1a1a';
-  var starColor = style.starColor || '#ffc107';
-  var borderColor = style.borderColor || '#e2e8f0';
-  var borderRadius = style.borderRadius !== undefined ? style.borderRadius : '14';
-  var borderWidth = style.borderWidth !== undefined ? style.borderWidth : '1';
-
   div.style.margin = (style.marginTop !== undefined ? style.marginTop : '20') + 'px ' +
                      (style.marginRight !== undefined ? style.marginRight : '0') + 'px ' +
                      (style.marginBottom !== undefined ? style.marginBottom : '20') + 'px ' +
                      (style.marginLeft !== undefined ? style.marginLeft : '0') + 'px';
   div.style.padding = (style.padding !== undefined ? style.padding : '18') + 'px';
   div.style.backgroundColor = bgColor;
-  div.style.borderRadius = borderRadius + 'px';
-  div.style.border = borderWidth + 'px solid ' + borderColor;
+  div.style.borderRadius = (style.borderRadius !== undefined ? style.borderRadius : '14') + 'px';
+  div.style.border = (style.borderWidth !== undefined ? style.borderWidth : '1') + 'px solid ' + borderColor;
   div.style.fontFamily = style.fontFamily || 'inherit';
   div.style.color = textColor;
   div.style.boxSizing = 'border-box';
@@ -10366,44 +10376,44 @@ function renderCajaOpiniones(w) {
 
     var slideHtml = '<div style="width:100%; box-sizing:border-box;">';
 
-    // Header Flex (Foto izquierda, Nombre/Estrellas/Flechas derecha)
-    slideHtml += '<div style="display:flex; align-items:flex-start; gap:12px; width:100%;">';
+    // Header principal: Avatar centrado verticalmente con Nombre y Estrellas
+    slideHtml += '<div style="display:flex; align-items:center; gap:12px; width:100%; margin-bottom:12px;">';
 
     // Avatar Circular
     if (photoVal) {
-      slideHtml += '<img src="' + photoVal + '" style="width:48px; height:48px; border-radius:50%; object-fit:cover; display:block; flex-shrink:0;">';
+      slideHtml += '<img src="' + photoVal + '" style="width:50px; height:50px; border-radius:50%; object-fit:cover; display:block; flex-shrink:0;">';
     } else {
-      slideHtml += '<div style="width:48px; height:48px; border-radius:50%; background-color:rgba(255,255,255,0.1); color:' + textColor + '; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; flex-shrink:0; border:1px solid rgba(255,255,255,0.2);">' + nameVal.charAt(0).toUpperCase() + '</div>';
+      slideHtml += '<div style="width:50px; height:50px; border-radius:50%; background-color:rgba(255,255,255,0.15); color:' + textColor + '; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:18px; flex-shrink:0; border:1px solid rgba(255,255,255,0.2);">' + nameVal.charAt(0).toUpperCase() + '</div>';
     }
 
-    // Info del Header
-    slideHtml += '<div style="flex:1; min-width:0;">';
+    // Contenedor a la derecha del Avatar
+    slideHtml += '<div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center;">';
     
-    // Fila 1: Nombre (izq) + Estrellas (der)
-    slideHtml += '<div style="display:flex; align-items:center; justify-content:space-between; width:100%; gap:8px;">';
-    slideHtml += '<span style="font-weight:700; font-size:16px; color:' + textColor + '; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + nameVal + '</span>';
+    // Fila 1: Nombre (Centrado a la izq) + Estrellas (a la der)
+    slideHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%;">';
+    slideHtml += '<span style="font-weight:700; font-size:16px; color:' + textColor + '; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + nameVal + '</span>';
     slideHtml += createStars(ratingVal);
     slideHtml += '</div>';
 
-    // Fila 2: Flechas `<` `>` debajo del nombre
+    // Fila 2: Flechas `<` `>` justo debajo del nombre
     if (opinions.length > 1) {
-      slideHtml += '<div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:13px; color:' + textColor + '; opacity:0.8;">';
-      slideHtml += '<span class="nevux-prev" style="cursor:pointer; user-select:none; padding:0 2px; font-weight:bold;">‹</span>';
-      slideHtml += '<span class="nevux-next" style="cursor:pointer; user-select:none; padding:0 2px; font-weight:bold;">›</span>';
+      slideHtml += '<div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:14px; color:' + textColor + '; opacity:0.8;">';
+      slideHtml += '<span class="nevux-prev" style="cursor:pointer; user-select:none; font-weight:bold; padding:2px 4px;">‹</span>';
+      slideHtml += '<span class="nevux-next" style="cursor:pointer; user-select:none; font-weight:bold; padding:2px 4px;">›</span>';
       slideHtml += '</div>';
     }
 
     slideHtml += '</div>'; // fin info header
     slideHtml += '</div>'; // fin header flex
 
-    // Comentario (Centro)
+    // Comentario
     if (commentVal) {
-      slideHtml += '<div style="margin-top:12px; font-size:14px; line-height:1.5; color:' + textColor + '; word-break:break-word; text-align:left;">' + formatText(commentVal) + '</div>';
+      slideHtml += '<div style="margin-top:8px; font-size:14px; line-height:1.5; color:' + textColor + '; word-break:break-word; text-align:left;">' + formatText(commentVal) + '</div>';
     }
 
     // Compra Verificada (Abajo de todo)
     if (isVerified) {
-      slideHtml += '<div style="margin-top:12px; display:inline-flex; align-items:center; gap:6px; color:#10b981; font-size:13px; font-weight:600;">';
+      slideHtml += '<div style="margin-top:10px; display:inline-flex; align-items:center; gap:6px; color:#10b981; font-size:13px; font-weight:600;">';
       slideHtml += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
       slideHtml += 'Compra verificada</div>';
     }
@@ -10479,5 +10489,5 @@ function renderCajaOpiniones(w) {
 
     startInterval();
   }
-                       }
+}
 })(); 
