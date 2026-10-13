@@ -10699,7 +10699,7 @@ function renderCajaContacto(w) {
     // Silencioso
   }
 }
-                                            // WIDGET #30: SLIDER DE IMÁGENES
+                                              // WIDGET #30: SLIDER DE IMÁGENES
   var renderSliderImagenes = function(w) {
     var pType = detectPageType();
     if (pType !== "product") return;
@@ -10761,7 +10761,7 @@ function renderCajaContacto(w) {
     var container = document.createElement("div");
     container.id = "nvx-slider-imagenes-" + w.id;
     container.className = "nvx-widget-container";
-    container.style.cssText = "width:100% !important; margin:20px 0 !important; box-sizing:border-box !important; background-color:" + bgColor + " !important; " + borderCss + " border-radius:12px !important; padding:16px !important; overflow:hidden !important; position:relative !important;";
+    container.style.cssText = "width:100% !important; margin:20px 0 !important; box-sizing:border-box !important; background-color:" + bgColor + " !important; " + borderCss + " border-radius:12px !important; padding:16px !important; overflow:hidden !important; position:relative !important; display:block !important; visibility:visible !important; opacity:1 !important; clear:both !important;";
 
     var html = "";
 
@@ -10791,85 +10791,125 @@ function renderCajaContacto(w) {
 
     container.innerHTML = html;
 
-    // Lógica de inyección según ubicación
-    var inserted = false;
-
-    if (position === "after-description") {
-      // Regla #53: Buscador DOM de 3 niveles para la descripción
-      var descEl = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description");
+    // Helper: encontrar bloque de descripción (el que YA funciona en after-description)
+    var findDescriptionEl = function() {
+      var descEl = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description, .product-description-container, #product-description, .js-product-description-container");
       if (!descEl) {
-        var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+        var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab], .tab-title, .nav-link");
         for (var h = 0; h < headers.length; h++) {
-          if ((headers[h].textContent || "").toLowerCase().indexOf("descripci") !== -1) {
-            descEl = headers[h].parentNode;
+          var ht = (headers[h].textContent || "").toLowerCase();
+          if (ht.indexOf("descripci") !== -1 || ht.indexOf("description") !== -1) {
+            descEl = headers[h].closest(".tab-content, .accordion, .js-accordion-container, .product-tabs, .tabs-content, section, .tab-pane") || headers[h].parentNode;
             break;
           }
         }
       }
-      if (!descEl) {
-        descEl = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+      return descEl || null;
+    };
+
+    // Helper: insertar debajo del botón comprar (Regla #36)
+    var insertBelowBuy = function() {
+      var forms = document.querySelectorAll("form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart/add'], form.js-product-form, form#product_form, form.product-form, form[data-store='product-form']");
+      var f;
+      for (f = 0; f < forms.length; f++) {
+        var formEl = forms[f];
+        // Evitar forms escondidos (display none / sticky mobile oculto)
+        var formStyle = window.getComputedStyle(formEl);
+        if (formStyle && (formStyle.display === "none" || formStyle.visibility === "hidden")) continue;
+        if (formEl.parentNode) {
+          formEl.parentNode.insertBefore(container, formEl.nextSibling);
+          return true;
+        }
       }
+
+      var btn = document.querySelector(".js-product-buy-button, [data-store='product-buy-button'], .btn-add-to-cart, .js-addtocart, .js-prod-submit-form, button[name='add'], #button-cart");
+      if (btn) {
+        var btnStyle = window.getComputedStyle(btn);
+        if (!(btnStyle && (btnStyle.display === "none" || btnStyle.visibility === "hidden"))) {
+          var anchor = btn.closest("form, .product-buy, .product-actions, .js-product-buy-button-container, .buy-button-wrapper, .product-form-buttons") || btn.parentNode;
+          if (anchor && anchor.parentNode) {
+            anchor.parentNode.insertBefore(container, anchor.nextSibling);
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    var inserted = false;
+    var descEl = findDescriptionEl();
+
+    if (position === "after-description") {
+      // DESPUÉS de la descripción (ya funcionaba)
       if (descEl && descEl.parentNode) {
         descEl.parentNode.insertBefore(container, descEl.nextSibling);
         inserted = true;
-      }
-    }
-
-    if (!inserted) {
-      // Ubicación "before-description": DEBAJO del botón Agregar al carrito (Regla #36 + blindaje multi-selector)
-
-      // 1) Formulario de compra nativo Tiendanube
-      var cartForm = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart/add'], form.js-product-form, form#product_form, form.product-form, form[data-store='product-form']");
-      if (cartForm) {
-        var buyBtn = cartForm.querySelector("button[type='submit'], input[type='submit'], .js-product-buy-button, [data-store='product-buy-button'], .btn-add-to-cart, .js-addtocart, button[name='add'], .product-buy-button");
-        if (buyBtn) {
-          var buyWrap = buyBtn.closest(".product-buy, .js-product-buy-button-container, .buy-button-wrapper, .product-actions, .js-product-form-button, .btn-container, .product-form-buttons, .js-product-variants-container") || buyBtn.parentNode;
-          if (buyWrap && buyWrap.parentNode) {
-            buyWrap.parentNode.insertBefore(container, buyWrap.nextSibling);
-            inserted = true;
-          }
-        }
-        if (!inserted && cartForm.parentNode) {
-          cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
+      } else {
+        var mainAfter = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+        if (mainAfter) {
+          mainAfter.appendChild(container);
           inserted = true;
         }
       }
-
-      // 2) Botón de compra suelto (temas sin form clásico)
-      if (!inserted) {
-        var looseBtn = document.querySelector(".js-product-buy-button, [data-store='product-buy-button'], .btn-add-to-cart, .js-addtocart, button[name='add'], #button-cart, .product-form-submit, .js-prod-submit-form");
-        if (looseBtn) {
-          var looseWrap = looseBtn.closest("form, .product-buy, .product-actions, .js-product-buy-button-container, .buy-button-wrapper, .btn-container") || looseBtn.parentNode;
-          if (looseWrap && looseWrap.parentNode) {
-            looseWrap.parentNode.insertBefore(container, looseWrap.nextSibling);
-            inserted = true;
-          }
-        }
+    } else {
+      // ANTES de la descripción = insertar JUSTO ANTES del bloque descripción
+      // (queda debajo del precio/botón y arriba de la descripción)
+      if (descEl && descEl.parentNode) {
+        descEl.parentNode.insertBefore(container, descEl);
+        inserted = true;
       }
 
-      // 3) Fallback: debajo del bloque de precio (Regla #48)
+      // Fallback 1: debajo del form/botón comprar
       if (!inserted) {
-        var priceBox = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price'], .product-price, .js-product-price");
+        inserted = insertBelowBuy();
+      }
+
+      // Fallback 2: debajo del bloque de precio
+      if (!inserted) {
+        var priceBox = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price'], .product-price");
         if (priceBox && priceBox.parentNode) {
           priceBox.parentNode.insertBefore(container, priceBox.nextSibling);
           inserted = true;
         }
       }
 
-      // 4) Último recurso: columna de info del producto (al final del bloque de compra, no de la descripción)
+      // Fallback 3: columna de info del producto
       if (!inserted) {
-        var infoCol = document.querySelector(".js-product-info, .product-info, .product-form-container, .js-product-form-container, .product-details, .js-product-details");
+        var infoCol = document.querySelector(".js-product-info, .product-info, .product-form-container, .js-product-form-container, .product-details");
         if (infoCol) {
           infoCol.appendChild(container);
           inserted = true;
         }
       }
+    }
 
-      // 5) Fallback final absoluto
-      if (!inserted) {
-        var mainContainer = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
-        if (mainContainer) mainContainer.appendChild(container);
-      }
+    // Reintento diferido (temas Tiendanube que montan el DOM tarde)
+    if (!inserted || !container.parentNode) {
+      var retries = 0;
+      var tryInsert = function() {
+        if (document.getElementById("nvx-slider-imagenes-" + w.id) && container.parentNode) return;
+        retries++;
+        var d = findDescriptionEl();
+        if (position === "after-description") {
+          if (d && d.parentNode) {
+            d.parentNode.insertBefore(container, d.nextSibling);
+            return;
+          }
+        } else {
+          if (d && d.parentNode) {
+            d.parentNode.insertBefore(container, d);
+            return;
+          }
+          if (insertBelowBuy()) return;
+        }
+        if (retries < 5) {
+          setTimeout(tryInsert, 600);
+        } else {
+          var mainFinal = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main, #content");
+          if (mainFinal && !container.parentNode) mainFinal.appendChild(container);
+        }
+      };
+      setTimeout(tryInsert, 500);
     }
 
     // Modal / Lightbox al hacer click en una imagen (si no está desactivado)
