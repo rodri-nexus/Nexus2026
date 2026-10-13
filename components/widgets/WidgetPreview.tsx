@@ -8,6 +8,59 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function VideoTextoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎥 VIDEO Y TEXTO</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          EXPLICATIVO
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "6px", alignItems: "center", padding: "2px 0" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px" }}>
+          <div style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>
+            Conocé el producto
+          </div>
+          <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.1 }}>
+            Mirá este breve video explicativo...
+          </div>
+        </div>
+        <div
+          style={{
+            width: "42px",
+            height: "28px",
+            borderRadius: "6px",
+            background: "#111827",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#ffffff",
+            fontSize: "10px",
+            flexShrink: 0,
+            boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+          }}
+        >
+          ▶
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SliderImagenesPreview() {
   return (
     <div
@@ -1784,6 +1837,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "video-texto":
+      return <VideoTextoPreview />;
     case "slider-imagenes":
       return <SliderImagenesPreview />;
     case "caja-contacto":
@@ -1871,4 +1926,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-    }
+      }
