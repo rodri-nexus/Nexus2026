@@ -10699,7 +10699,7 @@ function renderCajaContacto(w) {
     // Silencioso
   }
 }
-                                          // WIDGET #30: SLIDER DE IMÁGENES
+                                            // WIDGET #30: SLIDER DE IMÁGENES
   var renderSliderImagenes = function(w) {
     var pType = detectPageType();
     if (pType !== "product") return;
@@ -10816,11 +10816,57 @@ function renderCajaContacto(w) {
     }
 
     if (!inserted) {
-      // Ubicación por defecto: "before-description" (debajo del botón de compra)
-      var targetEl = document.querySelector("form[action*='/cart/add']");
-      if (targetEl && targetEl.parentNode) {
-        targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
-      } else {
+      // Ubicación "before-description": DEBAJO del botón Agregar al carrito (Regla #36 + blindaje multi-selector)
+
+      // 1) Formulario de compra nativo Tiendanube
+      var cartForm = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form[action*='cart/add'], form.js-product-form, form#product_form, form.product-form, form[data-store='product-form']");
+      if (cartForm) {
+        var buyBtn = cartForm.querySelector("button[type='submit'], input[type='submit'], .js-product-buy-button, [data-store='product-buy-button'], .btn-add-to-cart, .js-addtocart, button[name='add'], .product-buy-button");
+        if (buyBtn) {
+          var buyWrap = buyBtn.closest(".product-buy, .js-product-buy-button-container, .buy-button-wrapper, .product-actions, .js-product-form-button, .btn-container, .product-form-buttons, .js-product-variants-container") || buyBtn.parentNode;
+          if (buyWrap && buyWrap.parentNode) {
+            buyWrap.parentNode.insertBefore(container, buyWrap.nextSibling);
+            inserted = true;
+          }
+        }
+        if (!inserted && cartForm.parentNode) {
+          cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
+          inserted = true;
+        }
+      }
+
+      // 2) Botón de compra suelto (temas sin form clásico)
+      if (!inserted) {
+        var looseBtn = document.querySelector(".js-product-buy-button, [data-store='product-buy-button'], .btn-add-to-cart, .js-addtocart, button[name='add'], #button-cart, .product-form-submit, .js-prod-submit-form");
+        if (looseBtn) {
+          var looseWrap = looseBtn.closest("form, .product-buy, .product-actions, .js-product-buy-button-container, .buy-button-wrapper, .btn-container") || looseBtn.parentNode;
+          if (looseWrap && looseWrap.parentNode) {
+            looseWrap.parentNode.insertBefore(container, looseWrap.nextSibling);
+            inserted = true;
+          }
+        }
+      }
+
+      // 3) Fallback: debajo del bloque de precio (Regla #48)
+      if (!inserted) {
+        var priceBox = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price'], .product-price, .js-product-price");
+        if (priceBox && priceBox.parentNode) {
+          priceBox.parentNode.insertBefore(container, priceBox.nextSibling);
+          inserted = true;
+        }
+      }
+
+      // 4) Último recurso: columna de info del producto (al final del bloque de compra, no de la descripción)
+      if (!inserted) {
+        var infoCol = document.querySelector(".js-product-info, .product-info, .product-form-container, .js-product-form-container, .product-details, .js-product-details");
+        if (infoCol) {
+          infoCol.appendChild(container);
+          inserted = true;
+        }
+      }
+
+      // 5) Fallback final absoluto
+      if (!inserted) {
         var mainContainer = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
         if (mainContainer) mainContainer.appendChild(container);
       }
