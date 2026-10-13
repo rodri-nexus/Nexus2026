@@ -10269,6 +10269,7 @@ function renderProbadorVirtual(widget) {
         }
       /* ==========================================================================
    WIDGET #28: CAJA DE OPINIONES (caja-opiniones)
+   Tamaño FIJO horizontal 100% — idéntico a referencia de producto
    ========================================================================== */
 
 function renderCajaOpiniones(w) {
@@ -10276,7 +10277,6 @@ function renderCajaOpiniones(w) {
   var opinions = config.opinions || [];
   if (!opinions || opinions.length === 0) return;
 
-  // Filtrar opiniones vacías
   var valid = [];
   for (var vi = 0; vi < opinions.length; vi++) {
     var opp = opinions[vi];
@@ -10288,22 +10288,26 @@ function renderCajaOpiniones(w) {
   var location = config.location || 'product_after';
   var target = null;
 
-  // Lectura directa de keys reales del editor
-  var bgColor = config.bgColor || '#f7f7f7';
+  // Colores personalizables (sí se pueden cambiar)
+  var bgColor = config.bgColor || '#f5f5f5';
   var textColor = config.textColor || '#333333';
   var starColor = config.starColor || '#f5b301';
-  var borderColor = config.borderColor || '#cccccc';
+  var borderColor = config.borderColor || '#e5e7eb';
   var showBorder = config.showBorder !== false;
-  var nameFontSize = config.nameFontSize || 16;
-  var textFontSize = config.textFontSize || 15;
-  var borderRadius = typeof config.borderRadius === 'number' ? config.borderRadius : 10;
-  var paddingVal = typeof config.padding === 'number' ? config.padding : 20;
-  var marginTop = typeof config.marginTop === 'number' ? config.marginTop : 16;
-  var marginBottom = typeof config.marginBottom === 'number' ? config.marginBottom : 16;
+
+  // TAMAÑO FIJO — no se modifica (idéntico a la foto de referencia)
+  var paddingVal = 16;
+  var borderRadius = 12;
+  var marginTop = 16;
+  var marginBottom = 16;
+  var nameFontSize = 15;
+  var textFontSize = 14;
+  var avatarSize = 44;
+
   var autoplayEnabled = config.autoplayEnabled !== false;
   var autoplayInterval = (config.autoplayInterval || 5) * 1000;
 
-  // Ubicación precisa en Tiendanube
+  // Ubicación
   if (location === 'product_after') {
     target = document.querySelector('form[action*="/cart/add"]') ||
              document.querySelector('.js-addtocart') ||
@@ -10334,49 +10338,64 @@ function renderCajaOpiniones(w) {
   var div = document.createElement('div');
   div.id = containerId;
 
-  // Estilos con forzado de ancho 100% horizontal
-  div.style.cssText = 'position:relative !important;' +
-    'display:block !important;' +
-    'width:100% !important;' +
-    'max-width:100% !important;' +
-    'clear:both !important;' +
-    'flex-basis:100% !important;' +
-    'flex-grow:1 !important;' +
-    'background-color:' + bgColor + ' !important;' +
-    'color:' + textColor + ' !important;' +
-    'border:' + (showBorder ? '1px solid ' + borderColor : 'none') + ' !important;' +
-    'border-radius:' + borderRadius + 'px !important;' +
-    'padding:' + paddingVal + 'px !important;' +
-    'margin-top:' + marginTop + 'px !important;' +
-    'margin-bottom:' + marginBottom + 'px !important;' +
-    'box-sizing:border-box !important;' +
-    'font-family:inherit !important;' +
-    'transition:opacity 0.2s ease !important;' +
-    'box-shadow:0 2px 8px rgba(0,0,0,0.03) !important;';
+  // Forzar ANCHO COMPLETO horizontal (nunca cuadrado / nunca al costado)
+  div.style.cssText = [
+    'position:relative !important',
+    'display:block !important',
+    'width:100% !important',
+    'max-width:100% !important',
+    'min-width:100% !important',
+    'clear:both !important',
+    'float:none !important',
+    'flex:0 0 100% !important',
+    'flex-basis:100% !important',
+    'flex-grow:0 !important',
+    'flex-shrink:0 !important',
+    'align-self:stretch !important',
+    'grid-column:1 / -1 !important',
+    'box-sizing:border-box !important',
+    'background-color:' + bgColor + ' !important',
+    'color:' + textColor + ' !important',
+    'border:' + (showBorder ? '1px solid ' + borderColor : 'none') + ' !important',
+    'border-radius:' + borderRadius + 'px !important',
+    'padding:' + paddingVal + 'px !important',
+    'margin-top:' + marginTop + 'px !important',
+    'margin-bottom:' + marginBottom + 'px !important',
+    'margin-left:0 !important',
+    'margin-right:0 !important',
+    'font-family:inherit !important',
+    'line-height:1.4 !important',
+    'transition:opacity 0.2s ease !important',
+    'box-shadow:none !important',
+    'overflow:hidden !important'
+  ].join(';');
 
   var currentIndex = 0;
   var intervalId = null;
 
   function createStars(rating) {
-    var html = '<div style="display:inline-flex !important;gap:2px !important;align-items:center !important;flex-shrink:0 !important;white-space:nowrap !important;">';
+    var html = '<span style="display:inline-flex !important;align-items:center !important;gap:2px !important;flex-shrink:0 !important;white-space:nowrap !important;line-height:1 !important;">';
     for (var i = 1; i <= 5; i++) {
-      var isFilled = i <= rating;
-      var color = isFilled ? starColor : '#d1d5db';
-      html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="' + (isFilled ? color : 'none') + '" stroke="' + color + '" stroke-width="2" style="display:inline-block;flex-shrink:0;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+      var filled = i <= rating;
+      var c = filled ? starColor : '#d1d5db';
+      html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (filled ? c : 'none') + '" stroke="' + c + '" stroke-width="2" style="display:block;flex-shrink:0;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
     }
-    html += '</div>';
+    html += '</span>';
     return html;
   }
 
   function escapeHtml(s) {
     if (!s) return '';
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   function formatText(txt) {
     if (!txt) return '';
-    var escaped = escapeHtml(txt);
-    return escaped.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:700;color:' + textColor + ';">$1</strong>');
+    return escapeHtml(txt).replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:700;color:' + textColor + ';">$1</strong>');
   }
 
   function renderSlide(index) {
@@ -10388,59 +10407,61 @@ function renderCajaOpiniones(w) {
     var photoVal = op.photo || '';
     var isVerified = op.verified !== false;
     var ratingVal = parseInt(op.rating, 10) || 5;
-
     var showArrows = opinions.length > 1;
 
-    var html = '<div style="width:100% !important;box-sizing:border-box !important;">';
+    var html = '';
 
-    // Header exacto Foto 1: Lado Izq (Avatar + Nombre + Estrellas) | Lado Der (Flechas < >)
-    html += '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;margin-bottom:12px !important;gap:10px !important;">';
+    // === HEADER: [Avatar] [Nombre] [Estrellas] .......... [‹ ›] ===
+    html += '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;gap:8px !important;box-sizing:border-box !important;">';
 
-    // Lado izquierdo: Avatar + Nombre + Estrellas en una sola fila
-    html += '<div style="display:flex !important;align-items:center !important;gap:10px !important;min-width:0 !important;">';
+    // Izquierda: avatar + nombre + estrellas
+    html += '<div style="display:flex !important;align-items:center !important;gap:10px !important;min-width:0 !important;flex:1 !important;">';
+
     if (photoVal) {
-      html += '<img src="' + photoVal + '" alt="" style="width:40px !important;height:40px !important;border-radius:50% !important;object-fit:cover !important;display:block !important;flex-shrink:0 !important;">';
+      html += '<img src="' + photoVal + '" alt="" style="width:' + avatarSize + 'px !important;height:' + avatarSize + 'px !important;border-radius:50% !important;object-fit:cover !important;display:block !important;flex-shrink:0 !important;">';
     } else {
-      html += '<div style="width:40px !important;height:40px !important;border-radius:50% !important;background-color:rgba(255,255,255,0.15) !important;color:' + textColor + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:700 !important;font-size:15px !important;flex-shrink:0 !important;border:1px solid rgba(255,255,255,0.2) !important;">' + escapeHtml(nameVal.charAt(0).toUpperCase()) + '</div>';
+      html += '<div style="width:' + avatarSize + 'px !important;height:' + avatarSize + 'px !important;border-radius:50% !important;background:#e5e7eb !important;color:#374151 !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:700 !important;font-size:16px !important;flex-shrink:0 !important;">' + escapeHtml(nameVal.charAt(0).toUpperCase()) + '</div>';
     }
-    html += '<span style="font-weight:700 !important;font-size:' + nameFontSize + 'px !important;color:' + textColor + ' !important;line-height:1.2 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + escapeHtml(nameVal) + '</span>';
+
+    html += '<span style="font-weight:700 !important;font-size:' + nameFontSize + 'px !important;color:' + textColor + ' !important;line-height:1.2 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:140px !important;">' + escapeHtml(nameVal) + '</span>';
+
     html += createStars(ratingVal);
+
     html += '</div>';
 
-    // Lado derecho: Flechas < > alineadas a la derecha de la misma fila
+    // Derecha: flechas
     if (showArrows) {
-      html += '<div style="display:flex !important;align-items:center !important;gap:6px !important;flex-shrink:0 !important;">' +
-        '<span class="nevux-prev" style="cursor:pointer !important;user-select:none !important;font-weight:bold !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">‹</span>' +
-        '<span class="nevux-next" style="cursor:pointer !important;user-select:none !important;font-weight:bold !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">›</span>' +
+      html += '<div style="display:flex !important;align-items:center !important;gap:2px !important;flex-shrink:0 !important;">' +
+        '<span class="nevux-prev" style="cursor:pointer !important;user-select:none !important;font-weight:700 !important;padding:4px 8px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.55 !important;">‹</span>' +
+        '<span class="nevux-next" style="cursor:pointer !important;user-select:none !important;font-weight:700 !important;padding:4px 8px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.55 !important;">›</span>' +
         '</div>';
     }
 
-    html += '</div>'; // Fin Header
+    html += '</div>';
 
-    // Comentario a lo largo (full width)
+    // === COMENTARIO a todo el ancho ===
     if (commentVal) {
-      html += '<div style="font-size:' + textFontSize + 'px !important;line-height:1.5 !important;color:' + textColor + ' !important;word-break:break-word !important;text-align:left !important;margin-top:6px !important;">' + formatText(commentVal) + '</div>';
+      html += '<div style="margin-top:10px !important;font-size:' + textFontSize + 'px !important;line-height:1.5 !important;color:' + textColor + ' !important;word-break:break-word !important;text-align:left !important;width:100% !important;box-sizing:border-box !important;">' + formatText(commentVal) + '</div>';
     }
 
-    // Compra Verificada (al pie)
+    // === Compra verificada (minimalista) ===
     if (isVerified) {
-      html += '<div style="margin-top:10px !important;display:inline-flex !important;align-items:center !important;gap:5px !important;color:#10b981 !important;font-size:12px !important;font-weight:600 !important;background:transparent !important;border:none !important;padding:0 !important;">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>' +
+      html += '<div style="margin-top:8px !important;display:inline-flex !important;align-items:center !important;gap:5px !important;color:#10b981 !important;font-size:12px !important;font-weight:600 !important;background:transparent !important;border:none !important;padding:0 !important;">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>' +
         '<span style="color:#10b981 !important;">Compra verificada</span>' +
         '</div>';
     }
 
-    html += '</div>';
     return html;
   }
 
   function updateContent() {
-    div.style.opacity = '0.3';
+    div.style.opacity = '0.35';
     setTimeout(function() {
       div.innerHTML = renderSlide(currentIndex);
       div.style.opacity = '1';
       bindEvents();
-    }, 150);
+    }, 140);
   }
 
   function bindEvents() {
@@ -10457,7 +10478,6 @@ function renderCajaOpiniones(w) {
         resetInterval();
       };
     }
-
     if (btnNext) {
       btnNext.onclick = function(e) {
         if (e && e.stopPropagation) e.stopPropagation();
@@ -10485,17 +10505,28 @@ function renderCajaOpiniones(w) {
 
   div.innerHTML = renderSlide(0);
 
-  // Inyección según location
-  if (location === 'product_after' || location === 'price_after' || location === 'cart') {
-    if (target.nextSibling) {
-      target.parentNode.insertBefore(div, target.nextSibling);
-    } else {
-      target.parentNode.appendChild(div);
-    }
+  // Inyección: debajo del target, forzando que salga de filas flex angostas
+  var parent = target.parentNode;
+  if (location === 'product_before') {
+    parent.insertBefore(div, target);
   } else {
-    // product_before
-    target.parentNode.insertBefore(div, target);
+    if (target.nextSibling) {
+      parent.insertBefore(div, target.nextSibling);
+    } else {
+      parent.appendChild(div);
+    }
   }
+
+  // Si el padre es flex-row, empujar el widget a una nueva línea completa
+  try {
+    var parentDisplay = window.getComputedStyle(parent).display;
+    if (parentDisplay === 'flex' || parentDisplay === 'inline-flex') {
+      div.style.flex = '0 0 100%';
+      div.style.width = '100%';
+      div.style.maxWidth = '100%';
+      // Si el padre no wrappea, envolver no es viable acá; el flex-basis:100% + width 100% alcanza en la mayoría de temas
+    }
+  } catch (e) {}
 
   bindEvents();
 
@@ -10504,5 +10535,5 @@ function renderCajaOpiniones(w) {
     div.onmouseleave = function() { startInterval(); };
     startInterval();
   }
-}
+    }
 })(); 
