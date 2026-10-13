@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import NevuxLogo from '@/app/components/landing/NevuxLogo';
+import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
 
 type TabType = 'general' | 'ubicacion' | 'estilos' | 'fechas';
 
@@ -278,6 +280,14 @@ export default function SliderImagenesEditor({
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '16px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+
+      {/* HEADER STICKY NEVUX */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 100, backgroundColor: '#ffffff', borderBottom: '1px solid #E5E7EB', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <NevuxLogo size="medium" />
+        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontSize: '13px', fontWeight: 800 }}>
+          RL
+        </div>
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
         <span style={{
@@ -986,37 +996,9 @@ export default function SliderImagenesEditor({
         </p>
       </div>
 
-      {/* CENTRO DE AYUDA */}
-      <div style={{
-        marginTop: '28px',
-        padding: '20px 16px',
-        borderRadius: '12px',
-        backgroundColor: '#F9FAFB',
-        border: '1px solid #E5E7EB',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '22px', marginBottom: '6px' }}>💬</div>
-        <div style={{ fontSize: '14px', fontWeight: 800, color: '#111827', marginBottom: '4px' }}>Centro de ayuda</div>
-        <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px', lineHeight: 1.4 }}>
-          ¿Dudas con el slider? Escribinos y te ayudamos a dejarlo perfecto en tu tienda.
-        </div>
-        <a
-          href="https://wa.me/5493435042812?text=Hola%20Nevux%2C%20necesito%20ayuda%20con%20el%20Slider%20de%20Im%C3%A1genes"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-block',
-            backgroundColor: '#10B981',
-            color: '#ffffff',
-            padding: '10px 18px',
-            borderRadius: '999px',
-            fontSize: '13px',
-            fontWeight: 800,
-            textDecoration: 'none'
-          }}
-        >
-          Contactar por WhatsApp
-        </a>
+      {/* CENTRO DE AYUDA OFICIAL */}
+      <div style={{ marginTop: '28px' }}>
+        <CentroAyuda />
       </div>
     </div>
   );
