@@ -10288,7 +10288,7 @@ function renderCajaOpiniones(w) {
   var location = config.location || 'product_after';
   var target = null;
 
-  // Lectura directa de keys reales del editor (NO config.style)
+  // Lectura directa de keys reales del editor
   var bgColor = config.bgColor || '#f7f7f7';
   var textColor = config.textColor || '#333333';
   var starColor = config.starColor || '#f5b301';
@@ -10334,7 +10334,14 @@ function renderCajaOpiniones(w) {
   var div = document.createElement('div');
   div.id = containerId;
 
+  // Estilos con forzado de ancho 100% horizontal
   div.style.cssText = 'position:relative !important;' +
+    'display:block !important;' +
+    'width:100% !important;' +
+    'max-width:100% !important;' +
+    'clear:both !important;' +
+    'flex-basis:100% !important;' +
+    'flex-grow:1 !important;' +
     'background-color:' + bgColor + ' !important;' +
     'color:' + textColor + ' !important;' +
     'border:' + (showBorder ? '1px solid ' + borderColor : 'none') + ' !important;' +
@@ -10343,8 +10350,6 @@ function renderCajaOpiniones(w) {
     'margin-top:' + marginTop + 'px !important;' +
     'margin-bottom:' + marginBottom + 'px !important;' +
     'box-sizing:border-box !important;' +
-    'width:100% !important;' +
-    'max-width:100% !important;' +
     'font-family:inherit !important;' +
     'transition:opacity 0.2s ease !important;' +
     'box-shadow:0 2px 8px rgba(0,0,0,0.03) !important;';
@@ -10353,11 +10358,11 @@ function renderCajaOpiniones(w) {
   var intervalId = null;
 
   function createStars(rating) {
-    var html = '<div style="display:inline-flex !important;gap:2px !important;align-items:center !important;flex-shrink:0 !important;">';
+    var html = '<div style="display:inline-flex !important;gap:2px !important;align-items:center !important;flex-shrink:0 !important;white-space:nowrap !important;">';
     for (var i = 1; i <= 5; i++) {
       var isFilled = i <= rating;
       var color = isFilled ? starColor : '#d1d5db';
-      html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (isFilled ? color : 'none') + '" stroke="' + color + '" stroke-width="2" style="display:inline-block;flex-shrink:0;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+      html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="' + (isFilled ? color : 'none') + '" stroke="' + color + '" stroke-width="2" style="display:inline-block;flex-shrink:0;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
     }
     html += '</div>';
     return html;
@@ -10386,40 +10391,38 @@ function renderCajaOpiniones(w) {
 
     var showArrows = opinions.length > 1;
 
-    var html = '';
+    var html = '<div style="width:100% !important;box-sizing:border-box !important;">';
 
-    // Flechas en position absolute arriba a la derecha
+    // Header exacto Foto 1: Lado Izq (Avatar + Nombre + Estrellas) | Lado Der (Flechas < >)
+    html += '<div style="display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;margin-bottom:12px !important;gap:10px !important;">';
+
+    // Lado izquierdo: Avatar + Nombre + Estrellas en una sola fila
+    html += '<div style="display:flex !important;align-items:center !important;gap:10px !important;min-width:0 !important;">';
+    if (photoVal) {
+      html += '<img src="' + photoVal + '" alt="" style="width:40px !important;height:40px !important;border-radius:50% !important;object-fit:cover !important;display:block !important;flex-shrink:0 !important;">';
+    } else {
+      html += '<div style="width:40px !important;height:40px !important;border-radius:50% !important;background-color:rgba(255,255,255,0.15) !important;color:' + textColor + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:700 !important;font-size:15px !important;flex-shrink:0 !important;border:1px solid rgba(255,255,255,0.2) !important;">' + escapeHtml(nameVal.charAt(0).toUpperCase()) + '</div>';
+    }
+    html += '<span style="font-weight:700 !important;font-size:' + nameFontSize + 'px !important;color:' + textColor + ' !important;line-height:1.2 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;">' + escapeHtml(nameVal) + '</span>';
+    html += createStars(ratingVal);
+    html += '</div>';
+
+    // Lado derecho: Flechas < > alineadas a la derecha de la misma fila
     if (showArrows) {
-      html += '<div style="position:absolute !important;top:12px !important;right:12px !important;display:flex !important;align-items:center !important;gap:4px !important;z-index:2 !important;">' +
+      html += '<div style="display:flex !important;align-items:center !important;gap:6px !important;flex-shrink:0 !important;">' +
         '<span class="nevux-prev" style="cursor:pointer !important;user-select:none !important;font-weight:bold !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">‹</span>' +
         '<span class="nevux-next" style="cursor:pointer !important;user-select:none !important;font-weight:bold !important;padding:2px 6px !important;font-size:18px !important;line-height:1 !important;color:' + textColor + ' !important;opacity:0.6 !important;">›</span>' +
         '</div>';
     }
 
-    // Header: Avatar + Nombre + Estrellas en una sola fila
-    html += '<div style="display:flex !important;align-items:center !important;gap:12px !important;width:100% !important;' + (showArrows ? 'padding-right:60px !important;' : '') + '">';
+    html += '</div>'; // Fin Header
 
-    // Avatar
-    if (photoVal) {
-      html += '<img src="' + photoVal + '" alt="" style="width:44px !important;height:44px !important;border-radius:50% !important;object-fit:cover !important;display:block !important;flex-shrink:0 !important;">';
-    } else {
-      html += '<div style="width:44px !important;height:44px !important;border-radius:50% !important;background-color:rgba(255,255,255,0.15) !important;color:' + textColor + ' !important;display:flex !important;align-items:center !important;justify-content:center !important;font-weight:700 !important;font-size:16px !important;flex-shrink:0 !important;border:1px solid rgba(255,255,255,0.2) !important;">' + escapeHtml(nameVal.charAt(0).toUpperCase()) + '</div>';
-    }
-
-    // Nombre + Estrellas (alineados en fila con el avatar)
-    html += '<div style="flex:1 !important;min-width:0 !important;display:flex !important;align-items:center !important;gap:10px !important;flex-wrap:wrap !important;">';
-    html += '<span style="font-weight:700 !important;font-size:' + nameFontSize + 'px !important;color:' + textColor + ' !important;line-height:1.2 !important;">' + escapeHtml(nameVal) + '</span>';
-    html += createStars(ratingVal);
-    html += '</div>';
-
-    html += '</div>'; // fin header
-
-    // Comentario
+    // Comentario a lo largo (full width)
     if (commentVal) {
-      html += '<div style="margin-top:10px !important;font-size:' + textFontSize + 'px !important;line-height:1.5 !important;color:' + textColor + ' !important;word-break:break-word !important;text-align:left !important;">' + formatText(commentVal) + '</div>';
+      html += '<div style="font-size:' + textFontSize + 'px !important;line-height:1.5 !important;color:' + textColor + ' !important;word-break:break-word !important;text-align:left !important;margin-top:6px !important;">' + formatText(commentVal) + '</div>';
     }
 
-    // Compra Verificada (inline minimalista)
+    // Compra Verificada (al pie)
     if (isVerified) {
       html += '<div style="margin-top:10px !important;display:inline-flex !important;align-items:center !important;gap:5px !important;color:#10b981 !important;font-size:12px !important;font-weight:600 !important;background:transparent !important;border:none !important;padding:0 !important;">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>' +
@@ -10427,6 +10430,7 @@ function renderCajaOpiniones(w) {
         '</div>';
     }
 
+    html += '</div>';
     return html;
   }
 
