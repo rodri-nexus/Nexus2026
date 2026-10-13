@@ -10699,7 +10699,7 @@ function renderCajaContacto(w) {
     // Silencioso
   }
 }
-                                      // WIDGET #30: SLIDER DE IMÁGENES
+                                        // WIDGET #30: SLIDER DE IMÁGENES
   var renderSliderImagenes = function(w) {
     var pType = detectPageType();
     if (pType !== "product") return;
@@ -10727,6 +10727,27 @@ function renderCajaContacto(w) {
     var gap = typeof cfg.gap === "number" ? cfg.gap : 12;
     var disableModal = !!cfg.disableModal;
     var modalControlsColor = cfg.modalControlsColor || "#333333";
+    var campaignTheme = cfg.campaignTheme || "none";
+
+    // 7 PRESETS OFICIALES NEVUX v32
+    var PRESETS_DATA = {
+      "black-friday": { bg: "#111827", text: "#ffffff", border: "#F59E0B", accent: "#F59E0B" },
+      "hot-sale": { bg: "#0F172A", text: "#ffffff", border: "#EF4444", accent: "#EF4444" },
+      "cyber-monday": { bg: "#090D16", text: "#ffffff", border: "#3B82F6", accent: "#3B82F6" },
+      "navidad": { bg: "#064E3B", text: "#ffffff", border: "#047857", accent: "#EF4444" },
+      "san-valentin": { bg: "#831843", text: "#ffffff", border: "#9d174d", accent: "#F43F5E" },
+      "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#4338ca", accent: "#10B981" },
+      "liquidacion": { bg: "#7F1D1D", text: "#ffffff", border: "#991b1b", accent: "#FBBF24" }
+    };
+
+    var borderCss = "border:1px solid rgba(0,0,0,0.06) !important;";
+    if (campaignTheme !== "none" && PRESETS_DATA[campaignTheme]) {
+      var th = PRESETS_DATA[campaignTheme];
+      bgColor = th.bg;
+      titleColor = th.text;
+      modalControlsColor = th.accent;
+      borderCss = "border:2px solid " + th.border + " !important;";
+    }
 
     // Inyectar Keyframes de animación continua horizontal (si no existen)
     if (!document.getElementById("nvx-slider-keyframes")) {
@@ -10740,7 +10761,7 @@ function renderCajaContacto(w) {
     var container = document.createElement("div");
     container.id = "nvx-slider-imagenes-" + w.id;
     container.className = "nvx-widget-container";
-    container.style.cssText = "width:100% !important; margin:20px 0 !important; box-sizing:border-box !important; background-color:" + bgColor + " !important; border-radius:12px !important; padding:16px !important; overflow:hidden !important; position:relative !important;";
+    container.style.cssText = "width:100% !important; margin:20px 0 !important; box-sizing:border-box !important; background-color:" + bgColor + " !important; " + borderCss + " border-radius:12px !important; padding:16px !important; overflow:hidden !important; position:relative !important;";
 
     var html = "";
 
@@ -10817,61 +10838,5 @@ function renderCajaContacto(w) {
         })(items[k]);
       }
     }
-  };
-
-  // Helper Modal Lightbox para Slider de Imágenes
-  var openImageModal = function(images, initialIdx, controlsColor) {
-    var existingModal = document.getElementById("nvx-img-modal");
-    if (existingModal && existingModal.parentNode) {
-      existingModal.parentNode.removeChild(existingModal);
-    }
-
-    var currentIdx = initialIdx;
-
-    var modal = document.createElement("div");
-    modal.id = "nvx-img-modal";
-    modal.style.cssText = "position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; background-color:rgba(0,0,0,0.85) !important; z-index:999999 !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; padding:20px !important; box-sizing:border-box !important;";
-
-    var closeBtn = document.createElement("button");
-    closeBtn.innerHTML = "✕";
-    closeBtn.style.cssText = "position:absolute !important; top:20px !important; right:20px !important; background:none !important; border:none !important; color:" + controlsColor + " !important; font-size:28px !important; font-weight:800 !important; cursor:pointer !important; z-index:1000000 !important;";
-    closeBtn.onclick = function() {
-      if (modal.parentNode) modal.parentNode.removeChild(modal);
-    };
-
-    var imgEl = document.createElement("img");
-    imgEl.src = images[currentIdx].url;
-    imgEl.style.cssText = "max-width:90vw !important; max-height:80vh !important; object-fit:contain !important; border-radius:12px !important; box-shadow:0 10px 30px rgba(0,0,0,0.5) !important;";
-
-    var prevBtn = document.createElement("button");
-    prevBtn.innerHTML = "‹";
-    prevBtn.style.cssText = "position:absolute !important; left:20px !important; top:50% !important; transform:translateY(-50%) !important; background:rgba(255,255,255,0.9) !important; border:none !important; color:" + controlsColor + " !important; font-size:32px !important; font-weight:800 !important; width:44px !important; height:44px !important; border-radius:50% !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important;";
-    prevBtn.onclick = function(e) {
-      e.stopPropagation();
-      currentIdx = (currentIdx - 1 + images.length) % images.length;
-      imgEl.src = images[currentIdx].url;
-    };
-
-    var nextBtn = document.createElement("button");
-    nextBtn.innerHTML = "›";
-    nextBtn.style.cssText = "position:absolute !important; right:20px !important; top:50% !important; transform:translateY(-50%) !important; background:rgba(255,255,255,0.9) !important; border:none !important; color:" + controlsColor + " !important; font-size:32px !important; font-weight:800 !important; width:44px !important; height:44px !important; border-radius:50% !important; cursor:pointer !important; display:flex !important; align-items:center !important; justify-content:center !important;";
-    nextBtn.onclick = function(e) {
-      e.stopPropagation();
-      currentIdx = (currentIdx + 1) % images.length;
-      imgEl.src = images[currentIdx].url;
-    };
-
-    modal.appendChild(closeBtn);
-    modal.appendChild(prevBtn);
-    modal.appendChild(imgEl);
-    modal.appendChild(nextBtn);
-
-    modal.onclick = function(e) {
-      if (e.target === modal) {
-        if (modal.parentNode) modal.parentNode.removeChild(modal);
-      }
-    };
-
-    document.body.appendChild(modal);
   };
 })(); 
