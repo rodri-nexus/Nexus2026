@@ -8,6 +8,53 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function SliderImagenesPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🖼️ SLIDER DE IMÁGENES</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          CARRUSEL
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "5px", overflow: "hidden", padding: "2px 0", justifyContent: "center" }}>
+        {[1, 2, 3].map((item) => (
+          <div
+            key={item}
+            style={{
+              width: "34px",
+              height: "38px",
+              borderRadius: "6px",
+              background: item === 1 ? "#f3f4f6" : item === 2 ? "#ecfdf5" : "#e5e7eb",
+              border: item === 2 ? "1px solid #10B981" : "1px solid #d1d5db",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              flexShrink: 0,
+            }}
+          >
+            {item === 1 ? "🧴" : item === 2 ? "✨" : "🌿"}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function CajaContactoPreview() {
   return (
     <div
@@ -1737,6 +1784,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "slider-imagenes":
+      return <SliderImagenesPreview />;
     case "caja-contacto":
       return <CajaContactoPreview />;
     case "caja-opiniones":
@@ -1822,4 +1871,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-      }
+    }
