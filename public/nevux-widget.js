@@ -10527,6 +10527,7 @@ function renderCajaOpiniones(w) {
             }
   /* ==========================================================================
    WIDGET #29: CAJA DE CONTACTO (caja-contacto)
+   Soporte preciso para Descripción y Carrito de Compras
    ========================================================================== */
 
 function renderCajaContacto(w) {
@@ -10553,31 +10554,47 @@ function renderCajaContacto(w) {
     var paddingVal = typeof config.padding === 'number' ? config.padding : 20;
     var buttonBorderRadius = typeof config.buttonBorderRadius === 'number' ? config.buttonBorderRadius : 25;
 
+    // Detectar si estamos en el carrito
     var pageType = detectPageType();
-    var isCartPage = pageType === 'cart' || window.location.pathname.indexOf('/carrito') !== -1 || window.location.pathname.indexOf('/cart') !== -1;
+    var pathname = (window.location.pathname || '').toLowerCase();
+    var isCartPage = pageType === 'cart' ||
+                     pathname.indexOf('/cart') !== -1 ||
+                     pathname.indexOf('/carrito') !== -1 ||
+                     document.querySelector('.js-cart-container, #main-cart, .js-cart-table, form[action*="/cart"], .cart-summary') !== null;
 
+    // Filtro estricto por ubicación
     if (location === 'cart' && !isCartPage) return;
+    if (location !== 'cart' && isCartPage) return;
 
     var containerId = 'nevux-contacto-' + w.id;
     if (document.getElementById(containerId)) return;
 
     var target = null;
-    if (location === 'cart') {
-      target = document.querySelector('.cart-summary') ||
-               document.querySelector('.js-cart-total') ||
-               document.querySelector('#cart-total') ||
-               document.querySelector('.js-cart-container') ||
-               document.querySelector('#main-cart');
-    } else if (location === 'description_after') {
-      target = document.querySelector('.js-product-description') ||
-               document.querySelector('.product-description') ||
-               document.querySelector('#description') ||
-               document.querySelector('.description') ||
-               document.querySelector('.js-product-description-container');
-    }
 
-    // Fallback o default product_after
-    if (!target) {
+    if (location === 'cart') {
+      // Selectores universales de Carrito en Tiendanube
+      target = document.querySelector(
+        '.cart-summary, .js-cart-totals, .js-cart-total, #cart-total, ' +
+        '.cart-totals, [data-store="cart-totals"], ' +
+        '.js-cart-container, #main-cart, form[action*="/cart"], ' +
+        '.js-cart-table, .cart-table, .js-cart-item-list'
+      );
+    } else if (location === 'description_after') {
+      // Selectores universales de Descripción de Producto en Tiendanube
+      target = document.querySelector(
+        '.js-product-description, [data-store="product-description"], ' +
+        '.product-description, #description, .description, ' +
+        '.js-product-description-container, .user-content, ' +
+        '.product-user-content, .js-product-user-content, ' +
+        '#product-description, .description-content, .js-product-detail-description'
+      );
+
+      // Fallback para descripción: contenedor principal de ficha
+      if (!target) {
+        target = document.querySelector('.js-product-detail, .product-detail, .js-product-container, .product-container');
+      }
+    } else {
+      // product_after (default) -> debajo del botón de compra
       var btn = document.querySelector('.js-addtocart') ||
                 document.querySelector('.js-add-to-cart-btn') ||
                 document.querySelector('form[action*="/cart/add"]') ||
