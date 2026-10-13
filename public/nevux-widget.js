@@ -10280,6 +10280,7 @@ function renderCajaOpiniones(w) {
   var location = config.location || 'product_after';
   var target = null;
 
+  // Ubicación precisa en Tiendanube
   if (location === 'product_after') {
     target = document.querySelector('.js-addtocart') ||
              document.querySelector('.js-add-to-cart-btn') ||
@@ -10310,16 +10311,25 @@ function renderCajaOpiniones(w) {
 
   var div = document.createElement('div');
   div.id = containerId;
+
+  // Extraer valores del tema seleccionado (Fechas especiales o personalizado)
+  var bgColor = style.backgroundColor || style.bg || '#ffffff';
+  var textColor = style.textColor || style.color || '#1a1a1a';
+  var starColor = style.starColor || '#ffc107';
+  var borderColor = style.borderColor || '#e2e8f0';
+  var borderRadius = style.borderRadius !== undefined ? style.borderRadius : '14';
+  var borderWidth = style.borderWidth !== undefined ? style.borderWidth : '1';
+
   div.style.margin = (style.marginTop !== undefined ? style.marginTop : '20') + 'px ' +
                      (style.marginRight !== undefined ? style.marginRight : '0') + 'px ' +
                      (style.marginBottom !== undefined ? style.marginBottom : '20') + 'px ' +
                      (style.marginLeft !== undefined ? style.marginLeft : '0') + 'px';
-  div.style.padding = (style.padding !== undefined ? style.padding : '18') + 'px 20px';
-  div.style.backgroundColor = style.backgroundColor || style.bg || '#f9f9f9';
-  div.style.borderRadius = (style.borderRadius !== undefined ? style.borderRadius : '14') + 'px';
-  div.style.border = (style.borderWidth !== undefined ? style.borderWidth : '1') + 'px solid ' + (style.borderColor || '#eee');
+  div.style.padding = (style.padding !== undefined ? style.padding : '18') + 'px';
+  div.style.backgroundColor = bgColor;
+  div.style.borderRadius = borderRadius + 'px';
+  div.style.border = borderWidth + 'px solid ' + borderColor;
   div.style.fontFamily = style.fontFamily || 'inherit';
-  div.style.color = style.textColor || style.color || '#1a1a1a';
+  div.style.color = textColor;
   div.style.boxSizing = 'border-box';
   div.style.width = '100%';
   div.style.transition = 'opacity 0.2s ease';
@@ -10329,11 +10339,10 @@ function renderCajaOpiniones(w) {
   var autoplaySeconds = parseInt(config.autoplay, 10) || 0;
 
   function createStars(rating) {
-    var starColor = style.starColor || '#f5a623';
-    var html = '<div style="display:inline-flex; gap:2px; align-items:center; vertical-align:middle;">';
+    var html = '<div style="display:inline-flex; gap:3px; align-items:center;">';
     for (var i = 1; i <= 5; i++) {
       var isFilled = i <= rating;
-      var color = isFilled ? starColor : '#d1d5db';
+      var color = isFilled ? starColor : '#475569';
       html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="' + (isFilled ? color : 'none') + '" stroke="' + color + '" stroke-width="2" style="display:inline-block;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
     }
     html += '</div>';
@@ -10352,42 +10361,51 @@ function renderCajaOpiniones(w) {
     var nameVal = op.name || op.nombre || op.author || 'Cliente';
     var commentVal = op.comment || op.text || op.opinion || op.description || op.descripcion || op.contenido || '';
     var photoVal = op.image || op.photo || op.img || op.foto || op.avatar || '';
+    var isVerified = op.verified !== undefined ? op.verified : (op.verificado !== undefined ? op.verificado : true);
     var ratingVal = parseInt(op.rating || op.estrellas || 5, 10) || 5;
 
-    var slideHtml = '<div>';
+    var slideHtml = '<div style="width:100%; box-sizing:border-box;">';
 
-    // Fila Superior (Avatar + Nombre + Estrellas a la izquierda / Flechas a la derecha)
-    slideHtml += '<div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:12px;">';
-    
-    // Izquierda: Foto circular + Nombre + Estrellas
-    slideHtml += '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">';
-    
+    // Header Flex (Foto izquierda, Nombre/Estrellas/Flechas derecha)
+    slideHtml += '<div style="display:flex; align-items:flex-start; gap:12px; width:100%;">';
+
+    // Avatar Circular
     if (photoVal) {
-      slideHtml += '<img src="' + photoVal + '" style="width:40px; height:40px; border-radius:50%; object-fit:cover; display:block; flex-shrink:0;">';
+      slideHtml += '<img src="' + photoVal + '" style="width:48px; height:48px; border-radius:50%; object-fit:cover; display:block; flex-shrink:0;">';
     } else {
-      slideHtml += '<div style="width:40px; height:40px; border-radius:50%; background-color:#e2e8f0; color:#475569; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:15px; flex-shrink:0;">' + nameVal.charAt(0).toUpperCase() + '</div>';
+      slideHtml += '<div style="width:48px; height:48px; border-radius:50%; background-color:rgba(255,255,255,0.1); color:' + textColor + '; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; flex-shrink:0; border:1px solid rgba(255,255,255,0.2);">' + nameVal.charAt(0).toUpperCase() + '</div>';
     }
 
-    slideHtml += '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">';
-    slideHtml += '<span style="font-weight:700; font-size:16px; color:' + (style.textColor || '#1a1a1a') + ';">' + nameVal + '</span>';
+    // Info del Header
+    slideHtml += '<div style="flex:1; min-width:0;">';
+    
+    // Fila 1: Nombre (izq) + Estrellas (der)
+    slideHtml += '<div style="display:flex; align-items:center; justify-content:space-between; width:100%; gap:8px;">';
+    slideHtml += '<span style="font-weight:700; font-size:16px; color:' + textColor + '; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + nameVal + '</span>';
     slideHtml += createStars(ratingVal);
     slideHtml += '</div>';
 
-    slideHtml += '</div>';
-
-    // Derecha: Flechas `<` `>` juntas
+    // Fila 2: Flechas `<` `>` debajo del nombre
     if (opinions.length > 1) {
-      slideHtml += '<div style="display:flex; align-items:center; gap:10px; color:' + (style.textColor || '#666666') + '; flex-shrink:0;">';
-      slideHtml += '<span class="nevux-prev" style="cursor:pointer; font-size:18px; font-weight:bold; padding:2px 4px; user-select:none;">‹</span>';
-      slideHtml += '<span class="nevux-next" style="cursor:pointer; font-size:18px; font-weight:bold; padding:2px 4px; user-select:none;">›</span>';
+      slideHtml += '<div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:13px; color:' + textColor + '; opacity:0.8;">';
+      slideHtml += '<span class="nevux-prev" style="cursor:pointer; user-select:none; padding:0 2px; font-weight:bold;">‹</span>';
+      slideHtml += '<span class="nevux-next" style="cursor:pointer; user-select:none; padding:0 2px; font-weight:bold;">›</span>';
       slideHtml += '</div>';
     }
 
-    slideHtml += '</div>';
+    slideHtml += '</div>'; // fin info header
+    slideHtml += '</div>'; // fin header flex
 
-    // Comentario abajo
+    // Comentario (Centro)
     if (commentVal) {
-      slideHtml += '<div style="font-size:14px; line-height:1.5; color:' + (style.textColor || '#333333') + '; word-break:break-word; text-align:left;">' + formatText(commentVal) + '</div>';
+      slideHtml += '<div style="margin-top:12px; font-size:14px; line-height:1.5; color:' + textColor + '; word-break:break-word; text-align:left;">' + formatText(commentVal) + '</div>';
+    }
+
+    // Compra Verificada (Abajo de todo)
+    if (isVerified) {
+      slideHtml += '<div style="margin-top:12px; display:inline-flex; align-items:center; gap:6px; color:#10b981; font-size:13px; font-weight:600;">';
+      slideHtml += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
+      slideHtml += 'Compra verificada</div>';
     }
 
     slideHtml += '</div>';
@@ -10461,5 +10479,5 @@ function renderCajaOpiniones(w) {
 
     startInterval();
   }
-    }
+                       }
 })(); 
