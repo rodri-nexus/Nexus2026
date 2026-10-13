@@ -10527,7 +10527,6 @@ function renderCajaOpiniones(w) {
             }
   /* ==========================================================================
    WIDGET #29: CAJA DE CONTACTO (caja-contacto)
-   Soporte preciso para Descripción y Carrito de Compras
    ========================================================================== */
 
 function renderCajaContacto(w) {
@@ -10554,47 +10553,44 @@ function renderCajaContacto(w) {
     var paddingVal = typeof config.padding === 'number' ? config.padding : 20;
     var buttonBorderRadius = typeof config.buttonBorderRadius === 'number' ? config.buttonBorderRadius : 25;
 
-    // Detectar si estamos en el carrito
+    // Solo se renderiza en ficha de producto
     var pageType = detectPageType();
-    var pathname = (window.location.pathname || '').toLowerCase();
-    var isCartPage = pageType === 'cart' ||
-                     pathname.indexOf('/cart') !== -1 ||
-                     pathname.indexOf('/carrito') !== -1 ||
-                     document.querySelector('.js-cart-container, #main-cart, .js-cart-table, form[action*="/cart"], .cart-summary') !== null;
-
-    // Filtro estricto por ubicación
-    if (location === 'cart' && !isCartPage) return;
-    if (location !== 'cart' && isCartPage) return;
+    if (pageType !== 'product') return;
 
     var containerId = 'nevux-contacto-' + w.id;
     if (document.getElementById(containerId)) return;
 
     var target = null;
 
-    if (location === 'cart') {
-      // Selectores universales de Carrito en Tiendanube
-      target = document.querySelector(
-        '.cart-summary, .js-cart-totals, .js-cart-total, #cart-total, ' +
-        '.cart-totals, [data-store="cart-totals"], ' +
-        '.js-cart-container, #main-cart, form[action*="/cart"], ' +
-        '.js-cart-table, .cart-table, .js-cart-item-list'
-      );
-    } else if (location === 'description_after') {
-      // Selectores universales de Descripción de Producto en Tiendanube
+    if (location === 'description_after') {
+      // 1. Selectores directos de descripción
       target = document.querySelector(
         '.js-product-description, [data-store="product-description"], ' +
         '.product-description, #description, .description, ' +
         '.js-product-description-container, .user-content, ' +
         '.product-user-content, .js-product-user-content, ' +
-        '#product-description, .description-content, .js-product-detail-description'
+        '#product-description, .description-content, .js-product-detail-description, ' +
+        '.product-detail-description, .product__description, .js-product-tabs'
       );
 
-      // Fallback para descripción: contenedor principal de ficha
+      // 2. Búsqueda inteligente por encabezado "Descripción"
+      if (!target) {
+        var headings = document.querySelectorAll('h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]');
+        for (var hi = 0; hi < headings.length; hi++) {
+          var hTxt = (headings[hi].textContent || '').toLowerCase();
+          if (hTxt.indexOf('descripci') !== -1) {
+            target = headings[hi].closest('.accordion, .tab-content, .product-block, div') || headings[hi];
+            break;
+          }
+        }
+      }
+
+      // 3. Fallback: al final de la columna/ficha del producto
       if (!target) {
         target = document.querySelector('.js-product-detail, .product-detail, .js-product-container, .product-container');
       }
     } else {
-      // product_after (default) -> debajo del botón de compra
+      // product_after (default): debajo del formulario/botón de compra
       var btn = document.querySelector('.js-addtocart') ||
                 document.querySelector('.js-add-to-cart-btn') ||
                 document.querySelector('form[action*="/cart/add"]') ||
@@ -10638,8 +10634,8 @@ function renderCajaContacto(w) {
       'max-width:100% !important',
       'box-sizing:border-box !important',
       'clear:both !important',
-      'margin-top:16px !important',
-      'margin-bottom:16px !important',
+      'margin-top:20px !important',
+      'margin-bottom:20px !important',
       'position:relative !important'
     ];
 
