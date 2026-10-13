@@ -43,6 +43,7 @@ export interface OpinionItem {
 
 export interface CajaOpinionesConfig {
   opinions: OpinionItem[];
+  location: 'product_after' | 'product_before' | 'price_after' | 'cart';
   autoplayEnabled: boolean;
   autoplayInterval: number;
   bgColor: string;
@@ -56,22 +57,15 @@ export interface CajaOpinionesConfig {
   padding: number;
   marginTop: number;
   marginBottom: number;
+  campaignTheme?: string;
 }
 
 const DEFAULT_OPINIONS: OpinionItem[] = [
   {
     id: '1',
-    name: 'rodrigo lázaro',
+    name: '',
     rating: 5,
-    text: 'Me encantó el producto, cumple con mis expectativas, le doy 10/10',
-    photo: '',
-    verified: true,
-  },
-  {
-    id: '2',
-    name: 'juliana sosa',
-    rating: 5,
-    text: 'Me encantó y super rápido el envío',
+    text: '',
     photo: '',
     verified: true,
   },
@@ -79,6 +73,7 @@ const DEFAULT_OPINIONS: OpinionItem[] = [
 
 const defaultConfig: CajaOpinionesConfig = {
   opinions: DEFAULT_OPINIONS,
+  location: 'product_after',
   autoplayEnabled: true,
   autoplayInterval: 5,
   bgColor: '#f7f7f7',
@@ -92,6 +87,28 @@ const defaultConfig: CajaOpinionesConfig = {
   padding: 20,
   marginTop: 16,
   marginBottom: 16,
+  campaignTheme: 'none',
+};
+
+const CAMPAIGN_PRESETS = [
+  { id: 'none', label: 'Diseño Normal / Sin Evento', emoji: '🎨', desc: 'Mantiene tus colores de Estilo.' },
+  { id: 'black-friday', label: 'Black Friday', emoji: '🔥', desc: 'Fondo negro + acento dorado.', themeColor: '#111827', accentColor: '#F59E0B' },
+  { id: 'hot-sale', label: 'Hot Sale', emoji: '⚡', desc: 'Fondo azul nocturno + texto rojo.', themeColor: '#0F172A', accentColor: '#EF4444' },
+  { id: 'cyber-monday', label: 'Cyber Monday', emoji: '🚀', desc: 'Fondo cibernético + borde azul.', themeColor: '#090D16', accentColor: '#3B82F6' },
+  { id: 'navidad', label: 'Navidad & Reyes', emoji: '🎄', desc: 'Verde pino + texto dorado.', themeColor: '#064E3B', accentColor: '#F59E0B' },
+  { id: 'san-valentin', label: 'San Valentín', emoji: '💘', desc: 'Borgoña romántico + rosa.', themeColor: '#831843', accentColor: '#F43F5E' },
+  { id: 'dia-padre-madre', label: 'Día Madre / Padre', emoji: '🎁', desc: 'Índigo premium + verde.', themeColor: '#312E81', accentColor: '#10B981' },
+  { id: 'liquidacion', label: 'Liquidación / Sale', emoji: '🏷️', desc: 'Rojo sale + borde amarillo.', themeColor: '#7F1D1D', accentColor: '#FBBF24' },
+];
+
+const PRESETS_DATA: Record<string, Partial<CajaOpinionesConfig>> = {
+  'black-friday': { bgColor: '#111827', textColor: '#ffffff', starColor: '#F59E0B', borderColor: '#F59E0B' },
+  'hot-sale': { bgColor: '#0F172A', textColor: '#ffffff', starColor: '#EF4444', borderColor: '#EF4444' },
+  'cyber-monday': { bgColor: '#090D16', textColor: '#ffffff', starColor: '#3B82F6', borderColor: '#3B82F6' },
+  'navidad': { bgColor: '#064E3B', textColor: '#ffffff', starColor: '#F59E0B', borderColor: '#10B981' },
+  'san-valentin': { bgColor: '#831843', textColor: '#ffffff', starColor: '#F43F5E', borderColor: '#F43F5E' },
+  'dia-padre-madre': { bgColor: '#312E81', textColor: '#ffffff', starColor: '#10B981', borderColor: '#10B981' },
+  'liquidacion': { bgColor: '#7F1D1D', textColor: '#ffffff', starColor: '#FBBF24', borderColor: '#FBBF24' },
 };
 
 async function compressImageToBase64(file: File, maxSize: number = 600, quality: number = 0.75): Promise<string> {
@@ -320,6 +337,8 @@ function CajaOpinionesPreview({ config }: { config: CajaOpinionesConfig }) {
     return stars;
   };
 
+  const isEmpty = !current || (!current.name && !current.text);
+
   return (
     <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 16, padding: 16 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
@@ -338,67 +357,77 @@ function CajaOpinionesPreview({ config }: { config: CajaOpinionesConfig }) {
         boxSizing: 'border-box',
         width: '100%',
       }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          {current.photo ? (
-            <img
-              src={current.photo}
-              alt={current.name}
-              style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-            />
-          ) : (
-            <div style={{
-              width: 44, height: 44, borderRadius: '50%', background: '#e5e7eb',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, fontWeight: 700, color: '#374151', flexShrink: 0,
-            }}>
-              {current.name ? current.name.charAt(0).toUpperCase() : 'U'}
-            </div>
-          )}
+        {isEmpty ? (
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 12, padding: '24px 12px', color: config.textColor, opacity: 0.6, fontSize: 15, fontWeight: 500,
+          }}>
+            <span>Agrega opiniones para ver el preview</span>
+            <span style={{ fontSize: 14, letterSpacing: 4 }}>‹ ›</span>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            {current.photo ? (
+              <img
+                src={current.photo}
+                alt={current.name}
+                style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+              />
+            ) : (
+              <div style={{
+                width: 44, height: 44, borderRadius: '50%', background: '#e5e7eb',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 14, fontWeight: 700, color: '#374151', flexShrink: 0,
+              }}>
+                {current.name ? current.name.charAt(0).toUpperCase() : 'U'}
+              </div>
+            )}
 
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: config.nameFontSize, fontWeight: 700, color: config.textColor }}>
-                  {current.name || 'Cliente'}
-                </span>
-                {renderStars(current.rating || 5)}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: config.nameFontSize, fontWeight: 700, color: config.textColor }}>
+                    {current.name || 'Cliente'}
+                  </span>
+                  {renderStars(current.rating || 5)}
+                </div>
+
+                {opinions.length > 1 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      style={{ background: 'none', border: 'none', color: config.textColor, opacity: 0.6, fontSize: 14, cursor: 'pointer', padding: '0 4px' }}
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      style={{ background: 'none', border: 'none', color: config.textColor, opacity: 0.6, fontSize: 14, cursor: 'pointer', padding: '0 4px' }}
+                    >
+                      ›
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {opinions.length > 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    style={{ background: 'none', border: 'none', color: config.textColor, opacity: 0.6, fontSize: 14, cursor: 'pointer', padding: '0 4px' }}
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    style={{ background: 'none', border: 'none', color: config.textColor, opacity: 0.6, fontSize: 14, cursor: 'pointer', padding: '0 4px' }}
-                  >
-                    ›
-                  </button>
+              <div style={{ fontSize: config.textFontSize, color: config.textColor, marginTop: 8, lineHeight: 1.5 }}>
+                {parseFormattedText(current.text, config.textColor)}
+              </div>
+
+              {current.verified && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 12, fontWeight: 600, color: '#10B981' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  <span>Compra verificada</span>
                 </div>
               )}
             </div>
-
-            <div style={{ fontSize: config.textFontSize, color: config.textColor, marginTop: 8, lineHeight: 1.5 }}>
-              {parseFormattedText(current.text, config.textColor)}
-            </div>
-
-            {current.verified && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 12, fontWeight: 600, color: '#10B981' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-                <span>Compra verificada</span>
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -434,7 +463,32 @@ export default function CajaOpinionesEditor({
   const scopeLabel = isForAll ? 'General' : isCategory ? 'Categoría' : 'Producto';
 
   function update<K extends keyof CajaOpinionesConfig>(key: K, value: CajaOpinionesConfig[K]) {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    setConfig((prev) => {
+      const next: any = { ...prev, [key]: value };
+      if (['bgColor', 'textColor', 'starColor', 'borderColor'].indexOf(String(key)) !== -1) {
+        next.campaignTheme = 'none';
+      }
+      return next;
+    });
+  }
+
+  function applyPreset(slug: string) {
+    if (slug === 'none') {
+      setConfig((prev) => ({
+        ...prev,
+        campaignTheme: 'none',
+        bgColor: defaultConfig.bgColor,
+        textColor: defaultConfig.textColor,
+        starColor: defaultConfig.starColor,
+        borderColor: defaultConfig.borderColor,
+      }));
+    } else if (PRESETS_DATA[slug]) {
+      setConfig((prev) => ({
+        ...prev,
+        campaignTheme: slug,
+        ...PRESETS_DATA[slug],
+      }));
+    }
   }
 
   function updateOpinion<K extends keyof OpinionItem>(index: number, key: K, value: OpinionItem[K]) {
@@ -732,6 +786,45 @@ export default function CajaOpinionesEditor({
     </div>
   );
 
+  const tabUbicacion = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <FieldLabel>¿Dónde mostrar la caja de opiniones en tu tienda?</FieldLabel>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {[
+          { id: 'product_after', label: '⬇️ Abajo del botón "Agregar al carrito"', helper: 'Recomendado. Aparece justo debajo del botón principal de compra.' },
+          { id: 'product_before', label: '⬆️ Arriba del botón "Agregar al carrito"', helper: 'Muestra las reseñas inmediatamente antes del botón.' },
+          { id: 'price_after', label: '💲 Abajo del precio del producto', helper: 'Aparece justo debajo del precio principal.' },
+          { id: 'cart', label: '🛒 En el carrito de compras', helper: 'Aparece dentro del carrito para dar confianza final.' },
+        ].map((item) => {
+          const isSelected = config.location === item.id;
+          return (
+            <div
+              key={item.id}
+              onClick={() => update('location', item.id as any)}
+              style={{
+                background: '#fff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12, padding: 16, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 14,
+              }}
+            >
+              <div style={{
+                width: 20, height: 20, borderRadius: '50%',
+                border: isSelected ? '6px solid #10B981' : '2px solid #d1d5db',
+                boxSizing: 'border-box', flexShrink: 0,
+              }} />
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{item.label}</div>
+                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 3 }}>{item.helper}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   const tabEstilo = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
@@ -845,6 +938,51 @@ export default function CajaOpinionesEditor({
     </div>
   );
 
+  const tabFechas = (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <FieldLabel>Seleccionar Temporada / Evento</FieldLabel>
+        <FieldHelper>Al elegir una campaña se aplican colores temáticos de alto impacto a la caja de opiniones.</FieldHelper>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {CAMPAIGN_PRESETS.map((preset) => {
+          const isSelected = (config.campaignTheme || 'none') === preset.id;
+          return (
+            <div
+              key={preset.id}
+              onClick={() => applyPreset(preset.id)}
+              style={{
+                background: '#fff',
+                border: isSelected ? '2px solid #10B981' : '1.5px solid #e5e7eb',
+                borderRadius: 12, padding: 16, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 16,
+              }}
+            >
+              <div style={{ fontSize: 24 }}>{preset.emoji}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#000', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {preset.label}
+                  {isSelected ? (
+                    <span style={{ background: '#ecfdf5', color: '#10B981', fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 999, border: '1px solid #10B981' }}>
+                      ACTIVO
+                    </span>
+                  ) : null}
+                </div>
+                <div style={{ fontSize: 13, opacity: 0.6, marginTop: 4 }}>{preset.desc}</div>
+              </div>
+              {preset.id !== 'none' && preset.themeColor ? (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.themeColor, border: '1px solid #d1d5db' }} />
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: preset.accentColor, border: '1px solid #d1d5db' }} />
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: 60 }}>
       <div style={{
@@ -915,7 +1053,9 @@ export default function CajaOpinionesEditor({
           <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', marginBottom: 24, overflowX: 'auto' }}>
             {[
               { id: 'general', label: 'General' },
+              { id: 'ubicacion', label: 'Ubicación' },
               { id: 'estilo', label: 'Estilo' },
+              { id: 'fechas', label: '🔥 Fechas' },
             ].map((tab) => {
               const act = activeTab === tab.id;
               return (
@@ -924,10 +1064,10 @@ export default function CajaOpinionesEditor({
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   style={{
-                    padding: '12px 24px', background: 'none', border: 'none',
+                    padding: '12px 20px', background: 'none', border: 'none',
                     borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
                     color: act ? '#10B981' : '#000', opacity: act ? 1 : 0.6,
-                    fontSize: 14, fontWeight: act ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit',
+                    fontSize: 14, fontWeight: act ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
                   }}
                 >
                   {tab.label}
@@ -937,7 +1077,10 @@ export default function CajaOpinionesEditor({
           </div>
 
           <div>
-            {activeTab === 'general' ? tabGeneral : tabEstilo}
+            {activeTab === 'general' ? tabGeneral : null}
+            {activeTab === 'ubicacion' ? tabUbicacion : null}
+            {activeTab === 'estilo' ? tabEstilo : null}
+            {activeTab === 'fechas' ? tabFechas : null}
           </div>
 
           <div style={{
