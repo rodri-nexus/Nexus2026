@@ -10274,21 +10274,34 @@ function renderProbadorVirtual(widget) {
 function renderCajaOpiniones(w) {
   var config = w.config || {};
   var opinions = config.opinions || [];
-  if (opinions.length === 0) return;
+  if (!opinions || opinions.length === 0) return;
 
   var style = config.style || {};
   var location = config.location || 'product_after';
   var target = null;
 
+  // 1. Selector preciso de ubicación para botones de Tiendanube
   if (location === 'product_after') {
-    target = document.querySelector('form[action="/cart/add"]') || document.querySelector('.js-product-container');
+    target = document.querySelector('.js-addtocart') ||
+             document.querySelector('.js-add-to-cart-btn') ||
+             document.querySelector('form[action="/cart/add"] button[type="submit"]') ||
+             document.querySelector('form[action="/cart/add"] input[type="submit"]') ||
+             document.querySelector('form[action="/cart/add"]') ||
+             document.querySelector('[data-store="product-buy-button"]');
   } else if (location === 'product_before') {
-    var form = document.querySelector('form[action="/cart/add"]');
-    target = form ? form.parentElement : document.querySelector('.js-product-container');
+    target = document.querySelector('form[action="/cart/add"]') ||
+             document.querySelector('.js-product-container') ||
+             document.querySelector('.js-product-detail');
   } else if (location === 'price_after') {
-    target = document.querySelector('.js-price-display') || document.querySelector('.price-container');
+    target = document.querySelector('.js-price-display') ||
+             document.querySelector('.price-container') ||
+             document.querySelector('.js-product-price') ||
+             document.querySelector('[data-store="product-price"]');
   } else if (location === 'cart') {
-    target = document.querySelector('.js-cart-container') || document.querySelector('#main-cart') || document.querySelector('.cart-summary');
+    target = document.querySelector('.js-cart-container') ||
+             document.querySelector('#main-cart') ||
+             document.querySelector('.cart-summary') ||
+             document.querySelector('.js-cart-item-list');
   }
 
   if (!target || !target.parentNode) return;
@@ -10298,27 +10311,32 @@ function renderCajaOpiniones(w) {
 
   var div = document.createElement('div');
   div.id = containerId;
-  div.style.margin = (style.marginTop || '20') + 'px ' + (style.marginRight || '0') + 'px ' + (style.marginBottom || '20') + 'px ' + (style.marginLeft || '0') + 'px';
-  div.style.padding = (style.padding || '15') + 'px';
-  div.style.backgroundColor = style.backgroundColor || '#ffffff';
-  div.style.borderRadius = (style.borderRadius || '8') + 'px';
-  div.style.border = (style.borderWidth || '1') + 'px solid ' + (style.borderColor || '#eeeeee');
+  div.style.margin = (style.marginTop !== undefined ? style.marginTop : '20') + 'px ' +
+                     (style.marginRight !== undefined ? style.marginRight : '0') + 'px ' +
+                     (style.marginBottom !== undefined ? style.marginBottom : '20') + 'px ' +
+                     (style.marginLeft !== undefined ? style.marginLeft : '0') + 'px';
+  div.style.padding = (style.padding !== undefined ? style.padding : '16') + 'px';
+  div.style.backgroundColor = style.backgroundColor || style.bg || '#ffffff';
+  div.style.borderRadius = (style.borderRadius !== undefined ? style.borderRadius : '10') + 'px';
+  div.style.border = (style.borderWidth !== undefined ? style.borderWidth : '1') + 'px solid ' + (style.borderColor || '#e2e8f0');
   div.style.fontFamily = style.fontFamily || 'inherit';
-  div.style.color = style.textColor || '#333333';
+  div.style.color = style.textColor || style.color || '#1a202c';
   div.style.position = 'relative';
   div.style.overflow = 'hidden';
   div.style.boxSizing = 'border-box';
   div.style.width = '100%';
+  div.style.boxShadow = style.boxShadow || '0 4px 12px rgba(0,0,0,0.05)';
 
   var currentIndex = 0;
   var intervalId = null;
   var autoplaySeconds = parseInt(config.autoplay, 10) || 0;
 
   function createStars(rating) {
-    var html = '<div style="display:flex; gap:2px; margin-bottom:8px;">';
+    var starColor = style.starColor || '#f59e0b';
+    var html = '<div style="display:flex; gap:3px; margin: 6px 0 10px 0;">';
     for (var i = 1; i <= 5; i++) {
-      var color = i <= rating ? (style.starColor || '#ffc107') : '#e0e0e0';
-      html += '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + color + '" style="display:inline-block;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+      var color = i <= rating ? starColor : '#cbd5e1';
+      html += '<svg width="18" height="18" viewBox="0 0 24 24" fill="' + color + '" style="display:inline-block;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
     }
     html += '</div>';
     return html;
@@ -10326,28 +10344,45 @@ function renderCajaOpiniones(w) {
 
   function formatText(txt) {
     if (!txt) return '';
-    return txt.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    return txt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   }
 
   function renderSlide(index) {
     var op = opinions[index];
     if (!op) return '';
-    var slideHtml = '<div style="display:flex; flex-direction:column; align-items:flex-start; min-height:80px; transition: opacity 0.3s ease;">';
+
+    // Compatibilidad de alias para nombre, opinión y foto
+    var nameVal = op.name || op.nombre || op.author || 'Cliente';
+    var commentVal = op.comment || op.text || op.opinion || op.description || op.descripcion || op.contenido || '';
+    var photoVal = op.image || op.photo || op.img || op.foto || op.avatar || '';
+    var isVerified = op.verified !== undefined ? op.verified : (op.verificado !== undefined ? op.verificado : true);
+    var ratingVal = parseInt(op.rating || op.estrellas || 5, 10) || 5;
+
+    var slideHtml = '<div style="display:flex; flex-direction:column; align-items:flex-start; width:100%; transition: opacity 0.3s ease;">';
     
-    slideHtml += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; width:100%; flex-wrap:wrap;">';
-    slideHtml += '<span style="font-weight:bold; font-size:14px;">' + (op.name || '') + '</span>';
-    if (op.verified) {
-      slideHtml += '<div style="display:flex; align-items:center; gap:4px; color:#28a745; font-size:11px; font-weight:600;">';
-      slideHtml += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    // Header (Nombre y Compra Verificada)
+    slideHtml += '<div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap; gap:6px;">';
+    slideHtml += '<span style="font-weight:700; font-size:15px; color:' + (style.textColor || '#1a202c') + ';">' + nameVal + '</span>';
+    if (isVerified) {
+      slideHtml += '<div style="display:inline-flex; align-items:center; gap:4px; color:#16a34a; background-color:#f0fdf4; border:1px solid #bbf7d0; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;">';
+      slideHtml += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
       slideHtml += 'Compra verificada</div>';
     }
     slideHtml += '</div>';
 
-    slideHtml += createStars(parseInt(op.rating, 10) || 5);
-    slideHtml += '<div style="font-size:13px; line-height:1.5; margin-bottom:10px;">' + formatText(op.comment || '') + '</div>';
+    // Estrellas
+    slideHtml += createStars(ratingVal);
 
-    if (op.image) {
-      slideHtml += '<img src="' + op.image + '" style="max-width:80px; max-height:80px; object-fit:cover; border-radius:4px; margin-top:5px; border:1px solid #eee;">';
+    // Texto de la reseña
+    if (commentVal) {
+      slideHtml += '<div style="font-size:14px; line-height:1.6; margin-bottom:10px; color:' + (style.textColor || '#334155') + '; width:100%; word-break:break-word;">' + formatText(commentVal) + '</div>';
+    }
+
+    // Imagen adjunta
+    if (photoVal) {
+      slideHtml += '<div style="margin-top:6px; margin-bottom:4px;">';
+      slideHtml += '<img src="' + photoVal + '" style="max-width:110px; max-height:110px; width:auto; height:auto; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0; display:block;">';
+      slideHtml += '</div>';
     }
 
     slideHtml += '</div>';
@@ -10361,17 +10396,18 @@ function renderCajaOpiniones(w) {
       setTimeout(function() {
         contentDiv.innerHTML = renderSlide(currentIndex);
         contentDiv.style.opacity = '1';
-      }, 200);
+      }, 180);
     }
   }
 
   var mainHtml = '';
   if (opinions.length > 1) {
-    var arrowStyle = 'position:absolute; top:50%; transform:translateY(-50%); cursor:pointer; z-index:2; padding:10px; font-size:20px; font-weight:bold; user-select:none; color:' + (style.textColor || '#333333') + '; opacity:0.5;';
-    mainHtml += '<div class="nevux-prev" style="' + arrowStyle + ' left:0;">‹</div>';
-    mainHtml += '<div class="nevux-next" style="' + arrowStyle + ' right:0;">›</div>';
+    var arrowColor = style.textColor || '#334155';
+    var arrowStyle = 'position:absolute; top:50%; transform:translateY(-50%); cursor:pointer; z-index:3; width:28px; height:28px; display:flex; align-items:center; justify-content:center; background-color:rgba(255,255,255,0.9); border-radius:50%; box-shadow:0 2px 5px rgba(0,0,0,0.15); font-size:16px; font-weight:bold; user-select:none; color:' + arrowColor + ';';
+    mainHtml += '<div class="nevux-prev" style="' + arrowStyle + ' left:6px;">‹</div>';
+    mainHtml += '<div class="nevux-next" style="' + arrowStyle + ' right:6px;">›</div>';
   }
-  mainHtml += '<div class="nevux-opinion-content" style="padding: 0 30px; transition: opacity 0.2s ease;">' + renderSlide(0) + '</div>';
+  mainHtml += '<div class="nevux-opinion-content" style="padding: 0 ' + (opinions.length > 1 ? '34px' : '0') + '; transition: opacity 0.2s ease;">' + renderSlide(0) + '</div>';
   
   div.innerHTML = mainHtml;
 
@@ -10390,14 +10426,16 @@ function renderCajaOpiniones(w) {
     var btnNext = div.querySelector('.nevux-next');
     
     if (btnPrev) {
-      btnPrev.onclick = function() {
+      btnPrev.onclick = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
         currentIndex = (currentIndex - 1 + opinions.length) % opinions.length;
         updateContent();
         resetInterval();
       };
     }
     if (btnNext) {
-      btnNext.onclick = function() {
+      btnNext.onclick = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
         currentIndex = (currentIndex + 1) % opinions.length;
         updateContent();
         resetInterval();
@@ -10423,5 +10461,5 @@ function renderCajaOpiniones(w) {
 
     startInterval();
   }
-                                      }
+}
 })(); 
