@@ -10699,7 +10699,7 @@ function renderCajaContacto(w) {
     // Silencioso
   }
 }
-                                        // WIDGET #30: SLIDER DE IMÁGENES
+                                          // WIDGET #30: SLIDER DE IMÁGENES
   var renderSliderImagenes = function(w) {
     var pType = detectPageType();
     if (pType !== "product") return;
@@ -10729,11 +10729,11 @@ function renderCajaContacto(w) {
     var modalControlsColor = cfg.modalControlsColor || "#333333";
     var campaignTheme = cfg.campaignTheme || "none";
 
-    // 7 PRESETS OFICIALES NEVUX v32
+    // 7 PRESETS OFICIALES NEVUX v32 (Colores Vibrantes)
     var PRESETS_DATA = {
-      "black-friday": { bg: "#111827", text: "#ffffff", border: "#F59E0B", accent: "#F59E0B" },
-      "hot-sale": { bg: "#0F172A", text: "#ffffff", border: "#EF4444", accent: "#EF4444" },
-      "cyber-monday": { bg: "#090D16", text: "#ffffff", border: "#3B82F6", accent: "#3B82F6" },
+      "black-friday": { bg: "#F59E0B", text: "#111827", border: "#D97706", accent: "#111827" },
+      "hot-sale": { bg: "#EF4444", text: "#ffffff", border: "#B91C1C", accent: "#ffffff" },
+      "cyber-monday": { bg: "#3B82F6", text: "#ffffff", border: "#1D4ED8", accent: "#ffffff" },
       "navidad": { bg: "#064E3B", text: "#ffffff", border: "#047857", accent: "#EF4444" },
       "san-valentin": { bg: "#831843", text: "#ffffff", border: "#9d174d", accent: "#F43F5E" },
       "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#4338ca", accent: "#10B981" },
