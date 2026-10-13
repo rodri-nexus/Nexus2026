@@ -38,7 +38,7 @@ export interface CajaContactoConfig {
   buttonText: string;
   buttonLink: string;
   image?: string;
-  location: 'product_after' | 'description_after' | 'cart';
+  location: 'product_after' | 'description_after';
   bgColor: string;
   textColor: string;
   buttonBg: string;
@@ -368,6 +368,7 @@ export default function CajaContactoEditor({
   const [config, setConfig] = useState<CajaContactoConfig>(() => ({
     ...defaultConfig,
     ...(existingWidget?.config || {}),
+    location: (existingWidget?.config?.location === 'description_after') ? 'description_after' : 'product_after',
   }));
 
   const [isActive, setIsActive] = useState(existingWidget?.is_active ?? true);
@@ -599,8 +600,7 @@ export default function CajaContactoEditor({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {[
           { id: 'product_after', label: '⬇️ Antes de la descripción', helper: 'El widget aparece debajo del botón "Agregar al carrito", dentro de la columna del producto.' },
-          { id: 'description_after', label: '📄 Después de la descripción', helper: 'El widget se muestra después de toda la sección del producto, a ancho completo.' },
-          { id: 'cart', label: '🛒 En el carrito de compras', helper: 'Aparece dentro de la página del carrito para resolver dudas finales.' },
+          { id: 'description_after', label: '📄 Después de la descripción', helper: 'El widget se muestra después de toda la sección de descripción del producto, a ancho completo.' },
         ].map((item) => {
           const isSelected = config.location === item.id;
           return (
@@ -854,7 +854,7 @@ export default function CajaContactoEditor({
           }}>
             <div style={{ flexShrink: 0, marginTop: 1 }}><IconInfo /></div>
             <span style={{ fontSize: 14, color: '#000', lineHeight: 1.5 }}>
-              La caja de contacto aparecerá debajo del botón &quot;Agregar al carrito&quot;, dentro de la columna del producto.
+              La caja de contacto aparecerá en la ubicación elegida dentro de la ficha de tus productos.
             </span>
           </div>
 
@@ -874,7 +874,7 @@ export default function CajaContactoEditor({
                   style={{
                     padding: '12px 20px', background: 'none', border: 'none',
                     borderBottom: act ? '2px solid #10B981' : '2px solid transparent',
-                    color: act ? '#10B981' : '#000', opacity: act ? 1 : 0.6,
+                    color: act ? '#10B981' : '#000', opacity: act ? 1 : 0.5,
                     fontSize: 14, fontWeight: act ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
                   }}
                 >
@@ -928,4 +928,4 @@ export default function CajaContactoEditor({
       </div>
     </div>
   );
-        }
+}
