@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-      // ==========================================
+        // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
@@ -12078,9 +12078,10 @@ function renderImagenesTextos(w) {
     container.setAttribute("data-nevux-widget", "columnas-imagenes-texto");
     container.style.cssText = "display:block !important; width:100% !important; max-width:100% !important; margin:24px 0 !important; box-sizing:border-box !important; background:" + sectionBg + " !important; border-radius:" + cardBorderRadius + " !important; padding:16px 8px !important; clear:both !important;";
 
+    // Responsive Styles con Triple Especificidad
     var styleTag = document.createElement("style");
     var css = "html body #" + widgetId + " .nvx-cit-grid { display: grid !important; grid-template-columns: repeat(" + colsDesktop + ", 1fr) !important; gap: 16px !important; width: 100% !important; box-sizing: border-box !important; }";
-
+    
     if (mobileLayout === "scroll") {
       css += " @media (max-width: 768px) { html body #" + widgetId + " .nvx-cit-grid { display: flex !important; overflow-x: auto !important; scroll-snap-type: x mandatory !important; -webkit-overflow-scrolling: touch !important; gap: 12px !important; padding-bottom: 8px !important; } html body #" + widgetId + " .nvx-cit-card { flex: 0 0 78% !important; min-width: 240px !important; scroll-snap-align: center !important; } }";
     } else {
@@ -12091,6 +12092,7 @@ function renderImagenesTextos(w) {
 
     var innerHTML = "";
 
+    // Encabezado de Sección (Opcional)
     if (sectionTitle || sectionSubtitle) {
       innerHTML += '<div style="margin-bottom:20px !important; text-align:' + align + ' !important; padding:0 8px !important;">';
       if (sectionTitle) {
@@ -12102,6 +12104,7 @@ function renderImagenesTextos(w) {
       innerHTML += '</div>';
     }
 
+    // Grilla de Tarjetas
     innerHTML += '<div class="nvx-cit-grid">';
 
     for (var i = 0; i < items.length; i++) {
@@ -12114,12 +12117,14 @@ function renderImagenesTextos(w) {
 
       innerHTML += '<div class="nvx-cit-card" style="background:' + cardBg + ' !important; border:1px solid ' + cardBorderColor + ' !important; border-radius:' + cardBorderRadius + ' !important; padding:18px 16px !important; box-sizing:border-box !important; text-align:' + align + ' !important; display:flex !important; flex-direction:column !important; position:relative !important; box-shadow:0 1px 3px rgba(0,0,0,0.04) !important;">';
 
+      // Imagen
       if (itemImg) {
         innerHTML += '<div style="width:100% !important; margin-bottom:14px !important; display:flex !important; justify-content:' + (align === 'center' ? 'center' : 'flex-start') + ' !important; align-items:center !important; overflow:hidden !important; border-radius:8px !important;">';
         innerHTML += '<img src="' + itemImg + '" alt="' + (itemTitle || 'Nevux') + '" style="max-width:100% !important; width:100% !important; height:150px !important; object-fit:cover !important; border-radius:8px !important; display:block !important;" />';
         innerHTML += '</div>';
       }
 
+      // Badge
       if (itemBadge) {
         var badgeAlign = align === 'center' ? 'margin-left:auto !important; margin-right:auto !important;' : '';
         innerHTML += '<div style="margin-bottom:8px !important;">';
@@ -12127,10 +12132,12 @@ function renderImagenesTextos(w) {
         innerHTML += '</div>';
       }
 
+      // Título de la tarjeta
       if (itemTitle) {
         innerHTML += '<h4 style="margin:0 0 6px 0 !important; font-size:16px !important; font-weight:700 !important; color:' + cardTitleColor + ' !important; line-height:1.3 !important; font-family:inherit !important;">' + itemTitle + '</h4>';
       }
 
+      // Texto de la tarjeta
       if (itemText) {
         innerHTML += '<p style="margin:0 !important; font-size:13.5px !important; color:' + cardTextColor + ' !important; line-height:1.5 !important; font-family:inherit !important;">' + itemText + '</p>';
       }
@@ -12141,6 +12148,7 @@ function renderImagenesTextos(w) {
     innerHTML += '</div>';
     container.innerHTML += innerHTML;
 
+    // Buscador DOM oficial de 3 niveles para Descripción
     var findDescriptionEl = function() {
       var selectors = [
         ".js-product-description",
@@ -12210,5 +12218,6 @@ function renderImagenesTextos(w) {
     injectWidget();
     setTimeout(injectWidget, 500);
     setTimeout(injectWidget, 1500);
-  };
+  };                                       
+}
 })(); 
