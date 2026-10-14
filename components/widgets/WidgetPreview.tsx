@@ -730,7 +730,7 @@ function MarqueeNovedadesPreview() {
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
         <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>🔥 MÁS VENDIDOS</span>
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
-        <span style={{ fontSize: "7px", fontWeight 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
       </div>
       <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
         <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
@@ -857,4 +857,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-        }
+  }
