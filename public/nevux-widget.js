@@ -12183,4 +12183,5 @@ function renderColumnasImagenesTexto(w) {
     }
   }
 }
+                     
 })(); 
