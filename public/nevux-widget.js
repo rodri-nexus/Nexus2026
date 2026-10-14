@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-            // ==========================================
+              // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
