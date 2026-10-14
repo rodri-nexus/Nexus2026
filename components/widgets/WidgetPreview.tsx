@@ -8,6 +8,40 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function TextoLibrePreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📝 TEXTO LIBRE</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          FORMATO
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "2px 0" }}>
+        <div style={{ fontSize: "7px", fontWeight: 800, color: "#111827" }}>
+          Título del bloque
+        </div>
+        <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.2 }}>
+          Párrafo con texto enriquecido, listas, viñetas y enlaces personalizados...
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VideoTextoPreview() {
   return (
     <div
@@ -1837,6 +1871,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "texto-libre":
+      return <TextoLibrePreview />;
     case "video-texto":
       return <VideoTextoPreview />;
     case "slider-imagenes":
