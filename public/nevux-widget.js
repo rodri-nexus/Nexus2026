@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-        // ==========================================
+          // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
@@ -12148,7 +12148,7 @@ function renderImagenesTextos(w) {
     innerHTML += '</div>';
     container.innerHTML += innerHTML;
 
-    // Buscador DOM oficial de 3 niveles para Descripción
+    // === UBICACIÓN COPIADA EXACTA DEL WIDGET #35 ===
     var findDescriptionEl = function() {
       var selectors = [
         ".js-product-description",
@@ -12178,46 +12178,23 @@ function renderImagenesTextos(w) {
     };
 
     var injectWidget = function() {
-      if (document.getElementById(widgetId)) return true;
+      if (document.getElementById(widgetId)) return;
       var descEl = findDescriptionEl();
-
-      if (location === "before-description") {
-        if (descEl && descEl.parentNode) {
-          descEl.parentNode.insertBefore(container, descEl);
-          return true;
-        }
-        var cartForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, #product_form");
-        if (cartForm && cartForm.parentNode) {
-          cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
-          return true;
-        }
-        var priceCont = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, [data-store='product-price']");
-        if (priceCont && priceCont.parentNode) {
-          priceCont.parentNode.insertBefore(container, priceCont.nextSibling);
-          return true;
-        }
+      if (location === "before-description" && descEl) {
+        descEl.parentNode.insertBefore(container, descEl);
       } else {
         if (descEl && descEl.parentNode) {
           descEl.parentNode.insertBefore(container, descEl.nextSibling);
-          return true;
-        }
-        var prodCont = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
-        if (prodCont) {
-          prodCont.appendChild(container);
-          return true;
-        }
-        var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
-        if (fallbackForm && fallbackForm.parentNode) {
-          fallbackForm.parentNode.insertBefore(container, fallbackForm.nextSibling);
-          return true;
+        } else {
+          var fallback = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+          if (fallback) fallback.appendChild(container);
         }
       }
-      return false;
     };
 
     injectWidget();
     setTimeout(injectWidget, 500);
     setTimeout(injectWidget, 1500);
-  };                                       
+  };                                        
 }
 })(); 
