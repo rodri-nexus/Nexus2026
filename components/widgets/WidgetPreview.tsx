@@ -8,56 +8,6 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
-function ColumnasImagenesTextoPreview() {
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        borderRadius: "10px",
-        padding: "8px 10px",
-        width: "92%",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
-        border: "1.5px solid #10B981",
-      }}
-    >
-      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span>🎴 COLUMNAS</span>
-        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
-          GRILLA
-        </span>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "4px", padding: "2px 0" }}>
-        {[1, 2, 3].map((item) => (
-          <div
-            key={item}
-            style={{
-              background: "#f9fafb",
-              borderRadius: "6px",
-              border: "1px solid #e5e7eb",
-              padding: "4px 3px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2px",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ width: "100%", height: "18px", borderRadius: "4px", background: item === 1 ? "#10B981" : "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "8px" }}>
-              {item === 1 ? "🚚" : item === 2 ? "🛡️" : "💳"}
-            </div>
-            <div style={{ width: "20px", height: "3.5px", background: "#111827", borderRadius: "1px" }} />
-            <div style={{ width: "28px", height: "2.5px", background: "#9ca3af", borderRadius: "1px" }} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function ImagenesTextosPreview() {
   return (
     <div
@@ -808,8 +758,6 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
-    case "columnas-imagenes-texto":
-      return <ColumnasImagenesTextoPreview />;
     case "imagenes-textos":
       return <ImagenesTextosPreview />;
     case "pestanas-informacion":
@@ -902,11 +850,11 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
         alignItems: "center",
         justifyContent: "center",
         padding: "0.85rem",
-        overflow: "hidden",
+        operflow: "hidden",
         position: "relative",
       }}
     >
       {renderPreview(slug)}
     </div>
   );
-      }
+          }
