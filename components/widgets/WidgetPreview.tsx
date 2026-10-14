@@ -850,11 +850,11 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
         alignItems: "center",
         justifyContent: "center",
         padding: "0.85rem",
-        operflow: "hidden",
+        overflow: "hidden",
         position: "relative",
       }}
     >
       {renderPreview(slug)}
     </div>
   );
-          }
+                   }
