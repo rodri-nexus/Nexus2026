@@ -12210,4 +12210,5 @@ function renderImagenesTextos(w) {
       setTimeout(function() { injectWidget(); }, 1800);
     }
   };
+}
 })(); 
