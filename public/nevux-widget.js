@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-                  // ==========================================
+    // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
@@ -12074,6 +12074,11 @@ function renderImagenesTextos(w) {
       var badgeBg = cfg.badgeBg || "#111827";
       var badgeTextColor = cfg.badgeColor || cfg.badgeTextColor || "#ffffff";
 
+      var sectionTitleSize = parseInt(cfg.sectionTitleSize, 10) || 22;
+      var sectionSubtitleSize = parseInt(cfg.sectionSubtitleSize, 10) || 15;
+      var cardTitleSize = parseInt(cfg.cardTitleSize, 10) || 18;
+      var cardSubtitleSize = parseInt(cfg.cardSubtitleSize, 10) || 14;
+
       var campaignTheme = cfg.campaignTheme || "none";
       if (campaignTheme && campaignTheme !== "none") {
         if (campaignTheme === "black-friday") { badgeBg = "#F59E0B"; badgeTextColor = "#111827"; }
@@ -12085,7 +12090,6 @@ function renderImagenesTextos(w) {
         else if (campaignTheme === "liquidacion") { badgeBg = "#7F1D1D"; badgeTextColor = "#ffffff"; }
       }
 
-      // === BUSCADOR DOM 100% IDÉNTICO AL WIDGET #35 ===
       var findDescriptionEl = function() {
         var selectors = [
           ".js-product-description",
@@ -12114,7 +12118,6 @@ function renderImagenesTextos(w) {
         return null;
       };
 
-      // === INYECCIÓN Y UBICACIÓN 100% IDÉNTICA AL WIDGET #35 ===
       var inject = function() {
         if (document.getElementById(uniqueId)) return;
 
@@ -12164,10 +12167,10 @@ function renderImagenesTextos(w) {
         if (sectionTitle || sectionSubtitle) {
           html += '<div style="margin-bottom: 20px !important; text-align: ' + align + ' !important; padding: 0 8px !important;">';
           if (sectionTitle) {
-            html += '<h3 style="margin: 0 0 6px 0 !important; font-size: 22px !important; font-weight: 800 !important; color: ' + titleColor + ' !important; line-height: 1.25 !important; font-family: inherit !important;">' + sectionTitle + '</h3>';
+            html += '<h3 style="margin: 0 0 6px 0 !important; font-size: ' + sectionTitleSize + 'px !important; font-weight: 800 !important; color: ' + titleColor + ' !important; line-height: 1.25 !important; font-family: inherit !important;">' + sectionTitle + '</h3>';
           }
           if (sectionSubtitle) {
-            html += '<p style="margin: 0 !important; font-size: 14px !important; color: ' + subtitleColor + ' !important; line-height: 1.45 !important; font-family: inherit !important;">' + sectionSubtitle + '</p>';
+            html += '<p style="margin: 0 !important; font-size: ' + sectionSubtitleSize + 'px !important; color: ' + subtitleColor + ' !important; line-height: 1.45 !important; font-family: inherit !important;">' + sectionSubtitle + '</p>';
           }
           html += '</div>';
         }
@@ -12196,11 +12199,11 @@ function renderImagenesTextos(w) {
           }
 
           if (itemTitle) {
-            html += '<h4 style="margin: 0 0 6px 0 !important; font-size: 16px !important; font-weight: 700 !important; color: ' + cardTitleColor + ' !important; line-height: 1.3 !important; font-family: inherit !important;">' + itemTitle + '</h4>';
+            html += '<h4 style="margin: 0 0 6px 0 !important; font-size: ' + cardTitleSize + 'px !important; font-weight: 700 !important; color: ' + cardTitleColor + ' !important; line-height: 1.3 !important; font-family: inherit !important;">' + itemTitle + '</h4>';
           }
 
           if (itemText) {
-            html += '<p style="margin: 0 !important; font-size: 13.5px !important; color: ' + cardTextColor + ' !important; line-height: 1.5 !important; font-family: inherit !important;">' + itemText + '</p>';
+            html += '<p style="margin: 0 !important; font-size: ' + cardSubtitleSize + 'px !important; color: ' + cardTextColor + ' !important; line-height: 1.5 !important; font-family: inherit !important;">' + itemText + '</p>';
           }
 
           html += '</div>';
@@ -12211,14 +12214,22 @@ function renderImagenesTextos(w) {
         container.innerHTML = html;
 
         var descEl = findDescriptionEl();
-        if (position === "before-description" && descEl) {
-          descEl.parentNode.insertBefore(container, descEl);
+        if (position === "before-description") {
+          var cartForm = document.querySelector("form[action*='/cart/add'], .js-product-form, #product_form, .product-form, .js-addtocart");
+          if (cartForm && cartForm.parentNode) {
+            cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
+          } else if (descEl && descEl.parentNode) {
+            descEl.parentNode.insertBefore(container, descEl);
+          } else {
+            var fb1 = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+            if (fb1) fb1.appendChild(container);
+          }
         } else {
           if (descEl && descEl.parentNode) {
             descEl.parentNode.insertBefore(container, descEl.nextSibling);
           } else {
-            var fallback = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
-            if (fallback) fallback.appendChild(container);
+            var fb2 = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+            if (fb2) fb2.appendChild(container);
           }
         }
       };
@@ -12231,5 +12242,5 @@ function renderImagenesTextos(w) {
         window.console.warn("[Nevux] renderColumnasImagenesTexto error:", err);
       }
     }
-  };                                        }
+  };
 })(); 
