@@ -11851,7 +11851,7 @@ function renderPestanasInformacion(w) {
   }
       }
       /* ═══════════════════════════════════════════
-   WIDGET #35: IMÁGENES Y TEXTOS
+   WIDGET #35: IMÁGENES Y TEXTOS (DISEÑO OPTIMIZADO)
    ═══════════════════════════════════════════ */
 function renderImagenesTextos(w) {
   try {
@@ -11920,14 +11920,62 @@ function renderImagenesTextos(w) {
       container.style.cssText = "width: 100% !important; max-width: 100% !important; margin: 24px 0 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; box-sizing: border-box !important;";
 
       var cssStyle = '<style>' +
-        '#' + uniqueId + ' .nvx-sec-card { display: flex !important; align-items: center !important; gap: 24px !important; padding: 20px !important; border-radius: 12px !important; margin-bottom: 16px !important; box-sizing: border-box !important; }' +
-        '@media (max-width: 768px) {' +
-        '  #' + uniqueId + ' .nvx-sec-card { flex-direction: column !important; text-align: center !important; gap: 16px !important; }' +
-        '  #' + uniqueId + ' .nvx-sec-badge { align-self: center !important; }' +
+        'html body #' + uniqueId + ' .nvx-sec-card {' +
+        '  display: flex !important;' +
+        '  align-items: center !important;' +
+        '  justify-content: space-between !important;' +
+        '  gap: 20px !important;' +
+        '  padding: 18px !important;' +
+        '  border-radius: 12px !important;' +
+        '  margin-bottom: 16px !important;' +
+        '  box-sizing: border-box !important;' +
+        '  width: 100% !important;' +
+        '  max-width: 100% !important;' +
+        '  overflow: hidden !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-sec-img-col {' +
+        '  flex: 0 0 150px !important;' +
+        '  max-width: 150px !important;' +
+        '  width: 150px !important;' +
+        '  display: flex !important;' +
+        '  justify-content: center !important;' +
+        '  align-items: center !important;' +
+        '  min-width: 0 !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-sec-txt-col {' +
+        '  flex: 1 1 0% !important;' +
+        '  min-width: 0 !important;' +
+        '  display: flex !important;' +
+        '  flex-direction: column !important;' +
+        '  justify-content: center !important;' +
+        '  gap: 8px !important;' +
+        '  word-break: break-word !important;' +
+        '  overflow-wrap: break-word !important;' +
+        '}' +
+        '@media (max-width: 640px) {' +
+        '  html body #' + uniqueId + ' .nvx-sec-card {' +
+        '    flex-direction: column !important;' +
+        '    text-align: center !important;' +
+        '    gap: 16px !important;' +
+        '    padding: 16px !important;' +
+        '  }' +
+        '  html body #' + uniqueId + ' .nvx-sec-img-col {' +
+        '    flex: 0 0 auto !important;' +
+        '    max-width: 160px !important;' +
+        '    width: 100% !important;' +
+        '  }' +
+        '  html body #' + uniqueId + ' .nvx-sec-txt-col {' +
+        '    align-items: center !important;' +
+        '    text-align: center !important;' +
+        '    width: 100% !important;' +
+        '  }' +
+        '  html body #' + uniqueId + ' .nvx-sec-badge {' +
+        '    align-self: center !important;' +
+        '  }' +
         '}' +
         '</style>';
 
-      var html = cssStyle + '<div style="display: flex !important; flex-direction: column !important; gap: 16px !important;">';
+      var html = cssStyle + '<div style="display: flex !important; flex-direction: column !important; gap: 16px !important; width: 100% !important;">';
 
       for (var i = 0; i < sections.length; i++) {
         var sec = sections[i] || {};
@@ -11942,25 +11990,25 @@ function renderImagenesTextos(w) {
 
         html += '<div class="nvx-sec-card" style="background-color: ' + bg + ' !important; flex-direction: ' + flexDir + ' !important; border: 1px solid #e5e7eb !important;">';
 
-        // Columna Imagen
-        html += '<div style="flex: 1 !important; min-width: 220px !important; display: flex !important; justify-content: center !important; align-items: center !important;">';
+        // Columna Imagen (Más compacta)
+        html += '<div class="nvx-sec-img-col">';
         if (img) {
-          html += '<img src="' + img + '" alt="' + title + '" style="width: 100% !important; max-width: 320px !important; height: auto !important; max-height: 280px !important; object-fit: cover !important; border-radius: ' + imageRadius + ' !important;" />';
+          html += '<img src="' + img + '" alt="' + title + '" style="width: 100% !important; max-width: 150px !important; height: auto !important; max-height: 150px !important; object-fit: cover !important; border-radius: ' + imageRadius + ' !important; display: block !important;" />';
         } else {
-          html += '<div style="width: 100% !important; max-width: 320px !important; height: 180px !important; background: #e5e7eb !important; border-radius: ' + imageRadius + ' !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #9ca3af !important; font-size: 32px !important;">🖼️</div>';
+          html += '<div style="width: 120px !important; height: 120px !important; background: #e5e7eb !important; border-radius: ' + imageRadius + ' !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #9ca3af !important; font-size: 28px !important;">🖼️</div>';
         }
         html += '</div>';
 
-        // Columna Texto
-        html += '<div style="flex: 1.2 !important; display: flex !important; flex-direction: column !important; justify-content: center !important; gap: 10px !important;">';
+        // Columna Texto (Centrado y contenido dentro de la caja)
+        html += '<div class="nvx-sec-txt-col">';
         if (badge) {
-          html += '<span class="nvx-sec-badge" style="align-self: flex-start; background-color: ' + badgeBg + ' !important; color: ' + badgeColor + ' !important; padding: 4px 10px !important; border-radius: 6px !important; font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.5px !important;">' + badge + '</span>';
+          html += '<span class="nvx-sec-badge" style="display: inline-block !important; align-self: flex-start; background-color: ' + badgeBg + ' !important; color: ' + badgeColor + ' !important; padding: 4px 10px !important; border-radius: 6px !important; font-size: 11px !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.5px !important;">' + badge + '</span>';
         }
         if (title) {
-          html += '<div style="font-size: ' + h2Size + 'px !important; font-weight: 800 !important; color: #111827 !important; line-height: 1.3 !important;">' + title + '</div>';
+          html += '<div style="font-size: ' + h2Size + 'px !important; font-weight: 800 !important; color: #111827 !important; line-height: 1.3 !important; margin: 0 !important;">' + title + '</div>';
         }
         if (content) {
-          html += '<div style="font-size: ' + textSize + 'px !important; color: #374151 !important; line-height: 1.6 !important; word-break: break-word !important; white-space: pre-wrap !important;">' + content + '</div>';
+          html += '<div style="font-size: ' + textSize + 'px !important; color: #374151 !important; line-height: 1.6 !important; word-break: break-word !important; overflow-wrap: break-word !important; white-space: pre-wrap !important; margin: 0 !important;">' + content + '</div>';
         }
         html += '</div>';
 
@@ -11991,5 +12039,5 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-            }
+                                                  }
 })(); 
