@@ -1826,6 +1826,7 @@
             if (w.widget_slug === "caja-contacto") renderCajaContacto(w);
             if (w.widget_slug === "slider-imagenes") renderSliderImagenes(w);
             if (w.widget_slug === "video-texto") renderVideoTexto(w);
+            if (w.widget_slug === "texto-libre") renderTextoLibre(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -11070,6 +11071,142 @@ function renderCajaContacto(w) {
         var d = findDescriptionEl();
         if (position === "after-description") {
           if (d && d.parentNode) d.parentNode.insertBefore(container, d.nextSibling);
+        } else {
+          if (d && d.parentNode) d.parentNode.insertBefore(container, d);
+        }
+      }, 500);
+    }
+  };
+              // WIDGET #32: TEXTO LIBRE
+  var renderTextoLibre = function(w) {
+    var pType = detectPageType();
+    if (pType !== "product") return;
+
+    if (document.getElementById("nvx-texto-libre-" + w.id)) return;
+
+    var cfg = w.config || {};
+    var targetCatId = w.target_category_id || (cfg && cfg.category_id);
+    if (w.target_type === "category" && targetCatId) {
+      if (!checkCategoryMatch(targetCatId)) return;
+    }
+
+    var content = cfg.content || "";
+    if (!content || !content.trim()) return;
+
+    var title = cfg.title || "";
+    var position = cfg.position || "before-description";
+
+    var h2Size = cfg.h2Size || 22;
+    var h3Size = cfg.h3Size || 18;
+    var textSize = cfg.textSize || 16;
+
+    var bgColor = cfg.bgColor || "#ffffff";
+    var titleColor = cfg.titleColor || "#111827";
+    var textColor = cfg.textColor || "#374151";
+
+    var marginTop = typeof cfg.marginTop === "number" ? cfg.marginTop : 0;
+    var marginBottom = typeof cfg.marginBottom === "number" ? cfg.marginBottom : 0;
+    var paddingTop = typeof cfg.paddingTop === "number" ? cfg.paddingTop : 16;
+    var paddingBottom = typeof cfg.paddingBottom === "number" ? cfg.paddingBottom : 16;
+
+    var campaignTheme = cfg.campaignTheme || "none";
+
+    var PRESETS_DATA = {
+      "black-friday": { bg: "#F59E0B", text: "#111827", border: "#D97706" },
+      "hot-sale": { bg: "#EF4444", text: "#ffffff", border: "#B91C1C" },
+      "cyber-monday": { bg: "#3B82F6", text: "#ffffff", border: "#1D4ED8" },
+      "navidad": { bg: "#064E3B", text: "#ffffff", border: "#047857" },
+      "san-valentin": { bg: "#831843", text: "#ffffff", border: "#9d174d" },
+      "dia-padre-madre": { bg: "#312E81", text: "#ffffff", border: "#4338ca" },
+      "liquidacion": { bg: "#7F1D1D", text: "#ffffff", border: "#991b1b" }
+    };
+
+    var borderCss = "border:1px solid rgba(0,0,0,0.06) !important;";
+    if (campaignTheme !== "none" && PRESETS_DATA[campaignTheme]) {
+      var th = PRESETS_DATA[campaignTheme];
+      bgColor = th.bg;
+      titleColor = th.text;
+      textColor = th.text;
+      borderCss = "border:2px solid " + th.border + " !important;";
+    }
+
+    var bgStyle = (bgColor === "transparent") ? "background-color:transparent !important;" : ("background-color:" + bgColor + " !important;");
+
+    var container = document.createElement("div");
+    container.id = "nvx-texto-libre-" + w.id;
+    container.className = "nvx-widget-container";
+    container.style.cssText = "width:100% !important; margin-top:" + marginTop + "px !important; margin-bottom:" + marginBottom + "px !important; padding-top:" + paddingTop + "px !important; padding-bottom:" + paddingBottom + "px !important; padding-left:16px !important; padding-right:16px !important; box-sizing:border-box !important; " + bgStyle + " " + borderCss + " border-radius:12px !important; overflow:hidden !important; position:relative !important; display:block !important;";
+
+    var html = "";
+
+    if (title) {
+      html += '<div style="font-size:' + h2Size + 'px !important; font-weight:800 !important; color:' + titleColor + ' !important; margin-bottom:10px !important; line-height:1.3 !important; font-family:system-ui, -apple-system, sans-serif !important;">' + title + '</div>';
+    }
+
+    html += '<div style="font-size:' + textSize + 'px !important; color:' + textColor + ' !important; line-height:1.6 !important; word-break:break-word !important; font-family:system-ui, -apple-system, sans-serif !important;">' + content + '</div>';
+
+    container.innerHTML = html;
+
+    var findDescriptionEl = function() {
+      var descEl = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description, .product-description-container, #product-description, .js-product-description-container");
+      if (!descEl) {
+        var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab], .tab-title, .nav-link");
+        for (var h = 0; h < headers.length; h++) {
+          var ht = (headers[h].textContent || "").toLowerCase();
+          if (ht.indexOf("descripci") !== -1 || ht.indexOf("description") !== -1) {
+            descEl = headers[h].closest(".tab-content, .accordion, .js-accordion-container, .product-tabs, .tabs-content, section, .tab-pane") || headers[h].parentNode;
+            break;
+          }
+        }
+      }
+      return descEl || null;
+    };
+
+    var inserted = false;
+
+    if (position === "after-description") {
+      var descEl = findDescriptionEl();
+      if (descEl && descEl.parentNode) {
+        descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        inserted = true;
+      } else {
+        var mainAfter = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+        if (mainAfter) {
+          mainAfter.appendChild(container);
+          inserted = true;
+        }
+      }
+    } else if (position === "after-price") {
+      var priceBox = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price'], .product-price, .js-product-price");
+      if (priceBox && priceBox.parentNode) {
+        priceBox.parentNode.insertBefore(container, priceBox.nextSibling);
+        inserted = true;
+      }
+    }
+
+    if (!inserted) {
+      var descEl = findDescriptionEl();
+      if (descEl && descEl.parentNode) {
+        descEl.parentNode.insertBefore(container, descEl);
+        inserted = true;
+      } else {
+        var cartForm = document.querySelector("form[action*='/cart/add'], form[action*='/comprar'], form.js-product-form, form#product_form, form.product-form");
+        if (cartForm && cartForm.parentNode) {
+          cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
+          inserted = true;
+        }
+      }
+    }
+
+    if (!inserted || !container.parentNode) {
+      setTimeout(function() {
+        if (document.getElementById("nvx-texto-libre-" + w.id) && container.parentNode) return;
+        var d = findDescriptionEl();
+        if (position === "after-description") {
+          if (d && d.parentNode) d.parentNode.insertBefore(container, d.nextSibling);
+        } else if (position === "after-price") {
+          var pBox = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price'], .product-price, .js-product-price");
+          if (pBox && pBox.parentNode) pBox.parentNode.insertBefore(container, pBox.nextSibling);
         } else {
           if (d && d.parentNode) d.parentNode.insertBefore(container, d);
         }
