@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-              /* ═══════════════════════════════════════════
+                /* ═══════════════════════════════════════════
      WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
      ═══════════════════════════════════════════ */
   function renderColumnasImagenesTexto(w) {
@@ -12157,7 +12157,6 @@ function renderImagenesTextos(w) {
 
         var html = cssStyle;
 
-        // Encabezado de Sección
         if (sectionTitle || sectionSubtitle) {
           html += '<div style="margin-bottom: 20px !important; text-align: ' + align + ' !important; padding: 0 8px !important;">';
           if (sectionTitle) {
@@ -12169,7 +12168,6 @@ function renderImagenesTextos(w) {
           html += '</div>';
         }
 
-        // Grilla de Tarjetas
         html += '<div class="nvx-cit-grid">';
 
         for (var i = 0; i < items.length; i++) {
@@ -12207,7 +12205,6 @@ function renderImagenesTextos(w) {
         html += '</div>';
         container.innerHTML = html;
 
-        // Inyección con la MISMA lógica exacta del Widget #35
         var descEl = findDescriptionEl();
         if (position === "before-description" && descEl) {
           descEl.parentNode.insertBefore(container, descEl);
@@ -12229,5 +12226,5 @@ function renderImagenesTextos(w) {
         window.console.warn("[Nevux] renderColumnasImagenesTexto error:", err);
       }
     }
-                         }
+      }
 })(); 
