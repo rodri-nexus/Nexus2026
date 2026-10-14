@@ -8,6 +8,54 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function InformacionEnvioPreview() {
+  return (
+    <div
+      style={{
+        background: "#d9f5e4",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+        color: "#1f6b4e",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "center", gap: "4px" }}>
+        <span style={{ background: "#1f6b4e", color: "#ffffff", fontSize: "5.5px", fontWeight: 800, padding: "1px 5px", borderRadius: "999px" }}>
+          AMBA
+        </span>
+        <span style={{ background: "rgba(255,255,255,0.6)", color: "#1f6b4e", fontSize: "5.5px", fontWeight: 800, padding: "1px 5px", borderRadius: "999px" }}>
+          Resto del país
+        </span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "2px", textAlign: "center", marginTop: "2px" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontSize: "10px" }}>📦</span>
+          <span style={{ fontSize: "6px", fontWeight: 800 }}>Compra</span>
+          <span style={{ fontSize: "5.5px", opacity: 0.8 }}>Hoy</span>
+        </div>
+        <div style={{ width: "12px", height: "1px", background: "#1f6b4e", opacity: 0.4 }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontSize: "10px" }}>🚚</span>
+          <span style={{ fontSize: "6px", fontWeight: 800 }}>Envío</span>
+          <span style={{ fontSize: "5.5px", opacity: 0.8 }}>Mañana</span>
+        </div>
+        <div style={{ width: "12px", height: "1px", background: "#1f6b4e", opacity: 0.4 }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <span style={{ fontSize: "10px" }}>📍</span>
+          <span style={{ fontSize: "6px", fontWeight: 800 }}>Entrega</span>
+          <span style={{ fontSize: "5.5px", opacity: 0.8 }}>17 oct</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PasosPreview() {
   return (
     <div
@@ -1908,6 +1956,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "informacion-envio":
+      return <InformacionEnvioPreview />;
     case "pasos":
       return <PasosPreview />;
     case "texto-libre":
@@ -2001,4 +2051,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-      }
+        }
