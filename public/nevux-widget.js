@@ -11214,8 +11214,8 @@ function renderCajaContacto(w) {
       }, 500);
     }
   };
-      /* ═══════════════════════════════════════════
-     WIDGET #32: PASOS (📍) — SCRIPT PULIDO v331
+        /* ═══════════════════════════════════════════
+     WIDGET #32: PASOS (📍) — SCRIPT POR SCROLL v332
      ═══════════════════════════════════════════ */
   var renderPasos = function(w) {
     if (detectPageType() !== "product") return;
@@ -11245,8 +11245,8 @@ function renderCajaContacto(w) {
     // Línea de fondo
     inner += '<div style="position: absolute !important; left: 14px !important; top: 10px !important; bottom: 10px !important; width: 2px !important; background-color: #e5e7eb !important; border-radius: 2px !important;"></div>';
     
-    // Línea de progreso animada
-    inner += '<div class="nvx-pasos-progress-line" style="position: absolute !important; left: 14px !important; top: 10px !important; width: 2px !important; height: 0% !important; background-color: ' + (cfg.lineColor || "#10B981") + ' !important; border-radius: 2px !important; transition: height 1s cubic-bezier(0.4, 0, 0.2, 1) !important;"></div>';
+    // Línea de progreso animada por scroll
+    inner += '<div class="nvx-pasos-progress-line" style="position: absolute !important; left: 14px !important; top: 10px !important; width: 2px !important; height: 0% !important; background-color: ' + (cfg.lineColor || "#10B981") + ' !important; border-radius: 2px !important; transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;"></div>';
 
     inner += '<div style="display: flex !important; flex-direction: column !important; gap: 28px !important;">';
 
@@ -11256,7 +11256,7 @@ function renderCajaContacto(w) {
       if (cfg.indicatorStyle === "check") indicatorIcon = "✓";
       else if (cfg.indicatorStyle === "dash") indicatorIcon = "—";
 
-      inner += '<div class="nvx-paso-item" style="position: relative !important; opacity: 0.3 !important; transform: translateX(-10px) !important; transition: all 0.6s ease !important;">';
+      inner += '<div class="nvx-paso-item" style="position: relative !important; opacity: 0.3 !important; transform: translateX(-15px) !important; transition: all 0.6s ease !important;">';
       
       // Indicador circular
       inner += '<div style="position: absolute !important; left: -40px !important; top: 0px !important; width: 30px !important; height: 30px !important; border-radius: 50% !important; background-color: #ffffff !important; border: 2px solid ' + (cfg.lineColor || "#191919") + ' !important; color: ' + (cfg.lineColor || "#191919") + ' !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 14px !important; font-weight: 800 !important; z-index: 2 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;">' + indicatorIcon + '</div>';
@@ -11313,7 +11313,6 @@ function renderCajaContacto(w) {
       return document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
     };
 
-    // Función de inyección con soporte para guiones y guiones bajos
     var pos = cfg.position || "after-description";
     var isBeforeDesc = pos === "before-description" || pos === "before_description";
     var isAfterDesc = pos === "after-description" || pos === "after_description";
@@ -11341,7 +11340,6 @@ function renderCajaContacto(w) {
         }
       }
 
-      // Fallback para "Antes de la descripción": pegar debajo del botón/formulario de compra (Regla #56)
       if (!targetEl && isBeforeDesc) {
         var formEl = document.querySelector("form[action*='/cart/add'], .js-addtocart, .js-prod-form, form[action*='/comprar']");
         if (formEl) {
@@ -11350,7 +11348,6 @@ function renderCajaContacto(w) {
         }
       }
 
-      // Fallback general final
       if (!targetEl) {
         var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-addtocart");
         if (fallbackForm) {
@@ -11365,48 +11362,60 @@ function renderCajaContacto(w) {
         } else {
           targetEl.parentNode.insertBefore(container, targetEl);
         }
-        initAnimation();
+        initScrollAnimation();
         return true;
       }
       return false;
     };
 
-    var initAnimation = function() {
+    var initScrollAnimation = function() {
+      var items = container.querySelectorAll(".nvx-paso-item");
+      var progressLine = container.querySelector(".nvx-pasos-progress-line");
+
       if ("IntersectionObserver" in window) {
+        var completedSteps = 0;
+        var totalSteps = items.length;
+
         var observer = new IntersectionObserver(function(entries) {
           for (var e = 0; e < entries.length; e++) {
-            if (entries[e].isIntersecting) {
-              var items = container.querySelectorAll(".nvx-paso-item");
-              var progressLine = container.querySelector(".nvx-pasos-progress-line");
-              for (var m = 0; m < items.length; m++) {
-                (function(item, idx) {
-                  setTimeout(function() {
-                    item.style.opacity = "1";
-                    item.style.transform = "translateX(0)";
-                    if (progressLine) {
-                      var percent = ((idx + 1) / items.length) * 100;
-                      progressLine.style.height = percent + "%";
-                    }
-                  }, idx * 200);
-                })(items[m], m);
+            var entry = entries[e];
+            if (entry.isIntersecting) {
+              var target = entry.target;
+              // Animamos el paso visible
+              target.style.opacity = "1";
+              target.style.transform = "translateX(0)";
+              
+              // Actualizamos la altura de la línea según el paso actual
+              var idx = parseInt(target.getAttribute("data-nvx-step-idx"), 10);
+              if (idx + 1 > completedSteps) {
+                completedSteps = idx + 1;
+                if (progressLine) {
+                  var percent = (completedSteps / totalSteps) * 100;
+                  progressLine.style.height = percent + "%";
+                }
               }
-              observer.unobserve(container);
+              // Dejamos de observar este paso específico
+              observer.unobserve(target);
             }
           }
-        }, { threshold: 0.15 });
-        observer.observe(container);
-      } else {
-        var itemsAll = container.querySelectorAll(".nvx-paso-item");
-        for (var k = 0; k < itemsAll.length; k++) {
-          itemsAll[k].style.opacity = "1";
-          itemsAll[k].style.transform = "translateX(0)";
+        }, {
+          rootMargin: "0px 0px -15% 0px", // Se dispara cuando el paso entra en el 15% inferior de la pantalla
+          threshold: 0.1
+        });
+
+        for (var k = 0; k < items.length; k++) {
+          items[k].setAttribute("data-nvx-step-idx", k);
+          observer.observe(items[k]); // Observamos cada paso individualmente
         }
-        var pl = container.querySelector(".nvx-pasos-progress-line");
-        if (pl) pl.style.height = "100%";
+      } else {
+        for (var m = 0; m < items.length; m++) {
+          items[m].style.opacity = "1";
+          items[m].style.transform = "translateX(0)";
+        }
+        if (progressLine) progressLine.style.height = "100%";
       }
     };
 
-    // Intentar inyectar inmediatamente y con reintentos diferidos por si el DOM carga tarde
     var done = injectPasos();
     if (!done) {
       setTimeout(injectPasos, 500);
