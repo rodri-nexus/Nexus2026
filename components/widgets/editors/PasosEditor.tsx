@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
+import { createClientBrowser } from '@/lib/supabase-browser';
 
 type TabType = 'general' | 'ubicacion' | 'estilos' | 'fechas';
 
@@ -61,14 +62,15 @@ export default function PasosEditor({
   onSave,
   isSaving = false,
 }: PasosEditorProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('general');
+  const supabase = createClientBrowser();
+  const [activeTab, setActiveTab] = useState('general');
 
   const cfg = initialConfig || existingWidget?.config || {};
 
   const [sectionTitle, setSectionTitle] = useState(cfg.sectionTitle || 'Cómo usar el producto');
   const [sectionSubtitle, setSectionSubtitle] = useState(cfg.sectionSubtitle || 'Seguí estos simples pasos');
 
-  const [steps, setSteps] = useState<StepItem[]>(
+  const [steps, setSteps] = useState(
     Array.isArray(cfg.steps) && cfg.steps.length > 0
       ? cfg.steps
       : [
@@ -110,6 +112,7 @@ export default function PasosEditor({
   const [campaignTheme, setCampaignTheme] = useState(cfg.campaignTheme || 'none');
   const [isActive, setIsActive] = useState(cfg.is_active !== false && existingWidget?.is_active !== false);
 
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [isSavingInternal, setIsSavingInternal] = useState(false);
 
   const effectiveTargetType = targetType || existingWidget?.target_type || (categoryId ? 'category' : productId ? 'product' : 'all');
@@ -130,7 +133,7 @@ export default function PasosEditor({
       content: 'Descripción del paso...',
       imageUrl: ''
     };
-    setSteps(function (prev) { return [...prev, newStep]; });
+    setSteps(function (prev: StepItem[]) { return [...prev, newStep]; });
   };
 
   const handleRemoveStep = function (index: number) {
@@ -138,7 +141,7 @@ export default function PasosEditor({
       alert('Debes mantener al menos 1 paso.');
       return;
     }
-    setSteps(function (prev) {
+    setSteps(function (prev: StepItem[]) {
       return prev.filter(function (_, i) { return i !== index; });
     });
   };
@@ -148,7 +151,7 @@ export default function PasosEditor({
       return;
     }
     var targetIndex = direction === 'up' ? index - 1 : index + 1;
-    setSteps(function (prev) {
+    setSteps(function (prev: StepItem[]) {
       var updated = [...prev];
       var temp = updated[index];
       updated[index] = updated[targetIndex];
@@ -158,11 +161,59 @@ export default function PasosEditor({
   };
 
   const handleStepChange = function (index: number, field: keyof StepItem, value: string) {
-    setSteps(function (prev) {
+    setSteps(function (prev: StepItem[]) {
       var updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
+  };
+
+  const handleImageFileChange = async function (index: number, event: React.ChangeEvent<HTMLInputElement>) {
+    var file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('La imagen no puede superar los 5MB.');
+      return;
+    }
+
+    setUploadingIndex(index);
+
+    try {
+      var fileExt = file.name.split('.').pop() || 'png';
+      var fileName = 'pasos_' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + fileExt;
+      var filePath = 'steps/' + fileName;
+
+      var res = await supabase.storage
+        .from('widgets')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+      if (res.error || !res.data) {
+        // Fallback a Base64
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          if (e.target && e.target.result) {
+            handleStepChange(index, 'imageUrl', String(e.target.result));
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        var publicUrlRes = supabase.storage.from('widgets').getPublicUrl(filePath);
+        if (publicUrlRes.data && publicUrlRes.data.publicUrl) {
+          handleStepChange(index, 'imageUrl', publicUrlRes.data.publicUrl);
+        }
+      }
+    } catch (err) {
+      var reader2 = new FileReader();
+      reader2.onload = function (e) {
+        if (e.target && e.target.result) {
+          handleStepChange(index, 'imageUrl', String(e.target.result));
+        }
+      };
+      reader2.readAsDataURL(file);
+    } finally {
+      setUploadingIndex(null);
+    }
   };
 
   const applyPresetTheme = function (themeKey: string) {
@@ -347,7 +398,7 @@ export default function PasosEditor({
             }} />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {steps.map(function (step, idx) {
+              {steps.map(function (step: StepItem, idx: number) {
                 return (
                   <div key={step.id || idx} style={{ position: 'relative' }}>
                     {/* Punto / Indicador */}
@@ -525,7 +576,8 @@ export default function PasosEditor({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {steps.map(function (step, index) {
+              {steps.map(function (step: StepItem, index: number) {
+                var isUploading = uploadingIndex === index;
                 return (
                   <div
                     key={step.id || index}
@@ -611,18 +663,77 @@ export default function PasosEditor({
                       />
                     </div>
 
+                    {/* BLOQUE CARGADOR DE IMAGEN EN LUGAR DE URL MANUAL */}
                     <div>
                       <label style={{ fontSize: '11px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
-                        URL Imagen (opcional)
+                        Imagen (opcional)
                       </label>
-                      <input
-                        type="text"
-                        value={step.imageUrl}
-                        onChange={function (e) { handleStepChange(index, 'imageUrl', e.target.value); }}
-                        placeholder="https://ejemplo.com/imagen.png"
-                        style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', backgroundColor: '#ffffff' }}
-                      />
+
+                      {step.imageUrl ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', border: '1px solid #D1D5DB', borderRadius: '8px', backgroundColor: '#ffffff' }}>
+                          <img
+                            src={step.imageUrl}
+                            alt="Vista previa"
+                            style={{ width: '54px', height: '54px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #E5E7EB' }}
+                          />
+                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669' }}>
+                              ✓ Imagen subida con éxito
+                            </span>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <label style={{ fontSize: '11px', fontWeight: 700, color: '#1D4ED8', cursor: 'pointer', textDecoration: 'underline' }}>
+                                Cambiar imagen
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={function (e) { handleImageFileChange(index, e); }}
+                                  style={{ display: 'none' }}
+                                />
+                              </label>
+                              <button
+                                type="button"
+                                onClick={function () { handleStepChange(index, 'imageUrl', ''); }}
+                                style={{ border: 'none', background: 'none', fontSize: '11px', fontWeight: 700, color: '#DC2626', cursor: 'pointer', padding: 0 }}
+                              >
+                                Quitar imagen
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <label
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '16px',
+                            border: '2px dashed #D1D5DB',
+                            borderRadius: '8px',
+                            backgroundColor: '#ffffff',
+                            cursor: isUploading ? 'wait' : 'pointer',
+                            textAlign: 'center',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={isUploading}
+                            onChange={function (e) { handleImageFileChange(index, e); }}
+                            style={{ display: 'none' }}
+                          />
+                          <span style={{ fontSize: '20px', marginBottom: '4px' }}>📷</span>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#374151' }}>
+                            {isUploading ? 'Subiendo imagen...' : 'Click para subir imagen'}
+                          </span>
+                          <span style={{ fontSize: '10px', color: '#6B7280', marginTop: '2px' }}>
+                            JPG, PNG, WebP — Máx. 5MB
+                          </span>
+                        </label>
+                      )}
                     </div>
+
                   </div>
                 );
               })}
@@ -1104,4 +1215,4 @@ export default function PasosEditor({
       </div>
     </div>
   );
-  }
+    }
