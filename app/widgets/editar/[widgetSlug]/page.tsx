@@ -33,6 +33,7 @@ import VideoTextoEditor from '@/components/widgets/editors/VideoTextoEditor';
 import TextoLibreEditor from '@/components/widgets/editors/TextoLibreEditor';
 import PasosEditor from '@/components/widgets/editors/PasosEditor';
 import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
+import PestanasInformacionEditor from '@/components/widgets/editors/PestanasInformacionEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -139,6 +140,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: PESTAÑAS DE INFORMACIÓN
+  if (params.widgetSlug === 'pestanas-informacion') {
+    return <PestanasInformacionEditor {...editorProps} />;
+  }
 
   // WIDGET: INFORMACIÓN DE ENVÍO
   if (params.widgetSlug === 'informacion-envio') {
