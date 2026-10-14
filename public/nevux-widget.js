@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-                // ==========================================
+                  // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
@@ -12071,7 +12071,7 @@ function renderImagenesTextos(w) {
       var cardBorderRadius = cfg.cardRadius || "12px";
       var cardTitleColor = cfg.cardTitleColor || "#111827";
       var cardTextColor = cfg.cardSubtitleColor || cfg.cardTextColor || "#4B5563";
-      var badgeBg = cfg.badgeBg || "#10B981";
+      var badgeBg = cfg.badgeBg || "#111827";
       var badgeTextColor = cfg.badgeColor || cfg.badgeTextColor || "#ffffff";
 
       var campaignTheme = cfg.campaignTheme || "none";
@@ -12085,6 +12085,7 @@ function renderImagenesTextos(w) {
         else if (campaignTheme === "liquidacion") { badgeBg = "#7F1D1D"; badgeTextColor = "#ffffff"; }
       }
 
+      // === BUSCADOR DOM 100% IDÉNTICO AL WIDGET #35 ===
       var findDescriptionEl = function() {
         var selectors = [
           ".js-product-description",
@@ -12113,6 +12114,7 @@ function renderImagenesTextos(w) {
         return null;
       };
 
+      // === INYECCIÓN Y UBICACIÓN 100% IDÉNTICA AL WIDGET #35 ===
       var inject = function() {
         if (document.getElementById(uniqueId)) return;
 
