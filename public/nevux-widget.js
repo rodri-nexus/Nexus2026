@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-    // ==========================================
+      // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
@@ -12048,40 +12048,39 @@ function renderImagenesTextos(w) {
     if (detectPageType() !== "product") return;
 
     var cfg = w.config || {};
-    var items = cfg.items || cfg.cards || [];
+    var items = cfg.items || [];
     if (!items || items.length === 0) return;
 
     var widgetId = "nvx-columnas-img-txt-" + (w.id || "main");
     if (document.getElementById(widgetId)) return;
 
-    var location = cfg.location || cfg.position || "before-description";
-    var colsDesktop = parseInt(cfg.columnsDesktop || cfg.desktopColumns, 10) || 3;
+    var location = cfg.position || cfg.location || "before-description";
+    var colsDesktop = parseInt(cfg.columnsDesktop, 10) || 3;
     if (colsDesktop !== 3 && colsDesktop !== 4) colsDesktop = 3;
     var mobileLayout = cfg.mobileLayout || "scroll";
-    var align = cfg.align || cfg.cardAlignment || "center";
+    var align = cfg.align || "center";
 
     var sectionTitle = cfg.sectionTitle || "";
     var sectionSubtitle = cfg.sectionSubtitle || "";
-    var sectionBg = cfg.sectionBg || cfg.sectionBgColor || "transparent";
-    var titleColor = cfg.titleColor || cfg.sectionTitleColor || "#111827";
-    var subtitleColor = cfg.subtitleColor || cfg.sectionSubtitleColor || "#6B7280";
-    var cardBg = cfg.cardBg || cfg.cardBgColor || "#f9fafb";
+    var sectionBg = cfg.sectionBg || "transparent";
+    var titleColor = cfg.titleColor || "#111827";
+    var subtitleColor = cfg.subtitleColor || "#6B7280";
+    var cardBg = cfg.cardBg || "#f9fafb";
     var cardBorderColor = cfg.cardBorderColor || "#e5e7eb";
-    var cardBorderRadius = (cfg.cardBorderRadius !== undefined && cfg.cardBorderRadius !== "") ? cfg.cardBorderRadius + "px" : (cfg.cardRadius || "12px");
+    var cardBorderRadius = (cfg.cardBorderRadius !== undefined && cfg.cardBorderRadius !== "") ? cfg.cardBorderRadius + "px" : "12px";
     var cardTitleColor = cfg.cardTitleColor || "#111827";
-    var cardTextColor = cfg.cardTextColor || cfg.cardSubtitleColor || "#4B5563";
+    var cardTextColor = cfg.cardTextColor || "#4B5563";
     var badgeBg = cfg.badgeBg || "#10B981";
-    var badgeTextColor = cfg.badgeTextColor || cfg.badgeColor || "#ffffff";
+    var badgeTextColor = cfg.badgeTextColor || "#ffffff";
 
     var container = document.createElement("div");
     container.id = widgetId;
     container.setAttribute("data-nevux-widget", "columnas-imagenes-texto");
     container.style.cssText = "display:block !important; width:100% !important; max-width:100% !important; margin:24px 0 !important; box-sizing:border-box !important; background:" + sectionBg + " !important; border-radius:" + cardBorderRadius + " !important; padding:16px 8px !important; clear:both !important;";
 
-    // Responsive Styles con Triple Especificidad
     var styleTag = document.createElement("style");
     var css = "html body #" + widgetId + " .nvx-cit-grid { display: grid !important; grid-template-columns: repeat(" + colsDesktop + ", 1fr) !important; gap: 16px !important; width: 100% !important; box-sizing: border-box !important; }";
-    
+
     if (mobileLayout === "scroll") {
       css += " @media (max-width: 768px) { html body #" + widgetId + " .nvx-cit-grid { display: flex !important; overflow-x: auto !important; scroll-snap-type: x mandatory !important; -webkit-overflow-scrolling: touch !important; gap: 12px !important; padding-bottom: 8px !important; } html body #" + widgetId + " .nvx-cit-card { flex: 0 0 78% !important; min-width: 240px !important; scroll-snap-align: center !important; } }";
     } else {
@@ -12092,7 +12091,6 @@ function renderImagenesTextos(w) {
 
     var innerHTML = "";
 
-    // Encabezado de Sección (Opcional)
     if (sectionTitle || sectionSubtitle) {
       innerHTML += '<div style="margin-bottom:20px !important; text-align:' + align + ' !important; padding:0 8px !important;">';
       if (sectionTitle) {
@@ -12104,27 +12102,24 @@ function renderImagenesTextos(w) {
       innerHTML += '</div>';
     }
 
-    // Grilla de Tarjetas
     innerHTML += '<div class="nvx-cit-grid">';
 
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
       if (!item) continue;
       var itemImg = item.image || "";
-      var itemBadge = item.badge || item.badgeText || "";
+      var itemBadge = item.badge || "";
       var itemTitle = item.title || "";
-      var itemText = item.text || item.description || item.subtitle || "";
+      var itemText = item.text || item.description || "";
 
       innerHTML += '<div class="nvx-cit-card" style="background:' + cardBg + ' !important; border:1px solid ' + cardBorderColor + ' !important; border-radius:' + cardBorderRadius + ' !important; padding:18px 16px !important; box-sizing:border-box !important; text-align:' + align + ' !important; display:flex !important; flex-direction:column !important; position:relative !important; box-shadow:0 1px 3px rgba(0,0,0,0.04) !important;">';
 
-      // Imagen
       if (itemImg) {
         innerHTML += '<div style="width:100% !important; margin-bottom:14px !important; display:flex !important; justify-content:' + (align === 'center' ? 'center' : 'flex-start') + ' !important; align-items:center !important; overflow:hidden !important; border-radius:8px !important;">';
         innerHTML += '<img src="' + itemImg + '" alt="' + (itemTitle || 'Nevux') + '" style="max-width:100% !important; width:100% !important; height:150px !important; object-fit:cover !important; border-radius:8px !important; display:block !important;" />';
         innerHTML += '</div>';
       }
 
-      // Badge
       if (itemBadge) {
         var badgeAlign = align === 'center' ? 'margin-left:auto !important; margin-right:auto !important;' : '';
         innerHTML += '<div style="margin-bottom:8px !important;">';
@@ -12132,12 +12127,10 @@ function renderImagenesTextos(w) {
         innerHTML += '</div>';
       }
 
-      // Título de la tarjeta
       if (itemTitle) {
         innerHTML += '<h4 style="margin:0 0 6px 0 !important; font-size:16px !important; font-weight:700 !important; color:' + cardTitleColor + ' !important; line-height:1.3 !important; font-family:inherit !important;">' + itemTitle + '</h4>';
       }
 
-      // Texto de la tarjeta
       if (itemText) {
         innerHTML += '<p style="margin:0 !important; font-size:13.5px !important; color:' + cardTextColor + ' !important; line-height:1.5 !important; font-family:inherit !important;">' + itemText + '</p>';
       }
@@ -12148,30 +12141,41 @@ function renderImagenesTextos(w) {
     innerHTML += '</div>';
     container.innerHTML += innerHTML;
 
-    // Buscador DOM oficial de 3 niveles para Descripción
     var findDescriptionEl = function() {
-      var direct = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description, .product-tabs, #product-description, .js-accordion-container");
-      if (direct) return direct;
-
-      var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
-      for (var h = 0; h < headers.length; h++) {
-        var txt = (headers[h].textContent || "").toLowerCase();
-        if (txt.indexOf("descripci") !== -1 || txt.indexOf("detalle") !== -1 || txt.indexOf("caracter") !== -1) {
-          return headers[h].parentElement || headers[h];
-        }
+      var selectors = [
+        ".js-product-description",
+        '[data-store="product-description"]',
+        ".product-description",
+        "#description",
+        ".description",
+        ".user-content",
+        ".js-product-tabs",
+        ".product-detail-description"
+      ];
+      for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el) return el;
+      }
+      var headings = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var j = 0; j < headings.length; j++) {
+        var txt = (headings[j].textContent || "").toLowerCase();
+        if (txt.indexOf("descripci") !== -1) return headings[j];
+      }
+      var fallbacks = [".js-product-detail", ".product-detail", ".js-product-container", ".product-container"];
+      for (var k = 0; k < fallbacks.length; k++) {
+        var fb = document.querySelector(fallbacks[k]);
+        if (fb) return fb;
       }
       return null;
     };
 
     var injectWidget = function() {
-      if (document.getElementById(widgetId + "-inserted")) return true;
+      if (document.getElementById(widgetId)) return true;
       var descEl = findDescriptionEl();
 
       if (location === "before-description") {
         if (descEl && descEl.parentNode) {
           descEl.parentNode.insertBefore(container, descEl);
-          container.id = widgetId + "-inserted";
-          container.id = widgetId;
           return true;
         }
         var cartForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, #product_form");
@@ -12185,12 +12189,11 @@ function renderImagenesTextos(w) {
           return true;
         }
       } else {
-        // after-description
         if (descEl && descEl.parentNode) {
           descEl.parentNode.insertBefore(container, descEl.nextSibling);
           return true;
         }
-        var prodCont = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, #single-product, .single-product-container, main");
+        var prodCont = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
         if (prodCont) {
           prodCont.appendChild(container);
           return true;
@@ -12204,11 +12207,8 @@ function renderImagenesTextos(w) {
       return false;
     };
 
-    if (!injectWidget()) {
-      setTimeout(function() { injectWidget(); }, 300);
-      setTimeout(function() { injectWidget(); }, 800);
-      setTimeout(function() { injectWidget(); }, 1800);
-    }
+    injectWidget();
+    setTimeout(injectWidget, 500);
+    setTimeout(injectWidget, 1500);
   };
-}
 })(); 
