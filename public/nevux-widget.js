@@ -12040,4 +12040,222 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
+  /* ═══════════════════════════════════════════
+   WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
+   ═══════════════════════════════════════════ */
+function renderColumnasImagenesTexto(w) {
+  try {
+    var cfg = w.config || {};
+    var uniqueId = "nvx-cols-img-" + (w.id || Math.random().toString(36).substring(7));
+    if (document.getElementById(uniqueId)) return;
+
+    var pageType = detectPageType();
+    if (pageType !== "product") return;
+
+    var cards = cfg.cards || [];
+    if (!Array.isArray(cards) || cards.length === 0) return;
+
+    var sectionTitle = cfg.sectionTitle || "";
+    var sectionSubtitle = cfg.sectionSubtitle || "";
+    var position = cfg.position || "after-description";
+
+    var desktopColumns = cfg.desktopColumns || 3;
+    var cardRadius = cfg.cardRadius || "12px";
+    var cardAlignment = cfg.cardAlignment || "center";
+    var mobileLayout = cfg.mobileLayout || "scroll";
+
+    var sectionBgColor = cfg.sectionBgColor || "#fafafa";
+    var cardBgColor = cfg.cardBgColor || "#ffffff";
+    var sectionTitleColor = cfg.sectionTitleColor || "#111827";
+    var sectionSubtitleColor = cfg.sectionSubtitleColor || "#6b7280";
+    var cardTitleColor = cfg.cardTitleColor || "#111827";
+    var cardSubtitleColor = cfg.cardSubtitleColor || "#4b5563";
+
+    var badgeBg = cfg.badgeBg || "#111827";
+    var badgeColor = cfg.badgeColor || "#ffffff";
+
+    var sectionTitleSize = cfg.sectionTitleSize || 22;
+    var sectionSubtitleSize = cfg.sectionSubtitleSize || 15;
+    var cardTitleSize = cfg.cardTitleSize || 18;
+    var cardSubtitleSize = cfg.cardSubtitleSize || 14;
+
+    var campaignTheme = cfg.campaignTheme || "none";
+    if (campaignTheme && campaignTheme !== "none") {
+      if (campaignTheme === "black-friday") { badgeBg = "#F59E0B"; badgeColor = "#111827"; }
+      else if (campaignTheme === "hot-sale") { badgeBg = "#EF4444"; badgeColor = "#ffffff"; }
+      else if (campaignTheme === "cyber-monday") { badgeBg = "#3B82F6"; badgeColor = "#ffffff"; }
+      else if (campaignTheme === "navidad") { badgeBg = "#064E3B"; badgeColor = "#ffffff"; }
+      else if (campaignTheme === "san-valentin") { badgeBg = "#831843"; badgeColor = "#ffffff"; }
+      else if (campaignTheme === "dia-padre-madre") { badgeBg = "#312E81"; badgeColor = "#ffffff"; }
+      else if (campaignTheme === "liquidacion") { badgeBg = "#7F1D1D"; badgeColor = "#ffffff"; }
+    }
+
+    var findDescriptionEl = function() {
+      var selectors = [
+        ".js-product-description",
+        '[data-store="product-description"]',
+        ".product-description",
+        "#description",
+        ".description",
+        ".user-content",
+        ".js-product-tabs",
+        ".product-detail-description"
+      ];
+      for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el) return el;
+      }
+      var headings = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var j = 0; j < headings.length; j++) {
+        var txt = (headings[j].textContent || "").toLowerCase();
+        if (txt.indexOf("descripci") !== -1) return headings[j];
+      }
+      var fallbacks = [".js-product-detail", ".product-detail", ".js-product-container", ".product-container"];
+      for (var k = 0; k < fallbacks.length; k++) {
+        var fb = document.querySelector(fallbacks[k]);
+        if (fb) return fb;
+      }
+      return null;
+    };
+
+    var inject = function() {
+      if (document.getElementById(uniqueId)) return;
+
+      var container = document.createElement("div");
+      container.id = uniqueId;
+      container.setAttribute("data-nevux-widget", "columnas-imagenes-texto");
+      container.style.cssText = "width: 100% !important; max-width: 100% !important; margin: 28px 0 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; box-sizing: border-box !important;";
+
+      var isCentered = cardAlignment === "center";
+      var alignCss = isCentered ? "center" : "flex-start";
+      var textAlignCss = isCentered ? "center" : "left";
+
+      var cssStyle = '<style>' +
+        'html body #' + uniqueId + ' .nvx-cols-box {' +
+        '  background-color: ' + sectionBgColor + ' !important;' +
+        '  border-radius: 16px !important;' +
+        '  padding: 24px 20px !important;' +
+        '  border: 1px solid #e5e7eb !important;' +
+        '  box-sizing: border-box !important;' +
+        '  width: 100% !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-cols-grid {' +
+        '  display: grid !important;' +
+        '  grid-template-columns: repeat(' + desktopColumns + ', 1fr) !important;' +
+        '  gap: 16px !important;' +
+        '  width: 100% !important;' +
+        '  box-sizing: border-box !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-col-card {' +
+        '  background-color: ' + cardBgColor + ' !important;' +
+        '  border-radius: ' + cardRadius + ' !important;' +
+        '  padding: 16px 14px !important;' +
+        '  border: 1px solid #e5e7eb !important;' +
+        '  box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;' +
+        '  display: flex !important;' +
+        '  flex-direction: column !important;' +
+        '  align-items: ' + alignCss + ' !important;' +
+        '  text-align: ' + textAlignCss + ' !important;' +
+        '  gap: 8px !important;' +
+        '  box-sizing: border-box !important;' +
+        '  min-width: 0 !important;' +
+        '}' +
+        '@media (max-width: 768px) {' +
+        (mobileLayout === "scroll" ?
+          'html body #' + uniqueId + ' .nvx-cols-grid {' +
+          '  display: flex !important;' +
+          '  overflow-x: auto !important;' +
+          '  scroll-snap-type: x mandatory !important;' +
+          '  gap: 12px !important;' +
+          '  padding-bottom: 8px !important;' +
+          '  -webkit-overflow-scrolling: touch !important;' +
+          '}' +
+          'html body #' + uniqueId + ' .nvx-col-card {' +
+          '  flex: 0 0 80% !important;' +
+          '  max-width: 280px !important;' +
+          '  scroll-snap-align: start !important;' +
+          '}'
+          :
+          'html body #' + uniqueId + ' .nvx-cols-grid {' +
+          '  display: flex !important;' +
+          '  flex-direction: column !important;' +
+          '  gap: 12px !important;' +
+          '}' +
+          'html body #' + uniqueId + ' .nvx-col-card {' +
+          '  width: 100% !important;' +
+          '}'
+        ) +
+        '}' +
+        '</style>';
+
+      var html = cssStyle + '<div class="nvx-cols-box">';
+
+      if (sectionTitle) {
+        html += '<div style="font-size: ' + sectionTitleSize + 'px !important; font-weight: 800 !important; color: ' + sectionTitleColor + ' !important; text-align: center !important; margin-bottom: 4px !important; line-height: 1.3 !important;">' + sectionTitle + '</div>';
+      }
+      if (sectionSubtitle) {
+        html += '<div style="font-size: ' + sectionSubtitleSize + 'px !important; color: ' + sectionSubtitleColor + ' !important; text-align: center !important; margin-bottom: 20px !important; line-height: 1.5 !important;">' + sectionSubtitle + '</div>';
+      }
+
+      html += '<div class="nvx-cols-grid">';
+
+      for (var i = 0; i < cards.length; i++) {
+        var card = cards[i] || {};
+        var img = card.image || "";
+        var title = card.title || "";
+        var badge = card.badgeText || "";
+        var subtitle = card.subtitle || "";
+
+        html += '<div class="nvx-col-card">';
+
+        // Imagen
+        if (img) {
+          html += '<div style="width: 100% !important; height: 120px !important; border-radius: 8px !important; overflow: hidden !important; margin-bottom: 4px !important;">';
+          html += '<img src="' + img + '" alt="' + title + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important;" />';
+          html += '</div>';
+        }
+
+        // Badge
+        if (badge) {
+          html += '<span style="display: inline-block !important; background-color: ' + badgeBg + ' !important; color: ' + badgeColor + ' !important; padding: 2px 8px !important; border-radius: 4px !important; font-size: 10px !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.5px !important;">' + badge + '</span>';
+        }
+
+        // Título de tarjeta
+        if (title) {
+          html += '<div style="font-size: ' + cardTitleSize + 'px !important; font-weight: 800 !important; color: ' + cardTitleColor + ' !important; line-height: 1.3 !important; margin: 0 !important;">' + title + '</div>';
+        }
+
+        // Subtítulo
+        if (subtitle) {
+          html += '<div style="font-size: ' + cardSubtitleSize + 'px !important; color: ' + cardSubtitleColor + ' !important; line-height: 1.5 !important; word-break: break-word !important; white-space: pre-wrap !important; margin: 0 !important;">' + subtitle + '</div>';
+        }
+
+        html += '</div>';
+      }
+
+      html += '</div></div>';
+      container.innerHTML = html;
+
+      var descEl = findDescriptionEl();
+      if (position === "before-description" && descEl) {
+        descEl.parentNode.insertBefore(container, descEl);
+      } else {
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        } else {
+          var fallback = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+          if (fallback) fallback.appendChild(container);
+        }
+      }
+    };
+
+    inject();
+    setTimeout(inject, 500);
+    setTimeout(inject, 1500);
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderColumnasImagenesTexto error:", err);
+    }
+  }
+        }
 })(); 
