@@ -8,6 +8,43 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function PasosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>📍 PASOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          TIMELINE
+        </span>
+      </div>
+
+      <div style={{ position: "relative", paddingLeft: "12px", display: "flex", flexDirection: "column", gap: "6px", padding: "2px 0" }}>
+        <div style={{ position: "absolute", left: "4px", top: "2px", bottom: "2px", width: "1px", background: "#10B981" }} />
+        
+        {[1, 2].map((i) => (
+          <div key={i} style={{ position: "relative", display: "flex", flexDirection: "column", gap: "2px" }}>
+            <div style={{ position: "absolute", left: "-10px", top: "0px", width: "5px", height: "5px", borderRadius: "50%", background: "#ffffff", border: "1px solid #10B981" }} />
+            <div style={{ width: "25px", height: "4px", background: "#111827", borderRadius: "2px" }} />
+            <div style={{ width: "45px", height: "3px", background: "#e5e7eb", borderRadius: "1px" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TextoLibrePreview() {
   return (
     <div
@@ -1871,6 +1908,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "pasos":
+      return <PasosPreview />;
     case "texto-libre":
       return <TextoLibrePreview />;
     case "video-texto":
