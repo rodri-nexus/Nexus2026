@@ -1831,6 +1831,7 @@
             if (w.widget_slug === "informacion-envio") renderInformacionEnvio(w);
             if (w.widget_slug === "pestanas-informacion") renderPestanasInformacion(w);
             if (w.widget_slug === "imagenes-textos") renderImagenesTextos(w);
+            if (w.widget_slug === "columnas-imagenes-texto") renderColumnasImagenesTexto(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -12039,5 +12040,171 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-                                                  }
+            // ==========================================
+  // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
+  // ==========================================
+  var renderColumnasImagenesTexto = function(w) {
+    if (!w || !w.config) return;
+    if (detectPageType() !== "product") return;
+
+    var cfg = w.config || {};
+    var items = cfg.items || [];
+    if (!items || items.length === 0) return;
+
+    var widgetId = "nvx-columnas-img-txt-" + (w.id || "main");
+    if (document.getElementById(widgetId)) return;
+
+    var location = cfg.location || "before-description";
+    var colsDesktop = parseInt(cfg.columnsDesktop, 10) || 3;
+    if (colsDesktop !== 3 && colsDesktop !== 4) colsDesktop = 3;
+    var mobileLayout = cfg.mobileLayout || "scroll";
+    var align = cfg.align || "center";
+
+    var sectionTitle = cfg.sectionTitle || "";
+    var sectionSubtitle = cfg.sectionSubtitle || "";
+    var sectionBg = cfg.sectionBg || "transparent";
+    var titleColor = cfg.titleColor || "#111827";
+    var subtitleColor = cfg.subtitleColor || "#6B7280";
+    var cardBg = cfg.cardBg || "#f9fafb";
+    var cardBorderColor = cfg.cardBorderColor || "#e5e7eb";
+    var cardBorderRadius = (cfg.cardBorderRadius !== undefined && cfg.cardBorderRadius !== "") ? cfg.cardBorderRadius + "px" : "12px";
+    var cardTitleColor = cfg.cardTitleColor || "#111827";
+    var cardTextColor = cfg.cardTextColor || "#4B5563";
+    var badgeBg = cfg.badgeBg || "#10B981";
+    var badgeTextColor = cfg.badgeTextColor || "#ffffff";
+
+    var container = document.createElement("div");
+    container.id = widgetId;
+    container.setAttribute("data-nevux-widget", "columnas-imagenes-texto");
+    container.style.cssText = "display:block !important; width:100% !important; max-width:100% !important; margin:24px 0 !important; box-sizing:border-box !important; background:" + sectionBg + " !important; border-radius:" + cardBorderRadius + " !important; padding:16px 8px !important; clear:both !important;";
+
+    // Responsive Styles con Triple Especificidad
+    var styleTag = document.createElement("style");
+    var css = "html body #" + widgetId + " .nvx-cit-grid { display: grid !important; grid-template-columns: repeat(" + colsDesktop + ", 1fr) !important; gap: 16px !important; width: 100% !important; box-sizing: border-box !important; }";
+    
+    if (mobileLayout === "scroll") {
+      css += " @media (max-width: 768px) { html body #" + widgetId + " .nvx-cit-grid { display: flex !important; overflow-x: auto !important; scroll-snap-type: x mandatory !important; -webkit-overflow-scrolling: touch !important; gap: 12px !important; padding-bottom: 8px !important; } html body #" + widgetId + " .nvx-cit-card { flex: 0 0 78% !important; min-width: 240px !important; scroll-snap-align: center !important; } }";
+    } else {
+      css += " @media (max-width: 768px) { html body #" + widgetId + " .nvx-cit-grid { display: flex !important; flex-direction: column !important; gap: 14px !important; } html body #" + widgetId + " .nvx-cit-card { width: 100% !important; } }";
+    }
+    styleTag.innerHTML = css;
+    container.appendChild(styleTag);
+
+    var innerHTML = "";
+
+    // Encabezado de Sección (Opcional)
+    if (sectionTitle || sectionSubtitle) {
+      innerHTML += '<div style="margin-bottom:20px !important; text-align:' + align + ' !important; padding:0 8px !important;">';
+      if (sectionTitle) {
+        innerHTML += '<h3 style="margin:0 0 6px 0 !important; font-size:22px !important; font-weight:800 !important; color:' + titleColor + ' !important; line-height:1.25 !important; font-family:inherit !important;">' + sectionTitle + '</h3>';
+      }
+      if (sectionSubtitle) {
+        innerHTML += '<p style="margin:0 !important; font-size:14px !important; color:' + subtitleColor + ' !important; line-height:1.45 !important; font-family:inherit !important;">' + sectionSubtitle + '</p>';
+      }
+      innerHTML += '</div>';
+    }
+
+    // Grilla de Tarjetas
+    innerHTML += '<div class="nvx-cit-grid">';
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      if (!item) continue;
+      var itemImg = item.image || "";
+      var itemBadge = item.badge || "";
+      var itemTitle = item.title || "";
+      var itemText = item.text || item.description || "";
+
+      innerHTML += '<div class="nvx-cit-card" style="background:' + cardBg + ' !important; border:1px solid ' + cardBorderColor + ' !important; border-radius:' + cardBorderRadius + ' !important; padding:18px 16px !important; box-sizing:border-box !important; text-align:' + align + ' !important; display:flex !important; flex-direction:column !important; position:relative !important; box-shadow:0 1px 3px rgba(0,0,0,0.04) !important;">';
+
+      // Imagen
+      if (itemImg) {
+        innerHTML += '<div style="width:100% !important; margin-bottom:14px !important; display:flex !important; justify-content:' + (align === 'center' ? 'center' : 'flex-start') + ' !important; align-items:center !important; overflow:hidden !important; border-radius:8px !important;">';
+        innerHTML += '<img src="' + itemImg + '" alt="' + (itemTitle || 'Nevux') + '" style="max-width:100% !important; width:100% !important; height:150px !important; object-fit:cover !important; border-radius:8px !important; display:block !important;" />';
+        innerHTML += '</div>';
+      }
+
+      // Badge
+      if (itemBadge) {
+        var badgeAlign = align === 'center' ? 'margin-left:auto !important; margin-right:auto !important;' : '';
+        innerHTML += '<div style="margin-bottom:8px !important;">';
+        innerHTML += '<span style="display:inline-block !important; font-size:11px !important; font-weight:700 !important; text-transform:uppercase !important; letter-spacing:0.5px !important; background:' + badgeBg + ' !important; color:' + badgeTextColor + ' !important; padding:3px 9px !important; border-radius:9999px !important; line-height:1.3 !important; font-family:inherit !important; ' + badgeAlign + '">' + itemBadge + '</span>';
+        innerHTML += '</div>';
+      }
+
+      // Título de la tarjeta
+      if (itemTitle) {
+        innerHTML += '<h4 style="margin:0 0 6px 0 !important; font-size:16px !important; font-weight:700 !important; color:' + cardTitleColor + ' !important; line-height:1.3 !important; font-family:inherit !important;">' + itemTitle + '</h4>';
+      }
+
+      // Texto de la tarjeta
+      if (itemText) {
+        innerHTML += '<p style="margin:0 !important; font-size:13.5px !important; color:' + cardTextColor + ' !important; line-height:1.5 !important; font-family:inherit !important;">' + itemText + '</p>';
+      }
+
+      innerHTML += '</div>';
+    }
+
+    innerHTML += '</div>';
+    container.innerHTML += innerHTML;
+
+    // Buscador DOM oficial de 3 niveles para Descripción
+    var findDescriptionEl = function() {
+      var direct = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description");
+      if (direct) return direct;
+
+      var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var h = 0; h < headers.length; h++) {
+        var txt = (headers[h].textContent || "").toLowerCase();
+        if (txt.indexOf("descripci") !== -1 || txt.indexOf("detalle") !== -1 || txt.indexOf("caracter") !== -1) {
+          return headers[h].parentElement || headers[h];
+        }
+      }
+      return null;
+    };
+
+    var injectWidget = function() {
+      var descEl = findDescriptionEl();
+
+      if (location === "before-description") {
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl);
+          return true;
+        }
+        var cartForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, #product_form");
+        if (cartForm && cartForm.parentNode) {
+          cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
+          return true;
+        }
+        var priceCont = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, [data-store='product-price']");
+        if (priceCont && priceCont.parentNode) {
+          priceCont.parentNode.insertBefore(container, priceCont.nextSibling);
+          return true;
+        }
+      } else {
+        // after-description
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl.nextSibling);
+          return true;
+        }
+        var prodCont = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+        if (prodCont) {
+          prodCont.appendChild(container);
+          return true;
+        }
+        var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
+        if (fallbackForm && fallbackForm.parentNode) {
+          fallbackForm.parentNode.insertBefore(container, fallbackForm.nextSibling);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (!injectWidget()) {
+      setTimeout(function() {
+        injectWidget();
+      }, 500);
+    }
+  };                                        }
 })(); 
