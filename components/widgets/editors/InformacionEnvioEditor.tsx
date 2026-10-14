@@ -9,8 +9,8 @@ type TabType = 'general' | 'ubicacion' | 'estilos' | 'fechas';
 interface ShippingZone {
   id: string;
   name: string;
-  dispatchDays: number; // días para despacho
-  deliveryDays: number; // días para entrega
+  dispatchDays: number | string; // Permite string vacío mientras el usuario edita
+  deliveryDays: number | string;
 }
 
 interface InformacionEnvioEditorProps {
@@ -175,9 +175,21 @@ export default function InformacionEnvioEditor({
       return;
     }
 
+    // Normalizar dias para guardar siempre enteros limpios en la BD
+    var cleanedZones = zones.map(function (z) {
+      var disp = z.dispatchDays === '' ? 0 : parseInt(String(z.dispatchDays), 10);
+      var deliv = z.deliveryDays === '' ? 0 : parseInt(String(z.deliveryDays), 10);
+      return {
+        id: z.id,
+        name: z.name,
+        dispatchDays: isNaN(disp) ? 0 : disp,
+        deliveryDays: isNaN(deliv) ? 0 : deliv
+      };
+    });
+
     var configData = {
       title: title,
-      zones: zones,
+      zones: cleanedZones,
       cutoffTime: cutoffTime,
       showCutoffBadge: showCutoffBadge,
       showDateRange: showDateRange,
@@ -250,6 +262,9 @@ export default function InformacionEnvioEditor({
 
   const saving = isSaving || isSavingInternal;
   const currentZone = zones[selectedZoneIdx] || zones[0] || { name: 'AMBA', dispatchDays: 1, deliveryDays: 1 };
+
+  const currentDispatchDays = currentZone.dispatchDays === '' ? 0 : parseInt(String(currentZone.dispatchDays), 10) || 0;
+  const currentDeliveryDays = currentZone.deliveryDays === '' ? 0 : parseInt(String(currentZone.deliveryDays), 10) || 0;
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '16px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -369,7 +384,7 @@ export default function InformacionEnvioEditor({
               <span style={{ fontSize: '20px' }}>{iconType === 'emoji' ? '🚚' : '🚚'}</span>
               <span style={{ fontSize: labelSize + 'px', fontWeight: 800, color: textColor }}>Envío</span>
               <span style={{ fontSize: daySize + 'px', fontWeight: 700, color: textColor, opacity: 0.9 }}>
-                {currentZone.dispatchDays === 0 ? 'Hoy' : currentZone.dispatchDays === 1 ? 'Mañana' : 'En ' + currentZone.dispatchDays + ' días'}
+                {currentDispatchDays === 0 ? 'Hoy' : currentDispatchDays === 1 ? 'Mañana' : 'En ' + currentDispatchDays + ' días'}
               </span>
             </div>
 
@@ -381,7 +396,7 @@ export default function InformacionEnvioEditor({
               <span style={{ fontSize: '20px' }}>{iconType === 'emoji' ? '📍' : '📍'}</span>
               <span style={{ fontSize: labelSize + 'px', fontWeight: 800, color: textColor }}>Entrega</span>
               <span style={{ fontSize: daySize + 'px', fontWeight: 700, color: textColor, opacity: 0.9 }}>
-                {showDateRange ? 'Entre 2 y 3 días' : 'En ' + (currentZone.dispatchDays + currentZone.deliveryDays) + ' días'}
+                {showDateRange ? 'Entre 2 y 3 días' : 'En ' + (currentDispatchDays + currentDeliveryDays) + ' días'}
               </span>
             </div>
 
@@ -512,7 +527,10 @@ export default function InformacionEnvioEditor({
                           min={0}
                           max={15}
                           value={zone.dispatchDays}
-                          onChange={function (e) { handleZoneChange(idx, 'dispatchDays', parseInt(e.target.value, 10) || 0); }}
+                          onChange={function (e) {
+                            var val = e.target.value;
+                            handleZoneChange(idx, 'dispatchDays', val === '' ? '' : parseInt(val, 10));
+                          }}
                           style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
                         />
                       </div>
@@ -526,7 +544,10 @@ export default function InformacionEnvioEditor({
                           min={0}
                           max={30}
                           value={zone.deliveryDays}
-                          onChange={function (e) { handleZoneChange(idx, 'deliveryDays', parseInt(e.target.value, 10) || 0); }}
+                          onChange={function (e) {
+                            var val = e.target.value;
+                            handleZoneChange(idx, 'deliveryDays', val === '' ? '' : parseInt(val, 10));
+                          }}
                           style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
                         />
                       </div>
@@ -1019,4 +1040,4 @@ export default function InformacionEnvioEditor({
       </div>
     </div>
   );
-  }
+    }
