@@ -11214,8 +11214,8 @@ function renderCajaContacto(w) {
       }, 500);
     }
   };
-    /* ═══════════════════════════════════════════
-     WIDGET #32: PASOS (📍)
+      /* ═══════════════════════════════════════════
+     WIDGET #32: PASOS (📍) — SCRIPT PULIDO v331
      ═══════════════════════════════════════════ */
   var renderPasos = function(w) {
     if (detectPageType() !== "product") return;
@@ -11282,57 +11282,135 @@ function renderCajaContacto(w) {
     inner += '</div></div></div>';
     container.innerHTML = inner;
 
-    // Lógica de inyección
-    var targetEl = null;
-    if (cfg.position === "after-price") {
-      var priceContainer = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']");
-      if (priceContainer) targetEl = priceContainer.nextSibling;
-    } else {
-      var descEl = findDescriptionEl();
-      if (descEl) {
-        if (cfg.position === "before-description") targetEl = descEl;
-        else targetEl = descEl.nextSibling;
+    // Buscador DOM de 3 niveles para la Descripción de Producto (Regla #53)
+    var findDescriptionEl = function() {
+      var selectors = [
+        ".js-product-description",
+        "[data-store='product-description']",
+        ".product-description",
+        "#description",
+        ".description",
+        ".user-content",
+        ".js-product-tabs",
+        ".product-detail-description",
+        ".js-product-description-container",
+        "#product-description",
+        ".product-description-container",
+        ".product-tabs",
+        ".js-tab-container"
+      ];
+      for (var s = 0; s < selectors.length; s++) {
+        var el = document.querySelector(selectors[s]);
+        if (el) return el;
       }
-    }
+      var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var h = 0; h < headers.length; h++) {
+        var head = headers[h];
+        if (head && head.textContent && head.textContent.toLowerCase().indexOf("descripci") !== -1) {
+          return head.parentNode || head;
+        }
+      }
+      return document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+    };
 
-    if (targetEl && targetEl.parentNode) {
-      targetEl.parentNode.insertBefore(container, targetEl);
-    } else {
-      var form = document.querySelector("form[action*='/cart/add']");
-      if (form) form.parentNode.insertBefore(container, form.nextSibling);
-    }
+    // Función de inyección con soporte para guiones y guiones bajos
+    var pos = cfg.position || "after-description";
+    var isBeforeDesc = pos === "before-description" || pos === "before_description";
+    var isAfterDesc = pos === "after-description" || pos === "after_description";
+    var isAfterPrice = pos === "after-price" || pos === "after_price";
 
-    // Animación IntersectionObserver
-    if ("IntersectionObserver" in window) {
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            var items = container.querySelectorAll(".nvx-paso-item");
-            var progressLine = container.querySelector(".nvx-pasos-progress-line");
-            
-            items.forEach(function(item, idx) {
-              setTimeout(function() {
-                item.style.opacity = "1";
-                item.style.transform = "translateX(0)";
-                if (progressLine) {
-                  var percent = ((idx + 1) / items.length) * 100;
-                  progressLine.style.height = percent + "%";
-                }
-              }, idx * 250);
-            });
-            observer.unobserve(container);
+    var injectPasos = function() {
+      if (document.getElementById(id)) return true;
+
+      var targetEl = null;
+      var insertAfter = false;
+
+      if (isAfterPrice) {
+        var priceEl = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']");
+        if (priceEl) {
+          targetEl = priceEl;
+          insertAfter = true;
+        }
+      }
+
+      if (!targetEl && (isBeforeDesc || isAfterDesc)) {
+        var descEl = findDescriptionEl();
+        if (descEl) {
+          targetEl = descEl;
+          insertAfter = isAfterDesc;
+        }
+      }
+
+      // Fallback para "Antes de la descripción": pegar debajo del botón/formulario de compra (Regla #56)
+      if (!targetEl && isBeforeDesc) {
+        var formEl = document.querySelector("form[action*='/cart/add'], .js-addtocart, .js-prod-form, form[action*='/comprar']");
+        if (formEl) {
+          targetEl = formEl;
+          insertAfter = true;
+        }
+      }
+
+      // Fallback general final
+      if (!targetEl) {
+        var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-addtocart");
+        if (fallbackForm) {
+          targetEl = fallbackForm;
+          insertAfter = true;
+        }
+      }
+
+      if (targetEl && targetEl.parentNode) {
+        if (insertAfter) {
+          targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+        } else {
+          targetEl.parentNode.insertBefore(container, targetEl);
+        }
+        initAnimation();
+        return true;
+      }
+      return false;
+    };
+
+    var initAnimation = function() {
+      if ("IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          for (var e = 0; e < entries.length; e++) {
+            if (entries[e].isIntersecting) {
+              var items = container.querySelectorAll(".nvx-paso-item");
+              var progressLine = container.querySelector(".nvx-pasos-progress-line");
+              for (var m = 0; m < items.length; m++) {
+                (function(item, idx) {
+                  setTimeout(function() {
+                    item.style.opacity = "1";
+                    item.style.transform = "translateX(0)";
+                    if (progressLine) {
+                      var percent = ((idx + 1) / items.length) * 100;
+                      progressLine.style.height = percent + "%";
+                    }
+                  }, idx * 200);
+                })(items[m], m);
+              }
+              observer.unobserve(container);
+            }
           }
-        });
-      }, { threshold: 0.2 });
-      observer.observe(container);
-    } else {
-      var items = container.querySelectorAll(".nvx-paso-item");
-      for (var k = 0; k < items.length; k++) {
-        items[k].style.opacity = "1";
-        items[k].style.transform = "translateX(0)";
+        }, { threshold: 0.15 });
+        observer.observe(container);
+      } else {
+        var itemsAll = container.querySelectorAll(".nvx-paso-item");
+        for (var k = 0; k < itemsAll.length; k++) {
+          itemsAll[k].style.opacity = "1";
+          itemsAll[k].style.transform = "translateX(0)";
+        }
+        var pl = container.querySelector(".nvx-pasos-progress-line");
+        if (pl) pl.style.height = "100%";
       }
-      var pl = container.querySelector(".nvx-pasos-progress-line");
-      if (pl) pl.style.height = "100%";
+    };
+
+    // Intentar inyectar inmediatamente y con reintentos diferidos por si el DOM carga tarde
+    var done = injectPasos();
+    if (!done) {
+      setTimeout(injectPasos, 500);
+      setTimeout(injectPasos, 1200);
     }
-  };    
+  };
 })(); 
