@@ -1829,6 +1829,7 @@
             if (w.widget_slug === "texto-libre") renderTextoLibre(w);
             if (w.widget_slug === "pasos") renderPasos(w);
             if (w.widget_slug === "informacion-envio") renderInformacionEnvio(w);
+            if (w.widget_slug === "pestanas-informacion") renderPestanasInformacion(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -11679,4 +11680,173 @@ function renderCajaContacto(w) {
       setTimeout(injectInfoEnvio, 1200);
     }
   };
+  /* ═══════════════════════════════════════════
+   WIDGET #34: PESTAÑAS DE INFORMACIÓN
+   ═══════════════════════════════════════════ */
+function renderPestanasInformacion(w) {
+  try {
+    var cfg = w.config || {};
+    var uniqueId = "nvx-pestanas-info-" + (w.id || Math.random().toString(36).substring(7));
+    if (document.getElementById(uniqueId)) return;
+
+    var pageType = detectPageType();
+    if (pageType !== "product") return;
+
+    var tabs = cfg.tabs || cfg.pestanas || [];
+    if (!Array.isArray(tabs) || tabs.length === 0) return;
+
+    var position = cfg.position || cfg.ubicacion || "after-description";
+    var activeTabBg = cfg.activeTabBg || cfg.activeBg || "#10B981";
+    var activeTabColor = cfg.activeTabColor || cfg.activeColor || "#ffffff";
+    var inactiveTabBg = cfg.inactiveTabBg || "transparent";
+    var inactiveTabColor = cfg.inactiveTabColor || "#6b7280";
+    var borderColor = cfg.borderColor || "#e5e7eb";
+    var contentBg = cfg.contentBg || "#ffffff";
+    var contentColor = cfg.contentColor || "#374151";
+
+    var campaignTheme = cfg.campaignTheme || "none";
+    if (campaignTheme && campaignTheme !== "none") {
+      if (campaignTheme === "black-friday") { activeTabBg = "#F59E0B"; activeTabColor = "#111827"; borderColor = "#D97706"; }
+      else if (campaignTheme === "hot-sale") { activeTabBg = "#EF4444"; activeTabColor = "#ffffff"; borderColor = "#B91C1C"; }
+      else if (campaignTheme === "cyber-monday") { activeTabBg = "#3B82F6"; activeTabColor = "#ffffff"; borderColor = "#1D4ED8"; }
+      else if (campaignTheme === "navidad") { activeTabBg = "#064E3B"; activeTabColor = "#ffffff"; borderColor = "#047857"; }
+      else if (campaignTheme === "san-valentin") { activeTabBg = "#831843"; activeTabColor = "#ffffff"; borderColor = "#9d174d"; }
+      else if (campaignTheme === "dia-madre-padre") { activeTabBg = "#312E81"; activeTabColor = "#ffffff"; borderColor = "#4338ca"; }
+      else if (campaignTheme === "liquidacion") { activeTabBg = "#7F1D1D"; activeTabColor = "#ffffff"; borderColor = "#991b1b"; }
+    }
+
+    var findDescriptionEl = function() {
+      var selectors = [
+        ".js-product-description",
+        '[data-store="product-description"]',
+        ".product-description",
+        "#description",
+        ".description",
+        ".user-content",
+        ".js-product-tabs",
+        ".product-detail-description"
+      ];
+      for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el) return el;
+      }
+      var headings = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var j = 0; j < headings.length; j++) {
+        var txt = (headings[j].textContent || "").toLowerCase();
+        if (txt.indexOf("descripci") !== -1) return headings[j];
+      }
+      var fallbacks = [".js-product-detail", ".product-detail", ".js-product-container", ".product-container"];
+      for (var k = 0; k < fallbacks.length; k++) {
+        var fb = document.querySelector(fallbacks[k]);
+        if (fb) return fb;
+      }
+      return null;
+    };
+
+    var inject = function() {
+      if (document.getElementById(uniqueId)) return;
+
+      var container = document.createElement("div");
+      container.id = uniqueId;
+      container.setAttribute("data-nevux-widget", "pestanas-informacion");
+      container.style.cssText = "width: 100% !important; max-width: 100% !important; margin: 20px 0 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; box-sizing: border-box !important;";
+
+      var tabsBarHtml = '<div style="display: flex !important; flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; gap: 0 !important; border-bottom: 2px solid ' + borderColor + ' !important; margin-bottom: 0 !important; scrollbar-width: thin !important; -webkit-overflow-scrolling: touch !important;">';
+      for (var i = 0; i < tabs.length; i++) {
+        var t = tabs[i] || {};
+        var icon = t.icon || t.emoji || "";
+        var name = t.name || t.title || t.label || ("Pestaña " + (i + 1));
+        var isActive = (i === 0);
+        tabsBarHtml += '<button type="button" data-nvx-tab-index="' + i + '" style="flex-shrink: 0 !important; cursor: pointer !important; border: none !important; outline: none !important; padding: 12px 18px !important; font-size: 14px !important; font-weight: 700 !important; font-family: inherit !important; background: ' + (isActive ? activeTabBg : inactiveTabBg) + ' !important; color: ' + (isActive ? activeTabColor : inactiveTabColor) + ' !important; border-radius: 8px 8px 0 0 !important; margin-bottom: -2px !important; border-bottom: 2px solid ' + (isActive ? activeTabBg : "transparent") + ' !important; transition: all 0.15s ease !important; white-space: nowrap !important; display: inline-flex !important; align-items: center !important; gap: 6px !important;">';
+        if (icon) tabsBarHtml += '<span style="font-size: 16px !important;">' + icon + '</span>';
+        tabsBarHtml += '<span>' + name + '</span></button>';
+      }
+      tabsBarHtml += '</div>';
+
+      var contentsHtml = '';
+      for (var j = 0; j < tabs.length; j++) {
+        var tc = tabs[j] || {};
+        var content = tc.content || tc.body || tc.text || "";
+        var isActiveContent = (j === 0);
+        contentsHtml += '<div data-nvx-tab-content="' + j + '" style="display: ' + (isActiveContent ? "block" : "none") + ' !important; padding: 20px 18px !important; background: ' + contentBg + ' !important; color: ' + contentColor + ' !important; font-size: 15px !important; line-height: 1.6 !important; border-radius: 0 0 8px 8px !important; border: 1px solid ' + borderColor + ' !important; border-top: none !important;">' + content + '</div>';
+      }
+
+      container.innerHTML = tabsBarHtml + contentsHtml;
+
+      var targetEl = null;
+      var descEl = findDescriptionEl();
+
+      if (position === "before-description" && descEl) {
+        descEl.parentNode.insertBefore(container, descEl);
+      } else if (position === "after-price") {
+        var priceContainers = [
+          ".js-price-container",
+          ".js-product-price-container",
+          ".product-price-container",
+          ".price-container",
+          ".js-item-price",
+          '[data-store="product-price"]'
+        ];
+        for (var p = 0; p < priceContainers.length; p++) {
+          var pe = document.querySelector(priceContainers[p]);
+          if (pe) { targetEl = pe; break; }
+        }
+        if (targetEl && targetEl.parentNode) {
+          targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+        } else if (descEl) {
+          descEl.parentNode.insertBefore(container, descEl);
+        }
+      } else {
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        } else {
+          var fallback = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+          if (fallback) fallback.appendChild(container);
+        }
+      }
+
+      var tabButtons = container.querySelectorAll("button[data-nvx-tab-index]");
+      var tabContents = container.querySelectorAll("div[data-nvx-tab-content]");
+
+      var activateTab = function(idx) {
+        for (var a = 0; a < tabButtons.length; a++) {
+          var btn = tabButtons[a];
+          var btnIdx = parseInt(btn.getAttribute("data-nvx-tab-index"), 10);
+          if (btnIdx === idx) {
+            btn.style.setProperty("background", activeTabBg, "important");
+            btn.style.setProperty("color", activeTabColor, "important");
+            btn.style.setProperty("border-bottom", "2px solid " + activeTabBg, "important");
+          } else {
+            btn.style.setProperty("background", inactiveTabBg, "important");
+            btn.style.setProperty("color", inactiveTabColor, "important");
+            btn.style.setProperty("border-bottom", "2px solid transparent", "important");
+          }
+        }
+        for (var b = 0; b < tabContents.length; b++) {
+          var ct = tabContents[b];
+          var ctIdx = parseInt(ct.getAttribute("data-nvx-tab-content"), 10);
+          ct.style.setProperty("display", ctIdx === idx ? "block" : "none", "important");
+        }
+      };
+
+      for (var t2 = 0; t2 < tabButtons.length; t2++) {
+        (function(button) {
+          button.addEventListener("click", function(ev) {
+            ev.preventDefault();
+            var idx = parseInt(button.getAttribute("data-nvx-tab-index"), 10);
+            activateTab(idx);
+          });
+        })(tabButtons[t2]);
+      }
+    };
+
+    inject();
+    setTimeout(inject, 500);
+    setTimeout(inject, 1500);
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderPestanasInformacion error:", err);
+    }
+  }
+      }
 })(); 
