@@ -32,6 +32,7 @@ import SliderImagenesEditor from '@/components/widgets/editors/SliderImagenesEdi
 import VideoTextoEditor from '@/components/widgets/editors/VideoTextoEditor';
 import TextoLibreEditor from '@/components/widgets/editors/TextoLibreEditor';
 import PasosEditor from '@/components/widgets/editors/PasosEditor';
+import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -138,6 +139,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: INFORMACIÓN DE ENVÍO
+  if (params.widgetSlug === 'informacion-envio') {
+    return <InformacionEnvioEditor {...editorProps} />;
+  }
 
   // WIDGET: PASOS
   if (params.widgetSlug === 'pasos') {
@@ -249,7 +255,7 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     return <PopupConversionEditor {...editorProps} />;
   }
 
-  // WIDGET: BUNDLE DE PROMOCIONES
+  // WIDGET: BUNDLE PROMOCIONES
   if (params.widgetSlug === 'bundle-promociones') {
     return <BundlePromocionesEditor {...editorProps} />;
   }
@@ -312,4 +318,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+}
