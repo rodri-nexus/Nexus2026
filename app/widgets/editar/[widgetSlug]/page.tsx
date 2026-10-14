@@ -34,6 +34,7 @@ import TextoLibreEditor from '@/components/widgets/editors/TextoLibreEditor';
 import PasosEditor from '@/components/widgets/editors/PasosEditor';
 import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
 import PestanasInformacionEditor from '@/components/widgets/editors/PestanasInformacionEditor';
+import ImagenesTextosEditor from '@/components/widgets/editors/ImagenesTextosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -140,6 +141,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: IMÁGENES Y TEXTOS
+  if (params.widgetSlug === 'imagenes-textos') {
+    return <ImagenesTextosEditor {...editorProps} />;
+  }
 
   // WIDGET: PESTAÑAS DE INFORMACIÓN
   if (params.widgetSlug === 'pestanas-informacion') {
@@ -324,4 +330,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-}
+  }
