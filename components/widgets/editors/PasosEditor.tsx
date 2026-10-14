@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import NevuxLogo from '@/app/components/landing/NevuxLogo';
 import CentroAyuda from '@/app/dashboard/components/CentroAyuda';
-import { createClientBrowser } from '@/lib/supabase-browser';
 
 type TabType = 'general' | 'ubicacion' | 'estilos' | 'fechas';
 
@@ -62,7 +61,6 @@ export default function PasosEditor({
   onSave,
   isSaving = false,
 }: PasosEditorProps) {
-  const supabase = createClientBrowser();
   const [activeTab, setActiveTab] = useState('general');
 
   const cfg = initialConfig || existingWidget?.config || {};
@@ -112,7 +110,7 @@ export default function PasosEditor({
   const [campaignTheme, setCampaignTheme] = useState(cfg.campaignTheme || 'none');
   const [isActive, setIsActive] = useState(cfg.is_active !== false && existingWidget?.is_active !== false);
 
-  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const [uploadingIndex, setUploadingIndex] = useState(-1);
   const [isSavingInternal, setIsSavingInternal] = useState(false);
 
   const effectiveTargetType = targetType || existingWidget?.target_type || (categoryId ? 'category' : productId ? 'product' : 'all');
@@ -168,52 +166,30 @@ export default function PasosEditor({
     });
   };
 
-  const handleImageFileChange = async function (index: number, event: React.ChangeEvent<HTMLInputElement>) {
+  // Cargador de imágenes con FileReader nativo (Zero dependencias, sin errores)
+  const handleImageFileChange = function (index: number, event: React.ChangeEvent<HTMLInputElement>) {
     var file = event.target.files && event.target.files[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen no puede superar los 5MB.');
+    if (file.size > 4 * 1024 * 1024) {
+      alert('La imagen no puede superar los 4MB.');
       return;
     }
 
     setUploadingIndex(index);
 
-    try {
-      var fileExt = file.name.split('.').pop() || 'png';
-      var fileName = 'pasos_' + Date.now() + '_' + Math.random().toString(36).substring(7) + '.' + fileExt;
-      var filePath = 'steps/' + fileName;
-
-      var res = await supabase.storage
-        .from('widgets')
-        .upload(filePath, file, { cacheControl: '3600', upsert: true });
-
-      if (res.error || !res.data) {
-        // Fallback a Base64
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          if (e.target && e.target.result) {
-            handleStepChange(index, 'imageUrl', String(e.target.result));
-          }
-        };
-        reader.readAsDataURL(file);
-      } else {
-        var publicUrlRes = supabase.storage.from('widgets').getPublicUrl(filePath);
-        if (publicUrlRes.data && publicUrlRes.data.publicUrl) {
-          handleStepChange(index, 'imageUrl', publicUrlRes.data.publicUrl);
-        }
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      if (e.target && e.target.result) {
+        handleStepChange(index, 'imageUrl', String(e.target.result));
       }
-    } catch (err) {
-      var reader2 = new FileReader();
-      reader2.onload = function (e) {
-        if (e.target && e.target.result) {
-          handleStepChange(index, 'imageUrl', String(e.target.result));
-        }
-      };
-      reader2.readAsDataURL(file);
-    } finally {
-      setUploadingIndex(null);
-    }
+      setUploadingIndex(-1);
+    };
+    reader.onerror = function () {
+      alert('Error al leer la imagen.');
+      setUploadingIndex(-1);
+    };
+    reader.readAsDataURL(file);
   };
 
   const applyPresetTheme = function (themeKey: string) {
@@ -663,7 +639,7 @@ export default function PasosEditor({
                       />
                     </div>
 
-                    {/* BLOQUE CARGADOR DE IMAGEN EN LUGAR DE URL MANUAL */}
+                    {/* BLOQUE CARGADOR DE IMAGEN (NATIVO ZERO DEPENDENCIAS) */}
                     <div>
                       <label style={{ fontSize: '11px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
                         Imagen (opcional)
@@ -678,7 +654,7 @@ export default function PasosEditor({
                           />
                           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669' }}>
-                              ✓ Imagen subida con éxito
+                              ✓ Imagen seleccionada
                             </span>
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <label style={{ fontSize: '11px', fontWeight: 700, color: '#1D4ED8', cursor: 'pointer', textDecoration: 'underline' }}>
@@ -712,8 +688,7 @@ export default function PasosEditor({
                             borderRadius: '8px',
                             backgroundColor: '#ffffff',
                             cursor: isUploading ? 'wait' : 'pointer',
-                            textAlign: 'center',
-                            transition: 'all 0.2s'
+                            textAlign: 'center'
                           }}
                         >
                           <input
@@ -725,10 +700,10 @@ export default function PasosEditor({
                           />
                           <span style={{ fontSize: '20px', marginBottom: '4px' }}>📷</span>
                           <span style={{ fontSize: '12px', fontWeight: 700, color: '#374151' }}>
-                            {isUploading ? 'Subiendo imagen...' : 'Click para subir imagen'}
+                            {isUploading ? 'Procesando imagen...' : 'Click para elegir o tomar foto'}
                           </span>
                           <span style={{ fontSize: '10px', color: '#6B7280', marginTop: '2px' }}>
-                            JPG, PNG, WebP — Máx. 5MB
+                            JPG, PNG, WebP — Máx. 4MB
                           </span>
                         </label>
                       )}
@@ -1215,4 +1190,4 @@ export default function PasosEditor({
       </div>
     </div>
   );
-    }
+  }
