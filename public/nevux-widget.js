@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-  // ==========================================
+    // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
@@ -12048,30 +12048,30 @@ function renderImagenesTextos(w) {
     if (detectPageType() !== "product") return;
 
     var cfg = w.config || {};
-    var items = cfg.items || [];
+    var items = cfg.items || cfg.cards || [];
     if (!items || items.length === 0) return;
 
     var widgetId = "nvx-columnas-img-txt-" + (w.id || "main");
     if (document.getElementById(widgetId)) return;
 
-    var location = cfg.location || "before-description";
-    var colsDesktop = parseInt(cfg.columnsDesktop, 10) || 3;
+    var location = cfg.location || cfg.position || "before-description";
+    var colsDesktop = parseInt(cfg.columnsDesktop || cfg.desktopColumns, 10) || 3;
     if (colsDesktop !== 3 && colsDesktop !== 4) colsDesktop = 3;
     var mobileLayout = cfg.mobileLayout || "scroll";
-    var align = cfg.align || "center";
+    var align = cfg.align || cfg.cardAlignment || "center";
 
     var sectionTitle = cfg.sectionTitle || "";
     var sectionSubtitle = cfg.sectionSubtitle || "";
-    var sectionBg = cfg.sectionBg || "transparent";
-    var titleColor = cfg.titleColor || "#111827";
-    var subtitleColor = cfg.subtitleColor || "#6B7280";
-    var cardBg = cfg.cardBg || "#f9fafb";
+    var sectionBg = cfg.sectionBg || cfg.sectionBgColor || "transparent";
+    var titleColor = cfg.titleColor || cfg.sectionTitleColor || "#111827";
+    var subtitleColor = cfg.subtitleColor || cfg.sectionSubtitleColor || "#6B7280";
+    var cardBg = cfg.cardBg || cfg.cardBgColor || "#f9fafb";
     var cardBorderColor = cfg.cardBorderColor || "#e5e7eb";
-    var cardBorderRadius = (cfg.cardBorderRadius !== undefined && cfg.cardBorderRadius !== "") ? cfg.cardBorderRadius + "px" : "12px";
+    var cardBorderRadius = (cfg.cardBorderRadius !== undefined && cfg.cardBorderRadius !== "") ? cfg.cardBorderRadius + "px" : (cfg.cardRadius || "12px");
     var cardTitleColor = cfg.cardTitleColor || "#111827";
-    var cardTextColor = cfg.cardTextColor || "#4B5563";
+    var cardTextColor = cfg.cardTextColor || cfg.cardSubtitleColor || "#4B5563";
     var badgeBg = cfg.badgeBg || "#10B981";
-    var badgeTextColor = cfg.badgeTextColor || "#ffffff";
+    var badgeTextColor = cfg.badgeTextColor || cfg.badgeColor || "#ffffff";
 
     var container = document.createElement("div");
     container.id = widgetId;
@@ -12111,9 +12111,9 @@ function renderImagenesTextos(w) {
       var item = items[i];
       if (!item) continue;
       var itemImg = item.image || "";
-      var itemBadge = item.badge || "";
+      var itemBadge = item.badge || item.badgeText || "";
       var itemTitle = item.title || "";
-      var itemText = item.text || item.description || "";
+      var itemText = item.text || item.description || item.subtitle || "";
 
       innerHTML += '<div class="nvx-cit-card" style="background:' + cardBg + ' !important; border:1px solid ' + cardBorderColor + ' !important; border-radius:' + cardBorderRadius + ' !important; padding:18px 16px !important; box-sizing:border-box !important; text-align:' + align + ' !important; display:flex !important; flex-direction:column !important; position:relative !important; box-shadow:0 1px 3px rgba(0,0,0,0.04) !important;">';
 
@@ -12150,7 +12150,7 @@ function renderImagenesTextos(w) {
 
     // Buscador DOM oficial de 3 niveles para Descripción
     var findDescriptionEl = function() {
-      var direct = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description");
+      var direct = document.querySelector(".js-product-description, [data-store='product-description'], .product-description, #description, .description, .user-content, .js-product-tabs, .product-detail-description, .product-tabs, #product-description, .js-accordion-container");
       if (direct) return direct;
 
       var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
@@ -12164,11 +12164,14 @@ function renderImagenesTextos(w) {
     };
 
     var injectWidget = function() {
+      if (document.getElementById(widgetId + "-inserted")) return true;
       var descEl = findDescriptionEl();
 
       if (location === "before-description") {
         if (descEl && descEl.parentNode) {
           descEl.parentNode.insertBefore(container, descEl);
+          container.id = widgetId + "-inserted";
+          container.id = widgetId;
           return true;
         }
         var cartForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, #product_form");
@@ -12187,7 +12190,7 @@ function renderImagenesTextos(w) {
           descEl.parentNode.insertBefore(container, descEl.nextSibling);
           return true;
         }
-        var prodCont = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+        var prodCont = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, #single-product, .single-product-container, main");
         if (prodCont) {
           prodCont.appendChild(container);
           return true;
@@ -12202,9 +12205,10 @@ function renderImagenesTextos(w) {
     };
 
     if (!injectWidget()) {
-      setTimeout(function() {
-        injectWidget();
-      }, 500);
+      setTimeout(function() { injectWidget(); }, 300);
+      setTimeout(function() { injectWidget(); }, 800);
+      setTimeout(function() { injectWidget(); }, 1800);
     }
-  };                                        }                    
+  };
+}
 })(); 
