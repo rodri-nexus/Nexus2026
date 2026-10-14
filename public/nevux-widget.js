@@ -1828,6 +1828,7 @@
             if (w.widget_slug === "video-texto") renderVideoTexto(w);
             if (w.widget_slug === "texto-libre") renderTextoLibre(w);
             if (w.widget_slug === "pasos") renderPasos(w);
+            if (w.widget_slug === "informacion-envio") renderInformacionEnvio(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -11420,6 +11421,262 @@ function renderCajaContacto(w) {
     if (!done) {
       setTimeout(injectPasos, 500);
       setTimeout(injectPasos, 1200);
+    }
+  };
+              /* ═══════════════════════════════════════════
+     WIDGET #33: INFORMACIÓN DE ENVÍO (🚚)
+     ═══════════════════════════════════════════ */
+  var renderInformacionEnvio = function(w) {
+    if (detectPageType() !== "product") return;
+    var id = "nvx-info-envio-" + w.id;
+    if (document.getElementById(id)) return;
+
+    var cfg = w.config || {};
+    var zones = cfg.zones || [
+      { id: "zone-1", name: "AMBA", dispatchDays: 1, deliveryDays: 1 },
+      { id: "zone-2", name: "Resto del país", dispatchDays: 1, deliveryDays: 3 }
+    ];
+    if (zones.length === 0) return;
+
+    var container = document.createElement("div");
+    container.id = id;
+    container.className = "nvx-info-envio-container";
+    container.style.cssText = "width: 100% !important; box-sizing: border-box !important; margin: " + (cfg.marginTop || 16) + "px 0 " + (cfg.marginBottom || 16) + "px 0 !important; clear: both !important; display: block !important;";
+
+    // Cálculo dinámico de fechas con hora de corte
+    var months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    var now = new Date();
+    var cutoffStr = cfg.cutoffTime || "18:00";
+    var cutoffParts = cutoffStr.split(":");
+    var cutoffHour = parseInt(cutoffParts[0], 10) || 18;
+    var cutoffMin = parseInt(cutoffParts[1], 10) || 0;
+
+    var isAfterCutoff = false;
+    if (now.getHours() > cutoffHour || (now.getHours() === cutoffHour && now.getMinutes() >= cutoffMin)) {
+      isAfterCutoff = true;
+    }
+
+    var getFormattedDate = function(addDays) {
+      var d = new Date();
+      var extra = addDays + (isAfterCutoff ? 1 : 0);
+      d.setDate(d.getDate() + extra);
+
+      if (cfg.skipSaturdays !== false) {
+        if (d.getDay() === 6) d.setDate(d.getDate() + 2); // Sábado -> Lunes
+        else if (d.getDay() === 0) d.setDate(d.getDate() + 1); // Domingo -> Lunes
+      }
+
+      return {
+        dayNum: d.getDate(),
+        monthStr: months[d.getMonth()]
+      };
+    };
+
+    var inner = "";
+
+    if (cfg.title) {
+      inner += '<div style="font-size: ' + (cfg.titleSize || 22) + 'px !important; font-weight: 800 !important; color: ' + (cfg.titleColor || "#191919") + ' !important; text-align: center !important; margin-bottom: 10px !important;">' + cfg.title + '</div>';
+    }
+
+    var bgColor = cfg.bgColor || "#d9f5e4";
+    var textColor = cfg.textColor || "#1f6b4e";
+    var badgeBg = cfg.badgeBgColor || "#dc3545";
+    var badgeText = cfg.badgeTextColor || "#ffffff";
+    var showBorder = cfg.showBorder !== false;
+    var borderColor = cfg.borderColor || "#a7f3d0";
+    var borderRadius = typeof cfg.borderRadius === "number" ? cfg.borderRadius : 16;
+    var padding = typeof cfg.padding === "number" ? cfg.padding : 20;
+
+    inner += '<div style="background-color: ' + bgColor + ' !important; border-radius: ' + borderRadius + 'px !important; padding: ' + padding + 'px !important; max-width: 550px !important; margin: 0 auto !important; border: ' + (showBorder ? "1.5px solid " + borderColor : "none") + ' !important; box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important; font-family: system-ui, -apple-system, sans-serif !important;">';
+
+    // Handler global para cambiar de zona si hay varias
+    if (!window.nvxSwitchShippingZone) {
+      window.nvxSwitchShippingZone = function(widgetId, zoneIndex) {
+        var parent = document.getElementById("nvx-info-envio-" + widgetId);
+        if (!parent) return;
+        var zoneContents = parent.querySelectorAll(".nvx-zone-content");
+        var zoneButtons = parent.querySelectorAll(".nvx-zone-btn");
+        for (var b = 0; b < zoneButtons.length; b++) {
+          if (b === zoneIndex) {
+            zoneButtons[b].style.backgroundColor = textColor;
+            zoneButtons[b].style.color = bgColor;
+            zoneButtons[b].style.borderColor = textColor;
+          } else {
+            zoneButtons[b].style.backgroundColor = "rgba(255,255,255,0.6)";
+            zoneButtons[b].style.color = textColor;
+            zoneButtons[b].style.borderColor = "transparent";
+          }
+        }
+        for (var z = 0; z < zoneContents.length; z++) {
+          if (z === zoneIndex) {
+            zoneContents[z].style.display = "block";
+          } else {
+            zoneContents[z].style.display = "none";
+          }
+        }
+      };
+    }
+
+    // Tabs de Zonas (solo si hay más de 1)
+    if (zones.length > 1) {
+      inner += '<div style="display: flex !important; gap: 6px !important; margin-bottom: 16px !important; justify-content: center !important; flex-wrap: wrap !important;">';
+      for (var zIdx = 0; zIdx < zones.length; zIdx++) {
+        var isFirst = zIdx === 0;
+        inner += '<button type="button" class="nvx-zone-btn" onclick="window.nvxSwitchShippingZone(\'' + w.id + '\', ' + zIdx + ')" style="padding: 4px 12px !important; border-radius: 999px !important; font-size: 11px !important; font-weight: 800 !important; border: 1px solid ' + (isFirst ? textColor : "transparent") + ' !important; background-color: ' + (isFirst ? textColor : "rgba(255,255,255,0.6)") + ' !important; color: ' + (isFirst ? bgColor : textColor) + ' !important; cursor: pointer !important; transition: all 0.2s ease !important;">' + zones[zIdx].name + '</button>';
+      }
+      inner += '</div>';
+    }
+
+    // Contenido de cada Zona
+    for (var i = 0; i < zones.length; i++) {
+      var zn = zones[i];
+      var isVisible = i === 0;
+
+      var dispatchDate = getFormattedDate(zn.dispatchDays || 0);
+      var totalDays = (zn.dispatchDays || 0) + (zn.deliveryDays || 0);
+      var deliveryDate1 = getFormattedDate(totalDays);
+      var deliveryDate2 = getFormattedDate(totalDays + 1);
+
+      var dispatchText = zn.dispatchDays === 0 ? "Hoy" : zn.dispatchDays === 1 ? "Mañana" : dispatchDate.dayNum + " " + dispatchDate.monthStr;
+      var deliveryText = cfg.showDateRange !== false
+        ? deliveryDate1.dayNum + " y " + deliveryDate2.dayNum + " " + deliveryDate2.monthStr
+        : deliveryDate1.dayNum + " " + deliveryDate1.monthStr;
+
+      inner += '<div class="nvx-zone-content" style="display: ' + (isVisible ? "block" : "none") + ' !important;">';
+      inner += '<div style="display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; text-align: center !important;">';
+
+      // PASO 1: COMPRA
+      inner += '<div style="flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important;">';
+      inner += '<span style="font-size: 20px !important;">📦</span>';
+      inner += '<span style="font-size: ' + (cfg.labelSize || 14) + 'px !important; font-weight: 800 !important; color: ' + textColor + ' !important;">Compra</span>';
+      inner += '<span style="font-size: ' + (cfg.daySize || 13) + 'px !important; font-weight: 700 !important; color: ' + textColor + ' !important; opacity: 0.9 !important;">Hoy</span>';
+      if (cfg.showCutoffBadge !== false) {
+        inner += '<span style="font-size: 9px !important; font-weight: 800 !important; background-color: ' + badgeBg + ' !important; color: ' + badgeText + ' !important; padding: 2px 6px !important; border-radius: 4px !important; margin-top: 2px !important; text-transform: uppercase !important;">ANTES DE LAS ' + cutoffStr + '</span>';
+      }
+      inner += '</div>';
+
+      // SEPARADOR 1
+      inner += '<div style="width: 24px !important; height: 2px !important; background-color: ' + textColor + ' !important; opacity: 0.35 !important; border-radius: 2px !important;"></div>';
+
+      // PASO 2: ENVÍO
+      inner += '<div style="flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important;">';
+      inner += '<span style="font-size: 20px !important;">🚚</span>';
+      inner += '<span style="font-size: ' + (cfg.labelSize || 14) + 'px !important; font-weight: 800 !important; color: ' + textColor + ' !important;">Envío</span>';
+      inner += '<span style="font-size: ' + (cfg.daySize || 13) + 'px !important; font-weight: 700 !important; color: ' + textColor + ' !important; opacity: 0.9 !important;">' + dispatchText + '</span>';
+      inner += '</div>';
+
+      // SEPARADOR 2
+      inner += '<div style="width: 24px !important; height: 2px !important; background-color: ' + textColor + ' !important; opacity: 0.35 !important; border-radius: 2px !important;"></div>';
+
+      // PASO 3: ENTREGA
+      inner += '<div style="flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 4px !important;">';
+      inner += '<span style="font-size: 20px !important;">📍</span>';
+      inner += '<span style="font-size: ' + (cfg.labelSize || 14) + 'px !important; font-weight: 800 !important; color: ' + textColor + ' !important;">Entrega</span>';
+      inner += '<span style="font-size: ' + (cfg.daySize || 13) + 'px !important; font-weight: 700 !important; color: ' + textColor + ' !important; opacity: 0.9 !important;">' + deliveryText + '</span>';
+      inner += '</div>';
+
+      inner += '</div>'; // Fin flex row
+      inner += '</div>'; // Fin nvx-zone-content
+    }
+
+    if (cfg.showApproxNote !== false) {
+      inner += '<div style="font-size: 10px !important; color: ' + textColor + ' !important; text-align: center !important; margin-top: 12px !important; opacity: 0.75 !important;">ⓘ Las fechas mostradas son estimaciones aproximadas.</div>';
+    }
+
+    inner += '</div>'; // Fin contenedor prinicpal
+    container.innerHTML = inner;
+
+    // Buscador DOM de 3 niveles para Descripción
+    var findDescriptionEl = function() {
+      var selectors = [
+        ".js-product-description",
+        "[data-store='product-description']",
+        ".product-description",
+        "#description",
+        ".description",
+        ".user-content",
+        ".js-product-tabs",
+        ".product-detail-description",
+        ".js-product-description-container",
+        "#product-description",
+        ".product-description-container",
+        ".product-tabs",
+        ".js-tab-container"
+      ];
+      for (var s = 0; s < selectors.length; s++) {
+        var el = document.querySelector(selectors[s]);
+        if (el) return el;
+      }
+      var headers = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var h = 0; h < headers.length; h++) {
+        var head = headers[h];
+        if (head && head.textContent && head.textContent.toLowerCase().indexOf("descripci") !== -1) {
+          return head.parentNode || head;
+        }
+      }
+      return document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container");
+    };
+
+    var pos = cfg.position || "before-description";
+    var isBeforeDesc = pos === "before-description" || pos === "before_description";
+    var isAfterDesc = pos === "after-description" || pos === "after_description";
+    var isAfterPrice = pos === "after-price" || pos === "after_price";
+
+    var injectInfoEnvio = function() {
+      if (document.getElementById(id)) return true;
+
+      var targetEl = null;
+      var insertAfter = false;
+
+      if (isAfterPrice) {
+        var priceEl = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']");
+        if (priceEl) {
+          targetEl = priceEl;
+          insertAfter = true;
+        }
+      }
+
+      if (!targetEl && (isBeforeDesc || isAfterDesc)) {
+        var descEl = findDescriptionEl();
+        if (descEl) {
+          targetEl = descEl;
+          insertAfter = isAfterDesc;
+        }
+      }
+
+      // Fallback para "Antes de la descripción": pegar debajo del botón/formulario de compra (Regla #56)
+      if (!targetEl && isBeforeDesc) {
+        var formEl = document.querySelector("form[action*='/cart/add'], .js-addtocart, .js-prod-form, form[action*='/comprar']");
+        if (formEl) {
+          targetEl = formEl;
+          insertAfter = true;
+        }
+      }
+
+      // Fallback universal
+      if (!targetEl) {
+        var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-addtocart");
+        if (fallbackForm) {
+          targetEl = fallbackForm;
+          insertAfter = true;
+        }
+      }
+
+      if (targetEl && targetEl.parentNode) {
+        if (insertAfter) {
+          targetEl.parentNode.insertBefore(container, targetEl.nextSibling);
+        } else {
+          targetEl.parentNode.insertBefore(container, targetEl);
+        }
+        return true;
+      }
+      return false;
+    };
+
+    var done = injectInfoEnvio();
+    if (!done) {
+      setTimeout(injectInfoEnvio, 500);
+      setTimeout(injectInfoEnvio, 1200);
     }
   };
 })(); 
