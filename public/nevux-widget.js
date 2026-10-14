@@ -1827,6 +1827,7 @@
             if (w.widget_slug === "slider-imagenes") renderSliderImagenes(w);
             if (w.widget_slug === "video-texto") renderVideoTexto(w);
             if (w.widget_slug === "texto-libre") renderTextoLibre(w);
+            if (w.widget_slug === "pasos") renderPasos(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -11213,4 +11214,125 @@ function renderCajaContacto(w) {
       }, 500);
     }
   };
+    /* ═══════════════════════════════════════════
+     WIDGET #32: PASOS (📍)
+     ═══════════════════════════════════════════ */
+  var renderPasos = function(w) {
+    if (detectPageType() !== "product") return;
+    var id = "nvx-pasos-" + w.id;
+    if (document.getElementById(id)) return;
+
+    var cfg = w.config || {};
+    var steps = cfg.steps || [];
+    if (steps.length === 0) return;
+
+    var container = document.createElement("div");
+    container.id = id;
+    container.className = "nvx-pasos-container";
+    container.style.cssText = "width: 100% !important; box-sizing: border-box !important; margin: " + (cfg.marginTop || 0) + "px 0 " + (cfg.marginBottom || 0) + "px 0 !important; clear: both !important; display: block !important;";
+
+    var inner = '<div style="background-color: ' + (cfg.bgColor || "#fafafa") + ' !important; border-radius: 12px !important; padding: ' + (cfg.paddingTop || 24) + 'px 20px ' + (cfg.paddingBottom || 24) + 'px 20px !important; border: ' + (cfg.campaignTheme !== "none" ? "2px solid " + (cfg.lineColor || "#10B981") : "1px solid #e5e7eb") + ' !important; box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important; max-width: 600px !important; margin: 0 auto !important; font-family: system-ui, -apple-system, sans-serif !important; overflow: hidden !important;">';
+
+    if (cfg.sectionTitle) {
+      inner += '<div style="font-size: ' + (cfg.sectionTitleSize || 22) + 'px !important; font-weight: 800 !important; color: ' + (cfg.sectionTitleColor || "#191919") + ' !important; text-align: center !important; margin-bottom: 4px !important; line-height: 1.2 !important;">' + cfg.sectionTitle + '</div>';
+    }
+    if (cfg.sectionSubtitle) {
+      inner += '<div style="font-size: ' + (cfg.sectionSubtitleSize || 16) + 'px !important; color: ' + (cfg.sectionSubtitleColor || "#191919") + ' !important; text-align: center !important; margin-bottom: 24px !important; opacity: 0.8 !important; line-height: 1.4 !important;">' + cfg.sectionSubtitle + '</div>';
+    }
+
+    inner += '<div style="position: relative !important; padding-left: 40px !important;">';
+    
+    // Línea de fondo
+    inner += '<div style="position: absolute !important; left: 14px !important; top: 10px !important; bottom: 10px !important; width: 2px !important; background-color: #e5e7eb !important; border-radius: 2px !important;"></div>';
+    
+    // Línea de progreso animada
+    inner += '<div class="nvx-pasos-progress-line" style="position: absolute !important; left: 14px !important; top: 10px !important; width: 2px !important; height: 0% !important; background-color: ' + (cfg.lineColor || "#10B981") + ' !important; border-radius: 2px !important; transition: height 1s cubic-bezier(0.4, 0, 0.2, 1) !important;"></div>';
+
+    inner += '<div style="display: flex !important; flex-direction: column !important; gap: 28px !important;">';
+
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      var indicatorIcon = "●";
+      if (cfg.indicatorStyle === "check") indicatorIcon = "✓";
+      else if (cfg.indicatorStyle === "dash") indicatorIcon = "—";
+
+      inner += '<div class="nvx-paso-item" style="position: relative !important; opacity: 0.3 !important; transform: translateX(-10px) !important; transition: all 0.6s ease !important;">';
+      
+      // Indicador circular
+      inner += '<div style="position: absolute !important; left: -40px !important; top: 0px !important; width: 30px !important; height: 30px !important; border-radius: 50% !important; background-color: #ffffff !important; border: 2px solid ' + (cfg.lineColor || "#191919") + ' !important; color: ' + (cfg.lineColor || "#191919") + ' !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 14px !important; font-weight: 800 !important; z-index: 2 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;">' + indicatorIcon + '</div>';
+
+      inner += '<div style="display: flex !important; flex-direction: column !important; gap: 4px !important;">';
+      
+      if (s.badge) {
+        inner += '<span style="align-self: flex-start !important; font-size: 10px !important; font-weight: 800 !important; padding: 2px 8px !important; border-radius: 6px !important; background-color: ' + (cfg.badgeBgColor || "#191919") + ' !important; color: ' + (cfg.badgeTextColor || "#ffffff") + ' !important; text-transform: uppercase !important; letter-spacing: 0.5px !important;">' + s.badge + '</span>';
+      }
+      if (s.title) {
+        inner += '<div style="font-size: ' + (cfg.stepTitleSize || 18) + 'px !important; font-weight: 800 !important; color: ' + (cfg.stepTitleColor || "#191919") + ' !important; line-height: 1.3 !important;">' + s.title + '</div>';
+      }
+      if (s.content) {
+        inner += '<div style="font-size: ' + (cfg.stepTextSize || 15) + 'px !important; color: ' + (cfg.stepTextColor || "#4b5563") + ' !important; line-height: 1.5 !important;">' + s.content + '</div>';
+      }
+      if (s.imageUrl) {
+        inner += '<img src="' + s.imageUrl + '" style="max-width: 100% !important; border-radius: 8px !important; margin-top: 8px !important; border: 1px solid #e5e7eb !important;" />';
+      }
+
+      inner += '</div></div>';
+    }
+
+    inner += '</div></div></div>';
+    container.innerHTML = inner;
+
+    // Lógica de inyección
+    var targetEl = null;
+    if (cfg.position === "after-price") {
+      var priceContainer = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, .js-item-price, [data-store='product-price']");
+      if (priceContainer) targetEl = priceContainer.nextSibling;
+    } else {
+      var descEl = findDescriptionEl();
+      if (descEl) {
+        if (cfg.position === "before-description") targetEl = descEl;
+        else targetEl = descEl.nextSibling;
+      }
+    }
+
+    if (targetEl && targetEl.parentNode) {
+      targetEl.parentNode.insertBefore(container, targetEl);
+    } else {
+      var form = document.querySelector("form[action*='/cart/add']");
+      if (form) form.parentNode.insertBefore(container, form.nextSibling);
+    }
+
+    // Animación IntersectionObserver
+    if ("IntersectionObserver" in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var items = container.querySelectorAll(".nvx-paso-item");
+            var progressLine = container.querySelector(".nvx-pasos-progress-line");
+            
+            items.forEach(function(item, idx) {
+              setTimeout(function() {
+                item.style.opacity = "1";
+                item.style.transform = "translateX(0)";
+                if (progressLine) {
+                  var percent = ((idx + 1) / items.length) * 100;
+                  progressLine.style.height = percent + "%";
+                }
+              }, idx * 250);
+            });
+            observer.unobserve(container);
+          }
+        });
+      }, { threshold: 0.2 });
+      observer.observe(container);
+    } else {
+      var items = container.querySelectorAll(".nvx-paso-item");
+      for (var k = 0; k < items.length; k++) {
+        items[k].style.opacity = "1";
+        items[k].style.transform = "translateX(0)";
+      }
+      var pl = container.querySelector(".nvx-pasos-progress-line");
+      if (pl) pl.style.height = "100%";
+    }
+  };    
 })(); 
