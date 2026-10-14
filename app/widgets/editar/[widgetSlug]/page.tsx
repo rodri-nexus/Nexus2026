@@ -30,6 +30,7 @@ import CajaOpinionesEditor from '@/components/widgets/editors/CajaOpinionesEdito
 import CajaContactoEditor from '@/components/widgets/editors/CajaContactoEditor';
 import SliderImagenesEditor from '@/components/widgets/editors/SliderImagenesEditor';
 import VideoTextoEditor from '@/components/widgets/editors/VideoTextoEditor';
+import TextoLibreEditor from '@/components/widgets/editors/TextoLibreEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -136,6 +137,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: TEXTO LIBRE
+  if (params.widgetSlug === 'texto-libre') {
+    return <TextoLibreEditor {...editorProps} />;
+  }
 
   // WIDGET: VIDEO Y TEXTO
   if (params.widgetSlug === 'video-texto') {
@@ -300,4 +306,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-    }
+            }
