@@ -8,6 +8,56 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function ColumnasImagenesTextoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎴 COLUMNAS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          GRILLA
+        </span>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "4px", padding: "2px 0" }}>
+        {[1, 2, 3].map((item) => (
+          <div
+            key={item}
+            style={{
+              background: "#f9fafb",
+              borderRadius: "6px",
+              border: "1px solid #e5e7eb",
+              padding: "4px 3px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2px",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ width: "100%", height: "18px", borderRadius: "4px", background: item === 1 ? "#10B981" : "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "8px" }}>
+              {item === 1 ? "🚚" : item === 2 ? "🛡️" : "💳"}
+            </div>
+            <div style={{ width: "20px", height: "3px", background: "#111827", borderRadius: "1px" }} />
+            <div style={{ width: "28px", height: "2px", background: "#9ca3af", borderRadius: "1px" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ImagenesTextosPreview() {
   return (
     <div
@@ -482,7 +532,7 @@ function PackComplementariosPreview() {
           <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", color: "#fff", fontSize: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
           <span style={{ fontSize: "6.5px", fontWeight: 700, color: "#111827" }}>+ Complemento</span>
         </div>
-        <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>+$ 10.000</span>
+        <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>+$ 10.000</span>
       </div>
       <div style={{ background: "#111827", color: "#ffffff", borderRadius: "6px", padding: "4px", fontSize: "7px", fontWeight: 800, textAlign: "center", marginTop: "2px" }}>Agregar pack · $ 29.750</div>
     </div>
@@ -730,7 +780,7 @@ function MarqueeNovedadesPreview() {
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
         <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>🔥 MÁS VENDIDOS</span>
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
-        <span style={{ fontSize: "7px", fontWeight: 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
+        <span style={{ fontSize: "7px", fontWeight 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
       </div>
       <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
         <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
@@ -758,6 +808,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "columnas-imagenes-texto":
+      return <ColumnasImagenesTextoPreview />;
     case "imagenes-textos":
       return <ImagenesTextosPreview />;
     case "pestanas-informacion":
@@ -857,4 +909,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-  }
+      }
