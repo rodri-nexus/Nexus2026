@@ -12228,6 +12228,5 @@ function renderImagenesTextos(w) {
     injectWidget();
     setTimeout(injectWidget, 500);
     setTimeout(injectWidget, 1500);
-  };                                        
-}
+  };                                        }
 })(); 
