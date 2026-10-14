@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-          // ==========================================
+            // ==========================================
   // WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
   // ==========================================
   var renderColumnasImagenesTexto = function(w) {
@@ -12048,30 +12048,41 @@ function renderImagenesTextos(w) {
     if (detectPageType() !== "product") return;
 
     var cfg = w.config || {};
-    var items = cfg.items || [];
-    if (!items || items.length === 0) return;
+    var cards = cfg.cards || cfg.items || [];
+    if (!cards || cards.length === 0) return;
 
     var widgetId = "nvx-columnas-img-txt-" + (w.id || "main");
     if (document.getElementById(widgetId)) return;
 
     var location = cfg.position || cfg.location || "before-description";
-    var colsDesktop = parseInt(cfg.columnsDesktop, 10) || 3;
+    var colsDesktop = parseInt(cfg.desktopColumns || cfg.columnsDesktop, 10) || 3;
     if (colsDesktop !== 3 && colsDesktop !== 4) colsDesktop = 3;
     var mobileLayout = cfg.mobileLayout || "scroll";
-    var align = cfg.align || "center";
+    var align = cfg.cardAlignment || cfg.align || "center";
 
     var sectionTitle = cfg.sectionTitle || "";
     var sectionSubtitle = cfg.sectionSubtitle || "";
-    var sectionBg = cfg.sectionBg || "transparent";
-    var titleColor = cfg.titleColor || "#111827";
-    var subtitleColor = cfg.subtitleColor || "#6B7280";
-    var cardBg = cfg.cardBg || "#f9fafb";
+    var sectionBg = cfg.sectionBgColor || cfg.sectionBg || "transparent";
+    var titleColor = cfg.sectionTitleColor || cfg.titleColor || "#111827";
+    var subtitleColor = cfg.sectionSubtitleColor || cfg.subtitleColor || "#6B7280";
+    var cardBg = cfg.cardBgColor || cfg.cardBg || "#ffffff";
     var cardBorderColor = cfg.cardBorderColor || "#e5e7eb";
-    var cardBorderRadius = (cfg.cardBorderRadius !== undefined && cfg.cardBorderRadius !== "") ? cfg.cardBorderRadius + "px" : "12px";
+    var cardBorderRadius = cfg.cardRadius || (cfg.cardBorderRadius !== undefined && cfg.cardBorderRadius !== "" ? cfg.cardBorderRadius + "px" : "12px");
     var cardTitleColor = cfg.cardTitleColor || "#111827";
-    var cardTextColor = cfg.cardTextColor || "#4B5563";
+    var cardTextColor = cfg.cardSubtitleColor || cfg.cardTextColor || "#4B5563";
     var badgeBg = cfg.badgeBg || "#10B981";
-    var badgeTextColor = cfg.badgeTextColor || "#ffffff";
+    var badgeTextColor = cfg.badgeColor || cfg.badgeTextColor || "#ffffff";
+
+    var campaignTheme = cfg.campaignTheme || "none";
+    if (campaignTheme && campaignTheme !== "none") {
+      if (campaignTheme === "black-friday") { badgeBg = "#F59E0B"; badgeTextColor = "#111827"; }
+      else if (campaignTheme === "hot-sale") { badgeBg = "#EF4444"; badgeTextColor = "#ffffff"; }
+      else if (campaignTheme === "cyber-monday") { badgeBg = "#3B82F6"; badgeTextColor = "#ffffff"; }
+      else if (campaignTheme === "navidad") { badgeBg = "#064E3B"; badgeTextColor = "#ffffff"; }
+      else if (campaignTheme === "san-valentin") { badgeBg = "#831843"; badgeTextColor = "#ffffff"; }
+      else if (campaignTheme === "dia-padre-madre") { badgeBg = "#312E81"; badgeTextColor = "#ffffff"; }
+      else if (campaignTheme === "liquidacion") { badgeBg = "#7F1D1D"; badgeTextColor = "#ffffff"; }
+    }
 
     var container = document.createElement("div");
     container.id = widgetId;
@@ -12107,13 +12118,13 @@ function renderImagenesTextos(w) {
     // Grilla de Tarjetas
     innerHTML += '<div class="nvx-cit-grid">';
 
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
+    for (var i = 0; i < cards.length; i++) {
+      var item = cards[i];
       if (!item) continue;
       var itemImg = item.image || "";
-      var itemBadge = item.badge || "";
+      var itemBadge = item.badgeText || item.badge || "";
       var itemTitle = item.title || "";
-      var itemText = item.text || item.description || "";
+      var itemText = item.subtitle || item.text || item.description || "";
 
       innerHTML += '<div class="nvx-cit-card" style="background:' + cardBg + ' !important; border:1px solid ' + cardBorderColor + ' !important; border-radius:' + cardBorderRadius + ' !important; padding:18px 16px !important; box-sizing:border-box !important; text-align:' + align + ' !important; display:flex !important; flex-direction:column !important; position:relative !important; box-shadow:0 1px 3px rgba(0,0,0,0.04) !important;">';
 
@@ -12148,7 +12159,7 @@ function renderImagenesTextos(w) {
     innerHTML += '</div>';
     container.innerHTML += innerHTML;
 
-    // === UBICACIÓN COPIADA EXACTA DEL WIDGET #35 ===
+    // Buscador DOM oficial de 3 niveles para Descripción (igual al Widget #35)
     var findDescriptionEl = function() {
       var selectors = [
         ".js-product-description",
@@ -12180,14 +12191,36 @@ function renderImagenesTextos(w) {
     var injectWidget = function() {
       if (document.getElementById(widgetId)) return;
       var descEl = findDescriptionEl();
-      if (location === "before-description" && descEl) {
-        descEl.parentNode.insertBefore(container, descEl);
+
+      if (location === "before-description") {
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl);
+          return;
+        }
+        var cartForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form, #product_form");
+        if (cartForm && cartForm.parentNode) {
+          cartForm.parentNode.insertBefore(container, cartForm.nextSibling);
+          return;
+        }
+        var priceCont = document.querySelector(".js-price-container, .js-product-price-container, .product-price-container, .price-container, [data-store='product-price']");
+        if (priceCont && priceCont.parentNode) {
+          priceCont.parentNode.insertBefore(container, priceCont.nextSibling);
+          return;
+        }
       } else {
         if (descEl && descEl.parentNode) {
           descEl.parentNode.insertBefore(container, descEl.nextSibling);
-        } else {
-          var fallback = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
-          if (fallback) fallback.appendChild(container);
+          return;
+        }
+        var prodCont = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+        if (prodCont) {
+          prodCont.appendChild(container);
+          return;
+        }
+        var fallbackForm = document.querySelector("form[action*='/cart/add'], .js-product-form, .product-form");
+        if (fallbackForm && fallbackForm.parentNode) {
+          fallbackForm.parentNode.insertBefore(container, fallbackForm.nextSibling);
+          return;
         }
       }
     };
