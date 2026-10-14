@@ -9,7 +9,7 @@ type TabType = 'general' | 'ubicacion' | 'estilos' | 'fechas';
 interface ShippingZone {
   id: string;
   name: string;
-  dispatchDays: number | string; // Permite string vacío mientras el usuario edita
+  dispatchDays: number | string;
   deliveryDays: number | string;
 }
 
@@ -175,7 +175,6 @@ export default function InformacionEnvioEditor({
       return;
     }
 
-    // Normalizar dias para guardar siempre enteros limpios en la BD
     var cleanedZones = zones.map(function (z) {
       var disp = z.dispatchDays === '' ? 0 : parseInt(String(z.dispatchDays), 10);
       var deliv = z.deliveryDays === '' ? 0 : parseInt(String(z.deliveryDays), 10);
@@ -727,11 +726,11 @@ export default function InformacionEnvioEditor({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           <div style={{ backgroundColor: '#ffffff', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px' }}>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: '#111827', marginBottom: '12px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 800, color: '#111827', marginBottom: '14px' }}>
               🎨 Colores Principales
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
                   Color de fondo
@@ -741,13 +740,13 @@ export default function InformacionEnvioEditor({
                     type="color"
                     value={bgColor}
                     onChange={function (e) { handleColorChange(setBgColor, e.target.value); }}
-                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0, flexShrink: 0 }}
                   />
                   <input
                     type="text"
                     value={bgColor}
                     onChange={function (e) { handleColorChange(setBgColor, e.target.value); }}
-                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
@@ -761,60 +760,60 @@ export default function InformacionEnvioEditor({
                     type="color"
                     value={textColor}
                     onChange={function (e) { handleColorChange(setTextColor, e.target.value); }}
-                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0, flexShrink: 0 }}
                   />
                   <input
                     type="text"
                     value={textColor}
                     onChange={function (e) { handleColorChange(setTextColor, e.target.value); }}
-                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
 
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
-                  Color fondo badge hora limite
+                  Color fondo badge hora límite
                 </label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="color"
                     value={badgeBgColor}
                     onChange={function (e) { handleColorChange(setBadgeBgColor, e.target.value); }}
-                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0, flexShrink: 0 }}
                   />
                   <input
                     type="text"
                     value={badgeBgColor}
                     onChange={function (e) { handleColorChange(setBadgeBgColor, e.target.value); }}
-                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
 
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
-                  Color texto badge hora limite
+                  Color texto badge hora límite
                 </label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="color"
                     value={badgeTextColor}
                     onChange={function (e) { handleColorChange(setBadgeTextColor, e.target.value); }}
-                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
+                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0, flexShrink: 0 }}
                   />
                   <input
                     type="text"
                     value={badgeTextColor}
                     onChange={function (e) { handleColorChange(setBadgeTextColor, e.target.value); }}
-                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}
+                    style={{ flex: 1, minWidth: 0, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
             </div>
 
-            <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid #E5E7EB' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: '10px' }}>
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: showBorder ? '10px' : '0px' }}>
                 <input
                   type="checkbox"
                   checked={showBorder}
@@ -825,19 +824,24 @@ export default function InformacionEnvioEditor({
               </label>
 
               {showBorder && (
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input
-                    type="color"
-                    value={borderColor}
-                    onChange={function (e) { handleColorChange(setBorderColor, e.target.value); }}
-                    style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
-                  />
-                  <input
-                    type="text"
-                    value={borderColor}
-                    onChange={function (e) { handleColorChange(setBorderColor, e.target.value); }}
-                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px' }}
-                  />
+                <div style={{ maxWidth: '300px', marginTop: '8px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
+                    Color del borde
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                      type="color"
+                      value={borderColor}
+                      onChange={function (e) { handleColorChange(setBorderColor, e.target.value); }}
+                      style={{ width: '40px', height: '36px', border: 'none', borderRadius: '6px', cursor: 'pointer', padding: 0, flexShrink: 0 }}
+                    />
+                    <input
+                      type="text"
+                      value={borderColor}
+                      onChange={function (e) { handleColorChange(setBorderColor, e.target.value); }}
+                      style={{ flex: 1, minWidth: 0, padding: '8px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '12px', boxSizing: 'border-box' }}
+                    />
+                  </div>
                 </div>
               )}
             </div>
