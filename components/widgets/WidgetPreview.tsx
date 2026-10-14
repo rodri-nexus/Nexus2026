@@ -8,6 +8,51 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function ImagenesTextosPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🖼️ IMÁGENES Y TEXTOS</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          ALTERNADO
+        </span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f9fafb", padding: "4px 6px", borderRadius: "6px", border: "1px solid #f3f4f6" }}>
+        <div style={{ width: "22px", height: "22px", borderRadius: "4px", background: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "10px", flexShrink: 0 }}>
+          🖼️
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+          <div style={{ width: "35px", height: "3.5px", background: "#111827", borderRadius: "2px" }} />
+          <div style={{ width: "55px", height: "3px", background: "#9ca3af", borderRadius: "1px" }} />
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#ffffff", padding: "4px 6px", borderRadius: "6px", border: "1px solid #e5e7eb" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+          <div style={{ width: "35px", height: "3.5px", background: "#111827", borderRadius: "2px" }} />
+          <div style={{ width: "55px", height: "3px", background: "#9ca3af", borderRadius: "1px" }} />
+        </div>
+        <div style={{ width: "22px", height: "22px", borderRadius: "4px", background: "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "10px", flexShrink: 0 }}>
+          ✨
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PestanasInformacionPreview() {
   return (
     <div
@@ -685,7 +730,7 @@ function MarqueeNovedadesPreview() {
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
         <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>🔥 MÁS VENDIDOS</span>
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
-        <span style={{ fontSize: "7px", fontWeight: 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
+        <span style={{ fontSize: "7px", fontWeight 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
       </div>
       <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
         <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
@@ -713,6 +758,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "imagenes-textos":
+      return <ImagenesTextosPreview />;
     case "pestanas-informacion":
       return <PestanasInformacionPreview />;
     case "informacion-envio":
@@ -810,4 +857,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-                      }
+        }
