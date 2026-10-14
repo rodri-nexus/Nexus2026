@@ -12243,4 +12243,5 @@ function renderImagenesTextos(w) {
       }
     }
   };
+}
 })(); 
