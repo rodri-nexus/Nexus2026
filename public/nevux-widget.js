@@ -12182,4 +12182,5 @@ function renderColumnasImagenesTexto(w) {
       window.console.warn("[Nevux] renderColumnasImagenesTexto error:", err);
     }
   }
+}
 })(); 
