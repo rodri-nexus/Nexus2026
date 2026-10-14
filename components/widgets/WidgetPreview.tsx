@@ -49,8 +49,8 @@ function ColumnasImagenesTextoPreview() {
             <div style={{ width: "100%", height: "18px", borderRadius: "4px", background: item === 1 ? "#10B981" : "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "8px" }}>
               {item === 1 ? "🚚" : item === 2 ? "🛡️" : "💳"}
             </div>
-            <div style={{ width: "20px", height: "3px", background: "#111827", borderRadius: "1px" }} />
-            <div style={{ width: "28px", height: "2px", background: "#9ca3af", borderRadius: "1px" }} />
+            <div style={{ width: "20px", height: "3.5px", background: "#111827", borderRadius: "1px" }} />
+            <div style={{ width: "28px", height: "2.5px", background: "#9ca3af", borderRadius: "1px" }} />
           </div>
         ))}
       </div>
@@ -532,7 +532,7 @@ function PackComplementariosPreview() {
           <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", color: "#fff", fontSize: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
           <span style={{ fontSize: "6.5px", fontWeight: 700, color: "#111827" }}>+ Complemento</span>
         </div>
-        <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>+$ 10.000</span>
+        <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>+$ 10.000</span>
       </div>
       <div style={{ background: "#111827", color: "#ffffff", borderRadius: "6px", padding: "4px", fontSize: "7px", fontWeight: 800, textAlign: "center", marginTop: "2px" }}>Agregar pack · $ 29.750</div>
     </div>
@@ -780,7 +780,7 @@ function MarqueeNovedadesPreview() {
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
         <span style={{ fontSize: "7px", fontWeight: 800, color: "#ffffff" }}>🔥 MÁS VENDIDOS</span>
         <span style={{ fontSize: "6px", color: "#6b7280" }}>•</span>
-        <span style={{ fontSize: "7px", fontWeight 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
+        <span style={{ fontSize: "7px", fontWeight: 800, color: "#F59E0B" }}>📦 ENVÍO GRATIS</span>
       </div>
       <div style={{ display: "flex", justifyContent: "center", gap: "3px" }}>
         <div style={{ width: "12px", height: "2px", background: "#10B981", borderRadius: "2px" }} />
