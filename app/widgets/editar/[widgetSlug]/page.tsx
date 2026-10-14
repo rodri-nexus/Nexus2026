@@ -31,6 +31,7 @@ import CajaContactoEditor from '@/components/widgets/editors/CajaContactoEditor'
 import SliderImagenesEditor from '@/components/widgets/editors/SliderImagenesEditor';
 import VideoTextoEditor from '@/components/widgets/editors/VideoTextoEditor';
 import TextoLibreEditor from '@/components/widgets/editors/TextoLibreEditor';
+import PasosEditor from '@/components/widgets/editors/PasosEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -137,6 +138,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: PASOS
+  if (params.widgetSlug === 'pasos') {
+    return <PasosEditor {...editorProps} />;
+  }
 
   // WIDGET: TEXTO LIBRE
   if (params.widgetSlug === 'texto-libre') {
@@ -306,4 +312,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-            }
+  }
