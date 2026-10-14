@@ -12040,7 +12040,7 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
-                /* ═══════════════════════════════════════════
+                  /* ═══════════════════════════════════════════
      WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
      ═══════════════════════════════════════════ */
   function renderColumnasImagenesTexto(w) {
@@ -12226,5 +12226,5 @@ function renderImagenesTextos(w) {
         window.console.warn("[Nevux] renderColumnasImagenesTexto error:", err);
       }
     }
-      }
+  }
 })(); 
