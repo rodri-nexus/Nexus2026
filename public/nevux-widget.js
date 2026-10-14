@@ -12039,4 +12039,5 @@ function renderImagenesTextos(w) {
       window.console.warn("[Nevux] renderImagenesTextos error:", err);
     }
   }
+        
 })(); 
