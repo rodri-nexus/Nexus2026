@@ -1026,4 +1026,4 @@ export default function PestanasInformacionEditor({
       </div>
     </div>
   );
-  }
+            }
