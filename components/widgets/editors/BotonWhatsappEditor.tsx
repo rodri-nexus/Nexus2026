@@ -387,7 +387,7 @@ export default function BotonWhatsappEditor({
               />
             </div>
             <div>
-              <label style={{ fontSize: '12px', fontWeight 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
                 Texto del botón principal
               </label>
               <input
@@ -620,4 +620,4 @@ export default function BotonWhatsappEditor({
       </div>
     </div>
   );
-                                       }
+    }
