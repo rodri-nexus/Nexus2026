@@ -8,6 +8,42 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function BotonWhatsappPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>💬 BOTÓN DE WHATSAPP</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          CHAT
+        </span>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", padding: "4px 0", position: "relative" }}>
+        <div style={{ background: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: "8px", padding: "4px 6px", marginRight: "6px", maxWidth: "70%" }}>
+          <div style={{ fontSize: "5.5px", fontWeight: 800, color: "#111827" }}>Luana</div>
+          <div style={{ fontSize: "5px", color: "#6b7280" }}>Hola, ¿cómo podemos ayudarte?</div>
+        </div>
+        <div style={{ position: "relative", width: "26px", height: "26px", borderRadius: "50%", background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "12px", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}>
+          💬
+          <div style={{ position: "absolute", top: "0px", right: "0px", width: "6px", height: "6px", borderRadius: "50%", background: "#E53E3E", border: "1px solid #ffffff" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VideoFlotantePreview() {
   return (
     <div
@@ -873,7 +909,7 @@ function DefaultPreview() {
       <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="8" y="20" width="24" height="24" rx="3" fill="#ffffff" stroke="#000000" strokeWidth="1.5" />
         <rect x="20" y="14" width="28" height="28" rx="3" fill="#f3f4f6" stroke="#000000" strokeWidth="1.5" />
-        <rect x="32" y="26" width="26" height="24" rx="3" fill="#10B981" stroke="#000000" strokeWidth="1.5" />
+        <rect x="32" y="26" width="24" height="24" rx="3" fill="#10B981" stroke="#000000" strokeWidth="1.5" />
         <circle cx="52" cy="18" r="10" fill="#000000" stroke="#ffffff" strokeWidth="2" />
         <text x="52" y="22" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="800" fontFamily="system-ui, -apple-system, sans-serif">%</text>
       </svg>
@@ -884,6 +920,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "boton-whatsapp":
+      return <BotonWhatsappPreview />;
     case "video-flotante":
       return <VideoFlotantePreview />;
     case "comparador-marca":
@@ -989,4 +1027,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-    }
+                   }
