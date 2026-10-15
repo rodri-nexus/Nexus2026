@@ -103,6 +103,9 @@ export default function VideoFlotanteEditor({
 
   const [animation, setAnimation] = useState(cfg.animation || 'pulse');
 
+  // Configuración de Carrito
+  const [openCart, setOpenCart] = useState<boolean>(cfg.openCart ?? true);
+
   const [ctaBgColor, setCtaBgColor] = useState(cfg.ctaBgColor || '#10B981');
   const [ctaTextColor, setCtaTextColor] = useState(cfg.ctaTextColor || '#ffffff');
   const [ctaRadius, setCtaRadius] = useState(cfg.ctaRadius ?? 12);
@@ -222,6 +225,7 @@ export default function VideoFlotanteEditor({
       closeIconColor,
       closeIconSize,
       animation,
+      openCart,
       ctaBgColor,
       ctaTextColor,
       ctaRadius,
@@ -624,7 +628,7 @@ export default function VideoFlotanteEditor({
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
               <input type="checkbox" checked={showPlayIcon} onChange={(e) => setShowPlayIcon(e.target.checked)} style={{ accentColor: '#10B981' }} />
               Mostrar ícono de play
@@ -633,6 +637,25 @@ export default function VideoFlotanteEditor({
               <input type="checkbox" checked={showCloseIcon} onChange={(e) => setShowCloseIcon(e.target.checked)} style={{ accentColor: '#10B981' }} />
               Mostrar botón de cerrar X
             </label>
+          </div>
+
+          <hr style={{ border: 'none', borderTop: '1px solid #E5E7EB', margin: '8px 0' }} />
+
+          <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#111827', margin: 0 }}>Comportamiento del Carrito</h3>
+
+          <div style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '12px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 700, color: '#111827', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={openCart}
+                onChange={(e) => setOpenCart(e.target.checked)}
+                style={{ accentColor: '#10B981', width: '16px', height: '16px' }}
+              />
+              🛒 Abrir el carrito automáticamente al hacer clic en &quot;Comprar ahora&quot;
+            </label>
+            <p style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px', marginLeft: '26px' }}>
+              Si está activado, agrega el producto al carrito y abre el menú lateral. Si está desactivado, solo agrega el producto en segundo plano.
+            </p>
           </div>
 
           <hr style={{ border: 'none', borderTop: '1px solid #E5E7EB', margin: '8px 0' }} />
@@ -704,4 +727,4 @@ export default function VideoFlotanteEditor({
       </div>
     </div>
   );
-  }
+                                               }
