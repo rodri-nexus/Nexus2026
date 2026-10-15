@@ -12545,31 +12545,32 @@ function renderVideoFlotante(w) {
 
     html += '</div>';
 
+    // MODAL CENTRADO ULTRA-CENTRAL
     var modalId = uniqueId + "-modal";
-    var modalHtml = '<div id="' + modalId + '" style="display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background-color: rgba(0,0,0,0.9) !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important; padding: 20px !important; box-sizing: border-box !important;">';
-    modalHtml += '<div style="position: relative !important; width: 100% !important; max-width: 380px !important; height: 85vh !important; max-height: 680px !important; background-color: #000000 !important; border-radius: 16px !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; box-shadow: 0 20px 50px rgba(0,0,0,0.6) !important;">';
+    var modalHtml = '<div id="' + modalId + '" style="display: none !important; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.85) !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important; padding: 12px !important; box-sizing: border-box !important;">';
+    modalHtml += '<div style="position: relative !important; width: 90% !important; max-width: 340px !important; height: 75vh !important; max-height: 560px !important; margin: auto !important; background-color: #000000 !important; border-radius: 16px !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important; border: 1px solid rgba(255,255,255,0.15) !important;">';
 
-    modalHtml += '<div id="' + modalId + '-close-btn" style="position: absolute !important; top: 12px !important; right: 12px !important; width: 34px !important; height: 34px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 16px !important; font-weight: bold !important; cursor: pointer !important; z-index: 20 !important;">✕</div>';
+    modalHtml += '<div id="' + modalId + '-close-btn" style="position: absolute !important; top: 10px !important; right: 10px !important; width: 32px !important; height: 32px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.7) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 16px !important; font-weight: bold !important; cursor: pointer !important; z-index: 25 !important; border: 1px solid rgba(255,255,255,0.3) !important;">✕</div>';
 
-    modalHtml += '<video id="' + modalId + '-player" src="' + (firstVid ? firstVid.url : "") + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important;" controls autoplay playsinline></video>';
+    modalHtml += '<video id="' + modalId + '-player" src="' + (firstVid ? firstVid.url : "") + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important;" controls autoplay playsinline></video>';
 
-    modalHtml += '<div style="position: absolute !important; bottom: 0 !important; left: 0 !important; right: 0 !important; padding: 16px !important; background: linear-gradient(transparent, rgba(0,0,0,0.95)) !important; display: flex !important; flex-direction: column !important; gap: 10px !important; z-index: 10 !important;">';
+    modalHtml += '<div style="position: absolute !important; bottom: 0 !important; left: 0 !important; right: 0 !important; padding: 12px 14px 14px 14px !important; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 70%, transparent 100%) !important; display: flex !important; flex-direction: column !important; gap: 8px !important; z-index: 10 !important; border-radius: 0 0 16px 16px !important;">';
 
     var initialTitle = firstVid && firstVid.title ? firstVid.title : "";
     var initialCtaText = firstVid && firstVid.buttonText ? firstVid.buttonText : "Comprar ahora";
 
-    modalHtml += '<div id="' + modalId + '-title" style="color: #ffffff !important; font-size: 15px !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;">' + initialTitle + '</div>';
+    modalHtml += '<div id="' + modalId + '-title" style="color: #ffffff !important; font-size: 14px !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important; line-height: 1.2 !important;">' + initialTitle + '</div>';
 
-    modalHtml += '<button id="' + modalId + '-cta" type="button" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 13px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; border: none !important; cursor: pointer !important; width: 100% !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important; font-family: inherit !important;">' + initialCtaText + '</button>';
+    modalHtml += '<button id="' + modalId + '-cta" type="button" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 12px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; border: none !important; cursor: pointer !important; width: 100% !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important; font-family: inherit !important;">' + initialCtaText + '</button>';
 
     modalHtml += '</div>';
 
     if (videos.length > 1) {
-      modalHtml += '<div style="position: absolute !important; top: 50% !important; left: 10px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
-      modalHtml += '<div id="' + modalId + '-prev" style="width: 36px !important; height: 36px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important;">‹</div>';
+      modalHtml += '<div style="position: absolute !important; top: 50% !important; left: 8px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
+      modalHtml += '<div id="' + modalId + '-prev" style="width: 34px !important; height: 34px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important; border: 1px solid rgba(255,255,255,0.2) !important;">‹</div>';
       modalHtml += '</div>';
-      modalHtml += '<div style="position: absolute !important; top: 50% !important; right: 10px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
-      modalHtml += '<div id="' + modalId + '-next" style="width: 36px !important; height: 36px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important;">›</div>';
+      modalHtml += '<div style="position: absolute !important; top: 50% !important; right: 8px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
+      modalHtml += '<div id="' + modalId + '-next" style="width: 34px !important; height: 34px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important; border: 1px solid rgba(255,255,255,0.2) !important;">›</div>';
       modalHtml += '</div>';
     }
 
@@ -12592,7 +12593,7 @@ function renderVideoFlotante(w) {
 
     var closeModal = function () {
       if (modalEl) {
-        modalEl.style.display = "none";
+        modalEl.style.setProperty("display", "none", "important");
       }
       if (playerEl) {
         try { playerEl.pause(); } catch (e) {}
@@ -12606,7 +12607,7 @@ function renderVideoFlotante(w) {
       var v = videos[idx];
       if (playerEl && v.url) {
         playerEl.src = v.url;
-        playerEl.play();
+        try { playerEl.play(); } catch (e1) {}
       }
       if (titleEl) titleEl.innerHTML = v.title || "";
       if (ctaEl) {
@@ -12626,7 +12627,7 @@ function renderVideoFlotante(w) {
       btnEl.addEventListener("click", function (e) {
         if (closeEl && e.target === closeEl) return;
         if (modalEl) {
-          modalEl.style.display = "flex";
+          modalEl.style.setProperty("display", "flex", "important");
           if (playerEl) {
             try { playerEl.play(); } catch (e2) {}
           }
@@ -12672,16 +12673,16 @@ function renderVideoFlotante(w) {
         var currentVid = videos[currentIdx] || {};
         var customUrl = (currentVid.buttonUrl || "").trim();
 
-        // 1. CERRAR MODAL YA (evita el overlay negro pegado)
+        // 1. Cerrar el modal
         closeModal();
 
-        // Si el CTA tiene un link externo real, redirigir
+        // Link personalizado
         if (customUrl && customUrl !== "#" && customUrl.indexOf("http") === 0) {
           window.location.href = customUrl;
           return;
         }
 
-        // Detectar variante / producto actual
+        // Detectar variante / producto
         var prod = (window.LS && window.LS.product) ? window.LS.product : null;
         var varInput = document.querySelector("form[action*='/cart/add'] input[name='variant_id'], form[action*='/cart/add'] select[name='variant_id'], [name='variant_id']");
         var activeVarId = null;
@@ -12700,7 +12701,6 @@ function renderVideoFlotante(w) {
 
         var itemId = activeVarId || activeProdId;
         if (!itemId) {
-          // Último recurso: clickear el botón nativo de la tienda
           var nativeBtn = document.querySelector("form[action*='/cart/add'] [type='submit'], .js-addtocart, .js-product-form .btn, button[name='add']");
           if (nativeBtn) {
             nativeBtn.click();
@@ -12708,14 +12708,13 @@ function renderVideoFlotante(w) {
           return;
         }
 
-        // 2. NubeSDK oficial
+        // NubeSDK
         if (window.nube && typeof window.nube.send === "function") {
           try {
             window.nube.send("cart:add", {
               id: Number(itemId) || itemId,
               quantity: qty
             });
-            // Pequeño delay para que el modal termine de cerrarse visualmente
             setTimeout(function () {
               try {
                 window.nube.send("cart:open");
@@ -12725,7 +12724,7 @@ function renderVideoFlotante(w) {
           } catch (e4) {}
         }
 
-        // 3. Fallback POST /comprar/
+        // Fallback POST
         var formData = new FormData();
         formData.append("add_to_cart", activeProdId || itemId);
         if (activeVarId) formData.append("variant_id", activeVarId);
@@ -12753,5 +12752,5 @@ function renderVideoFlotante(w) {
       window.console.warn("[Nevux] renderVideoFlotante error:", err);
     }
   }
-      }
+}
 })(); 
