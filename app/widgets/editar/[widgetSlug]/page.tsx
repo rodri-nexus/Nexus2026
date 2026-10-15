@@ -39,6 +39,7 @@ import ColumnasImagenesTextoEditor from '@/components/widgets/editors/ColumnasIm
 import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaEditor';
 import VideoFlotanteEditor from '@/components/widgets/editors/VideoFlotanteEditor';
 import BotonWhatsappEditor from '@/components/widgets/editors/BotonWhatsappEditor';
+import RaspaGanaEditor from '@/components/widgets/editors/RaspaGanaEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -145,6 +146,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: RASPÁ Y GANÁ
+  if (params.widgetSlug === 'raspa-gana') {
+    return <RaspaGanaEditor {...editorProps} />;
+  }
 
   // WIDGET: BOTÓN DE WHATSAPP
   if (params.widgetSlug === 'boton-whatsapp') {
