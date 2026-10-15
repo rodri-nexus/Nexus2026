@@ -8,6 +8,38 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function RaspaGanaPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎟️ RASPÁ Y GANÁ</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          POPUP
+        </span>
+      </div>
+
+      <div style={{ background: "#111827", borderRadius: "6px", padding: "6px", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+        <div style={{ fontSize: "7px", fontWeight: 900, color: "#10B981" }}>Raspá y ganá</div>
+        <div style={{ background: "#F59E0B", color: "#ffffff", borderRadius: "4px", padding: "4px 10px", fontSize: "6.5px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          RASPÁ ACÁ
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BotonWhatsappPreview() {
   return (
     <div
@@ -920,6 +952,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "raspa-gana":
+      return <RaspaGanaPreview />;
     case "boton-whatsapp":
       return <BotonWhatsappPreview />;
     case "video-flotante":
@@ -1027,4 +1061,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-                   }
+      }
