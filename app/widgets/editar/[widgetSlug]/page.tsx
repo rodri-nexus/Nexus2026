@@ -37,6 +37,7 @@ import PestanasInformacionEditor from '@/components/widgets/editors/PestanasInfo
 import ImagenesTextosEditor from '@/components/widgets/editors/ImagenesTextosEditor';
 import ColumnasImagenesTextoEditor from '@/components/widgets/editors/ColumnasImagenesTextoEditor';
 import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaEditor';
+import VideoFlotanteEditor from '@/components/widgets/editors/VideoFlotanteEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -143,6 +144,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: VIDEO FLOTANTE
+  if (params.widgetSlug === 'video-flotante') {
+    return <VideoFlotanteEditor {...editorProps} />;
+  }
 
   // WIDGET: COMPARADOR DE MARCA
   if (params.widgetSlug === 'comparador-marca') {
