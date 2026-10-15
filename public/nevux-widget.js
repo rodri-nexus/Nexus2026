@@ -12778,29 +12778,49 @@ function renderBotonWhatsapp(w) {
   }
         }
 /* ═══════════════════════════════════════════
-   WIDGET #40: RASPÁ Y GANÁ
+   WIDGET #40: RASPÁ Y GANÁ (v375 - Alineado Ruleta)
    ═══════════════════════════════════════════ */
 function renderRaspaGana(w) {
   try {
-    var cfg = w.config || {};
-    var uniqueId = "nvx-raspa-gana-" + (w.id || Math.random().toString(36).substring(7));
-    if (document.getElementById(uniqueId)) return;
+    var elementId = "nvx-raspa-" + w.id;
+    if (document.getElementById(elementId)) return;
 
-    var storeId = w.store_id || "";
+    var cfg = w.config || {};
+    var freq = cfg.frequency || "once-visit";
+    var storageKey = "nvx_raspa_seen_" + w.id;
+
+    // Frecuencia (espejo Ruleta)
+    try {
+      if (freq === "once-visit" && window.sessionStorage && window.sessionStorage.getItem(storageKey)) {
+        return;
+      }
+      if (freq === "once-day" && window.localStorage) {
+        var lastSeen = window.localStorage.getItem(storageKey);
+        if (lastSeen && (new Date().getTime() - parseInt(lastSeen, 10) < 86400000)) {
+          return;
+        }
+      }
+      if (freq === "once_per_visitor" && window.localStorage && window.localStorage.getItem(storageKey)) {
+        return;
+      }
+      if (freq === "once_per_session" && window.sessionStorage && window.sessionStorage.getItem(storageKey)) {
+        return;
+      }
+    } catch (eFreq) {}
+
     var title = cfg.title || "Raspá y ganá";
     var subtitle = cfg.subtitle || "Rascá abajo para ver tu premio";
     var scratchText = cfg.scratchText || "RASPÁ Y GANÁ";
     var btnText = cfg.btnText || "Reclamar premio";
     var legalText = cfg.legalText || "";
     var headerImg = cfg.headerImg || "";
-
     var trigger = cfg.trigger || "enter";
-    var frequency = cfg.frequency || "once-visit";
     var collectEmail = cfg.collectEmail !== false;
     var showFloatingBtn = cfg.showFloatingBtn !== false;
+    var storeId = w.store_id || "";
 
     var coupons = Array.isArray(cfg.coupons) && cfg.coupons.length > 0 ? cfg.coupons : [
-      { id: "c1", title: "🎉 20% OFF", code: "GANADOR20", prob: 100 }
+      { id: "c1", title: "20% OFF", code: "GANADOR20", prob: 100 }
     ];
 
     var bgColor = cfg.bgColor || "#111827";
@@ -12809,150 +12829,272 @@ function renderRaspaGana(w) {
     var btnBg = cfg.btnBg || "#10B981";
     var btnTextCol = cfg.btnTextCol || "#ffffff";
     var scratchBg = cfg.scratchBg || "#F59E0B";
-
     var titleSize = cfg.titleSize || 24;
     var subtitleSize = cfg.subtitleSize || 14;
 
-    var campaignTheme = cfg.campaignTheme || "none";
-    if (campaignTheme && campaignTheme !== "none") {
-      if (campaignTheme === "black-friday") { bgColor = "#F59E0B"; titleColor = "#111827"; textColor = "#111827"; btnBg = "#111827"; btnTextCol = "#ffffff"; }
-      else if (campaignTheme === "hot-sale") { bgColor = "#EF4444"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#ffffff"; btnTextCol = "#111827"; }
-      else if (campaignTheme === "cyber-monday") { bgColor = "#3B82F6"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#ffffff"; btnTextCol = "#111827"; }
-      else if (campaignTheme === "navidad") { bgColor = "#064E3B"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#EF4444"; btnTextCol = "#ffffff"; }
-      else if (campaignTheme === "san-valentin") { bgColor = "#831843"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#F43F5E"; btnTextCol = "#ffffff"; }
-      else if (campaignTheme === "dia-padre-madre") { bgColor = "#312E81"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#10B981"; btnTextCol = "#ffffff"; }
-      else if (campaignTheme === "liquidacion") { bgColor = "#7F1D1D"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#FBBF24"; btnTextCol = "#111827"; }
-    }
-
-    // Frecuencia
-    var storageKey = "nvx_raspa_" + (w.id || "def");
-    var isAlreadySeen = false;
-    if (frequency === "once-visit" && sessionStorage.getItem(storageKey)) {
-      isAlreadySeen = true;
-    } else if (frequency === "once-day") {
-      var lastSeen = localStorage.getItem(storageKey);
-      if (lastSeen && (new Date().getTime() - parseInt(lastSeen, 10) < 86400000)) {
-        isAlreadySeen = true;
+    // Presets de campaña (misma paleta que Ruleta)
+    if (cfg.campaignTheme && cfg.campaignTheme !== "none") {
+      if (cfg.campaignTheme === "black-friday") {
+        bgColor = "#111827"; titleColor = "#F59E0B"; textColor = "#ffffff"; btnBg = "#F59E0B"; btnTextCol = "#111827";
+      } else if (cfg.campaignTheme === "hot-sale") {
+        bgColor = "#0F172A"; titleColor = "#EF4444"; textColor = "#ffffff"; btnBg = "#EF4444"; btnTextCol = "#ffffff";
+      } else if (cfg.campaignTheme === "cyber-monday") {
+        bgColor = "#090D16"; titleColor = "#3B82F6"; textColor = "#ffffff"; btnBg = "#3B82F6"; btnTextCol = "#ffffff";
+      } else if (cfg.campaignTheme === "navidad") {
+        bgColor = "#064E3B"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#EF4444"; btnTextCol = "#ffffff";
+      } else if (cfg.campaignTheme === "san-valentin") {
+        bgColor = "#831843"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#F43F5E"; btnTextCol = "#ffffff";
+      } else if (cfg.campaignTheme === "dia-padre-madre") {
+        bgColor = "#312E81"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#10B981"; btnTextCol = "#ffffff";
+      } else if (cfg.campaignTheme === "liquidacion") {
+        bgColor = "#7F1D1D"; titleColor = "#ffffff"; textColor = "#ffffff"; btnBg = "#FBBF24"; btnTextCol = "#111827";
       }
     }
 
-    // Seleccionar cupón ganador
+    // Cupón ganador por probabilidad acumulada
     var rand = Math.floor(Math.random() * 100) + 1;
     var cum = 0;
     var winner = coupons[0];
-    for (var i = 0; i < coupons.length; i++) {
-      cum += (parseInt(coupons[i].prob, 10) || 0);
+    for (var ci = 0; ci < coupons.length; ci++) {
+      cum += (parseInt(coupons[ci].prob, 10) || 0);
       if (rand <= cum) {
-        winner = coupons[i];
+        winner = coupons[ci];
         break;
       }
     }
 
-    var container = document.createElement("div");
-    container.id = uniqueId;
-    container.setAttribute("data-nevux-widget", "raspa-gana");
+    var winnerTitle = winner.title || "Premio";
+    var winnerCode = winner.code || "PREMIO";
 
-    var cssStyle = '<style>' +
-      'html body #' + uniqueId + ' .nvx-raspa-overlay {' +
-      '  position: fixed !important;' +
-      '  top: 0 !important;' +
-      '  left: 0 !important;' +
-      '  width: 100vw !important;' +
-      '  height: 100vh !important;' +
-      '  background: rgba(0,0,0,0.75) !important;' +
-      '  z-index: 999999 !important;' +
-      '  display: none !important;' +
-      '  align-items: center !important;' +
-      '  justify-content: center !important;' +
-      '  padding: 16px !important;' +
-      '  box-sizing: border-box !important;' +
-      '  backdrop-filter: blur(4px) !important;' +
-      '}' +
-      'html body #' + uniqueId + ' .nvx-raspa-modal {' +
-      '  background: ' + bgColor + ' !important;' +
-      '  color: ' + textColor + ' !important;' +
-      '  width: 100% !important;' +
-      '  max-width: 380px !important;' +
-      '  border-radius: 16px !important;' +
-      '  padding: 24px !important;' +
-      '  box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;' +
-      '  text-align: center !important;' +
-      '  position: relative !important;' +
-      '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;' +
-      '  box-sizing: border-box !important;' +
-      '}' +
-      '</style>';
+    function markAsSeen() {
+      try {
+        if (freq === "once-visit" || freq === "once_per_session") {
+          if (window.sessionStorage) window.sessionStorage.setItem(storageKey, "1");
+        } else if (freq === "once-day") {
+          if (window.localStorage) window.localStorage.setItem(storageKey, String(new Date().getTime()));
+        } else if (freq === "once_per_visitor") {
+          if (window.localStorage) window.localStorage.setItem(storageKey, "1");
+        }
+      } catch (eMark) {}
+    }
 
-    var html = cssStyle + '<div class="nvx-raspa-overlay" id="' + uniqueId + '-overlay">';
-    html += '<div class="nvx-raspa-modal">';
-    html += '<button id="' + uniqueId + '-close" style="position: absolute !important; top: 12px !important; right: 12px !important; background: none !important; border: none !important; color: ' + textColor + ' !important; opacity: 0.7 !important; font-size: 20px !important; cursor: pointer !important; line-height: 1 !important;">✕</button>';
+    function esc(str) {
+      if (typeof escapeHtml === "function") return escapeHtml(String(str || ""));
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
 
+    // CSS (mismo patrón Ruleta)
+    var styleId = "style-" + elementId;
+    if (!document.getElementById(styleId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.type = "text/css";
+      var css =
+        "#" + elementId + " {" +
+          "position: fixed !important;" +
+          "top: 0 !important; left: 0 !important;" +
+          "width: 100vw !important; height: 100vh !important;" +
+          "background: rgba(0,0,0,0.75) !important;" +
+          "backdrop-filter: blur(5px) !important;" +
+          "-webkit-backdrop-filter: blur(5px) !important;" +
+          "z-index: 9999999 !important;" +
+          "display: none !important;" +
+          "align-items: center !important;" +
+          "justify-content: center !important;" +
+          "padding: 16px !important;" +
+          "box-sizing: border-box !important;" +
+          "font-family: system-ui, -apple-system, sans-serif !important;" +
+        "}" +
+        "#" + elementId + ".nvx-raspa-open {" +
+          "display: flex !important;" +
+        "}" +
+        "#" + elementId + " .nvx-raspa-card {" +
+          "background: " + bgColor + " !important;" +
+          "color: " + textColor + " !important;" +
+          "border-radius: 20px !important;" +
+          "padding: 22px 18px !important;" +
+          "max-width: 380px !important;" +
+          "width: 100% !important;" +
+          "text-align: center !important;" +
+          "position: relative !important;" +
+          "box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4) !important;" +
+          "box-sizing: border-box !important;" +
+          "animation: nvxRaspaPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;" +
+        "}" +
+        "@keyframes nvxRaspaPopIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }" +
+        "#" + elementId + " .nvx-raspa-close {" +
+          "position: absolute !important; top: 12px !important; right: 14px !important;" +
+          "font-size: 18px !important; cursor: pointer !important; opacity: 0.6 !important;" +
+          "font-weight: 800 !important; border: none !important; background: none !important;" +
+          "color: " + textColor + " !important; line-height: 1 !important;" +
+        "}" +
+        "#" + elementId + " .nvx-raspa-close:hover { opacity: 1 !important; }" +
+        "#" + elementId + " .nvx-raspa-input {" +
+          "width: 100% !important; padding: 12px 14px !important; font-size: 14px !important;" +
+          "border: 1.5px solid #e5e7eb !important; border-radius: 12px !important;" +
+          "margin-bottom: 10px !important; box-sizing: border-box !important;" +
+          "text-align: center !important; outline: none !important; color: #111827 !important;" +
+          "background: #ffffff !important;" +
+        "}" +
+        "#" + elementId + " .nvx-raspa-btn {" +
+          "width: 100% !important; background: " + btnBg + " !important; color: " + btnTextCol + " !important;" +
+          "border: none !important; border-radius: 12px !important; padding: 14px !important;" +
+          "font-size: 15px !important; font-weight: 800 !important; cursor: pointer !important;" +
+          "box-shadow: 0 4px 14px rgba(0,0,0,0.15) !important;" +
+        "}" +
+        "#" + elementId + " .nvx-raspa-coupon {" +
+          "background: rgba(16,185,129,0.08) !important; border: 2px dashed " + btnBg + " !important;" +
+          "border-radius: 14px !important; padding: 14px !important; margin: 10px 0 !important;" +
+        "}" +
+        "#" + elementId + "-float {" +
+          "position: fixed !important; bottom: 20px !important; left: 20px !important;" +
+          "width: 52px !important; height: 52px !important; border-radius: 50% !important;" +
+          "background: " + btnBg + " !important; color: #ffffff !important;" +
+          "display: flex !important; align-items: center !important; justify-content: center !important;" +
+          "font-size: 22px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;" +
+          "cursor: pointer !important; z-index: 999990 !important;" +
+        "}";
+      styleEl.appendChild(document.createTextNode(css));
+      document.head.appendChild(styleEl);
+    }
+
+    // Handlers globales (mismo patrón Ruleta)
+    window["nvxCloseRaspa_" + w.id] = function () {
+      markAsSeen();
+      var el = document.getElementById(elementId);
+      if (el) el.className = el.className.replace(" nvx-raspa-open", "").replace("nvx-raspa-open", "");
+    };
+
+    window["nvxOpenRaspa_" + w.id] = function () {
+      var el = document.getElementById(elementId);
+      if (el) {
+        if (el.className.indexOf("nvx-raspa-open") === -1) {
+          el.className = (el.className ? el.className + " " : "") + "nvx-raspa-open";
+        }
+      }
+    };
+
+    window["nvxClaimRaspa_" + w.id] = function () {
+      var emailInput = document.getElementById(elementId + "-email");
+      var email = emailInput ? String(emailInput.value || "").trim() : "";
+      if (!email || email.indexOf("@") === -1) {
+        if (emailInput) {
+          emailInput.style.borderColor = "#ef4444";
+          emailInput.focus();
+        }
+        return;
+      }
+
+      // Intento de notificación (best-effort). No rompe si falla.
+      try {
+        fetch("https://nevux.ar/api/social-proof", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            store_id: storeId,
+            type: "raspa_lead",
+            email: email,
+            coupon: winnerCode,
+            prize: winnerTitle
+          })
+        }).catch(function () {});
+      } catch (eSend) {}
+
+      var emailStep = document.getElementById(elementId + "-email-step");
+      var copyStep = document.getElementById(elementId + "-copy-step");
+      if (emailStep) emailStep.style.display = "none";
+      if (copyStep) copyStep.style.display = "block";
+      markAsSeen();
+    };
+
+    window["nvxCopyRaspa_" + w.id] = function (btn) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(winnerCode);
+        }
+      } catch (eCopy) {}
+      if (btn) {
+        var prev = btn.innerHTML;
+        btn.innerHTML = "¡Copiado al portapapeles! ✓";
+        setTimeout(function () {
+          btn.innerHTML = prev;
+          window["nvxCloseRaspa_" + w.id]();
+        }, 1400);
+      } else {
+        window["nvxCloseRaspa_" + w.id]();
+      }
+    };
+
+    // Overlay + Card HTML
+    var popupOverlay = document.createElement("div");
+    popupOverlay.id = elementId;
+    popupOverlay.setAttribute("data-nevux-widget", "raspa-gana");
+
+    var headerHtml = "";
     if (headerImg) {
-      html += '<img src="' + headerImg + '" style="max-width: 100% !important; max-height: 90px !important; object-fit: contain !important; margin-bottom: 12px !important; border-radius: 8px !important;" />';
+      headerHtml = '<img src="' + esc(headerImg) + '" alt="" style="max-width:100% !important;max-height:90px !important;object-fit:contain !important;margin-bottom:12px !important;border-radius:8px !important;" />';
     }
 
-    html += '<div style="font-size: ' + titleSize + 'px !important; font-weight: 900 !important; color: ' + titleColor + ' !important; margin-bottom: 6px !important; line-height: 1.2 !important;">' + title + '</div>';
-    html += '<div style="font-size: ' + subtitleSize + 'px !important; opacity: 0.9 !important; margin-bottom: 16px !important; line-height: 1.3 !important;">' + subtitle + '</div>';
+    var legalHtml = legalText
+      ? '<div style="font-size:10px !important;opacity:0.6 !important;margin-top:12px !important;line-height:1.3 !important;">' + esc(legalText) + '</div>'
+      : "";
 
-    // Canvas + Box
-    html += '<div style="position: relative !important; width: 280px !important; height: 130px !important; margin: 0 auto 16px auto !important; border-radius: 12px !important; overflow: hidden !important; box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;">';
-    html += '<div style="position: absolute !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: #ffffff !important; color: #111827 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 10px !important; box-sizing: border-box !important; border: 2px dashed ' + btnBg + ' !important; border-radius: 12px !important;">';
-    html += '<div style="font-size: 18px !important; font-weight: 900 !important; color: #10B981 !important; margin-bottom: 4px !important;">' + winner.title + '</div>';
-    html += '<div style="font-size: 11px !important; color: #6B7280 !important;">CÓDIGO DE CUPÓN:</div>';
-    html += '<div style="font-size: 16px !important; font-weight: 900 !important; letter-spacing: 1px !important; color: #111827 !important; background: #F3F4F6 !important; padding: 4px 12px !important; border-radius: 6px !important; margin-top: 2px !important;">' + winner.code + '</div>';
-    html += '</div>';
-
-    html += '<canvas id="' + uniqueId + '-canvas" width="280" height="130" style="position: absolute !important; top: 0 !important; left: 0 !important; width: 280px !important; height: 130px !important; cursor: pointer !important; border-radius: 12px !important; z-index: 2 !important;"></canvas>';
-    html += '</div>';
-
-    // Acciones
-    html += '<div id="' + uniqueId + '-action-zone">';
+    var emailBlock = "";
     if (collectEmail) {
-      html += '<div id="' + uniqueId + '-email-step" style="display: none !important; flex-direction: column !important; gap: 8px !important;">';
-      html += '<div style="font-size: 12px !important; font-weight: 700 !important;">¡Felicidades! Ingresá tu email para desbloquear tu cupón:</div>';
-      html += '<input type="email" id="' + uniqueId + '-email-input" placeholder="Tu correo electrónico..." style="width: 100% !important; padding: 12px !important; border-radius: 8px !important; border: 1px solid #D1D5DB !important; font-size: 13px !important; box-sizing: border-box !important; color: #111827 !important; background: #ffffff !important;" />';
-      html += '<button id="' + uniqueId + '-claim-btn" style="width: 100% !important; padding: 12px !important; background: ' + btnBg + ' !important; color: ' + btnTextCol + ' !important; border: none !important; border-radius: 8px !important; font-size: 14px !important; font-weight: 800 !important; cursor: pointer !important;">' + btnText + '</button>';
-      html += '</div>';
-
-      html += '<div id="' + uniqueId + '-copy-step" style="display: none !important; flex-direction: column !important; gap: 8px !important;">';
-      html += '<button id="' + uniqueId + '-copy-btn" style="width: 100% !important; padding: 12px !important; background: ' + btnBg + ' !important; color: ' + btnTextCol + ' !important; border: none !important; border-radius: 8px !important; font-size: 14px !important; font-weight: 800 !important; cursor: pointer !important;">📋 Copiar Código y Usar</button>';
-      html += '</div>';
-
-      html += '<div id="' + uniqueId + '-hint" style="font-size: 12px !important; opacity: 0.8 !important;">✨ ¡Rascá con tu dedo o mouse la tarjeta arriba!</div>';
+      emailBlock =
+        '<div id="' + elementId + '-email-step" style="display:none !important;">' +
+          '<div style="font-size:12px !important;font-weight:700 !important;margin-bottom:8px !important;">¡Felicidades! Ingresá tu email para desbloquear el cupón:</div>' +
+          '<input type="email" id="' + elementId + '-email" class="nvx-raspa-input" placeholder="Tu correo electrónico..." />' +
+          '<button type="button" class="nvx-raspa-btn" onclick="window[\'nvxClaimRaspa_' + w.id + '\']();">' + esc(btnText) + '</button>' +
+        '</div>' +
+        '<div id="' + elementId + '-copy-step" style="display:none !important;">' +
+          '<div class="nvx-raspa-coupon">' +
+            '<div style="font-size:11px !important;opacity:0.7 !important;margin-bottom:4px !important;">Tu cupón</div>' +
+            '<div style="font-size:22px !important;font-weight:900 !important;letter-spacing:1px !important;color:' + btnBg + ' !important;font-family:monospace !important;">' + esc(winnerCode) + '</div>' +
+            '<div style="font-size:12px !important;font-weight:700 !important;margin-top:6px !important;">' + esc(winnerTitle) + '</div>' +
+          '</div>' +
+          '<button type="button" class="nvx-raspa-btn" onclick="window[\'nvxCopyRaspa_' + w.id + '\'](this);">📋 Copiar Código y Usar</button>' +
+        '</div>' +
+        '<div id="' + elementId + '-hint" style="font-size:12px !important;opacity:0.85 !important;">✨ ¡Rascá con tu dedo o mouse la tarjeta arriba!</div>';
     } else {
-      html += '<div id="' + uniqueId + '-copy-step" style="display: none !important; flex-direction: column !important; gap: 8px !important;">';
-      html += '<button id="' + uniqueId + '-copy-btn" style="width: 100% !important; padding: 12px !important; background: ' + btnBg + ' !important; color: ' + btnTextCol + ' !important; border: none !important; border-radius: 8px !important; font-size: 14px !important; font-weight: 800 !important; cursor: pointer !important;">📋 Copiar Código y Usar</button>';
-      html += '</div>';
-      html += '<div id="' + uniqueId + '-hint" style="font-size: 12px !important; opacity: 0.8 !important;">✨ ¡Rascá con tu dedo o mouse la tarjeta arriba!</div>';
+      emailBlock =
+        '<div id="' + elementId + '-copy-step" style="display:none !important;">' +
+          '<div class="nvx-raspa-coupon">' +
+            '<div style="font-size:11px !important;opacity:0.7 !important;margin-bottom:4px !important;">Tu cupón</div>' +
+            '<div style="font-size:22px !important;font-weight:900 !important;letter-spacing:1px !important;color:' + btnBg + ' !important;font-family:monospace !important;">' + esc(winnerCode) + '</div>' +
+            '<div style="font-size:12px !important;font-weight:700 !important;margin-top:6px !important;">' + esc(winnerTitle) + '</div>' +
+          '</div>' +
+          '<button type="button" class="nvx-raspa-btn" onclick="window[\'nvxCopyRaspa_' + w.id + '\'](this);">📋 Copiar Código y Usar</button>' +
+        '</div>' +
+        '<div id="' + elementId + '-hint" style="font-size:12px !important;opacity:0.85 !important;">✨ ¡Rascá con tu dedo o mouse la tarjeta arriba!</div>';
     }
-    html += '</div>';
 
-    if (legalText) {
-      html += '<div style="font-size: 10px !important; opacity: 0.6 !important; margin-top: 12px !important;">' + legalText + '</div>';
-    }
+    popupOverlay.innerHTML =
+      '<div class="nvx-raspa-card">' +
+        '<button type="button" class="nvx-raspa-close" onclick="window[\'nvxCloseRaspa_' + w.id + '\']();">✕</button>' +
+        headerHtml +
+        '<div style="font-size:' + titleSize + 'px !important;font-weight:900 !important;color:' + titleColor + ' !important;margin-bottom:6px !important;line-height:1.2 !important;">' + esc(title) + '</div>' +
+        '<div style="font-size:' + subtitleSize + 'px !important;opacity:0.9 !important;margin-bottom:14px !important;line-height:1.35 !important;">' + esc(subtitle) + '</div>' +
+        '<div style="position:relative !important;width:280px !important;height:130px !important;margin:0 auto 16px auto !important;border-radius:12px !important;overflow:hidden !important;box-shadow:0 4px 12px rgba(0,0,0,0.2) !important;">' +
+          '<div style="position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:100% !important;background:#ffffff !important;color:#111827 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;padding:10px !important;box-sizing:border-box !important;border:2px dashed ' + btnBg + ' !important;border-radius:12px !important;">' +
+            '<div style="font-size:18px !important;font-weight:900 !important;color:#10B981 !important;margin-bottom:4px !important;">' + esc(winnerTitle) + '</div>' +
+            '<div style="font-size:11px !important;color:#6B7280 !important;">CÓDIGO DE CUPÓN</div>' +
+            '<div style="font-size:16px !important;font-weight:900 !important;letter-spacing:1px !important;color:#111827 !important;background:#F3F4F6 !important;padding:4px 12px !important;border-radius:6px !important;margin-top:2px !important;font-family:monospace !important;">' + esc(winnerCode) + '</div>' +
+          '</div>' +
+          '<canvas id="' + elementId + '-canvas" width="280" height="130" style="position:absolute !important;top:0 !important;left:0 !important;width:280px !important;height:130px !important;cursor:pointer !important;border-radius:12px !important;z-index:2 !important;"></canvas>' +
+        '</div>' +
+        emailBlock +
+        legalHtml +
+      '</div>';
 
-    html += '</div></div>';
+    document.body.appendChild(popupOverlay);
 
-    container.innerHTML = html;
-    document.body.appendChild(container);
-
-    var overlay = document.getElementById(uniqueId + "-overlay");
-    var canvas = document.getElementById(uniqueId + "-canvas");
-
-    var showModal = function() {
-      if (!overlay) return;
-      overlay.style.display = "flex";
-      if (frequency === "once-visit") sessionStorage.setItem(storageKey, "true");
-      if (frequency === "once-day") localStorage.setItem(storageKey, new Date().getTime().toString());
-    };
-
-    var hideModal = function() {
-      if (overlay) overlay.style.display = "none";
-    };
-
-    var closeBtn = document.getElementById(uniqueId + "-close");
-    if (closeBtn) closeBtn.onclick = hideModal;
-
+    // Canvas raspadita
+    var canvas = document.getElementById(elementId + "-canvas");
     if (canvas) {
       var ctx = canvas.getContext("2d");
       var isScratching = false;
@@ -12961,13 +13103,12 @@ function renderRaspaGana(w) {
 
       ctx.fillStyle = scratchBg;
       ctx.fillRect(0, 0, 280, 130);
-
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 16px system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(scratchText, 140, 70);
 
-      var scratch = function(x, y) {
+      var scratchAt = function (x, y) {
         ctx.globalCompositeOperation = "destination-out";
         ctx.beginPath();
         ctx.arc(x, y, 18, 0, Math.PI * 2);
@@ -12978,23 +13119,24 @@ function renderRaspaGana(w) {
           isRevealed = true;
           canvas.style.transition = "opacity 0.4s ease";
           canvas.style.opacity = "0";
-          setTimeout(function() {
+          setTimeout(function () {
             canvas.style.display = "none";
-            var hint = document.getElementById(uniqueId + "-hint");
+            var hint = document.getElementById(elementId + "-hint");
             if (hint) hint.style.display = "none";
-            
+
             if (collectEmail) {
-              var emailStep = document.getElementById(uniqueId + "-email-step");
-              if (emailStep) emailStep.style.display = "flex";
+              var emailStep = document.getElementById(elementId + "-email-step");
+              if (emailStep) emailStep.style.display = "block";
             } else {
-              var copyStep = document.getElementById(uniqueId + "-copy-step");
-              if (copyStep) copyStep.style.display = "flex";
+              var copyStep = document.getElementById(elementId + "-copy-step");
+              if (copyStep) copyStep.style.display = "block";
+              markAsSeen();
             }
           }, 400);
         }
       };
 
-      var getCoords = function(e) {
+      var getCoords = function (e) {
         var rect = canvas.getBoundingClientRect();
         var clientX = e.touches ? e.touches[0].clientX : e.clientX;
         var clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -13004,97 +13146,77 @@ function renderRaspaGana(w) {
         };
       };
 
-      canvas.addEventListener("mousedown", function(e) { isScratching = true; var c = getCoords(e); scratch(c.x, c.y); });
-      canvas.addEventListener("mousemove", function(e) { if (isScratching) { var c = getCoords(e); scratch(c.x, c.y); } });
-      window.addEventListener("mouseup", function() { isScratching = false; });
+      canvas.addEventListener("mousedown", function (e) {
+        isScratching = true;
+        var c = getCoords(e);
+        scratchAt(c.x, c.y);
+      });
+      canvas.addEventListener("mousemove", function (e) {
+        if (!isScratching) return;
+        var c = getCoords(e);
+        scratchAt(c.x, c.y);
+      });
+      window.addEventListener("mouseup", function () { isScratching = false; });
 
-      canvas.addEventListener("touchstart", function(e) { isScratching = true; var c = getCoords(e); scratch(c.x, c.y); }, { passive: true });
-      canvas.addEventListener("touchmove", function(e) { if (isScratching) { var c = getCoords(e); scratch(c.x, c.y); } }, { passive: true });
-      window.addEventListener("touchend", function() { isScratching = false; });
+      canvas.addEventListener("touchstart", function (e) {
+        isScratching = true;
+        var c = getCoords(e);
+        scratchAt(c.x, c.y);
+      }, { passive: true });
+      canvas.addEventListener("touchmove", function (e) {
+        if (!isScratching) return;
+        var c = getCoords(e);
+        scratchAt(c.x, c.y);
+      }, { passive: true });
+      window.addEventListener("touchend", function () { isScratching = false; });
     }
 
-    var claimBtn = document.getElementById(uniqueId + "-claim-btn");
-    if (claimBtn) {
-      claimBtn.onclick = function() {
-        var emailInput = document.getElementById(uniqueId + "-email-input");
-        var email = emailInput ? emailInput.value.trim() : "";
-        if (!email || email.indexOf("@") === -1) {
-          alert("Por favor ingresá un email válido.");
-          return;
-        }
-
-        try {
-          fetch("https://nevux.ar/api/social-proof", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              store_id: storeId,
-              type: "raspa_lead",
-              email: email,
-              coupon: winner.code
-            })
-          }).catch(function(){});
-        } catch (e) {}
-
-        var emailStep = document.getElementById(uniqueId + "-email-step");
-        if (emailStep) emailStep.style.display = "none";
-        var copyStep = document.getElementById(uniqueId + "-copy-step");
-        if (copyStep) copyStep.style.display = "flex";
-      };
-    }
-
-    var copyBtn = document.getElementById(uniqueId + "-copy-btn");
-    if (copyBtn) {
-      copyBtn.onclick = function() {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(winner.code);
-        }
-        copyBtn.innerText = "¡Código Copiado! 🎉";
-        copyBtn.style.backgroundColor = "#059669";
-        setTimeout(function() {
-          hideModal();
-        }, 1200);
-      };
-    }
-
-    // Triggers si no fue visto previamente
-    if (!isAlreadySeen) {
-      if (trigger === "enter") {
-        setTimeout(showModal, 600);
-      } else if (trigger === "delay-5") {
-        setTimeout(showModal, 5000);
-      } else if (trigger === "delay-10") {
-        setTimeout(showModal, 10000);
-      } else if (trigger === "scroll-50") {
-        var onScroll = function() {
-          var scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-          if (scrolled >= 0.5) {
-            showModal();
-            window.removeEventListener("scroll", onScroll);
-          }
-        };
-        window.addEventListener("scroll", onScroll);
-      } else if (trigger === "exit-intent") {
-        var onExit = function(e) {
-          if (e.clientY <= 10) {
-            showModal();
-            document.removeEventListener("mouseleave", onExit);
-          }
-        };
-        document.addEventListener("mouseleave", onExit);
+    // Triggers de apertura
+    var openPopup = function () {
+      window["nvxOpenRaspa_" + w.id]();
+      if (typeof nvxTrack === "function") {
+        nvxTrack(w.id, "impression");
       }
+    };
+
+    if (trigger === "enter") {
+      setTimeout(openPopup, 600);
+    } else if (trigger === "delay-5") {
+      setTimeout(openPopup, 5000);
+    } else if (trigger === "delay-10") {
+      setTimeout(openPopup, 10000);
+    } else if (trigger === "scroll-50") {
+      var onScroll = function () {
+        var denom = document.documentElement.scrollHeight - window.innerHeight;
+        var scrolled = denom > 0 ? (window.scrollY / denom) : 0;
+        if (scrolled >= 0.5) {
+          openPopup();
+          window.removeEventListener("scroll", onScroll);
+        }
+      };
+      window.addEventListener("scroll", onScroll);
+    } else if (trigger === "exit-intent") {
+      var onExit = function (e) {
+        if (e.clientY <= 10) {
+          openPopup();
+          document.removeEventListener("mouseleave", onExit);
+        }
+      };
+      document.addEventListener("mouseleave", onExit);
+    } else {
+      setTimeout(openPopup, 600);
     }
 
     // Botón flotante reabrible
     if (showFloatingBtn) {
       var floatBtn = document.createElement("div");
-      floatBtn.id = uniqueId + "-float-btn";
-      floatBtn.style.cssText = "position: fixed !important; bottom: 20px !important; left: 20px !important; width: 48px !important; height: 48px !important; border-radius: 50% !important; background: " + btnBg + " !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 22px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important; cursor: pointer !important; z-index: 999990 !important; transition: transform 0.2s ease !important;";
+      floatBtn.id = elementId + "-float";
       floatBtn.innerHTML = "🎟️";
-      floatBtn.onclick = showModal;
+      floatBtn.onclick = function () {
+        window["nvxOpenRaspa_" + w.id]();
+      };
       document.body.appendChild(floatBtn);
     }
-
   } catch (err) {
     if (window.console && window.console.warn) {
       window.console.warn("[Nevux] renderRaspaGana error:", err);
