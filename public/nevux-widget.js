@@ -12557,11 +12557,10 @@ function renderVideoFlotante(w) {
 
     var initialTitle = firstVid && firstVid.title ? firstVid.title : "";
     var initialCtaText = firstVid && firstVid.buttonText ? firstVid.buttonText : "Comprar ahora";
-    var initialCtaUrl = firstVid && firstVid.buttonUrl ? firstVid.buttonUrl : "#";
 
     modalHtml += '<div id="' + modalId + '-title" style="color: #ffffff !important; font-size: 15px !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;">' + initialTitle + '</div>';
 
-    modalHtml += '<a id="' + modalId + '-cta" href="' + initialCtaUrl + '" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 13px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; text-decoration: none !important; display: block !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important;">' + initialCtaText + '</a>';
+    modalHtml += '<button id="' + modalId + '-cta" type="button" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 13px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; border: none !important; cursor: pointer !important; width: 100% !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important; font-family: inherit !important; transition: opacity 0.2s !important;">' + initialCtaText + '</button>';
 
     modalHtml += '</div>';
 
@@ -12603,7 +12602,7 @@ function renderVideoFlotante(w) {
       if (titleEl) titleEl.innerHTML = v.title || "";
       if (ctaEl) {
         ctaEl.innerHTML = v.buttonText || "Comprar ahora";
-        ctaEl.href = v.buttonUrl || "#";
+        ctaEl.disabled = false;
       }
     };
 
@@ -12661,10 +12660,99 @@ function renderVideoFlotante(w) {
         loadVideo(currentIdx + 1);
       });
     }
+
+    // ACCIÓN COMPRAR AHORA -> AGREGAR AL CARRITO + ABRIR CARRITO
+    if (ctaEl) {
+      ctaEl.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var currentVid = videos[currentIdx] || {};
+        var customUrl = currentVid.buttonUrl || "";
+
+        // Si hay una URL externa explícita diferente a '#'
+        if (customUrl && customUrl !== "#" && customUrl.trim() !== "" && customUrl.indexOf("http") === 0) {
+          window.location.href = customUrl;
+          return;
+        }
+
+        var prod = window.LS && window.LS.product;
+        var varInput = document.querySelector("form[action*='/cart/add'] input[name='variant_id'], form[action*='/cart/add'] select[name='variant_id']");
+        var activeVarId = varInput && varInput.value ? varInput.value : (prod && prod.variants && prod.variants[0] ? prod.variants[0].id : null);
+        var activeProdId = prod ? prod.id : null;
+
+        var qty = 1;
+        var qtyInput = document.querySelector("form[action*='/cart/add'] input[name='quantity']");
+        if (qtyInput && qtyInput.value) {
+          qty = parseInt(qtyInput.value, 10) || 1;
+        }
+
+        ctaEl.innerHTML = "Agregando... ⏳";
+        ctaEl.disabled = true;
+
+        // Opción A: NubeSDK (Oficial Tiendanube)
+        if (window.nube && window.nube.send) {
+          try {
+            window.nube.send("cart:add", {
+              id: activeVarId || activeProdId,
+              quantity: qty
+            });
+            window.nube.send("cart:open");
+            ctaEl.innerHTML = "¡Agregado al carrito! 🛒";
+            setTimeout(function () {
+              ctaEl.innerHTML = currentVid.buttonText || "Comprar ahora";
+              ctaEl.disabled = false;
+            }, 2500);
+            return;
+          } catch (err) {}
+        }
+
+        // Opción B: Fallback POST /comprar/
+        if (activeProdId || activeVarId) {
+          var formData = new FormData();
+          formData.append("add_to_cart", activeProdId || activeVarId);
+          if (activeVarId) formData.append("variant_id", activeVarId);
+          formData.append("quantity", qty);
+
+          fetch("/comprar/", {
+            method: "POST",
+            body: formData,
+            credentials: "include"
+          })
+            .then(function () {
+              ctaEl.innerHTML = "¡Agregado al carrito! 🛒";
+              if (window.nube && window.nube.send) {
+                window.nube.send("cart:open");
+              } else {
+                window.location.reload();
+              }
+            })
+            .catch(function () {
+              if (customUrl && customUrl !== "#") {
+                window.location.href = customUrl;
+              } else {
+                window.location.reload();
+              }
+            });
+        } else if (customUrl && customUrl !== "#") {
+          window.location.href = customUrl;
+        } else {
+          var cartForm = document.querySelector("form[action*='/cart/add']");
+          if (cartForm) {
+            var submitBtn = cartForm.querySelector("input[type='submit'], button[type='submit'], .js-addtocart");
+            if (submitBtn) {
+              submitBtn.click();
+              return;
+            }
+          }
+          window.location.reload();
+        }
+      });
+    }
   } catch (err) {
     if (window.console && window.console.warn) {
       window.console.warn("[Nevux] renderVideoFlotante error:", err);
     }
   }
-                   }
+               }
 })(); 
