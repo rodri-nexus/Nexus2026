@@ -12455,4 +12455,215 @@ function renderComparadorMarca(w) {
     }
   }
       }
+        /* ═══════════════════════════════════════════
+   WIDGET #38: VIDEO FLOTANTE
+   ═══════════════════════════════════════════ */
+function renderVideoFlotante(w) {
+  try {
+    if (!w || !w.config) return;
+    var cfg = w.config || {};
+    var uniqueId = "nvx-video-flotante-" + (w.id || Math.random().toString(36).substring(7));
+    if (document.getElementById(uniqueId)) return;
+
+    var videos = cfg.videos || [];
+    if (!Array.isArray(videos) || videos.length === 0) return;
+
+    var position = cfg.position || "bottom-left";
+    var buttonSize = cfg.buttonSize || 110;
+    var buttonRadius = cfg.buttonRadius || 90;
+    var buttonFormat = cfg.buttonFormat || "square";
+    var showPlayIcon = cfg.showPlayIcon !== false;
+    var showCloseIcon = cfg.showCloseIcon !== false;
+    var closeIconColor = cfg.closeIconColor || "#191919";
+    var closeIconSize = cfg.closeIconSize || 14;
+    var animation = cfg.animation || "pulse";
+    var ctaBgColor = cfg.ctaBgColor || "#10B981";
+    var ctaTextColor = cfg.ctaTextColor || "#ffffff";
+    var ctaRadius = cfg.ctaRadius || 12;
+
+    var btnWidth = buttonFormat === "vertical" ? Math.round(buttonSize * 0.75) : buttonSize;
+
+    var posStyles = "";
+    if (position === "bottom-left") {
+      posStyles = "bottom: 20px !important; left: 20px !important;";
+    } else if (position === "bottom-right") {
+      posStyles = "bottom: 20px !important; right: 20px !important;";
+    } else if (position === "top-left") {
+      posStyles = "top: 20px !important; left: 20px !important;";
+    } else if (position === "top-right") {
+      posStyles = "top: 20px !important; right: 20px !important;";
+    } else if (position === "middle-left") {
+      posStyles = "top: 50% !important; left: 20px !important; transform: translateY(-50%) !important;";
+    } else if (position === "middle-right") {
+      posStyles = "top: 50% !important; right: 20px !important; transform: translateY(-50%) !important;";
+    }
+
+    var animClass = "";
+    var animCssId = "nvx-video-flotante-anim-css";
+    if (!document.getElementById(animCssId)) {
+      var styleEl = document.createElement("style");
+      styleEl.id = animCssId;
+      styleEl.innerHTML =
+        "@keyframes nvxVFPulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); } 70% { box-shadow: 0 0 0 15px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }" +
+        "@keyframes nvxVFBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }" +
+        ".nvx-vf-anim-pulse { animation: nvxVFPulse 2s infinite !important; }" +
+        ".nvx-vf-anim-bounce { animation: nvxVFBounce 2s infinite !important; }";
+      document.head.appendChild(styleEl);
+    }
+
+    if (animation === "pulse") {
+      animClass = "nvx-vf-anim-pulse";
+    } else if (animation === "bounce") {
+      animClass = "nvx-vf-anim-bounce";
+    }
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.setAttribute("data-nevux-widget", "video-flotante");
+    container.style.cssText = "position: fixed !important; z-index: 999990 !important; " + posStyles;
+
+    var firstVid = videos[0];
+    var videoPreviewSrc = firstVid ? (firstVid.url || "") : "";
+
+    var html = '<div id="' + uniqueId + '-btn" class="' + animClass + '" style="position: relative !important; width: ' + btnWidth + 'px !important; height: ' + buttonSize + 'px !important; border-radius: ' + buttonRadius + 'px !important; background-color: #111827 !important; cursor: pointer !important; overflow: hidden !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important; display: flex !important; align-items: center !important; justify-content: center !important;">';
+
+    if (videoPreviewSrc) {
+      html += '<video src="' + videoPreviewSrc + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important;" autoplay loop muted playsinline></video>';
+    } else {
+      html += '<div style="font-size: 28px !important;">🎬</div>';
+    }
+
+    if (showPlayIcon) {
+      html += '<div style="position: absolute !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; background-color: rgba(255,255,255,0.9) !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #111827 !important; font-size: 14px !important; font-weight: 800 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important; pointer-events: none !important;">▶</div>';
+    }
+
+    if (showCloseIcon) {
+      var closeSize = Math.round(closeIconSize * 1.8);
+      html += '<div id="' + uniqueId + '-close" style="position: absolute !important; top: 4px !important; left: 4px !important; width: ' + closeSize + 'px !important; height: ' + closeSize + 'px !important; border-radius: 50% !important; background-color: ' + closeIconColor + ' !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: ' + closeIconSize + 'px !important; font-weight: 800 !important; cursor: pointer !important; z-index: 10 !important;">✕</div>';
+    }
+
+    html += '</div>';
+
+    var modalId = uniqueId + "-modal";
+    var modalHtml = '<div id="' + modalId + '" style="display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background-color: rgba(0,0,0,0.9) !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important; padding: 20px !important; box-sizing: border-box !important;">';
+    modalHtml += '<div style="position: relative !important; width: 100% !important; max-width: 380px !important; height: 85vh !important; max-height: 680px !important; background-color: #000000 !important; border-radius: 16px !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; box-shadow: 0 20px 50px rgba(0,0,0,0.6) !important;">';
+
+    modalHtml += '<div id="' + modalId + '-close-btn" style="position: absolute !important; top: 12px !important; right: 12px !important; width: 34px !important; height: 34px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 16px !important; font-weight: bold !important; cursor: pointer !important; z-index: 20 !important;">✕</div>';
+
+    modalHtml += '<video id="' + modalId + '-player" src="' + (firstVid ? firstVid.url : "") + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important;" controls autoplay playsinline></video>';
+
+    modalHtml += '<div style="position: absolute !important; bottom: 0 !important; left: 0 !important; right: 0 !important; padding: 16px !important; background: linear-gradient(transparent, rgba(0,0,0,0.95)) !important; display: flex !important; flex-direction: column !important; gap: 10px !important; z-index: 10 !important;">';
+
+    var initialTitle = firstVid && firstVid.title ? firstVid.title : "";
+    var initialCtaText = firstVid && firstVid.buttonText ? firstVid.buttonText : "Comprar ahora";
+    var initialCtaUrl = firstVid && firstVid.buttonUrl ? firstVid.buttonUrl : "#";
+
+    modalHtml += '<div id="' + modalId + '-title" style="color: #ffffff !important; font-size: 15px !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;">' + initialTitle + '</div>';
+
+    modalHtml += '<a id="' + modalId + '-cta" href="' + initialCtaUrl + '" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 13px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; text-decoration: none !important; display: block !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important;">' + initialCtaText + '</a>';
+
+    modalHtml += '</div>';
+
+    if (videos.length > 1) {
+      modalHtml += '<div style="position: absolute !important; top: 50% !important; left: 10px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
+      modalHtml += '<div id="' + modalId + '-prev" style="width: 36px !important; height: 36px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important;">‹</div>';
+      modalHtml += '</div>';
+      modalHtml += '<div style="position: absolute !important; top: 50% !important; right: 10px !important; transform: translateY(-50%) !important; z-index: 15 !important;">';
+      modalHtml += '<div id="' + modalId + '-next" style="width: 36px !important; height: 36px !important; border-radius: 50% !important; background-color: rgba(0,0,0,0.65) !important; color: #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-size: 18px !important; font-weight: 800 !important;">›</div>';
+      modalHtml += '</div>';
+    }
+
+    modalHtml += '</div></div>';
+
+    container.innerHTML = html + modalHtml;
+    document.body.appendChild(container);
+
+    var btnEl = document.getElementById(uniqueId + "-btn");
+    var closeEl = document.getElementById(uniqueId + "-close");
+    var modalEl = document.getElementById(modalId);
+    var modalCloseEl = document.getElementById(modalId + "-close-btn");
+    var playerEl = document.getElementById(modalId + "-player");
+    var titleEl = document.getElementById(modalId + "-title");
+    var ctaEl = document.getElementById(modalId + "-cta");
+    var prevEl = document.getElementById(modalId + "-prev");
+    var nextEl = document.getElementById(modalId + "-next");
+
+    var currentIdx = 0;
+
+    var loadVideo = function (idx) {
+      if (idx < 0) idx = videos.length - 1;
+      if (idx >= videos.length) idx = 0;
+      currentIdx = idx;
+      var v = videos[idx];
+      if (playerEl && v.url) {
+        playerEl.src = v.url;
+        playerEl.play();
+      }
+      if (titleEl) titleEl.innerHTML = v.title || "";
+      if (ctaEl) {
+        ctaEl.innerHTML = v.buttonText || "Comprar ahora";
+        ctaEl.href = v.buttonUrl || "#";
+      }
+    };
+
+    if (closeEl) {
+      closeEl.addEventListener("click", function (e) {
+        e.stopPropagation();
+        container.style.display = "none";
+      });
+    }
+
+    if (btnEl) {
+      btnEl.addEventListener("click", function (e) {
+        if (closeEl && e.target === closeEl) return;
+        if (modalEl) {
+          modalEl.style.display = "flex";
+          if (playerEl) {
+            playerEl.play();
+          }
+        }
+      });
+    }
+
+    if (modalCloseEl) {
+      modalCloseEl.addEventListener("click", function () {
+        if (modalEl) {
+          modalEl.style.display = "none";
+          if (playerEl) {
+            playerEl.pause();
+          }
+        }
+      });
+    }
+
+    if (modalEl) {
+      modalEl.addEventListener("click", function (e) {
+        if (e.target === modalEl) {
+          modalEl.style.display = "none";
+          if (playerEl) {
+            playerEl.pause();
+          }
+        }
+      });
+    }
+
+    if (prevEl) {
+      prevEl.addEventListener("click", function (e) {
+        e.stopPropagation();
+        loadVideo(currentIdx - 1);
+      });
+    }
+
+    if (nextEl) {
+      nextEl.addEventListener("click", function (e) {
+        e.stopPropagation();
+        loadVideo(currentIdx + 1);
+      });
+    }
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderVideoFlotante error:", err);
+    }
+  }
+                   }
 })(); 
