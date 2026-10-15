@@ -455,7 +455,7 @@ function PreguntasFrecuentesPreview() {
         </div>
         <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.1 }}>Despachamos dentro de las 24 a 48 hs...</div>
       </div>
-      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight 700, color: "#374151" }}>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight: 700, color: "#374151" }}>
         <span>💳 ¿Qué medios de pago aceptan?</span>
         <span style={{ fontSize: "7px", opacity: 0.6 }}>▼</span>
       </div>
