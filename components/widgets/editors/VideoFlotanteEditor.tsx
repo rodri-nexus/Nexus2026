@@ -164,7 +164,7 @@ export default function VideoFlotanteEditor({
       setVideos([...videos, newVideo]);
     } catch (err: any) {
       setUploadError(err.message || 'Ocurrió un error al subir el video.');
-    } finally {
+    } fontally {
       setIsUploading(false);
       e.target.value = '';
     }
@@ -465,7 +465,7 @@ export default function VideoFlotanteEditor({
                   flexDirection: 'column',
                   gap: '10px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                     <span style={{ fontSize: '12px', fontWeight: 800, color: '#6B7280' }}>VIDEO #{idx + 1}</span>
                     {videos.length > 1 && (
                       <button
@@ -479,8 +479,7 @@ export default function VideoFlotanteEditor({
                           padding: '4px 8px',
                           fontSize: '11px',
                           fontWeight: 700,
-                          cursor: 'pointer',
-                          marginLeft: 'auto'
+                          cursor: 'pointer'
                         }}
                       >
                         🗑️ Eliminar
@@ -595,7 +594,7 @@ export default function VideoFlotanteEditor({
               <input type="range" min="80" max="180" value={buttonSize} onChange={(e) => setButtonSize(Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
             </div>
             <div>
-              <label style={{ fontSize: '12px', fontWeight 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
                 Redondeo del botón ({buttonRadius}px)
               </label>
               <input type="range" min="0" max="90" value={buttonRadius} onChange={(e) => setButtonRadius(Number(e.target.value))} style={{ width: '100%', accentColor: '#10B981' }} />
@@ -705,4 +704,4 @@ export default function VideoFlotanteEditor({
       </div>
     </div>
   );
-  }
+                  }
