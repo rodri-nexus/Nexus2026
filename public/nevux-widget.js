@@ -1833,6 +1833,7 @@
             if (w.widget_slug === "imagenes-textos") renderImagenesTextos(w);
             if (w.widget_slug === "columnas-imagenes-texto") renderColumnasImagenesTexto(w);
             if (w.widget_slug === "comparador-marca") renderComparadorMarca(w);
+            if (w.widget_slug === "video-flotante") renderVideoFlotante(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
