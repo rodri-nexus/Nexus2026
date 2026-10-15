@@ -12478,27 +12478,34 @@ function renderVideoFlotante(w) {
     var closeIconColor = cfg.closeIconColor || "#191919";
     var closeIconSize = cfg.closeIconSize || 14;
     var animation = cfg.animation || "pulse";
-    var openCart = cfg.openCart !== false; // Flag de control para abrir el carrito
     var ctaBgColor = cfg.ctaBgColor || "#10B981";
     var ctaTextColor = cfg.ctaTextColor || "#ffffff";
-    var ctaRadius = cfg.ctaRadius || 12;
+
+    var firstVid = videos[0] || {};
+    var vUrl = firstVid.url || "";
+    var vTitle = firstVid.title || "";
+    var ctaText = firstVid.buttonText || "Comprar ahora";
 
     var btnWidth = buttonFormat === "vertical" ? Math.round(buttonSize * 0.75) : buttonSize;
 
     var posStyles = "";
-    if (position === "bottom-left") posStyles = "bottom:20px!important;left:20px!important;";
-    else if (position === "bottom-right") posStyles = "bottom:20px!important;right:20px!important;";
-    else if (position === "top-left") posStyles = "top:20px!important;left:20px!important;";
-    else if (position === "top-right") posStyles = "top:20px!important;right:20px!important;";
-    else if (position === "middle-left") posStyles = "top:50%!important;left:20px!important;transform:translateY(-50%)!important;";
-    else if (position === "middle-right") posStyles = "top:50%!important;right:20px!important;transform:translateY(-50%)!important;";
+    if (position === "bottom-left") posStyles = "bottom: 20px !important; left: 20px !important;";
+    else if (position === "bottom-right") posStyles = "bottom: 20px !important; right: 20px !important;";
+    else if (position === "top-left") posStyles = "top: 20px !important; left: 20px !important;";
+    else if (position === "top-right") posStyles = "top: 20px !important; right: 20px !important;";
+    else if (position === "middle-left") posStyles = "top: 50% !important; left: 20px !important; transform: translateY(-50%) !important;";
+    else if (position === "middle-right") posStyles = "top: 50% !important; right: 20px !important; transform: translateY(-50%) !important;";
 
     var animClass = "";
     var animCssId = "nvx-vf-anim-css";
     if (!document.getElementById(animCssId)) {
       var st = document.createElement("style");
       st.id = animCssId;
-      st.innerHTML = "@keyframes nvxVFPulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,0.6)}70%{box-shadow:0 0 0 15px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}.nvx-vf-pulse{animation:nvxVFPulse 2s infinite!important}@keyframes nvxVFBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.nvx-vf-bounce{animation:nvxVFBounce 2s infinite!important}";
+      st.innerHTML =
+        "@keyframes nvxVFPulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); } 70% { box-shadow: 0 0 0 15px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }" +
+        "@keyframes nvxVFBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }" +
+        ".nvx-vf-pulse { animation: nvxVFPulse 2s infinite !important; }" +
+        ".nvx-vf-bounce { animation: nvxVFBounce 2s infinite !important; }";
       document.head.appendChild(st);
     }
     if (animation === "pulse") animClass = "nvx-vf-pulse";
@@ -12507,89 +12514,28 @@ function renderVideoFlotante(w) {
     var container = document.createElement("div");
     container.id = uniqueId;
     container.setAttribute("data-nevux-widget", "video-flotante");
-    container.style.cssText = "position:fixed!important;z-index:999990!important;" + posStyles;
+    container.style.cssText = "position: fixed !important; z-index: 999990 !important; " + posStyles;
 
-    var firstVid = videos[0] || {};
-    var previewSrc = firstVid.url || "";
-
-    // BOTÓN FLOTANTE
-    var html = '<div id="' + uniqueId + '-btn" class="' + animClass + '" style="position:relative!important;width:' + btnWidth + 'px!important;height:' + buttonSize + 'px!important;border-radius:' + buttonRadius + 'px!important;background:#111827!important;cursor:pointer!important;overflow:hidden!important;box-shadow:0 10px 25px rgba(0,0,0,0.35)!important;display:flex!important;align-items:center!important;justify-content:center!important;">';
-    if (previewSrc) {
-      html += '<video src="' + previewSrc + '" style="width:100%!important;height:100%!important;object-fit:cover!important;" autoplay loop muted playsinline></video>';
+    var html = '<div id="' + uniqueId + '-btn" class="' + animClass + '" style="position: relative !important; width: ' + btnWidth + 'px !important; height: ' + buttonSize + 'px !important; border-radius: ' + buttonRadius + 'px !important; background: #111827 !important; cursor: pointer !important; overflow: hidden !important; box-shadow: 0 10px 25px rgba(0,0,0,0.35) !important; display: flex !important; align-items: center !important; justify-content: center !important;">';
+    if (vUrl) {
+      html += '<video src="' + vUrl + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important;" autoplay loop muted playsinline></video>';
     } else {
-      html += '<div style="font-size:28px!important;">🎬</div>';
+      html += '<div style="font-size: 28px !important;">🎬</div>';
     }
     if (showPlayIcon) {
-      html += '<div style="position:absolute!important;width:36px!important;height:36px!important;border-radius:50%!important;background:rgba(255,255,255,0.92)!important;display:flex!important;align-items:center!important;justify-content:center!important;color:#111!important;font-size:14px!important;font-weight:800!important;pointer-events:none!important;box-shadow:0 2px 8px rgba(0,0,0,0.3)!important;">▶</div>';
+      html += '<div style="position: absolute !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; background: rgba(255,255,255,0.92) !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #111 !important; font-size: 14px !important; font-weight: 800 !important; pointer-events: none !important; box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;">▶</div>';
     }
     if (showCloseIcon) {
       var cs = Math.round(closeIconSize * 1.8);
-      html += '<div id="' + uniqueId + '-close" style="position:absolute!important;top:4px!important;left:4px!important;width:' + cs + 'px!important;height:' + cs + 'px!important;border-radius:50%!important;background:' + closeIconColor + '!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:' + closeIconSize + 'px!important;font-weight:800!important;cursor:pointer!important;z-index:10!important;">✕</div>';
+      html += '<div id="' + uniqueId + '-close" style="position: absolute !important; top: 4px !important; left: 4px !important; width: ' + cs + 'px !important; height: ' + cs + 'px !important; border-radius: 50% !important; background: ' + closeIconColor + ' !important; color: #fff !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: ' + closeIconSize + 'px !important; font-weight: 800 !important; cursor: pointer !important; z-index: 10 !important;">✕</div>';
     }
     html += '</div>';
-
-    // MODAL CENTRADO
-    var modalId = uniqueId + "-modal";
-    html += '<div id="' + modalId + '" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:999999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">';
-    html += '<div style="position:relative;width:min(340px,92vw);height:min(600px,78vh);background:#000;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.7);flex-shrink:0;">';
-
-    html += '<div id="' + modalId + '-x" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;cursor:pointer;z-index:30;border:1px solid rgba(255,255,255,0.25);">✕</div>';
-
-    html += '<video id="' + modalId + '-player" src="' + (firstVid.url || "") + '" style="width:100%;height:100%;object-fit:cover;display:block;" controls autoplay playsinline></video>';
-
-    html += '<div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px 16px;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.5) 80%,transparent 100%);display:flex;flex-direction:column;gap:8px;z-index:20;">';
-    html += '<div id="' + modalId + '-title" style="color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px #000;line-height:1.25;">' + (firstVid.title || "") + '</div>';
-    html += '<button id="' + modalId + '-cta" type="button" style="background:' + ctaBgColor + ';color:' + ctaTextColor + ';border-radius:' + ctaRadius + 'px;padding:13px;text-align:center;font-size:15px;font-weight:800;border:none;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(0,0,0,0.4);font-family:inherit;">' + (firstVid.buttonText || "Comprar ahora") + '</button>';
-    html += '</div>';
-
-    if (videos.length > 1) {
-      html += '<div id="' + modalId + '-prev" style="position:absolute;top:50%;left:8px;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:800;z-index:25;border:1px solid rgba(255,255,255,0.2);">‹</div>';
-      html += '<div id="' + modalId + '-next" style="position:absolute;top:50%;right:8px;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:800;z-index:25;border:1px solid rgba(255,255,255,0.2);">›</div>';
-    }
-
-    html += '</div></div>';
 
     container.innerHTML = html;
     document.body.appendChild(container);
 
     var btnEl = document.getElementById(uniqueId + "-btn");
     var closeEl = document.getElementById(uniqueId + "-close");
-    var modalEl = document.getElementById(modalId);
-    var xEl = document.getElementById(modalId + "-x");
-    var playerEl = document.getElementById(modalId + "-player");
-    var titleEl = document.getElementById(modalId + "-title");
-    var ctaEl = document.getElementById(modalId + "-cta");
-    var prevEl = document.getElementById(modalId + "-prev");
-    var nextEl = document.getElementById(modalId + "-next");
-    var currentIdx = 0;
-
-    var openModal = function () {
-      if (!modalEl) return;
-      modalEl.style.display = "flex";
-      if (playerEl) { try { playerEl.play(); } catch (e) {} }
-    };
-
-    var closeModal = function () {
-      if (!modalEl) return;
-      modalEl.style.display = "none";
-      if (playerEl) { try { playerEl.pause(); } catch (e) {} }
-    };
-
-    var loadVideo = function (idx) {
-      if (idx < 0) idx = videos.length - 1;
-      if (idx >= videos.length) idx = 0;
-      currentIdx = idx;
-      var v = videos[idx] || {};
-      if (playerEl && v.url) {
-        playerEl.src = v.url;
-        try { playerEl.play(); } catch (e) {}
-      }
-      if (titleEl) titleEl.innerHTML = v.title || "";
-      if (ctaEl) {
-        ctaEl.innerHTML = v.buttonText || "Comprar ahora";
-        ctaEl.disabled = false;
-      }
-    };
 
     if (closeEl) {
       closeEl.addEventListener("click", function (e) {
@@ -12597,85 +12543,13 @@ function renderVideoFlotante(w) {
         container.style.display = "none";
       });
     }
+
     if (btnEl) {
       btnEl.addEventListener("click", function (e) {
         if (closeEl && (e.target === closeEl || closeEl.contains(e.target))) return;
-        openModal();
-      });
-    }
-
-    if (xEl) xEl.addEventListener("click", function (e) { e.stopPropagation(); closeModal(); });
-    if (modalEl) {
-      modalEl.addEventListener("click", function (e) {
-        if (e.target === modalEl) closeModal();
-      });
-    }
-    if (prevEl) prevEl.addEventListener("click", function (e) { e.stopPropagation(); loadVideo(currentIdx - 1); });
-    if (nextEl) nextEl.addEventListener("click", function (e) { e.stopPropagation(); loadVideo(currentIdx + 1); });
-
-    // ─── CTA COMPRAR AHORA ───
-    if (ctaEl) {
-      ctaEl.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        var currentVid = videos[currentIdx] || {};
-        var customUrl = (currentVid.buttonUrl || "").trim();
-
-        // 1. Cerrar modal
-        closeModal();
-
-        // Si tiene un link externo explicito
-        if (customUrl && customUrl !== "#" && customUrl.indexOf("http") === 0) {
-          window.location.href = customUrl;
-          return;
+        if (typeof window.nvxOpenVideoModal === "function") {
+          window.nvxOpenVideoModal(vUrl, vTitle, ctaText, ctaBgColor, ctaTextColor);
         }
-
-        // Detectar variante / producto
-        var prod = (window.LS && window.LS.product) ? window.LS.product : null;
-        var varInput = document.querySelector("form[action*='/cart/add'] input[name='variant_id'], form[action*='/cart/add'] select[name='variant_id'], [name='variant_id']");
-        var activeVarId = (varInput && varInput.value) ? varInput.value : (prod && prod.variants && prod.variants[0] ? prod.variants[0].id : null);
-        var activeProdId = prod ? prod.id : null;
-        var qty = 1;
-        var qtyInput = document.querySelector("form[action*='/cart/add'] input[name='quantity'], [name='quantity']");
-        if (qtyInput && qtyInput.value) qty = parseInt(qtyInput.value, 10) || 1;
-        var itemId = activeVarId || activeProdId;
-
-        if (!itemId) {
-          var nativeBtn = document.querySelector("form[action*='/cart/add'] [type='submit'], .js-addtocart, button[name='add']");
-          if (nativeBtn) nativeBtn.click();
-          return;
-        }
-
-        // NubeSDK
-        if (window.nube && typeof window.nube.send === "function") {
-          try {
-            window.nube.send("cart:add", { id: Number(itemId) || itemId, quantity: qty });
-            if (openCart) {
-              setTimeout(function () {
-                try { window.nube.send("cart:open"); } catch (e2) {}
-              }, 180);
-            }
-            return;
-          } catch (e3) {}
-        }
-
-        // Fallback POST
-        var fd = new FormData();
-        fd.append("add_to_cart", activeProdId || itemId);
-        if (activeVarId) fd.append("variant_id", activeVarId);
-        fd.append("quantity", qty);
-        fetch("/comprar/", { method: "POST", body: fd, credentials: "include" })
-          .then(function () {
-            if (openCart && window.nube && typeof window.nube.send === "function") {
-              try { window.nube.send("cart:open"); } catch (e4) {}
-            } else if (!openCart) {
-              // Agregado silencioso
-            } else {
-              window.location.reload();
-            }
-          })
-          .catch(function () { window.location.reload(); });
       });
     }
   } catch (err) {
@@ -12683,5 +12557,47 @@ function renderVideoFlotante(w) {
       window.console.warn("[Nevux] renderVideoFlotante error:", err);
     }
   }
-      }
+}
+
+// Helpers globales por si no fueron inicializados antes
+if (typeof window.nvxOpenVideoModal !== "function") {
+  window.nvxOpenVideoModal = function (url, title, ctaText, ctaBg, ctaColor) {
+    var modalId = "nvx-video-modal-overlay";
+    var existing = document.getElementById(modalId);
+    if (existing) existing.remove();
+
+    var overlay = document.createElement("div");
+    overlay.id = modalId;
+    overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.85) !important; z-index: 999999 !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 16px !important; box-sizing: border-box !important;";
+
+    var content = "";
+    content += '<div style="position: relative !important; width: 100% !important; max-width: 380px !important; height: 80vh !important; max-height: 680px !important; background: #000000 !important; border-radius: 16px !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;">';
+    content += '<button type="button" onclick="document.getElementById(\'' + modalId + '\').remove();" style="position: absolute !important; top: 12px !important; right: 12px !important; z-index: 10 !important; background: rgba(0,0,0,0.6) !important; color: #fff !important; border: none !important; width: 32px !important; height: 32px !important; border-radius: 50% !important; font-size: 16px !important; font-weight: 800 !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important;">✕</button>';
+    content += '<video src="' + url + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important;" autoplay controls playsinline></video>';
+    if (ctaText) {
+      content += '<div style="position: absolute !important; bottom: 16px !important; left: 16px !important; right: 16px !important; z-index: 10 !important;">';
+      content += '<button type="button" onclick="window.nvxSubmitVideoCta();" style="width: 100% !important; background: ' + (ctaBg || "#111827") + ' !important; color: ' + (ctaColor || "#ffffff") + ' !important; border: none !important; border-radius: 999px !important; padding: 14px !important; font-size: 15px !important; font-weight: 800 !important; cursor: pointer !important; box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;">' + ctaText + '</button>';
+      content += '</div>';
+    }
+    content += '</div>';
+
+    overlay.innerHTML = content;
+    document.body.appendChild(overlay);
+  };
+}
+
+if (typeof window.nvxSubmitVideoCta !== "function") {
+  window.nvxSubmitVideoCta = function () {
+    var modal = document.getElementById("nvx-video-modal-overlay");
+    if (modal) modal.remove();
+
+    var buyBtn = document.querySelector("button.js-add-to-cart-btn, form[action*='/cart/add'] button[type='submit'], .js-product-buy-container button, .product-buy-container button, #add-to-cart-button");
+    if (buyBtn) {
+      buyBtn.click();
+    } else {
+      var form = document.querySelector("form[action*='/cart/add'], form.js-product-form");
+      if (form) form.submit();
+    }
+  };
+        }
 })(); 
