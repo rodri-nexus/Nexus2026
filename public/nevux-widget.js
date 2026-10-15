@@ -1831,6 +1831,7 @@
             if (w.widget_slug === "informacion-envio") renderInformacionEnvio(w);
             if (w.widget_slug === "pestanas-informacion") renderPestanasInformacion(w);
             if (w.widget_slug === "imagenes-textos") renderImagenesTextos(w);
+            if (w.widget_slug === "columnas-imagenes-texto") renderColumnasImagenesTexto(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -12040,4 +12041,217 @@ function renderImagenesTextos(w) {
     }
   }
         }      
+        /* ═══════════════════════════════════════════
+   WIDGET #36: COLUMNAS DE IMÁGENES Y TEXTO
+   ═══════════════════════════════════════════ */
+function renderColumnasImagenesTexto(w) {
+  try {
+    var cfg = w.config || {};
+    var uniqueId = "nvx-col-img-txt-" + (w.id || Math.random().toString(36).substring(7));
+    if (document.getElementById(uniqueId)) return;
+
+    var pageType = detectPageType();
+    if (pageType !== "product") return;
+
+    var cards = cfg.cards || [];
+    if (!Array.isArray(cards) || cards.length === 0) return;
+
+    var sectionTitle = cfg.sectionTitle || "";
+    var sectionSubtitle = cfg.sectionSubtitle || "";
+    var position = cfg.position || "after-description";
+    var columnsDesktop = cfg.columnsDesktop || 3;
+    var cardRadius = cfg.cardRadius === "square" ? "0px" : "12px";
+    var cardAlign = cfg.cardAlign || "center";
+    var mobileLayout = cfg.mobileLayout || "scroll";
+
+    var sectionBg = cfg.sectionBg || "#fafafa";
+    var cardBg = cfg.cardBg || "#ffffff";
+    var sectionTitleColor = cfg.sectionTitleColor || "#191919";
+    var sectionSubtitleColor = cfg.sectionSubtitleColor || "#5E5E5E";
+    var cardTitleColor = cfg.cardTitleColor || "#191919";
+    var cardSubtitleColor = cfg.cardSubtitleColor || "#5E5E5E";
+
+    var sectionTitleSize = cfg.sectionTitleSize || 22;
+    var sectionSubtitleSize = cfg.sectionSubtitleSize || 16;
+    var cardTitleSize = cfg.cardTitleSize || 18;
+    var cardSubtitleSize = cfg.cardSubtitleSize || 14;
+
+    var badgeBg = cfg.badgeBg || "#191919";
+    var badgeColor = cfg.badgeColor || "#ffffff";
+    var badgeBorder = cfg.badgeBorder || "transparent";
+    var badgeSize = cfg.badgeSize || 11;
+    var badgeRounded = cfg.badgeRounded !== false ? "999px" : "4px";
+
+    var campaignTheme = cfg.campaignTheme || "none";
+    if (campaignTheme && campaignTheme !== "none") {
+      if (campaignTheme === "black-friday") { badgeBg = "#F59E0B"; badgeColor = "#111827"; badgeBorder = "#D97706"; }
+      else if (campaignTheme === "hot-sale") { badgeBg = "#EF4444"; badgeColor = "#ffffff"; badgeBorder = "#B91C1C"; }
+      else if (campaignTheme === "cyber-monday") { badgeBg = "#3B82F6"; badgeColor = "#ffffff"; badgeBorder = "#1D4ED8"; }
+      else if (campaignTheme === "navidad") { badgeBg = "#064E3B"; badgeColor = "#ffffff"; badgeBorder = "#047857"; }
+      else if (campaignTheme === "san-valentin") { badgeBg = "#831843"; badgeColor = "#ffffff"; badgeBorder = "#9d174d"; }
+      else if (campaignTheme === "dia-padre-madre") { badgeBg = "#312E81"; badgeColor = "#ffffff"; badgeBorder = "#4338ca"; }
+      else if (campaignTheme === "liquidacion") { badgeBg = "#7F1D1D"; badgeColor = "#ffffff"; badgeBorder = "#991b1b"; }
+    }
+
+    var findDescriptionEl = function() {
+      var selectors = [
+        ".js-product-description",
+        '[data-store="product-description"]',
+        ".product-description",
+        "#description",
+        ".description",
+        ".user-content",
+        ".js-product-tabs",
+        ".product-detail-description"
+      ];
+      for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el) return el;
+      }
+      var headings = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var j = 0; j < headings.length; j++) {
+        var txt = (headings[j].textContent || "").toLowerCase();
+        if (txt.indexOf("descripci") !== -1) return headings[j];
+      }
+      var fallbacks = [".js-product-detail", ".product-detail", ".js-product-container", ".product-container"];
+      for (var k = 0; k < fallbacks.length; k++) {
+        var fb = document.querySelector(fallbacks[k]);
+        if (fb) return fb;
+      }
+      return null;
+    };
+
+    var inject = function() {
+      if (document.getElementById(uniqueId)) return;
+
+      var container = document.createElement("div");
+      container.id = uniqueId;
+      container.setAttribute("data-nevux-widget", "columnas-imagenes-texto");
+      container.style.cssText = "width: 100% !important; max-width: 100% !important; margin: 24px 0 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; box-sizing: border-box !important;";
+
+      var cssStyle = '<style>' +
+        'html body #' + uniqueId + ' .nvx-col-wrapper {' +
+        '  background-color: ' + sectionBg + ' !important;' +
+        '  border-radius: 16px !important;' +
+        '  padding: 24px 16px !important;' +
+        '  box-sizing: border-box !important;' +
+        '  width: 100% !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-col-grid {' +
+        '  display: grid !important;' +
+        '  grid-template-columns: repeat(' + Math.min(columnsDesktop, cards.length) + ', minmax(0, 1fr)) !important;' +
+        '  gap: 16px !important;' +
+        '  width: 100% !important;' +
+        '  box-sizing: border-box !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-col-card {' +
+        '  background-color: ' + cardBg + ' !important;' +
+        '  border-radius: ' + cardRadius + ' !important;' +
+        '  border: 1px solid #e5e7eb !important;' +
+        '  padding: 16px !important;' +
+        '  display: flex !important;' +
+        '  flex-direction: column !important;' +
+        '  align-items: ' + (cardAlign === "center" ? "center" : "flex-start") + ' !important;' +
+        '  text-align: ' + (cardAlign === "center" ? "center" : "left") + ' !important;' +
+        '  gap: 10px !important;' +
+        '  box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;' +
+        '  box-sizing: border-box !important;' +
+        '  min-width: 0 !important;' +
+        '}' +
+        '@media (max-width: 640px) {' +
+        (mobileLayout === "scroll"
+          ? 'html body #' + uniqueId + ' .nvx-col-grid {' +
+            '  display: flex !important;' +
+            '  overflow-x: auto !important;' +
+            '  scroll-snap-type: x mandatory !important;' +
+            '  -webkit-overflow-scrolling: touch !important;' +
+            '  padding-bottom: 8px !important;' +
+            '  gap: 12px !important;' +
+            '}' +
+            'html body #' + uniqueId + ' .nvx-col-card {' +
+            '  flex: 0 0 78% !important;' +
+            '  min-width: 78% !important;' +
+            '  scroll-snap-align: start !important;' +
+            '}'
+          : 'html body #' + uniqueId + ' .nvx-col-grid {' +
+            '  display: flex !important;' +
+            '  flex-direction: column !important;' +
+            '  gap: 14px !important;' +
+            '}' +
+            'html body #' + uniqueId + ' .nvx-col-card {' +
+            '  width: 100% !important;' +
+            '}') +
+        '}' +
+        '</style>';
+
+      var html = cssStyle + '<div class="nvx-col-wrapper">';
+
+      if (sectionTitle || sectionSubtitle) {
+        html += '<div style="text-align: center !important; margin-bottom: 20px !important; max-width: 600px !important; margin-left: auto !important; margin-right: auto !important;">';
+        if (sectionTitle) {
+          html += '<div style="font-size: ' + sectionTitleSize + 'px !important; font-weight: 800 !important; color: ' + sectionTitleColor + ' !important; line-height: 1.25 !important; margin: 0 0 6px 0 !important;">' + sectionTitle + '</div>';
+        }
+        if (sectionSubtitle) {
+          html += '<div style="font-size: ' + sectionSubtitleSize + 'px !important; color: ' + sectionSubtitleColor + ' !important; line-height: 1.4 !important; margin: 0 !important;">' + sectionSubtitle + '</div>';
+        }
+        html += '</div>';
+      }
+
+      html += '<div class="nvx-col-grid">';
+
+      for (var i = 0; i < cards.length; i++) {
+        var c = cards[i] || {};
+        var img = c.image || "";
+        var title = c.title || "";
+        var badge = c.badge || "";
+        var subtitle = c.subtitle || "";
+
+        html += '<div class="nvx-col-card">';
+
+        if (img) {
+          html += '<img src="' + img + '" alt="' + title + '" style="width: 100% !important; aspectRatio: 1 / 1 !important; object-fit: cover !important; border-radius: ' + cardRadius + ' !important; display: block !important;" />';
+        } else {
+          html += '<div style="width: 100% !important; height: 120px !important; background: #e5e7eb !important; border-radius: ' + cardRadius + ' !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #9ca3af !important; font-size: 28px !important;">🖼️</div>';
+        }
+
+        if (badge) {
+          html += '<span style="display: inline-block !important; background-color: ' + badgeBg + ' !important; color: ' + badgeColor + ' !important; border: 1px solid ' + badgeBorder + ' !important; padding: 3px 8px !important; border-radius: ' + badgeRounded + ' !important; font-size: ' + badgeSize + 'px !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.3px !important;">' + badge + '</span>';
+        }
+
+        if (title) {
+          html += '<div style="font-size: ' + cardTitleSize + 'px !important; font-weight: 800 !important; color: ' + cardTitleColor + ' !important; line-height: 1.25 !important; margin: 0 !important; width: 100% !important;">' + title + '</div>';
+        }
+
+        if (subtitle) {
+          html += '<div style="font-size: ' + cardSubtitleSize + 'px !important; color: ' + cardSubtitleColor + ' !important; line-height: 1.4 !important; margin: 0 !important; width: 100% !important; word-break: break-word !important; overflow-wrap: break-word !important;">' + subtitle + '</div>';
+        }
+
+        html += '<' + '/div>';
+      }
+
+      html += '</div></div>';
+      container.innerHTML = html;
+
+      var descEl = findDescriptionEl();
+      if (position === "before-description" && descEl) {
+        descEl.parentNode.insertBefore(container, descEl);
+      } else {
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        } else {
+          var fallback = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+          if (fallback) fallback.appendChild(container);
+        }
+      }
+    };
+
+    inject();
+    setTimeout(inject, 500);
+    setTimeout(inject, 1500);
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderColumnasImagenesTexto error:", err);
+    }
+  }
+}
 })(); 
