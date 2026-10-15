@@ -83,14 +83,10 @@ export default function BotonWhatsappEditor({
   const isForAll = effectiveTargetType === 'all';
   const scopeLabel = isForAll ? 'Todos los productos' : isCategory ? 'Categoría' : 'Producto específico';
 
+  // CARGA LIBRE DE CUALQUIER IMAGEN DE LA GALERÍA
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      setUploadError('La imagen supera el límite máximo de 2 MB.');
-      return;
-    }
 
     setIsUploading(true);
     setUploadError('');
@@ -114,7 +110,7 @@ export default function BotonWhatsappEditor({
 
       setAvatarUrl(data.url);
     } catch (err: any) {
-      setUploadError(err.message || 'Error al subir la imagen de la galería.');
+      setUploadError(err.message || 'Ocurrió un error al subir la foto de la galería.');
     } finally {
       setIsUploading(false);
       e.target.value = '';
@@ -345,7 +341,7 @@ export default function BotonWhatsappEditor({
         </button>
       </div>
 
-      {/* TAB GENERAL: ALINEADO Y CON CARGA DESDE GALERÍA */}
+      {/* TAB GENERAL: CARGA DE CUALQUIER IMAGEN */}
       {activeTab === 'general' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           
@@ -389,7 +385,7 @@ export default function BotonWhatsappEditor({
             />
           </div>
 
-          {/* SUBIDA DE FOTO DE LA GALERÍA (ESTILO WIGY) */}
+          {/* SUBIDA LIBRE DE CUALQUIER FOTO DE GALERÍA */}
           <div>
             <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
               Avatar / Foto de Perfil
@@ -409,12 +405,12 @@ export default function BotonWhatsappEditor({
                 </div>
               ) : (
                 <div>
-                  <div style={{ fontSize: '32px', marginBottom: '6px' }}>👤</div>
+                  <div style={{ fontSize: '32px', marginBottom: '6px' }}>🖼️</div>
                   <div style={{ fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: '2px' }}>
-                    Haz clic o arrastra una imagen aquí
+                    Elegí cualquier foto de tu galería
                   </div>
                   <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '14px' }}>
-                    JPG, PNG, GIF - Máximo 2MB · Recomendado: 80x80px
+                    Soporta todos los formatos de imagen sin restricciones
                   </div>
 
                   <label style={{
@@ -428,10 +424,10 @@ export default function BotonWhatsappEditor({
                     display: 'inline-block',
                     boxShadow: '0 2px 8px rgba(16,185,129,0.3)'
                   }}>
-                    {isUploading ? 'Subiendo imagen...' : '📱 Seleccionar de la galería'}
+                    {isUploading ? 'Subiendo foto...' : '📱 Seleccionar foto de la galería'}
                     <input
                       type="file"
-                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      accept="image/*"
                       onChange={handleAvatarUpload}
                       disabled={isUploading}
                       style={{ display: 'none' }}
@@ -709,4 +705,4 @@ export default function BotonWhatsappEditor({
       </div>
     </div>
   );
-  }
+                                                                            }
