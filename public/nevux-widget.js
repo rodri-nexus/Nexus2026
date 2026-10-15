@@ -1832,6 +1832,7 @@
             if (w.widget_slug === "pestanas-informacion") renderPestanasInformacion(w);
             if (w.widget_slug === "imagenes-textos") renderImagenesTextos(w);
             if (w.widget_slug === "columnas-imagenes-texto") renderColumnasImagenesTexto(w);
+            if (w.widget_slug === "comparador-marca") renderComparadorMarca(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -12254,4 +12255,204 @@ function renderColumnasImagenesTexto(w) {
     }
   }
 }
+    /* ═══════════════════════════════════════════
+   WIDGET #37: COMPARADOR DE MARCA
+   ═══════════════════════════════════════════ */
+function renderComparadorMarca(w) {
+  try {
+    var cfg = w.config || {};
+    var uniqueId = "nvx-comp-brand-" + (w.id || Math.random().toString(36).substring(7));
+    if (document.getElementById(uniqueId)) return;
+
+    var pageType = detectPageType();
+    if (pageType !== "product") return;
+
+    var items = cfg.items || [];
+    if (!Array.isArray(items) || items.length === 0) return;
+
+    var sectionTitle = cfg.sectionTitle || "";
+    var sectionSubtitle = cfg.sectionSubtitle || "";
+    var brandUs = cfg.brandUs || "Nosotros";
+    var brandUsLogo = cfg.brandUsLogo || "";
+    var brandOthers = cfg.brandOthers || "Otros";
+    var position = cfg.position || "after-description";
+
+    var sectionBg = cfg.sectionBg || "#fafafa";
+    var colUsBg = cfg.colUsBg || "#242424";
+    var colUsText = cfg.colUsText || "#ffffff";
+    var othersText = cfg.othersText || "#aaaaaa";
+    var featureColor = cfg.featureColor || "#191919";
+    var borderColor = cfg.borderColor || "#EFEFEF";
+
+    var h2Size = cfg.h2Size || 22;
+    var h3Size = cfg.h3Size || 18;
+    var textSize = cfg.textSize || 15;
+
+    var campaignTheme = cfg.campaignTheme || "none";
+    if (campaignTheme && campaignTheme !== "none") {
+      if (campaignTheme === "black-friday") { colUsBg = "#F59E0B"; colUsText = "#111827"; }
+      else if (campaignTheme === "hot-sale") { colUsBg = "#EF4444"; colUsText = "#ffffff"; }
+      else if (campaignTheme === "cyber-monday") { colUsBg = "#3B82F6"; colUsText = "#ffffff"; }
+      else if (campaignTheme === "navidad") { colUsBg = "#064E3B"; colUsText = "#ffffff"; }
+      else if (campaignTheme === "san-valentin") { colUsBg = "#831843"; colUsText = "#ffffff"; }
+      else if (campaignTheme === "dia-padre-madre") { colUsBg = "#312E81"; colUsText = "#ffffff"; }
+      else if (campaignTheme === "liquidacion") { colUsBg = "#7F1D1D"; colUsText = "#ffffff"; }
+    }
+
+    var findDescriptionEl = function() {
+      var selectors = [
+        ".js-product-description",
+        '[data-store="product-description"]',
+        ".product-description",
+        "#description",
+        ".description",
+        ".user-content",
+        ".js-product-tabs",
+        ".product-detail-description"
+      ];
+      for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el) return el;
+      }
+      var headings = document.querySelectorAll("h2, h3, h4, .tab-header, .accordion-header, .js-accordion-toggle, [data-tab]");
+      for (var j = 0; j < headings.length; j++) {
+        var txt = (headings[j].textContent || "").toLowerCase();
+        if (txt.indexOf("descripci") !== -1) return headings[j];
+      }
+      var fallbacks = [".js-product-detail", ".product-detail", ".js-product-container", ".product-container"];
+      for (var k = 0; k < fallbacks.length; k++) {
+        var fb = document.querySelector(fallbacks[k]);
+        if (fb) return fb;
+      }
+      return null;
+    };
+
+    var inject = function() {
+      if (document.getElementById(uniqueId)) return;
+
+      var container = document.createElement("div");
+      container.id = uniqueId;
+      container.setAttribute("data-nevux-widget", "comparador-marca");
+      container.style.cssText = "width: 100% !important; max-width: 100% !important; margin: 24px 0 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; box-sizing: border-box !important;";
+
+      var cssStyle = '<style>' +
+        'html body #' + uniqueId + ' .nvx-comp-wrapper {' +
+        '  background-color: ' + sectionBg + ' !important;' +
+        '  border-radius: 16px !important;' +
+        '  padding: 24px 16px !important;' +
+        '  box-sizing: border-box !important;' +
+        '  width: 100% !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-comp-table {' +
+        '  max-width: 580px !important;' +
+        '  margin: 0 auto !important;' +
+        '  width: 100% !important;' +
+        '  box-sizing: border-box !important;' +
+        '}' +
+        'html body #' + uniqueId + ' .nvx-comp-row {' +
+        '  display: grid !important;' +
+        '  grid-template-columns: 2fr 1.2fr 1fr !important;' +
+        '  align-items: center !important;' +
+        '  gap: 8px !important;' +
+        '  box-sizing: border-box !important;' +
+        '}' +
+        '@media (max-width: 480px) {' +
+        '  html body #' + uniqueId + ' .nvx-comp-wrapper {' +
+        '    padding: 16px 10px !important;' +
+        '  }' +
+        '  html body #' + uniqueId + ' .nvx-comp-row {' +
+        '    grid-template-columns: 1.8fr 1.2fr 1fr !important;' +
+        '    gap: 4px !important;' +
+        '  }' +
+        '}' +
+        '</style>';
+
+      var html = cssStyle + '<div class="nvx-comp-wrapper">';
+
+      if (sectionTitle || sectionSubtitle) {
+        html += '<div style="text-align: center !important; margin-bottom: 20px !important; max-width: 520px !important; margin-left: auto !important; margin-right: auto !important;">';
+        if (sectionTitle) {
+          html += '<div style="font-size: ' + h2Size + 'px !important; font-weight: 800 !important; color: #111827 !important; line-height: 1.25 !important; margin: 0 0 6px 0 !important;">' + sectionTitle + '</div>';
+        }
+        if (sectionSubtitle) {
+          html += '<div style="font-size: ' + textSize + 'px !important; color: #6B7280 !important; line-height: 1.4 !important; margin: 0 !important;">' + sectionSubtitle + '</div>';
+        }
+        html += '</div>';
+      }
+
+      html += '<div class="nvx-comp-table">';
+
+      // Header Row
+      html += '<div class="nvx-comp-row">';
+      html += '<div></div>';
+      html += '<div style="background-color: ' + colUsBg + ' !important; color: ' + colUsText + ' !important; border-radius: 12px 12px 0 0 !important; padding: 10px 8px !important; text-align: center !important; font-weight: 800 !important; font-size: ' + h3Size + 'px !important; box-shadow: 0 -2px 10px rgba(0,0,0,0.08) !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 4px !important;">';
+      if (brandUsLogo) {
+        html += '<img src="' + brandUsLogo + '" alt="Logo" style="max-height: 24px !important; max-width: 80px !important; object-fit: contain !important; display: block !important;" />';
+      }
+      html += '<span>' + brandUs + '</span>';
+      html += '</div>';
+      html += '<div style="text-align: center !important; font-weight: 700 !important; font-size: ' + h3Size + 'px !important; color: ' + othersText + ' !important; padding: 10px 8px !important;">' + brandOthers + '</div>';
+      html += '</div>';
+
+      // Items Rows
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i] || {};
+        var isLast = i === items.length - 1;
+        var feat = item.feature || "";
+        var us = !!item.us;
+        var others = !!item.others;
+
+        var lastCardStyle = isLast ? ' border-radius: 0 0 12px 12px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;' : '';
+
+        html += '<div class="nvx-comp-row" style="border-bottom: 1px solid ' + borderColor + ' !important;">';
+
+        // Feature text
+        html += '<div style="font-size: ' + textSize + 'px !important; font-weight: 600 !important; color: ' + featureColor + ' !important; padding: 10px 8px !important; line-height: 1.3 !important; word-break: break-word !important; overflow-wrap: break-word !important;">' + feat + '</div>';
+
+        // Us Column
+        html += '<div style="background-color: ' + colUsBg + ' !important; color: ' + colUsText + ' !important; padding: 10px 8px !important; text-align: center !important;' + lastCardStyle + '">';
+        if (us) {
+          html += '<span style="display: inline-flex !important; width: 22px !important; height: 22px !important; border-radius: 50% !important; background-color: #ffffff !important; color: ' + colUsBg + ' !important; align-items: center !important; justify-content: center !important; font-size: 12px !important; font-weight: 900 !important;">✓</span>';
+        } else {
+          html += '<span style="opacity: 0.4 !important; font-size: 14px !important;">✕</span>';
+        }
+        html += '</div>';
+
+        // Others Column
+        html += '<div style="text-align: center !important; padding: 10px 8px !important;">';
+        if (others) {
+          html += '<span style="color: #10B981 !important; font-size: 16px !important; font-weight: 800 !important;">✓</span>';
+        } else {
+          html += '<span style="color: #D1D5DB !important; font-size: 16px !important; font-weight: 800 !important;">✕</span>';
+        }
+        html += '</div>';
+
+        html += '</div>';
+      }
+
+      html += '</div></div>';
+      container.innerHTML = html;
+
+      var descEl = findDescriptionEl();
+      if (position === "before-description" && descEl) {
+        descEl.parentNode.insertBefore(container, descEl);
+      } else {
+        if (descEl && descEl.parentNode) {
+          descEl.parentNode.insertBefore(container, descEl.nextSibling);
+        } else {
+          var fallback = document.querySelector(".js-product-detail, .product-detail, .js-product-container, .product-container, main");
+          if (fallback) fallback.appendChild(container);
+        }
+      }
+    };
+
+    inject();
+    setTimeout(inject, 500);
+    setTimeout(inject, 1500);
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderComparadorMarca error:", err);
+    }
+  }
+      }
 })(); 
