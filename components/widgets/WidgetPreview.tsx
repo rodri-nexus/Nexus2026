@@ -8,6 +8,50 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function ComparadorMarcaPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>⚖️ COMPARADOR DE MARCA</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          CONFIANZA
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "2px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr", gap: "4px", fontSize: "6px", fontWeight: 800, textAlign: "center", alignItems: "center" }}>
+          <div style={{ textAlign: "left", color: "#6b7280" }}>Ventaja</div>
+          <div style={{ background: "#111827", color: "#ffffff", borderRadius: "4px 4px 0 0", padding: "2px 0", fontSize: "5.5px" }}>Nosotros</div>
+          <div style={{ color: "#9ca3af", padding: "2px 0", fontSize: "5.5px" }}>Otros</div>
+        </div>
+        {[
+          { text: "Dolor solucionado", us: true, others: false },
+          { text: "Envío express AMBA", us: true, others: false },
+          { text: "Garantía total 60 días", us: true, others: true },
+        ].map((item, i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1.2fr 1fr", gap: "4px", fontSize: "5.5px", alignItems: "center", borderTop: "1px solid #f3f4f6", padding: "2px 0" }}>
+            <div style={{ fontWeight: 700, color: "#374151", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{item.text}</div>
+            <div style={{ background: "#111827", color: "#10B981", textAlign: "center", fontWeight: 900, padding: "1px 0" }}>✓</div>
+            <div style={{ textAlign: "center", color: item.others ? "#10B981" : "#d1d5db", fontWeight: 800 }}>{item.others ? "✓" : "✕"}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ColumnasImagenesTextoPreview() {
   return (
     <div
@@ -411,7 +455,7 @@ function PreguntasFrecuentesPreview() {
         </div>
         <div style={{ fontSize: "5.5px", color: "#6b7280", lineHeight: 1.1 }}>Despachamos dentro de las 24 a 48 hs...</div>
       </div>
-      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight: 700, color: "#374151" }}>
+      <div style={{ background: "#f9fafb", border: "1px solid #f3f4f6", borderRadius: "6px", padding: "4px 6px", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "6.5px", fontWeight 700, color: "#374151" }}>
         <span>💳 ¿Qué medios de pago aceptan?</span>
         <span style={{ fontSize: "7px", opacity: 0.6 }}>▼</span>
       </div>
@@ -808,6 +852,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "comparador-marca":
+      return <ComparadorMarcaPreview />;
     case "columnas-imagenes-texto":
       return <ColumnasImagenesTextoPreview />;
     case "imagenes-textos":
@@ -909,4 +955,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-        }
+          }
