@@ -12778,7 +12778,7 @@ function renderBotonWhatsapp(w) {
   }
         }
 /* ═══════════════════════════════════════════
-   WIDGET #40: RASPÁ Y GANÁ (v375 - Alineado Ruleta)
+   WIDGET #40: RASPÁ Y GANÁ (v376 - sin burbuja + scratch sin scroll)
    ═══════════════════════════════════════════ */
 function renderRaspaGana(w) {
   try {
@@ -12789,7 +12789,7 @@ function renderRaspaGana(w) {
     var freq = cfg.frequency || "once-visit";
     var storageKey = "nvx_raspa_seen_" + w.id;
 
-    // Frecuencia (espejo Ruleta)
+    // Si ya se mostró / reclamó → no renderizar NADA (ni popup ni burbuja)
     try {
       if (freq === "once-visit" && window.sessionStorage && window.sessionStorage.getItem(storageKey)) {
         return;
@@ -12806,6 +12806,10 @@ function renderRaspaGana(w) {
       if (freq === "once_per_session" && window.sessionStorage && window.sessionStorage.getItem(storageKey)) {
         return;
       }
+      // Flag de "premio reclamado" siempre gana: nunca más se muestra
+      if (window.localStorage && window.localStorage.getItem(storageKey + "_done")) {
+        return;
+      }
     } catch (eFreq) {}
 
     var title = cfg.title || "Raspá y ganá";
@@ -12816,7 +12820,6 @@ function renderRaspaGana(w) {
     var headerImg = cfg.headerImg || "";
     var trigger = cfg.trigger || "enter";
     var collectEmail = cfg.collectEmail !== false;
-    var showFloatingBtn = cfg.showFloatingBtn !== false;
     var storeId = w.store_id || "";
 
     var coupons = Array.isArray(cfg.coupons) && cfg.coupons.length > 0 ? cfg.coupons : [
@@ -12832,7 +12835,6 @@ function renderRaspaGana(w) {
     var titleSize = cfg.titleSize || 24;
     var subtitleSize = cfg.subtitleSize || 14;
 
-    // Presets de campaña (misma paleta que Ruleta)
     if (cfg.campaignTheme && cfg.campaignTheme !== "none") {
       if (cfg.campaignTheme === "black-friday") {
         bgColor = "#111827"; titleColor = "#F59E0B"; textColor = "#ffffff"; btnBg = "#F59E0B"; btnTextCol = "#111827";
@@ -12851,7 +12853,6 @@ function renderRaspaGana(w) {
       }
     }
 
-    // Cupón ganador por probabilidad acumulada
     var rand = Math.floor(Math.random() * 100) + 1;
     var cum = 0;
     var winner = coupons[0];
@@ -12874,8 +12875,38 @@ function renderRaspaGana(w) {
           if (window.localStorage) window.localStorage.setItem(storageKey, String(new Date().getTime()));
         } else if (freq === "once_per_visitor") {
           if (window.localStorage) window.localStorage.setItem(storageKey, "1");
+        } else {
+          // always u otros: igual marcamos para no reaparecer si ya reclamó
+          if (window.sessionStorage) window.sessionStorage.setItem(storageKey, "1");
         }
       } catch (eMark) {}
+    }
+
+    function markAsDone() {
+      try {
+        if (window.localStorage) window.localStorage.setItem(storageKey + "_done", "1");
+        if (window.sessionStorage) window.sessionStorage.setItem(storageKey, "1");
+      } catch (eDone) {}
+    }
+
+    function lockBodyScroll() {
+      try {
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+        document.body.style.touchAction = "none";
+        document.body.setAttribute("data-nvx-raspa-lock", "1");
+      } catch (eLock) {}
+    }
+
+    function unlockBodyScroll() {
+      try {
+        if (document.body.getAttribute("data-nvx-raspa-lock") === "1") {
+          document.documentElement.style.overflow = "";
+          document.body.style.overflow = "";
+          document.body.style.touchAction = "";
+          document.body.removeAttribute("data-nvx-raspa-lock");
+        }
+      } catch (eUnlock) {}
     }
 
     function esc(str) {
@@ -12887,7 +12918,6 @@ function renderRaspaGana(w) {
         .replace(/"/g, "&quot;");
     }
 
-    // CSS (mismo patrón Ruleta)
     var styleId = "style-" + elementId;
     if (!document.getElementById(styleId)) {
       var styleEl = document.createElement("style");
@@ -12908,6 +12938,8 @@ function renderRaspaGana(w) {
           "padding: 16px !important;" +
           "box-sizing: border-box !important;" +
           "font-family: system-ui, -apple-system, sans-serif !important;" +
+          "touch-action: none !important;" +
+          "overscroll-behavior: none !important;" +
         "}" +
         "#" + elementId + ".nvx-raspa-open {" +
           "display: flex !important;" +
@@ -12924,6 +12956,7 @@ function renderRaspaGana(w) {
           "box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4) !important;" +
           "box-sizing: border-box !important;" +
           "animation: nvxRaspaPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;" +
+          "touch-action: none !important;" +
         "}" +
         "@keyframes nvxRaspaPopIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }" +
         "#" + elementId + " .nvx-raspa-close {" +
@@ -12950,32 +12983,33 @@ function renderRaspaGana(w) {
           "background: rgba(16,185,129,0.08) !important; border: 2px dashed " + btnBg + " !important;" +
           "border-radius: 14px !important; padding: 14px !important; margin: 10px 0 !important;" +
         "}" +
-        "#" + elementId + "-float {" +
-          "position: fixed !important; bottom: 20px !important; left: 20px !important;" +
-          "width: 52px !important; height: 52px !important; border-radius: 50% !important;" +
-          "background: " + btnBg + " !important; color: #ffffff !important;" +
-          "display: flex !important; align-items: center !important; justify-content: center !important;" +
-          "font-size: 22px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;" +
-          "cursor: pointer !important; z-index: 999990 !important;" +
+        "#" + elementId + " canvas {" +
+          "touch-action: none !important;" +
+          "-ms-touch-action: none !important;" +
+          "user-select: none !important;" +
+          "-webkit-user-select: none !important;" +
         "}";
       styleEl.appendChild(document.createTextNode(css));
       document.head.appendChild(styleEl);
     }
 
-    // Handlers globales (mismo patrón Ruleta)
     window["nvxCloseRaspa_" + w.id] = function () {
       markAsSeen();
+      unlockBodyScroll();
       var el = document.getElementById(elementId);
-      if (el) el.className = el.className.replace(" nvx-raspa-open", "").replace("nvx-raspa-open", "");
+      if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
     };
 
     window["nvxOpenRaspa_" + w.id] = function () {
       var el = document.getElementById(elementId);
-      if (el) {
-        if (el.className.indexOf("nvx-raspa-open") === -1) {
-          el.className = (el.className ? el.className + " " : "") + "nvx-raspa-open";
-        }
+      if (!el) return;
+      if (el.className.indexOf("nvx-raspa-open") === -1) {
+        el.className = (el.className ? el.className + " " : "") + "nvx-raspa-open";
       }
+      lockBodyScroll();
+      markAsSeen();
     };
 
     window["nvxClaimRaspa_" + w.id] = function () {
@@ -12989,7 +13023,6 @@ function renderRaspaGana(w) {
         return;
       }
 
-      // Intento de notificación (best-effort). No rompe si falla.
       try {
         fetch("https://nevux.ar/api/social-proof", {
           method: "POST",
@@ -13008,7 +13041,7 @@ function renderRaspaGana(w) {
       var copyStep = document.getElementById(elementId + "-copy-step");
       if (emailStep) emailStep.style.display = "none";
       if (copyStep) copyStep.style.display = "block";
-      markAsSeen();
+      markAsDone();
     };
 
     window["nvxCopyRaspa_" + w.id] = function (btn) {
@@ -13017,19 +13050,19 @@ function renderRaspaGana(w) {
           navigator.clipboard.writeText(winnerCode);
         }
       } catch (eCopy) {}
+      markAsDone();
       if (btn) {
         var prev = btn.innerHTML;
         btn.innerHTML = "¡Copiado al portapapeles! ✓";
         setTimeout(function () {
           btn.innerHTML = prev;
           window["nvxCloseRaspa_" + w.id]();
-        }, 1400);
+        }, 1200);
       } else {
         window["nvxCloseRaspa_" + w.id]();
       }
     };
 
-    // Overlay + Card HTML
     var popupOverlay = document.createElement("div");
     popupOverlay.id = elementId;
     popupOverlay.setAttribute("data-nevux-widget", "raspa-gana");
@@ -13079,13 +13112,13 @@ function renderRaspaGana(w) {
         headerHtml +
         '<div style="font-size:' + titleSize + 'px !important;font-weight:900 !important;color:' + titleColor + ' !important;margin-bottom:6px !important;line-height:1.2 !important;">' + esc(title) + '</div>' +
         '<div style="font-size:' + subtitleSize + 'px !important;opacity:0.9 !important;margin-bottom:14px !important;line-height:1.35 !important;">' + esc(subtitle) + '</div>' +
-        '<div style="position:relative !important;width:280px !important;height:130px !important;margin:0 auto 16px auto !important;border-radius:12px !important;overflow:hidden !important;box-shadow:0 4px 12px rgba(0,0,0,0.2) !important;">' +
+        '<div id="' + elementId + '-scratch-wrap" style="position:relative !important;width:280px !important;height:130px !important;margin:0 auto 16px auto !important;border-radius:12px !important;overflow:hidden !important;box-shadow:0 4px 12px rgba(0,0,0,0.2) !important;touch-action:none !important;">' +
           '<div style="position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:100% !important;background:#ffffff !important;color:#111827 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;padding:10px !important;box-sizing:border-box !important;border:2px dashed ' + btnBg + ' !important;border-radius:12px !important;">' +
             '<div style="font-size:18px !important;font-weight:900 !important;color:#10B981 !important;margin-bottom:4px !important;">' + esc(winnerTitle) + '</div>' +
             '<div style="font-size:11px !important;color:#6B7280 !important;">CÓDIGO DE CUPÓN</div>' +
             '<div style="font-size:16px !important;font-weight:900 !important;letter-spacing:1px !important;color:#111827 !important;background:#F3F4F6 !important;padding:4px 12px !important;border-radius:6px !important;margin-top:2px !important;font-family:monospace !important;">' + esc(winnerCode) + '</div>' +
           '</div>' +
-          '<canvas id="' + elementId + '-canvas" width="280" height="130" style="position:absolute !important;top:0 !important;left:0 !important;width:280px !important;height:130px !important;cursor:pointer !important;border-radius:12px !important;z-index:2 !important;"></canvas>' +
+          '<canvas id="' + elementId + '-canvas" width="280" height="130" style="position:absolute !important;top:0 !important;left:0 !important;width:280px !important;height:130px !important;cursor:pointer !important;border-radius:12px !important;z-index:2 !important;touch-action:none !important;"></canvas>' +
         '</div>' +
         emailBlock +
         legalHtml +
@@ -13093,7 +13126,7 @@ function renderRaspaGana(w) {
 
     document.body.appendChild(popupOverlay);
 
-    // Canvas raspadita
+    // Canvas raspadita SIN scroll
     var canvas = document.getElementById(elementId + "-canvas");
     if (canvas) {
       var ctx = canvas.getContext("2d");
@@ -13130,7 +13163,7 @@ function renderRaspaGana(w) {
             } else {
               var copyStep = document.getElementById(elementId + "-copy-step");
               if (copyStep) copyStep.style.display = "block";
-              markAsSeen();
+              markAsDone();
             }
           }, 400);
         }
@@ -13146,33 +13179,67 @@ function renderRaspaGana(w) {
         };
       };
 
+      // Mouse
       canvas.addEventListener("mousedown", function (e) {
+        e.preventDefault();
         isScratching = true;
         var c = getCoords(e);
         scratchAt(c.x, c.y);
       });
       canvas.addEventListener("mousemove", function (e) {
         if (!isScratching) return;
+        e.preventDefault();
         var c = getCoords(e);
         scratchAt(c.x, c.y);
       });
       window.addEventListener("mouseup", function () { isScratching = false; });
 
+      // Touch: passive:false + preventDefault = NO scroll de fondo
       canvas.addEventListener("touchstart", function (e) {
+        if (e.cancelable) e.preventDefault();
         isScratching = true;
         var c = getCoords(e);
         scratchAt(c.x, c.y);
-      }, { passive: true });
+      }, { passive: false });
+
       canvas.addEventListener("touchmove", function (e) {
+        if (e.cancelable) e.preventDefault();
         if (!isScratching) return;
         var c = getCoords(e);
         scratchAt(c.x, c.y);
-      }, { passive: true });
-      window.addEventListener("touchend", function () { isScratching = false; });
+      }, { passive: false });
+
+      canvas.addEventListener("touchend", function (e) {
+        if (e.cancelable) e.preventDefault();
+        isScratching = false;
+      }, { passive: false });
+
+      // Evitar scroll también sobre el wrapper
+      var wrap = document.getElementById(elementId + "-scratch-wrap");
+      if (wrap) {
+        wrap.addEventListener("touchstart", function (e) {
+          if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+        wrap.addEventListener("touchmove", function (e) {
+          if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+      }
     }
 
-    // Triggers de apertura
+    // Bloquear scroll del overlay mientras está abierto
+    popupOverlay.addEventListener("touchmove", function (e) {
+      // Permitir scroll solo dentro de inputs si hiciera falta; el resto se bloquea
+      var tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : "";
+      if (tag !== "input" && tag !== "textarea") {
+        if (e.cancelable) e.preventDefault();
+      }
+    }, { passive: false });
+
     var openPopup = function () {
+      // Re-check por si en otra pestaña ya lo reclamó
+      try {
+        if (window.localStorage && window.localStorage.getItem(storageKey + "_done")) return;
+      } catch (eRecheck) {}
       window["nvxOpenRaspa_" + w.id]();
       if (typeof nvxTrack === "function") {
         nvxTrack(w.id, "impression");
@@ -13207,20 +13274,12 @@ function renderRaspaGana(w) {
       setTimeout(openPopup, 600);
     }
 
-    // Botón flotante reabrible
-    if (showFloatingBtn) {
-      var floatBtn = document.createElement("div");
-      floatBtn.id = elementId + "-float";
-      floatBtn.innerHTML = "🎟️";
-      floatBtn.onclick = function () {
-        window["nvxOpenRaspa_" + w.id]();
-      };
-      document.body.appendChild(floatBtn);
-    }
+    // ❌ SIN burbuja flotante: el widget es one-shot (popup → raspa → reclama → listo)
+
   } catch (err) {
     if (window.console && window.console.warn) {
       window.console.warn("[Nevux] renderRaspaGana error:", err);
     }
   }
-          }
+       }
 })(); 
