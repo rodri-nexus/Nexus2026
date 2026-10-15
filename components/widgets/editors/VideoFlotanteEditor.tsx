@@ -645,7 +645,7 @@ export default function VideoFlotanteEditor({
               <input type="color" value={ctaBgColor} onChange={(e) => handleColorChange(setCtaBgColor, e.target.value)} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
             </div>
             <div>
-              <label style={{ fontSize: '12px', fontWeight 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Color Texto CTA</label>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>Color Texto CTA</label>
               <input type="color" value={ctaTextColor} onChange={(e) => handleColorChange(setCtaTextColor, e.target.value)} style={{ width: '100%', height: '38px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
             </div>
           </div>
@@ -704,4 +704,4 @@ export default function VideoFlotanteEditor({
       </div>
     </div>
   );
-                                                   }
+  }
