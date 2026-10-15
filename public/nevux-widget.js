@@ -12560,7 +12560,7 @@ function renderVideoFlotante(w) {
 
     modalHtml += '<div id="' + modalId + '-title" style="color: #ffffff !important; font-size: 15px !important; font-weight: 700 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;">' + initialTitle + '</div>';
 
-    modalHtml += '<button id="' + modalId + '-cta" type="button" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 13px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; border: none !important; cursor: pointer !important; width: 100% !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important; font-family: inherit !important; transition: opacity 0.2s !important;">' + initialCtaText + '</button>';
+    modalHtml += '<button id="' + modalId + '-cta" type="button" style="background-color: ' + ctaBgColor + ' !important; color: ' + ctaTextColor + ' !important; border-radius: ' + ctaRadius + 'px !important; padding: 13px !important; text-align: center !important; font-size: 14px !important; font-weight: 800 !important; border: none !important; cursor: pointer !important; width: 100% !important; box-shadow: 0 4px 14px rgba(0,0,0,0.4) !important; font-family: inherit !important;">' + initialCtaText + '</button>';
 
     modalHtml += '</div>';
 
@@ -12589,6 +12589,15 @@ function renderVideoFlotante(w) {
     var nextEl = document.getElementById(modalId + "-next");
 
     var currentIdx = 0;
+
+    var closeModal = function () {
+      if (modalEl) {
+        modalEl.style.display = "none";
+      }
+      if (playerEl) {
+        try { playerEl.pause(); } catch (e) {}
+      }
+    };
 
     var loadVideo = function (idx) {
       if (idx < 0) idx = videos.length - 1;
@@ -12619,30 +12628,23 @@ function renderVideoFlotante(w) {
         if (modalEl) {
           modalEl.style.display = "flex";
           if (playerEl) {
-            playerEl.play();
+            try { playerEl.play(); } catch (e2) {}
           }
         }
       });
     }
 
     if (modalCloseEl) {
-      modalCloseEl.addEventListener("click", function () {
-        if (modalEl) {
-          modalEl.style.display = "none";
-          if (playerEl) {
-            playerEl.pause();
-          }
-        }
+      modalCloseEl.addEventListener("click", function (e) {
+        e.stopPropagation();
+        closeModal();
       });
     }
 
     if (modalEl) {
       modalEl.addEventListener("click", function (e) {
         if (e.target === modalEl) {
-          modalEl.style.display = "none";
-          if (playerEl) {
-            playerEl.pause();
-          }
+          closeModal();
         }
       });
     }
@@ -12661,92 +12663,89 @@ function renderVideoFlotante(w) {
       });
     }
 
-    // ACCIÓN COMPRAR AHORA -> AGREGAR AL CARRITO + ABRIR CARRITO
+    // CTA: Cerrar modal -> Agregar al carrito -> Abrir mini-carrito
     if (ctaEl) {
       ctaEl.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
 
         var currentVid = videos[currentIdx] || {};
-        var customUrl = currentVid.buttonUrl || "";
+        var customUrl = (currentVid.buttonUrl || "").trim();
 
-        // Si hay una URL externa explícita diferente a '#'
-        if (customUrl && customUrl !== "#" && customUrl.trim() !== "" && customUrl.indexOf("http") === 0) {
+        // 1. CERRAR MODAL YA (evita el overlay negro pegado)
+        closeModal();
+
+        // Si el CTA tiene un link externo real, redirigir
+        if (customUrl && customUrl !== "#" && customUrl.indexOf("http") === 0) {
           window.location.href = customUrl;
           return;
         }
 
-        var prod = window.LS && window.LS.product;
-        var varInput = document.querySelector("form[action*='/cart/add'] input[name='variant_id'], form[action*='/cart/add'] select[name='variant_id']");
-        var activeVarId = varInput && varInput.value ? varInput.value : (prod && prod.variants && prod.variants[0] ? prod.variants[0].id : null);
-        var activeProdId = prod ? prod.id : null;
+        // Detectar variante / producto actual
+        var prod = (window.LS && window.LS.product) ? window.LS.product : null;
+        var varInput = document.querySelector("form[action*='/cart/add'] input[name='variant_id'], form[action*='/cart/add'] select[name='variant_id'], [name='variant_id']");
+        var activeVarId = null;
+        if (varInput && varInput.value) {
+          activeVarId = varInput.value;
+        } else if (prod && prod.variants && prod.variants.length > 0) {
+          activeVarId = prod.variants[0].id;
+        }
 
+        var activeProdId = prod ? prod.id : null;
         var qty = 1;
-        var qtyInput = document.querySelector("form[action*='/cart/add'] input[name='quantity']");
+        var qtyInput = document.querySelector("form[action*='/cart/add'] input[name='quantity'], [name='quantity']");
         if (qtyInput && qtyInput.value) {
           qty = parseInt(qtyInput.value, 10) || 1;
         }
 
-        ctaEl.innerHTML = "Agregando... ⏳";
-        ctaEl.disabled = true;
+        var itemId = activeVarId || activeProdId;
+        if (!itemId) {
+          // Último recurso: clickear el botón nativo de la tienda
+          var nativeBtn = document.querySelector("form[action*='/cart/add'] [type='submit'], .js-addtocart, .js-product-form .btn, button[name='add']");
+          if (nativeBtn) {
+            nativeBtn.click();
+          }
+          return;
+        }
 
-        // Opción A: NubeSDK (Oficial Tiendanube)
-        if (window.nube && window.nube.send) {
+        // 2. NubeSDK oficial
+        if (window.nube && typeof window.nube.send === "function") {
           try {
             window.nube.send("cart:add", {
-              id: activeVarId || activeProdId,
+              id: Number(itemId) || itemId,
               quantity: qty
             });
-            window.nube.send("cart:open");
-            ctaEl.innerHTML = "¡Agregado al carrito! 🛒";
+            // Pequeño delay para que el modal termine de cerrarse visualmente
             setTimeout(function () {
-              ctaEl.innerHTML = currentVid.buttonText || "Comprar ahora";
-              ctaEl.disabled = false;
-            }, 2500);
-            return;
-          } catch (err) {}
-        }
-
-        // Opción B: Fallback POST /comprar/
-        if (activeProdId || activeVarId) {
-          var formData = new FormData();
-          formData.append("add_to_cart", activeProdId || activeVarId);
-          if (activeVarId) formData.append("variant_id", activeVarId);
-          formData.append("quantity", qty);
-
-          fetch("/comprar/", {
-            method: "POST",
-            body: formData,
-            credentials: "include"
-          })
-            .then(function () {
-              ctaEl.innerHTML = "¡Agregado al carrito! 🛒";
-              if (window.nube && window.nube.send) {
+              try {
                 window.nube.send("cart:open");
-              } else {
-                window.location.reload();
-              }
-            })
-            .catch(function () {
-              if (customUrl && customUrl !== "#") {
-                window.location.href = customUrl;
-              } else {
-                window.location.reload();
-              }
-            });
-        } else if (customUrl && customUrl !== "#") {
-          window.location.href = customUrl;
-        } else {
-          var cartForm = document.querySelector("form[action*='/cart/add']");
-          if (cartForm) {
-            var submitBtn = cartForm.querySelector("input[type='submit'], button[type='submit'], .js-addtocart");
-            if (submitBtn) {
-              submitBtn.click();
-              return;
-            }
-          }
-          window.location.reload();
+              } catch (e3) {}
+            }, 150);
+            return;
+          } catch (e4) {}
         }
+
+        // 3. Fallback POST /comprar/
+        var formData = new FormData();
+        formData.append("add_to_cart", activeProdId || itemId);
+        if (activeVarId) formData.append("variant_id", activeVarId);
+        formData.append("quantity", qty);
+
+        fetch("/comprar/", {
+          method: "POST",
+          body: formData,
+          credentials: "include"
+        })
+          .then(function () {
+            if (window.nube && typeof window.nube.send === "function") {
+              try { window.nube.send("cart:open"); } catch (e5) {}
+            } else {
+              window.location.reload();
+            }
+          })
+          .catch(function () {
+            window.location.reload();
+          });
       });
     }
   } catch (err) {
@@ -12754,5 +12753,5 @@ function renderVideoFlotante(w) {
       window.console.warn("[Nevux] renderVideoFlotante error:", err);
     }
   }
-               }
+      }
 })(); 
