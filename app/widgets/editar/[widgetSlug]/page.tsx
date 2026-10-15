@@ -36,6 +36,7 @@ import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvi
 import PestanasInformacionEditor from '@/components/widgets/editors/PestanasInformacionEditor';
 import ImagenesTextosEditor from '@/components/widgets/editors/ImagenesTextosEditor';
 import ColumnasImagenesTextoEditor from '@/components/widgets/editors/ColumnasImagenesTextoEditor';
+import ComparadorMarcaEditor from '@/components/widgets/editors/ComparadorMarcaEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -142,6 +143,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: COMPARADOR DE MARCA
+  if (params.widgetSlug === 'comparador-marca') {
+    return <ComparadorMarcaEditor {...editorProps} />;
+  }
 
   // WIDGET: COLUMNAS DE IMÁGENES Y TEXTO
   if (params.widgetSlug === 'columnas-imagenes-texto') {
@@ -336,4 +342,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-      }
+  }
