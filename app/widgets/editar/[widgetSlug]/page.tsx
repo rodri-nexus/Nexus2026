@@ -35,6 +35,7 @@ import PasosEditor from '@/components/widgets/editors/PasosEditor';
 import InformacionEnvioEditor from '@/components/widgets/editors/InformacionEnvioEditor';
 import PestanasInformacionEditor from '@/components/widgets/editors/PestanasInformacionEditor';
 import ImagenesTextosEditor from '@/components/widgets/editors/ImagenesTextosEditor';
+import ColumnasImagenesTextoEditor from '@/components/widgets/editors/ColumnasImagenesTextoEditor';
 
 interface PageProps {
   params: { widgetSlug: string };
@@ -141,6 +142,11 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
     categoryId: categoryId,
     storeId: store.store_id,
   };
+
+  // WIDGET: COLUMNAS DE IMÁGENES Y TEXTO
+  if (params.widgetSlug === 'columnas-imagenes-texto') {
+    return <ColumnasImagenesTextoEditor {...editorProps} />;
+  }
 
   // WIDGET: IMÁGENES Y TEXTOS
   if (params.widgetSlug === 'imagenes-textos') {
@@ -330,4 +336,4 @@ export default async function EditWidgetPage({ params, searchParams }: PageProps
       </div>
     </div>
   );
-  }
+      }
