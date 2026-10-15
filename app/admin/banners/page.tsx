@@ -2,707 +2,851 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  BarChart3,
-  Gift,
-  Rocket,
-  Flame,
-  Scale,
-  Ruler,
-  Copy,
-  Check,
-  Film,
-  Clock,
-  Music,
-  Mic,
-  Lightbulb,
-  Monitor,
-  Volume2,
-  Scissors,
-  Camera,
-  Sparkles
-} from 'lucide-react';
 
-function NevuxLogo({ size = 32 }: { size?: number }) {
-  const iconSize = Math.round(size * 0.52);
-  const fontSize = Math.round(size * 0.55);
+export default function BannerAdminPage() {
+  const [activeTab, setActiveTab] = useState<
+    | 'lunes'
+    | 'martes'
+    | 'miercoles'
+    | 'jueves'
+    | 'jueves-portada'
+    | 'viernes'
+    | 'viernes-portada'
+    | 'ideas-reels'
+  >('lunes');
 
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          backgroundColor: '#000000',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid rgba(255,255,255,0.2)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.9)',
-          flexShrink: 0
-        }}
-      >
-        <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none">
-          <path d="M3 3H7.5V21H3V3Z" fill="#FFFFFF" />
-          <path d="M16.5 3H21V21H16.5V3Z" fill="#FFFFFF" />
-          <path d="M7.5 3L21 21H16.5L3 3H7.5Z" fill="url(#nevuxGrad)" />
-          <defs>
-            <linearGradient id="nevuxGrad" x1="3" y1="3" x2="21" y2="21">
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="35%" stopColor="#E4E4E7" />
-              <stop offset="75%" stopColor="#52525B" />
-              <stop offset="100%" stopColor="#10B981" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-      <span
-        style={{
-          fontSize: fontSize,
-          fontWeight: 900,
-          color: '#FFFFFF',
-          letterSpacing: '0.08em',
-          lineHeight: 1
-        }}
-      >
-        NEVUX
-      </span>
-    </div>
-  );
-}
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-interface CopyBlockProps {
-  id: string;
-  title: string;
-  text: string;
-  copied: boolean;
-  onCopy: (id: string, text: string) => void;
-}
-
-function CopyBlock({ id, title, text, copied, onCopy }: CopyBlockProps) {
-  return (
-    <div
-      style={{
-        backgroundColor: '#061e14',
-        border: '1px solid rgba(16,185,129,0.3)',
-        borderRadius: 16,
-        padding: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-          📝 {title}
-        </h3>
-        <button
-          onClick={() => onCopy(id, text)}
-          style={{
-            backgroundColor: copied ? '#10B981' : 'rgba(16,185,129,0.15)',
-            color: copied ? '#020a07' : '#34d399',
-            border: '1px solid rgba(16,185,129,0.4)',
-            borderRadius: 10,
-            padding: '8px 14px',
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            transition: 'all 0.2s'
-          }}
-        >
-          {copied ? (
-            <>
-              <Check style={{ width: 14, height: 14 }} /> COPIADO
-            </>
-          ) : (
-            <>
-              <Copy style={{ width: 14, height: 14 }} /> COPIAR
-            </>
-          )}
-        </button>
-      </div>
-
-      <div
-        style={{
-          backgroundColor: '#020a07',
-          border: '1px solid rgba(16,185,129,0.15)',
-          borderRadius: 12,
-          padding: 14,
-          fontSize: 12,
-          color: '#cbd5e1',
-          lineHeight: 1.6,
-          whiteSpace: 'pre-wrap',
-          fontFamily: 'ui-monospace, monospace',
-          maxHeight: 400,
-          overflowY: 'auto'
-        }}
-      >
-        {text}
-      </div>
-    </div>
-  );
-}
-
-export default function BannersPage() {
-  const [activeTab, setActiveTab] = useState('lunes');
-  const [copiedId, setCopiedId] = useState('');
-
-  const handleCopy = (id: string, text: string) => {
+  const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    setTimeout(() => setCopiedId(''), 2000);
+    setTimeout(() => setCopiedId(null), 2500);
   };
 
-  // ======= COPYS =======
-  const copyLunesReel = `📦 El error #1 que estanca las ventas de tu Tiendanube 👇
+  // --- TEXTOS EXACTOS DE COPYWRITING (PAS FORMULA) ---
+  const copyLunesReel = `El error que te está costando un 20% más por pedido en Tiendanube 👇
 
-Si tenés una tienda y cada cliente te compra UN SOLO producto... estás regalando plata. 💸
+La mayoría de las tiendas intentan facturar más metiendo más plata en Meta Ads.
+Pero cuando el cliente ya tiene la tarjeta en la mano para pagar... nadie le ofrece nada más.
 
-El 90% de los emprendedores no activa Packs Complementarios. Resultado: ticket promedio bajo, ganancia estancada y publicidad que cada vez rinde menos.
+Mirá la diferencia:
+❌ Sin Nevux: El cliente compra 1 producto, paga el envío y se va. Ticket: $35.000.
+✅ Con Nevux: Antes de cerrar, la tienda le ofrece un complemento clave con 15% OFF en 1 solo clic. Ticket: $48.500.
 
-Con el widget "Pack Complementarios" de Nevux:
-✅ Mostrás combos armados en la ficha de producto
-✅ El cliente agrega más productos con 1 solo clic
-✅ Subís tu ticket promedio SIN gastar más en pauta
-✅ Se instala en 15 segundos, sin tocar código
+Mismo costo publicitario. +38% de ganancia neta en la misma compra.
 
-🚀 Probá Nevux GRATIS por 7 días desde el link de nuestra biografía (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
+Lo mejor: se instala en 60 segundos desde la Tienda de Aplicaciones de Tiendanube.
 
-#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux`;
+🚀 Probá Nevux 7 días GRATIS en tu tienda con el link de nuestra bio o buscá "Nevux" en Tiendanube.
 
-  const copyMartesCarrusel = `⚖️ El 73% de tus clientes abandona por ESTA duda 👇
+#tiendanube #ecommerceargentina #aumentarticketpromedio #crossselling #ventasonline #emprendedoresargentina`;
 
-Tus visitas entran a tu Tiendanube, miran tu producto... y se van sin comprar.
+  const copyMartesCarrusel = `¿Tu tienda parece del 2018 o una máquina de conversión del 2025? 📊
 
-¿Por qué? Porque no pueden ver la diferencia REAL de lo que ofrecés.
+Deslizá para ver la diferencia real entre una tienda que pierde ventas en el checkout y una que multiplica su ticket promedio en automático.
 
-Una sola foto estática no alcanza. El cliente necesita comparar, ver el resultado, sentir confianza antes de pagar.
+👉 Diapositiva 2: El carrito abandonado vs. El carrito inteligente
+👉 Diapositiva 3: Promociones invisibles vs. Ofertas de 1 solo clic
+👉 Diapositiva 4: Instalación manual con código vs. Activación en 60 segundos con Nevux
 
-Y si no se la das, se van a buscar reviews a Google. Y ahí descubren a tu competencia. 💸
+Instalá Nevux hoy en Tiendanube y activá 7 días de prueba gratis. Link en bio 🔗`;
 
-La solución: Widget "Comparador Antes y Después" de Nevux.
+  const copyMiercolesReel = `La devolución más cara de tu tienda no es la que te pide el cliente... es la venta que nunca ocurrió por falta de soporte instantáneo 💬
 
-Tu cliente desliza y ve el resultado real de tu producto:
-✅ Cero dudas
-✅ Confianza instantánea  
-✅ Menos devoluciones
-✅ Más ventas cerradas
+Un cliente tiene una duda sobre su talle o el método de envío a las 23:30 hs.
+Si no le respondés en el momento: cierra la pestaña y le compra a tu competencia.
 
-Perfecto para cosmética, indumentaria, deco, fitness y cualquier rubro donde el ANTES vs DESPUÉS vende solo.
+Con el Asistente IA de Nevux integrado a tu catálogo de Tiendanube:
+⚡ Respuestas instantáneas 24/7 sobre stock real y medidas
+⚡ Recomienda productos complementarios
+⚡ Cierra la venta mientras dormís
 
-🚀 Probá Nevux GRATIS 7 días → link en bio (@nevuxapp) o App Store oficial de Tiendanube (ID #37382).
+Instalalo hoy con 7 días gratis. Link en bio 📲`;
 
-#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux`;
+  const copyJuevesCarrusel = `⚠️ ALERTA: Si estás esperando al Hot Sale o Cyber Monday para optimizar tu checkout, ya vas tarde.
 
-  const copyMiercolesReel = `📏 La devolución más cara que podés tener en tu Tiendanube 👇
+Los 3 ajustes que tenés que activar HOY en tu Tiendanube:
+1️⃣ Cross-selling en el carrito (complementos automáticos)
+2️⃣ Barra de progreso para Envío Gratis
+3️⃣ Ofertas post-compra de 1 solo clic
 
-El cliente te compra, pagás vos el envío, llega el paquete... y te lo devuelve porque "no le entró". 😩
+Con Nevux activás los 3 en menos de 2 minutos sin tocar una sola línea de código.
 
-Perdiste:
-❌ El envío de ida
-❌ El envío de vuelta  
-❌ La venta
-❌ Y encima el cliente queda frustrado y no vuelve
+👉 Probá los 7 días gratis desde el enlace en nuestro perfil.`;
 
-El problema NO es tu producto. Es que no le diste la info clara ANTES de comprar.
+  const copyViernesReel = `Dejá tu tienda vendiendo sola y multiplicando el ticket promedio este fin de semana 🚀
 
-Solución: Widget "Tabla de Talles" + "Beneficios" de Nevux.
+Viernes a la tarde: configurás tu oferta de Cross-selling en el panel de Nevux.
+Sábado y Domingo: cada cliente que entra a tu Tiendanube ve complementos irresistibles en 1 clic.
+Lunes a la mañana: abrís tus métricas y ves un +25% de facturación con el mismo tráfico.
 
-✅ Tabla visual con medidas reales de tu producto
-✅ Beneficios destacados que generan confianza
-✅ Cliente seguro = Cliente que compra sin dudar
-✅ Menos devoluciones = Más ganancia neta
+Sin saber programar.
+100% integrado a Tiendanube.
+7 días de prueba sin cargo.
 
-Se activa en 2 minutos desde tu panel. Sin tocar código.
-
-🚀 Probá Nevux GRATIS 7 días → link en bio (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
-
-#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux #tabladetalles`;
-
-  const copyJuevesCarrusel = `⌛ El truco psicológico que usan las grandes marcas para vender un 30% más rápido 👇
-
-El cliente entra a tu Tiendanube, mira tus productos, le gustan... pero piensa: "Bueno, después compro".
-
-Y ese "después" en el 95% de los casos es NUNCA. 📉
-
-¿Por qué pasa esto? Porque no sienten urgencia. Tu tienda es un catálogo pasivo que siempre va a estar ahí igual.
-
-Para vender hoy, necesitás activar el gatillo mental más potente del eCommerce: la ESCASEZ y la URGENCIA.
-
-La solución: Widget "¡Oferta Especial Hoy!" de Nevux.
-
-✅ Un contador regresivo visual en tiempo real
-✅ Un descuento que desaparece cuando el reloj llega a cero
-✅ Generás acción inmediata: el cliente compra HOY o pierde el beneficio
-✅ Se activa en un clic, 100% automático
-
-Dejá de perder ventas por postergación de tus visitas.
-
-🚀 Probá Nevux GRATIS 7 días → link en bio (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
-
-#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux #urgenciayescasez`;
-
-  const copyViernesReel = `🛡️ Dejá tu Tiendanube vendiendo sola este fin de semana 👇
-
-Llega el viernes a la tarde y el tráfico de tu tienda sube... pero muchas ventas se caen a último momento. 📉
-
-¿Por qué? Porque el cliente duda del envío, de la seguridad del sitio o de los métodos de pago, y no tiene a quién preguntarle porque es fin de semana de descanso. 
-
-No dejes que las dudas maten tus ventas de sábado y domingo.
-
-Con Nevux activás dos widgets clave en un par de clics:
-✅ Widget "Mensaje de Garantía": Generá confianza visual directa abajo del botón de compra.
-✅ Widget "Badge de Efectivo / Transferencia": Mostrá descuentos reales por pago directo y resolvé la duda de pago al instante.
-
-Mientras vos descansás, tu tienda se convierte en una máquina de cerrar ventas con confianza. 🚀
-
-🚀 Probá Nevux GRATIS por 7 días desde el link de nuestra biografía (@nevuxapp) o buscá "Nevux" en la App Store oficial de Tiendanube (ID #37382).
-
-#tiendanube #tiendaonlineargentina #ecommerceargentina #venderonline #marketingparaemprendedores #conversionrate #emprendedoresargentinos #ventasonline #nevux #garantiadecompra #badgeefectivo`;
+Instalá Nevux en tu tienda hoy mismo desde el link de la bio 📲`;
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#020a07',
-        color: '#f8fafc',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        paddingBottom: 96
-      }}
-    >
-      {/* Header */}
-      <header
-        style={{
-          borderBottom: '1px solid rgba(16,185,129,0.2)',
-          backgroundColor: '#04140e',
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          padding: '12px 16px'
-        }}
-      >
-        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link
-              href="/admin"
-              style={{
-                padding: 8,
-                color: '#94a3b8',
-                display: 'flex',
-                borderRadius: 8,
-                backgroundColor: 'rgba(6,30,20,0.5)',
-                textDecoration: 'none'
-              }}
-            >
-              <ArrowLeft style={{ width: 20, height: 20 }} />
-            </Link>
-            <NevuxLogo size={28} />
+    <div className="min-h-screen bg-[#020A07] text-slate-100 p-4 md:p-8 font-sans selection:bg-emerald-500 selection:text-black">
+      {/* HEADER DE NAVEGACIÓN */}
+      <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-emerald-900/40 pb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-xs font-mono tracking-widest text-emerald-400 uppercase font-semibold">
+              Nevux Brand & Marketing Hub
+            </span>
           </div>
-          <span
-            style={{
-              fontSize: 11,
-              backgroundColor: 'rgba(16,185,129,0.15)',
-              color: '#34d399',
-              border: '1px solid rgba(16,185,129,0.3)',
-              padding: '4px 10px',
-              borderRadius: 9999,
-              fontWeight: 600
-            }}
-          >
-            Tiendanube App #37382
-          </span>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white">
+            Panel de Contenido & Miniaturas
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Templates visuales 9:16 y copys de alta conversión listos para publicar.
+          </p>
         </div>
-      </header>
 
-      {/* Tabs */}
-      <div style={{ maxWidth: 1280, margin: '20px auto 0', padding: '0 16px' }}>
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
-          {[
-            { id: 'lunes', label: '📊 Stories Lunes' },
-            { id: 'martes', label: '🧠 Martes (Comparador)' },
-            { id: 'miercoles', label: '📏 Miércoles (Talles)' },
-            { id: 'jueves', label: '⏱️ Stories Jueves' },
-            { id: 'jueves-portada', label: '🎠 Carrusel Jueves' },
-            { id: 'viernes', label: '🛡️ Stories Viernes' },
-            { id: 'viernes-portada', label: '🎬 Portada Reel Viernes' },
-            { id: 'ideas-reels', label: '💡 Ideas Reels (CapCut)' }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '10px 16px',
-                borderRadius: 12,
-                fontSize: 12,
-                fontWeight: 'bold',
-                whiteSpace: 'nowrap',
-                border: 'none',
-                cursor: 'pointer',
-                backgroundColor: activeTab === tab.id ? '#10B981' : '#061e14',
-                color: activeTab === tab.id ? '#ffffff' : '#94a3b8',
-                boxShadow: activeTab === tab.id ? '0 4px 14px rgba(16,185,129,0.3)' : 'none'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 rounded-lg hover:border-emerald-500/50 transition-all"
+          >
+            ← Volver a la Tienda
+          </Link>
+          <a
+            href="https://nevuxapp.mitiendanube.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 rounded-lg shadow-lg shadow-emerald-500/20 transition-all"
+          >
+            Ver Sandbox Tiendanube ↗
+          </a>
         </div>
       </div>
 
-      <main style={{ maxWidth: 1280, margin: '20px auto 0', padding: '0 16px' }}>
+      {/* TABS DE SELECCIÓN DE CONTENIDO */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-emerald-800">
+          <button
+            onClick={() => setActiveTab('lunes')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'lunes'
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Lunes (Stories & Reel)
+          </button>
+          <button
+            onClick={() => setActiveTab('martes')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'martes'
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Martes (Stories & Comparativa)
+          </button>
+          <button
+            onClick={() => setActiveTab('miercoles')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'miercoles'
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Miércoles (Stories & Reel)
+          </button>
+          <button
+            onClick={() => setActiveTab('jueves')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'jueves'
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Jueves (Stories Tip)
+          </button>
+          <button
+            onClick={() => setActiveTab('jueves-portada')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'jueves-portada'
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Jueves (Carrusel Urgencia)
+          </button>
+          <button
+            onClick={() => setActiveTab('viernes')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'viernes'
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Viernes (Stories Garantía)
+          </button>
+          <button
+            onClick={() => setActiveTab('viernes-portada')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'viernes-portada'
+                ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Viernes (Miniatura Reel)
+          </button>
+          <button
+            onClick={() => setActiveTab('ideas-reels')}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'ideas-reels'
+                ? 'bg-amber-400 text-black shadow-lg shadow-amber-400/30'
+                : 'bg-amber-500/10 text-amber-300 hover:text-amber-200 border border-amber-500/30'
+            }`}
+          >
+            💡 Ideas Reels (CapCut Playbook)
+          </button>
+        </div>
+      </div>
 
-        {/* ========== STORIES LUNES ========== */}
+      {/* CONTENIDO DE CADA TAB */}
+      <div className="max-w-7xl mx-auto">
+        {/* ========================================================
+            TAB: LUNES
+        ======================================================== */}
         {activeTab === 'lunes' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div
-              style={{
-                backgroundColor: 'rgba(6,30,20,0.8)',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: 16,
-                padding: 16
-              }}
-            >
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 style={{ width: 20, height: 20, color: '#34d399' }} />
-                Stories Lunes: Pack Complementarios
-              </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '6px 0 0 0' }}>
-                Sacá captura de cada una y publicá en los horarios del plan.
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Placa 9:16 Miniatura Video */}
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div className="text-xs font-mono text-emerald-400 mb-2 uppercase font-bold tracking-wider">
+                Miniatura 9:16 (Reel / TikTok)
+              </div>
+              <div
+                style={{
+                  width: '320px',
+                  height: '568px',
+                  backgroundColor: '#020A07',
+                  backgroundImage:
+                    'radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.22) 0%, transparent 70%)',
+                }}
+                className="relative rounded-3xl p-6 border-2 border-emerald-500/40 shadow-2xl flex flex-col justify-between overflow-hidden"
+              >
+                {/* Subtle Grid Accent */}
+                <div
+                  className="absolute inset-0 opacity-10 pointer-events-none"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(#10B981 1px, transparent 1px), linear-gradient(90deg, #10B981 1px, transparent 1px)',
+                    backgroundSize: '24px 24px',
+                  }}
+                />
+
+                {/* Top Badge */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-[10px] font-black uppercase tracking-wider">
+                    📈 CRECIMIENTO • TICKET PROMEDIO
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full border border-slate-800">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span className="text-[10px] font-bold text-slate-300">Nevux</span>
+                  </div>
+                </div>
+
+                {/* Main Headline */}
+                <div className="relative z-10 my-auto text-center space-y-4">
+                  <div className="inline-block px-3 py-1 bg-rose-500/20 border border-rose-500/40 text-rose-400 rounded-lg text-xs font-black uppercase tracking-wider">
+                    ⚠️ Error Costoso en Tiendanube
+                  </div>
+                  <h2 className="text-3xl font-black leading-tight text-white tracking-tight">
+                    SUBÍ EL <span className="text-emerald-400 underline decoration-emerald-500 decoration-wavy">TICKET PROMEDIO</span> SIN GASTAR EN PAUTA
+                  </h2>
+                  <p className="text-xs text-slate-300 font-medium leading-relaxed px-2">
+                    Cómo sumar productos complementarios en 1 clic y facturar hasta un 38% más por cada cliente.
+                  </p>
+                </div>
+
+                {/* Bottom Card Mockup */}
+                <div className="relative z-10 bg-slate-950/90 border border-emerald-500/30 rounded-2xl p-3 shadow-xl backdrop-blur-md">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-300 pb-2 border-b border-slate-800">
+                    <span>Cross-selling Activo</span>
+                    <span className="text-emerald-400 font-mono font-extrabold">+38% Ganancia</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-[10px]">
+                    <span className="text-slate-400">Instalación: 60 seg</span>
+                    <span className="text-yellow-400 font-bold">7 Días Gratis</span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-2 text-center">
+                Resolución nativa de render: 1080x1920 (9:16). Capturalo o usalo como referencia gráfica.
               </p>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
-              {/* STORY 1 */}
-              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <NevuxLogo size={28} />
-                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
-                    ¿Cuánto es el <span style={{ color: '#10B981' }}>Ticket Promedio</span> en tu Tiendanube?
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
-                    De cada 100 personas que te compran, ¿cuánto dinero deja en promedio cada cliente?
-                  </p>
-                  <div style={{ backgroundColor: '#ffffff', borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {['A) $5.000 - $10.000 💸', 'B) $10.000 - $25.000 📦', 'C) Más de $25.000 🚀', 'D) No lo tengo medido 🤯'].map((opt, i) => (
-                      <div key={i} style={{ backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: 10, padding: '10px 12px', fontSize: 12, fontWeight: 'bold', color: '#1e293b' }}>
-                        {opt}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: 10, borderRadius: 12 }}>
-                  <p style={{ fontSize: 11, color: '#cbd5e1', margin: 0 }}>Poné el sticker de encuesta interactivo arriba 👆</p>
-                </div>
-              </div>
-
-              {/* STORY 2 */}
-              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <NevuxLogo size={28} />
-                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
-                    El error #1 que <span style={{ color: '#f87171' }}>estanca las ventas</span> de tu tienda
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
-                    Dejar que el cliente compre 1 solo producto cuando por un extra mínimo se llevaría el combo completo.
-                  </p>
-                  <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', padding: 16, borderRadius: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 12, fontWeight: 'bold', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                      <Gift style={{ width: 16, height: 16 }} /> PACK COMPLEMENTARIOS
-                    </div>
-                    <div style={{ backgroundColor: '#10B981', color: '#020a07', fontWeight: 900, fontSize: 12, padding: 10, borderRadius: 10, marginTop: 10 }}>
-                      ▶ VER REEL EN EL FEED
-                    </div>
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Tocá para ir directo a ver el Reel 👇</p>
-                </div>
-              </div>
-
-              {/* STORY 3 */}
-              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <NevuxLogo size={28} />
-                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
-                    Instalá Pack Complementarios en <span style={{ color: '#34d399' }}>15 segundos</span>
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
-                    Sincronizado con tu Tiendanube, sin tocar código y adaptado automáticamente a los colores de tu marca.
-                  </p>
-                  <div style={{ backgroundColor: '#10B981', borderRadius: 16, padding: 16, textAlign: 'center' }}>
-                    <p style={{ fontSize: 13, fontWeight: 900, color: '#020a07', margin: 0 }}>
-                      🔗 PROBAR NEVUX 7 DÍAS GRATIS
-                    </p>
-                    <span style={{ fontSize: 9, color: '#020a07', fontWeight: 700 }}>nevux.ar</span>
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>App Oficial Tiendanube #37382 • Sin tarjeta</p>
-                </div>
-              </div>
-            </div>
-
-            <CopyBlock
-              id="lunes-reel"
-              title="Descripción Reel Lunes (Pack Complementarios)"
-              text={copyLunesReel}
-              copied={copiedId === 'lunes-reel'}
-              onCopy={handleCopy}
-            />
-          </div>
-        )}
-
-        {/* ========== MARTES ========== */}
-        {activeTab === 'martes' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Scale style={{ width: 20, height: 20, color: '#34d399' }} />
-                Stories Martes: Comparador Antes y Después
-              </h2>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
-              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <NevuxLogo size={28} />
-                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
-                    ¿Alguna vez compraste algo online y te llegó <span style={{ color: '#facc15' }}>distinto</span> a la foto?
-                  </h3>
-                  <div style={{ display: 'flex', gap: 12 }}>
-                    <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '2px solid #f87171', borderRadius: 12, padding: 14, textAlign: 'center', fontWeight: 900, color: '#1e293b' }}>😩 SÍ</div>
-                    <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '2px solid #10B981', borderRadius: 12, padding: 14, textAlign: 'center', fontWeight: 900, color: '#1e293b' }}>😌 NO</div>
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center' }}><p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Sticker de encuesta arriba 👆</p></div>
-              </div>
-            </div>
-            <CopyBlock id="martes-carrusel" title="Descripción Carrusel Martes" text={copyMartesCarrusel} copied={copiedId === 'martes-carrusel'} onCopy={handleCopy} />
-          </div>
-        )}
-
-        {/* ========== MIÉRCOLES ========== */}
-        {activeTab === 'miercoles' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Ruler style={{ width: 20, height: 20, color: '#34d399' }} />
-                Stories Miércoles: Tabla de Talles + Beneficios
-              </h2>
-            </div>
-            <CopyBlock id="miercoles-reel" title="Descripción Reel Miércoles (Tabla de Talles)" text={copyMiercolesReel} copied={copiedId === 'miercoles-reel'} onCopy={handleCopy} />
-          </div>
-        )}
-
-        {/* ========== JUEVES ========== */}
-        {activeTab === 'jueves' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Clock style={{ width: 20, height: 20, color: '#34d399' }} />
-                Stories Jueves: Urgencia y Ventas Rápidas
-              </h2>
-            </div>
-          </div>
-        )}
-
-        {/* ========== JUEVES CARRUSEL ========== */}
-        {activeTab === 'jueves-portada' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Rocket style={{ width: 20, height: 20, color: '#10B981' }} />
-                Carrusel Jueves Feed: El Gatillo Mental de la Urgencia
-              </h2>
-            </div>
-            <CopyBlock id="jueves-carrusel" title="Descripción Carrusel Jueves (Urgencia)" text={copyJuevesCarrusel} copied={copiedId === 'jueves-carrusel'} onCopy={handleCopy} />
-          </div>
-        )}
-
-        {/* ========== STORIES VIERNES ========== */}
-        {activeTab === 'viernes' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Rocket style={{ width: 20, height: 20, color: '#34d399' }} />
-                Stories Viernes: Ecosistema de Confianza Finde
-              </h2>
-            </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center' }}>
-              {/* STORY 1 */}
-              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <NevuxLogo size={28} />
-                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 'bold', color: '#f87171' }}>🚨 ALERTA FIN DE SEMANA</div>
-                  <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', lineHeight: 1.15, margin: 0 }}>
-                    El <span style={{ color: '#f87171' }}>68%</span> de las ventas se definen el finde
-                  </h3>
-                  <p style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
-                    El tráfico explota. ¿Tu tienda está lista para convencer y vender sola?
-                  </p>
-                  <div style={{ backgroundColor: '#ffffff', borderRadius: 16, padding: 16, display: 'flex', gap: 8 }}>
-                    <div style={{ flex: 1, backgroundColor: '#f0fdf4', border: '1px solid #10b981', borderRadius: 8, padding: 8, textAlign: 'center', color: '#1e293b', fontWeight: 900, fontSize: 12 }}>✅ SÍ, LISTA</div>
-                    <div style={{ flex: 1, backgroundColor: '#fef2f2', border: '1px solid #f87171', borderRadius: 8, padding: 8, textAlign: 'center', color: '#1e293b', fontWeight: 900, fontSize: 12 }}>❌ ME FALTA</div>
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center' }}><p style={{ fontSize: 10, color: '#94a3b8', margin: 0 }}>Encuesta interactiva arriba 👆</p></div>
-              </div>
-
-              {/* STORY 2 */}
-              <div style={{ width: '100%', maxWidth: 360, aspectRatio: '9/16', backgroundColor: '#020a07', border: '2px solid rgba(16,185,129,0.3)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
-                <NevuxLogo size={28} />
-                <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 'bold', color: '#34d399' }}>💡 SOLUCIÓN RÁPIDA</div>
-                  <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', lineHeight: 1.2, margin: 0 }}>
-                    2 widgets = <span style={{ color: '#34d399' }}>Cero dudas</span> al pagar
-                  </h3>
-                  <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: 900, color: '#34d399' }}>🛡️ Mensaje de Garantía</span>
-                    <span style={{ fontSize: 11, fontWeight: 900, color: '#facc15' }}>💵 Badge de Efectivo / Transferencia</span>
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center', backgroundColor: '#10B981', borderRadius: 12, padding: 10 }}>
-                  <p style={{ fontSize: 11, fontWeight: 900, color: '#020a07', margin: 0 }}>🔗 ACTIVAR EN MI TIENDA</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ========== PORTADA REEL VIERNES ========== */}
-        {activeTab === 'viernes-portada' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ backgroundColor: 'rgba(6,30,20,0.8)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Film style={{ width: 20, height: 20, color: '#34d399' }} />
-                Reel Viernes: Dejá tu Tienda Vendiendo Sola
-              </h2>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-              {[
-                { icon: <Clock style={{ width: 18, height: 18 }} />, label: 'Duración', value: '22 segundos' },
-                { icon: <Film style={{ width: 18, height: 18 }} />, label: 'Formato', value: '9:16 · 1080x1920' },
-                { icon: <Music style={{ width: 18, height: 18 }} />, label: 'Música', value: 'Deep House 118 BPM' },
-                { icon: <Mic style={{ width: 18, height: 18 }} />, label: 'Audio', value: 'Voz off -6dB / Música -20dB' }
-              ].map((item, i) => (
-                <div key={i} style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: 14 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#34d399' }}>
-                    {item.icon}
-                    <span style={{ fontSize: 11, fontWeight: 700 }}>{item.label}</span>
-                  </div>
-                  <span style={{ fontSize: 13, color: '#fff', fontWeight: 700, marginTop: 4, display: 'block' }}>{item.value}</span>
-                </div>
-              ))}
-            </div>
-
-            <CopyBlock
-              id="viernes-reel"
-              title="Descripción Reel Viernes (Garantía + Efectivo)"
-              text={copyViernesReel}
-              copied={copiedId === 'viernes-reel'}
-              onCopy={handleCopy}
-            />
-          </div>
-        )}
-
-        {/* ================================================================ */}
-        {/* ========== 💡 IDEAS REELS — GUÍA DE PRODUCCIÓN ========== */}
-        {/* ================================================================ */}
-        {activeTab === 'ideas-reels' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div
-              style={{
-                background: 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(250,204,21,0.08) 100%)',
-                border: '1px solid rgba(16,185,129,0.4)',
-                borderRadius: 16,
-                padding: 20
-              }}
-            >
-              <h2 style={{ fontSize: 18, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Lightbulb style={{ width: 22, height: 22, color: '#facc15' }} />
-                Guía de Producción Profesional (CapCut / Grabación)
-              </h2>
-              <p style={{ fontSize: 12, color: '#94a3b8', margin: '8px 0 0 0', lineHeight: 1.6 }}>
-                Acá tenés todo el detalle técnico para grabar y editar el Reel de Viernes con nivel top.
-              </p>
-            </div>
-
-            {/* QUÉ GRABAR */}
-            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Camera style={{ width: 16, height: 16, color: '#34d399' }} />
-                1. QUÉ GRABAR (Solo 3 tomas con tu celular)
-              </h3>
-              {[
-                {
-                  toma: 'TOMA 1 (0-7s) — Frente a cámara',
-                  desc: 'Vos con el celular en la mano mostrando la tienda demo abierta. Mirá a cámara con energía. Decí el gancho y el problema.',
-                  tip: 'Buena luz de frente, fondo ordenado, plano pecho para arriba.'
-                },
-                {
-                  toma: 'TOMA 2 (7-15s) — Grabación de pantalla',
-                  desc: 'Grabá la pantalla de tu tienda demo (nevuxapp.mitiendanube.com). Hacé scroll hasta ver el Mensaje de Garantía y el Badge de Efectivo funcionando.',
-                  tip: 'Hacé un toque en cada widget para que se note que es 100% interactivo y real.'
-                },
-                {
-                  toma: 'TOMA 3 (15-22s) — Cierre y CTA',
-                  desc: 'Volvés a cámara. Sonreí y señalá abajo indicando el link de nevux.ar.',
-                  tip: 'Girá 10 grados el cuerpo para que el corte entre toma 2 y 3 sea súper dinámico.'
-                }
-              ].map((c, i) => (
-                <div key={i} style={{ backgroundColor: '#020a07', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 10, padding: 12 }}>
-                  <span style={{ fontSize: 12, fontWeight: 900, color: '#10B981' }}>{c.toma}</span>
-                  <p style={{ fontSize: 12, color: '#cbd5e1', margin: '4px 0 0 0', lineHeight: 1.5 }}>{c.desc}</p>
-                  <span style={{ fontSize: 10, color: '#facc15', marginTop: 4, display: 'block' }}>💡 {c.tip}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* TEXTOS Y SFX */}
-            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(250,204,21,0.3)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#facc15', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Volume2 style={{ width: 16, height: 16 }} />
-                2. EFECTOS DE SONIDO Y TEXTOS (CapCut)
-              </h3>
-              {[
-                { sfx: 'Whoosh Deep', seg: 'Seg 0.0', text: 'TIENDA ONLINE EN AUTOMÁTICO', col: '#facc15' },
-                { sfx: 'Pop / Click', seg: 'Seg 4.0', text: '❌ CARassistantRITOS ABANDONADOS', col: '#f87171' },
-                { sfx: 'Glitch + Flash', seg: 'Seg 7.0', text: '🛡️ WIDGETS DE CONFIANZA', col: '#34d399' },
-                { sfx: 'Ding Success', seg: 'Seg 12.0', text: '💵 BADGE DE EFECTIVO', col: '#10B981' },
-                { sfx: 'Camera Shutter', seg: 'Seg 16.0', text: '🚀 PROBÁ 7 DÍAS GRATIS', col: '#facc15' }
-              ].map((s, i) => (
-                <div key={i} style={{ backgroundColor: '#020a07', borderLeft: `4px solid ${s.col}`, borderRadius: 8, padding: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+            {/* Copy y Recursos de Publicación */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <span style={{ fontSize: 11, color: '#64748b' }}>{s.seg} — </span>
-                    <strong style={{ fontSize: 12, color: '#fff' }}>SFX: &quot;{s.sfx}&quot;</strong>
+                    <h3 className="text-lg font-black text-white">Copy Completo para Reel / TikTok</h3>
+                    <p className="text-xs text-slate-400">Optimizado con fórmula PAS (Problema - Agitación - Solución).</p>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 900, color: s.col }}>{s.text}</span>
+                  <button
+                    onClick={() => copyToClipboard(copyLunesReel, 'copy-lunes')}
+                    className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
+                  >
+                    {copiedId === 'copy-lunes' ? '✓ ¡Copiado!' : 'Copiar Texto'}
+                  </button>
                 </div>
-              ))}
-            </div>
+                <textarea
+                  readOnly
+                  value={copyLunesReel}
+                  rows={14}
+                  className="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 leading-relaxed focus:outline-none focus:border-emerald-500 resize-none selection:bg-emerald-500 selection:text-black"
+                />
+              </div>
 
-            {/* MÚSICA */}
-            <div style={{ backgroundColor: '#061e14', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 16, padding: 16 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 'bold', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Music style={{ width: 16, height: 16, color: '#34d399' }} />
-                3. AJUSTE DE VOLUMEN (Regla de Oro)
-              </h3>
-              <p style={{ fontSize: 12, color: '#cbd5e1', margin: '8px 0 0 0', lineHeight: 1.5 }}>
-                • <strong style={{ color: '#34d399' }}>Voz principal:</strong> -6 dB (clara y protagonista)<br />
-                • <strong style={{ color: '#facc15' }}>Música Tech House:</strong> -20 dB (suave de fondo, nunca tapa la voz)<br />
-                • <strong style={{ color: '#fff' }}>Efectos de sonido (SFX):</strong> -10 dB a -12 dB
-              </p>
+              {/* Guía de Grabación Rápida */}
+              <div className="bg-slate-900/40 border border-emerald-900/40 rounded-2xl p-5 space-y-3">
+                <h4 className="text-xs font-mono uppercase font-bold text-emerald-400 tracking-wider">
+                  🎬 Guión de Grabación (15-20 segundos)
+                </h4>
+                <ul className="text-xs text-slate-300 space-y-2 leading-relaxed">
+                  <li>
+                    <strong className="text-white">00:00 - 00:03 (Hook):</strong> Grabá la pantalla de tu tienda mostrando el carrito simple. Decí: <em>&quot;Si seguís vendiendo así en Tiendanube, estás regalando el 20% de tu facturación&quot;</em>.
+                  </li>
+                  <li>
+                    <strong className="text-white">00:03 - 00:08 (Solución):</strong> Mostrá cómo al agregar un producto al carrito, Nevux abre la oferta de cross-selling en 1 clic.
+                  </li>
+                  <li>
+                    <strong className="text-white">00:08 - 00:15 (CTA):</strong> Mostrá el panel de Nevux con los números en verde. Decí: <em>&quot;Lo instalás en 1 minuto y tenés 7 días gratis. Link en bio&quot;</em>.
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         )}
 
-      </main>
+        {/* ========================================================
+            TAB: MARTES
+        ======================================================== */}
+        {activeTab === 'martes' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Placa Comparativa 1:1 */}
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div className="text-xs font-mono text-emerald-400 mb-2 uppercase font-bold tracking-wider">
+                Placa Comparativa 1:1 (Post / Carrusel)
+              </div>
+              <div
+                style={{ width: '340px', height: '340px', backgroundColor: '#020A07' }}
+                className="relative rounded-3xl p-5 border-2 border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden"
+              >
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider">
+                    ¿CÓMO CONVIERTE TU TIENDA?
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800">
+                    Nevux 2025
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 my-auto">
+                  <div className="bg-rose-950/30 border border-rose-900/40 rounded-xl p-3 text-center space-y-1">
+                    <span className="text-rose-400 text-[10px] font-black uppercase">❌ Sin Nevux</span>
+                    <p className="text-xs font-bold text-white leading-tight">1 Producto por compra</p>
+                    <p className="text-[10px] text-slate-400">Ticket estancado en $35.000</p>
+                  </div>
+                  <div className="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-3 text-center space-y-1">
+                    <span className="text-emerald-400 text-[10px] font-black uppercase">✅ Con Nevux</span>
+                    <p className="text-xs font-bold text-white leading-tight">Cross-selling en 1 clic</p>
+                    <p className="text-[10px] text-emerald-300 font-bold font-mono">Ticket sube a $48.500</p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/90 rounded-xl p-2.5 text-center border border-slate-800">
+                  <p className="text-[11px] font-bold text-slate-200">
+                    Instalación en 60 segundos • 7 Días de prueba gratis
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Copy Martes */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-black text-white">Copy para Carrusel Comparativo</h3>
+                    <p className="text-xs text-slate-400">Ideal para generar debate y guardados en Instagram.</p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(copyMartesCarrusel, 'copy-martes')}
+                    className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
+                  >
+                    {copiedId === 'copy-martes' ? '✓ ¡Copiado!' : 'Copiar Texto'}
+                  </button>
+                </div>
+                <textarea
+                  readOnly
+                  value={copyMartesCarrusel}
+                  rows={10}
+                  className="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 leading-relaxed focus:outline-none focus:border-emerald-500 resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: MIÉRCOLES
+        ======================================================== */}
+        {activeTab === 'miercoles' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Placa 9:16 Miniatura Video */}
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div className="text-xs font-mono text-emerald-400 mb-2 uppercase font-bold tracking-wider">
+                Miniatura 9:16 (Reel / TikTok)
+              </div>
+              <div
+                style={{
+                  width: '320px',
+                  height: '568px',
+                  backgroundColor: '#020A07',
+                  backgroundImage:
+                    'radial-gradient(circle at 50% 25%, rgba(244, 63, 94, 0.18) 0%, transparent 70%)',
+                }}
+                className="relative rounded-3xl p-6 border-2 border-rose-500/40 shadow-2xl flex flex-col justify-between overflow-hidden"
+              >
+                {/* Top Badge */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <span className="px-3 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full text-[10px] font-black uppercase tracking-wider">
+                    ⚠️ CONTROL DE COSTOS • CX
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full border border-slate-800">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span className="text-[10px] font-bold text-slate-300">Nevux IA</span>
+                  </div>
+                </div>
+
+                {/* Main Headline */}
+                <div className="relative z-10 my-auto text-center space-y-4">
+                  <div className="inline-block px-3 py-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 rounded-lg text-xs font-black uppercase tracking-wider">
+                    🚨 Fuga Silenciosa de Ventas
+                  </div>
+                  <h2 className="text-3xl font-black leading-tight text-white tracking-tight">
+                    LA DEVOLUCIÓN <span className="text-rose-400 underline decoration-rose-500 decoration-wavy">MÁS CARA</span> DE TU TIENDA
+                  </h2>
+                  <p className="text-xs text-slate-300 font-medium leading-relaxed px-2">
+                    El 67% de los carritos se caen por dudas de talle, stock o envío a deshoras.
+                  </p>
+                </div>
+
+                {/* Bottom Card Mockup */}
+                <div className="relative z-10 bg-slate-950/90 border border-slate-800 rounded-2xl p-3 shadow-xl backdrop-blur-md">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-300 pb-2 border-b border-slate-800">
+                    <span>Asistente IA 24/7</span>
+                    <span className="text-emerald-400 font-mono font-extrabold">0 Carritos Caídos</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-[10px]">
+                    <span className="text-slate-400">Responde en 2 segundos</span>
+                    <span className="text-emerald-300 font-bold">Instalación Fácil</span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-2 text-center">
+                Resolución nativa: 1080x1920 (9:16).
+              </p>
+            </div>
+
+            {/* Copy Miércoles */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-black text-white">Copy para Reel de Soporte & IA</h3>
+                    <p className="text-xs text-slate-400">Enfocado en resolver la pérdida de ventas fuera de horario laboral.</p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(copyMiercolesReel, 'copy-miercoles')}
+                    className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
+                  >
+                    {copiedId === 'copy-miercoles' ? '✓ ¡Copiado!' : 'Copiar Texto'}
+                  </button>
+                </div>
+                <textarea
+                  readOnly
+                  value={copyMiercolesReel}
+                  rows={12}
+                  className="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 leading-relaxed focus:outline-none focus:border-emerald-500 resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: JUEVES (STORIES)
+        ======================================================== */}
+        {activeTab === 'jueves' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div className="text-xs font-mono text-emerald-400 mb-2 uppercase font-bold tracking-wider">
+                Story Interactiva (9:16)
+              </div>
+              <div
+                style={{
+                  width: '300px',
+                  height: '533px',
+                  backgroundColor: '#020A07',
+                  backgroundImage:
+                    'radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.15) 0%, transparent 60%)',
+                }}
+                className="relative rounded-3xl p-6 border-2 border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden text-center"
+              >
+                <div className="space-y-2">
+                  <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-[10px] font-black uppercase">
+                    💡 TIP ECOMMERCE
+                  </span>
+                  <h3 className="text-xl font-black text-white leading-tight">
+                    ¿Cuánta plata dejás en la mesa sin una barra de Envío Gratis?
+                  </h3>
+                </div>
+
+                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+                  <p className="text-xs text-slate-300 font-semibold">
+                    El 80% de los clientes prefiere agregar un producto más antes que pagar el costo de envío.
+                  </p>
+                  <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5">
+                    <div className="bg-emerald-400 h-full rounded-full w-4/5 animate-pulse"></div>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 font-bold font-mono">
+                    ¡Faltan $4.500 para tu ENVÍO GRATIS!
+                  </span>
+                </div>
+
+                <div className="bg-emerald-500/20 border border-emerald-500/40 rounded-xl p-2.5">
+                  <span className="text-xs font-bold text-emerald-300">
+                    Activalo con Nevux en 1 clic 📲
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+                <h3 className="text-lg font-black text-white mb-2">Estrategia de Stickers para Instagram Stories</h3>
+                <p className="text-xs text-slate-400 mb-4">
+                  Usá el sticker interactivo de <strong>&quot;Encuesta&quot;</strong> o <strong>&quot;Cuestionario&quot;</strong> para aumentar la interacción de tu cuenta.
+                </p>
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs text-slate-300">
+                  <p className="font-bold text-white">Pregunta recomendada:</p>
+                  <p className="italic text-emerald-300">&quot;¿Tenés activada la barra de envío gratis en tu Tiendanube?&quot;</p>
+                  <p className="pt-2 text-slate-400">Opción A: Sí, ya la uso 🚀</p>
+                  <p className="text-slate-400">Opción B: No, ¿cómo se pone? 👀</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: JUEVES PORTADA
+        ======================================================== */}
+        {activeTab === 'jueves-portada' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div className="text-xs font-mono text-emerald-400 mb-2 uppercase font-bold tracking-wider">
+                Portada Carrusel Urgencia (1:1)
+              </div>
+              <div
+                style={{ width: '340px', height: '340px', backgroundColor: '#020A07' }}
+                className="relative rounded-3xl p-6 border-2 border-amber-500/40 shadow-2xl flex flex-col justify-between overflow-hidden"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-[10px] font-black uppercase tracking-wider">
+                    ⚡ CHECKLIST ECOMMERCE
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400">Nevux App</span>
+                </div>
+
+                <div className="my-auto space-y-2">
+                  <h3 className="text-2xl font-black text-white leading-tight">
+                    3 AJUSTES QUE DUPLICAN TUS VENTAS
+                  </h3>
+                  <p className="text-xs text-slate-300">
+                    Antes del próximo pico de tráfico, asegurate de tener estos 3 módulos activados en tu tienda.
+                  </p>
+                </div>
+
+                <div className="bg-slate-950/80 rounded-xl p-2.5 border border-slate-800 text-center">
+                  <span className="text-xs font-bold text-emerald-400">
+                    Deslizá para ver el paso a paso 👉
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-black text-white">Copy para Carrusel de Urgencia</h3>
+                    <p className="text-xs text-slate-400">Educativo, directo y enfocado en la conversión rápida.</p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(copyJuevesCarrusel, 'copy-jueves')}
+                    className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
+                  >
+                    {copiedId === 'copy-jueves' ? '✓ ¡Copiado!' : 'Copiar Texto'}
+                  </button>
+                </div>
+                <textarea
+                  readOnly
+                  value={copyJuevesCarrusel}
+                  rows={10}
+                  className="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 leading-relaxed focus:outline-none focus:border-emerald-500 resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: VIERNES
+        ======================================================== */}
+        {activeTab === 'viernes' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div className="text-xs font-mono text-emerald-400 mb-2 uppercase font-bold tracking-wider">
+                Story Garantía & Cierre (9:16)
+              </div>
+              <div
+                style={{
+                  width: '300px',
+                  height: '533px',
+                  backgroundColor: '#020A07',
+                  backgroundImage:
+                    'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.2) 0%, transparent 70%)',
+                }}
+                className="relative rounded-3xl p-6 border-2 border-emerald-500/50 shadow-2xl flex flex-col justify-between overflow-hidden text-center"
+              >
+                <div className="space-y-3">
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-[10px] font-black uppercase tracking-wider">
+                    🛡️ RIESGO CERO
+                  </span>
+                  <h3 className="text-2xl font-black text-white leading-tight">
+                    7 DÍAS GRATIS PARA TU TIENDA
+                  </h3>
+                  <p className="text-xs text-slate-300">
+                    Sin tarjeta obligatoria. Si no aumentás tu ticket promedio, lo desactivás en un clic.
+                  </p>
+                </div>
+
+                <div className="bg-slate-950/90 border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+                  <p className="text-xs font-mono text-emerald-400 font-bold">App Oficial Tiendanube</p>
+                  <p className="text-[11px] text-slate-400">Instalación instantánea con ID #37382</p>
+                </div>
+
+                <div className="bg-emerald-400 text-black font-black text-xs py-3 rounded-xl shadow-lg shadow-emerald-500/30">
+                  Tocá acá para Probar Gratis 📲
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+                <h3 className="text-lg font-black text-white mb-2">Estrategia de Cierre de Semana</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Los viernes a la tarde los dueños de tiendas revisan sus métricas y preparan las promociones del fin de semana. Es el momento perfecto para ofrecerles una herramienta que optimice sus ventas en piloto automático.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: VIERNES PORTADA (MINIATURA 9:16)
+        ======================================================== */}
+        {activeTab === 'viernes-portada' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Placa 9:16 Miniatura Video */}
+            <div className="lg:col-span-5 flex flex-col items-center">
+              <div className="text-xs font-mono text-emerald-400 mb-2 uppercase font-bold tracking-wider">
+                Miniatura 9:16 (Reel / TikTok)
+              </div>
+              <div
+                style={{
+                  width: '320px',
+                  height: '568px',
+                  backgroundColor: '#020A07',
+                  backgroundImage:
+                    'radial-gradient(circle at 50% 15%, rgba(16, 185, 129, 0.25) 0%, transparent 70%)',
+                }}
+                className="relative rounded-3xl p-6 border-2 border-emerald-500/40 shadow-2xl flex flex-col justify-between overflow-hidden"
+              >
+                {/* Top Badge */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-[10px] font-black uppercase tracking-wider">
+                    🚀 AUTO-PILOT • TIENDANUBE
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full border border-slate-800">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span className="text-[10px] font-bold text-slate-300">Nevux</span>
+                  </div>
+                </div>
+
+                {/* Main Headline */}
+                <div className="relative z-10 my-auto text-center space-y-4">
+                  <div className="inline-block px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 rounded-lg text-xs font-black uppercase tracking-wider">
+                    ⚡ Fin de Semana en Piloto Automático
+                  </div>
+                  <h2 className="text-3xl font-black leading-tight text-white tracking-tight">
+                    DEJÁ TU TIENDA <span className="text-emerald-400 underline decoration-emerald-500 decoration-wavy">VENDIENDO SOLA</span> ESTE FINDE
+                  </h2>
+                  <p className="text-xs text-slate-300 font-medium leading-relaxed px-2">
+                    Activá ofertas automáticas de cross-selling y mirá cómo sube tu ticket promedio el lunes.
+                  </p>
+                </div>
+
+                {/* Bottom Card Mockup */}
+                <div className="relative z-10 bg-slate-950/90 border border-emerald-500/30 rounded-2xl p-3 shadow-xl backdrop-blur-md">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-300 pb-2 border-b border-slate-800">
+                    <span>Cross-selling Activo</span>
+                    <span className="text-emerald-400 font-mono font-extrabold">+25% Ventas</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-[10px]">
+                    <span className="text-slate-400">Sin programar nada</span>
+                    <span className="text-yellow-400 font-bold">7 Días Gratis</span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-2 text-center">
+                Resolución nativa: 1080x1920 (9:16).
+              </p>
+            </div>
+
+            {/* Copy Viernes */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-black text-white">Copy para Reel de Fin de Semana</h3>
+                    <p className="text-xs text-slate-400">Enfocado en la automatización y el descanso del dueño de negocio.</p>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(copyViernesReel, 'copy-viernes')}
+                    className="px-3.5 py-1.5 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black rounded-lg transition-all"
+                  >
+                    {copiedId === 'copy-viernes' ? '✓ ¡Copiado!' : 'Copiar Texto'}
+                  </button>
+                </div>
+                <textarea
+                  readOnly
+                  value={copyViernesReel}
+                  rows={14}
+                  className="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-300 leading-relaxed focus:outline-none focus:border-emerald-500 resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: IDEAS REELS (CAPCUT PLAYBOOK)
+        ======================================================== */}
+        {activeTab === 'ideas-reels' && (
+          <div className="space-y-8">
+            {/* Header del Playbook */}
+            <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-emerald-950/60 border border-emerald-500/40 rounded-3xl p-6 md:p-8">
+              <div className="inline-block px-3 py-1 bg-amber-400 text-black font-black text-xs uppercase rounded-lg mb-3">
+                ⚡ Flujo de Trabajo Rápido para No Editores
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-2">
+                Cómo Grabar y Editar Reels de Nevux en 15 Minutos (Sin Bloqueo Creativo)
+              </h2>
+              <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
+                No necesitás ser cineasta ni contratar editores caros. Los reels de software SaaS que más convierten son grabaciones de pantalla directas con voz en off clara y texto dinámico en CapCut.
+              </p>
+            </div>
+
+            {/* Paso a Paso Detallado */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* PASO 1 */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono font-black flex items-center justify-center text-lg">
+                  01
+                </div>
+                <h3 className="text-base font-black text-white">Grabá la Pantalla del Sandbox</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Entrá a <code className="text-emerald-300 bg-black/60 px-1.5 py-0.5 rounded">nevuxapp.mitiendanube.com</code> desde tu celular o computadora y grabá 3 tomas simples:
+                </p>
+                <ul className="text-xs text-slate-300 space-y-2 list-disc list-inside">
+                  <li><strong>Toma 1 (3s):</strong> Agregando un producto al carrito.</li>
+                  <li><strong>Toma 2 (4s):</strong> El pop-up de Nevux ofreciendo el complemento en 1 clic.</li>
+                  <li><strong>Toma 3 (3s):</strong> El total del carrito actualizándose con el ticket más alto.</li>
+                </ul>
+              </div>
+
+              {/* PASO 2 */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono font-black flex items-center justify-center text-lg">
+                  02
+                </div>
+                <h3 className="text-base font-black text-white">Voz en Off & Subtítulos en CapCut</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Abrí la app gratuita de <strong>CapCut</strong> (en el teléfono o en la compu) e importá tus grabaciones:
+                </p>
+                <ul className="text-xs text-slate-300 space-y-2 list-disc list-inside">
+                  <li>Grabá tu voz leyendo el guión sugerido (mantené un tono enérgico y seguro).</li>
+                  <li>Tocá en <strong>&quot;Subtítulos Automáticos&quot;</strong>.</li>
+                  <li>Elegí la plantilla de texto en mayúsculas color verde/amarillo con contorno negro para máxima legibilidad.</li>
+                </ul>
+              </div>
+
+              {/* PASO 3 */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono font-black flex items-center justify-center text-lg">
+                  03
+                </div>
+                <h3 className="text-base font-black text-white">Portada 9:16 & Publicación</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Para que tu feed se vea profesional y no como una captura desordenada:
+                </p>
+                <ul className="text-xs text-slate-300 space-y-2 list-disc list-inside">
+                  <li>Usá las miniaturas 9:16 diseñadas en las pestañas de este panel como primer frame o portada de Instagram.</li>
+                  <li>Pegá el copy correspondiente con los hashtags.</li>
+                  <li>Fijá el comentario con el link directo a la Tienda de Apps de Tiendanube.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Checklist de Parámetros de Audio y Video */}
+            <div className="bg-slate-950 border border-emerald-900/40 rounded-2xl p-6">
+              <h3 className="text-sm font-black text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                Parámetros Recomendados para CapCut / TikTok
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                  <span className="text-slate-400 block mb-1">Volumen Voz</span>
+                  <span className="text-white font-mono font-bold text-sm">-6 dB (Limpia)</span>
+                </div>
+                <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                  <span className="text-slate-400 block mb-1">Música de Fondo</span>
+                  <span className="text-white font-mono font-bold text-sm">-22 dB (Sutil)</span>
+                </div>
+                <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                  <span className="text-slate-400 block mb-1">Fuente Subtítulos</span>
+                  <span className="text-white font-bold text-sm">Montserrat Black / Bold</span>
+                </div>
+                <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                  <span className="text-slate-400 block mb-1">Exportación</span>
+                  <span className="text-emerald-400 font-mono font-bold text-sm">1080p @ 60 FPS</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
-  }
+              }
