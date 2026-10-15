@@ -608,7 +608,7 @@ function PackComplementariosPreview() {
           <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", color: "#fff", fontSize: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
           <span style={{ fontSize: "6.5px", fontWeight: 700, color: "#111827" }}>+ Complemento</span>
         </div>
-        <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>+$ 10.000</span>
+        <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>+$ 10.000</span>
       </div>
       <div style={{ background: "#111827", color: "#ffffff", borderRadius: "6px", padding: "4px", fontSize: "7px", fontWeight: 800, textAlign: "center", marginTop: "2px" }}>Agregar pack · $ 29.750</div>
     </div>
@@ -873,7 +873,7 @@ function DefaultPreview() {
       <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="8" y="20" width="24" height="24" rx="3" fill="#ffffff" stroke="#000000" strokeWidth="1.5" />
         <rect x="20" y="14" width="28" height="28" rx="3" fill="#f3f4f6" stroke="#000000" strokeWidth="1.5" />
-        <rect x="32" y="26" width="24" height="24" rx="3" fill="#10B981" stroke="#000000" strokeWidth="1.5" />
+        <rect x="32" y="26" width="26" height="24" rx="3" fill="#10B981" stroke="#000000" strokeWidth="1.5" />
         <circle cx="52" cy="18" r="10" fill="#000000" stroke="#ffffff" strokeWidth="2" />
         <text x="52" y="22" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="800" fontFamily="system-ui, -apple-system, sans-serif">%</text>
       </svg>
@@ -989,4 +989,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-      }
+    }
