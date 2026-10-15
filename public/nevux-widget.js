@@ -1834,6 +1834,7 @@
             if (w.widget_slug === "columnas-imagenes-texto") renderColumnasImagenesTexto(w);
             if (w.widget_slug === "comparador-marca") renderComparadorMarca(w);
             if (w.widget_slug === "video-flotante") renderVideoFlotante(w);
+            if (w.widget_slug === "boton-whatsapp") renderBotonWhatsapp(w);
           } catch (err) {
             console.error("[Nevux] Error renderizando widget:", w.widget_slug, err);
           }
@@ -12599,5 +12600,180 @@ if (typeof window.nvxSubmitVideoCta !== "function") {
       if (form) form.submit();
     }
   };
+        }
+          /* ═══════════════════════════════════════════
+   WIDGET #39: BOTÓN DE WHATSAPP
+   ═══════════════════════════════════════════ */
+function renderBotonWhatsapp(w) {
+  try {
+    if (!w || !w.config) return;
+    var cfg = w.config || {};
+    var uniqueId = "nvx-btn-wa-" + (w.id || Math.random().toString(36).substring(7));
+    if (document.getElementById(uniqueId)) return;
+
+    var agentName = cfg.agentName || "Luana";
+    var agentRole = cfg.agentRole || "Atención al cliente";
+    var message = cfg.message || "Hola, ¿Cómo podemos ayudarte?";
+    var avatarUrl = cfg.avatarUrl || "";
+    var hideAvatar = !!cfg.hideAvatar;
+    var showPopupAuto = cfg.showPopupAuto !== false;
+    var popupDelay = (cfg.popupDelay || 5) * 1000;
+    var popupFrequency = cfg.popupFrequency || "once";
+    var buttonText = cfg.buttonText || "Empezar chat";
+    var whatsappNumber = (cfg.whatsappNumber || "541100000000").replace(/[^0-9]/g, "");
+    var initialMessage = cfg.initialMessage || "Hola, quiero más información";
+    var showNotificationDot = cfg.showNotificationDot !== false;
+
+    var position = cfg.position || "bottom-right";
+    var buttonColor = cfg.buttonColor || "#25D366";
+    var headerColor = cfg.headerColor || "#25D366";
+    var ctaColor = cfg.ctaColor || "#25D366";
+    var dotColor = cfg.dotColor || "#E53E3E";
+    var animation = cfg.animation || "pulse";
+    var btnRounded = cfg.btnRounded !== false;
+    var btnSize = cfg.btnSize || 68;
+    var iconSize = cfg.iconSize || 32;
+
+    var posStyles = "";
+    var chatPosStyles = "";
+    if (position === "bottom-right") {
+      posStyles = "bottom: 20px !important; right: 20px !important;";
+      chatPosStyles = "bottom: " + (btnSize + 30) + "px !important; right: 20px !important;";
+    } else if (position === "bottom-left") {
+      posStyles = "bottom: 20px !important; left: 20px !important;";
+      chatPosStyles = "bottom: " + (btnSize + 30) + "px !important; left: 20px !important;";
+    } else if (position === "top-right") {
+      posStyles = "top: 20px !important; right: 20px !important;";
+      chatPosStyles = "top: " + (btnSize + 30) + "px !important; right: 20px !important;";
+    } else if (position === "top-left") {
+      posStyles = "top: 20px !important; left: 20px !important;";
+      chatPosStyles = "top: " + (btnSize + 30) + "px !important; left: 20px !important;";
+    }
+
+    var animClass = "";
+    var animCssId = "nvx-wa-anim-css";
+    if (!document.getElementById(animCssId)) {
+      var st = document.createElement("style");
+      st.id = animCssId;
+      st.innerHTML =
+        "@keyframes nvxWAPulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.6); } 70% { box-shadow: 0 0 0 15px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }" +
+        "@keyframes nvxWABounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }" +
+        ".nvx-wa-pulse { animation: nvxWAPulse 2s infinite !important; }" +
+        ".nvx-wa-bounce { animation: nvxWABounce 2s infinite !important; }";
+      document.head.appendChild(st);
+    }
+
+    if (animation === "pulse") animClass = "nvx-wa-pulse";
+    else if (animation === "bounce") animClass = "nvx-wa-bounce";
+
+    var container = document.createElement("div");
+    container.id = uniqueId;
+    container.setAttribute("data-nevux-widget", "boton-whatsapp");
+    container.style.cssText = "position: fixed !important; z-index: 999990 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;";
+
+    // Botón Flotante
+    var html = '<div id="' + uniqueId + '-btn" class="' + animClass + '" style="position: fixed !important; width: ' + btnSize + 'px !important; height: ' + btnSize + 'px !important; border-radius: 50% !important; background-color: ' + buttonColor + ' !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important; z-index: 999991 !important; ' + posStyles + '">';
+    html += '<svg width="' + iconSize + '" height="' + iconSize + '" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.38 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.38 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+
+    if (showNotificationDot) {
+      html += '<span style="position: absolute !important; top: 2px !important; right: 2px !important; width: 14px !important; height: 14px !important; border-radius: 50% !important; background-color: ' + dotColor + ' !important; border: 2px solid #ffffff !important;"></span>';
+    }
+    html += '</div>';
+
+    // Cuadro Modal de Chat
+    var chatBoxId = uniqueId + "-chat";
+    var chatHtml = '<div id="' + chatBoxId + '" style="display: none; position: fixed !important; width: min(320px, 88vw) !important; background-color: #ffffff !important; border-radius: 16px !important; overflow: hidden !important; box-shadow: 0 12px 35px rgba(0,0,0,0.2) !important; border: 1px solid #e5e7eb !important; z-index: 999992 !important; ' + chatPosStyles + '">';
+
+    // Header Chat
+    chatHtml += '<div style="background-color: ' + headerColor + ' !important; color: #ffffff !important; padding: 14px 16px !important; display: flex !important; align-items: center !important; justify-content: space-between !important;">';
+    chatHtml += '<div style="display: flex !important; align-items: center !important; gap: 10px !important;">';
+    if (!hideAvatar) {
+      chatHtml += '<div style="width: 38px !important; height: 38px !important; border-radius: 50% !important; background-color: rgba(255,255,255,0.25) !important; display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; flex-shrink: 0 !important;">';
+      if (avatarUrl) {
+        chatHtml += '<img src="' + avatarUrl + '" alt="' + agentName + '" style="width: 100% !important; height: 100% !important; object-fit: cover !important;" />';
+      } else {
+        chatHtml += '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+      }
+      chatHtml += '</div>';
+    }
+    chatHtml += '<div>';
+    chatHtml += '<div style="font-size: 14px !important; font-weight: 800 !important; color: #ffffff !important; line-height: 1.2 !important;">' + agentName + '</div>';
+    if (agentRole) {
+      chatHtml += '<div style="font-size: 11px !important; color: rgba(255,255,255,0.9) !important; margin-top: 2px !important;">' + agentRole + '</div>';
+    }
+    chatHtml += '</div></div>';
+
+    chatHtml += '<div id="' + chatBoxId + '-close" style="cursor: pointer !important; font-size: 18px !important; font-weight: bold !important; opacity: 0.8 !important; padding: 4px !important;">✕</div>';
+    chatHtml += '</div>';
+
+    // Cuerpo del Mensaje
+    chatHtml += '<div style="padding: 16px !important; background-color: #f9fafb !important;">';
+    chatHtml += '<div style="background-color: #ffffff !important; border-radius: 12px !important; padding: 12px 14px !important; font-size: 13px !important; color: #111827 !important; line-height: 1.4 !important; border: 1px solid #f3f4f6 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;">' + message + '</div>';
+    chatHtml += '</div>';
+
+    // Botón de WhatsApp
+    var waUrl = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(initialMessage);
+    chatHtml += '<div style="padding: 12px 16px 16px 16px !important; background-color: #ffffff !important;">';
+    chatHtml += '<a href="' + waUrl + '" target="_blank" rel="noopener noreferrer" style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; width: 100% !important; background-color: ' + ctaColor + ' !important; color: #ffffff !important; border-radius: ' + (btnRounded ? '999px' : '8px') + ' !important; padding: 12px !important; font-size: 14px !important; font-weight: 800 !important; text-decoration: none !important; box-sizing: border-box !important; text-align: center !important; box-shadow: 0 4px 12px rgba(37,211,102,0.3) !important;">';
+    chatHtml += '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.38 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.38 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+    chatHtml += '<span>' + buttonText + '</span>';
+    chatHtml += '</a></div>';
+
+    chatHtml += '</div>';
+
+    container.innerHTML = html + chatHtml;
+    document.body.appendChild(container);
+
+    var btnEl = document.getElementById(uniqueId + "-btn");
+    var chatBoxEl = document.getElementById(chatBoxId);
+    var closeXEl = document.getElementById(chatBoxId + "-close");
+
+    var isOpen = false;
+
+    var toggleChat = function() {
+      isOpen = !isOpen;
+      if (chatBoxEl) {
+        chatBoxEl.style.display = isOpen ? "block" : "none";
+      }
+    };
+
+    if (btnEl) {
+      btnEl.addEventListener("click", function(e) {
+        e.stopPropagation();
+        toggleChat();
+      });
+    }
+
+    if (closeXEl) {
+      closeXEl.addEventListener("click", function(e) {
+        e.stopPropagation();
+        isOpen = false;
+        if (chatBoxEl) chatBoxEl.style.display = "none";
+      });
+    }
+
+    // Auto popup
+    if (showPopupAuto) {
+      var storageKey = "nvx_wa_shown_" + w.id;
+      var alreadyShown = popupFrequency === "once" && window.sessionStorage && window.sessionStorage.getItem(storageKey);
+
+      if (!alreadyShown) {
+        setTimeout(function() {
+          if (!isOpen && chatBoxEl) {
+            isOpen = true;
+            chatBoxEl.style.display = "block";
+            if (popupFrequency === "once" && window.sessionStorage) {
+              try { window.sessionStorage.setItem(storageKey, "1"); } catch(e){}
+            }
+          }
+        }, popupDelay);
+      }
+    }
+
+  } catch (err) {
+    if (window.console && window.console.warn) {
+      window.console.warn("[Nevux] renderBotonWhatsapp error:", err);
+    }
+  }
         }
 })(); 
