@@ -12478,6 +12478,7 @@ function renderVideoFlotante(w) {
     var closeIconColor = cfg.closeIconColor || "#191919";
     var closeIconSize = cfg.closeIconSize || 14;
     var animation = cfg.animation || "pulse";
+    var openCart = cfg.openCart !== false; // Flag de control para abrir el carrito
     var ctaBgColor = cfg.ctaBgColor || "#10B981";
     var ctaTextColor = cfg.ctaTextColor || "#ffffff";
     var ctaRadius = cfg.ctaRadius || 12;
@@ -12527,26 +12528,20 @@ function renderVideoFlotante(w) {
     }
     html += '</div>';
 
-    // ═══════════════════════════════════════
-    // MODAL 100% CENTRADO EN EL MEDIO
-    // ═══════════════════════════════════════
+    // MODAL CENTRADO
     var modalId = uniqueId + "-modal";
     html += '<div id="' + modalId + '" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:999999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">';
     html += '<div style="position:relative;width:min(340px,92vw);height:min(600px,78vh);background:#000;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.7);flex-shrink:0;">';
 
-    // Botón X del modal
     html += '<div id="' + modalId + '-x" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;cursor:pointer;z-index:30;border:1px solid rgba(255,255,255,0.25);">✕</div>';
 
-    // Video
     html += '<video id="' + modalId + '-player" src="' + (firstVid.url || "") + '" style="width:100%;height:100%;object-fit:cover;display:block;" controls autoplay playsinline></video>';
 
-    // Barra inferior CTA
     html += '<div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px 16px;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.5) 80%,transparent 100%);display:flex;flex-direction:column;gap:8px;z-index:20;">';
     html += '<div id="' + modalId + '-title" style="color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px #000;line-height:1.25;">' + (firstVid.title || "") + '</div>';
     html += '<button id="' + modalId + '-cta" type="button" style="background:' + ctaBgColor + ';color:' + ctaTextColor + ';border-radius:' + ctaRadius + 'px;padding:13px;text-align:center;font-size:15px;font-weight:800;border:none;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(0,0,0,0.4);font-family:inherit;">' + (firstVid.buttonText || "Comprar ahora") + '</button>';
     html += '</div>';
 
-    // Flechas si hay varios videos
     if (videos.length > 1) {
       html += '<div id="' + modalId + '-prev" style="position:absolute;top:50%;left:8px;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:800;z-index:25;border:1px solid rgba(255,255,255,0.2);">‹</div>';
       html += '<div id="' + modalId + '-next" style="position:absolute;top:50%;right:8px;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:800;z-index:25;border:1px solid rgba(255,255,255,0.2);">›</div>';
@@ -12557,7 +12552,6 @@ function renderVideoFlotante(w) {
     container.innerHTML = html;
     document.body.appendChild(container);
 
-    // ─── Referencias DOM ───
     var btnEl = document.getElementById(uniqueId + "-btn");
     var closeEl = document.getElementById(uniqueId + "-close");
     var modalEl = document.getElementById(modalId);
@@ -12597,7 +12591,6 @@ function renderVideoFlotante(w) {
       }
     };
 
-    // Eventos botón flotante
     if (closeEl) {
       closeEl.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -12611,7 +12604,6 @@ function renderVideoFlotante(w) {
       });
     }
 
-    // Eventos modal
     if (xEl) xEl.addEventListener("click", function (e) { e.stopPropagation(); closeModal(); });
     if (modalEl) {
       modalEl.addEventListener("click", function (e) {
@@ -12630,16 +12622,16 @@ function renderVideoFlotante(w) {
         var currentVid = videos[currentIdx] || {};
         var customUrl = (currentVid.buttonUrl || "").trim();
 
-        // 1. Cerrar modal YA
+        // 1. Cerrar modal
         closeModal();
 
-        // Link externo
+        // Si tiene un link externo explicito
         if (customUrl && customUrl !== "#" && customUrl.indexOf("http") === 0) {
           window.location.href = customUrl;
           return;
         }
 
-        // Detectar producto/variante
+        // Detectar variante / producto
         var prod = (window.LS && window.LS.product) ? window.LS.product : null;
         var varInput = document.querySelector("form[action*='/cart/add'] input[name='variant_id'], form[action*='/cart/add'] select[name='variant_id'], [name='variant_id']");
         var activeVarId = (varInput && varInput.value) ? varInput.value : (prod && prod.variants && prod.variants[0] ? prod.variants[0].id : null);
@@ -12659,9 +12651,11 @@ function renderVideoFlotante(w) {
         if (window.nube && typeof window.nube.send === "function") {
           try {
             window.nube.send("cart:add", { id: Number(itemId) || itemId, quantity: qty });
-            setTimeout(function () {
-              try { window.nube.send("cart:open"); } catch (e2) {}
-            }, 180);
+            if (openCart) {
+              setTimeout(function () {
+                try { window.nube.send("cart:open"); } catch (e2) {}
+              }, 180);
+            }
             return;
           } catch (e3) {}
         }
@@ -12673,8 +12667,10 @@ function renderVideoFlotante(w) {
         fd.append("quantity", qty);
         fetch("/comprar/", { method: "POST", body: fd, credentials: "include" })
           .then(function () {
-            if (window.nube && window.nube.send) {
+            if (openCart && window.nube && typeof window.nube.send === "function") {
               try { window.nube.send("cart:open"); } catch (e4) {}
+            } else if (!openCart) {
+              // Agregado silencioso
             } else {
               window.location.reload();
             }
@@ -12687,5 +12683,5 @@ function renderVideoFlotante(w) {
       window.console.warn("[Nevux] renderVideoFlotante error:", err);
     }
   }
-}
+      }
 })(); 
