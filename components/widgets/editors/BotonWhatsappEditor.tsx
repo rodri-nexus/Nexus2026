@@ -71,6 +71,10 @@ export default function BotonWhatsappEditor({
   const [btnSize, setBtnSize] = useState<number>(cfg.btnSize ?? 68);
   const [iconSize, setIconSize] = useState<number>(cfg.iconSize ?? 32);
 
+  // Subida de imagen
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
   const [campaignTheme, setCampaignTheme] = useState(cfg.campaignTheme || 'none');
   const [isSavingInternal, setIsSavingInternal] = useState(false);
 
@@ -78,6 +82,44 @@ export default function BotonWhatsappEditor({
   const isCategory = effectiveTargetType === 'category' || !!categoryId;
   const isForAll = effectiveTargetType === 'all';
   const scopeLabel = isForAll ? 'Todos los productos' : isCategory ? 'Categoría' : 'Producto específico';
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError('La imagen supera el límite máximo de 2 MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const activeWidgetId = widgetId || existingWidget?.id;
+      if (activeWidgetId) formData.append('widget_id', String(activeWidgetId));
+
+      const res = await fetch('/api/upload-video', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Error al subir la imagen');
+      }
+
+      setAvatarUrl(data.url);
+    } catch (err: any) {
+      setUploadError(err.message || 'Error al subir la imagen de la galería.');
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
 
   const applyPresetTheme = (themeKey: string) => {
     setCampaignTheme(themeKey);
@@ -303,11 +345,13 @@ export default function BotonWhatsappEditor({
         </button>
       </div>
 
+      {/* TAB GENERAL: ALINEADO Y CON CARGA DESDE GALERÍA */}
       {activeTab === 'general' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
                 Nombre de la persona *
               </label>
               <input
@@ -315,11 +359,11 @@ export default function BotonWhatsappEditor({
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
                 placeholder="Luana"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
             </div>
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
                 Puesto / Cargo (opcional)
               </label>
               <input
@@ -327,13 +371,13 @@ export default function BotonWhatsappEditor({
                 value={agentRole}
                 onChange={(e) => setAgentRole(e.target.value)}
                 placeholder="Atención al cliente"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
               Mensaje del cuadro de chat *
             </label>
             <textarea
@@ -341,25 +385,70 @@ export default function BotonWhatsappEditor({
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
               placeholder="Hola, ¿Cómo podemos ayudarte?"
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
-                URL del Avatar de la persona
-              </label>
-              <input
-                type="text"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://misitio.com/foto.jpg"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
-              />
+          {/* SUBIDA DE FOTO DE LA GALERÍA (ESTILO WIGY) */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Avatar / Foto de Perfil
+            </label>
+            
+            <div style={{ border: '2px dashed #D1D5DB', borderRadius: '12px', padding: '20px', textAlign: 'center', backgroundColor: '#F9FAFB' }}>
+              {avatarUrl ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <img src={avatarUrl} alt="Avatar" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #10B981' }} />
+                  <button
+                    type="button"
+                    onClick={() => setAvatarUrl('')}
+                    style={{ backgroundColor: '#FEE2E2', color: '#EF4444', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    🗑️ Cambiar / Eliminar foto
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: '32px', marginBottom: '6px' }}>👤</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: '2px' }}>
+                    Haz clic o arrastra una imagen aquí
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '14px' }}>
+                    JPG, PNG, GIF - Máximo 2MB · Recomendado: 80x80px
+                  </div>
+
+                  <label style={{
+                    backgroundColor: '#10B981',
+                    color: '#ffffff',
+                    padding: '10px 20px',
+                    borderRadius: '999px',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    cursor: isUploading ? 'not-allowed' : 'pointer',
+                    display: 'inline-block',
+                    boxShadow: '0 2px 8px rgba(16,185,129,0.3)'
+                  }}>
+                    {isUploading ? 'Subiendo imagen...' : '📱 Seleccionar de la galería'}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={handleAvatarUpload}
+                      disabled={isUploading}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </div>
+              )}
+
+              {uploadError && (
+                <div style={{ color: '#EF4444', fontSize: '12px', marginTop: '10px', fontWeight: 600 }}>
+                  ⚠️ {uploadError}
+                </div>
+              )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', paddingTop: '20px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+
+            <div style={{ marginTop: '10px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 700, color: '#374151', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={hideAvatar}
@@ -371,11 +460,11 @@ export default function BotonWhatsappEditor({
             </div>
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid #E5E7EB', margin: '8px 0' }} />
+          <hr style={{ border: 'none', borderTop: '1px solid #E5E7EB', margin: '6px 0' }} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
                 Número de WhatsApp (con código de país) *
               </label>
               <input
@@ -383,11 +472,11 @@ export default function BotonWhatsappEditor({
                 value={whatsappNumber}
                 onChange={(e) => setWhatsappNumber(e.target.value)}
                 placeholder="541100000000"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
             </div>
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
                 Texto del botón principal
               </label>
               <input
@@ -395,21 +484,21 @@ export default function BotonWhatsappEditor({
                 value={buttonText}
                 onChange={(e) => setButtonText(e.target.value)}
                 placeholder="Empezar chat"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
               />
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '4px' }}>
-              Mensaje predefinido al abrir WhatsApp
+            <label style={{ fontSize: '12px', fontWeight: 700, color: '#374151', display: 'block', marginBottom: '6px' }}>
+              Mensaje predefinido para iniciar conversación (opcional)
             </label>
             <input
               type="text"
               value={initialMessage}
               onChange={(e) => setInitialMessage(e.target.value)}
               placeholder="Hola, quiero más información"
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' }}
             />
           </div>
         </div>
@@ -545,7 +634,7 @@ export default function BotonWhatsappEditor({
                   Redondeado
                 </button>
                 <button type="button" onClick={() => setBtnRounded(false)} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: !btnRounded ? '2px solid #10B981' : '1px solid #D1D5DB', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
-                  Sin me redondear
+                  Sin redondear
                 </button>
               </div>
             </div>
@@ -620,4 +709,4 @@ export default function BotonWhatsappEditor({
       </div>
     </div>
   );
-    }
+  }
