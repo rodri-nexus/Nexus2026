@@ -8,6 +8,38 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function VideoFlotantePreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎬 VIDEO FLOTANTE</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          REELS
+        </span>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "4px 0" }}>
+        <div style={{ position: "relative", width: "38px", height: "38px", borderRadius: "50%", background: "#111827", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", boxShadow: "0 4px 10px rgba(0,0,0,0.2)" }}>
+          <span style={{ fontSize: "11px", marginLeft: "1px" }}>▶</span>
+          <div style={{ position: "absolute", top: "-2px", left: "-2px", width: "11px", height: "11px", borderRadius: "50%", background: "#191919", border: "1px solid #ffffff", color: "#ffffff", fontSize: "6.5px", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ComparadorMarcaPreview() {
   return (
     <div
@@ -576,7 +608,7 @@ function PackComplementariosPreview() {
           <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10B981", color: "#fff", fontSize: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
           <span style={{ fontSize: "6.5px", fontWeight: 700, color: "#111827" }}>+ Complemento</span>
         </div>
-        <span style={{ fontSize: "6.5px", fontWeight: 900, color: "#10B981" }}>+$ 10.000</span>
+        <span style={{ fontSize: "6.5px", fontWeight 900, color: "#10B981" }}>+$ 10.000</span>
       </div>
       <div style={{ background: "#111827", color: "#ffffff", borderRadius: "6px", padding: "4px", fontSize: "7px", fontWeight: 800, textAlign: "center", marginTop: "2px" }}>Agregar pack · $ 29.750</div>
     </div>
@@ -852,6 +884,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "video-flotante":
+      return <VideoFlotantePreview />;
     case "comparador-marca":
       return <ComparadorMarcaPreview />;
     case "columnas-imagenes-texto":
@@ -955,4 +989,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-          }
+      }
