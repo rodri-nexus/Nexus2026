@@ -8,6 +8,56 @@ interface WidgetPreviewProps {
    PREVIEWS DE LOS WIDGETS ACTIVOS
    ═══════════════════════════════════════════ */
 
+function ColumnasImagenesTextoPreview() {
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        padding: "8px 10px",
+        width: "92%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.03)",
+        border: "1.5px solid #10B981",
+      }}
+    >
+      <div style={{ fontSize: "7.5px", fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>🎴 COLUMNAS IMÁGENES Y TEXTO</span>
+        <span style={{ background: "#ecfdf5", color: "#059669", fontSize: "5.5px", fontWeight: 800, padding: "1px 4px", borderRadius: "3px", border: "1px solid #a7f3d0" }}>
+          GRILLA
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "4px", justifyContent: "center", padding: "2px 0" }}>
+        {[1, 2, 3].map((item) => (
+          <div
+            key={item}
+            style={{
+              flex: 1,
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
+              borderRadius: "6px",
+              padding: "4px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "3px",
+            }}
+          >
+            <div style={{ width: "100%", aspectRatio: "1 / 1", borderRadius: "4px", background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8px" }}>
+              🖼️
+            </div>
+            <div style={{ width: "80%", height: "3px", background: "#111827", borderRadius: "1px" }} />
+            <div style={{ width: "60%", height: "2.5px", background: "#9ca3af", borderRadius: "1px" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ImagenesTextosPreview() {
   return (
     <div
@@ -758,6 +808,8 @@ function DefaultPreview() {
 
 function renderPreview(slug: string) {
   switch (slug) {
+    case "columnas-imagenes-texto":
+      return <ColumnasImagenesTextoPreview />;
     case "imagenes-textos":
       return <ImagenesTextosPreview />;
     case "pestanas-informacion":
@@ -857,4 +909,4 @@ export default function WidgetPreview({ slug }: WidgetPreviewProps) {
       {renderPreview(slug)}
     </div>
   );
-                   }
+        }
